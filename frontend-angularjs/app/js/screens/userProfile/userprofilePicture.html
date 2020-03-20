@@ -1,0 +1,61 @@
+<!-- View Profile Picture -->
+<div style="text-align: center" class="row">
+    <form class="form-horizontal" name="editUserForm">
+        <div class="form-group">
+            <div class="col-xs-12 userprofile-picture-container">
+
+                <img ng-hide="vm.croppingImageActive"
+                     ng-src="{{ vm.user.userprofile.avatar }}"
+                     alt="{{ 'Profile picture' | translate }}"
+                     class="img-responsive center-block"/>
+
+                <div ng-if="vm.croppingImageActive"
+                     ngf-drop
+                     ng-model="vm.newUserProfileAvatar"
+                     ngf-pattern="'image/*'"
+                     class="img-responsive center-block"
+                     style="height: 300px;">
+                    <img-crop image="vm.newUserProfileAvatar | ngfDataUrl"
+                              area-type="square"
+                              result-image="vm.croppedDataUrl"
+                              area-min-size="100"
+                              result-image-size="512"
+                              ng-init="vm.croppedDataUrl=''">
+                    </img-crop>
+                </div>
+
+                <span ng-show="vm.uploadInProgress" translate>
+                    Uploading... {{ vm.progress }}% - Please wait!
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group" ng-class="{ 'has-error': vm.errors['avatar'].length > 0 }" style="width: 100%">
+                <button ng-hide="vm.croppingImageActive"
+                        ng-disabled="vm.isReadOnly()"
+                        class="btn btn-primary"
+                        ngf-select="vm.selectImage()"
+                        ng-model="vm.newUserProfileAvatar"
+                        ngf-accept="'image/*'"
+                        ngf-pattern="'image/*'"
+                        ngf-max-size="20MB" translate>
+                    Change profile picture
+                </button>
+
+                <div class="buttons" ng-show="vm.croppingImageActive">
+                    <button type="button" class="btn btn-primary" ng-click="vm.saveProfilePicture()">
+                        <span class="glyphicon glyphicon-ok"></span>
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="vm.restoreProfilePicture()">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
+
+                <p ng-show="vm.errors['avatar'].length > 0"  class="help-block pull-left">
+                    <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+                    {{ vm.errors['avatar'].join(', ') }}
+                </p>
+            </div>
+        </div>
+    </form>
+</div>

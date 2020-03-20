@@ -1,0 +1,107 @@
+[
+  {
+    "model": "projects.project",
+    "pk": "1c36cc89-499e-410a-b0ff-01401b12b185",
+    "fields": {
+      "version_number": 0,
+      "fts_index": "'1':2 'mileston':1",
+      "fts_language": "english",
+      "name": "Milestone 1",
+      "description": "",
+      "project_state": "INIT",
+      "start_date": null,
+      "stop_date": null,
+      "parent_project": "f81492d3-996f-4cd5-bb55-fc74e8dd967c"
+    }
+  },
+  {
+    "model": "projects.project",
+    "pk": "2937fca4-7de0-40e6-b65a-9d2f31ae13df",
+    "fields": {
+      "version_number": 0,
+      "fts_index": "'plan':1",
+      "fts_language": "english",
+      "name": "Planning",
+      "description": "",
+      "project_state": "INIT",
+      "start_date": null,
+      "stop_date": null,
+      "parent_project": "ddf07a26-196d-44f2-aa87-442690e787b7"
+    }
+  },
+  {
+    "model": "projects.project",
+    "pk": "60802e39-1283-4554-8add-53ae5102bbf3",
+    "fields": {
+      "version_number": 0,
+      "fts_index": "'2':2 'mileston':1",
+      "fts_language": "english",
+      "name": "Milestone 2",
+      "description": "",
+      "project_state": "INIT",
+      "start_date": null,
+      "stop_date": null,
+      "parent_project": "f81492d3-996f-4cd5-bb55-fc74e8dd967c"
+    }
+  },
+  {
+    "model": "projects.project",
+    "pk": "b6d83819-4e0b-40bb-b4bf-2684d4031291",
+    "fields": {
+      "version_number": 0,
+      "fts_index": "'4':2 'mileston':1",
+      "fts_language": "english",
+      "name": "Milestone 4",
+      "description": "",
+      "project_state": "CANCE",
+      "start_date": null,
+      "stop_date": null,
+      "parent_project": "f81492d3-996f-4cd5-bb55-fc74e8dd967c"
+    }
+  },
+  {
+    "model": "projects.project",
+    "pk": "ddf07a26-196d-44f2-aa87-442690e787b7",
+    "fields": {
+      "version_number": 0,
+      "fts_index": "'3':2 'mileston':1",
+      "fts_language": "english",
+      "name": "Milestone 3",
+      "description": "",
+      "project_state": "INIT",
+      "start_date": null,
+      "stop_date": null,
+      "parent_project": "f81492d3-996f-4cd5-bb55-fc74e8dd967c"
+    }
+  },
+  {
+    "model": "projects.project",
+    "pk": "f81492d3-996f-4cd5-bb55-fc74e8dd967c",
+    "fields": {
+      "version_number": 0,
+      "fts_index": "'1':3 'import':1,7 'project':2,8",
+      "fts_language": "english",
+      "name": "Important Project",
+      "description": "This is an important project",
+      "project_state": "INIT",
+      "start_date": null,
+      "stop_date": null,
+      "parent_project": null
+    }
+  },
+  {
+    "model": "projects.project",
+    "pk": "fb3dc519-d5d2-4eed-a167-3feca772b138",
+    "fields": {
+      "version_number": 0,
+      "fts_index": "'execut':1",
+      "fts_language": "english",
+      "name": "Executing",
+      "description": "",
+      "project_state": "INIT",
+      "start_date": null,
+      "stop_date": null,
+      "parent_project": "ddf07a26-196d-44f2-aa87-442690e787b7"
+    }
+  }
+]

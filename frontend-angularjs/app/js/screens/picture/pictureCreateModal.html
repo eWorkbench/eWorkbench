@@ -1,0 +1,58 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>New Picture</h3>
+</div>
+<form class="form-horizontal" name="newPictureForm" ng-submit="vm.create()">
+    <div class="modal-body">
+        <!-- Picture Subject -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="picture_title" translate
+                title="{{ 'mandatory field' | translate }}">
+                Subject *
+            </label>
+            <div class="col-sm-9">
+                <ng-include src="'js/screens/picture/pictureForm.title.html'"></ng-include>
+            </div>
+        </div>
+
+        <!-- Background Image -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="picture_background_image" translate>
+                Image (Optional)
+            </label>
+            <div class="col-sm-9">
+                <ng-include src="'js/screens/picture/pictureForm.backgroundImage.html'"></ng-include>
+            </div>
+        </div>
+
+        <!-- Width/Height of the background image -->
+        <div class="form-group" ng-if="vm.picture.background_image && !vm.fileNeedsToBeConverted">
+            <label class="col-sm-3 control-label" for="picture_width" translate>
+                Width/Height
+            </label>
+            <div class="col-sm-9">
+                <ng-include src="'js/screens/picture/pictureForm.widthAndHeight.html'"></ng-include>
+            </div>
+        </div>
+
+        <!-- Project -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="picture_project" translate>
+                Project
+            </label>
+            <div class="col-sm-9">
+                <ng-include src="'js/screens/picture/pictureForm.projects.html'"></ng-include>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <div class="text-right">
+            <button id="button_picture_create_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()" translate>
+                Cancel
+            </button>
+            <button id="button_picture_create_save" class="btn btn-warning" translate>
+                Create
+            </button>
+        </div>
+    </div>
+</form>

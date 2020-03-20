@@ -1,0 +1,63 @@
+{% load i18n metadata_widget %}
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>
+        DMP Export
+    </title>
+    <style>
+        p {
+            font-size: 16px;
+            font-weight: normal;
+            margin: 0;
+        }
+
+        .additional-information {
+            margin-bottom: 20px;
+        }
+
+        .dmp-form-data-name {
+            width: 33%;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%
+        }
+
+        th, td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body class="">
+<h2>DMP name: {{ dmp.title }}</h2>
+<div class="additional-information">
+    <p>Status: {{ dmp.status }}</p>
+    <p>{% trans "Metadata" %}:
+        {% all_metadata_as_html dmp %}
+    </p>
+    <p>Created by {{ dmp.created_by.username }}</p>
+    <p>Last modified at {{ dmp.last_modified_at }}</p>
+</div>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Value</th>
+    </tr>
+    <tr {% for data in dmp_form_data %}>
+            <td class="dmp-form-data-name">
+                {{ data.name }}
+            </td>
+            <td>
+                {{ data.value | safe }}
+            </td>
+        </tr {% endfor %}>
+</table>
+</body>
+</html>

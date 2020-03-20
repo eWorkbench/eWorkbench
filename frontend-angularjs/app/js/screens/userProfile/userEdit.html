@@ -1,0 +1,252 @@
+<!-- Academic Title -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="userprofile_academic_title">
+        <span translate>Academic Title</span>
+        <i ng-show="vm.user.userprofile.type == 'l'" class="fa fa-lock" title="{{ vm.ldapAttributeMessage }}" aria-hidden="true"></i>
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list on-save="vm.saveUserProfile()"
+                              on-save-multiple="vm.saveUserProfile()"
+                              on-abort="vm.resetErrors()"
+                              ng-model="vm.user.userprofile.academic_title"
+                              edit-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            <validated-form-element id="userprofile_academic_title"
+                                    input-element="text"
+                                    field-name="userprofile_academic_title"
+                                    placeholder="{{ 'Academic title of the user' | translate }}"
+                                    ng-model="vm.user.userprofile.academic_title"
+                                    errors="vm.errors['userprofile']['academic_title']"
+                                    ng-disabled="vm.user.userprofile.type == 'l'">
+            </validated-form-element>
+        </editable-select-list>
+    </div>
+</div>
+<!-- Firstname -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="userprofile_first_name" translate>
+        <span translate>Firstname</span>
+        <i ng-show="vm.user.userprofile.type == 'l'" class="fa fa-lock" title="{{ vm.ldapAttributeMessage }}" aria-hidden="true"></i>
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list on-save="vm.saveUserProfile()"
+                              on-save-multiple="vm.saveUserProfile()"
+                              on-abort="vm.resetErrors()"
+                              ng-model="vm.user.userprofile.first_name"
+                              edit-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            <validated-form-element id="userprofile_first_name"
+                                    input-element="text"
+                                    field-name="userprofile_first_name"
+                                    placeholder="{{ 'Firstname of the user' | translate }}"
+                                    ng-model="vm.user.userprofile.first_name"
+                                    errors="vm.errors['userprofile']['first_name']"
+                                    ng-disabled="vm.user.userprofile.type == 'l'">
+            </validated-form-element>
+        </editable-select-list>
+    </div>
+</div>
+<!-- Lastname -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="userprofile_last_name">
+        <span translate>Lastname</span>
+        <i ng-show="vm.user.userprofile.type == 'l'" class="fa fa-lock" title="{{ vm.ldapAttributeMessage }}" aria-hidden="true"></i>
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list on-save="vm.saveUserProfile()"
+                              on-save-multiple="vm.saveUserProfile()"
+                              on-abort="vm.resetErrors()"
+                              ng-model="vm.user.userprofile.last_name"
+                              edit-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            <validated-form-element id="userprofile_last_name"
+                                    input-element="text"
+                                    field-name="userprofile_last_name"
+                                    placeholder="{{ 'Lastname of the user' | translate }}"
+                                    ng-model="vm.user.userprofile.last_name"
+                                    errors="vm.errors['userprofile']['last_name']"
+                                    ng-disabled="vm.user.userprofile.type == 'l'">
+            </validated-form-element>
+        </editable-select-list>
+    </div>
+</div>
+<!-- imOrgZugMitarbeiterLang -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="input_user_org_zug_mitarbeiter_lang">
+        <span translate>Affiliation - Employee</span>
+        <i ng-show="vm.user.userprofile.type == 'l'" class="fa fa-lock" title="{{ vm.ldapAttributeMessage }}" aria-hidden="true"></i>
+    </label>
+    <div class="col-sm-9">
+        <editable-form-element on-save="vm.saveUserProfile()"
+                               on-save-multiple="vm.saveUserProfile()"
+                               on-abort="vm.resetErrors()"
+                               ng-model="vm.user.userprofile.org_zug_student_lang"
+                               edit-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            <view>
+                {{ vm.user.userprofile.org_zug_mitarbeiter_lang.join(', ') }}
+            </view>
+            <edit>
+                <validated-form-element id="input_user_org_zug_mitarbeiter_lang"
+                                        input-element="list" field-name="org_zug_mitarbeiter_lang"
+                                        placeholder="{{ 'Affiliation - Employee' | translate }}"
+                                        ng-model="vm.user.userprofile.org_zug_mitarbeiter_lang"
+                                        errors="vm.errors['userprofile']['org_zug_mitarbeiter_lang']"
+                                        ng-disabled="vm.user.userprofile.type == 'l'">
+                </validated-form-element>
+            </edit>
+        </editable-form-element>
+    </div>
+</div>
+<!-- imOrgZugStudentLang -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="input_user_org_zug_student_lang">
+        <span translate>Affiliation - Student</span>
+        <i ng-show="vm.user.userprofile.type == 'l'" class="fa fa-lock" title="{{ vm.ldapAttributeMessage }}" aria-hidden="true"></i>
+    </label>
+    <div class="col-sm-9">
+        <editable-form-element on-save="vm.saveUserProfile()"
+                               on-save-multiple="vm.saveUserProfile()"
+                               on-abort="vm.resetErrors()"
+                               ng-model="vm.user.userprofile.org_zug_student_lang"
+                               edit-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            <view>
+                {{ vm.user.userprofile.org_zug_student_lang.join(', ') }}
+            </view>
+            <edit>
+                <validated-form-element id="input_user_org_zug_student_lang"
+                                        input-element="list"
+                                        field-name="org_zug_student_lang"
+                                        placeholder="{{ 'Affiliation - Student' | translate }}"
+                                        ng-model="vm.user.userprofile.org_zug_student_lang"
+                                        errors="vm.errors['userprofile']['org_zug_student_lang']"
+                                        ng-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+                </validated-form-element>
+            </edit>
+        </editable-form-element>
+    </div>
+</div>
+<!-- Country -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="userprofile_country">
+        <span translate>Country</span>
+        <i ng-show="vm.user.userprofile.type == 'l'" class="fa fa-lock" title="{{ vm.ldapAttributeMessage }}" aria-hidden="true"></i>
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list on-save="vm.saveUserProfile()"
+                              on-save-multiple="vm.saveUserProfile()"
+                              on-abort="vm.resetErrors()"
+                              ng-model="vm.user.userprofile.country"
+                              edit-disabled="vm.user.userprofile.type == 'l'">
+            <validated-form-element id="input_user_country"
+                                    input-element="text"
+                                    field-name="userprofile_country"
+                                    placeholder="{{ 'Country of the user' | translate }}"
+                                    ng-model="vm.user.userprofile.country"
+                                    errors="vm.errors['userprofile']['country']"
+                                    ng-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            </validated-form-element>
+        </editable-select-list>
+    </div>
+</div>
+<!-- Phone -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="userprofile_phone">
+        <span translate>Phone number</span>
+        <i ng-show="vm.user.userprofile.type == 'l'" class="fa fa-lock" title="{{ vm.ldapAttributeMessage }}" aria-hidden="true"></i>
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list on-save="vm.saveUserProfile()"
+                              on-save-multiple="vm.saveUserProfile()"
+                              on-abort="vm.resetErrors()"
+                              ng-model="vm.user.userprofile.phone"
+                              edit-disabled="vm.user.userprofile.type == 'l'">
+            <validated-form-element id="userprofile_phone"
+                                    input-element="text"
+                                    field-name="userprofile_phone"
+                                    placeholder="{{ 'Phone number of the user' | translate }}"
+                                    ng-model="vm.user.userprofile.phone"
+                                    errors="vm.errors['userprofile']['phone']"
+                                    ng-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            </validated-form-element>
+        </editable-select-list>
+    </div>
+</div>
+<!-- Main E-Mail -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="user_email">
+        <span translate>E-Mail</span>
+        <i ng-show="vm.user.userprofile.type == 'l'" class="fa fa-lock" title="{{ vm.ldapAttributeMessage }}" aria-hidden="true"></i>
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list on-save="vm.saveUserProfile()"
+                              on-save-multiple="vm.saveUserProfile()"
+                              on-abort="vm.resetErrors()"
+                              ng-model="vm.user.email"
+                              edit-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            <validated-form-element id="user_email"
+                                    input-element="text"
+                                    field-name="user_email"
+                                    placeholder="{{ 'E-Mail address of the user' | translate }}"
+                                    ng-model="vm.user.email"
+                                    errors="vm.errors['email']"
+                                    ng-disabled="vm.user.userprofile.type == 'l' || vm.isReadOnly()">
+            </validated-form-element>
+        </editable-select-list>
+    </div>
+</div>
+<!-- Website URL -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="input_user_website" translate>
+        Website
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list on-save="vm.saveUserProfile()"
+                              on-save-multiple="vm.saveUserProfile()"
+                              on-abort="vm.resetErrors()"
+                              edit-disabled="vm.isReadOnly()"
+                              ng-model="vm.user.userprofile.website">
+            <validated-form-element id="input_user_website"
+                                    input-element="text" field-name="input_user_website"
+                                    placeholder="{{ 'Personal website, profile, etc...' | translate }}"
+                                    ng-model="vm.user.userprofile.website"
+                                    errors="vm.errors['userprofile']['website']">
+            </validated-form-element>
+        </editable-select-list>
+    </div>
+</div>
+
+<!-- Additional Information -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="userprofile_additional_information" translate>
+        About me
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list on-save="vm.saveUserProfile()"
+                              on-save-multiple="vm.saveUserProfile()"
+                              on-abort="vm.resetErrors()"
+                              edit-disabled="vm.isReadOnly()"
+                              ng-model="vm.user.userprofile.additional_information">
+            <validated-form-element id="userprofile_additional_information"
+                                    input-element="textarea"
+                                    field-name="userprofile_additional_information"
+                                    placeholder="{{ 'Additional information of the user' | translate }}"
+                                    ng-model="vm.user.userprofile.additional_information"
+                                    errors="vm.errors['userprofile']['additional_information']">
+            </validated-form-element>
+        </editable-select-list>
+    </div>
+</div>
+
+<!-- Used storage -->
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="userprofile_used_storage" translate>
+        Used Storage
+    </label>
+    <div class="col-sm-9">
+        <uib-progressbar  max="vm.user.available_storage_megabyte" value="vm.user.used_storage_megabyte" type="turquoise">
+            <div class="used-storage-text" translate
+                 translate-params-used-storage="vm.user.used_storage_megabyte.toFixed(2)"
+                 translate-params-available-storage="vm.user.available_storage_megabyte"
+                 translate-params-used-storage-percentage="vm.calculateUsedStorageInPercentage()">
+                Currently using {{ usedStorage }} MB of {{ availableStorage }} MB ({{ usedStoragePercentage }} %)
+            </div>
+        </uib-progressbar>
+    </div>
+</div>

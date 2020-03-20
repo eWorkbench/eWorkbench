@@ -1,0 +1,25 @@
+<div class="card-display">
+    <!-- card title: first name and last name -->
+    <h4 class="header">
+        <div class="ellipsis">
+            <i class="{{ vm.pictureIcon }}"></i>
+            <picture-link picture="vm.picture"></picture-link>
+        </div>
+
+        <div ng-transclude="cardFunctions" style="display: inline-block; float: right">
+
+        </div>
+    </h4>
+    <!-- more details and picture -->
+    <div class="content">
+        <my-image image-src="vm.picture.download_rendered_image" style="height: 100px; max-width: 100%;">
+    </div>
+
+    <div class="card-footer" ng-transclude="cardFooter">
+        <span class="font-color" translate>Created by</span>
+        <user-display-widget user="vm.picture.created_by"></user-display-widget>
+        <span class="font-color">-</span>
+
+        <span class="font-color">{{ vm.picture.created_at | smallDateWithToday }}</span>
+    </div>
+</div>

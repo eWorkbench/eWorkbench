@@ -1,0 +1,93 @@
+{% block content %}
+    <h2 class="active_user_sessions_title">
+        Changesets that the user created:
+    </h2>
+
+    <div class="Changeset_user_sessions">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Object type</th>
+                <th>Date</th>
+                <th>Id</th>
+                <!-- <th>Change records</th> -->
+            </tr>
+
+            {% for change_set in change_sets.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ change_set.object_tye }}</td>
+                    <td>{{ change_set.date }}</td>
+                    <td>{{ change_set.id }}</td>
+                    {#                    <td>{% for change_record in change_set.change_records.all %}#}
+                    {#                        <li>{{ change_record }}</li>#}
+                    {#                            {% endfor %}#}
+                    {#                        <table>#}
+                    {#                            <tr>#}
+                    {#                                <th>#</th>#}
+                    {#                                <th>Change record id</th>#}
+                    {#                                <th>Change record field name</th>#}
+                    {#                                <th>Change record is_related</th>#}
+                    {#                                <th>Change record old value</th>#}
+                    {#                                <th>Change record new value</th>#}
+                    {#                            </tr>#}
+                    {##}
+                    {#                            {% for change_record in change.change_records.all %}#}
+                    {#                                <tr>#}
+                    {#                                    <td>{{ forloop.counter }}</td>#}
+                    {#                                    <td>{{ change_record.id }}</td>#}
+                    {#                                    <td>{{ change_record.field_name }}</td>#}
+                    {#                                    <td>{{ change_record.is_related }}</td>#}
+                    {#                                    <td>{{ change_record.old_value }}</td>#}
+                    {#                                    <td>{{ change_record.new_value }}</td>#}
+                    {#                                </tr>#}
+                    {#                            {% endfor %}#}
+                    {#                        </table>#}
+                    {#                    </td>#}
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Change records</th>
+            </tr>
+
+            {% for change_set in change_sets.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        {# change records as string #}
+                        {#                        {% for change_record in change_set.change_records.all %}#}
+                        {#                            <li>{{ change_record }}</li>#}
+                        {#                        {% endfor %}#}
+
+                        {# change records as table #}
+                        <table>
+                            <tr>
+                                <th>#</th>
+                                <th>Change record id</th>
+                                <th>Change record field name</th>
+                                <th>Change record is_related</th>
+                                <th>Change record old value</th>
+                                <th>Change record new value</th>
+                            </tr>
+
+                            {% for change_record in change_set.change_records.all %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ change_record.id }}</td>
+                                    <td>{{ change_record.field_name }}</td>
+                                    <td>{{ change_record.is_related }}</td>
+                                    <td>{{ change_record.old_value }}</td>
+                                    <td>{{ change_record.new_value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

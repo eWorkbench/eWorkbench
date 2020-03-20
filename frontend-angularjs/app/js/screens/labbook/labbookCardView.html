@@ -1,0 +1,9 @@
+<div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ng-repeat="labbook in vm.labbooks | filter: {deleted:false} track by labbook.pk">
+        <labbook-card-display labbook="labbook">
+            <card-functions>
+                <generic-delete-menu-widget model-object="labbook"></generic-delete-menu-widget>
+            </card-functions>
+        </labbook-card-display>
+    </div>
+</div>

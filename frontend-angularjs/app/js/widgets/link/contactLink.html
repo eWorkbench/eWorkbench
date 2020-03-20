@@ -1,0 +1,8 @@
+<!-- show a link to contacts -->
+<a ng-if="vm.contact && vm.contactUrl" ng-href="{{ vm.contactUrl }}">
+    <ng-transclude>
+        <span>
+            {{ vm.contact.academic_title }} {{ vm.contact.first_name }} {{ vm.contact.last_name }}
+        </span>
+    </ng-transclude>
+</a>

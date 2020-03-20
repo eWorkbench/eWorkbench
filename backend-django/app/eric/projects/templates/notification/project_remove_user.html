@@ -1,0 +1,10 @@
+{% load i18n user_widgets simple_object_display date_filters %}
+
+<p>
+    {% blocktrans %}
+        You have been removed from the following project:
+    {% endblocktrans %}
+</p>
+<br />
+
+<p>{% trans "Name" %}: {{ instance.name }}</p>

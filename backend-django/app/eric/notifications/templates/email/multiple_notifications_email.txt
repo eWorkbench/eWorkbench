@@ -1,0 +1,9 @@
+{% load i18n captureas notifications %}
+
+{% blocktrans %}Dear {{ user }}!{% endblocktrans %}
+
+{% blocktrans %}There are multiple notifications for you within {{ workbench_title }} - {{ workbench_url }}.{% endblocktrans %}
+
+{% for notification in notifications %}
+- {{ notification.title }} | {{ notification | to_notification_url }}
+{% endfor %}

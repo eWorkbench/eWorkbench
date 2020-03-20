@@ -1,0 +1,68 @@
+<h1 style="margin-top: 0">
+    <span translate>Sub Projects</span>
+    <div class="pull-right">
+        <!-- Disable the create project button if the user is not allowed to create a new project -->
+        <button class="btn btn-primary" ng-click="vm.openCreateProjectDialog()" role="button"
+                ng-show="vm.currentUser.permissions.indexOf('projects.add_project') >= 0 && vm.project.current_users_project_permissions_list.indexOf('projects.add_project') >= 0"
+                title="{{ 'Create Project' | translate }}">
+            <span translate>New Sub Project</span>
+        </button>
+    </div>
+</h1>
+
+<script type="text/ng-template" id="plugins/tree/treeBodyChildren.tmpl.html">
+    <div ng-controller="GanttTreeNodeController"
+         class="gantt-row-label gantt-row-height"
+         ng-class="row.model.classes"
+         ng-style="{'height': row.model.height}">
+        <div class="gantt-valign-container">
+            <div class="gantt-valign-content gantt-customize-anchor">
+                <a data-nodrag
+                   class="gantt-tree-handle-button btn btn-xs"
+                   ng-class="{'gantt-tree-collapsed': collapsed, 'gantt-tree-expanded': !collapsed,
+                   'hide-angle-icon': isCollapseDisabled() && listLength.length != undefined}"
+                   ng-click="!isCollapseDisabled() && toggle()"
+                   ng-hide="isCollapseDisabled() && listLength.length == undefined">
+                    <span
+                        class="gantt-tree-handle fa fa-fw fa-angle-down"
+                        ng-class="{
+                        'fa-fw fa-angle-right': collapsed, 'fa-fw fa-angle-down': !collapsed,
+                        'gantt-tree-collapsed': collapsed, 'gantt-tree-expanded': !collapsed}">
+                    </span>
+                </a>
+                <span gantt-row-label class="gantt-label-text" gantt-bind-compile-html="getRowContent()"/>
+            </div>
+        </div>
+    </div>
+    <ol ui-tree-nodes ng-class="{hidden: collapsed}" ng-model="childrenRows">
+        <li ng-repeat="row in childrenRows as listLength" ui-tree-node>
+            <div ng-include="'plugins/tree/treeBodyChildren.tmpl.html'"></div>
+        </li>
+    </ol>
+</script>
+
+<loading-text loading="!vm.projectsLoaded">projects</loading-text>
+
+<row ng-if="vm.projectsLoaded">
+    <div ng-if="vm.displayProjects.length != 0"
+         gantt
+         data=vm.displayProjects
+         api="vm.registerApi"
+         headers="['year','quarter']"
+         headers-formats="vm.headersFormats">
+        <gantt-tree></gantt-tree>
+        <gantt-table enabled="true"
+                     headers="{'model.from': 'From', 'model.to': 'To'}"
+                     columns="['model.from', 'model.to']"
+                     contents="{
+                     'model.from': '{{ getValue() | smallDateWithoutTime }}',
+                     'model.to': '{{ getValue() | smallDateWithoutTime }}'
+                     }">
+
+        </gantt-table>
+        <gantt-tooltips
+            delay="200"
+            template-url="js/screens/project/ganttTooltipTemplate.tmpl.html">
+        </gantt-tooltips>
+    </div>
+</row>

@@ -1,0 +1,111 @@
+<nav class="navbar navbar-default navbar-fixed-top"
+     ng-style="::{
+     'background-color': vm.sitePreferences.navbar_background_color,
+     'border-color': vm.sitePreferences.navbar_border_color}"
+>
+    <div class="container-fluid">
+        <!-- logo -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <div style="display: inline-block; width: 50px" class="pull-right">
+                <notifications-navbar-widget ng-if="vm.Auth.isLoggedIn && vm.isSmallScreen"></notifications-navbar-widget>
+            </div>
+
+
+            <div role="button" ui-sref="main" class="navbar-brand">
+                <img height="20" style="display: inline;" class="navbar-brand-icon"
+                     ng-src="{{:: vm.sitePreferences.site_logo }}" alt="Icon"/>
+                <span>
+                    {{:: vm.sitePreferences.site_name }}
+                    <sup>{{:: vm.backendVersion }}</sup>
+                </span>
+            </div>
+        </div>
+        <!-- / logo -->
+
+        <!-- navigation -->
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ordered-menu-widget ng-if="vm.Auth.isLoggedIn"
+                                 gray-out="vm.project"></ordered-menu-widget>
+            <!-- Navbar right -->
+            <ul class="nav navbar-nav navbar-right" id="navbar-username-and-info">
+                <!--<li ui-sref-active="active">-->
+                <!--<a ui-sref="main">Dashboard</a>-->
+                <!--</li>-->
+
+                <!-- User Preferences -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span title="Username" class="{{ ::vm.userIcon }}"></span>
+                        {{ vm.userDisplayName }}
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <!--<li ng-show="vm.Auth.currentUser.is_staff">-->
+                        <!--<a ng-href="{{ djangoAdminUrl }}" target="_blank">DjangoAdmin</a>-->
+                        <!--</li>-->
+                        <!--<li ng-show="vm.Auth.currentUser.is_staff">-->
+                        <!--<a ng-href="{{ restApiUrl }}" target="_blank">Api</a>-->
+                        <!--</li>-->
+                        <li>
+                            <a ui-sref="preferences" data-toggle="collapse" data-target=".navbar-collapse.in" translate>
+                                Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a ng-show="vm.currentUser.userprofile.type != 'l'"
+                               ui-sref="preferences/password" data-toggle="collapse" data-target=".navbar-collapse.in" translate>
+                                Change Password
+                            </a>
+                        </li>
+                        <li>
+                            <a ui-sref="preferences/userSettings" data-toggle="collapse" data-target=".navbar-collapse.in" translate>
+                                Settings
+                            </a>
+                        </li>
+                        <li role="separator" class="divider"></li>
+                        <li><a ng-click="vm.logout()" translate>Logout</a></li>
+                    </ul>
+                </li>
+
+                <!-- Site Information -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span title="{{ 'Information' | translate }}" class="fa fa-question-circle"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a ng-click="vm.openContactForm()" data-toggle="collapse" data-target=".navbar-collapse.in" translate>
+                                Contact
+                            </a>
+                        </li>
+
+                        <li>
+                            <a ui-sref="usermanual" data-toggle="collapse" data-target=".navbar-collapse.in" translate>
+                                User Manual
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <!-- search widget -->
+            <form class="navbar-form navbar-right hidden-xs hidden-sm" id="navbar-search-widget">
+                <global-search-widget></global-search-widget>
+            </form>
+
+            <!-- notification list -->
+            <notifications-navbar-widget ng-if="vm.Auth.isLoggedIn && !vm.isSmallScreen"></notifications-navbar-widget>
+        </div><!-- /.navbar-collapse -->
+
+    </div>
+</nav>
+
+

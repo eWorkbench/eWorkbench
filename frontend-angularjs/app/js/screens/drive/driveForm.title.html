@@ -1,0 +1,10 @@
+<validated-form-element
+    id="drive_title"
+    auto-focus="vm.mode == 'create'"
+    input-element="text"
+    field-name="title"
+    placeholder="{{ 'Title' | translate }}"
+    ng-model="vm.drive.title"
+    ng-readonly="!perms.has('object.edit', vm.drive) || vm.isReadOnly()"
+    errors="vm.errors['title']">
+</validated-form-element>

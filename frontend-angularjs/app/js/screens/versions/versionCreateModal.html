@@ -1,0 +1,43 @@
+<div class="version-create-modal">
+    <div class="modal-header">
+        <h3 class="modal-title">
+            <span translate>New version: v{{vm.versionNumber}}</span>
+        </h3>
+    </div>
+    <form class="form-horizontal" name="newVersionForm" ng-submit="vm.save()">
+        <div class="modal-body">
+            <div class="form-group">
+                <div style="padding:0 1em">
+                    <div ng-if="vm.isAutoPrompt()" style="margin-bottom:1em;font-size:1.5em" translate>
+                        You have made several changes to the current element.
+                        Would you like to create a new version?
+                    </div>
+                    <validated-form-element
+                        rows="5"
+                        id="version_summary"
+                        auto-focus="true"
+                        input-element="textarea"
+                        field-name="summary"
+                        placeholder="{{ 'Summary' | translate }}"
+                        ng-model="vm.summary"
+                        errors="vm.errors['summary']">
+                    </validated-form-element>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="text-right">
+            <span ng-if="vm.isAutoPrompt()" style="margin-right:2em">
+                <input type="checkbox" id="checkbox_donotask" ng-model="vm.doNotAsk" ng-change="vm.saveDoNotAsk()">
+                <label for="checkbox_donotask" translate>Don't ask me again</label>
+            </span>
+                <button id="button_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()" translate>
+                    Cancel
+                </button>
+                <button id="button_create" class="btn btn-warning">
+                    <span translate>Create</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

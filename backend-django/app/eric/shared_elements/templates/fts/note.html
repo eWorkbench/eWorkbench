@@ -1,0 +1,3 @@
+{% load html_unescape %}
+{{ instance.subject }}
+{{ instance.content | striptags | html_unescape }}

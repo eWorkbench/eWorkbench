@@ -1,0 +1,93 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>New Project</h3>
+</div>
+
+<form class="form-horizontal" name="newProjectForm" ng-submit="vm.create()">
+    <div class="modal-body">
+        <!-- Project Name -->
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label" for="input_project_create_name" translate
+                title="{{ 'mandatory field' | translate }}">
+                Project Name *
+            </label>
+            <div class="col-sm-8 col-md-9">
+                <ng-include src="'js/screens/project/projectForm.name.html'"></ng-include>
+            </div>
+        </div>
+
+        <!-- Sub project of -->
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label" for="parentProjectSelect" translate>
+                Subproject of
+            </label>
+            <div class="col-sm-8 col-md-9">
+                <ng-include src="'js/screens/project/projectForm.parentProject.html'"></ng-include>
+            </div>
+        </div>
+
+
+        <!-- Project Description -->
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label" for="input_project_create_description" translate>
+                Description
+            </label>
+            <div class="col-sm-8 col-md-9">
+                <ng-include src="'js/screens/project/projectForm.description.html'"></ng-include>
+            </div>
+        </div>
+
+
+        <!-- project state -->
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label" for="projectStateSelect" translate>
+                State
+            </label>
+            <div class="col-sm-8 col-md-9">
+                <project-state-selectize-widget selected-project-state="vm.project.project_state"></project-state-selectize-widget>
+            </div>
+        </div>
+
+        <!-- Start Date -->
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label" translate>
+                Start Date
+            </label>
+            <div class="col-sm-8 col-md-9">
+                <ng-include src="'js/screens/project/projectForm.startDate.html'"></ng-include>
+            </div>
+        </div>
+
+        <!-- End Date -->
+        <div class="form-group">
+            <label class="col-sm-4 col-md-3 control-label" translate>
+                End Date
+            </label>
+            <div class="col-sm-8 col-md-9">
+                <ng-include src="'js/screens/project/projectForm.stopDate.html'"></ng-include>
+            </div>
+        </div>
+
+        <!-- Storage Space -->
+        <!--<div class="form-group">-->
+            <!--<label class="col-sm-4 col-md-3 control-label" for="input_project_storage_space" translate>-->
+                <!--Storage Space-->
+            <!--</label>-->
+            <!--<div class="col-sm-8 col-md-9">-->
+                <!--<ng-include src="'js/screens/project/projectForm.storageSpace.html'"></ng-include>-->
+            <!--</div>-->
+        <!--</div>-->
+    </div>
+    <div class="modal-footer">
+        <!-- Buttons for Create / Cancel -->
+        <div class="text-right">
+            <button id="button_project_create_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()" translate>
+                Cancel
+            </button>
+            <button id="button_project_create_save" class="btn btn-warning" translate>
+                Create
+            </button>
+        </div>
+    </div>
+</form>
+
+

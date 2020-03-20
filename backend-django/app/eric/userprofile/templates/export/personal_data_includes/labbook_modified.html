@@ -1,0 +1,164 @@
+{% block content %}
+    <p>
+    <h4 class="modified_labbook_title">
+        All labbooks that the user has modified:
+    </h4>
+    </p>
+    <div class="modified_labbook">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Labbook title</th>
+                <th>Description</th>
+
+            </tr>
+
+            {% for labbook in user.labbook_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ labbook.fts_language }}</td>
+                    <td>{{ labbook.title }}</td>
+                    <td>{{ labbook.description }}</td>
+
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for labbook in user.labbook_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ labbook.created_by }}</td>
+                    <td>{{ labbook.last_modified_by }}</td>
+                    <td>{{ labbook.created_at }}</td>
+                    <td>{{ labbook.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for labbook in user.labbook_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ labbook.cs_created_by }}</td>
+                    <td>{{ labbook.cs_last_modified_by }}</td>
+                    <td>{{ labbook.cs_created_at }}</td>
+                    <td>{{ labbook.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <p>
+    <h4 class="modified_labbook_child_element_title">
+        All sub elements that the user has modified in a labbook:
+    </h4>
+    </p>
+    <div class="modified_labbook">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Labbook child title</th>
+                <th>Labbook child content type</th>
+                <th>Labbook title</th>
+                <th>width</th>
+                <th>height</th>
+                <th>version number</th>
+            </tr>
+
+            {% for labbookchildelement in user.labbookchildelement_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ labbookchildelement.child_object }}</td>
+                    <td>{{ labbookchildelement.child_object_content_type }}</td>
+                    <td>{{ labbookchildelement.lab_book }}</td>
+                    <td>{{ labbookchildelement.width }}</td>
+                    <td>{{ labbookchildelement.height }}</td>
+                    <td>{{ labbookchildelement.version_number }}</td>
+
+               </tr>
+            {% endfor %}
+        </table>
+           <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>position x</th>
+                <th>position y</th>
+                <th>relative height</th>
+                <th>relative width</th>
+                <th>relative x position</th>
+                <th>relative y position</th>
+            </tr>
+
+            {% for labbookchildelement in user.labbookchildelement_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ labbookchildelement.position_x }}</td>
+                    <td>{{ labbookchildelement.position_y }}</td>
+                    <td>{{ labbookchildelement.relative_height }}</td>
+                    <td>{{ labbookchildelement.relative_width }}</td>
+                    <td>{{ labbookchildelement.relative_x_position }}</td>
+                    <td>{{ labbookchildelement.relative_y_position }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for labbook in user.labbook_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ labbook.created_by }}</td>
+                    <td>{{ labbook.last_modified_by }}</td>
+                    <td>{{ labbook.created_at }}</td>
+                    <td>{{ labbook.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for labbook in user.labbook_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ labbook.cs_created_by }}</td>
+                    <td>{{ labbook.cs_last_modified_by }}</td>
+                    <td>{{ labbook.cs_created_at }}</td>
+                    <td>{{ labbook.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

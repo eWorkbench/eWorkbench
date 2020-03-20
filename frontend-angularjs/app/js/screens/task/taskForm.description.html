@@ -1,0 +1,10 @@
+<validated-form-element
+        rows="6"
+        id="task_description"
+        input-element="html"
+        field-name="task_description"
+        placeholder="{{ 'Please enter a task description' | translate }}"
+        ng-model="vm.task.description"
+        ng-readonly="vm.isReadOnly()"
+        errors="vm.errors['description']">
+</validated-form-element>

@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>Recent Changes for {{ vm.workbenchElement.display }}</h3>
+</div>
+<div class="modal-body">
+    <history-short-widget changes-per-page="20"
+        base-url-model="{{ vm.workbenchElementModelName }}" base-model="vm.workbenchElement" expanded="true"></history-short-widget>
+</div>
+<div class="modal-footer">
+    <div class="text-right">
+        <button id="button_close_comments_modal" class="btn btn-primary" type="button" ng-click="vm.close()" translate>
+            Close
+        </button>
+    </div>
+</div>

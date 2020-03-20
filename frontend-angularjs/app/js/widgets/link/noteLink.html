@@ -1,0 +1,6 @@
+<!-- show a link to notes -->
+<a ng-if="vm.note && vm.noteUrl" ng-href="{{ vm.noteUrl }}">
+    <ng-transclude>
+        {{vm.note.subject }}
+    </ng-transclude>
+</a>

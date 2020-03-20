@@ -1,0 +1,59 @@
+{% block content %}
+    
+    <p>
+    <h4 class="created_user_attends_meeting_title">
+        All entries where the user has attended a meeting:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_user_attends_meeting">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Invited User</th>
+                <th>Attending meeting</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+
+            </tr>
+
+            {% for userattendsmeeting in user.userattendsmeeting_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ userattendsmeeting.user }}</td>
+                    <td>{{ userattendsmeeting.meeting }}</td>
+                    <td>{{ userattendsmeeting.created_by }}</td>
+                    <td>{{ userattendsmeeting.last_modified_by }}</td>
+                    <td>{{ userattendsmeeting.created_at }}</td>
+                    <td>{{ userattendsmeeting.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for userattendsmeeting in user.userattendsmeeting_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ userattendsmeeting.cs_created_by }}</td>
+                    <td>{{ userattendsmeeting.cs_last_modified_by }}</td>
+                    <td>{{ userattendsmeeting.cs_created_at }}</td>
+                    <td>{{ userattendsmeeting.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+
+{% endblock %}

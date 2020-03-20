@@ -1,0 +1,38 @@
+<div class="card-panel element-panel">
+    <screen-header-function-bar
+        screen-new-entity="{{ 'New LabBook' | translate }}"
+        screen-new-entity-type="labbook"
+        selected-projects="vm.selectedProjects"
+        selected-users="vm.selectedUsers"
+        users="vm.users"
+        current-view="vm.currentView" search-field="vm.searchField">
+        <screen-title>
+            <span translate>LabBooks</span>
+        </screen-title>
+    </screen-header-function-bar>
+</div>
+
+<generic-list-loading-widget
+    loading-flag="vm.labbooksLoaded"
+    loading-text="LabBooks">
+</generic-list-loading-widget>
+
+<div class="card-panel" ng-if="vm.currentView == 'list' && vm.labbooksLoaded">
+    <labbook-table-view
+        labbooks="vm.labbooks" order-by="vm.orderBy" order-dir="vm.orderDir">
+    </labbook-table-view>
+</div>
+
+<labbook-card-view ng-if="vm.currentView == 'card' && vm.labbooksLoaded" labbooks="vm.labbooks"></labbook-card-view>
+
+<div class="text-center" ng-if="vm.labbooks.length > 0 && vm.labbooksLoaded">
+    <ul uib-pagination
+        total-items="vm.numberOfLabbooks"
+        items-per-page="vm.currentLimit"
+        force-ellipses="true"
+        boundary-link-numbers="true"
+        max-size="15"
+        ng-model="vm.currentPage"
+        ng-change="vm.pageChanged()">
+    </ul>
+</div>

@@ -1,0 +1,12 @@
+<html>
+<head>
+    <title>Convert TIFF to PNG</title>
+</head>
+<body>
+    <form method="post"  enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" accept="image/tiff">
+        <input type="submit">
+    </form>
+</body>
+</html>

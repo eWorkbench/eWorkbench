@@ -1,0 +1,7 @@
+<ol class="breadcrumb">
+    <li ng-repeat="breadcrumb in api.getBreadcrumbs()"
+        class="{{ api.isCurrentBreadcrumb(breadcrumb) ? 'active' : '' }}">
+        <a ng-href="{{ breadcrumb.url }}" ng-if="!api.isCurrentBreadcrumb(breadcrumb)">{{ breadcrumb.title }}</a>
+        <span ng-if="api.isCurrentBreadcrumb(breadcrumb)">{{ breadcrumb.title }}</span>
+    </li>
+</ol>

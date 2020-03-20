@@ -1,0 +1,74 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters metadata_widget %}
+
+{% block name %}
+    {% trans "Name" %} #{{ instance.resource_id }}: {{ instance.name }}
+{% endblock %}
+
+{% block extra_css %}
+    table.sub_tasks {
+        width: auto;
+    }
+
+    table.sub_tasks td {
+        text-align: left;
+        padding: 5px;
+        border-bottom: none;
+    }
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {{ instance.name }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+
+
+    <p>{% trans "Type" %}: {{ instance.get_type_display }}</p>
+
+    <p>{% trans "Responsible Unit" %}: {{ instance.responsible_unit }}</p>
+
+    <p>{% trans "Contact" %}: {{ instance.contact }}</p>
+
+    <p>{% trans "Location" %}: {{ instance.location }}</p>
+
+    <p>{% trans "User Availability" %}: {{ instance.get_user_availability_display }}</p>
+
+    {% if instance.user_availability_selected_users.all.count > 0 %}
+        {% if instance.user_availability == "USR" %}
+            <p>{% trans "Assigned to" %}:
+        {% else %}
+            <p>{% trans "Additionally assigned to" %}:
+        {% endif %}
+            <ul>
+                {% for user_group in instance.user_availability_selected_user_groups.all %}
+                    <li>
+                        {% display_user_group_widget user_group %}
+                    </li>
+                {% endfor %}
+                {% for user in instance.user_availability_selected_users.all %}
+                    <li>
+                        {% display_user_widget user %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+
+    <p>{% trans "Projects" %}:
+    <ul>
+        {% for project in instance.projects.all %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <p>{% trans "Description" %}:</p>
+    <div>
+        {{ instance.description | safe }}
+    </div>
+
+{% endblock %}

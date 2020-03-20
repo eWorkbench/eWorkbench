@@ -1,0 +1,10 @@
+<validated-form-element
+        id="input_task_start_date"
+        input-element="date"
+        field-name="start_date"
+        placeholder="{{ 'Start date of this task' | translate }}"
+        ng-model="vm.task.start_date"
+        ng-readonly="vm.isReadOnly()"
+        date-picker-options="vm.datePickerOptionsStartDate"
+        errors="vm.errors['start_date']">
+</validated-form-element>

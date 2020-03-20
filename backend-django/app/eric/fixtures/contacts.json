@@ -1,0 +1,676 @@
+[
+  {
+    "model": "shared_elements.contact",
+    "pk": "01b32e7b-ac55-4be1-b9e3-f720ba38e5f9",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'gavin':1 'groberts@email.com':3 'robert':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Gavin",
+      "last_name": "Roberts",
+      "email": "GRoberts@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "03ab19e3-a20f-431b-bff5-fc041dc1a7c2",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'patterson':2 'robert':1 'rpatterson@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Robert",
+      "last_name": "Patterson",
+      "email": "RPatterson@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0777b8df-eb9a-48f6-875c-187ec2fedf09",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'mcintosh':2 'rmcintosh@email.com':3 'ronald':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Ronald",
+      "last_name": "Mcintosh",
+      "email": "RMcintosh@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "082addf4-ab26-401a-bf8c-8d97b9bdcdfb",
+    "fields": {
+      "fts_index": "'ag':5 'catherin':1 'cortega@email.com':3 'faker':4 'ortega':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Catherine",
+      "last_name": "Ortega",
+      "email": "COrtega@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0864ba6e-5f47-40d7-b3a5-0ccbcaf176a2",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'gross':2 'jessica':1 'jgross@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Jessica",
+      "last_name": "Gross",
+      "email": "JGross@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0974b9fa-1ef3-4bee-b0c6-02710e153850",
+    "fields": {
+      "fts_index": "'ag':5 'anderson':2 'danderson@email.com':3 'daniel':1 'faker':4",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "Dr.",
+      "first_name": "Daniel",
+      "last_name": "Anderson",
+      "email": "DAnderson@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0c5e3841-8cb5-4339-9330-c5e841080159",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'le':2 'melissa':1 'mle@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Melissa",
+      "last_name": "Le",
+      "email": "MLe@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0c779f48-db72-4553-8a49-f369ee39dcb7",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'jackson':2 'jacob':1 'jjackson@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Jacob",
+      "last_name": "Jackson",
+      "email": "JJackson@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0cac2e92-9405-4cb6-a14b-bd7f6b17a67a",
+    "fields": {
+      "fts_index": "'ag':5 'anthoni':1 'awilliams@email.com':3 'faker':4 'william':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Anthony",
+      "last_name": "Williams",
+      "email": "AWilliams@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0d5482ea-af19-4d84-870e-acd9518acf1a",
+    "fields": {
+      "fts_index": "'ag':5 'daugherti':2 'faker':4 'mdaugherty@email.com':3 'michael':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Michael",
+      "last_name": "Daugherty",
+      "email": "MDaugherty@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0e5b4ef0-5d6e-4bb0-87de-879325c185a9",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'mphd@email.com':3 'mrs':1 'phd':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Mrs.",
+      "last_name": "PhD",
+      "email": "MPhD@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "0ed6b13e-1855-4245-98ce-2968aadf4fce",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'logan':2 'martha':1 'mlogan@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "PhD",
+      "first_name": "Martha",
+      "last_name": "Logan",
+      "email": "MLogan@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "101d14ce-1d68-4e94-adee-1d02191d68d1",
+    "fields": {
+      "fts_index": "'ag':5 'daniell':1 'dromero@email.com':3 'faker':4 'romero':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Danielle",
+      "last_name": "Romero",
+      "email": "DRomero@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "107df472-2ae2-49af-a1a6-d6a6164c22d0",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'kevin':1 'klopez@email.com':3 'lopez':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Kevin",
+      "last_name": "Lopez",
+      "email": "KLopez@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "129a912b-4c2c-42f6-b746-873cc5a55eb4",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'harrington':2 'sharrington@email.com':3 'stephen':1",
+      "fts_language": "english",
+      "version_number": 0,
+            "academic_title": "",
+      "first_name": "Stephen",
+      "last_name": "Harrington",
+      "email": "SHarrington@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "12e4d3bb-f72a-472a-bc85-89b08ce6f0db",
+    "fields": {
+      "fts_index": "'ag':5 'albert':1 'amcmillan@email.com':3 'faker':4 'mcmillan':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Albert",
+            "academic_title": "",
+      "last_name": "Mcmillan",
+      "email": "AMcmillan@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1399fb8b-12bc-44f5-b55c-367a2c023906",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'melissa':1 'mwilson@email.com':3 'wilson':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Melissa",
+      "last_name": "Wilson",
+      "email": "MWilson@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "139aad2a-d11e-48af-9a28-51b8c76a4080",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'hamilton':2 'patrick':1 'phamilton@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Patrick",
+      "last_name": "Hamilton",
+      "email": "PHamilton@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "141ba9c0-0509-4a73-87c9-7de877b15b34",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'gjackson@email.com':3 'gregori':1 'jackson':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Gregory",
+      "academic_title": "",
+      "last_name": "Jackson",
+      "email": "GJackson@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "16b31e78-1961-42ec-9c7b-c38ce5dd36e8",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'hart':2 'mhart@email.com':3 'michael':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Michael",
+      "academic_title": "",
+      "last_name": "Hart",
+      "email": "MHart@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "174a9580-b600-4451-b900-24fa766b2c9d",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'mcbride':2 'smcbride@email.com':3 'steven':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Steven",
+      "academic_title": "",
+      "last_name": "Mcbride",
+      "email": "SMcbride@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "197fa8c4-4712-468e-9be0-6a11eb0771fa",
+    "fields": {
+      "fts_index": "'ag':5 'bferguson@email.com':3 'bradi':1 'faker':4 'ferguson':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Brady",
+      "academic_title": "",
+      "last_name": "Ferguson",
+      "email": "BFerguson@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1a28034f-913a-40d0-bd10-e833d5a3a032",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'michael':1 'mwelch@email.com':3 'welch':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Michael",
+      "academic_title": "",
+      "last_name": "Welch",
+      "email": "MWelch@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1a4b3b60-571c-4a02-ac58-fd472b9f630d",
+    "fields": {
+      "fts_index": "'ag':5 'brown':2 'faker':4 'lawrenc':1 'lbrown@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Lawrence",
+      "last_name": "Brown",
+      "academic_title": "",
+      "email": "LBrown@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1a5a9338-f0dc-4ba8-bbfb-6b2ea9d3e44c",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'hood':2 'melissa':1 'mhood@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Melissa",
+      "last_name": "Hood",
+      "academic_title": "",
+      "email": "MHood@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1b8ee903-1229-48b0-8369-19d990f7a637",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'jennif':1 'joconnell@email.com':3 'oconnel':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Jennifer",
+      "academic_title": "",
+      "last_name": "Oconnell",
+      "email": "JOconnell@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1ba3f9de-281f-47eb-8ce3-3b9d192a6d10",
+    "fields": {
+      "fts_index": "'ag':5 'emili':1 'esmith@email.com':3 'faker':4 'smith':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Emily",
+      "last_name": "Smith",
+      "academic_title": "",
+      "email": "ESmith@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1c59611b-0b19-4659-ab18-62b53866899b",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'hill':2 'rhill@email.com':3 'robert':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Robert",
+      "last_name": "Hill",
+      "academic_title": "",
+      "email": "RHill@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1d174ed8-5e7f-4163-b83a-2ca992149c77",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'ford':2 'mark':1 'mford@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Mark",
+      "last_name": "Ford",
+      "academic_title": "",
+      "email": "MFord@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1d7b8685-d69f-4a52-b6b0-ca093f5932de",
+    "fields": {
+      "fts_index": "'ag':5 'cook':2 'ecooke@email.com':3 'edwin':1 'faker':4",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Edwin",
+      "academic_title": "",
+      "last_name": "Cooke",
+      "email": "ECooke@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "1f677063-41cb-4349-9c07-f299c4cc10dd",
+    "fields": {
+      "fts_index": "'ag':5 'cunningham':2 'faker':4 'kcunningham@email.com':3 'kimber':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Kimberly",
+      "last_name": "Cunningham",
+      "email": "KCunningham@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "21e6ccb1-66f6-4afd-b12e-35db491de91f",
+    "fields": {
+      "fts_index": "'ag':5 'anderson':2 'faker':4 'janderson@email.com':3 'jennif':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Jennifer",
+      "academic_title": "",
+      "last_name": "Anderson",
+      "email": "JAnderson@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "231e0240-5d43-4659-8b73-338278c3be88",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'michael':1 'mwang@email.com':3 'wang':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "first_name": "Michael",
+      "last_name": "Wang",
+      "academic_title": "",
+      "email": "MWang@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "23872987-eab3-4b80-8bf1-20ddb057647f",
+    "fields": {
+      "fts_index": "'adam':1 'ag':5 'aking@email.com':3 'faker':4 'king':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Adam",
+      "last_name": "King",
+      "email": "AKing@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "251b2859-3f7d-4765-a945-43f5de682f3b",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'lauren':1 'lsolomon@email.com':3 'solomon':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Lauren",
+      "last_name": "Solomon",
+      "email": "LSolomon@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "2560ce0a-017b-4390-8ae1-0834de8ff7f7",
+    "fields": {
+      "fts_index": "'ag':5 'cfields@email.com':3 'christoph':1 'faker':4 'field':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Christopher",
+      "last_name": "Fields",
+      "email": "CFields@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "256eb4c8-75af-4340-a323-923b72b54034",
+    "fields": {
+      "fts_index": "'ag':5 'est':2 'faker':4 'jame':1 'jestes@email.com':3",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "James",
+      "last_name": "Estes",
+      "email": "JEstes@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "26befba5-5fa7-4713-bb50-9285803c666a",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'jturner@email.com':3 'juli':1 'turner':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Julie",
+      "last_name": "Turner",
+      "email": "JTurner@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "26d7146c-0b35-4823-87f3-9ee31b3d79e5",
+    "fields": {
+      "fts_index": "'ag':5 'amber':1 'aunderwood@email.com':3 'faker':4 'underwood':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Amber",
+      "last_name": "Underwood",
+      "email": "AUnderwood@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "27678b7b-4f1f-479c-a5c0-33de44ae314c",
+    "fields": {
+      "fts_index": "'ag':5 'elliott':2 'faker':4 'lelliott@email.com':3 'lori':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Lori",
+      "last_name": "Elliott",
+      "email": "LElliott@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "2ab4af90-8c3b-403c-9a3f-764bd2b4a346",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'mahoney':2 'tmahoney@email.com':3 'tyler':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Tyler",
+      "last_name": "Mahoney",
+      "email": "TMahoney@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "2b65f549-6533-45a6-8d03-c09b5dc857cb",
+    "fields": {
+      "fts_index": "'ag':5 'alvarez':2 'faker':4 'jalvarez@email.com':3 'jennif':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Jennifer",
+      "last_name": "Alvarez",
+      "email": "JAlvarez@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "2b69b302-8ce3-486d-a43c-627037280757",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'griffin':2 'jgriffin@email.com':3 'joseph':1",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Joseph",
+      "last_name": "Griffin",
+      "email": "JGriffin@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "2efbd1e0-afb5-4047-bc11-064b30830ded",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'misti':1 'mwilson@email.com':3 'wilson':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Misty",
+      "last_name": "Wilson",
+      "email": "MWilson@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  },
+  {
+    "model": "shared_elements.contact",
+    "pk": "320b7f66-3ed8-4c79-8048-f48b37d3455b",
+    "fields": {
+      "fts_index": "'ag':5 'faker':4 'michell':1 'mtorres@email.com':3 'torr':2",
+      "fts_language": "english",
+      "version_number": 0,
+      "academic_title": "",
+      "first_name": "Michelle",
+      "last_name": "Torres",
+      "email": "MTorres@email.com",
+      "phone": "",
+      "company": "Faker AG"
+    }
+  }
+]

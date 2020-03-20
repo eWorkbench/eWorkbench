@@ -1,0 +1,83 @@
+<!-- Copy profile from user -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" translate>
+        Copy profile from user
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/contact/contactForm.selectUser.html'"></ng-include>
+    </div>
+</div>
+<!-- Contact Academic Title-->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="contact_academic_title" translate>
+        Academic title
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/contact/contactForm.academicTitle.html'"></ng-include>
+    </div>
+</div>
+<!-- Contact Firstname -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="contact_firstname" translate
+        title="{{ 'mandatory field' | translate }}">
+        Firstname *
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/contact/contactForm.firstname.html'"></ng-include>
+    </div>
+</div>
+<!-- Contact Lastname -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="contact_lastname" translate
+        title="{{ 'mandatory field' | translate }}">
+        Lastname *
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/contact/contactForm.lastname.html'"></ng-include>
+    </div>
+</div>
+<!-- Contact E-Mail -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="contact_email" translate>
+        E-Mail
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/contact/contactForm.email.html'"></ng-include>
+    </div>
+</div>
+<!-- Contact Phone -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="contact_phone" translate>
+        Phone
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/contact/contactForm.phone.html'"></ng-include>
+    </div>
+</div>
+<!-- Contact Company -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="contact_company" translate>
+        Company
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/contact/contactForm.company.html'"></ng-include>
+    </div>
+</div>
+
+<!-- project -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="contact_project" translate>
+        Project
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/contact/contactForm.projects.html'"></ng-include>
+    </div>
+</div>
+
+<!-- metadata -->
+<small-entity-view-metadata
+    metadata="vm.contact.metadata"
+    base-model="vm.contact"
+    base-url-model="contact"
+    read-only="vm.isReadOnly()">
+</small-entity-view-metadata>

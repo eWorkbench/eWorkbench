@@ -1,0 +1,53 @@
+<div class="card-display">
+    <h4 class="header">
+        <i class="{{ ::vm.noteIcon }}" aria-hidden="true" title="{{ 'Comment' | translate }}"></i>
+        <span class="translate">New comment</span>
+    </h4>
+
+    <!-- must overwrite with overflow: initial here -->
+    <div class="content" style="overflow: initial">
+        <div class="picture">
+            <img ng-src="{{vm.currentUser.userprofile.avatar }}" alt="Picture" class="img-responsive center-block"/>
+        </div>
+        <!-- show the form if permission is available -->
+        <div class="info" ng-show="vm.canCreateNote">
+            <form ng-submit="vm.createNewNote()" ng-disabled="vm.isSubmitting">
+                <div class="form-group" style="margin-bottom: 5px">
+                    <input type="text" placeholder="{{ 'New comment' | translate }}" class="form-control"
+                           ng-model="vm.note.subject" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 5px">
+                    <!-- display a tiny mce cell -->
+                    <div
+                        style="height: 65px; overflow-y: auto; padding-top: 6px"
+                        class="my-tinymce-cell form-control"
+                        ui-tinymce="{
+                            'inline': true,
+                            'selector': 'div.editable',
+                        }"
+                        ng-model="vm.note.content">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0px;">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label title="{{ 'If you mark your comment as private, only you can see it' | translate }}">
+                                <input type="checkbox" ng-model="vm.private">
+                                <span translate>Private</span>
+                            </label>
+                        </div>
+                        <div class="col-xs-6">
+                            <button type="submit" class="btn btn-primary pull-right">
+                                Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="info" ng-show="!vm.canCreateNote">
+            <i class="fa fa-exclamation-circle"></i>
+            <span translate>You do not have the permission to create a comment.</span>
+        </div>
+    </div>
+</div>

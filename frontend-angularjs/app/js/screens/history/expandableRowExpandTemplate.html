@@ -1,0 +1,8 @@
+<div class="text-center">
+    <span class="cursor"
+          ng-show="row.entity.changeset_type != 'R' && row.entity.changeset_type != 'S'"
+          ng-click="grid.api.expandable.toggleRowExpansion(row.entity)">
+    <i ng-hide="row.isExpanded" class="fa fa-plus"></i>
+    <i ng-show="row.isExpanded" class="fa fa-minus"></i>
+    </span>
+</div>

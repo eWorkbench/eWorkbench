@@ -1,0 +1,2 @@
+selenium==2.53.6
+chromedriver==2.21.1

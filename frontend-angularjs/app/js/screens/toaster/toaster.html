@@ -1,0 +1,33 @@
+<toaster-container toaster-options="{
+    'time-out': 7500,
+    'close-button': true,
+    'icon-classes': {
+            error: {'class': 'alert alert-danger', 'icon': 'pficon pficon-error-circle-o'},
+            info: {'class': 'alert alert-info', 'icon': 'pficon pficon-info'},
+            success: {'class': 'alert alert-success', 'icon': 'pficon pficon-ok'},
+            warning: {'class': 'alert alert-warning', 'icon': 'pficon pficon-warning-triangle-o'}
+        }
+     }">
+</toaster-container>
+
+<script type="text/ng-template" id="angularjs-toaster/toast.html">
+    <div id="my-toast-container" ng-class="[config.position, config.animation]">
+        <div ng-repeat="toaster in toasters" style="display: block; color: black;"
+             class="toast-pf" ng-class="toaster.type.class"
+             ng-click="click($event, toaster)" ng-mouseover="stopTimer(toaster)" ng-mouseout="restartTimer(toaster)">
+
+            <button ng-if="toaster.showCloseButton"
+                    ng-click="click($event, toaster, true)"
+                    type="button"
+                    class="close"
+                    aria-hidden="true">
+                <span class="pficon pficon-close"></span>
+            </button>
+
+            <span ng-class="toaster.type.icon"></span>
+
+            <b>{{ toaster.title }}</b>
+            {{ toaster.body }}
+        </div>
+    </div>
+</script>

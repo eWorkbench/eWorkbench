@@ -1,0 +1,110 @@
+{% block content %}
+    <p>
+    <h4 class="modified_notification_title">
+        All notifications that the user has modified:
+    </h4>
+    </p>
+    <p>
+
+    <div class="modified_notification">
+       <table>
+            <tr>
+                <th>#</th>
+                <th>Notification for user</th>
+                <th>Title of the notification</th>
+                <th>Message of the notification</th>
+                <th>Type of the notification</th>
+            </tr>
+
+            {% for notification in user.notification_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ notification.user }}</td>
+                    <td>{{ notification.title}}</td>
+                    <td>{{ notification.message }}</td>
+                    <td>{{ notification.notification_type }}</td>
+               </tr>
+            {% endfor %}
+       </table>
+       <br>
+      <table>
+            <tr>
+                <th>#</th>
+                <th>Execution date of the notification</th>
+                <th>Notification processed?</th>
+                <th>User read notification?</th>
+                <th>Content type of the notification</th>
+                <th>Objectid of the notification</th>
+            </tr>
+
+            {% for notification in user.notification_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ notification.sent }}</td>
+                    <td>{{ notification.processed }}</td>
+                    <td>{{ notification.read }}</td>
+                    <td>{{ notification.content_type }}</td>
+                    <td>{{ notification.object_id }}</td>
+               </tr>
+            {% endfor %}
+       </table>
+
+
+    </div>
+    </p>
+
+    <p>
+    <h4 class="modified_notification_configuration_title">
+        All notifications that the user has modified:
+    </h4>
+    </p>
+    <p>
+
+    <div class="modified_notification_configuration">
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Allowed Notifications</th>
+                    <th>Created by</th>
+                    <th>Last modified by</th>
+                    <th>Created at:</th>
+                    <th>Last modified at</th>
+                </tr>
+
+                {% for notificationconfiguration in user.notificationconfiguration_modified.all %}
+                   <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{% for allowed_notification in notificationconfiguration.allowed_notifications %}
+                                {{ allowed_notification }}
+                            {% endfor %}
+                        </td>
+                        <td>{{ notificationconfiguration.created_by }}</td>
+                        <td>{{ notificationconfiguration.last_modified_by }}</td>
+                        <td>{{ notificationconfiguration.created_at }}</td>
+                        <td>{{ notificationconfiguration.last_modified_at }}</td>
+                   </tr>
+                {% endfor %}
+            </table>
+            <br>
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>CS Created by</th>
+                    <th>CS Last modified by</th>
+                    <th>CS Created at:</th>
+                    <th>CS Last modified at</th>
+                </tr>
+
+                {% for notificationconfiguration in user.notificationconfiguration_modified.all %}
+                   <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ notificationconfiguration.cs_created_by }}</td>
+                        <td>{{ notificationconfiguration.cs_last_modified_by }}</td>
+                        <td>{{ notificationconfiguration.cs_created_at }}</td>
+                        <td>{{ notificationconfiguration.cs_last_modified_at }}</td>
+                   </tr>
+                {% endfor %}
+            </table>
+    </div>
+    </p>
+{% endblock %}

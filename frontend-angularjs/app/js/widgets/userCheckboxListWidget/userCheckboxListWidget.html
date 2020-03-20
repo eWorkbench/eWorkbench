@@ -1,0 +1,14 @@
+<div class="user-checkbox" ng-repeat="user in vm.users">
+    <input id="user-checkbox-{{user.pk}}"
+           type="checkbox"
+           ng-true-value="true"
+           ng-false-value="false"
+           ng-model="vm.isUserSelectedMap[user.pk]"
+           data-ng-change="vm.updateSelectionStatus(user)">
+    <label for="user-checkbox-{{user.pk}}" style="font-weight:normal">
+        {{ user.displayName }}
+    </label>
+    <a ng-click="vm.removeUser(user)" title="{{ 'Remove user' | translate }}" role="button">
+        <span class="fa fa-times"></span>
+    </a>
+</div>

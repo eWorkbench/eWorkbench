@@ -1,0 +1,4 @@
+{% load html_unescape %}
+{{ instance.title }}
+{{ instance.text | striptags | html_unescape }}
+{% if instance.location %}{{ instance.location }}{% endif %}

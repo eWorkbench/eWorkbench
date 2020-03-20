@@ -1,0 +1,158 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../theme/variables";
+
+
+// modify resizable elements so they better fit into the design
+.handle-se {
+  right: -3px;
+  bottom: -3px;
+  width: 8px;
+  height: 8px;
+}
+
+.handle-ne {
+  right: -3px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+}
+
+.handle-nw {
+  top: -3px;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+}
+
+.handle-sw {
+  left: -3px;
+  bottom: -3px;
+  width: 8px;
+  height: 8px;
+}
+
+.handle-e {
+  right: -3px;
+  width: 8px;
+}
+
+.handle-s {
+  bottom: -3px;
+  height: 8px;
+}
+
+.handle-n {
+  top: -3px;
+  height: 8px;
+}
+
+.handle-w {
+  left: -3px;
+  width: 8px;
+}
+
+
+.gridster-loaded .gridster-preview-holder {
+  border: 1px dashed grey;
+  opacity: 0.5;
+}
+
+labbook-edit-child-element-widget literally-canvas-drawing-widget > div {
+  overflow: unset !important;
+}
+
+
+labbook-edit-child-element-widget {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+
+  .error-horizontal-scrollbar {
+    border-bottom: 2px dashed red !important;
+  }
+
+  .error-vertical-scrollbar {
+    border-right: 2px dashed red !important;
+  }
+
+  .labbook-cell-header {
+    // disable margins for editable select
+    editable-select-list .editableEditMode {
+      margin: 0;
+
+      input {
+        font-size: 14pt;
+        padding: 0 3px;
+      }
+    }
+
+
+    editable-select-list .editableEditMode:not(.viewMode) .editTranscludedElement, editable-form-element .editableEditMode:not(.viewMode) .editTranscludedElement {
+      width: ~"calc(100% - 80px)";
+    }
+  }
+
+  .labbook-cell-content {
+    position: relative;
+    width: 100%;
+    height: ~"calc(100% - 70px)";
+    padding: 1px 5px;
+    overflow-x: auto;
+    overflow-y: auto;
+
+    // disable margins for editable select
+    editable-select-list .editableEditMode {
+      margin: 0;
+    }
+
+    .mce-content-body {
+      padding: 0;
+    }
+  }
+
+  .labbook-cell-unsaved-changes {
+    position: absolute;
+    bottom: 20px;
+    height: 30px;
+    text-align: right;
+    width: 100%;
+    z-index: 20000;
+    padding: 0 5px;
+  }
+
+  .labbook-cell-last-modified {
+    position: absolute;
+    bottom: 26px;
+    padding: 0 5px;
+    width: 100%;
+    // height: 20px;
+    line-height: 1;
+
+    // make text appear smaller
+    color: @display-relation-element-footer-color;
+    font-size: 7pt;
+  }
+
+  .labbook-cell-footer {
+    position: absolute;
+    bottom: 0;
+    height: 20px;
+    width: 100%;
+    background-color: #bababa;
+    color: white;
+    padding: 0 5px;
+
+    .has-notes {
+      background-color: @eric-dark-green;
+    }
+
+    .link-with {
+      margin-right: 10px;
+      color: white;
+      text-decoration: none;
+    }
+  }
+}

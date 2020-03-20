@@ -1,0 +1,9 @@
+<validated-form-element id="resource_responsible_unit"
+                        input-element="text"
+                        auto-focus="vm.mode == 'create'"
+                        field-name="responsible_unit"
+                        placeholder="{{ 'Resource Responsible Unit' | translate }}"
+                        ng-model="vm.resource.responsible_unit"
+                        ng-readonly="vm.isReadOnly()"
+                        errors="vm.errors['responsible_unit']">
+</validated-form-element>

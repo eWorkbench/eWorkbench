@@ -1,0 +1,10 @@
+{% load i18n %}{% blocktrans %}Dear eRIC Workbench administrators!{% endblocktrans %}
+
+{% blocktrans %}User {{ request_author }} <{{ request_author_mail }}> requested a new metadata field.{% endblocktrans %}
+
+{% trans 'Title:' %}       {{ field_name }}
+{% trans 'Description:' %} {{ field_description }}
+{% trans 'Field type:' %}  {{ field_base_type }}
+{% trans 'Settings:' %}
+{% for key, value in field_settings %}  {{ key }}: {{ value }}
+{% endfor %}

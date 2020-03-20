@@ -1,0 +1,48 @@
+<div class="card-display">
+    <!-- card title: first name and last name -->
+    <h4 class="header">
+        <div class="ellipsis">
+            <i class="{{:: vm.contactIcon}}"></i>
+            <contact-link contact="vm.contact"></contact-link>
+        </div>
+
+        <div ng-transclude="cardFunctions" style="display: inline-block; float: right">
+
+        </div>
+    </h4>
+    <!-- more details and picture -->
+    <div class="content">
+        <div class="contact-info">
+            <p ng-show="vm.contact.company">{{ vm.contact.company }}</p>
+
+            <p>
+                <span ng-show="vm.contact.email">
+                <i class="{{:: vm.emailIcon }}" title="{{ Email | translate }}"></i>:
+                <a ng-href="mailto:{{vm.contact.email}}">{{ vm.contact.email }}</a><br />
+                </span>
+
+                <!-- show phone number only if it is set -->
+                <span ng-show="vm.contact.phone">
+                <i class="{{:: vm.phoneIcon }}" title="{{ Phone | translate}}"></i>: {{ vm.contact.phone }}<br />
+                </span>
+
+                <!-- show project only if it is set -->
+                <span ng-show="vm.contact.project">
+                    <i class="{{:: vm.projectIcon }}" title="{{ Project | translate }}"></i>:
+                    <project-link project-pk="vm.contact.project"></project-link>
+                </span>
+            </p>
+        </div>
+        <!--<div class="contact-picture">-->
+        <!--<img ng-src="{{ vm.contact.picture }}" class="img-responsive">-->
+        <!--</div>-->
+    </div>
+
+    <div class="card-footer" ng-transclude="cardFooter">
+        <span class="font-color" translate>Created by</span>
+        <user-display-widget user="vm.contact.created_by"></user-display-widget>
+        <span class="font-color">-</span>
+
+        <span class="font-color">{{ vm.contact.created_at | smallDateWithToday }}</span>
+    </div>
+</div>

@@ -1,0 +1,12 @@
+<div ng-class="{ 'has-error': vm.errors['selected_user_pk'].length > 0 }" style="width: 100%">
+    <user-selectize-widget
+            selected-user-pk="vm.userPK"
+            users="vm.users"
+            placeholder="{{ 'Select user' | translate }}"
+            max-items="1">
+    </user-selectize-widget>
+    <p ng-show="vm.errors['selected_user_pk'].length > 0"  class="help-block">
+        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+        {{ vm.errors['selected_user_pk'].join(', ') }}
+    </p>
+</div>

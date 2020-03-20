@@ -1,0 +1,93 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../theme/variables";
+
+drive-directory-display-widget {
+  .directory-icon, .file-icon {
+    color: @eric-green;
+    display: inline;
+    font-size: 11pt;
+  }
+
+  .file-icon {
+    margin-left: 5px;
+  }
+
+  .directory-text, .file-text {
+    color: @eric-green;
+    display: inline;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+  .directory-icons {
+    display: inline-block;
+  }
+
+  .show-on-dragover {
+    display: none;
+  }
+
+  // on dragover of directory row -> color change
+  .directory-row.dragover {
+    border: 3px dashed @eric-green;
+    padding-top: 2px;
+    padding-bottom: 3px;
+
+    .hide-on-dragover {
+      opacity: 0.3;
+    }
+
+    .show-on-dragover {
+      display: inline;
+    }
+  }
+
+  .file-row.highlighted {
+    background-color: @table-bg-accent;
+  }
+
+  .file-row, .directory-row {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid lightgray;
+
+    .file-download, .file-remove {
+      display: none;
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+
+    &:hover {
+      background-color: @table-bg-hover;
+
+      .file-download, .file-remove {
+        display: inline-block;
+      }
+    }
+  }
+
+  .directory-row {
+    a {
+      display: none;
+      font-size: 11pt;
+    }
+
+    a:not(:first-of-type) {
+      margin-left: 10px;
+    }
+
+    &:hover {
+      a {
+        display: inline-block;
+      }
+    }
+
+  }
+
+  .subdirectories {
+    margin-left: 20px;
+  }
+}

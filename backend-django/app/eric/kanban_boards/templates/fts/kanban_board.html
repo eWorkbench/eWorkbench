@@ -1,0 +1,4 @@
+{{ instance.title }}
+{% for column in instance.kanban_board_columns.all %}
+    {{ column.title }}
+{% endfor %}

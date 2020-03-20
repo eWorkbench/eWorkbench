@@ -1,0 +1,39 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <i class="{{:: vm.fileIcon }}"></i>
+            <a ui-sref="file-list" role="button" translate>Files</a>
+
+            <span style="font-size: 8pt">
+                &nbsp;
+                Currently using {{vm.user.used_storage_megabyte.toFixed(2)}} MB of
+                        {{vm.user.available_storage_megabyte}} MB ({{(100*vm.user.used_storage_megabyte / vm.user.available_storage_megabyte).toFixed(1)}} %)
+            </span>
+
+            <a role="button" class="pull-right" ng-click="vm.createNewFile()" tabindex="0">
+                <span translate>New File</span> </a>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <loading-text loading="vm.isLoading"></loading-text>
+        <div ng-show="vm.files.length == 0 && !vm.isLoading" translate>
+            You are currently not assigned to any files.
+        </div>
+
+        <table ng-if="!vm.isLoading && vm.files.length > 0"
+               class="table table-hover" style="margin-bottom: 0px; table-layout: fixed">
+            <tbody>
+            <tr ng-repeat="file in vm.files">
+                <!-- Name -->
+                <td class="truncate" style="width: 80%">
+                    <file-link file="file"></file-link>
+                </td>
+                <!-- file size -->
+                <td>
+                    {{ file.file_size | bytes }}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

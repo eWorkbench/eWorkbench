@@ -1,0 +1,18 @@
+<div ng-if="!vm.refresh" ng-show="vm.stateLoaded">
+    <!-- Grid -->
+    <div ng-if="vm.data.length > 0"
+         class="element animate-show-hide"
+         ui-grid="vm.gridOptions"
+         class="dynamicGrid"
+         ui-grid-save-state
+         ui-grid-expandable
+         ui-grid-pagination
+         ui-grid-auto-resize
+         ui-grid-move-columns
+         ui-grid-resize-columns>
+    </div>
+</div>
+<!-- Fallback text for empty data set -->
+<div ng-if="vm.data.length == 0 && vm.stateLoaded" translate>
+    No entries
+</div>

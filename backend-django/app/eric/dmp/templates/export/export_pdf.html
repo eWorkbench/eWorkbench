@@ -1,0 +1,34 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters metadata_widget %}
+
+{% block title %}
+    {% trans "DMP" %} #{{ instance.title }}
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {{ instance.title }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+
+    <div class="additional-information">
+        <p>Status: {{ instance.status }}</p>
+        <p>{% trans "Metadata" %}:
+            {% all_metadata_as_html instance %}
+        </p>
+        <p>Created by {{ instance.created_by.username }}</p>
+        <p>Last modified at {{ instance.last_modified_at }}</p>
+    </div>
+
+    </br>
+
+    <div>
+        {% for data in instance.dmp_form_data.all %}
+            <h4>{{ data.name }}</h4>
+            <p>{{ data.value | safe }}</p>
+        {% endfor %}
+    </div>
+{% endblock %}

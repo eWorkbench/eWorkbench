@@ -1,0 +1,106 @@
+version: '3'
+volumes:
+  pg_data:
+  maildump_data:
+  app_data:
+services:
+  # python container
+  python: &python
+    build:
+      context: . # We set this context to load the app requirements when building the image
+      dockerfile: ./docker/python/Dockerfile
+    volumes:
+      - ./:/app
+      - app_data:/var/lib/app
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=eric.settings.docker
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    depends_on:
+      - db
+      - maildump
+      - redis
+      - ldap-service
+  cron_remove_old_element_locks:
+    <<: *python
+    ports: []
+    volumes:
+      - ./:/app
+      - app_data:/var/lib/app
+    command: while true; do python manage.py remove_old_element_locks; sleep 10; done
+  cron_send_notifications:
+    <<: *python
+    ports: []
+    volumes:
+      - ./:/app
+      - app_data:/var/lib/app
+    command: while true; do python manage.py send_notifications; sleep 60; done
+  # Postgres configuration
+  db:
+    hostname: db.workbench.local
+    image: postgres:9.4
+    expose:
+      - 5432
+    ports:
+      - 127.0.11.20:5432:5432
+    volumes:
+      - ./backups:/docker-entrypoint-initdb.d
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: eric
+      POSTGRES_USER: eric
+      POSTGRES_PASSWORD: eric
+  adminer:
+    image: adminer
+    ports:
+      - 127.0.11.20:1082:8080
+  # Maildump configuration
+  maildump:
+    hostname: maildump.workbench.local
+    build:
+      context: ./docker/maildump
+    volumes:
+      - maildump_data:/maildump
+    expose:
+      - 1025
+      - 1080
+    ports:
+      - 127.0.11.20:1080:1080
+      - 127.0.11.20:1025:1025
+  redis:
+    hostname: redis.workbench.local
+    image: redis:2.8
+    expose:
+      - 6379
+    ports:
+      - 127.0.11.20:6379:6379
+  # ldap server
+  ldap-service:
+    hostname: ldap.workbench.local
+    command: "--loglevel trace"
+    image: osixia/openldap:1.1.6
+    ports:
+     - 127.0.11.20:389:389
+     - 127.0.11.20:636:636
+    environment:
+     - LDAP_ORGANISATION=Workbench Local Dev
+     - LDAP_DOMAIN=workbench.local
+    command: "--copy-service"
+    volumes:
+     - ./ldap/:/ldap
+     - ./data/docker_ldap_data:/var/lib/ldap
+     - ./data/docker_ldap_config:/etc/ldap/slapd.d
+  # ldap admin
+  ldap-admin:
+    hostname: ldap.workbench.local
+    image: dinkel/phpldapadmin:latest
+    ports:
+     - 127.0.11.20:1081:80
+    environment:
+     - LDAP_SERVER_HOST=ldap-service
+    depends_on:
+     - ldap-service

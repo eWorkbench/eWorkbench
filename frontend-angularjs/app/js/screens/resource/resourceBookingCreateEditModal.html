@@ -1,0 +1,26 @@
+<div class="modal-header">
+    <h3 ng-if="vm.isEditing" class="modal-title" translate>Edit resource booking</h3>
+    <h3 ng-if="!vm.isEditing" class="modal-title" translate>Book a resource</h3>
+</div>
+<form class="form-horizontal" name="newResourceBookingForm" ng-submit="vm.save()">
+    <div class="modal-body">
+        <ng-include src="'js/screens/resource/smallResourceBookingView.html'"></ng-include>
+    </div>
+
+    <div class="modal-footer">
+        <!-- Buttons for Create / Cancel -->
+        <div class="text-right">
+            <button id="button_resourcebooking_create_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()"
+                    translate>
+                Cancel
+            </button>
+            <button ng-if="vm.isEditing" id="button_resourcebooking_delete" class="btn btn-danger" type="button" ng-click="vm.deleteResourceBooking()"
+                    translate>
+                Delete Booking
+            </button>
+            <button id="button_resourcebooking_create_save" class="btn btn-warning" translate>
+                Confirm
+            </button>
+        </div>
+    </div>
+</form>

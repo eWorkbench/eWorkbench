@@ -1,0 +1,5 @@
+<element-labels-widget
+        ng-readonly="vm.isReadOnly()"
+        selected-labels="vm.task.labels"
+        ng-readonly="!perms.has('object.edit', vm.task)"
+        placeholder="{{ 'Labels' | translate }}"></element-labels-widget>

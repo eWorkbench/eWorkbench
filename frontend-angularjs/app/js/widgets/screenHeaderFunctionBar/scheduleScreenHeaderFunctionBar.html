@@ -1,0 +1,131 @@
+<!-- screen header with title, search bar and buttons -->
+<div class="row">
+    <div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 screen-header-title">
+        <!-- transclude screenTitle (default: show vm.screenTitle) -->
+        <div ng-transclude="screenTitle" style="display: inline-block"></div>
+
+        <a type="button" class="visible-xs-inline-block pull-right"
+           ng-click="vm.createNewEntity()"
+           tabindex="0"
+           title="{{ vm.screenNewEntity }}" translate>
+            {{ vm.screenNewEntity }}
+        </a>
+    </div>
+    <div class="col-xs-12 col-sm-9 col-md-9 col-lg-7">
+        <div class="form-horizontal" style="margin-top: 5px">
+            <div class="row">
+                <div class="col-xs-6 col-sm-3 col-md-3">
+                    <multi-project-selection
+                        selected-project-pks="vm.selectedProjects"
+                        placeholder="{{ 'Filter by project' | translate}}"
+                        max-items="1">
+                    </multi-project-selection>
+                </div>
+                <div class="col-xs-6 col-sm-3 col-md-3">
+                    <!-- search bar -->
+                    <div class="form-group has-feedback has-clear">
+                        <div class="col-xs-12">
+                            <search-field-widget
+                                initial-search-field-value="{{ vm.searchField }}"
+                                do-search="vm.doSearch(searchString)" cancel-search="vm.cancelSearch()"
+                                search-input-length="0" debounce="100">
+                            </search-field-widget>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-6 col-sm-4 col-md-4">
+                    <div ng-transclude="additionalFilter"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Display a "New" button aswell as list view vs. card view -->
+    <div class="hidden-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 text-right">
+        <screen-header-function-bar-view-button
+            current-view="vm.currentView"
+            title="'Calendar'"
+            text-title="{{::'Calendar' | translate}}"
+            view-name="calendar"
+            icon-class="fa-calendar">
+        </screen-header-function-bar-view-button>
+
+        <screen-header-function-bar-view-button
+            current-view="vm.currentView"
+            title="vm.listViewTitle"
+            text-title="{{::'List View' | translate}}"
+            view-name="list"
+            icon-class="fa-th-list">
+        </screen-header-function-bar-view-button>
+
+        <screen-header-function-bar-view-button
+            current-view="vm.currentView"
+            title="vm.cardViewTitle"
+            text-title="{{::'Card View' | translate}}"
+            view-name="card"
+            icon-class="fa-th">
+        </screen-header-function-bar-view-button>
+
+        <!-- Create new entity -->
+        <div class="pull-right" ng-if="vm.showAddNewButton">
+            <button type="button" class="btn btn-primary btn-create-new" tabindex="0"
+                    ng-disabled="vm.displayDeleted"
+                    title="{{ vm.screenNewEntity }}"
+                    ng-click="vm.createNewEntity()">
+                <span ng-bind="vm.screenNewEntity"></span>
+            </button>
+        </div>
+
+        <!-- Toggle Button for Recycle Bin/Trash -->
+        <div class="pull-right trashed-button" ng-if="vm.showDisplayDeletedButton">
+            <button type="button" class="btn" tabindex="0"
+                    title="{{ 'Click to show trashed elements' | translate }}"
+                    ng-click="vm.showTrashedItems()">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+                <span translate>Show</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col-xs-6 col-sm-3 col-md-2">
+        <!-- filter by user -->
+        <user-selectize-widget
+            selected-user-pk="vm.userSelectizeSelectedPks"
+            placeholder="{{ 'Search Users to display' | translate }}"
+            max-items="1"
+            loaded-users="vm.loadedUserData"
+            users="vm.userSelectizeUsers">
+        </user-selectize-widget>
+    </div>
+    <div class="col-xs-6 col-sm-3 col-md-4">
+        <div class="row" ng-if="vm.checkboxUsers.length > 0">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <user-checkbox-list-widget users="vm.checkboxUsers" selected-users="vm.checkboxSelectedUsers">
+                </user-checkbox-list-widget>
+            </div>
+        </div>
+    </div>
+
+    <!-- select resources to show bookings for -->
+    <div class="col-xs-12 col-sm-12 col-md-4 ">
+        <div class="row pull-right">
+            <resource-checkbox-list-widget
+                resources="vm.loadedResources"
+                selected-resources="vm.checkboxSelectedResources">
+            </resource-checkbox-list-widget>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-12 col-md-2">
+        <resource-selectize-widget
+            placeholder="{{ 'Search resources to display bookings' | translate}}"
+            max-items="1"
+            resources="vm.loadedResources"
+            selected-resource-pk="vm.resource_pk">
+        </resource-selectize-widget>
+    </div>
+</div>

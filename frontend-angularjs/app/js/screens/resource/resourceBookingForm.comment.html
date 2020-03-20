@@ -1,0 +1,9 @@
+<validated-form-element
+        id="resourcebooking_comment"
+        input-element="text"
+        field-name="comment"
+        placeholder="{{ 'Description' | translate }}"
+        ng-model="vm.resourcebooking.comment"
+        ng-readonly="vm.isReadOnly()"
+        errors="vm.errors['comment']">
+</validated-form-element>

@@ -1,0 +1,80 @@
+{% extends "email/simple_email_template.html" %}
+{% load i18n captureas %}
+
+{% block header_title %}
+    {% blocktrans %}Invitation to {{ workbench_title }}{% endblocktrans %}
+{% endblock %}
+
+{% block preheader %}
+    {% blocktrans %}You have been invited to {{ workbench_title }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    {% captureas workbench_link %}
+        <a href="{{ workbench_url }}">{{ workbench_title }}</a>
+    {% endcaptureas %}
+    <b>This e-mail has been automatically generated, please do not reply!</b>
+
+    <p>{% blocktrans %}Dear {{ username }}!{% endblocktrans %}</p>
+
+    <p>
+        {% blocktrans %}
+            We are sending you this automated e-mail as you have been invited to {{ workbench_link }} by
+            {{ current_user }}.
+        {% endblocktrans %}
+    </p>
+
+    {% if message != "" %}
+        <p>
+            {{ message }}
+        </p>
+    {% endif %}
+
+    <p>
+        {% blocktrans %}
+            Your username is '{{ username }}' (without the quotes).
+        {% endblocktrans %}<br />
+        <br />
+        {% blocktrans %}
+            To login, please follow these steps:
+        {% endblocktrans %}
+        <ul>
+            <li>
+                {% blocktrans %}
+                    Click the activation link (valid for 24h) and set up a password for your account:
+                {% endblocktrans %}
+                <a href="{{ reset_password_url }}">{% trans "Activation Link" %}</a>
+            </li>
+            <li>
+                {% blocktrans %}
+                    Click on Login and enter the username from above and the same password as the one that you
+                    have just set.
+                {% endblocktrans %}
+            </li>
+            <li>
+                {% blocktrans %}
+                    If your activation link has expired, you can use the 'Forgot password?' function at {{ workbench_link }}.
+                {% endblocktrans %}
+            </li>
+        </ul>
+    </p>
+{% endblock %}
+
+{% block footer %}
+    <div class="footer">
+        <table border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="content-block">
+                    <span class="apple-link">
+                        ToDo Footer
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="content-block powered-by">
+                    Powered by <a href="http://htmlemail.io">HTMLemail</a>.
+                </td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

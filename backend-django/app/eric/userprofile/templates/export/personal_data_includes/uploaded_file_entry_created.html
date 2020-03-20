@@ -1,0 +1,129 @@
+{% block content %}
+    
+    <p>
+    <h4 class="created_uploaded_file_entry_title">
+        All uploaded file entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_uploaded_file_entry">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>File</th>
+                <th>File id</th>
+                <th>Original File name</th>
+            </tr>
+
+            {% for uploaded_file in user.uploadedfileentry_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ uploaded_file.file }}</td>
+                    <td>{{ uploaded_file.file_id }}</td>
+                    <td>{{ uploaded_file.original_filename }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for uploaded_file in user.uploadedfileentry_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ uploaded_file.created_by }}</td>
+                    <td>{{ uploaded_file.last_modified_by }}</td>
+                    <td>{{ uploaded_file.created_at }}</td>
+                    <td>{{ uploaded_file.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for uploaded_file in user.uploadedfileentry_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ uploaded_file.cs_created_by }}</td>
+                    <td>{{ uploaded_file.cs_last_modified_by }}</td>
+                    <td>{{ uploaded_file.cs_created_at }}</td>
+                    <td>{{ uploaded_file.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+    <p>
+    <h4 class="created_uploaded_picture_entry_title">
+        All uploaded picture entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_uploaded_picture_entry">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Uploaed Picture</th>
+                <th>Rendered image name</th>
+                <th>Shapes image name</th>
+                <th>Widht</th>
+                <th>Height</th>
+                <th>Rendered Image Size</th>
+            </tr>
+
+            {% for uploaded_picture in user.uploadedpictureentry_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ uploaded_picture.picture }}</td>
+                    <td>{{ uploaded_picture.rendered_image.name }}</td>
+                    <td>{{ uploaded_picture.shapes_image.name }}</td>
+                    <td>{{ uploaded_picture.width }}</td>
+                    <td>{{ uploaded_picture.height }}</td>
+                    <td>{{ uploaded_picture.rendered_image_size }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Shapes Image Size</th>
+                <th>Background Image Size</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for uploaded_picture in user.uploadedpictureentry_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ uploaded_picture.shapes_image_size }}</td>
+                    <td>{{ uploaded_picture.background_image_size }}</td>
+                    <td>{{ uploaded_picture.created_by }}</td>
+                    <td>{{ uploaded_picture.last_modified_by }}</td>
+                    <td>{{ uploaded_picture.created_at }}</td>
+                    <td>{{ uploaded_picture.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+{% endblock %}

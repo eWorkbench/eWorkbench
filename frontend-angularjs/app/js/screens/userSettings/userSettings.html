@@ -1,0 +1,81 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span translate>E-Mail Notification Configuration</span>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div translate>
+            Here you can specify for which notifications you want to receive e-mails.
+        </div>
+
+        <!-- Meetings -->
+        <label title="{{ 'Select/Unselect all meeting notifications' | translate }}">
+            <input type="checkbox" ng-checked="vm.allMeetingsSelected" ng-click="vm.toggleAllMeetings()">
+            <h3 style="display: inline-block;" translate>Meetings</h3>
+        </label>
+        <div style="padding-left: 18px">
+            <div ng-repeat="(key, value) in vm.notificationConfigurationMeetings">
+                <label title="{{ 'Enable/disable notification' | translate }}">
+                    <input type="checkbox" ng-checked="value.enabled" ng-click="vm.toggleMeetingNotification(value)">
+                    <span>{{value.label}}</span>
+                </label>
+            </div>
+        </div>
+        <!-- Tasks -->
+        <label title="{{ 'Select/Unselect all task notifications' | translate }}">
+            <input type="checkbox" ng-checked="vm.allTasksSelected" ng-click="vm.toggleAllTasks()">
+            <h3 style="display: inline-block;" translate>Tasks</h3>
+        </label>
+        <div style="padding-left: 18px">
+            <div ng-repeat="(key, value) in vm.notificationConfigurationTasks">
+                <label title="{{ 'Enable/disable notification' | translate }}">
+                    <input type="checkbox" ng-checked="value.enabled" ng-click="vm.toggleTaskNotification(value)">
+                    <span>{{value.label}}</span>
+                </label>
+            </div>
+        </div>
+        <!-- Projects -->
+        <label title="{{ 'Select/Unselect all project notifications' | translate }}">
+            <input type="checkbox" ng-checked="vm.allProjectsSelected" ng-click="vm.toggleAllProjects()">
+            <h3 style="display: inline-block;" translate>Projects</h3>
+        </label>
+        <div style="padding-left: 18px">
+            <div ng-repeat="(key, value) in vm.notificationConfigurationProjects">
+                <label title="{{ 'Enable/disable notification' | translate }}">
+                    <input type="checkbox" ng-checked="value.enabled" ng-click="vm.toggleProjectNotification(value)">
+                    <span>{{value.label}}</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span translate>Dialog Settings</span>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div translate>
+            Here you can disable or enable confirmation prompts.
+        </div>
+
+        <label title="{{ 'Enable/disable all confirmation prompts' | translate }}">
+            <input type="checkbox" ng-model="vm.allPromptsEnabled" ng-click="vm.toggleAllPrompts()">
+            <h3 style="display: inline-block;" translate>Confirmation Prompts</h3>
+        </label>
+        <div style="padding-left: 18px">
+            <div ng-repeat="(key, value) in vm.promptMap">
+                <label title="{{ 'Enable/disable confirmation prompt' | translate }}">
+                    <input type="checkbox"
+                           ng-model="value.enabled"
+                           ng-click="vm.togglePromptEnabled(key)"
+                    >
+                    <span>{{value.label}}</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

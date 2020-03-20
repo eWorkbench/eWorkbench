@@ -1,0 +1,6 @@
+<!-- show a link to meetings -->
+<a ng-if="vm.meeting && vm.meetingUrl" ng-href="{{ vm.meetingUrl }}">
+    <ng-transclude>
+        {{vm.meeting.title}}
+    </ng-transclude>
+</a>

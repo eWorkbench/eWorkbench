@@ -1,0 +1,10 @@
+{% load i18n captureas notifications %}
+
+{% blocktrans %}Dear {{ user }}!{% endblocktrans %}
+
+{% blocktrans %}We have a notification for you within {{ workbench_title }} - {{ workbench_url }}.{% endblocktrans %}
+
+{{ notification.title }}
+
+{% blocktrans %}Please visit the following URL for more details{% endblocktrans %}
+{{ notification | to_notification_url }}

@@ -1,0 +1,29 @@
+{% load i18n date_filters user_widgets simple_object_display %}
+{% if instance.relations.count == 0 %}
+    {% trans "No links found" %}
+{% else %}
+<ul>
+    {# iterate over all relations, ordered by created_at #}
+    {% for relation in instance.relations|dictsort:"created_at" %}
+        <li>
+            <b>
+                {% trans "Linked by" %}
+                {% display_user_widget relation.created_by %}
+                {% trans "at" %} {{ relation.created_at | date_short }}
+                {% if relation.private %}
+                    ({% trans "private" %})
+                {% endif %}
+            </b>:<br />
+
+            {# check if the current instance is the left object of the relation #}
+            {% if relation.left_object_id == instance.id %}
+                {# it is -> Display right content object #}
+                {% simple_object_display relation.right_content_object %}
+            {% else %}
+                {# it isn't -> Display left content object #}
+                {% simple_object_display relation.left_content_object %}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endif %}

@@ -1,0 +1,20 @@
+<a ng-show="!vm.user && vm.notFound" class="user-not-active">
+    <i class="{{:: vm.userIcon }}"></i>
+    <span translate>Unknown User</span>
+</a>
+<span ng-show="vm.user && vm.user.userprofile && vm.user.userprofile.anonymized" class="user-not-active">
+    <i class="{{:: vm.userIcon }}"></i>
+    <span translate>Anonymous User</span>
+</span>
+<div style="display: inline" ng-show="!vm.notFound && !vm.user.userprofile.anonymized">
+    <span ng-show="vm.displayAsPlainText" ng-bind="vm.displayUserString">
+
+    </span>
+    <a class="clickable"
+       ng-show="!vm.displayAsPlainText"
+       role="button" tabindex="0"
+       ng-click="vm.onItemClick()">
+        <i class="{{:: vm.userIcon }}"></i>
+        <span ng-bind="vm.displayUserString"></span>
+    </a>
+</div>

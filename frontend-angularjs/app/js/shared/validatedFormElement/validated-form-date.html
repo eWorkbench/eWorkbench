@@ -1,0 +1,29 @@
+<div style="margin-bottom: 0px" class="form-group" ng-class="{ 'has-error': errors.length > 0 || hasFormErrors }">
+    <div class="col-xs-12">
+        <div class="input-group" style="width: 100%" datetimepicker
+             ng-model="ngModel"
+             options="datePickerOptions">
+            <input id="{{ id }}"
+                   type="text"
+                   name="{{ id }}"
+                   class="form-control"
+                   placeholder="{{ placeholder }}"
+                   ng-disabled="ngDisabled"
+                   ng-readonly="ngReadonly"
+                   ng-pattern="myNgPattern"
+                   focus-if="autoFocus"
+            />
+
+        <span class="input-group-addon">
+            <span class="{{:: vm.calendarIcon }}"></span>
+        </span>
+
+            <span ng-transclude></span>
+        </div>
+
+        <p ng-show="errors.length > 0"  class="help-block" style="margin-top: 0px">
+            <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+            {{ errors.join(', ') }}
+        </p>
+    </div>
+</div>

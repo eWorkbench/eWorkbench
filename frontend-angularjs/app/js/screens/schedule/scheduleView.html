@@ -1,0 +1,69 @@
+<div class="card-panel element-panel">
+    <schedule-screen-header-function-bar
+        screen-new-entity="{{ 'New Meeting' | translate }}"
+        screen-new-entity-type="meeting"
+        card-view-title="{{'Card View' | translate}}"
+        list-view-title="{{'List View' | translate}}"
+        show-add-new-button="true"
+        show-display-deleted-button="false"
+        selected-projects="vm.selectedProjects"
+        selected-users="vm.selectedUsers"
+        current-view="vm.currentView"
+        search-field="vm.searchField"
+        loaded-resources="vm.resources"
+        selected-resources="vm.selectedResources">
+
+        <screen-title>
+            <span translate>Calendar</span>
+        </screen-title>
+        <additional-filter>
+            <schedule-filter-widget
+                show-meetings="vm.showMeetings"
+                show-tasks="vm.showTasks"
+                show-my-resource-bookings="vm.showMyResourceBookings">
+            </schedule-filter-widget>
+        </additional-filter>
+    </schedule-screen-header-function-bar>
+</div>
+
+<!-- Calendar view -->
+<div class="card-panel" ng-if="vm.currentView == 'calendar'">
+    <schedule-calendar-widget
+        selected-projects="vm.selectedProjects"
+        search-field="vm.searchField"
+        show-tasks="vm.showTasks"
+        show-my-resource-bookings="vm.showMyResourceBookings"
+        show-meetings="vm.showMeetings"
+        selected-users="vm.selectedUsers"
+        calendar-config="vm.calendarConfig"
+        pre-selected-users="vm.users"
+        selected-resources="vm.selectedResources">
+    </schedule-calendar-widget>
+</div>
+
+<!-- List view -->
+<div class="card-panel ng-scope" ng-if="vm.currentView == 'list'">
+    <schedule-list-view
+        selected-projects="vm.selectedProjects"
+        search-field="vm.searchField"
+        show-tasks="vm.showTasks"
+        show-my-resource-bookings="vm.showMyResourceBookings"
+        show-meetings="vm.showMeetings"
+        selected-users="vm.selectedUsers"
+        calendar-config="vm.calendarConfig"
+        pre-selected-users="vm.users">
+    </schedule-list-view>
+</div>
+
+<!-- Card view -->
+<div class="row" ng-if="vm.currentView == 'card'">
+    <schedule-card-view
+        selected-projects="vm.selectedProjects"
+        search-field="vm.searchField"
+        show-tasks="vm.showTasks"
+        show-my-resource-bookings="vm.showMyResourceBookings"
+        show-meetings="vm.showMeetings"
+        selected-users="vm.selectedUsers"
+        pre-selected-users="vm.users">
+    </schedule-card-view>
+</div>

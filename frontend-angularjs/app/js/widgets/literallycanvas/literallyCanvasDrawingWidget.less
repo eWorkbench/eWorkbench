@@ -1,0 +1,95 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../theme/variables";
+
+@lc-toolbar-background-color: #f5f5f5;
+@lc-canvas-border-color: #c8c8c8;
+
+literally-canvas-widget {
+  .literally.core {
+    display: inline-block;
+    border: 1px solid @lc-canvas-border-color;
+  }
+
+  .literally {
+    min-height: 0;
+    background: none;
+    background-image: url('../img/pictures_bg.png');
+  }
+}
+
+
+// style the tooltip popover
+.lc-tooltip-popover {
+  // hide the arrow
+  .arrow {
+    display: none !important;
+  }
+
+  // now that we dont have an arrow, we need to push the content down a bit
+  &.popover.top {
+    margin-top: 2px !important;
+  }
+
+  // lets make the content appear as a toolbar
+  .popover-content {
+    background-color: @lc-toolbar-background-color;
+    padding: 2px;
+  }
+}
+
+
+literally-canvas-drawing-widget-menu {
+  border: 1px solid @lc-canvas-border-color;
+  background-color: @lc-toolbar-background-color;
+  border-bottom: none;
+  // increase width of the colorpicker
+  .colorpicker-visible {
+    min-width: 150px !important;
+  }
+
+  a:focus, a:active, a:hover {
+    text-decoration: none;
+  }
+
+  .lc-toolbar {
+    padding: 5px;
+  }
+
+  .lc-toolbar-button {
+    width: 20px;
+    display: inline-block;
+    text-align: center;
+    color: black;
+    font-size: 12pt;
+
+    &.lc-toolbar-color {
+      width: 40px;
+    }
+
+    &.active {
+      color: @link-hover-color;
+    }
+  }
+
+  .lc-toolbar-separator {
+    padding: 0px 2px;
+    width: 1px;
+    display:inline-block;
+    border-right: 1px solid @lc-canvas-border-color;
+  }
+}
+
+
+.icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+}
+
+.icon-lc-line {
+  background-size: cover;
+  background-image: url('../../node_modules/literallycanvas/img/line.png')
+}

@@ -1,0 +1,13 @@
+<div class="form-group" ng-if="vm.isVisible">
+    <label class="col-sm-3 control-label" for="metadata" translate>
+        Metadata
+    </label>
+    <div class="col-sm-9" style="padding-top: 3px">
+        <metadata-fields-widget
+            base-model="vm.baseModel"
+            base-url-model="vm.baseUrlModel"
+            read-only="vm.readOnly"
+            metadata="vm.metadata">
+        </metadata-fields-widget>
+    </div>
+</div>

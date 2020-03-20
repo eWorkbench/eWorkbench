@@ -1,0 +1,38 @@
+<div class="panel panel-default" style="height: 100%">
+    <div class="panel-heading">
+        <div class="row">
+            <!-- Header -->
+            <div class="col-xs-6" stlye="width: auto">
+                <h3 class="panel-title">
+                    <i class="{{:: vm.meetingsIcon }}"></i>
+                    <a ui-sref="schedule()" translate>My Calendar</a>
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <!-- ui calendar -->
+                <div class="col-xs-12">
+                    <schedule-calendar-widget
+                        show-tasks="vm.showTasks"
+                        show-meetings="vm.showMeetings"
+                        show-my-resource-bookings="vm.showMyResourceBookings"
+                        calendar-config="vm.calendarConfig"
+                        pre-selected-users="[]"
+                        selected-projects="[]">
+                    </schedule-calendar-widget>
+                </div>
+
+                <div class="task-meeting-checkboxes">
+                    <schedule-filter-widget
+                        show-meetings="vm.showMeetings"
+                        show-tasks="vm.showTasks"
+                        show-my-resource-bookings="vm.showMyResourceBookings">
+                    </schedule-filter-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

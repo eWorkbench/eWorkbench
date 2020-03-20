@@ -1,0 +1,5 @@
+<ul>
+{% for metadata in metadata_list %}
+    <li>{{ metadata.field_name }}: {{ metadata.display_value | linebreaks }}</li>
+{% endfor %}
+</ul>

@@ -1,0 +1,9 @@
+<validated-form-element id="resource_contact"
+                        input-element="text"
+                        auto-focus="vm.mode == 'create'"
+                        field-name="contact"
+                        placeholder="{{ 'Resource Contact' | translate }}"
+                        ng-model="vm.resource.contact"
+                        ng-readonly="vm.isReadOnly()"
+                        errors="vm.errors['contact']">
+</validated-form-element>

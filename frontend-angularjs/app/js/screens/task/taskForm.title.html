@@ -1,0 +1,7 @@
+<validated-form-element id="task_title"
+                        auto-focus="vm.mode == 'create'"
+                        input-element="text" field-name="title"
+                        placeholder="{{ 'Name of the task' | translate }}"
+                        ng-readonly="vm.isReadOnly()"
+                        ng-model="vm.task.title"  errors="vm.errors['title']">
+</validated-form-element>

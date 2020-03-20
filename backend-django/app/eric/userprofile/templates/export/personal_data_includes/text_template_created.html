@@ -1,0 +1,57 @@
+{% block content %}
+
+    <p>
+    <h4 class="created_text_templates_title">
+        All text templates that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_text_templates">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name of the text template</th>
+                <th>Content of the text template</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for texttemplate in user.texttemplate_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ texttemplate.name }}</td>
+                    <td>{{ texttemplate.content }}</td>
+                    <td>{{ texttemplate.created_by }}</td>
+                    <td>{{ texttemplate.last_modified_by }}</td>
+                    <td>{{ texttemplate.created_at }}</td>
+                    <td>{{ texttemplate.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for texttemplate in user.texttemplate_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ texttemplate.cs_created_by }}</td>
+                    <td>{{ texttemplate.cs_last_modified_by }}</td>
+                    <td>{{ texttemplate.cs_created_at }}</td>
+                    <td>{{ texttemplate.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+{% endblock %}

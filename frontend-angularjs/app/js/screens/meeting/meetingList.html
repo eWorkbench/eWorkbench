@@ -1,0 +1,41 @@
+<div class="card-panel element-panel">
+    <screen-header-function-bar
+        screen-new-entity="{{ 'New Meeting' | translate }}"
+        screen-new-entity-type="meeting"
+        card-view-title="{{ 'Card View' | translate }}"
+        selected-projects="vm.selectedProjects"
+        selected-users="vm.selectedUsers"
+        users="vm.users"
+        current-view="vm.currentView" search-field="vm.searchField">
+        <screen-title>
+            <span translate>Meetings</span>
+        </screen-title>
+    </screen-header-function-bar>
+</div>
+
+<generic-list-loading-widget
+    loading-flag="vm.meetingsLoaded"
+    loading-text="Meetings">
+</generic-list-loading-widget>
+
+<div class="card-panel" ng-if="vm.currentView == 'list' && vm.meetingsLoaded">
+    <meeting-table-view meetings="vm.meetings" order-by="vm.orderBy" order-dir="vm.orderDir">
+    </meeting-table-view>
+</div>
+
+<!-- card view -->
+<div class="row" ng-if="vm.currentView == 'card' && vm.meetingsLoaded">
+    <meeting-card-view meetings="vm.meetings"></meeting-card-view>
+</div>
+
+<div class="text-center" ng-if="vm.meetings.length > 0 && vm.meetingsLoaded">
+    <ul uib-pagination
+        total-items="vm.numberOfMeetings"
+        items-per-page="vm.currentLimit"
+        force-ellipses="true"
+        boundary-link-numbers="true"
+        max-size="15"
+        ng-model="vm.currentPage"
+        ng-change="vm.pageChanged()">
+    </ul>
+</div>

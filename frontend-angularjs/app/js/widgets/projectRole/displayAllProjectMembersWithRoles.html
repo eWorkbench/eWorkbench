@@ -1,0 +1,15 @@
+<loading-text loading="!vm.dataLoaded">project members</loading-text>
+
+<!-- display all assignments grouped by user, ordered by users lastname -->
+<div ng-if="vm.dataLoaded"
+     ng-repeat="user in vm.allProjectMembers | orderBy: 'userprofile.last_name' | unique: 'pk'">
+    <user-display-widget user="user"></user-display-widget>
+    <!-- iterate over assignments -->
+    (
+    <div style="display: inline;"
+         ng-repeat="role in vm.allProjectMembersRoles[user.pk] | unique: 'pk'">
+        <span ng-bind="role.name"></span>
+        <span ng-show="!$last">, </span>
+    </div>
+    )
+</div>

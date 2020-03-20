@@ -1,0 +1,138 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../node_modules/patternfly/dist/less/variables";
+
+@eric-dark-green: #007c85;
+@eric-green: #2C9BA9;
+@eric-red: #bd0926;
+@eric-orange: #ec7416;
+
+@bs-error-text: #cc0000;
+
+/* change patternfly variables */
+@btn-default-bg-img-start:         #757575; // changed by CKR, was @color-pf-black-100;
+@btn-default-bg-img-stop:          #757575; // changed by CKR, was @color-pf-black-200;
+@card-pf-container-bg-color:       #8C8C8C; // changed by CKR; was @color-pf-black-150;
+@navbar-pf-height:                 51px;    // changed by CKR; was 60px
+@btn-default-bg:                   #757575; // changed by CKR, was @gray-lighter;
+@btn-default-color:                #ffffff; // changed by CKR, was @gray-pf;
+
+// customize navbar
+@navbar-default-color:             #FFFFFF; // changed by CKR; was #777;
+@navbar-default-bg:                @eric-green; // changed by CKR; was #f8f8f8;
+@navbar-default-border:            @eric-green;
+@navbar-default-link-color:        #FFFFFF; // changed by CKR; #777;
+@navbar-default-link-hover-color:  #C4C4C4;
+@navbar-default-link-active-color: #ffffff; // changed by CKR; #555;
+@navbar-default-link-active-bg:    #20818D; // changed by CKR; was darken(@navbar-default-bg, 6.5%);
+@navbar-default-brand-color:       #ffffff;
+@navbar-default-brand-hover-color: #C4C4C4;
+
+// customize nav-tabs
+@nav-tabs-active-link-hover-color:  #ffffff;
+@nav-tabs-color:                    #ffffff;
+@nav-tabs-active-link-hover-bg:     @nav-tabs-background-color;
+@nav-tabs-active-link-hover-border-color: transparent;
+@nav-tabs-border-color:             transparent;
+@nav-tabs-background-color: #969696;
+@nav-tabs-hover-link-color: #C4C4C4;
+@nav-tabs-border-right-color: #ffffff;
+@nav-tabs-active-border-bottom-color: @eric-green;
+
+// nav-tabs for closeable tabs
+@nav-tabs-closeable-hover-link-color: #252525;
+@nav-tabs-closeable-color:            #252525;
+
+//@nav-tabs-border-color
+// customize default panel
+@panel-default-heading-bg:          #969696;
+@panel-default-text:                #FFFFFF;
+@panel-default-border:              #969696;
+
+// customize buttons
+@btn-primary-bg:                    @eric-green;
+@btn-primary-border:                @eric-green;
+@btn-warning-bg:                    #F2912D;
+@btn-warning-border:                #F2912D;
+@btn-default-bg:                    #848484;
+@btn-default-border:                #848484;
+
+// customize form
+@input-border-radius:               0;
+
+@card-pf-container-bg-color:        #EDEDED;
+
+@grid-gutter-width:                20px;
+
+@blockquote-font-size:             12px;
+
+// set default anchor color
+@anchor-color: @eric-green;
+@anchor-hover-color: #20818D;
+
+// set hover color add new object in panel
+@add_new_object_in_panel_hover_color: #BEF8FF;
+
+// set global background color
+@globale-background-color: #EDEDED;
+
+// set background color for task progress bar
+@task_status_new_bg_color: #C70A00;
+@task_status_in_progress_bg_color: #E77C00;
+@task_status_testing_bg_color: #FFD275;
+@task_status_finish_bg_color: #8CBA80;
+@task_status_close_bg_color: #90BFD1;
+@legend_task_status_icon_color: #ffffff;
+
+
+@user-is-not-active-nor-logged-in: #3f3f3f;
+@user-is-not-active-nor-logged-in-search: #8C8C8C;
+
+@card-background-color: #FCFCFC;
+
+@task-list-project-header-background-color: #EDEDED;
+@task-list-dndlist-ul-div-background-color: @card-background-color;
+@task-list-dndlist-ul-div-border-color: black;
+@task-list-dndlist-ul-li-div-background-color: #EDEDED;
+
+/* relation colors */
+@display-relation-background-color: #FCFCFC;
+@display-relation-element-footer-color: #969696;
+@display-relation-element-icon-color: #000000;
+
+@nav-pf-vertical-active-color: @nav-tabs-hover-link-color;
+@nav-pf-vertical-badge-color: white;
+@nav-pf-vertical-border-color: @nav-tabs-background-color;
+@nav-pf-vertical-active-before-color: @navbar-default-border;
+
+@nav-pf-vertical-item-border-color: @nav-tabs-background-color;
+@nav-pf-vertical-width: 170px;
+@nav-pf-vertical-color: white;
+@nav-pf-vertical-active-color: #333;
+@nav-pf-vertical-active-bg-color: white;
+@nav-pf-vertical-bg-color: @nav-tabs-background-color;
+
+@nav-pf-vertical-icon-color: white;
+@nav-pf-vertical-active-icon-color: #333;
+
+
+@navbar-default-toggle-icon-bar-bg: @navbar-default-color;
+@navbar-default-toggle-hover-bg: @eric-dark-green;
+
+@navbar-collapse-max-height: 100vh;
+
+@screen-header-title-size: 16pt;
+@screen-header-title-weight: bold;
+
+// settings for project sidebar / active project menu
+@active-project-top-distance: 60px;
+
+/* loading-bar, loading-spinner */
+@loading-bar-color: #a5d4dc;
+
+// define a box shadow for cards
+.card-box-shadow-mixin {
+  box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.5);
+}

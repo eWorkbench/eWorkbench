@@ -1,0 +1,72 @@
+<!-- Header -->
+<div class="modal-header">
+    <h3 class="modal-title">
+        <span translate>Choose file to add</span>
+    </h3>
+</div>
+
+<form class="form-horizontal choose-existing-files">
+    <div class="panel-body">
+
+        <!-- Search input -->
+        <div class="form-group has-feedback has-clear">
+            <div class="col-xs-12 col-sm-12">
+                <search-field-widget do-search="vm.search(searchString)" cancel-search="vm.cancelSearch()"
+                                     search-input-length="0" debounce="250">
+                </search-field-widget>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- Please wait -->
+                <div ng-show="vm.searching">
+                    <i class="{{ vm.waitingIcon }}"></i>
+                    <span translate>Please wait...</span>
+                </div>
+
+                <!-- No results found -->
+                <div ng-show="vm.searchResult.length == 0 && !vm.searching">
+                    <i class="{{ vm.noResultIcon }}"></i>
+                    <span translate>No Results Found.</span>
+                </div>
+
+                <!-- Found results -->
+                <table class="table table-responsive search-result-table"
+                       ng-show="!vm.searching && vm.searchResult.length > 0">
+                    <thead>
+                    <tr>
+                        <th ng-repeat="column in vm.columns"
+                            sortable-column="{{ column.field }}" sort-by="vm.sortColumn" sort-reverse="vm.sortReverse">
+                            {{ column.title }}
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="result in vm.searchResult | orderBy:vm.sortColumn:vm.sortReverse as filteredRelation track by result.pk"
+                        ng-click="vm.setSelectedItem(result)"
+                        ng-class="{'selected': result.pk === vm.selectedItem.pk, 'fileHasStorage': result.directory_id != null}">
+                        <td ng-repeat="column in vm.columns">
+                            <span html-compile="column.display"
+                                  html-compile-scope="result"
+                                  html-compile-scope-bind="$result">
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Buttons -->
+    <div class="panel-footer text-right">
+        <button class="btn btn-default" ng-click="vm.cancel()" translate>
+            Cancel
+        </button>
+        <button class="btn btn-warning" ng-click="vm.submit()" ng-disabled="vm.selectedItem.pk === undefined" translate>
+            Add
+        </button>
+    </div>
+</form>

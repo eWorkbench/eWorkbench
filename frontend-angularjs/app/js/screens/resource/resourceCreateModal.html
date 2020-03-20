@@ -1,0 +1,23 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>New Resource</h3>
+</div>
+<form class="form-horizontal" name="newResourceForm" ng-submit="vm.create()">
+    <div class="modal-body">
+        <div class="row">
+            <ng-include src="'js/screens/resource/resourceForm.html'"></ng-include>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <!-- Buttons for Create / Cancel -->
+        <div class="text-right">
+            <button id="button_resource_create_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()"
+                    translate>
+                Cancel
+            </button>
+            <button id="button_resource_create_save" class="btn btn-warning" disable-after-click translate>
+                Create
+            </button>
+        </div>
+    </div>
+</form>

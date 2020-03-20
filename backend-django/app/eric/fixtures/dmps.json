@@ -1,0 +1,119 @@
+[
+{
+  "model": "dmp.dmpform",
+  "pk": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb",
+  "fields": {
+    "version_number": 0,
+    "title": "Horizon 2020 DMP",
+    "description": "The Commission is running a flexible pilot under Horizon 2020 called the Open Research Data Pilot (ORD pilot).\r\n\r\nProjects participating in the pilot must submit a first version of the DMP (as a deliverable) within the first 6 months of the project. The DMP needs to be updated over the course of the project whenever significant changes arise."
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "1a78f014-fc1d-44a3-920b-0f3692c0f87d",
+  "fields": {
+    "ordering": 6,
+    "version_number": 0,
+    "name": "3. Allocation of resources",
+    "type": "TXA",
+    "infotext": "<p>Explain the allocation of resources, addressing the following issues:</p>\r\n\r\n<ul>\r\n\t<li>Estimate the costs for making your data FAIR. Describe how you intend to cover these costs</li>\r\n\t<li>Clearly identify responsibilities for data management in your project</li>\r\n\t<li>Describe costs and potential value of long term preservation</li>\r\n</ul>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "1b7afd2d-2f44-4a3e-a374-9573145493f4",
+  "fields": {
+    "ordering": 9,
+    "version_number": 0,
+    "name": "6. Other",
+    "type": "TXF",
+    "infotext": "<p>Refer to other national/funder/sectorial/departmental procedures for data management that you are using (if any)</p>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "32767ab9-8fe8-4e7f-9a93-f7a5859df5de",
+  "fields": {
+    "ordering": 2,
+    "version_number": 0,
+    "name": "2.1 Making data findable, including provisions for metadata",
+    "type": "TXA",
+    "infotext": "<ul>\r\n\t<li>Outline the discoverability of data (metadata provision)</li>\r\n\t<li>Outline the identifiability of data and refer to standard identification mechanism. Do you make use of persistent and unique identifiers such as Digital Object Identifiers?</li>\r\n\t<li>Outline naming conventions used</li>\r\n\t<li>Outline the approach towards search keyword</li>\r\n\t<li>Outline the approach for clear versioning</li>\r\n\t<li>Specify standards for metadata creation (if any). If there are no standards in your discipline describe what metadata will be created and how</li>\r\n</ul>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "65129adb-6722-4c74-8b8b-1579035ed0a2",
+  "fields": {
+    "ordering": 3,
+    "version_number": 0,
+    "name": "2.2 Making data openly accessible",
+    "type": "TXA",
+    "infotext": "<ul>\r\n\t<li>Specify which data will be made openly available? If some data is kept closed provide rationale for doing so</li>\r\n\t<li>Specify how the data will be made available</li>\r\n\t<li>Specify what methods or software tools are needed to access the data? Is documentation about the software needed to access the data included? Is it possible to include the relevant software (e.g. in open source code)?</li>\r\n\t<li>Specify where the data and associated metadata, documentation and code are deposited</li>\r\n\t<li>Specify how access will be provided in case there are any restrictions</li>\r\n</ul>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "a1355104-45e9-4d34-9cf9-d705198813e0",
+  "fields": {
+    "ordering": 1,
+    "version_number": 0,
+    "name": "1. Data Summary",
+    "type": "TXA",
+    "infotext": "<p>Provide a summary of the data addressing the following issues:</p>\r\n\r\n<ul>\r\n\t<li>State the purpose of the data collection/generation</li>\r\n\t<li>Explain the relation to the objectives of the project</li>\r\n\t<li>Specify the types and formats of data generated/collected</li>\r\n\t<li>Specify if existing data is being re-used (if any)</li>\r\n\t<li>Specify the origin of the data</li>\r\n\t<li>State the expected size of the data (if known)</li>\r\n\t<li>Outline the data utility: to whom will it be useful</li>\r\n</ul>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "a4bf0ccb-8a6b-4a34-ba97-772141a2c0eb",
+  "fields": {
+    "ordering": 4,
+    "version_number": 0,
+    "name": "2.3 Making data interoperable",
+    "type": "TXA",
+    "infotext": "<ul>\r\n\t<li>Assess the interoperability of your data. Specify what data and metadata vocabularies, standards or methodologies you will follow to facilitate interoperability.</li>\r\n\t<li>Specify whether you will be using standard vocabulary for all data types present in your data set, to allow inter-disciplinary interoperability? If not, will you provide mapping to more commonly used ontologies?</li>\r\n</ul>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "a4f9c9ae-71d1-4cc2-9f03-17a0f7d03b53",
+  "fields": {
+    "ordering": 7,
+    "version_number": 0,
+    "name": "4. Data security",
+    "type": "TXA",
+    "infotext": "<p>Address data recovery as well as secure storage and transfer of sensitive data</p>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "d9f08a2e-bf50-444a-987d-bcb45e7b1b42",
+  "fields": {
+    "ordering": 8,
+    "version_number": 0,
+    "name": "5. Ethical aspects",
+    "type": "TXA",
+    "infotext": "<p>To be covered in the context of the ethics review, ethics section of DoA and ethics deliverables. Include references and related technical aspects if not covered by the former</p>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+},
+{
+  "model": "dmp.dmpformfield",
+  "pk": "ebdef412-e9e2-4c1a-aa96-b11757b5a448",
+  "fields": {
+    "ordering": 5,
+    "version_number": 0,
+    "name": "2.4 Increase data re-use (through clarifying licenses)",
+    "type": "TXA",
+    "infotext": "<ul>\r\n\t<li>Specify how the data will be licenced to permit the widest reuse possible</li>\r\n\t<li>Specify when the data will be made available for re-use. If applicable, specify why and for what period a data embargo is needed</li>\r\n\t<li>Specify whether the data produced and/or used in the project is useable by third parties, in particular after the end of the project? If the re-use of some data is restricted, explain why</li>\r\n\t<li>Describe data quality assurance processes</li>\r\n\t<li>Specify the length of time for which the data will remain re-usable</li>\r\n</ul>",
+    "dmp_form": "bbc10d7f-ad34-49d1-8ee6-b5272e4e19eb"
+  }
+}
+]

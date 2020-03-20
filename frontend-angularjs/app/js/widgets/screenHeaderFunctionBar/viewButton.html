@@ -1,0 +1,9 @@
+<div class="header-button clickable"
+     tabindex="0"
+     ng-class="{'active' : vm.isActive}"
+     ng-click="vm.switchToView()"
+     role="button"
+     title="{{ vm.textTitle }}">
+    <i ng-class="vm.iconClasses"></i><br/>
+    <span ng-bind="vm.title"></span>
+</div>

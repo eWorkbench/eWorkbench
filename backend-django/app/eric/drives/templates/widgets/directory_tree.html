@@ -1,0 +1,14 @@
+{% load directory_tree simple_object_display i18n %}
+<ul>
+    {% for sub_directory in all_directories %}
+        {% if sub_directory.directory == cur_directory %}
+            {% if sub_directory.name == '/' %}
+            <li>{% trans "Root" %}{% else %}{{ sub_directory.name }}{% endif %}
+                {% directory_tree sub_directory all_directories %}
+            </li>
+        {% endif %}
+        {% for file in sub_directory.files.viewable %}
+            <li>{% simple_object_display file %}</li>
+        {% endfor %}
+    {% endfor %}
+</ul>

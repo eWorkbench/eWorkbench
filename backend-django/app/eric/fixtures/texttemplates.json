@@ -1,0 +1,34 @@
+[
+  {
+    "model": "texttemplates.texttemplate",
+    "pk": "aec4cd92-97fb-45cd-9d1b-83bb208079d0",
+    "fields": {
+      "name": "Note Content Template",
+      "content": "Title:\r\nShort description:\r\nLong description:"
+    }
+  },
+  {
+    "model": "texttemplates.texttemplate",
+    "pk": "e15d5860-7cba-4c16-b18f-bf22f05f6220",
+    "fields": {
+      "name": "Profile Template",
+      "content": "Firstname:\r\nLastname:\r\nBirthdate:\r\nAddress:\r\nPostal code:\r\nCountry:\r\nPhone:"
+    }
+  },
+  {
+    "model": "texttemplates.texttemplate",
+    "pk": "6ea05dff-bb23-4371-9cba-8ed5d4dde9ca",
+    "fields": {
+      "name": "Task Template",
+      "content": "Title:\r\nShort description:\r\nImportant informations:\r\nLong description:"
+    }
+  },
+  {
+    "model": "texttemplates.texttemplate",
+    "pk": "4a0b08fd-5e5d-401f-88e6-8eabb4c4854b",
+    "fields": {
+      "name": "Measurement Protocol",
+      "content": "Date and Time:\r\n\r\nDevices used:\r\n\r\nExperimental Setup:\r\n\r\nSupervisor:\r\n\r\nGoal of Experiment:\r\n\r\nResults:\r\n\r\nReproducability:"
+    }
+  }
+]

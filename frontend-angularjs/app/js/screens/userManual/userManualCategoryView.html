@@ -1,0 +1,15 @@
+<div class="card-panel">
+    <!-- display category description -->
+    <div ng-bind-html="vm.userManualCategory.description | asHtml"></div>
+
+    <!-- display all help text titles -->
+    <div ng-repeat="helpText in vm.helpTexts track by helpText.pk" class="user-manual-help-text">
+        <h3>{{ helpText.title }}</h3>
+
+        <div ng-bind-html="helpText.text | asHtml"></div>
+    </div>
+
+    <div ng-show="vm.helpTexts.length == 0 && !vm.isLoadingHelpTexts">
+        <span translate>This category does not contain any information</span>
+    </div>
+</div>

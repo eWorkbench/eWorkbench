@@ -1,0 +1,163 @@
+{% block content %}
+    <h2 class="object_title">
+        User profile:
+    </h2>
+
+    <h5 class="object_title">
+        auth_user:
+    </h5>
+    <p>
+    <div class="user_profile">
+        Username (system):
+        {{ user.username }}
+        <br>
+
+        First Name (system):
+        {{ user.first_name }}
+        <br>
+
+        Last Name (system):
+        {{ user.last_name }}
+        <br>
+
+        Email (system):
+        {{ user.email }}
+        <br>
+
+        Is Staff?:
+        {{ user.is_staff }}
+        <br>
+
+        Is Admin?:
+        {{ user.is_superuser }}
+        <br>
+
+        <h5 class="object_title">
+            user groups:
+        </h5>
+
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Group name</th>
+            </tr>
+
+            {% for group in user.groups.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ group.name }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h5 class="object_title">
+            user permissions:
+        </h5>
+
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Permission name</th>
+            </tr>
+
+            {% for permission in user.user_permissions.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ permission.name }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+
+        <br>
+        <h5 class="object_title">
+            user profile:
+        </h5>
+
+        First Name:
+        {{ user.userprofile.first_name }}
+        <br>
+        Last Name:
+        {{ user.userprofile.last_name }}
+        <br>
+
+        Academic Title:
+        {{ user.userprofile.academic_title }}
+
+        <br>
+        Additional Information:
+        {{ user.userprofile.additional_information }}
+
+        <br>
+        Country of the user:
+        {{ user.userprofile.country }}
+
+        <br>
+        Other emails:
+        {% for other_email in user.userprofile.email_others %}
+            {{ other_email }}
+        {% endfor %}
+
+        <br>
+        Belongs to organisation:
+        {% for ozm in user.userprofile.org_zug_mitarbeiter %}
+            {{ ozm }}
+        {% endfor %}
+        <br>
+
+        Belongs to organisation lang:
+        {% for org_lang in user.userprofile.org_zug_mitarbeiter_lang %}
+            {{ org_lang }}
+        {% endfor %}
+
+        <br>
+        Is a student:
+        {% for org_student in user.userprofile.org_zug_student %}
+            {{ org_student }}
+        {% endfor %}
+
+        <br>
+        Is a student lang:
+        {% for org_student_lang in user.userprofile.org_zug_student_lang %}
+            {{ org_student_lang }}
+        {% endfor %}
+
+        <br>
+        Phone number:
+        {{ user.userprofile.phone }}
+
+        <br>
+        Salutation:
+        {{ user.userprofile.salutation }}
+
+        <br>
+        Salutation title:
+        {{ user.userprofile.title_salutation }}
+
+        <br>
+        Pre title of user:
+        {{ user.userprofile.title_pre }}
+
+        <br>
+        Post title of user:
+        {{ user.userprofile.title_post }}
+
+        <br>
+        Avatar:
+        {{ user.userprofile.avatar }}
+
+        <br>
+        User url:
+        {{ user.userprofile.website }}
+
+        <br>
+        UI settings:
+        {{ user.userprofile.ui_settings }}
+
+        <br>
+        Date joined:
+        {{ user.date_joined }}
+
+    </div>
+    <br>
+{% endblock %}

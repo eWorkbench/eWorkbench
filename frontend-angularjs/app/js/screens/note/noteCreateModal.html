@@ -1,0 +1,19 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>New Comment</h3>
+</div>
+<form class="form-horizontal" name="newNoteForm" ng-submit="vm.create()">
+    <div class="modal-body">
+        <ng-include src="'js/screens/note/smallNoteView.html'"></ng-include>
+    </div>
+    <div class="modal-footer">
+        <div class="text-right">
+            <button id="button_note_create_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()"
+                    translate>
+                Cancel
+            </button>
+            <button id="button_note_create_save" class="btn btn-warning" translate>
+                Create
+            </button>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,80 @@
+{% block content %}
+
+    <p>
+    <h4 class="created_model_privilege_title">
+        All model privilege categories that the user has created:
+    </h4>
+    </p>
+    <p>
+    <div class="created_model_privilege">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Content object</th>
+                <th>Content type</th>
+                <th>Full access privilege</th>
+                <th>View privilige</th>
+                <th>Edit privilige</th>
+                <th>Delete privilige</th>
+            </tr>
+
+            {% for model_privilege in user.modelprivilege_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ model_privilege.content_object }}</td>
+                    <td>{{ model_privilege.content_type }}</td>
+                    <td>{{ model_privilege.full_access_privilege }}</td>
+                    <td>{{ model_privilege.view_privilege }}</td>
+                    <td>{{ model_privilege.edit_privilege }}</td>
+                    <td>{{ model_privilege.delete_privilege }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Trash privilige</th>
+                <th>Restore privilige</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for model_privilege in user.modelprivilege_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ model_privilege.trash_privilege }}</td>
+                    <td>{{ model_privilege.restore_privilege }}</td>
+                    <td>{{ model_privilege.created_by }}</td>
+                    <td>{{ model_privilege.last_modified_by }}</td>
+                   <td>{{ model_privilege.created_at }}</td>
+                   <td>{{ model_privilege.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for model_privilege in user.modelprivilege_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ model_privilege.cs_created_by }}</td>
+                    <td>{{ model_privilege.cs_last_modified_by }}</td>
+                    <td>{{ model_privilege.cs_created_at }}</td>
+                    <td>{{ model_privilege.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+{% endblock %}

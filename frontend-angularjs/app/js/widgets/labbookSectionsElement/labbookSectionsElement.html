@@ -1,0 +1,89 @@
+<!-- the section element itself -->
+<div ng-mouseenter="vm.onMouseEnter()" ng-mouseleave="vm.onMouseLeave()">
+    <div ng-if="vm.childElement">
+        <div class="row">
+             <div class="form-group">
+                <div class="col-xs-2 labbook-section-date">
+                    <editable-select-list
+                        ng-if="vm.childElement"
+                        buttons-visible="vm.hasUnsavedChanges"
+                        ng-readonly="vm.isReadonly()"
+                        edit-disabled="vm.isReadonly()"
+                        on-save="vm.save()"
+                        on-save-multiple="vm.save()"
+                        ng-model="vm.childElement.date">
+                        <validated-form-element
+                            input-element="text"
+                            ng-readonly="vm.isReadonly()"
+                            ng-model="vm.childElement.date">
+                        </validated-form-element>
+                    </editable-select-list>
+                </div>
+
+                <div class="col-xs-4 labbook-section-title">
+                    <editable-select-list
+                        ng-if="vm.childElement"
+                        buttons-visible="vm.hasUnsavedChanges"
+                        ng-readonly="vm.isReadonly()"
+                        edit-disabled="vm.isReadonly()"
+                        on-save="vm.save()"
+                        on-save-multiple="vm.save()"
+                        ng-model="vm.childElement.title">
+                        <validated-form-element
+                            input-element="text"
+                            ng-readonly="vm.isReadonly()"
+                            ng-model="vm.childElement.title">
+                        </validated-form-element>
+                    </editable-select-list>
+                </div>
+            </div>
+
+            <div class="col-xs-1 pull-right labbook-section-button">
+                <span
+                    ng-show="vm.lockStatus && vm.lockStatus.locked != false && vm.lockStatus['lock_details']['locked_by'].pk != vm.currentUser.pk"
+                    class="text-error"
+                    title="{{ 'This element is currently locked by someone else.' | translate }}">
+                    <span class="fa fa-lock"></span>
+                </span>
+                <span
+                    ng-show="vm.lockStatus && vm.lockStatus.locked != false && vm.lockStatus['lock_details']['locked_by'].pk == vm.currentUser.pk"
+                    class="text-error"
+                    title="{{ 'This element is currently locked by you.' | translate }}">
+                    <span class="fa fa-lock"></span>
+                </span>
+            </div>
+
+            <div class="col-xs-1 pull-right labbook-section-button">
+               <a role="button" ng-click="vm.deleteSection()" ng-show="vm.showCellMove" title="{{ 'Delete'| translate}}">
+                   <i class="{{:: vm.icons.trash }}" aria-hidden="true"></i>
+               </a>
+            </div>
+
+            <div class="col-xs-1 pull-right labbook-section-button">
+                <span title="{{ 'Move'| translate}}" ng-show="vm.showCellMove"
+                      class="{{:: vm.icons.move }} labbook-cell-move"></span>
+            </div>
+
+            <div class="col-xs-1 pull-right labbook-section-button">
+               <a role="button" ng-click="vm.openSection()" title="{{ 'Open Section'| translate}}"
+                   ng-if="!vm.sectionIsOpen">
+                   <i class="{{:: vm.icons.down }}" aria-hidden="true"></i>
+               </a>
+                <a role="button" ng-click="vm.closeSection()" title="{{ 'Close Section'| translate}}"
+                   ng-if="vm.sectionIsOpen">
+                   <i class="{{:: vm.icons.up }}" aria-hidden="true"></i>
+               </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- the section grid below the element opened via the down arrow of the section element -->
+<div class="labbook-section-grid" ng-if="vm.sectionIsOpen">
+    <labbook-section-grid
+        section-element="vm.sectionElement"
+        labbook="vm.labbook"
+        skip-next-websocket-refresh="vm.skipNextWebsocketRefresh"
+        labbook-child-elements="vm.labbookChildElements">
+    </labbook-section-grid>
+</div>

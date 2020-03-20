@@ -1,0 +1,45 @@
+<div class="panel panel-default element-panel">
+    <div class="panel-heading">
+        <div style="float: left">
+            <i class="{{:: vm.projectIcon }}"></i> {{ vm.project.name }}
+        </div>
+        <generic-detail-view-menu-widget
+            ng-if="!vm.isReadOnly"
+            base-model="vm.project"
+            base-url-model="projects"
+            has-export="false"
+            has-trash="true"
+            has-restore="true"
+            has-duplicate="true">
+        </generic-detail-view-menu-widget>
+    </div>
+    <div class="panel-body">
+        <generic-show-element-state-widget base-model="vm.project"
+                                           show-trashed="true"></generic-show-element-state-widget>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- Project -->
+                <overview-project project="vm.project"></overview-project>
+            </div>
+            <div class="col-xs-12 layout-divider-eric"></div>
+            <div class="col-xs-12 layout-divider">
+                <!-- Gantt Chart -->
+                <overview-ganttchart project="vm.project"></overview-ganttchart>
+            </div>
+            <div class="col-xs-12 layout-divider-eric"></div>
+            <div class="col-xs-12">
+                <!-- Calendar -->
+                <overview-calendar project="vm.project"></overview-calendar>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xs-12">
+    <span translate style="color: grey">
+        Hint: Links do not alter access privileges. Other project members might not see linked elements.
+    </span>
+    <!-- relations -->
+    <relation-list-widget base-model="vm.project" base-url-model="project"></relation-list-widget>
+</div>

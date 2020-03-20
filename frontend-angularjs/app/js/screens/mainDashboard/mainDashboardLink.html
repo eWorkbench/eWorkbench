@@ -1,0 +1,45 @@
+<div ng-switch="vm.type">
+    <!-- Project -->
+    <dashboard-projects ng-switch-when="projects"
+                        is-loading="vm.isLoading" projects="vm.data"></dashboard-projects>
+
+    <!-- My Tasks -->
+    <dashboard-tasks ng-switch-when="tasks"
+                     is-loading="vm.isLoading" tasks="vm.data"></dashboard-tasks>
+
+    <!-- My Calendar -->
+    <dashboard-calendar ng-switch-when="calendar"
+                        is-loading="vm.isLoading" meetings="vm.data"></dashboard-calendar>
+
+    <!-- Last Activities -->
+    <dashboard-activities ng-switch-when="activities"
+                          is-loading="vm.isLoading" histories="vm.data"></dashboard-activities>
+
+    <!-- Statistics -->
+    <dashboard-bubble-chart ng-switch-when="bubbles"
+                            is-loading="vm.isLoading" data="vm.data"></dashboard-bubble-chart>
+
+    <!-- Contacts -->
+    <dashboard-contacts ng-switch-when="contacts"
+                        is-loading="vm.isLoading" contacts="vm.data"></dashboard-contacts>
+
+    <!-- Documents/files -->
+    <dashboard-files ng-switch-when="files"
+                     is-loading="vm.isLoading" files="vm.data"></dashboard-files>
+
+    <!-- Notes -->
+    <dashboard-notes ng-switch-when="notes"
+                     is-loading="vm.isLoading" notes="vm.data"></dashboard-notes>
+
+    <!-- Dmps -->
+    <dashboard-dmps ng-switch-when="dmps"
+                    is-loading="vm.isLoading" dmps="vm.data"></dashboard-dmps>
+
+    <!-- Labbooks -->
+    <dashboard-labbooks ng-switch-when="labbooks"
+                        is-loading="vm.isLoading" labbooks="vm.data"></dashboard-labbooks>
+
+    <!-- Resources -->
+    <dashboard-resources ng-switch-when="resources"
+                         is-loading="vm.isLoading" resources="vm.data"></dashboard-resources>
+</div>

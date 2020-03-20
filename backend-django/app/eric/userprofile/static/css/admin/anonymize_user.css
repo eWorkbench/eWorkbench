@@ -1,0 +1,18 @@
+.submit-row .deletebutton {
+    display: block;
+    background: #ba2121;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.submit-row .deletebutton:focus,
+.submit-row .deletebutton:hover,
+.submit-row .deletebutton:active {
+    background: #a41515;
+}
+
+.submit-row .button {
+    padding: 10px 15px;
+}

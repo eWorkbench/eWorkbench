@@ -1,0 +1,219 @@
+{% block content %}
+    <p>
+    <h4 class="modified_task_title">
+        All tasks that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_task">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Title of the task</th>
+                <th>Task start date</th>
+                <th>Task end date</th>
+                <th>Priority of the task</th>
+            </tr>
+
+            {% for task in user.task_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ task.fts_language }}</td>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.start_date }}</td>
+                    <td>{{ task.due_date }}</td>
+                    <td>{{ task.priority}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>State of the task</th>
+                <th>Description of the task</th>
+                <th>Associated projects</th>
+                <th>Associated labels</th>
+            </tr>
+
+            {% for task in user.task_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ task.state }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{% for project in task.projects.all %}
+                        <li>{{ project }}</li>
+                        {% endfor %}
+                    </td>
+                    <td>{% for label in task.labels.all %}
+                        <li>{{ label }}</li>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+            <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for task in user.task_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ task.created_by }}</td>
+                    <td>{{ task.last_modified_by }}</td>
+                    <td>{{ task.created_at }}</td>
+                    <td>{{ task.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for task in user.task_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ task.cs_created_by }}</td>
+                    <td>{{ task.cs_last_modified_by }}</td>
+                    <td>{{ task.cs_created_at }}</td>
+                    <td>{{ task.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+    <p>
+    <h4 class="modified_task_assigned_user_title">
+        All task assignments that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_task_assigned_user">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Task</th>
+                <th>Assigned user</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for taskassigneduser in user.taskassigneduser_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ taskassigneduser.task }}</td>
+                    <td>{{ taskassigneduser.assigned_user }}</td>
+                    <td>{{ taskassigneduser.created_by }}</td>
+                    <td>{{ taskassigneduser.last_modified_by }}</td>
+                    <td>{{ taskassigneduser.created_at }}</td>
+                    <td>{{ taskassigneduser.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for taskassigneduser in user.taskassigneduser_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ taskassigneduser.cs_created_by }}</td>
+                    <td>{{ taskassigneduser.cs_last_modified_by }}</td>
+                    <td>{{ taskassigneduser.cs_created_at }}</td>
+                    <td>{{ taskassigneduser.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+     <p>
+    <h4 class="modified_task_checklist_title">
+        All task checklists that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_task_checklist">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Title of the checklist item</th>
+                <th>Checklist item checked</th>
+                <th>Task</th>
+            </tr>
+
+            {% for taskchecklist in user.taskchecklist_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ taskchecklist.title }}</td>
+                    <td>{{ taskchecklist.checked }}</td>
+                    <td>{{ taskchecklist.task }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for taskchecklist in user.taskchecklist_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ taskchecklist.created_by }}</td>
+                    <td>{{ taskchecklist.last_modified_by }}</td>
+                    <td>{{ taskchecklist.created_at }}</td>
+                    <td>{{ taskchecklist.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for taskchecklist in user.taskchecklist_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ taskchecklist.cs_created_by }}</td>
+                    <td>{{ taskchecklist.cs_last_modified_by }}</td>
+                    <td>{{ taskchecklist.cs_created_at }}</td>
+                    <td>{{ taskchecklist.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

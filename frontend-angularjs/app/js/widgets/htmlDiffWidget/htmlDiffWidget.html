@@ -1,0 +1,4 @@
+<div ng-repeat="diff in vm.diffs">
+    <div ng-class="{'del': diff.deleted, 'ins': diff.inserted}"
+        ng-bind-html="diff.html | asHtml"></div>
+</div>

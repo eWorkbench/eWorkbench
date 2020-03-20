@@ -1,0 +1,41 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters metadata_widget %}
+
+{% block title %}
+    {% trans "Picture" %} {{ instance.title }}
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {{ instance.title }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+
+    {% if instance.rendered_image %}
+        <img src="file://{{ instance.rendered_image.file }}" style="max-height: 900px; max-width: 700px; height: auto">
+    {% elif instance.background_image %}
+        <img src="file://{{ instance.background_image.file }}"
+             style="max-height: 900px; max-width: 700px; height: auto">
+    {% else %}
+        <p>{% trans "No image available" %}</p>
+    {% endif %}
+
+    <p>{% trans "Metadata" %}:
+        {% all_metadata_as_html instance %}
+    </p>
+
+    <p>{% trans "Projects" %}:
+    <ul>
+        {% for project in instance.projects.all %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <h3>{% trans "Links" %}</h3>
+
+    {% include "widgets/object_relations.html" %}
+{% endblock %}

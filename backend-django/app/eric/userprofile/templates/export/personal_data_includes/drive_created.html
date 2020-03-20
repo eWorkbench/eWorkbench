@@ -1,0 +1,76 @@
+{% block content %}
+
+    <p>
+    <h4 class="created_drive_title">
+        All drive entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_drive">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Drive title</th>
+                <th>Associated projects</th>
+
+            </tr>
+
+            {% for drive in user.drive_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ drive.fts_language }}</td>
+                    <td>{{ drive.title }}</td>
+                   <td>{% for project in drive.projects.all %}
+                       <li> {{ project }} </li>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for drive in user.drive_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ drive.created_by }}</td>
+                    <td>{{ drive.last_modified_by }}</td>
+                    <td>{{ drive.created_at }}</td>
+                    <td>{{ drive.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for drive in user.drive_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ drive.cs_created_by }}</td>
+                    <td>{{ drive.cs_last_modified_by }}</td>
+                    <td>{{ drive.cs_created_at }}</td>
+                    <td>{{ drive.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+
+{% endblock %}

@@ -1,0 +1,31 @@
+<!-- Template for the calendar tooltip widget -->
+<div ng-if="vm.event">
+    <p>{{ vm.event.title }}</p>
+    <p>{{ vm.event.date_time_start | smallDate }} - {{ vm.event.date_time_end | smallDate }}</p>
+
+    <p ng-show="vm.event.resource">Booked Resource: {{ vm.event.resource.name }}</p>
+    <p ng-bind-html="vm.event.text | asHtml"></p>
+</div>
+<!-- Meeting -->
+<div ng-if="vm.meeting">
+    <p>{{ vm.meeting.title }}</p>
+    <p>{{ vm.meeting.date_time_start | smallDate }} - {{ vm.meeting.date_time_end | smallDate }}</p>
+
+    <p ng-show="vm.meeting.resource">Booked Resource: {{ vm.meeting.resource.name }}</p>
+    <p ng-bind-html="vm.meeting.text | asHtml"></p>
+</div>
+
+<!-- Task -->
+<div ng-if="vm.task">
+    <p>{{ vm.task.title }}</p>
+    <p>{{ vm.task.start_date | smallDate }} - {{ vm.task.due_date | smallDate }}</p>
+
+    <p ng-bind-html="vm.task.description | asHtml"></p>
+</div>
+
+<!-- Ressource -->
+<div ng-if="vm.resourcebooking">
+    <p>{{ vm.resourcebooking.resource.name }}</p>
+    <p>{{ vm.resourcebooking.date_time_start | smallDate }} - {{ vm.resourcebooking.date_time_end | smallDate }}</p>
+    <p>Booked By: {{ vm.resourcebooking.created_by | fullNameOrUsername }}</p>
+</div>

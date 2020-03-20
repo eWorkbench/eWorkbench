@@ -1,0 +1,78 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters metadata_widget dict_key %}
+
+{% block title %}
+    {% trans "LabBook" %} {{ instance.title }}
+{% endblock %}
+
+{% block extra_css %}
+    p {
+    margin: 0 0 16px;
+    }
+
+    .labbook-header h3 {
+    margin: 5px 0;
+    }
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {{ instance.title }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+
+    <p>{% trans "Description" %}:
+        {{ instance.description | safe }}
+    </p>
+
+    <p>{% trans "Metadata" %}:
+        {% all_metadata_as_html instance %}
+    </p>
+
+    <p>{% trans "Projects" %}:
+    <ul>
+        {% for project in instance.projects.all %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <h3>{% trans "Links" %}</h3>
+
+    {% include "widgets/object_relations.html" %}
+
+    <hr>
+
+    <h3>{% trans "Elements" %}</h3>
+    {% for child_element in labbook_child_elements %}
+        <div style="margin-bottom: 10px">
+            {% if child_element.child_object and child_element.child_object.child_elements and child_element.pk in section_child_elements %}
+                {% simple_object_display child_element.child_object %}
+                <div style="margin: 10px">
+                    {% for section_pk, section_child_element_list in section_child_elements.items %}
+                        {% if child_element.pk == section_pk %}
+                                {% for section_child_element in section_child_element_list %}
+                                    {% simple_object_display section_child_element.child_object %}
+                                    {% if not forloop.last %}
+                                        <hr>
+                                    {% endif %}
+                                {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% elif child_element.child_object %}
+                {% simple_object_display child_element.child_object %}
+            {% endif %}
+        </div>
+
+        {% if not forloop.last %}
+            <hr>
+        {% endif %}
+
+    {% endfor %}
+
+
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters metadata_widget %}
+
+{% block title %}
+    {% trans "Note" %} #{{ instance.subject }}
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {{ instance.subject }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+
+    <div>
+        {{ instance.content | safe }}
+    </div>
+
+    <p>{% trans "Metadata" %}:
+	    {% all_metadata_as_html instance %}
+    </p>
+
+    <p>{% trans "Projects" %}:
+    <ul>
+        {% for project in instance.projects.all %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <h3>{% trans "Links" %}</h3>
+
+    {% include "widgets/object_relations.html" %}
+{% endblock %}

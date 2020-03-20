@@ -1,0 +1,120 @@
+{% block content %}
+    <p>
+    <h4 class="created_project_title">
+        All projects that the user has created:
+    </h4>
+    </p>
+    <p>
+
+    <div class="created_project">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Project name</th>
+                <th>Description of the project</th>
+                <th>State of the project</th>
+                <th>Parent project</th>
+            </tr>
+
+            {% for project in user.project_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ project.fts_language }}</td>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.description }}</td>
+                    <td>{{ project.parent_project }}</td>
+                    <td>{{ project.project_state }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Project start date</th>
+                <th>Project end date</th>
+                <th>Subprojects</th>
+
+            </tr>
+
+            {% for project in user.project_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ project.start_date }}</td>
+                    <td>{{ project.stop_date }}</td>
+                    <td>{% for sub_project in project.sub_projects.all %}
+                           <li>{{ sub_project }}</li>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+    <p>
+    <h4 class="created_project_role_user_assignment_title">
+        All project role assignments that the user has created:
+    </h4>
+    </p>
+    <p>
+    <div class="created_project_role_user_assignment">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Assigned project</th>
+                <th>Assigned role</th>
+            </tr>
+
+            {% for projectrole in user.projectroleuserassignment_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ projectrole.project }}</td>
+                    <td>{{ projectrole.role }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for projectrole in user.projectroleuserassignment_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ projectrole.created_by }}</td>
+                    <td>{{ projectrole.last_modified_by }}</td>
+                    <td>{{ projectrole.created_at }}</td>
+                    <td>{{ projectrole.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for projectrole in user.projectroleuserassignment_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ projectrole.cs_created_by }}</td>
+                    <td>{{ projectrole.cs_last_modified_by }}</td>
+                    <td>{{ projectrole.cs_created_at }}</td>
+                    <td>{{ projectrole.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

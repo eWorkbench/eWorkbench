@@ -1,0 +1,54 @@
+{% block content %}
+    
+    <p>
+    <h4 class="modified_version_title">
+        All version entries that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_version">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Content type</th>
+                <th>object id</th>
+                <th>Meta data for this version</th>
+                <th>Summary of the version</th>
+            </tr>
+
+            {% for version in user.version_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ version.content_type }}</td>
+                    <td>{{ version.object_id }}</td>
+                    <td>{{ version.metadata }}</td>
+                    <td>{{ version.summary }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for version in user.version_z.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ version.created_by }}</td>
+                    <td>{{ version.last_modified_by }}</td>
+                    <td>{{ version.created_at }}</td>
+                    <td>{{ version.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+
+{% endblock %}

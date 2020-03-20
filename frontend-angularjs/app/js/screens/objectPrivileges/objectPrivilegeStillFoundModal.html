@@ -1,0 +1,24 @@
+<div class="modal-header">
+    <div class="modal-title" translate>
+        Privileges could not be deleted
+    </div>
+</div>
+<div class="modal-body">
+    <div>
+        <capture-html param="userDisplayWidget">
+            <user-display-widget user="vm.user"></user-display-widget>
+        </capture-html>
+
+        <span translate translate-html-params-user-display-widget="userDisplayWidget">
+            Could not fully delete privileges for {{ userDisplayWidget }}, as
+            some privileges are inherited from a parent object (e.g., project roles).
+            Therefor the user will still be listed.
+        </span>
+    </div>
+    <div translate>
+        However, the user is no longer able to access the element.
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="vm.dismiss()" translate>OK</button>
+</div>

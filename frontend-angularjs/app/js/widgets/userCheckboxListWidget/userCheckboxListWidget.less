@@ -1,0 +1,31 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+user-checkbox-list-widget {
+
+  .user-checkbox {
+    display: inline-block;
+    margin-right: 25px;
+  }
+
+  // to hide the checkbox itself
+  input[type=checkbox] {
+    display: none;
+  }
+
+  // unchecked icon
+  input[type=checkbox] + label:before {
+    font-family: FontAwesome;
+    display: inline-block;
+    color: #3a99fc;
+    content: "\f0c8";
+    letter-spacing: 5px;
+  }
+
+  // checked icon
+  input[type=checkbox]:checked + label:before {
+    content: "\f14a";
+    letter-spacing: 5px;
+  }
+}

@@ -1,0 +1,4 @@
+<div class="task-legend-item" ng-repeat="legend in vm.taskConverterService.taskStateOrder | reverse">
+    <i class="{{ vm.taskConverterService.taskStateImages[legend]}} {{ vm.taskConverterService.taskStates[legend] }}"></i>
+    <span>{{  vm.taskConverterService.taskStateTexts[legend] }}</span>
+</div>

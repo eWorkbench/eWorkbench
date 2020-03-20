@@ -1,0 +1,45 @@
+<div class="card-display">
+    <!-- card title: subjecte -->
+    <h4 class="header">
+        <div class="ellipsis">
+            <i class="{{:: vm.taskIcon }}" aria-hidden="true" title="{{ 'Task' | translate}}"></i>
+            <task-link task="vm.task"></task-link>
+        </div>
+
+        <div ng-transclude="cardFunctions" style="display: inline-block; float: right">
+
+        </div>
+    </h4>
+
+    <script type="text/ng-template" id="displayRelationTaskWidgetPopover.html">
+        <div ng-bind-html="vm.task.description | asHtml"></div>
+    </script>
+
+    <!-- more details and picture -->
+    <div class="content mce-content-body">
+        <div class="picture" title="{{ 'Assigned user' | translate }}" ng-if="vm.task.assigned_users && vm.task.assigned_users.length > 0">
+            <img ng-src="{{ vm.task.assigned_users[0].userprofile.avatar }}" class="img-responsive" style="max-height: 80px">
+            <span ng-show="vm.task.assigned_users.length > 1" translate>
+                and <a role="button" tabindex="0" ng-click="vm.showAssignedUsersForTask(vm.task)">
+                {{ vm.task.assigned_users.length - 1 }} more
+            </a>
+            </span>
+        </div>
+        <div class="info newline-to-break" uib-popover-template="'displayRelationTaskWidgetPopover.html'"
+                  popover-placement="auto"
+                  popover-trigger="'mouseenter'"
+                  popover-popup-delay="500"
+                  popover-popup-close-delay="500"
+                  popover-class="popover-large"
+                  ng-bind-html="vm.task.description | asHtml">
+        </div>
+    </div>
+
+    <div class="card-footer" ng-transclude="cardFooter">
+        <span class="font-color" translate>Created by</span>
+        <user-display-widget user="vm.task.created_by"></user-display-widget>
+        <span class="font-color">-</span>
+
+        <span class="font-color">{{ vm.task.created_at | smallDateWithToday }}</span>
+    </div>
+</div>

@@ -1,0 +1,267 @@
+{% block content %}
+
+    <p>
+    <h4 class="created_dmp_title">
+        All dmp entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_dmp">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Title of dmp</th>
+                <th>Status of dmp</th>
+                <th>Associated projects</th>
+                <th>Dmp form associated</th>
+            </tr>
+
+            {% for dmp in user.dmp_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmp.fts_language }}</td>
+                    <td>{{ dmp.title }}</td>
+                    <td>{{ dmp.status }}</td>
+                    <td>{% for project in dmp.projects.all %}
+                        <li>{{ project }}</li>
+                    {% endfor %}
+                    </td>
+                    <td>{{ dmp.dmp_form }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for dmp in user.dmp_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmp.created_by }}</td>
+                    <td>{{ dmp.last_modified_by }}</td>
+                    <td>{{ dmp.created_at }}</td>
+                    <td>{{ dmp.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for dmp in user.dmp_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmp.cs_created_by }}</td>
+                    <td>{{ dmp.cs_last_modified_by }}</td>
+                    <td>{{ dmp.cs_created_at }}</td>
+                    <td>{{ dmp.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+    </p>
+
+    <p>
+    <h4 class="created_dmp_form_title">
+        All dmp form entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_dmp_form">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Title of dmp form</th>
+                <th>Description of dmp form</th>
+            </tr>
+
+            {% for dmpform in user.dmpform_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmpform.title }}</td>
+                    <td>{{ dmpform.description }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for dmpform in user.dmpform_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmpform.created_by }}</td>
+                    <td>{{ dmpform.last_modified_by }}</td>
+                    <td>{{ dmpform.created_at }}</td>
+                    <td>{{ dmpform.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for dmpform in user.dmpform_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmpform.cs_created_by }}</td>
+                    <td>{{ dmpform.cs_last_modified_by }}</td>
+                    <td>{{ dmpform.cs_created_at }}</td>
+                    <td>{{ dmpform.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+    <p>
+    <h4 class="created_dmp_form_data_title">
+        All dmp form data entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_dmp_form_data">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name of the dmp form data</th>
+                <th>Type of the dmp form data</th>
+                <th>Value of the dmp form data</th>
+                <th>Infotext display html</th>
+            </tr>
+
+            {% for dmpformdata in user.dmpformdata_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmpformdata.name }}</td>
+                    <td>{{ dmpformdata.type }}</td>
+                    <td>{{ dmpformdata.value }}</td>
+                    <td>{{ dmpformdata.infotext }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for dmpformdata in user.dmpformdata_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmpformdata.created_by }}</td>
+                    <td>{{ dmpformdata.last_modified_by }}</td>
+                    <td>{{ dmpformdata.created_at }}</td>
+                    <td>{{ dmpformdata.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+    </p>
+
+    <p>
+    <h4 class="created_dmp_form_field_title">
+        All dmp form data entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_dmp_form_field">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name of the dmp form field</th>
+                <th>Type of the dmp form field</th>
+                <th>Infotext of the dmp form field</th>
+            </tr>
+
+            {% for dmpformfield in user.dmpformfield_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmpformfield.name }}</td>
+                    <td>{{ dmpformfield.type }}</td>
+                    <td>{{ dmpformfield.infotext }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for dmpformfield in user.dmpformfield_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmpformfield.created_by }}</td>
+                    <td>{{ dmpformfield.last_modified_by }}</td>
+                    <td>{{ dmpformfield.created_at }}</td>
+                    <td>{{ dmpformfield.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for dmpformfield in user.dmpformfield_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dmpformfield.cs_created_by }}</td>
+                    <td>{{ dmpformfield.cs_last_modified_by }}</td>
+                    <td>{{ dmpformfield.cs_created_at }}</td>
+                    <td>{{ dmpformfield.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+    </p>
+
+{% endblock %}

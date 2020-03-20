@@ -1,0 +1,204 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../theme/variables";
+
+labbook-view {
+  // labbok left side menu
+  .labbook-left-side-menu {
+    margin-top: 30px;
+    height: 220px;
+    background-color: @navbar-default-bg;
+    text-align: center;
+    color: white;
+    width: 40px;
+
+    // define link colors for labbook left side menu
+    a {
+      color: @navbar-default-link-color;
+      &:hover {
+        color: @navbar-default-link-hover-color;
+      }
+    }
+  }
+
+  .labbook-cell {
+    background-color: #FCFCFC;
+    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.5);
+    display: block;
+
+    -webkit-transition: box-shadow 0.3s ease, border 0.3s ease;
+    -moz-transition: box-shadow 0.3s ease, border 0.3s ease;
+    -ms-transition: box-shadow 0.3s ease, border 0.3s ease;
+    -o-transition: box-shadow 0.3s ease, border 0.3s ease;
+    transition: box-shadow 0.3s ease, border 0.3s ease;
+
+    &:hover {
+      box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.8);
+    }
+
+
+    .labbook-cell-move {
+      cursor: move;
+    }
+
+    .labbook-cell-menu-icon {
+    }
+  }
+
+  .labbook-board {
+    // set min-width to be slightly larger than the width of the paper, in order to enable scroll bars
+    min-width: 42cm;
+
+    transform-origin: 0 0;
+    background: url('../img/labbook_bg.png') repeat;
+    border: 1px solid black;
+    margin-bottom: 20px;
+    padding: 10px;
+
+
+    .labbook-board-paper {
+      margin: auto;
+      //overflow-x: hidden;
+      //overflow-y: hidden;
+      border: 1px dashed grey;
+      background-color: rgba(255, 255, 255, 0.5);
+      width: 40cm;
+      padding: 1cm 1cm 2cm;
+
+
+      .toolbox-container {
+        z-index: 1010;
+        position: fixed;
+        top: 100px;
+        left: 234.375px;
+      }
+    }
+  }
+
+
+
+  /**
+  The list of new items
+   */
+  .labbook-new-item-list {
+    margin: 20px auto;
+    height: 130px;
+    background-color: white;
+    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.5);
+    vertical-align: middle;
+    width: 510px;
+    text-align: center;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    > div {
+      margin-left: auto;
+      margin-right: auto;
+
+      > a {
+        position: relative;
+        padding-left: 4px;
+        padding-right: 4px;
+
+        margin-left: 1px;
+        margin-right: 1px;
+
+        // transparent border so we can present a border when drag and drop is active
+        border: 4px solid transparent;
+
+        &:hover {
+          text-decoration: none;
+          * {
+            color: @eric-dark-green !important;
+          }
+        }
+
+        span {
+          color: @eric-green;
+        }
+
+        p, p > span {
+          font-size: 10pt;
+          font-weight: bold;
+          color: black;
+          margin: 10px 0px;
+        }
+
+        .show-on-dragover {
+          display: none;
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          right: 0px;
+          // disable pointer events so the drop event is still working on the parent element
+          pointer-events: none;
+        }
+
+        &.dragover {
+          border: 4px dashed @eric-green;
+
+          * {
+            color: @eric-green !important;
+          }
+
+          .hide-on-dragover {
+            opacity: 0.3;
+          }
+
+          .show-on-dragover {
+            display: inline;
+          }
+        }
+      }
+    }
+  }
+
+  .sections-date-filter {
+    height: 40px;
+    width: 40cm;
+    margin: 0 auto 10px;
+    background-color: @navbar-default-bg;
+    color: white;
+    .sections-date-filter-title {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+    .sections-date-filter-text {
+      display: block;
+      margin-top: 10px;
+    }
+    .sections-date-filter-datepicker {
+      display: block;
+      padding-top: 7px;
+      color: #363636;
+    }
+    .sections-date-filter-reset {
+      a {
+        color: white;
+        display: block;
+        margin-top: 10px;
+      }
+      font-weight: bold;
+    }
+    .sections-date-filter-new, .sections-date-filter-filter-link {
+      a {
+        color: white;
+        display: block;
+        margin-top: 10px;
+        padding-right: 10px;
+      }
+      font-weight: bold;
+    }
+  }
+
+  .disabled-link {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+

@@ -1,0 +1,14 @@
+{% load html_unescape i18n metadata_widget %}DMP name: {{ dmp.title}}
+
+Status: {{ dmp.status}}
+
+Metadata:
+{% all_metadata_as_text dmp %}
+Created by: {{ dmp.created_by.username }}
+Last modified at: {{ dmp.last_modified_at }}
+
+{% for data in dmp_form_data %}
+Name: {{ data.name }}
+Value: {{ data.value | striptags | html_unescape }}
+
+{% endfor %}

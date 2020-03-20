@@ -1,0 +1,35 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+// make sure that images within the user manual category view are always scaled to the maximum width of the container
+user-manual-category-view {
+  // some formatting of the help texts
+  .user-manual-help-text {
+    h3 {
+      margin-top: 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    // limit the size of texts
+    p {
+      max-width: 1000px;
+      text-align: justify;
+    }
+
+    // make sure images are responsive
+    img {
+      @media(min-width: 769px) {
+        max-width: ~"calc(100vw - 280px)";
+      }
+      @media(max-width: 768px) {
+        max-width: 100%;
+      }
+      height: auto !important;
+    }
+
+    margin-bottom: 20px;
+  }
+
+}

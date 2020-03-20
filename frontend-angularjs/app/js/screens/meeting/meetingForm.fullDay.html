@@ -1,0 +1,6 @@
+<label title="{{ 'Toggle full day meeting' | translate }}">
+    <input type="checkbox" ng-change="vm.changeFullDay()"
+           ng-disabled="vm.isReadOnly()"
+           ng-model="vm.isFullDay">
+    <span translate>Full day</span>
+</label>

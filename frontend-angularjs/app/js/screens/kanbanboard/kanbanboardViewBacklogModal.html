@@ -1,0 +1,153 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>Backlog</h3>
+</div>
+<div class="modal-body">
+
+    <!-- filters -->
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="col-xs-3 col-sm-2" translate>
+                Project
+            </label>
+            <div class="col-xs-9 col-sm-5">
+                <!-- select project filter -->
+                <project-filter-selectize-widget
+                    selected-project-pks="vm.selectedProjects"
+                    placeholder="{{ 'Filter by project' | translate}}"
+                    max-items="1"></project-filter-selectize-widget>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 col-sm-2" translate>
+                Search
+            </label>
+            <div class="col-xs-9 col-sm-5">
+                <div class="form-group has-feedback has-clear">
+                    <div class="col-xs-12">
+                        <search-field-widget do-search="vm.doSearch(searchString)" cancel-search="vm.cancelSearch()"
+                                             search-input-length="0" debounce="50">
+                        </search-field-widget>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="filteredTasks.length > 0">
+
+        <div translate>
+            The selected tasks will be added to your Task Board.
+        </div>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="vm.allTasksSelected" ng-change="vm.selectAllTasks()">
+                <span ng-show="!vm.allTasksSelected" translate>Select all on this page</span>
+                <span ng-show="vm.allTasksSelected" translate>Unselect all on this page</span>
+            </label>
+        </div>
+
+
+        <!-- scrollable result table -->
+        <table class="table table-responsive table-hover" style="max-height: 50vh; overflow: auto; display: block;">
+            <thead>
+            <tr>
+                <th width="30">
+                    <!-- checkbox -->
+                </th>
+                <th width="60" sortable-column="task_id" sort-by="vm.sortColumn" sort-reverse="vm.sortReverse">
+                    <span translate>ID</span>
+                </th>
+                <th width="100" sortable-column="priority_as_number" sort-by="vm.sortColumn"
+                    sort-reverse="vm.sortReverse">
+                    <span translate>Priority</span>
+                </th>
+                <th sortable-column="title" sort-by="vm.sortColumn" sort-reverse="vm.sortReverse">
+                    <span translate>Task Title</span>
+                </th>
+                <th width="100" sortable-column="state_as_number" sort-by="vm.sortColumn" sort-reverse="vm.sortReverse">
+                    <span translate>State</span>
+                </th>
+                <th width="130"
+                    sortable-column="start_date" sort-by="vm.sortColumn" sort-reverse="vm.sortReverse">
+                    <span translate>Start date</span>
+                </th>
+                <th width="130"
+                    sortable-column="due_date" sort-by="vm.sortColumn" sort-reverse="vm.sortReverse">
+                    <span translate>Due Date</span>
+                </th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="task in vm.filteredTasks | filter: {deleted:false} | orderBy:vm.sortColumn:vm.sortReverse as filteredTasks track by task.pk">
+                <!-- checkbox -->
+                <td>
+                    <input type="checkbox" ng-model="vm.selectedTasks[task.pk]">
+                </td>
+
+                <!-- Task ID -->
+                <td>
+                    #{{ task.task_id }}
+                </td>
+                <!-- Priority -->
+                <td>
+                    <task-state-priority-display-widget
+                        task-priority="task.priority"></task-state-priority-display-widget>
+                </td>
+                <!-- Name -->
+                <td>
+                    <a role="button" ui-sref="task-view({task: task})">
+                        {{ task.title }}
+                    </a>
+                </td>
+                <!-- State -->
+                <td>
+                    <task-state-priority-display-widget task-state="task.state"></task-state-priority-display-widget>
+                </td>
+                <!-- Start date -->
+                <td>
+                    {{ task.start_date | smallDate }}
+                </td>
+                <!-- Due Date -->
+                <td>
+                    {{ task.due_date | smallDate }}
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+    <div ng-show="!vm.tasksLoaded">
+        <span translate>Loading... Please wait!</span>
+    </div>
+    <div ng-show="filteredTasks.length == 0 && vm.tasksLoaded">
+        <span translate>There are no tasks in the backlog.</span>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="vm.cancel()" translate>
+        Cancel
+    </button>
+
+    <button ng-if="vm.getNumberOfSelectedTasks() > 0"
+            class="btn btn-primary" ng-click="vm.addToKanban()"
+            translate translate-n="vm.getNumberOfSelectedTasks()"
+            translate-plural="Add {{ vm.getNumberOfSelectedTasks() }} tasks to Board"
+    >
+        Add task to Board
+    </button>
+</div>
+
+<div class="text-center" ng-if="vm.tasks.length > 0 && vm.tasksLoaded">
+   <ul uib-pagination
+       total-items="vm.numberOfTasks"
+       items-per-page="vm.currentLimit"
+       force-ellipses="true"
+       boundary-link-numbers="true"
+       max-size="15"
+       ng-model="vm.currentPage"
+       ng-change="vm.pageChanged()">
+   </ul>
+</div>

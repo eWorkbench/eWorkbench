@@ -1,0 +1,56 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters directory_tree metadata_widget %}
+
+{% block title %}
+    {% trans "Storage" %} {{ instance.title }}
+{% endblock %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {{ instance.title }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+
+    <p>{% trans "Metadata" %}:
+        {% all_metadata_as_html instance %}
+    </p>
+
+    <p>{% trans "Projects" %}:
+    <ul>
+        {% for project in instance.projects.all %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <p>{% trans "Folders" %}:
+        {% directory_tree None instance.sub_directories.all %}
+    </p>
+
+    <h3>{% trans "Links" %}</h3>
+
+    {% include "widgets/object_relations.html" %}
+
+    <hr>
+
+    {% for child_element in instance.child_elements.all %}
+        <div style="margin-bottom: 10px">
+            {% if child_element.child_object %}
+                {% simple_object_display child_element.child_object %}
+            {% endif %}
+        </div>
+
+        {% if not forloop.last %}
+            <hr>
+        {% endif %}
+
+    {% endfor %}
+
+{% endblock %}

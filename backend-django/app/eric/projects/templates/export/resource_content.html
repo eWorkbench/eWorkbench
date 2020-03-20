@@ -1,0 +1,37 @@
+{% load i18n user_widgets simple_object_display date_filters metadata_widget %}
+
+<h2 class="object_title">
+    Booking for: {{ instance.resource.name }}
+</h2>
+<div class="info_created_by">
+    {% trans "Created by" %} {% display_user_widget instance.created_by %}
+    {% trans "at" %} {{ instance.created_at | date_short }}
+</div>
+
+<p>{% trans "Resource" %}: {{ instance.resource.name }}</p>
+
+<p>{% trans "Resource Type" %}: {{ instance.resource.get_type_display }}</p>
+
+<p>{% trans "Booked From" %}: {{ instance.date_time_start | date_short }}</p>
+
+<p>{% trans "Booked To" %}: {{ instance.date_time_end | date_short }}</p>
+
+<p>{% trans "Meeting" %}: {{ instance.meeting.title }}</p>
+
+<p>{% trans "Attending users" %}:
+    <ul>
+        {% for user in instance.meeting.attending_users.all %}
+            <li>{% display_user_widget user %}</li>
+        {% endfor %}
+    </ul>
+</p>
+
+<p>{% trans "Booked By" %}: {% display_user_widget instance.created_by %}</p>
+
+<p>{% trans "Booked At" %}: {{ instance.created_at | date_short}}</p>
+
+<p>{% trans "Comment" %}:</p>
+<div>
+    {{ instance.comment | safe }}
+</div>
+

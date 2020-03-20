@@ -1,0 +1,91 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters metadata_widget %}
+
+{% block title %}
+    {% trans "Task" %} #{{ instance.task_id }}: {{ instance.title }}
+{% endblock %}
+
+{% block extra_css %}
+    table.sub_tasks {
+        width: auto;
+    }
+
+    table.sub_tasks td {
+        text-align: left;
+        padding: 5px;
+        border-bottom: none;
+    }
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {% trans "Task" %} #{{ instance.task_id }}: {{ instance.title }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+    <p>{% trans "Assignees" %}:
+    <ul>
+        {% for user in instance.assigned_users.all %}
+            <li>
+                {% display_user_widget user %}
+            </li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <p>{% trans "Start Date" %}: {{ instance.start_date | date_short }}</p>
+
+    <p>{% trans "Due Date" %}: {{ instance.due_date | date_short }}</p>
+
+    <p>{% trans "Task State" %}: {{ instance.get_state_display }}</p>
+
+    <p>{% trans "Priority" %}: {{ instance.get_priority_display }}</p>
+
+    <p>{% trans "Checklist" %}: </p>
+    {% if instance.checklist_items.all.count > 0 %}
+
+    <table class="sub_tasks">
+        {% for subTask in instance.checklist_items.all %}
+            <tr>
+                <td>{% if subTask.checked %} &#x2611; {% else %} &#x2610; {% endif %}</td>
+                <td>{{ subTask.title }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    {% endif %}
+
+    <p>{% trans "Labels" %}:
+        {% for label in instance.labels.all %}
+            <div style="display: inline-block; padding: 0 10px; border-radius: 5px; min-width: 20px; color: {{ label.font_color }}; background-color: {{ label.color }}">
+                {% if label.name == "" %}
+                    &nbsp;
+                {% else %}
+                    {{ label.name }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    </p>
+
+    <p>{% trans "Metadata" %}:
+        {% all_metadata_as_html instance %}
+    </p>
+
+    <p>{% trans "Projects" %}:
+    <ul>
+        {% for project in instance.projects.all %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <div>
+        {{ instance.description | safe }}
+    </div>
+
+    <h3>{% trans "Links" %}</h3>
+
+    {% include "widgets/object_relations.html" %}
+{% endblock %}

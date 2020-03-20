@@ -1,0 +1,16 @@
+<div style="display: inline-block; float:right ">
+    <!-- Toggle Lock/Unlock -->
+    <a class="relations-icon-color" ng-click="vm.api.toggleLock()" title="{{ vm.lockStatusText[vm.relation.private] }}"
+       role="button" tabindex="0">
+        <i ng-show="vm.displayIcons.isAllowedToUnlock && vm.relation.private == true"
+           class="{{:: vm.lockIcon }}" aria-hidden="true"></i>
+        <i ng-show="vm.displayIcons.isAllowedToLock && vm.relation.private == false"
+           class="{{:: vm.unlockIcon }}" aria-hidden="true"></i>
+    </a>
+
+    <!-- delete relation -->
+    <a class="relations-icon-color" ng-show="vm.displayIcons.chain" ng-click="vm.api.onDelete()" title="{{ 'Delete link' | translate }}"
+       role="button" tabindex="0">
+        <i class="{{:: vm.removeIcon }}" aria-hidden="true"></i>
+    </a>
+</div>

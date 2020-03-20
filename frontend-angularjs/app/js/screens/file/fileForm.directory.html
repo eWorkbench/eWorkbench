@@ -1,0 +1,11 @@
+<div ng-class="{ 'has-error': vm.errors['directory_id'].length > 0 }" style="width: 100%">
+    <directory-drive-tree-selectize-widget
+        ng-readonly="vm.isReadOnly()"
+        selected-directory-pk="vm.file.directory_id"
+        placholder="{{ 'Folder' }}"></directory-drive-tree-selectize-widget>
+
+    <p ng-show="vm.errors['directory_id'].length > 0"  class="help-block">
+        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+        {{ vm.errors['directory_id'].join(', ') }}
+    </p>
+</div>

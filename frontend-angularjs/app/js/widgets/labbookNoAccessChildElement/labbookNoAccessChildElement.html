@@ -1,0 +1,54 @@
+<div ng-mouseenter="vm.onMouseEnter()" ng-mouseleave="vm.onMouseLeave()">
+    <!-- labbook child element cell header contains
+    - title bar
+    - dropdown menu
+    - dnd
+    --->
+    <div class="labbook-cell-header">
+        <div class="row">
+            <div class="col-xs-9" style="padding-right: 0; width: calc(100% - 60px)">
+                <!-- Cell Title -->
+                <div class="input-group" style="width: 100%">
+                    <span class="form-control" style="background-color:transparent;border:0;font-size:14pt" translate>
+                        <i class="fa fa-exclamation-circle" aria-hidden="true" title="Permission denied"></i>
+                        Permission denied
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-xs-3" style="width: 60px; text-align: right; padding-left: 0; padding-right: 15px; font-size: 11pt">
+                <!-- Menu and Icons for the header -->
+                <div>
+                    <span ng-show="vm.showElementMenu"
+                          class="fa fa-arrows-alt labbook-cell-move" style="margin-right: 5px"></span>
+
+                    <div ng-show="vm.showElementMenu"
+                         is-open="vm.dropDownMenuActive"
+                         uib-dropdown
+                         on-toggle="vm.dropdownMenuToggled(open)"
+                         dropdown-append-to-body="true"
+                         keyboard-nav="true" style="display: inline">
+                        <a role="button" uib-dropdown-toggle>
+                            <span style="width:10px; margin-right:5px" class="fa fa-ellipsis-v"></span>
+                        </a>
+                        <!-- Render dropdown menu -->
+                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu aria-labelledby="{{ 'Cell menu' }}">
+                            <li>
+                                <a role="button" href ng-click="vm.removeElementFromLabbook()">
+                                    <i class="{{ :: vm.actionIcons.delete }}"></i> <span translate>Remove from LabBook</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- text -->
+    <div style="padding:10px">
+        You are not allowed to view this element.
+        If you believe that you should be able to see this element,
+        please contact the LabBook authors.
+    </div>
+</div>

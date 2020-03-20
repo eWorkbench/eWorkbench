@@ -1,0 +1,46 @@
+<div class="panel panel-default element-panel" ng-if="vm.resourceBookingsLoaded">
+    <!-- My Bookings title -->
+    <div class="panel-heading">
+        {{ 'My Bookings' | translate }}
+    </div>
+    <div class="panel-body">
+        <div class="clearfix text-right" style="margin-bottom: 10px">
+            <a role="button"
+               ng-if="vm.resourceBookings.length > 0"
+               class="btn btn-default btn-lg"
+               ng-click="vm.exportAllResourceBookings()"
+               title="Export all"
+               translate
+            >Export all</a>
+            <div class="checkbox" style="display: inline-block; margin-left: 20px;">
+                <label>
+                    <input type="checkbox" ng-model="vm.hidePastBookings" ng-change="vm.saveSetting()">
+                    <span>Hide past bookings</span>
+                </label>
+            </div>
+        </div>
+        <table-view-grid
+            ng-if="vm.resourceBookings.length > 0"
+            key="{{ vm.key }}"
+            data="vm.resourceBookings"
+            grid-options="vm.gridOptions"
+            order-by="vm.orderBy"
+            order-dir="vm.orderDir">
+        </table-view-grid>
+        <div class="text-center">
+            <h3 ng-if="vm.resourceBookings.length === 0">There are no bookings to show</h3>
+        </div>
+    </div>
+</div>
+
+<div class="text-center" ng-if="vm.resourceBookings.length > 0 && vm.resourceBookingsLoaded">
+   <ul uib-pagination
+       total-items="vm.numberOfResourceBookings"
+       items-per-page="vm.currentLimit"
+       force-ellipses="true"
+       boundary-link-numbers="true"
+       max-size="15"
+       ng-model="vm.currentPage"
+       ng-change="vm.pageChanged()">
+   </ul>
+</div>

@@ -1,0 +1,70 @@
+{% load i18n date_filters %}
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+    <style>
+        html, body {
+            font-family: "Open Sans", Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            color: #363636;
+        }
+
+        p {
+            font-weight: normal;
+            margin: 0;
+        }
+        .additional-information {
+            margin-bottom: 20px;
+        }
+        .dmp-form-data-name {
+            width: 33%;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%}
+
+        th, td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .object_title {
+            margin-bottom: 0px;
+        }
+
+        .info_created_by {
+            text-align: right;
+            font-style: italic;
+            margin-bottom: 10px;
+            display: block;
+            color: #a0a0a0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        @page {
+            size: a4 portrait;
+            margin: 10mm 10mm 10mm 10mm;
+            @bottom-left {
+                content: "{% trans "Page" %} " counter(page) " {% trans "of" %} " counter(pages);
+            }
+            @bottom-right {
+                content: "{{ now | date_short }}";
+            }
+        }
+
+        {% block extra_css %}
+        {% endblock %}
+    </style>
+</head>
+<body class="">
+{% block content %}
+{% endblock %}
+</body>
+</html>

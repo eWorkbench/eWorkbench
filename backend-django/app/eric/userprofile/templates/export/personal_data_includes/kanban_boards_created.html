@@ -1,0 +1,222 @@
+{% block content %}
+    <p>
+    <h4 class="created_kanban_boards_title">
+        All kanban boards the user has created:
+    </h4>
+    </p>
+    <p>
+    <div class="created_kanban_boards">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Kabanboard title</th>
+                <th>Board type</th>
+                <th>Background Image</th>
+                <th>Background Image Size</th>
+                <th>Background Image Thumbnail</th>
+            </tr>
+
+            {% for kanban_board in user.kanbanboard_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board.fts_language }}</td>
+                    <td>{{ kanban_board.title }}</td>
+                    <td>{{ kanban_board.board_type }}</td>
+                    <td>{{ kanban_board.background_image }}</td>
+                    <td>{{ kanban_board.background_image_size }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Background Color</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for kanban_board in user.kanbanboard_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board.background_color }}</td>
+                    <td>{{ kanban_board.created_by }}</td>
+                    <td>{{ kanban_board.last_modified_by }}</td>
+                    <td>{{ kanban_board.created_at }}</td>
+                    <td>{{ kanban_board.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for kanban_board in user.kanbanboard_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board.cs_created_by }}</td>
+                    <td>{{ kanban_board.cs_last_modified_by }}</td>
+                    <td>{{ kanban_board.cs_created_at }}</td>
+                    <td>{{ kanban_board.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+
+
+    <p>
+    <h4 class="created_kanban_board_columns_title">
+        All columns that the user created on kanban boards:
+    </h4>
+    </p>
+    <p>
+    <div class="created_kanban_board_columns">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Ordering</th>
+                <th>Kabanboard title</th>
+                <th>RGBA color of the column</th>
+                <th>Icon of kanban board column</th>
+            </tr>
+
+            {% for kanban_board_column in user.kanbanboardcolumn_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board_column.ordering }}</td>
+                    <td>{{ kanban_board_column.title }}</td>
+                    <td>{{ kanban_board_column.color }}</td>
+                    <td>{{ kanban_board_column.icon }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+
+        <br>
+
+        <table >
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for kanban_board_column in user.kanbanboardcolumn_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board_column.created_by }}</td>
+                    <td>{{ kanban_board_column.last_modified_by }}</td>
+                    <td>{{ kanban_board_column.created_at }}</td>
+                    <td>{{ kanban_board_column.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+
+        <br>
+
+        <table >
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for kanban_board_column in user.kanbanboardcolumn_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board_column.cs_created_by }}</td>
+                    <td>{{ kanban_board_column.cs_last_modified_by }}</td>
+                    <td>{{ kanban_board_column.cs_created_at }}</td>
+                    <td>{{ kanban_board_column.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+    <p>
+
+
+
+    <h4 class="created_kanban_board_column_task_assign_title">
+        All column task that the user has assigned on kanban boards:
+    </h4>
+    </p>
+    <p>
+    <div class="created_kanban_board_column_task_assign">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Kanboard column</th>
+                <th>Task</th>
+            </tr>
+
+            {% for kanban_board_column_assignment in user.kanbanboardcolumntaskassignment_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board_column_assignment.kanban_board_column }}</td>
+                    <td>{{ kanban_board_column_assignment.task }}</td>
+
+               </tr>
+            {% endfor %}
+        </table>
+
+        <br>
+
+        <table >
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for kanban_board_column_assignment in user.kanbanboardcolumntaskassignment_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board_column_assignment.created_by }}</td>
+                    <td>{{ kanban_board_column_assignment.last_modified_by }}</td>
+                    <td>{{ kanban_board_column_assignment.created_at }}</td>
+                    <td>{{ kanban_board_column_assignment.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+
+        <br>
+
+        <table >
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for kanban_board_column_assignment in user.kanbanboardcolumntaskassignment_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ kanban_board_column_assignment.cs_created_by }}</td>
+                    <td>{{ kanban_board_column_assignment.cs_last_modified_by }}</td>
+                    <td>{{ kanban_board_column_assignment.cs_created_at }}</td>
+                    <td>{{ kanban_board_column_assignment.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

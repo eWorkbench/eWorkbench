@@ -1,0 +1,20 @@
+<div>
+    <!-- Editing View -->
+    <div class="editableEditMode" ng-class="{'viewMode': !vm.buttonsVisible, 'readonly': vm.editDisabled, 'hoverAnimationActive': !vm.editDisabled}">
+        <!-- warp "edit" Transclusion with a form, so we can confirm on pressing enter -->
+        <form ng-submit="vm.confirm()" esc-key="vm.cancel()">
+            <div class="editTranscludedElement" ng-transclude>
+                Edit Mode
+            </div>
+        </form>
+        <!-- render buttons only if they should be visible -->
+        <div class="buttons" ng-show="vm.buttonsVisible && !vm.editDisabled">
+            <button type="button" class="btn btn-primary" ng-click="vm.confirm()">
+                <span class="glyphicon glyphicon-ok"></span>
+            </button>
+            <button type="button" class="btn btn-default" ng-click="vm.cancel()">
+                <span class="glyphicon glyphicon-remove"></span>
+            </button>
+        </div>
+    </div>
+</div>

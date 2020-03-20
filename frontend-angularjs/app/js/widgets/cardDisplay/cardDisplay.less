@@ -1,0 +1,121 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../theme/variables";
+
+// trashed / soft-deleted cards should be displayed a little different
+.card-soft-deleted div.card-display {
+  background-color: darken(@card-background-color, 2);
+}
+
+div.card-display {
+  height: 180px;
+
+  display: block;
+
+  padding: 5px 15px 5px 15px;
+
+  // make sure there is a margin to bottom
+  margin: 0px 0px 15px;
+
+  background-color: @card-background-color;
+  .card-box-shadow-mixin();
+
+  .header {
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    .ellipsis {
+      display: inline-block;
+      width: ~"calc(100% - 50px)";
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      height: 100%;
+    }
+    margin-bottom: 11px;
+    margin-top: 10px;
+  }
+
+  .content {
+    height: 100px;
+    overflow: hidden;
+    margin-bottom: 10px;
+
+    .picture {
+      float: left;
+      padding-right: 5px;
+      width: 100px;
+    }
+
+    .info {
+      float: left;
+      width: ~"calc(100% - 100px)";
+    }
+  }
+
+  .card-footer {
+    font-size: 9pt;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    .font-color {
+      color: @display-relation-element-footer-color
+    }
+  }
+}
+
+contact-card-display {
+  @media (min-width: 768px) {
+    .contact-picture {
+      width: 100px;
+    }
+
+    .contact-info {
+      width: ~"calc(100% - 100px)";
+    }
+  }
+
+  @media (max-width: 768px) {
+    .contact-picture {
+      width: 100%;
+      display: block;
+    }
+
+    .contact-info {
+      width: 100%;
+      display: block;
+    }
+  }
+}
+
+project-card-view {
+  .project-card-state {
+    width: 100%;
+    padding-top: 10px;
+    display: inline-block;
+  }
+  .project-card-treegrid {
+    .tree-grid {
+      > thead {
+        display: none;
+      }
+      tr:first-child {
+        td {
+          border-top: 0
+        }
+      }
+    }
+  }
+}
+
+kanbanboard-card-display {
+  .backgroundImageActive {
+    .header, .card-footer {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+  }
+}

@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <h3 class="modal-title" id="modal-title" translate>
+        Remove user from project
+    </h3>
+</div>
+<div class="modal-body" id="modal-body">
+    <div class="alert alert-warning alert-dismissable" ng-show="vm.auth_user_pk == vm.assignment.user.pk">
+        <span class="pficon pficon-warning-triangle-o"></span>
+        <strong translate>Warning:</strong>
+        <span translate>You are about to remove your own user from this project!</span>
+    </div>
+
+    <capture-html param="userDisplayWidget">
+        <user-display-widget user="vm.assignment.user"></user-display-widget>
+    </capture-html>
+
+    <span translate translate-html-params-user-display-widget="userDisplayWidget">
+        Do you really want to remove {{ userDisplayWidget }} from this project?
+    </span>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="vm.cancel()" translate>Cancel</button>
+    <button class="btn btn-default" ng-click="vm.yesInactive()" translate>Set user to inactive / No access</button>
+    <button class="btn btn-warning" ng-click="vm.yesDelete()" translate>Remove</button>
+</div>

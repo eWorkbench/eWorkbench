@@ -1,0 +1,6 @@
+data/
+venv/
+backups/
+htdocs/
+.idea/
+.git/

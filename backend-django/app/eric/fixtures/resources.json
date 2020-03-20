@@ -1,0 +1,722 @@
+[
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'electron':2 'microscop':3 'transmiss':1",
+      "fts_language": "english",
+      "name": "Electron Microscope ABC-123",
+      "description": "Transmission electron microscope",
+      "type": "ROOM",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "The tiny Room around the corner",
+      "contact": "7869867/9870980\r\nemail@example.com",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'fridg':5 'infinit':1 'number':2 'seat':4",
+      "fts_language": "english",
+      "name": "Meeting Room Tardis",
+      "description": "- Infinite number of seats\r\n- Fridge",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Everywhere",
+      "contact": "The Doctor or Missy",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'10':1 'air':4 'beamer':3 'condit':5 'guest':6 'seat':2 'whiteboard':8 'wifi':7",
+      "fts_language": "english",
+      "name": "Meeting Room Atlantis",
+      "description": "- 10 seats\r\n- beamer\r\n- air conditioning\r\n- guest wifi\r\n- whiteboard",
+      "type": "ROOM",
+      "responsible_unit": "Aquaman",
+      "location": "B01/103",
+      "contact": "0657657/987987",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'20':4 'beamer':3 'board':2 'seat':5 'white':1",
+      "fts_language": "english",
+      "name": "Meeting Room Krypton",
+      "description": "- White Board\r\n- Beamer\r\n- 20 Seats",
+      "type": "ROOM",
+      "responsible_unit": "IT",
+      "location": "B02/103",
+      "contact": "IT Chief",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "",
+      "fts_language": "english",
+      "name": "Stark Tower",
+      "description": "",
+      "type": "OFFEQ",
+      "responsible_unit": "Toni",
+      "location": "58th and Broadway",
+      "contact": "Happy",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'oscilloscop':7",
+      "fts_language": "english",
+      "name": "Oscilloscope",
+      "description": "What can you do with an Oscilloscope?",
+      "type": "LABEQ",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "Room 42",
+      "contact": "Prof. Mustermann",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'carri':2 'lot':4",
+      "fts_language": "english",
+      "name": "S.H.I.E.L.D Hellicarrier",
+      "description": "Can carry a lot.",
+      "type": "ITRES",
+      "responsible_unit": "Colson",
+      "location": "The Air.",
+      "contact": "Shield",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'anytim':2 'anywher':1",
+      "fts_language": "english",
+      "name": "TARDIS",
+      "description": "Anywhere, anytime!",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Gallifrey",
+      "contact": "The Master",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'electron':2 'microscop':3 'transmiss':1",
+      "fts_language": "english",
+      "name": "Electron Microscope ABC-123",
+      "description": "Transmission electron microscope",
+      "type": "ROOM",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "The tiny Room around the corner",
+      "contact": "7869867/9870980\r\nemail@example.com",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'fridg':5 'infinit':1 'number':2 'seat':4",
+      "fts_language": "english",
+      "name": "Meeting Room Tardis",
+      "description": "- Infinite number of seats\r\n- Fridge",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Everywhere",
+      "contact": "The Doctor or Missy",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'10':1 'air':4 'beamer':3 'condit':5 'guest':6 'seat':2 'whiteboard':8 'wifi':7",
+      "fts_language": "english",
+      "name": "Meeting Room Atlantis",
+      "description": "- 10 seats\r\n- beamer\r\n- air conditioning\r\n- guest wifi\r\n- whiteboard",
+      "type": "ROOM",
+      "responsible_unit": "Aquaman",
+      "location": "B01/103",
+      "contact": "0657657/987987",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'20':4 'beamer':3 'board':2 'seat':5 'white':1",
+      "fts_language": "english",
+      "name": "Meeting Room Krypton",
+      "description": "- White Board\r\n- Beamer\r\n- 20 Seats",
+      "type": "ROOM",
+      "responsible_unit": "IT",
+      "location": "B02/103",
+      "contact": "IT Chief",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "",
+      "fts_language": "english",
+      "name": "Stark Tower",
+      "description": "",
+      "type": "OFFEQ",
+      "responsible_unit": "Toni",
+      "location": "58th and Broadway",
+      "contact": "Happy",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'oscilloscop':7",
+      "fts_language": "english",
+      "name": "Oscilloscope",
+      "description": "What can you do with an Oscilloscope?",
+      "type": "LABEQ",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "Room 42",
+      "contact": "Prof. Mustermann",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'carri':2 'lot':4",
+      "fts_language": "english",
+      "name": "S.H.I.E.L.D Hellicarrier",
+      "description": "Can carry a lot.",
+      "type": "ITRES",
+      "responsible_unit": "Colson",
+      "location": "The Air.",
+      "contact": "Shield",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'anytim':2 'anywher':1",
+      "fts_language": "english",
+      "name": "TARDIS",
+      "description": "Anywhere, anytime!",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Gallifrey",
+      "contact": "The Master",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'electron':2 'microscop':3 'transmiss':1",
+      "fts_language": "english",
+      "name": "Electron Microscope ABC-123",
+      "description": "Transmission electron microscope",
+      "type": "ROOM",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "The tiny Room around the corner",
+      "contact": "7869867/9870980\r\nemail@example.com",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'fridg':5 'infinit':1 'number':2 'seat':4",
+      "fts_language": "english",
+      "name": "Meeting Room Tardis",
+      "description": "- Infinite number of seats\r\n- Fridge",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Everywhere",
+      "contact": "The Doctor or Missy",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'10':1 'air':4 'beamer':3 'condit':5 'guest':6 'seat':2 'whiteboard':8 'wifi':7",
+      "fts_language": "english",
+      "name": "Meeting Room Atlantis",
+      "description": "- 10 seats\r\n- beamer\r\n- air conditioning\r\n- guest wifi\r\n- whiteboard",
+      "type": "ROOM",
+      "responsible_unit": "Aquaman",
+      "location": "B01/103",
+      "contact": "0657657/987987",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'20':4 'beamer':3 'board':2 'seat':5 'white':1",
+      "fts_language": "english",
+      "name": "Meeting Room Krypton",
+      "description": "- White Board\r\n- Beamer\r\n- 20 Seats",
+      "type": "ROOM",
+      "responsible_unit": "IT",
+      "location": "B02/103",
+      "contact": "IT Chief",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "",
+      "fts_language": "english",
+      "name": "Stark Tower",
+      "description": "",
+      "type": "OFFEQ",
+      "responsible_unit": "Toni",
+      "location": "58th and Broadway",
+      "contact": "Happy",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'oscilloscop':7",
+      "fts_language": "english",
+      "name": "Oscilloscope",
+      "description": "What can you do with an Oscilloscope?",
+      "type": "LABEQ",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "Room 42",
+      "contact": "Prof. Mustermann",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'carri':2 'lot':4",
+      "fts_language": "english",
+      "name": "S.H.I.E.L.D Hellicarrier",
+      "description": "Can carry a lot.",
+      "type": "ITRES",
+      "responsible_unit": "Colson",
+      "location": "The Air.",
+      "contact": "Shield",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'anytim':2 'anywher':1",
+      "fts_language": "english",
+      "name": "TARDIS",
+      "description": "Anywhere, anytime!",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Gallifrey",
+      "contact": "The Master",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'electron':2 'microscop':3 'transmiss':1",
+      "fts_language": "english",
+      "name": "Electron Microscope ABC-123",
+      "description": "Transmission electron microscope",
+      "type": "ROOM",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "The tiny Room around the corner",
+      "contact": "7869867/9870980\r\nemail@example.com",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'fridg':5 'infinit':1 'number':2 'seat':4",
+      "fts_language": "english",
+      "name": "Meeting Room Tardis",
+      "description": "- Infinite number of seats\r\n- Fridge",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Everywhere",
+      "contact": "The Doctor or Missy",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'10':1 'air':4 'beamer':3 'condit':5 'guest':6 'seat':2 'whiteboard':8 'wifi':7",
+      "fts_language": "english",
+      "name": "Meeting Room Atlantis",
+      "description": "- 10 seats\r\n- beamer\r\n- air conditioning\r\n- guest wifi\r\n- whiteboard",
+      "type": "ROOM",
+      "responsible_unit": "Aquaman",
+      "location": "B01/103",
+      "contact": "0657657/987987",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'20':4 'beamer':3 'board':2 'seat':5 'white':1",
+      "fts_language": "english",
+      "name": "Meeting Room Krypton",
+      "description": "- White Board\r\n- Beamer\r\n- 20 Seats",
+      "type": "ROOM",
+      "responsible_unit": "IT",
+      "location": "B02/103",
+      "contact": "IT Chief",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "",
+      "fts_language": "english",
+      "name": "Stark Tower",
+      "description": "",
+      "type": "OFFEQ",
+      "responsible_unit": "Toni",
+      "location": "58th and Broadway",
+      "contact": "Happy",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'oscilloscop':7",
+      "fts_language": "english",
+      "name": "Oscilloscope",
+      "description": "What can you do with an Oscilloscope?",
+      "type": "LABEQ",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "Room 42",
+      "contact": "Prof. Mustermann",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'carri':2 'lot':4",
+      "fts_language": "english",
+      "name": "S.H.I.E.L.D Hellicarrier",
+      "description": "Can carry a lot.",
+      "type": "ITRES",
+      "responsible_unit": "Colson",
+      "location": "The Air.",
+      "contact": "Shield",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'anytim':2 'anywher':1",
+      "fts_language": "english",
+      "name": "TARDIS",
+      "description": "Anywhere, anytime!",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Gallifrey",
+      "contact": "The Master",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'electron':2 'microscop':3 'transmiss':1",
+      "fts_language": "english",
+      "name": "Electron Microscope ABC-123",
+      "description": "Transmission electron microscope",
+      "type": "ROOM",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "The tiny Room around the corner",
+      "contact": "7869867/9870980\r\nemail@example.com",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'fridg':5 'infinit':1 'number':2 'seat':4",
+      "fts_language": "english",
+      "name": "Meeting Room Tardis",
+      "description": "- Infinite number of seats\r\n- Fridge",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Everywhere",
+      "contact": "The Doctor or Missy",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'10':1 'air':4 'beamer':3 'condit':5 'guest':6 'seat':2 'whiteboard':8 'wifi':7",
+      "fts_language": "english",
+      "name": "Meeting Room Atlantis",
+      "description": "- 10 seats\r\n- beamer\r\n- air conditioning\r\n- guest wifi\r\n- whiteboard",
+      "type": "ROOM",
+      "responsible_unit": "Aquaman",
+      "location": "B01/103",
+      "contact": "0657657/987987",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'20':4 'beamer':3 'board':2 'seat':5 'white':1",
+      "fts_language": "english",
+      "name": "Meeting Room Krypton",
+      "description": "- White Board\r\n- Beamer\r\n- 20 Seats",
+      "type": "ROOM",
+      "responsible_unit": "IT",
+      "location": "B02/103",
+      "contact": "IT Chief",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "",
+      "fts_language": "english",
+      "name": "Stark Tower",
+      "description": "",
+      "type": "OFFEQ",
+      "responsible_unit": "Toni",
+      "location": "58th and Broadway",
+      "contact": "Happy",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'oscilloscop':7",
+      "fts_language": "english",
+      "name": "Oscilloscope",
+      "description": "What can you do with an Oscilloscope?",
+      "type": "LABEQ",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "Room 42",
+      "contact": "Prof. Mustermann",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'carri':2 'lot':4",
+      "fts_language": "english",
+      "name": "S.H.I.E.L.D Hellicarrier",
+      "description": "Can carry a lot.",
+      "type": "ITRES",
+      "responsible_unit": "Colson",
+      "location": "The Air.",
+      "contact": "Shield",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'anytim':2 'anywher':1",
+      "fts_language": "english",
+      "name": "TARDIS",
+      "description": "Anywhere, anytime!",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Gallifrey",
+      "contact": "The Master",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'electron':2 'microscop':3 'transmiss':1",
+      "fts_language": "english",
+      "name": "Electron Microscope ABC-123",
+      "description": "Transmission electron microscope",
+      "type": "ROOM",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "The tiny Room around the corner",
+      "contact": "7869867/9870980\r\nemail@example.com",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'fridg':5 'infinit':1 'number':2 'seat':4",
+      "fts_language": "english",
+      "name": "Meeting Room Tardis",
+      "description": "- Infinite number of seats\r\n- Fridge",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Everywhere",
+      "contact": "The Doctor or Missy",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'10':1 'air':4 'beamer':3 'condit':5 'guest':6 'seat':2 'whiteboard':8 'wifi':7",
+      "fts_language": "english",
+      "name": "Meeting Room Atlantis",
+      "description": "- 10 seats\r\n- beamer\r\n- air conditioning\r\n- guest wifi\r\n- whiteboard",
+      "type": "ROOM",
+      "responsible_unit": "Aquaman",
+      "location": "B01/103",
+      "contact": "0657657/987987",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'20':4 'beamer':3 'board':2 'seat':5 'white':1",
+      "fts_language": "english",
+      "name": "Meeting Room Krypton",
+      "description": "- White Board\r\n- Beamer\r\n- 20 Seats",
+      "type": "ROOM",
+      "responsible_unit": "IT",
+      "location": "B02/103",
+      "contact": "IT Chief",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "",
+      "fts_language": "english",
+      "name": "Stark Tower",
+      "description": "",
+      "type": "OFFEQ",
+      "responsible_unit": "Toni",
+      "location": "58th and Broadway",
+      "contact": "Happy",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'oscilloscop':7",
+      "fts_language": "english",
+      "name": "Oscilloscope",
+      "description": "What can you do with an Oscilloscope?",
+      "type": "LABEQ",
+      "responsible_unit": "Prof. Mustermann",
+      "location": "Room 42",
+      "contact": "Prof. Mustermann",
+      "terms_of_use_pdf": "",
+      "user_availability": "USR"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'carri':2 'lot':4",
+      "fts_language": "english",
+      "name": "S.H.I.E.L.D Hellicarrier",
+      "description": "Can carry a lot.",
+      "type": "ITRES",
+      "responsible_unit": "Colson",
+      "location": "The Air.",
+      "contact": "Shield",
+      "terms_of_use_pdf": "",
+      "user_availability": "PRJ"
+    }
+  },
+  {
+    "model": "projects.resource",
+    "fields": {
+      "fts_index": "'anytim':2 'anywher':1",
+      "fts_language": "english",
+      "name": "TARDIS",
+      "description": "Anywhere, anytime!",
+      "type": "ROOM",
+      "responsible_unit": "The Doctor",
+      "location": "Gallifrey",
+      "contact": "The Master",
+      "terms_of_use_pdf": "",
+      "user_availability": "GLB"
+    }
+  }
+]

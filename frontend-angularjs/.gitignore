@@ -1,0 +1,9 @@
+node_modules/
+app/.temp
+app/js/app.local.js
+
+# disallow the public folder
+public/
+
+.idea/*
+!.idea/runConfigurations/

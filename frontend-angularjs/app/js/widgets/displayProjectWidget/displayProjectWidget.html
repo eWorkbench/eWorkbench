@@ -1,0 +1,8 @@
+<span ng-if="vm.project">
+    {{ vm.project.name }}
+</span>
+<span ng-show="vm.project === undefined && vm.projectPk === undefined || vm.projectNotFound"
+      title="{{ 'You do not have access to this project' | translate }}"
+      translate>
+    Unknown project
+</span>

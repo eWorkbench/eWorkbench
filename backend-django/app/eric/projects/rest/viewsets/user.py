@@ -1,0 +1,320 @@
+#
+# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+import os
+import mimetypes
+import logging
+
+from django.contrib.auth.password_validation import validate_password, get_password_validators
+from django.http import FileResponse, HttpResponseForbidden
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
+from django.core.mail import EmailMultiAlternatives
+from django.utils.translation import ugettext_lazy as _
+from django.template.loader import render_to_string
+from django_auth_ldap.backend import LDAPBackend
+
+from rest_framework import viewsets, status, exceptions
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import detail_route, action, parser_classes
+from rest_framework.exceptions import NotFound
+from rest_framework.throttling import UserRateThrottle
+
+from PIL import Image, ImageOps
+
+from django_userforeignkey.request import get_current_user
+
+from eric.site_preferences.models import options as site_preferences
+from eric.core.rest.viewsets import BaseGenericViewSet, BaseAuthenticatedUpdateOnlyModelViewSet
+from eric.userprofile.models import UserProfile
+from eric.projects.models import MyUser
+from eric.projects.rest.permissions import IsStaffOrTargetUserOrReadOnly, CanInviteExternalUsers
+from eric.projects.rest.serializers import PublicUserSerializer, MyUserSerializer, InviteUserSerializer
+from eric.userprofile.rest.serializers import UserProfileAvatarSerializer
+from django_rest_passwordreset.models import ResetPasswordToken
+
+User = get_user_model()
+
+logger = logging.getLogger(__name__)
+
+
+class UserSearchListModelMixin(object):
+    """
+    Lists the User Search Queryset, and restricts it to 25 results
+    """
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset[:25], many=True)
+        return Response(serializer.data)
+
+
+class PublicUserViewSet(BaseGenericViewSet,
+                        UserSearchListModelMixin,
+                        viewsets.mixins.RetrieveModelMixin,
+                        viewsets.mixins.UpdateModelMixin):
+    """ Authed user list, allowing edits only for the current user (or for staff members)
+        Allows searching for users
+    """
+    # do not use user.objects.all here
+    queryset = MyUser.objects.none()  # .select_related('userprofile')
+    serializer_class = PublicUserSerializer
+    # filter_class = UserFilter
+    permission_classes = (IsAuthenticated, IsStaffOrTargetUserOrReadOnly,)
+    filter_fields = ('is_staff',)
+    search_fields = ('username', 'email', 'userprofile__first_name', 'userprofile__last_name',)
+    # allow order by
+    ordering_field = ('username', 'email',)
+    ordering = ('username',)
+
+    throttle_classes = (UserRateThrottle,)
+
+    # disable pagination for this endpoint
+    pagination_class = None
+
+    def get_queryset(self):
+        from eric.projects.models import Project
+        from eric.userprofile.models import UserProfile
+
+        # prevent empty search requests that would lead to information leakage
+        if 'search' in self.request.query_params and len(self.request.query_params['search']) > 1:
+            user = get_current_user()
+            users = MyUser.objects.all().filter(is_active=True).select_related('userprofile')
+
+            # filter users only by shared projects
+            users_with_shared_projects = users.filter(
+                pk__in=Project.objects.viewable().values_list('assigned_users_roles__user__pk', flat=True)
+            )
+
+            # union select with all other LDAP users too
+            if user.userprofile.type == UserProfile.LDAP_USER:
+                return (
+                    users_with_shared_projects | users.filter(
+                        userprofile__type=UserProfile.LDAP_USER
+                    )
+                ).distinct()
+
+            return users_with_shared_projects
+
+        else:
+            return MyUser.objects.all().filter(is_active=True).filter(pk=self.request.user.pk)
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated, CanInviteExternalUsers])
+    def invite_user(self, request, *args, **kwargs):
+        """ Endpoint for inviting a new external user with their e-mail address to the workbench
+        Throws a validation error if the e-mail address already exists
+
+        Also check that the current user has the permission projects.add_projectroleuserassignment
+        """
+        serializer = InviteUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # get email and message
+        email = request.data['email']
+        message = request.data['message']
+
+        # check if a user with this e-mail already exists (must be case insensitive)
+        if MyUser.objects.filter(email__iexact=email).exists():
+            raise ValidationError({
+                'email': ValidationError(
+                    _('A user with this e-mail is already registered'),
+                    params={'email': email},
+                    code='invalid'
+                )
+            })
+
+        # separate email by the @ sign
+        parts = email.split('@')
+
+        # take the first part of this email as the username (and remove . and _)
+        username = parts[0].replace('.', '').replace('_', '')
+        orig_username = username
+
+        username_exists = None
+
+        min_number = 1
+
+        # check that this username does not exist
+        while username_exists is not False:
+            if MyUser.objects.filter(username=username).count() == 0:
+                # does not exist --> we can create it
+                username_exists = False
+            else:
+                # add a random number behind the username and try again
+                username = orig_username + str(min_number)
+                # increase min_number
+                min_number += 1
+
+        # end while
+
+        # generate a random password
+        password = MyUser.objects.make_random_password()
+
+        user = MyUser.objects.create_user(username, email, password, is_staff=False, is_active=True)
+
+        current_user = get_current_user()
+        current_user.__class__ = MyUser
+
+        token = ResetPasswordToken.objects.create(
+            user=user,
+            user_agent=request.META['HTTP_USER_AGENT'],
+            ip_address=request.META['REMOTE_ADDR']
+        )
+        # send an e-mail to the user
+        context = {
+            'current_user': current_user,
+            'username': username,
+            'email': email,
+            'reset_password_url': settings.WORKBENCH_SETTINGS['password_reset_url'].format(token=token.key),
+            'message': message,
+            'workbench_url': settings.WORKBENCH_SETTINGS['url'],
+            'workbench_title': site_preferences.site_name
+        }
+
+        # add user to group External
+        g = Group.objects.get(name='External')
+        g.user_set.add(user)
+
+        # render email text (as plaintext and html)
+        email_html_message = render_to_string('email/user_invited_to_workbench.html', context)
+        email_plaintext_message = render_to_string('email/user_invited_to_workbench.txt', context)
+
+        msg = EmailMultiAlternatives(
+            # title:
+            _("Invitation to {title}".format(title=site_preferences.site_name)),
+            # message:
+            email_plaintext_message,
+            # from:
+            site_preferences.email_from,
+            # to:
+            [email]
+        )
+        msg.attach_alternative(email_html_message, "text/html")
+
+        msg.send()
+
+        # serialize the user object
+        serializer = self.get_serializer(user, many=False)
+
+        # done! Return the current user via REST API
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class MyUserViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
+    """ Viewset for the current user, showing some information for the current logged in user """
+    serializer_class = MyUserSerializer
+
+    def get_object(self):
+        """ Return the current user
+        For ldap users we need to update the users profile (and the related groups)
+        """
+        if self.request.user.userprofile.type == UserProfile.LDAP_USER:
+            user = LDAPBackend().populate_user(self.request.user.username)
+            if user is None:
+                # we couldn't find the ldap user
+                logger.error(
+                    "Could not find user {username} in the ldap backend, "
+                    "although userprofile.type is set to LDAP_USER in self.request.user".format(
+                        username=self.request.user.username
+                    )
+                )
+                raise NotFound()
+            return user
+
+        return self.request.user
+
+    def list(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """ override put method to allow updates on the "list" endpoint """
+        return self.update(request, *args, **kwargs)
+
+    @action(detail=False, methods=['PUT'])
+    def change_password(self, request, *args, **kwargs):
+        """ Endpoint to change the users password """
+
+        user = self.get_object()
+        if user.has_usable_password():
+            password = request.data['password']
+
+            try:
+                # validate the password against existing validators
+                validate_password(
+                    password,
+                    user=user,
+                    password_validators=get_password_validators(settings.AUTH_PASSWORD_VALIDATORS)
+                )
+            except ValidationError as e:
+                # raise a validation error for the serializer
+                raise exceptions.ValidationError({
+                    'password': e.messages
+                })
+
+            user.set_password(password)
+            user.save()
+            return Response()
+
+        else:
+            return HttpResponseForbidden()
+
+    @action(detail=False, methods=['GET'])
+    def avatar(self, *args, **kwargs):
+        """ Endpoint to get the avatar profile picture for the specific user """
+
+        # get the user
+        avatar = self.get_object()
+        file = avatar.userprofile.avatar
+
+        # create a file response
+        file_path = os.path.join(settings.MEDIA_ROOT, file.name)
+        response = FileResponse(open(file_path, 'rb'))
+        # set filename in header
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(file.name)
+        # gets the mime type
+        response['Content-Type'] = mimetypes.guess_type(file.name)
+
+        return response
+
+    @action(detail=False, methods=['PUT'])
+    @parser_classes((FormParser, MultiPartParser,))
+    def update_avatar(self, request, *args, **kwargs):
+        """ Endpoint for accepting a multi part upload for the users avatar"""
+        if 'avatar' in request.data:
+            # get the user object
+            user = self.get_object()
+
+            # update the avatar via the userprofile serializer
+            serializer = UserProfileAvatarSerializer(user.userprofile, data=request.data)
+            # serializer would raise an exception if some data is invalid
+            serializer.is_valid(raise_exception=True)
+            # saving
+            serializer.save()
+
+            # resize the image to the preferred size
+            image = Image.open(request.data['avatar'])
+            size = settings.AVATAR_SIZE
+            image = ImageOps.fit(image, size, Image.LANCZOS)
+            # saving the resized image
+            image.save(user.userprofile.avatar.path)
+
+            # refresh the object from db that the return object is updated
+            user.userprofile.refresh_from_db()
+
+            # done! Return the current user via REST API
+            serializer = self.get_serializer(user, many=False)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

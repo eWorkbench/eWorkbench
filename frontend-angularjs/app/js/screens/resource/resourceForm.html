@@ -1,0 +1,197 @@
+<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <!-- Resource Name -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="input_resource_create_title" translate
+            title="{{ 'mandatory field' | translate }}">
+            Resource Name *
+        </label>
+        <div class="col-sm-8">
+            <validated-form-element id="input_resource_create_title"
+                                    input-element="text" field-name="resource_name"
+                                    placeholder="{{ 'Name of the resource' | translate }}"
+                                    ng-model="vm.resource.name" errors="vm.errors['name']">
+            </validated-form-element>
+        </div>
+    </div>
+
+    <!-- Resource Description -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="input_resource_create_description" translate>
+            Description
+        </label>
+        <div class="col-sm-8">
+            <validated-form-element
+                style="width: 100%"
+                rows="6"
+                id="input_resource_create_description"
+                input-element="html" field-name="resource_description"
+                placeholder="{{ 'Please enter a resource description' | translate }}"
+                ng-model="vm.resource.description" errors="vm.errors['description']">
+            </validated-form-element>
+        </div>
+    </div>
+
+    <!-- Location -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="input_resource_location" translate>
+            Location
+        </label>
+        <div class="col-sm-8">
+            <validated-form-element id="input_resource_location"
+                                    input-element="text" field-name="resource_address"
+                                    placeholder="{{ 'Location of the resource' | translate }}"
+                                    ng-model="vm.resource.location" errors="vm.errors['address']">
+            </validated-form-element>
+        </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="resource_project" translate>
+            Project
+        </label>
+        <div class="col-sm-8">
+            <multi-project-selection selected-project-pks="vm.projectPks" error="vm.errors['projects']">
+            </multi-project-selection>
+        </div>
+    </div>
+
+    <!-- Terms of Use -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" translate>
+            Terms of Use
+        </label>
+        <div class="col-sm-8">
+            <ng-include src="'js/screens/resource/resourceForm.termsofusepdf.html'"></ng-include>
+        </div>
+    </div>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <!-- Type -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="input_resource_type" translate>
+            Resource Type
+        </label>
+        <div class="col-sm-8">
+            <div ng-class="{ 'has-error': vm.errors['resource_type'].length > 0 }" style="width: 100%">
+                <resource-type-selectize-widget
+                    selected-resource-type="vm.resource.type"
+                    max-items="10">
+                </resource-type-selectize-widget>
+
+                <p ng-show="vm.errors['resource_type'].length > 0" class="help-block">
+                    <span class="{{ vm.alertIcon }}" aria-hidden="true"></span>
+                    {{ vm.errors['resource_type'].join(', ') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Responsible Unit -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="input_responsible_unit" translate>
+           Responsible Unit
+        </label>
+        <div class="col-sm-8">
+            <validated-form-element id="input_responsible_unit"
+                                    input-element="text" field-name="resource_responsible_unit"
+                                    placeholder="{{ 'Responsible Unit' | translate }}"
+                                    ng-model="vm.resource.responsible_unit" errors="vm.errors['responsible_unit']">
+            </validated-form-element>
+        </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" for="input_contact" translate>
+           Contact (E-Mail)
+        </label>
+        <div class="col-sm-8">
+            <validated-form-element id="input_contact"
+                                    input-element="text" field-name="resource_contact"
+                                    placeholder="{{ 'Contact (E-Mail)' | translate }}"
+                                    ng-model="vm.resource.contact" errors="vm.errors['contact']">
+            </validated-form-element>
+        </div>
+    </div>
+
+    <!-- User Availability -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" translate>
+            User Availability
+        </label>
+        <div class="col-sm-8">
+            <div ng-class="{ 'has-error': vm.errors['user_availability'].length > 0 }" style="width: 100%">
+                <resource-user-availability-selectize-widget
+                    selected-resource-user-availability="vm.resource.user_availability"
+                    max-items="10">
+                </resource-user-availability-selectize-widget>
+
+                <p ng-show="vm.errors['user_availability'].length > 0" class="help-block">
+                    <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+                    {{ vm.errors['user_availability'].join(', ') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Availability Selected User Groups -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" translate>
+            Selected User Groups
+        </label>
+        <div class="col-sm-8">
+            <div ng-class="{ 'has-error': vm.errors['user_availability_selected_user_groups'].length > 0 }" style="width: 100%">
+                <user-group-selectize-widget
+                    selected-user-group-pk="vm.selectedUserGroupsPks"
+                    user-groups="vm.resource.user_availability_selected_user_groups"
+                    placeholder="{{ 'Select user groups this resource will be available to' | translate }}">
+                </user-group-selectize-widget>
+
+                <p ng-show="vm.errors['projects'].length > 0" class="help-block">
+                    <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+                    {{ vm.errors['user_availability_selected_user_groups'].join(', ') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Availability Selected Users -->
+    <div class="form-group">
+        <label class="col-sm-4 control-label" translate>
+            Selected Users
+        </label>
+        <div class="col-sm-8">
+            <div ng-class="{ 'has-error': vm.errors['user_availability_selected_users'].length > 0 }" style="width: 100%">
+                <user-selectize-widget
+                    selected-user-pk="vm.selectedUsersPks"
+                    users="vm.resource.user_availability_selected_users"
+                    placeholder="{{ 'Select users this resource will be available to' | translate }}">
+                </user-selectize-widget>
+
+                <p ng-show="vm.errors['projects'].length > 0" class="help-block">
+                    <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+                    {{ vm.errors['user_availability_selected_users'].join(', ') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Resource Owner Agreement -->
+    <div class="form-group text-right">
+        <div class="col-sm-12">
+            <validated-form-element id="owner_agreement"
+                                    input-element="checkbox"
+                                    field-name="resource_owner_agreement"
+                                    ng-model="vm.resource.owner_agreement"
+                                    errors="vm.errors['owner_agreement']">
+                <label class="control-label" for="owner_agreement" style="vertical-align: text-bottom" translate
+                    title="{{ 'mandatory field' | translate }}">
+                    The resource's owner, e.g. the responsible unit agrees to the usage *
+                </label>
+            </validated-form-element>
+        </div>
+    </div>
+
+</div>

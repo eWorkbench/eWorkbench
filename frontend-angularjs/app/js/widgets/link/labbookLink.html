@@ -1,0 +1,6 @@
+<!-- show a link to labbooks -->
+<a ng-if="vm.labbook && vm.labbookUrl" ng-href="{{ vm.labbookUrl }}">
+    <ng-transclude>
+        {{vm.labbook.title}}
+    </ng-transclude>
+</a>

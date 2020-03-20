@@ -1,0 +1,16 @@
+<div style="display: inline-block" ng-if="vm.task.assigned_users && vm.task.assigned_users.length > 0">
+    <user-display-widget user="vm.task.assigned_users[0]"></user-display-widget>
+
+    <!-- if there are more than 1 user, display a text -->
+    <span ng-show="vm.task.assigned_users.length > 1" translate>
+        and
+        <a uib-popover-template="'js/screens/task/taskTableView.assignedUsersPopover.html'"
+           popover-placement="auto"
+           popover-trigger="'mouseenter'"
+           popover-popup-delay="250"
+           popover-class="popover-large"
+           role="button" tabindex="0" ng-click="vm.showAssignedUsersForTask(vm.task)">
+        {{ vm.task.assigned_users.length - 1 }} more
+        </a>
+    </span>
+</div>

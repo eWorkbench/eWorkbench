@@ -1,0 +1,9 @@
+<validated-form-element id="resource_location"
+                        input-element="text"
+                        auto-focus="vm.mode == 'create'"
+                        field-name="location"
+                        placeholder="{{ 'Resource Location' | translate }}"
+                        ng-model="vm.resource.location"
+                        ng-readonly="vm.isReadOnly()"
+                        errors="vm.errors['location']">
+</validated-form-element>

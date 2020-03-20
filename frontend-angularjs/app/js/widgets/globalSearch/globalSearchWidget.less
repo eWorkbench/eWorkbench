@@ -1,0 +1,104 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../theme/variables";
+
+@global-search-result-list-group-item-hover-background-color: white;
+@global-search-result-list-group-item-hover-border-left-color: white;
+@global-search-result-list-group-item-hover-border-right-color: white;
+@global-search-color: #848484;
+
+global-search-widget {
+
+  display: block;
+  color: @global-search-color;
+
+  .has-feedback {
+
+    .form-control {
+      padding-right: 32.5px;
+      padding-left: 28.5px;
+    }
+
+    .form-control-feedback,
+    .form-control-options {
+      position: absolute;
+      top: 0;
+      left: inherit;
+      right: inherit;
+      z-index: 2;
+      display: block;
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      text-align: center;
+    }
+
+    .form-control-feedback {
+      left: 0;
+      pointer-events: none;
+    }
+
+    .form-control-options {
+      right: 0;
+      cursor: pointer;
+      pointer-events: all;
+    }
+  }
+
+  dl {
+    margin-bottom: 0;
+  }
+
+  .search-results {
+    overflow-y: auto;
+    max-height: 80vh;
+    position: absolute;
+    width: 400px;
+    max-width: 400px;
+    border-bottom: 1px solid @list-group-top-border;
+
+
+    .list-group {
+      margin-top: 4px;
+      margin-bottom: 0;
+      border-left: 1px solid @list-group-top-border;
+      border-right: 1px solid @list-group-top-border;
+      border-radius: 1px;
+      -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+              box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+
+      .list-group-item {
+        &:hover {
+          background-color: @global-search-result-list-group-item-hover-background-color;
+          border-left-color: @global-search-result-list-group-item-hover-border-left-color;
+          border-right-color: @global-search-result-list-group-item-hover-border-right-color;
+        }
+
+        &.active {
+          background-color: @list-view-active-bg;
+          background-clip: border-box;
+          border-color: @color-pf-blue-300 transparent transparent;
+          z-index: auto;
+        }
+
+        .list-view-pf-main-info {
+          display: flex;
+          width: 100%;
+          cursor: pointer;
+
+          .list-view-pf-description,
+          .list-group-item-heading,
+          .list-group-item-text {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+          }
+        }
+      }
+    }
+  }
+}

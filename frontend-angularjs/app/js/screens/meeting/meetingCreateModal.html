@@ -1,0 +1,21 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>New Meeting</h3>
+</div>
+<form class="form-horizontal" name="newMeetingForm" ng-submit="vm.create()">
+    <div class="modal-body">
+        <ng-include src="'js/screens/meeting/smallMeetingView.html'"></ng-include>
+    </div>
+
+    <div class="modal-footer">
+        <!-- Buttons for Create / Cancel -->
+        <div class="text-right">
+            <button id="button_meeting_create_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()"
+                    translate>
+                Cancel
+            </button>
+            <button id="button_meeting_create_save" class="btn btn-warning" translate>
+                Create
+            </button>
+        </div>
+    </div>
+</form>

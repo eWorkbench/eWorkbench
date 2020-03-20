@@ -1,0 +1,11 @@
+<div ng-repeat="diff in vm.diffs">
+    <div ng-class="{'del': diff.deleted, 'ins': diff.inserted}">
+        <div ng-repeat="item in diff.items">
+            <div style="display: inline-block; width: 20px; border: 1px solid grey" ng-style="{'background-color': item.color }">
+                &nbsp;
+            </div>
+
+            <span class="{{ vm.taskStateImages[item.task_state] }}"></span> {{ item.title }}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+<div class="card-panel element-panel">
+    <screen-header-function-bar
+        selected-projects="vm.selectedProjects"
+        current-view="vm.currentView"
+        show-search-field="false"
+        show-user-field="false"
+        show-add-new-button="false"
+        show-display-deleted-button="false"
+        show-view-field="false"
+    >
+        <screen-title>
+            <span translate>Last Activities</span>
+        </screen-title>
+        <additional-filter>
+            <select id="modelSelected"
+                    ng-model="vm.filterSelectedType"
+                    ng-change="vm.changeFilterType()"
+                    class="form-control"
+                    style="display: inline; width: 100%"
+                    ng-options="value as vm.modelNameToTranslation[value] for (key,value) in vm.modelTypes">
+                <option value="" translate>All Types</option>
+            </select>
+        </additional-filter>
+    </screen-header-function-bar>
+</div>
+
+<generic-list-loading-widget
+    loading-flag="vm.historyLoaded"
+    loading-text="Last Activities">
+</generic-list-loading-widget>
+
+<table-view-grid-expandable
+    ng-if="vm.historyLoaded"
+    key="history"
+    data="vm.histories"
+    grid-options="vm.gridOptions" order-by="vm.orderBy" order-dir="vm.orderDir">
+</table-view-grid-expandable>
+<div class="text-center" ng-if="vm.histories.length > 0 && vm.historyLoaded">
+    <ul uib-pagination
+        total-items="vm.numberOfChanges"
+        items-per-page="vm.currentLimit"
+        force-ellipses="true"
+        boundary-link-numbers="true"
+        max-size="15"
+        ng-model="vm.currentPage"
+        ng-change="vm.pageChanged()">
+    </ul>
+</div>

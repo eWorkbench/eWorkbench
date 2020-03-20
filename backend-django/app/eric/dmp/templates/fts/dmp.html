@@ -1,0 +1,8 @@
+{% load html_unescape %}
+
+{{ instance.title }}
+{# dmp form data #}
+{% for entry in instance.dmp_form_data.all %}
+    {{ entry.name }}
+    {{ entry.value | striptags | html_unescape }}
+{% endfor %}

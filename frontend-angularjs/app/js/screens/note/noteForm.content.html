@@ -1,0 +1,10 @@
+<validated-form-element
+        rows="10"
+        id="note_content"
+        input-element="html"
+        field-name="text"
+        placeholder="{{ 'Content' | translate }}"
+        ng-model="vm.note.content"
+        ng-readonly="vm.isReadOnly()"
+        errors="vm.errors['content']">
+</validated-form-element>

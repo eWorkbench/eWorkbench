@@ -1,0 +1,109 @@
+<!-- Title -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="file_title" translate>
+        Title
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list
+            edit-disabled="vm.isReadOnly()"
+            on-save="vm.saveFilePartial('title', ngModel)"
+            on-save-multiple="vm.saveFile()"
+            on-abort="vm.resetErrors()"
+            ng-model="vm.file.title">
+            <ng-include src="'js/screens/file/fileForm.title.html'"></ng-include>
+        </editable-select-list>
+    </div>
+</div>
+
+<label class="col-sm-3 control-label" for="file_name" translate>
+        File Name
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list
+            edit-disabled="vm.isReadOnly()"
+            on-save="vm.saveFilePartial('name', ngModel)"
+            on-save-multiple="vm.saveFile()"
+            on-abort="vm.resetErrors()"
+            ng-model="vm.file.name">
+            <ng-include src="'js/screens/file/fileForm.name.html'"></ng-include>
+        </editable-select-list>
+    </div>
+</div>
+
+<!-- File -->
+<div class="form-group">
+    <label class="col-md-3 control-label" translate>Download</label>
+    <div class="col-sm-9">
+        <div>
+            <i class="{{:: vm.downloadIcon }}" aria-hidden="true"
+               title="{{ 'Download' | translate }}"></i>
+            <a ng-click="vm.download()" role="button">{{ vm.file.name }}</a>
+            ({{ vm.file.file_size | bytes }})
+        </div>
+    </div>
+</div>
+
+<!-- Directory -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="file_path" translate>
+        Storage
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list
+            edit-disabled="vm.isReadOnly()"
+            on-save="vm.saveFilePartial('directory_id', ngModel)"
+            on-save-multiple="vm.saveFile()"
+            on-abort="vm.resetErrors()"
+            ng-model="vm.file.directory_id">
+            <div ng-include="'js/screens/file/fileForm.directory.html'"></div>
+        </editable-select-list>
+    </div>
+</div>
+
+<!-- Description -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="file_description">
+        <span translate>Description</span>
+        <span ng-hide="vm.isReadOnly()">
+            <!-- choose Template -->
+            <text-template-widget ng-hide="vm.isReadOnly()" override-object-attribute="vm.file.description"></text-template-widget>
+        </span>
+    </label>
+    <div class="col-sm-9">
+        <editable-select-list
+            compare-mode="html"
+            edit-disabled="vm.isReadOnly()"
+            on-save="vm.saveFilePartial('description', ngModel)"
+            on-save-multiple="vm.saveFile()"
+            on-abort="vm.resetErrors()"
+            ng-model="vm.file.description">
+            <ng-include src="'js/screens/file/fileForm.description.html'"></ng-include>
+        </editable-select-list>
+    </div>
+</div>
+
+<!-- metadata -->
+<small-entity-view-metadata
+    metadata="vm.file.metadata"
+    base-model="vm.file"
+    base-url-model="file"
+    read-only="vm.isReadOnly()">
+</small-entity-view-metadata>
+
+<!-- project -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="input_file_create_project" translate>
+        Project
+    </label>
+    <div class="col-sm-9" style="text-align: left">
+        <editable-select-list
+            edit-disabled="vm.isReadOnly()"
+            on-save="vm.saveFilePartial('projects', ngModel)"
+            on-save-multiple="vm.saveFile()"
+            on-abort="vm.resetErrors()"
+            ng-model="vm.projectPks"
+            compare-mode="array">
+            <div ng-include="'js/screens/file/fileForm.projects.html'"></div>
+        </editable-select-list>
+    </div>
+</div>

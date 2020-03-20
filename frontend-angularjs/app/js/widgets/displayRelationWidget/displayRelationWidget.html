@@ -1,0 +1,241 @@
+<div ng-if="vm.newNoteRelation">
+    <note-create-card-widget relation-contentobject="vm.relationContentobject" relation-model="vm.relationModel"></note-create-card-widget>
+</div>
+<div ng-if="!vm.newNoteRelation && vm.relationContentobject && !vm.relationContentobject.error"
+     ng-class="{'card-soft-deleted': vm.relationContentobject.deleted}"
+     ng-switch="vm.relationModel">
+    <!-- Contact -->
+    <div ng-switch-when="shared_elements.contact" style="position: relative">
+        <contact-card-display contact="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </contact-card-display>
+    </div>
+    <!-- Task -->
+    <div ng-switch-when="shared_elements.task" style="position: relative">
+        <task-card-display task="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </task-card-display>
+    </div>
+    <!-- File -->
+    <div ng-switch-when="shared_elements.file" style="position: relative">
+        <file-card-display file="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </file-card-display>
+    </div>
+    <!-- Note -->
+    <div ng-switch-when="shared_elements.note" style="position: relative">
+        <note-card-display note="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </note-card-display>
+    </div>
+    <!-- Meeting -->
+    <div ng-switch-when="shared_elements.meeting" style="position: relative">
+        <meeting-card-display meeting="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </meeting-card-display>
+    </div>
+    <!-- DMP -->
+    <div ng-switch-when="dmp.dmp" style="position: relative">
+        <dmp-card-display dmp="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </dmp-card-display>
+    </div>
+    <!-- LabBook -->
+    <div ng-switch-when="labbooks.labbook" style="position: relative">
+        <labbook-card-display labbook="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </labbook-card-display>
+    </div>
+    <!-- Picture -->
+    <div ng-switch-when="pictures.picture" style="position: relative">
+        <picture-card-display picture="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </picture-card-display>
+    </div>
+    <!-- Task Board -->
+    <div ng-switch-when="kanban_boards.kanbanboard" style="position: relative">
+        <kanbanboard-card-display kanbanboard="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </kanbanboard-card-display>
+    </div>
+    <!-- Drive -->
+    <div ng-switch-when="drives.drive" style="position: relative">
+        <drive-card-display drive="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </drive-card-display>
+    </div>
+    <!-- Project -->
+    <div ng-switch-when="projects.project" style="position: relative">
+        <project-card-display project="vm.relationContentobject">
+            <card-functions>
+                <display-relation-functions-widget></display-relation-functions-widget>
+            </card-functions>
+
+            <card-footer>
+                <span class="font-color" translate>linked by</span>
+                <user-display-widget user="vm.relation.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+
+                <span class="pull-right font-color" title="{{ 'This element has been trashed' }}"
+                      ng-show="vm.relationContentobject.deleted">
+                    <span class="{{ :: vm.trashIcon }}"></span> <span translate>Trashed</span>
+                </span>
+            </card-footer>
+        </project-card-display>
+    </div>
+
+</div>
+<!-- Error -->
+<div ng-if="!vm.relationContentobject || vm.relationContentobject.error">
+    <permission-denied-card-widget relation="vm.relation"
+                                   relation-contentobject="vm.relationContentobject"
+                                   relation-content-type-model="vm.relationModel">
+        <card-footer>
+            <span class="font-color" translate>linked by</span>
+            <user-display-widget user="vm.relation.created_by"></user-display-widget>
+            <span class="font-color">-</span>
+            <span class="font-color">{{ vm.relation.created_at | smallDateWithToday }}</span>
+        </card-footer>
+    </permission-denied-card-widget>
+</div>

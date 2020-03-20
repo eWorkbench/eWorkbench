@@ -1,0 +1,3 @@
+{% load html_unescape %}
+{{ instance.comment | striptags | html_unescape }}
+{{ instance.resource.name }}

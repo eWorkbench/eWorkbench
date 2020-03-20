@@ -1,0 +1,50 @@
+{% load i18n date_filters %}
+{% if object %}
+    {% if object_type == 'Task' %}
+        <i>{% trans "Task" %} #{{ object.task_id }}: {{ object.title }}</i><br />
+        {{ object.description | safe }}
+    {% elif object_type == 'LabbookSection' %}
+        <i>{% trans "Section" %}</i><br />
+        {% trans "Date" %}: {{ object.date | date:"Y-m-d"}}<br />
+        {% trans "Title" %}: {{ object.title }}<br />
+    {% elif object_type == 'Note' %}
+        <i>{{ object.subject }}</i><br />
+        {{ object.content | safe }}
+    {% elif object_type == 'Meeting' %}
+        <i>
+            {% trans "Meeting" %} {{ object.title }} on {{ object.date_time_start | date_short }} - {{ object.date_time_end | date_short }}
+        </i><br />
+        {{ object.text | safe }}
+    {% elif object_type == 'Contact' %}
+        <i>{{ object.academic_title }} {{ object.first_name }} {{ object.last_name }}</i><br />
+        {% trans "Company" %}: {{ object.company }}<br />
+        {% trans "Phone Number" %}: {{ object.phone }}<br />
+        {% trans "Email" %}: {{ object.email }}
+    {% elif object_type == 'File' %}
+        <i>{% trans "File" %} {{ object.name }}</i><br />
+        File Name: {{ object.original_filename }}<br />
+        File Size: {{ object.file_size }} bytes<br />
+        {{ object.description | safe }}
+    {% elif object_type == 'Dmp' %}
+        <i>{% trans "DMP" %} {{ object.title }}</i>
+    {% elif object_type == 'LabBook' %}
+        <i>{% trans "LabBook" %} {{ object.title }}</i><br />
+        {{ object.description | safe }}
+    {% elif object_type == 'Drive' %}
+        <i>{% trans "Storage" %} {{ object.title }}</i><br />
+        Contains {{ object.sub_directories.count }} directories
+    {% elif object_type == 'Picture' %}
+        <i>{% trans "Picture" %} {{ object.title }}</i><br />
+        {% if object.rendered_image and object.rendered_image.file %}
+            <img src="file://{{ object.rendered_image.file }}" style="max-width: 600px; height: auto">
+        {% elif object.background_image and object.background_image.file %}
+            <img src="file://{{ object.background_image.file }}" style="max-width: 600px; height: auto">
+        {% endif %}
+    {% else %}
+        {% trans "Unknown Element" %}
+        {{ object }}
+    {% endif %}
+{% else %}
+    <i>{% trans "Permission denied" %}</i><br />
+    {% trans "You do not have permissions to view this link" %}
+{% endif %}

@@ -1,0 +1,22 @@
+<div class="nav-pf-vertical">
+    <ul class="list-group">
+        <!-- entry for staff functions -->
+        <li ng-if="vm.currentUser.is_staff && vm.currentUser.permissions.indexOf('user_manual.add_usermanualhelptext') >= 0 && vm.currentUser.permissions.indexOf('user_manual.add_usermanualplaceholder') >= 0"
+            ng-class="['list-group-item',{'active': vm.currentActivePage == 'usermanual/staff'}]"
+            ui-sref="usermanual/staff"
+        >
+            <a>
+                <span class="list-group-item-value" translate>
+                    Staff Functions
+                </span>
+            </a>
+        </li>
+        <li ng-repeat="category in vm.categories | orderBy: 'ordering'"
+            ng-class="['list-group-item', {'active': vm.currentActiveCategoryPk == category.pk }]">
+            <a ui-sref="usermanual/category({userManualCategory:category})">
+                <span class="list-group-item-value" ng-bind="category.title">
+                </span>
+            </a>
+        </li>
+    </ul>
+</div>

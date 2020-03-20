@@ -1,0 +1,127 @@
+{% block content %}
+    <p>
+    <h4 class="created_metadata_title">
+        All metadata categories that the user has created:
+    </h4>
+    </p>
+    <p>
+
+    <div class="created_metadata">
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Entity content type</th>
+                    <th>Entity id</th>
+                    <th>Field</th>
+                    <th>Field values</th>
+
+                </tr>
+
+                {% for metadata in user.metadata_created.all %}
+                   <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ metadata.entity_content_type }}</td>
+                        <td>{{ metadata.entity_id }}</td>
+                        <td>{{ metadata.field.name }}</td>
+                        <td>{% for field_values in metadata.field.values.all %}
+                                {{ field_values }}
+                            {% endfor %}
+                        </td>
+                   </tr>
+                {% endfor %}
+            </table>
+            <br>
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Created by</th>
+                    <th>Last modified by</th>
+                    <th>Created at:</th>
+                    <th>Last modified at</th>
+                </tr>
+
+                {% for metadata in user.metadata_created.all %}
+                   <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ metadata.created_by }}</td>
+                        <td>{{ metadata.last_modified_by }}</td>
+                        <td>{{ metadata.created_at }}</td>
+                        <td>{{ metadata.last_modified_at }}</td>
+                   </tr>
+                {% endfor %}
+            </table>
+            <br>
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>CS Created by</th>
+                    <th>CS Last modified by</th>
+                    <th>CS Created at:</th>
+                    <th>CS Last modified at</th>
+                </tr>
+
+                {% for metadata in user.metadata_created.all %}
+                   <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ metadata.cs_created_by }}</td>
+                        <td>{{ metadata.cs_last_modified_by }}</td>
+                        <td>{{ metadata.cs_created_at }}</td>
+                        <td>{{ metadata.cs_last_modified_at }}</td>
+                   </tr>
+                {% endfor %}
+            </table>
+    </div>
+
+    </p>
+
+    <p>
+    <h4 class="created_metadata_field_title">
+        All metadata fields that the user has created:
+    </h4>
+    </p>
+    <p>
+
+    <div class="created_metadata_field">
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Field type name</th>
+                    <th>Field type description</th>
+                    <th>Metadata base type</th>
+                    <th>Values for base type settings</th>
+                </tr>
+
+                {% for metadatafield in user.metadatafield_created.all %}
+                   <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ metadatafield.name }}</td>
+                        <td>{{ metadatafield.description }}</td>
+                        <td>{{ metadatafield.base_type }}</td>
+                        <td>{{ metadatafield.type_settings }}</td>
+                   </tr>
+                {% endfor %}
+            </table>
+            <br>
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Created by</th>
+                    <th>Last modified by</th>
+                    <th>Created at:</th>
+                    <th>Last modified at</th>
+                </tr>
+
+                {% for metadatafield in user.metadatafield_created.all %}
+                   <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ metadatafield.created_by }}</td>
+                        <td>{{ metadatafield.last_modified_by }}</td>
+                        <td>{{ metadatafield.created_at }}</td>
+                        <td>{{ metadatafield.last_modified_at }}</td>
+                   </tr>
+                {% endfor %}
+            </table>
+    </div>
+
+    </p>
+{% endblock %}

@@ -1,0 +1,79 @@
+<div>
+    <h1>
+       <span translate>OSS Licenses</span>
+    </h1>
+    <p>
+        <span translate>Workbench uses several JavaScript, CSS and Python libraries, which are listed below together with their licenses.</span>
+    </p>
+
+    <h2>Frontend</h2>
+
+    <table class="table table-responsive table-hover" style="width: 100%">
+        <thead>
+        <tr>
+            <th sortable-column="key" sort-by="vm.sortColumn" sort-reverse="vm.sortReverse">
+                <span translate>Library Name</span>
+            </th>
+            <th sortable-column="licenses" sort-by="vm.sortColumn" sort-reverse="vm.sortReverse">
+                <span translate>Licenses</span>
+            </th>
+            <th>
+                <span translate>Link to License File</span>
+            </th>
+            <th>
+                <span translate>Link to repository</span>
+            </th>
+        </tr>
+        </thead>
+
+        <tr ng-repeat="license in vm.licensesFrontend | orderBy:vm.sortColumn:vm.sortReverse">
+            <td>{{ license['key'] }}</td>
+            <td>{{ license['licenses'] }}</td>
+            <td>
+                <div ng-show="license['licenseFile'] && license['licenseFile'] != ''">
+                    <a ng-href="{{ license['licenseFile'] }}">
+                        {{ license['licenseFile'] }}
+                    </a>
+                </div>
+            </td>
+            <td>
+                <div ng-show="license['repository'] && license['repository'] != ''">
+                    <a target="_blank" ng-href="{{ license['repository'] }}">
+                        Link
+                    </a>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+    <h2>Backend</h2>
+
+    <table class="table table-responsive table-hover" style="width: 100%">
+        <thead>
+        <tr>
+            <th sortable-column="key" sort-by="vm.sortColumnBackend" sort-reverse="vm.sortReverseBackend">
+                <span translate>Library Name</span>
+            </th>
+            <th sortable-column="licenses" sort-by="vm.sortColumnBackend" sort-reverse="vm.sortReverseBackend">
+                <span translate>Licenses</span>
+            </th>
+            <th>
+                <span translate>Link to repository</span>
+            </th>
+        </tr>
+        </thead>
+
+        <tr ng-repeat="license in vm.licensesBackend | orderBy:vm.sortColumnBackend:vm.sortReverseBackend">
+            <td>{{ license['key'] }}</td>
+            <td>{{ license['licenses'] }}</td>
+            <td>
+                <div ng-show="license['repository'] && license['repository'] != ''">
+                    <a target="_blank" ng-href="{{ license['repository'] }}">
+                        Link
+                    </a>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

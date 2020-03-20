@@ -1,0 +1,10 @@
+<validated-form-element id="resource_description"
+                        rows="6"
+                        input-element="html"
+                        auto-focus="vm.mode == 'create'"
+                        field-name="resource_description"
+                        placeholder="{{ 'Resource Description' | translate }}"
+                        ng-model="vm.resource.description"
+                        ng-readonly="vm.isReadOnly()"
+                        errors="vm.errors['description']">
+</validated-form-element>

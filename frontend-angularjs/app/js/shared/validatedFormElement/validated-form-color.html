@@ -1,0 +1,21 @@
+<div class="input-group" style="width: 100%" ng-class="{ 'has-error': errors.length > 0 || hasFormErrors } ">
+    <input id="{{ id }}"
+           name="{{ id }}"
+           type="text"
+           colorpicker="rgba" colorpicker-parent="true"
+           ng-model="ngModel"
+           class="form-control"
+           placeholder="{{ placeholder }}"
+           ng-disabled="ngDisabled"
+           ng-pattern="myNgPattern"
+           ng-readonly="ngReadonly"
+           focus-if="autoFocus"
+    />
+
+    <p ng-show="errors.length > 0"  class="help-block">
+        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+        {{ errors.join(', ') }}
+    </p>
+
+    <span ng-transclude></span>
+</div>

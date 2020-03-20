@@ -1,0 +1,111 @@
+<!-- Task Title -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_title" translate
+        title="{{ 'mandatory field' | translate }}">
+        Title *
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/task/taskForm.title.html'"></ng-include>
+    </div>
+</div>
+
+<!-- Task Assignee -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_assignee" translate>
+        Assignee
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/task/taskForm.assignedUser.html'"></ng-include>
+    </div>
+</div>
+
+<!-- Start Date / Due Date combined -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_start_date" translate>
+        Start/Due Date
+    </label>
+    <div class="col-sm-9">
+        <div style="width: 150px; float: left">
+            <ng-include src="'js/screens/task/taskForm.startDate.html'"></ng-include>
+        </div>
+        <div style="width: 17px; float: left; margin-top: 3px; padding-left: 3px;">
+            to
+        </div>
+        <div style="width: 150px; float: left">
+            <ng-include src="'js/screens/task/taskForm.dueDate.html'"></ng-include>
+        </div>
+        <div style="width: 80px; float: left; padding-left: 7px;">
+            <ng-include src="'js/screens/task/taskForm.fullDay.html'"></ng-include>
+        </div>
+    </div>
+</div>
+
+<!-- Priority -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_priority" translate>
+        Priority
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/task/taskForm.priority.html'"></ng-include>
+    </div>
+</div>
+
+<!-- State -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_state" translate>
+        State
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/task/taskForm.state.html'"></ng-include>
+    </div>
+</div>
+
+<!-- Checklist -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_checklist" translate>
+        Checklist
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/task/taskForm.checklist.html'"></ng-include>
+    </div>
+</div>
+
+<!-- Element Labels -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_element_labels" translate>
+        Labels
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/task/taskForm.labels.html'"></ng-include>
+    </div>
+</div>
+
+<!-- Description -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_description">
+        <span translate>Description</span>
+        <!-- choose Template -->
+        <text-template-widget ng-hide="vm.isReadOnly()" override-object-attribute="vm.task.description"></text-template-widget>
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/task/taskForm.description.html'"></ng-include>
+    </div>
+</div>
+
+<!-- project -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="task_project" translate>
+        Project
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/task/taskForm.projects.html'"></ng-include>
+    </div>
+</div>
+
+<!-- metadata -->
+<small-entity-view-metadata
+    metadata="vm.task.metadata"
+    base-model="vm.task"
+    base-url-model="task"
+    read-only="vm.isReadOnly()">
+</small-entity-view-metadata>

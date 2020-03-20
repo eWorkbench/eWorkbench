@@ -1,0 +1,8 @@
+<div ng-repeat="diff in vm.diffs">
+    <b ng-bind="diff.name"></b>
+
+    <div ng-repeat="innerDiff in diff.innerDiffs">
+        <div ng-class="{'del': innerDiff.deleted, 'ins': innerDiff.inserted}"
+             ng-bind-html="innerDiff.html | asHtml"></div>
+    </div>
+</div>

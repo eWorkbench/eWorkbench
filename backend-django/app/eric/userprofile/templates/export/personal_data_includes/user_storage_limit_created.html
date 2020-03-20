@@ -1,0 +1,72 @@
+{% block content %}
+    
+    <p>
+    <h4 class="created_user_storage_limit_title">
+        All user storage limit entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_user_storage_limit">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>User name</th>
+                <th>Max storage (Megabyte)</th>
+                <th>Comment about the storage limit</th>
+            </tr>
+
+            {% for userstoragelimit in user.userstoragelimit_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ userstoragelimit.user }}</td>
+                    <td>{{ userstoragelimit.storage_megabyte }}</td>
+                    <td>{{ userstoragelimit.comment }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for userstoragelimit in user.userstoragelimit_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ userstoragelimit.created_by }}</td>
+                    <td>{{ userstoragelimit.last_modified_by }}</td>
+                    <td>{{ userstoragelimit.created_at }}</td>
+                    <td>{{ userstoragelimit.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for userstoragelimit in user.userstoragelimit_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ userstoragelimit.cs_created_by }}</td>
+                    <td>{{ userstoragelimit.cs_last_modified_by }}</td>
+                    <td>{{ userstoragelimit.cs_created_at }}</td>
+                    <td>{{ userstoragelimit.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+
+{% endblock %}

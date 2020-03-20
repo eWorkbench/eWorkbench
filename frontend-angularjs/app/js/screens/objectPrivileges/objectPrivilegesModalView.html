@@ -1,0 +1,126 @@
+<div class="modal-header">
+    <div class="modal-title" translate>
+        Privileges of {{ vm.obj.display }}
+    </div>
+</div>
+<div class="modal-body">
+    <!-- show a message that only users with full access privileges are allowed to edit privileges -->
+    <div ng-show="!vm.canEditPrivileges">
+        <span translate>You are not allowed to edit privileges on this page. Only users with the <b>Full Access</b> privilege can edit privileges.</span>
+    </div>
+    <!-- Show a quick manual -->
+    <div ng-show="vm.canEditPrivileges">
+        <div translate>You can edit and delete privileges of the listed users, or add a new user at the bottom.</div>
+
+        <capture-html param="removePrivilegeButton">
+            <button class="btn btn-danger" disabled><span class="fa fa-minus-square"></span></button>
+        </capture-html>
+
+        <div translate
+             translate-html-params-remove-privilege-button="removePrivilegeButton"
+        >
+            Privileges can be deleted by clicking the {{ removePrivilegeButton }} button on the
+            right side.
+        </div>
+
+        <capture-html param="restorePrivilegeButton">
+            <button class="btn btn-default" disabled><span class="fa fa-undo"></span></button>
+        </capture-html>
+
+        <div translate
+             translate-html-params-restore-privilege-button="restorePrivilegeButton"
+        >
+            If a privilege of a user has been changed, it can be restored (e.g., to privileges inherited by role of a
+            user in a project)
+            by clicking the {{ restorePrivilegeButton }} button on the right side.
+        </div>
+        <br/>
+    </div>
+    <table class="table table-responsive objectPrivilegesTable">
+        <thead>
+        <th>&nbsp;</th>
+        <th style="text-align: center" translate>Full Access</th>
+        <th style="text-align: center" translate>Selective Access</th>
+        <th>&nbsp;</th>
+        </thead>
+        <tbody>
+        <tr ng-repeat="privilege in vm.privileges | orderBy: 'user.username' | orderBy: 'user.userprofile.first_name' | orderBy: 'user.userprofile.last_name'">
+            <td style="vertical-align: middle">
+                <user-display-widget user="privilege.user"></user-display-widget>
+            </td>
+            <td style="text-align: center">
+                <object-privileges-dropdown-widget
+                    icon-class="fa fa-check"
+                    use-neutral-privilege="true"
+                    ng-model="privilege.full_access_privilege"
+                    tooltip="{{ 'Full access' | translate }}"
+                    toggle-disabled="!vm.canEditPrivileges"
+                    ng-change="vm.updatePrivilege(privilege)">
+                </object-privileges-dropdown-widget>
+            </td>
+            <td style="text-align: center">
+                <object-privileges-dropdown-widget
+                    icon-class="fa fa-eye"
+                    ng-disabled="privilege.full_access_privilege == 'AL'"
+                    ng-model="privilege.view_privilege"
+                    tooltip="{{ 'View' | translate }}"
+                    toggle-disabled="!vm.canEditPrivileges"
+                    ng-change="vm.updatePrivilege(privilege)">
+                </object-privileges-dropdown-widget>
+
+                <object-privileges-dropdown-widget
+                    icon-class="{{:: vm.icons.edit }}"
+                    ng-disabled="privilege.full_access_privilege == 'AL'"
+                    ng-model="privilege.edit_privilege"
+                    tooltip="{{ 'Edit' | translate }}"
+                    toggle-disabled="!vm.canEditPrivileges"
+                    ng-change="vm.updatePrivilege(privilege)">
+                </object-privileges-dropdown-widget>
+
+                <object-privileges-dropdown-widget
+                    icon-class="{{:: vm.icons.trash }}"
+                    ng-disabled="privilege.full_access_privilege == 'AL'"
+                    ng-model="privilege.trash_privilege"
+                    tooltip="{{ 'Trash' | translate }}"
+                    toggle-disabled="!vm.canEditPrivileges"
+                    ng-change="vm.updatePrivilege(privilege)">
+                </object-privileges-dropdown-widget>
+
+                <object-privileges-dropdown-widget
+                    icon-class="{{:: vm.icons.restore }}"
+                    ng-disabled="privilege.full_access_privilege == 'AL'"
+                    ng-model="privilege.restore_privilege"
+                    tooltip="{{ 'Restore' | translate }}"
+                    toggle-disabled="!vm.canEditPrivileges"
+                    ng-change="vm.updatePrivilege(privilege)">
+                </object-privileges-dropdown-widget>
+            </td>
+            <td style="width: 110px">
+                <button class="btn btn-default" ng-click="vm.resetAccess(privilege)"
+                        ng-show="vm.canEditPrivileges && vm.canResetAccess(privilege)"
+                        title="{{ 'Reset access for this user to defaults (e.g., by project roles)' | translate }}"
+                        style="font-size: 12pt"
+                >
+                    <i class="fa fa-undo" aria-hidden="true"></i>
+                </button>
+
+                <button class="btn btn-danger pull-right" ng-click="vm.deletePrivilege(privilege)"
+                        title="{{ 'Delete privileges for this user' | translate }}"
+                        style="font-size: 12pt"
+                        ng-show="vm.canEditPrivileges"
+                >
+                    <i class="fa fa-minus-square" aria-hidden="true"></i>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <user-selectize-widget ng-if="vm.canEditPrivileges"
+                           class="selectize-no-arrow"
+                           placeholder="{{ 'Add another user' | translate }}"
+                           users="[]" selected-user-pk="vm.newUserPk" max-items="1"></user-selectize-widget>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="vm.dismiss('finished editing privileges')" translate>OK</button>
+</div>

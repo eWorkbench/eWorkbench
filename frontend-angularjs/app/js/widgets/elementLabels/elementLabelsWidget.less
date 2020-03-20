@@ -1,0 +1,62 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+element-labels-widget {
+  .addElementButton {
+    div {
+      display: inline-block;
+      padding: 0 10px;
+      border-radius: 5px;
+      margin-right: 5px;
+      color: white;
+      font-weight: bold;
+      margin-bottom: 2px;
+
+      overflow: hidden; // required for proper positioning
+    }
+  }
+
+  .elementLabel {
+    element-label-display-widget {
+      div {
+        transition: 0.5s all ease;
+      }
+    }
+  }
+
+  .removeElementLabel {
+    display: none;
+  }
+
+  .editable-label-row {
+    display: inline-block;
+    position: relative;
+
+    &:hover {
+      .elementLabel {
+        element-label-display-widget {
+          div {
+            transition: 0.5s all ease;
+            padding-left: 7px;
+            padding-right: 13px;
+          }
+        }
+      }
+
+      // position the button for removing the element
+      .removeElementLabel {
+        display: inline;
+        position: absolute;
+        top: 0px;
+        right: 7px;
+        font-size: 8pt;
+        color: white;
+
+        &:hover {
+          color: #cccccc;
+        }
+      }
+    }
+  }
+}

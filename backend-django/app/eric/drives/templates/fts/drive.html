@@ -1,0 +1,4 @@
+{{ instance.title }}
+{% for directory in instance.sub_directories.all %}
+    {{ directory.name }}
+{% endfor %}

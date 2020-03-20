@@ -1,0 +1,215 @@
+<div class="panel panel-default element-panel">
+    <div class="panel-heading">
+        <div style="float: left">
+            <i class="{{:: vm.meetingIcon }}"></i> {{ vm.meeting.title }}
+        </div>
+        <generic-detail-view-menu-widget
+            ng-if="!vm.readOnly"
+            base-model="vm.meeting"
+            base-url-model="meetings"
+            has-trash="true"
+            has-export="true"
+            has-restore="true"
+            has-privileges="true"
+            has-new-element="true"
+            has-duplicate="true"></generic-detail-view-menu-widget>
+    </div>
+    <div class="panel-body">
+        <generic-show-element-state-widget base-model="vm.meeting"
+                                           show-trashed="true"></generic-show-element-state-widget>
+        <generic-show-element-lock-status-widget on-lock-cb="vm.onLock()" on-unlock-cb="vm.onUnlock()"
+                                                 base-model="vm.meeting"
+                                                 read-only="vm.readOnly"
+                                                 show-locked="true"
+                                                 show-reload-message="true"></generic-show-element-lock-status-widget>
+
+        <div class="row">
+            <div class="form-horizontal" name="editMeetingForm">
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <!-- Meeting title -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="meeting_title" translate
+                            title="{{ 'mandatory field' | translate }}">
+                            Title *
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveMeetingPartial('title', ngModel)"
+                                on-save-multiple="vm.saveMeeting()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.meeting.title">
+                                <ng-include src="'js/screens/meeting/meetingForm.title.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Start date, end date and time -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" translate>
+                            Start/End date
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveMeetingDates()"
+                                on-save-multiple="vm.saveMeeting()"
+                                on-abort="vm.resetMeetingDates()"
+                                compare-mode="date"
+                                compare-mode-date-granularity="minutes"
+                                ng-model="vm.meeting"
+                                ng-model-fields="date_time_start,date_time_end">
+                                <div>
+                                    <div style="width: 130px; float: left">
+                                        <ng-include src="'js/screens/meeting/meetingForm.startDate.html'"></ng-include>
+                                    </div>
+                                    <div style="width: 17px; float: left; margin-top: 3px">
+                                        to
+                                    </div>
+                                    <div style="width: 130px; float: left">
+                                        <ng-include src="'js/screens/meeting/meetingForm.endDate.html'"></ng-include>
+                                    </div>
+                                    <div style="padding-left: 8px; width: 80px; float: left">
+                                        <ng-include src="'js/screens/meeting/meetingForm.fullDay.html'"></ng-include>
+                                    </div>
+                                </div>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="meeting_location" translate>
+                            Location
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveMeetingPartial('location', ngModel)"
+                                on-save-multiple="vm.saveMeeting()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.meeting.location">
+                                <ng-include src="'js/screens/meeting/meetingForm.location.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Ressource -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" translate>
+                            Resource
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveMeetingPartial('resource_pk', ngModel)"
+                                on-save-multiple="vm.saveMeeting()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.meeting.resource_pk">
+                                <ng-include src="'js/screens/meeting/meetingForm.resource.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Attending Users -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" translate>
+                            Attending users
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveMeetingPartial('attending_users_pk', ngModel)"
+                                on-save-multiple="vm.saveMeeting()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.attendingUsersPk"
+                                compare-mode="array">
+                                <ng-include src="'js/screens/meeting/meetingForm.attendingUsers.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Attending Contacts -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" translate>
+                            Attending contacts
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveMeetingPartial('attending_contacts_pk', ngModel)"
+                                on-save-multiple="vm.saveMeeting()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.attendingContactsPk"
+                                compare-mode="array">
+                                <ng-include src="'js/screens/meeting/meetingForm.attendingContacts.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Text -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="meeting_text">
+                            <span translate>Description</span>
+                            <!-- choose Template -->
+                            <text-template-widget ng-hide="vm.isReadOnly()" override-object-attribute="vm.meeting.text"></text-template-widget>
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                compare-mode="html"
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveMeetingPartial('text', ngModel)"
+                                on-save-multiple="vm.saveMeeting()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.meeting.text">
+                                <ng-include src="'js/screens/meeting/meetingForm.text.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Metadata -->
+                    <metadata-fields-widget
+                        base-model="vm.meeting"
+                        base-url-model="meeting"
+                        read-only="vm.isReadOnly()"
+                        on-save="vm.saveMeetingPartial('metadata', vm.meeting.metadata)"
+                        on-save-multiple="vm.saveMeeting()"
+                        on-abort="vm.resetErrors()"
+                        metadata="vm.meeting.metadata">
+                    </metadata-fields-widget>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <created-and-updated-by-widget element="vm.meeting"></created-and-updated-by-widget>
+
+                    <!-- project -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="meeting_project" translate>
+                            Project
+                        </label>
+                        <div class="col-sm-9" style="text-align: left">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveMeetingPartial('projects', ngModel)"
+                                on-save-multiple="vm.saveMeeting()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.projectPks"
+                                compare-mode="array">
+                                <ng-include src="'js/screens/meeting/meetingForm.projects.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <!-- History -->
+                    <history-short-widget base-model="vm.meeting" base-url-model="meeting"></history-short-widget>
+                    <!-- Versions -->
+                    <versions-short-widget readonly="vm.isReadOnly()" base-model="vm.meeting" base-url-model="meeting"></versions-short-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- relations -->
+<relation-list-widget base-model="vm.meeting" base-url-model="meeting"></relation-list-widget>
+

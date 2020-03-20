@@ -1,0 +1,131 @@
+<div class="panel panel-default element-panel">
+    <div class="panel-heading">
+        <div style="float: left" translate>
+            Metadata Search
+        </div>
+    </div>
+    <div class="panel-body">
+        <p translate>Please fill the form, select limits, and click Search.</p>
+
+        <!-- Workbench elements to include in search -->
+        <div>
+            <div class="form-headline" translate>Search in:</div>
+            <select id="modelSelected"
+                    ng-model="vm.modelTypeFilter"
+                    class="form-control"
+                    ng-options="value as vm.modelNameToTranslation[value] for (key,value) in vm.modelTypes">
+                <option value="" translate>All Types</option>
+            </select>
+        </div>
+
+        <!-- Search parameters -->
+        <div>
+            <div class="form-headline" translate>Search parameters:</div>
+            <table style="width: 100%" class="search-parameter-table">
+                <colgroup>
+                    <col width="20%"/>
+                    <col width="80px"/>
+                    <col/>
+                    <col width="80px"/>
+                    <col width="8px"/>
+                </colgroup>
+
+                <!-- Parameter list -->
+                <tr ng-repeat="parameter in vm.parameterList">
+
+                    <!-- Field -->
+                    <td>
+                        <!-- <metadata-field-type metadata="parameter"></metadata-field-type> -->
+                        <select-metadata-field field="parameter.field">
+                        </select-metadata-field>
+                    </td>
+
+                    <!-- Operator: = < <= > >= -->
+                    <td>
+                        <metadata-field-operator field="parameter.field" ng-model="parameter.operator">
+                        </metadata-field-operator>
+                    </td>
+
+                    <!-- Keyword -->
+                    <td>
+                        <validated-form-element-wrapper errors="vm.errors[$index]"
+                                                        has-form-errors="vm.errors[$index] > 0">
+                            <metadata-search-values metadata="parameter">
+                            </metadata-search-values>
+                        </validated-form-element-wrapper>
+                    </td>
+
+                    <!-- Combination operator: AND OR -->
+                    <td>
+                        <select class="form-control" ng-model="parameter.combinationOperator">
+                            <option value="AND" selected translate>AND</option>
+                            <option value="OR" translate>OR</option>
+                        </select>
+                    </td>
+
+                    <!-- Remove parameter button -->
+                    <td>
+                        <a href="javascript:" ng-click="vm.removeParameter(parameter)">X</a>
+                    </td>
+
+                </tr>
+
+                <!-- Add new parameter -->
+                <tr>
+                    <td>
+                        <select-metadata-field field="vm.newParameterField"></select-metadata-field>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Search button  -->
+        <div>
+            <button class="btn btn-primary"
+                    ng-click="vm.search()"
+                    ng-disabled="!vm.parameterList || vm.parameterList.length <= 0"
+                    translate>
+                Search
+            </button>
+        </div>
+
+        <!-- Search results -->
+        <div ng-if="vm.results">
+            <h1 translate>Results</h1>
+            <div ng-if="vm.results.length === 0" translate>
+                No match found.
+            </div>
+            <table class="table table-hover table-responsive" ng-if="vm.results.length > 0">
+                <thead>
+                <tr>
+                    <th translate>Title</th>
+                    <th translate>Type</th>
+                    <th><!-- created --></th>
+                    <th><!-- Last modified --></th>
+                </tr>
+                </thead>
+                <tr ng-repeat="entity in vm.results">
+                    <td>
+                        <a href="{{ entity.modelViewUrl }}">{{ entity.display }}</a>
+                    </td>
+                    <td>{{ entity.typeDisplay }}</td>
+                    <td>
+                        created by
+                        <user-display-widget user="entity.created_by"></user-display-widget>
+                        at {{ entity.created_at | smallDate }}
+                    </td>
+                    <td>
+                        last modified by
+                        <user-display-widget user="entity.last_modified_by"></user-display-widget>
+                        at {{ entity.last_modified_at | smallDate }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+</div>

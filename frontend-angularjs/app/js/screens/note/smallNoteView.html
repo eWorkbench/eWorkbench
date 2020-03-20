@@ -1,0 +1,40 @@
+<!-- Note Subject -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="note_subject" translate
+        title="{{ 'mandatory field' | translate }}">
+        Subject *
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/note/noteForm.subject.html'"></ng-include>
+    </div>
+</div>
+
+<!-- Note Content -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="note_content">
+        <span translate>Content</span>
+        <!-- choose Template -->
+        <text-template-widget ng-hide="vm.isReadOnly()" override-object-attribute="vm.note.content"></text-template-widget>
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/note/noteForm.content.html'"></ng-include>
+    </div>
+</div>
+
+<!-- metadata -->
+<small-entity-view-metadata
+    metadata="vm.note.metadata"
+    base-model="vm.note"
+    base-url-model="note"
+    read-only="vm.isReadOnly()">
+</small-entity-view-metadata>
+
+<!-- Project -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="note_project" translate>
+        Project
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/note/noteForm.projects.html'"></ng-include>
+    </div>
+</div>

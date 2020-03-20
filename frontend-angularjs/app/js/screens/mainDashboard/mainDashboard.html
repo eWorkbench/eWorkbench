@@ -1,0 +1,13 @@
+<div style="width: 100%; height: 100%; padding: 5px">
+    <generic-list-loading-widget
+        loading-flag="vm.dataLoaded"
+        loading-text="Dashboard">
+    </generic-list-loading-widget>
+    <div class="row" ng-if="vm.dataLoaded">
+        <div ng-repeat="dashboardConfig in vm.dashboardConfig"
+             class="dashboard-grid"
+             ng-class="[ dashboardConfig.cssClass ]">
+            <main-dashboard-link is-loading="vm.isLoading" data="dashboardConfig.data" type="dashboardConfig.type"></main-dashboard-link>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,83 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>
+        Edit column {{ vm.column.title }}
+    </h3>
+</div>
+<form class="form-horizontal" ng-submit="vm.save()">
+    <div class="modal-body">
+        <div class="col-xs-12">
+            <!-- Column Title -->
+            <div class="form-group">
+                <label class="col-sm-2 col-md-3" for="kanbanboard_column_title" translate
+                    title="{{ 'mandatory field' | translate }}">
+                    Title *
+                </label>
+                <div class="col-sm-9">
+                    <validated-form-element
+                        id="kanbanboard_column_title"
+                        input-element="text"
+                        field-name="title"
+                        placeholder="{{ 'Title' | translate }}"
+                        ng-model="vm.column.title"
+                        ng-readonly="!perms.has('object.edit', vm.kanbanboard)"
+                        errors="vm.errors['title']">
+                    </validated-form-element>
+                </div>
+            </div>
+
+
+            <!-- Column Color -->
+            <div class="form-group">
+                <label class="col-sm-2 col-md-3" for="kanbanboard_column_color" translate
+                    title="{{ 'mandatory field' | translate }}">
+                    Color *
+                </label>
+                <div class="col-sm-9">
+                    <validated-form-element
+                        id="kanbanboard_column_color"
+                        input-element="color"
+                        field-name="color"
+                        placeholder="{{ 'Color' | translate }}"
+                        ng-model="vm.column.color"
+                        ng-readonly="!perms.has('object.edit', vm.kanbanboard)"
+                        errors="vm.errors['color']">
+                    </validated-form-element>
+                </div>
+            </div>
+
+            <!-- Column Icon -->
+            <div class="form-group">
+                <label class="col-sm-2 col-md-3" for="kanbanboard_column_icon" translate>
+                    Icon
+                </label>
+                <div class="col-sm-9">
+                    <div class="input-group" style="width: 100%" ng-class="{'has-error': vm.errors['icon'].length > 0 } ">
+                        <kanbanboard-column-icon-selectize-widget
+                                ng-readonly="!perms.has('object.edit', vm.kanbanboard)"
+                                placeholder="{{ 'Icon' | translate }}"
+                                selected-icon="vm.column.icon"></kanbanboard-column-icon-selectize-widget>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button"
+                class="btn btn-warning pull-left"
+                ng-click="vm.delete()">
+            <span class="{{ :: vm.deleteIcon }}"></span>
+            <span translate>Delete</span>
+        </button>
+        <button type="button"
+                class="btn btn-default"
+                ng-click="vm.dismiss()"
+                translate>
+            Cancel
+        </button>
+        <button type="submit"
+                class="btn btn-primary"
+                translate>
+            Save
+        </button>
+    </div>
+</form>

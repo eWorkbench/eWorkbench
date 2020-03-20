@@ -1,0 +1,76 @@
+<div class="versionRestoreModal">
+    <div class="modal-header">
+        <h3 class="modal-title">
+            <span translate>Restore version {{ vm.version.number }}</span>
+        </h3>
+    </div>
+    <form class="form-horizontal" name="restoreVersionForm" ng-submit="vm.restore()">
+        <div class="modal-body">
+            <generic-show-element-state-widget base-model="vm.baseModel"
+                                               show-trashed="true"></generic-show-element-state-widget>
+
+            <!-- version information -->
+            <div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="created" translate>
+                        Version created
+                    </label>
+                    <div class="col-sm-9">
+                        {{ vm.version.created_at | smallDateWithToday }}
+                        <span translate>by</span>
+                        <user-display-widget user="vm.version.created_by"></user-display-widget>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="summary" translate>
+                        Version summary
+                    </label>
+                    <div class="col-sm-9">
+                        <span class="newline-to-break">{{ vm.version.summary }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- object preview -->
+            <div class="readOnlyPreview">
+                <div ng-if="vm.loading" translate>Loading, please wait...</div>
+                <div ng-if="!vm.loading && !vm.previewError" ng-switch="vm.modelName">
+                    <small-task-view task="vm.previewModel" read-only="true" ng-switch-when="task">
+                    </small-task-view>
+                    <small-meeting-view meeting="vm.previewModel" read-only="true" ng-switch-when="meeting">
+                    </small-meeting-view>
+                    <small-contact-view contact="vm.previewModel" read-only="true" ng-switch-when="contact">
+                    </small-contact-view>
+                    <small-note-view note="vm.previewModel" read-only="true" ng-switch-when="note">
+                    </small-note-view>
+                    <small-picture-view picture="vm.previewModel" read-only="true" ng-switch-when="picture">
+                    </small-picture-view>
+                    <small-file-view file="vm.previewModel" read-only="true" ng-switch-when="file">
+                    </small-file-view>
+                    <small-labbook-view labbook="vm.previewModel" read-only="true" ng-switch-when="labbook">
+                    </small-labbook-view>
+                    <small-dmp-view dmp="vm.previewModel" read-only="true" ng-switch-when="dmp">
+                    </small-dmp-view>
+                    <div ng-switch-default translate>No preview possible</div>
+                </div>
+            </div>
+            <div ng-if="vm.previewError" translate>
+                Preview could not be loaded. You might have insufficient permissions.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="text-right">
+                <button id="button_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()" translate>
+                    Cancel
+                </button>
+                <button id="button_create" class="btn btn-warning" translate ng-click="vm.restoreVersion()"
+                        ng-disabled="vm.isReadOnly()">
+                    Restore version
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

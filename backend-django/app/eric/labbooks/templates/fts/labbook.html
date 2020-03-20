@@ -1,0 +1,10 @@
+{% load simple_object_display %}
+{{ instance.title }}
+{{ instance.description }}
+
+{% for child_element in instance.child_elements.all %}
+    {# render child_element such that we can find it with the full text search #}
+    {% if child_element.child_object %}
+        {% simple_object_display child_element.child_object %}
+    {% endif %}
+{% endfor %}

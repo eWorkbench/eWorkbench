@@ -1,0 +1,13 @@
+<div ng-class="{ 'has-error': vm.errors['user_availability_selected_user_pks'].length > 0 }" style="width: 100%">
+    <user-selectize-widget
+            ng-readonly="vm.isReadOnly()"
+            ng-hide="vm.isReadOnly() && vm.selectedUsersPks.length === 0"
+            selected-user-pk="vm.selectedUsersPks"
+            users="vm.resource.user_availability_selected_users"
+            placeholder="{{ 'Select users this resource will be available to' | translate }}">
+    </user-selectize-widget>
+    <p ng-show="vm.errors['user_availability_selected_user_pks'].length > 0"  class="help-block">
+        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+        {{ vm.errors['user_availability_selected_user_pks'].join(', ') }}
+    </p>
+</div>

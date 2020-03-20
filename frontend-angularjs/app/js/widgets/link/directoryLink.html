@@ -1,0 +1,12 @@
+<!-- show a link to notes -->
+<a ng-if="vm.drive && vm.driveUrl" ng-href="{{ vm.driveUrl }}">
+    <span class="{{ :: vm.driveIcon }}"></span>
+    {{ vm.drive.title }}
+    <!-- display sub directory only if it is not the virtual root -->
+    <span ng-if="!vm.directory.is_virtual_root">
+        /
+        <span ng-show="!vm.directoriesByPk[vm.directory.directory].is_virtual_root">... /</span>
+        <span class="{{ :: vm.directoryIcon }}"></span>
+        {{ vm.directory.name }}
+    </span>
+</a>

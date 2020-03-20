@@ -1,0 +1,75 @@
+{% block content %}
+    <p>
+    <h4 class="created_resources_title">
+        All relations that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_resources">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Title of resource</th>
+                <th>Type of resource</th>
+                <th>Description of resource</th>
+                <th>Timeframes of resource</th>
+                <th>Address of resource</th>
+            </tr>
+
+            {% for resource in user.resource_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ resource.fts_language }}</td>
+                    <td>{{ resource.title }}</td>
+                    <td>{{ resource.type }}</td>
+                    <td>{{ resource.description }}</td>
+                    <td>{{ resource.availability }}</td>
+                    <td>{{ resource.address }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for resource in user.resource_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ resource.created_by }}</td>
+                    <td>{{ resource.last_modified_by }}</td>
+                    <td>{{ resource.created_at }}</td>
+                    <td>{{ resource.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for resource in user.resource_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ resource.cs_created_by }}</td>
+                    <td>{{ resource.cs_last_modified_by }}</td>
+                    <td>{{ resource.cs_created_at }}</td>
+                    <td>{{ resource.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

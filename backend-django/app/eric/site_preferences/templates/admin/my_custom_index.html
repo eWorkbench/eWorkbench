@@ -1,0 +1,11 @@
+{% extends "admin/index.html" %}
+
+{% load i18n %}
+
+{% block userlinks %}
+    {% if user.is_active and user.is_staff %}
+    <a href="/admin/settings/">{% trans "Edit Site settings" %}</a> /
+    {% endif %}
+        {{ block.super }}
+
+{% endblock %}

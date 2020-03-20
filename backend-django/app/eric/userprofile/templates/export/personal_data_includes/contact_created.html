@@ -1,0 +1,169 @@
+{% block content %}
+    
+    <p>
+    <h4 class="created_contact_title">
+        All contact entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_contact">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Academic title</th>
+                <th>First name of the contact</th>
+                <th>Last name of the contact</th>
+                <th>Email of the contact</th>
+            </tr>
+
+            {% for contact in user.contact_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ contact.fts_language }}</td>
+                    <td>{{ contact.academic_title }}</td>
+                    <td>{{ contact.first_name }}</td>
+                    <td>{{ contact.last_name }}</td>
+                    <td>{{ contact.email }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Phone number of the contact</th>
+                <th>Company of the contact</th>
+                <th>Associated projects with contact</th>
+            </tr>
+
+            {% for contact in user.contact_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ contact.phone }}</td>
+                    <td>{{ contact.company }}</td>
+                    <td>{% for project in contact.projects.all %}
+                        {{ project }}
+                    {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+            <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for contact in user.contact_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ contact.created_by }}</td>
+                    <td>{{ contact.last_modified_by }}</td>
+                    <td>{{ contact.created_at }}</td>
+                    <td>{{ contact.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for contact in user.contact_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ contact.cs_created_by }}</td>
+                    <td>{{ contact.cs_last_modified_by }}</td>
+                    <td>{{ contact.cs_created_at }}</td>
+                    <td>{{ contact.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+    <p>
+    <h4 class="created_contact_attends_meeting_title">
+        All contact attends meeting entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_contact_attends_meeting">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Contact</th>
+                <th>Meeting title</th>
+                <th>Meeting start date</th>
+                <th>Meeting end date</th>
+                <th>Meeting description</th>
+            </tr>
+
+            {% for contactattendsmeeting in user.contactattendsmeeting_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ contactattendsmeeting.contact }}</td>
+                    <td>{{ contactattendsmeeting.meeting.title }}</td>
+                    <td>{{ contactattendsmeeting.meeting.date_time_start }}</td>
+                    <td>{{ contactattendsmeeting.meeting.date_time_end }}</td>
+                    <td>{{ contactattendsmeeting.meeting.text }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+            <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for contactattendsmeeting in user.contactattendsmeeting_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ contactattendsmeeting.created_by }}</td>
+                    <td>{{ contactattendsmeeting.last_modified_by }}</td>
+                    <td>{{ contactattendsmeeting.created_at }}</td>
+                    <td>{{ contactattendsmeeting.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for contactattendsmeeting in user.contactattendsmeeting_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ contactattendsmeeting.cs_created_by }}</td>
+                    <td>{{ contactattendsmeeting.cs_last_modified_by }}</td>
+                    <td>{{ contactattendsmeeting.cs_created_at }}</td>
+                    <td>{{ contactattendsmeeting.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+
+{% endblock %}

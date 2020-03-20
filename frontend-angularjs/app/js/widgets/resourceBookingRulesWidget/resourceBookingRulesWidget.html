@@ -1,0 +1,197 @@
+<div class="panel panel-default element-panel">
+    <div class="panel-heading">
+        {{ 'Booking Rules' | translate }}
+    </div>
+    <div class="panel-body">
+        <form name="vm.selectedBookingRulesForm" class="booking-rules-entries" ng-submit="vm.saveBookingRules()">
+            <div class="row" data-ng-repeat="bookingRule in vm.selectedBookingRules">
+                <div class="col-xs-3">
+                    {{ vm.bookingRules[bookingRule.criterion] }}
+                </div>
+                <div class="col-xs-8">
+                    <div ng-if="['booking_rule_minimum_duration',
+                                 'booking_rule_maximum_duration',
+                                 'booking_rule_minimum_time_before',
+                                 'booking_rule_maximum_time_before',
+                                 'booking_rule_time_between'].includes(bookingRule.criterion)"
+                         class="{{ bookingRule.criterion }} booking-rules-time-container">
+                        <div>{{ 'Day(s)' | translate }}&nbsp;</div>
+                        <div>
+                            <input type="text"
+                               class="form-control time-field days-field"
+                               ng-model="bookingRule.days"
+                               ng-pattern="vm.regexPatternForDays"
+                               placeholder="0"
+                               maxlength="3"
+                               ng-disabled="vm.isReadOnly()"
+                               ng-readonly="vm.isReadOnly()"
+                               required>
+                        </div>
+                        <div>&emsp;{{ 'Hours' | translate }}&nbsp;</div>
+                        <div>
+                            <input type="text"
+                               class="form-control time-field hours-field"
+                               ng-model="bookingRule.hours"
+                               ng-pattern="vm.regexPatternForHours"
+                               placeholder="hh"
+                               maxlength="2"
+                               ng-disabled="vm.isReadOnly()"
+                               ng-readonly="vm.isReadOnly()"
+                               required>
+                        </div>
+                        <div>&nbsp;:&nbsp;</div>
+                        <div>
+                            <input type="text"
+                               class="form-control time-field minutes-field"
+                               ng-model="bookingRule.minutes"
+                               ng-pattern="vm.regexPatternForMinutes"
+                               placeholder="mm"
+                               maxlength="2"
+                               ng-disabled="vm.isReadOnly()"
+                               ng-readonly="vm.isReadOnly()"
+                               required>
+                        </div>
+                    </div>
+                    <div ng-if="bookingRule.criterion === 'booking_rule_bookable_hours'"
+                         class="{{ bookingRule.criterion }}">
+                        <div class="row" style="background: transparent">
+                            <div class="col-xs-1">
+                                {{ 'Monday' | translate }}<br>
+                                <input type="checkbox"
+                                       ng-model="bookingRule.monday"
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()">
+                            </div>
+                            <div class="col-xs-1">
+                                {{ 'Tuesday' | translate }}<br>
+                                <input type="checkbox"
+                                       ng-model="bookingRule.tuesday"
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()">
+                            </div>
+                            <div class="col-xs-1">
+                                {{ 'Wednesday' | translate }}<br>
+                                <input type="checkbox"
+                                       ng-model="bookingRule.wednesday"
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()">
+                            </div>
+                            <div class="col-xs-1">
+                                {{ 'Thursday' | translate }}<br>
+                                <input type="checkbox"
+                                       ng-model="bookingRule.thursday"
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()">
+                            </div>
+                            <div class="col-xs-1">
+                                {{ 'Friday' | translate }}<br>
+                                <input type="checkbox"
+                                       ng-model="bookingRule.friday"
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()">
+                            </div>
+                            <div class="col-xs-1">
+                                {{ 'Saturday' | translate }}<br>
+                                <input type="checkbox"
+                                       ng-model="bookingRule.saturday"
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()">
+                            </div>
+                            <div class="col-xs-1">
+                                {{ 'Sunday' | translate }}<br>
+                                <input type="checkbox"
+                                       ng-model="bookingRule.sunday"
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()">
+                            </div>
+                            <div class="col-xs-2 col-xs-offset-1">
+                                {{ 'Time Start' | translate }}
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="hh:mm"
+                                       ng-model="bookingRule.time_start"
+                                       ng-pattern="vm.regexPatternForTimesWithoutSeconds"
+                                       no-seconds
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()"
+                                       required>
+                            </div>
+                            <div class="col-xs-2">
+                                {{ 'Time End' | translate }}
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="hh:mm"
+                                       ng-model="bookingRule.time_end"
+                                       ng-pattern="vm.regexPatternForTimesWithoutSeconds"
+                                       no-seconds
+                                       ng-disabled="vm.isReadOnly()"
+                                       ng-readonly="vm.isReadOnly()"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="bookingRule.criterion === 'booking_rule_bookings_per_user'"
+                         ng-class="vm.duplicateUnitsOnBookingsPerUser ? 'unit-duplicates' : ''">
+                        <input type="text"
+                               class="form-control"
+                               style="display: inline; width: auto"
+                               ng-model="bookingRule.value"
+                               placeholder="{{ 'Amount' | translate }}"
+                               ng-pattern="/^\d+$/"
+                               ng-disabled="vm.isReadOnly()"
+                               ng-readonly="vm.isReadOnly()"
+                               required>
+                        /
+                        <select class="form-control bookings-per-user-unit"
+                                style="display: inline; width: auto"
+                                ng-model="bookingRule.unit"
+                                ng-options="key as value for (key , value) in vm.bookingsPerUserOptions"
+                                ng-change="vm.checkForUnitDuplicatesOnBookingsPerUser()"
+                                ng-disabled="vm.isReadOnly()"
+                                ng-readonly="vm.isReadOnly()"
+                                required
+                        ></select>
+                    </div>
+                </div>
+                <div class="col-xs-1 text-right" ng-if="!vm.isReadOnly()">
+                    <a ng-click="vm.deleteSelectedBookingRule(bookingRule)" class="booking-rules-trash">
+                        <i class="fa fa-trash" style="cursor: pointer"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="alert alert-danger alert-unit-duplicates" ng-if="vm.duplicateUnitsOnBookingsPerUser">
+                <span class="{{:: vm.alertIcon }}"></span>
+                <span translate>
+                    You cannot use the same interval unit for more than one booking rule for 'Bookings per user'.
+                </span>
+            </div>
+            <div class="col-sm-6 text-right pull-right booking-rules-buttons">
+                <div class="buttons" ng-if="!vm.isReadOnly()">
+                    <button class="btn btn-primary"
+                            type="submit"
+                            ng-if="vm.selectedBookingRulesForm.$dirty && vm.selectedBookingRulesForm.$valid"
+                            translate
+                    ><span class="glyphicon glyphicon-ok"></span></button>
+                    <button class="btn btn-default"
+                            type="button"
+                            ng-if="vm.selectedBookingRulesForm.$dirty"
+                            ng-click="vm.cancelBookingRulesChanges()"
+                            translate
+                    ><span class="glyphicon glyphicon-remove"></span></button>
+                </div>
+            </div>
+        </form>
+        <div class="row booking-rules-footer" ng-if="!vm.isReadOnly()">
+            <div class="col-sm-6">
+                <select class="form-control"
+                        style="display: inline; width: auto"
+                        ng-model="vm.currentlySelectedBookingRule"
+                        ng-options="key as value for (key , value) in vm.bookingRules"
+                ></select>
+                <a ng-click="vm.addCurrentlySelectedBookingRule()"
+                   style="cursor: pointer"
+                ><span class="fa fa-plus-circle"></span> {{ 'Add booking rule' | translate }}</a>
+            </div>
+        </div>
+    </div>
+</div>

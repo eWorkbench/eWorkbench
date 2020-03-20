@@ -1,0 +1,115 @@
+<div class="modal-header">
+    <h3 class="modal-title">
+        <span translate>New Metadata Field</span>
+    </h3>
+</div>
+<form class="form-horizontal" name="newMetadataForm" ng-submit="vm.save()">
+    <div class="modal-body">
+
+        <div ng-if="!vm.userHasCreatePermission" class="alert alert-info" translate>
+            Since you do not have the required permission to create new metadata fields,
+            your input will be suggested to the administrators instead.
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="metadata_title" translate>
+                Title
+            </label>
+            <div class="col-sm-9">
+                <validated-form-element
+                    id="metadata_title"
+                    auto-focus="true"
+                    input-element="text"
+                    field-name="name"
+                    placeholder="{{ 'Insert Title' | translate }}"
+                    ng-model="vm.name"
+                    errors="vm.errors['name']">
+                </validated-form-element>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="metadata_description" translate>
+                Description
+            </label>
+            <div class="col-sm-9">
+                <validated-form-element
+                    id="metadata_description"
+                    input-element="text"
+                    field-name="description"
+                    placeholder="{{ 'Insert Description' | translate }}"
+                    ng-model="vm.description"
+                    errors="vm.errors['description']">
+                </validated-form-element>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="metadata_fieldType" translate>
+                Field Type
+            </label>
+            <div class="col-sm-9">
+                <validated-form-element
+                    id="metadata_fieldType"
+                    input-element="select"
+                    field-name="fieldType"
+                    placeholder="{{ 'Choose Field Type' | translate }}"
+                    ng-model="vm.fieldType"
+                    list-dict="vm.fieldTypeMap"
+                    errors="vm.errors['fieldType']">
+                </validated-form-element>
+            </div>
+        </div>
+
+        <div ng-switch="vm.fieldType">
+            <hr>
+
+            <div ng-switch-when="selection">
+                <metadata-field-selection-type-settings type-settings="vm.typeSettings" errors="vm.errors"/>
+            </div>
+
+            <div ng-switch-when="whole_number">
+                <div ng-include="'js/screens/metadata/createFieldModal/thousandsSeparator.html'"></div>
+            </div>
+
+            <div ng-switch-when="decimal_number">
+                <div ng-include="'js/screens/metadata/createFieldModal/decimals.html'"></div>
+                <div ng-include="'js/screens/metadata/createFieldModal/thousandsSeparator.html'"></div>
+            </div>
+
+            <div ng-switch-when="currency">
+                <div ng-include="'js/screens/metadata/createFieldModal/decimals.html'"></div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" for="symbol" translate>
+                        Symbol
+                    </label>
+                    <div class="col-sm-9">
+                        <validated-form-element
+                            id="symbol"
+                            input-element="text"
+                            field-name="symbol"
+                            ng-model="vm.typeSettings.symbol"
+                            errors="vm.errors['symbol']">
+                        </validated-form-element>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-switch-when="percentage">
+                <div ng-include="'js/screens/metadata/createFieldModal/decimals.html'"></div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <div class="text-right">
+            <button id="button_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()" translate>
+                Cancel
+            </button>
+            <button id="button_create" class="btn btn-warning" translate>
+                {{ vm.saveButtonLabel }}
+            </button>
+        </div>
+    </div>
+</form>

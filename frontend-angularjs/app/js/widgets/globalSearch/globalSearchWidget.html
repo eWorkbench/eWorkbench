@@ -1,0 +1,82 @@
+<!-- Search input form -->
+<div class="form-group has-feedback">
+    <form>
+        <!-- typeahead input field -->
+        <input type="text"
+               class="form-control"
+               placeholder="{{ 'Search' | translate }}"
+               ng-model="vm.searchTerms"
+               ng-model-options="{debounce: 250}"
+               uib-typeahead="result for result in vm.getSearchResults($viewValue)"
+               typeahead-loading="vm.isLoading"
+               typeahead-no-results="vm.noResults"
+               typeahead-popup-template-url="global-search-widget-results"
+               typeahead-input-formatter="vm.formatSelection($model)"
+               typeahead-on-select="vm.goToItem($model)">
+
+        <span class="form-control-feedback"
+              title="{{ 'Searching' | translate }}"
+              ng-show="vm.isLoading">
+            <i class="{{ vm.searchingIcon }}" aria-hidden="true"></i>
+        </span>
+        <span class="form-control-feedback"
+              title="{{ 'No results' | translate }}"
+              ng-show="!vm.isLoading && vm.noResults">
+            <i class="{{ vm.noResultIcon }}" aria-hidden="true"></i>
+        </span>
+        <span class="form-control-feedback"
+              ng-show="!vm.isLoading && !vm.noResults">
+            <i class="{{ vm.searchIcon }}" aria-hidden="true"></i>
+        </span>
+
+        <!-- Model type selection popover button -->
+        <span class="form-control-options fa fa-angle-down"
+              role="button"
+              uib-popover-template="'global-search-widget-model-selection'"
+              popover-title="{{ 'Restrict search for types' | translate }}"
+              popover-trigger="'outsideClick'"
+              popover-placement="bottom-right"></span>
+    </form>
+</div>
+
+
+<!-- Template for the model type selection popover -->
+<script type="text/ng-template" id="global-search-widget-model-selection">
+    <dl>
+        <dd ng-repeat="model in vm.getModels() | orderBy: 'value'">
+            <!-- Checkbox with entity select -->
+            <label role="button">
+                <input ng-model="model.selected" type="checkbox">
+                <span class="{{:: model.icon }}"></span>
+                {{ model.value }}
+            </label>
+        </dd>
+    </dl>
+    <!-- Metadata Search -->
+    <div ng-if="vm.canSeeMetadata">
+        <hr>
+        <a ui-sref="metadata-search" translate>Metadata Search</a>
+    </div>
+</script>
+
+
+<!-- Template for the typeahead search results -->
+<script type="text/ng-template" id="global-search-widget-results">
+    <div class="search-results"
+         aria-hidden="{{ !isOpen() }}"
+         ng-show="isOpen() && !moveInProgress"
+         ng-style="{top: position().top+'px', left: position().left+'px'}">
+        <div class="list-group list-view-pf list-view-pf-view">
+            <div class="list-group-item result"
+                 role="option"
+                 ng-repeat="result in matches track by $index"
+                 ng-class="{active: isActive($index)}"
+                 ng-mouseenter="selectActive($index)"
+                 ng-click="selectMatch($index)">
+                <div class="list-view-pf-main-info">
+                    <global-search-result-item-widget item="result.label"></global-search-result-item-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>

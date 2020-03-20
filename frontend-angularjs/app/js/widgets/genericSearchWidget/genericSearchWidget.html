@@ -1,0 +1,60 @@
+<div class="panel panel-default">
+    <form class="form-horizontal" name="createRelationNoteExisting">
+        <div class="panel-body">
+            <div class="form-group has-feedback has-clear">
+                <div class="col-xs-12 col-sm-12">
+                    <!-- show search input form -->
+                    <search-field-widget do-search="vm.doSearch(searchString)"
+                                         cancel-search="vm.cancelSearch()"
+                                         search-input-length="0"
+                                         debounce="250">
+                    </search-field-widget>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <!-- Loading -->
+                    <loading-text loading="vm.searching" show-icon="true"></loading-text>
+
+                    <!-- Display results -->
+                    <!-- table is built dynamically-->
+                    <table class="table table-responsive search-result-table" style="width: 100%;"
+                           ng-show="!vm.searching && filteredRelation.length != 0">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th ng-repeat="column in vm.searchTableColumnConfig"
+                                sortable-column="{{ column.field }}" sort-by="vm.sortColumn"
+                                sort-reverse="vm.sortReverse">
+                                {{ column.title }}
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="result in vm.searchResult | filter: vm.removeOwnObject | orderBy:vm.sortColumn:vm.sortReverse as filteredRelation track by result.pk"
+                            ng-click="vm.toggleItemSelected(result)"
+                            ng-class="{'selected': result.selected}">
+                            <td>
+                                <input type='checkbox' ng-model='result.selected' title="Select element">
+                            </td>
+                            <td ng-repeat="column in vm.searchTableColumnConfig"
+                                class="{{ column.cssClass }}">
+                                <span html-compile="column.display"
+                                      html-compile-scope="result"
+                                      html-compile-scope-bind="$result"
+                                ></span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- No results found -->
+                    <div ng-show="filteredRelation.length == 0 && !vm.searching">
+                        <i class="{{ vm.noResultIcon }}"></i>
+                        <span translate>No Results Found.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

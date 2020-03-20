@@ -1,0 +1,12 @@
+<div ng-if="vm.itemsRemoved && vm.itemsRemoved.length > 0">
+    <span translate>Labels deleted:</span>
+    <div ng-repeat="item in vm.itemsRemoved" style="display: inline-block; margin-top: 5px">
+        <element-label-display-widget element-label-pk="item"></element-label-display-widget>
+    </div>
+</div>
+<div ng-if="vm.itemsAdded && vm.itemsAdded.length > 0">
+    <span translate>Labels added:</span>
+    <div ng-repeat="item in vm.itemsAdded" style="display: inline-block">
+        <element-label-display-widget element-label-pk="item"></element-label-display-widget>
+    </div>
+</div>

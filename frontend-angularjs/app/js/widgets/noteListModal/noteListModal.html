@@ -1,0 +1,78 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>Comments for {{ vm.workbenchElement.display }}</h3>
+</div>
+<div class="modal-body note-list-modal">
+    <!-- create new comment -->
+    <div class="row comment-row">
+        <div class="picture">
+            <img ng-src="{{vm.currentUser.userprofile.avatar }}" alt="Picture" class="img-responsive">
+        </div>
+        <div class="info">
+            <form ng-submit="vm.createNewNote()" ng-disabled="vm.isSubmitting">
+                <div class="form-group" style="margin-bottom: 5px">
+                    <input type="text" placeholder="{{ 'New comment' | translate }}" class="form-control"
+                           ng-model="vm.note.subject" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 5px">
+                    <!-- display a tiny mce cell -->
+                    <div
+                        style="min-height: 65px; height: auto; max-height: 300px; overflow-y: auto; padding-top: 6px"
+                        class="my-tinymce-cell form-control"
+                        ui-tinymce="{
+                            'inline': true,
+                            'selector': 'div.editable',
+                        }"
+                        ng-model="vm.note.content">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0px;">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label title="{{ 'If you mark your comment as private, only you can see it' | translate }}">
+                                <input type="checkbox" ng-model="vm.private">
+                                <span translate>Private</span>
+                            </label>
+                        </div>
+                        <div class="col-xs-6">
+                            <button type="submit" class="btn btn-primary pull-right">
+                                Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- list of existing comments -->
+    <div class="row comment-row" ng-repeat="note in vm.notes | orderBy: '-created_at'">
+        <div class="picture">
+            <img ng-src="{{ note.created_by.userprofile.avatar }}" alt="Picture" class="img-responsive">
+        </div>
+        <div class="info">
+            <b>{{ note.subject }}</b><br />
+            <div style="display: inline-block; font-style: italic; font-size: 8pt;">
+                <!-- created by -->
+                <span class="font-color" translate>created by</span>
+                <user-display-widget user="note.created_by"></user-display-widget>
+                <span class="font-color">-</span>
+                <span class="font-color">{{ note.created_at | smallDateWithToday }}</span>
+            </div>
+
+            <div ng-bind-html="note.content | asHtml"></div>
+            <br />
+
+
+        </div>
+    </div>
+
+</div>
+<div class="modal-footer">
+    <div class="text-right">
+        <button id="button_close_comments_modal" class="btn btn-primary" type="button" ng-click="vm.close()" translate>
+            Close
+        </button>
+    </div>
+</div>

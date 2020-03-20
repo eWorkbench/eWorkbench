@@ -1,0 +1,93 @@
+<div class="panel panel-default element-panel">
+    <div class="panel-heading">
+        <div style="float: left" ng-click="vm.toggleMetaDataVisibility()" role="button">
+            <span style="width: 13px" class="fa fa-caret-right" ng-show="vm.metaDataCollapsed"></span>
+            <span style="width: 13px" class="fa fa-caret-down" ng-show="!vm.metaDataCollapsed"></span>
+            <i class="{{:: vm.driveIcon }}"></i> {{ vm.drive.title }}
+        </div>
+        <generic-detail-view-menu-widget
+            ng-if="!vm.readOnly"
+            base-model="vm.drive"
+            base-url-model="drives"
+            has-trash="true"
+            has-export="true"
+            has-restore="true"
+            has-privileges="true"
+            has-new-element="true"
+            has-duplicate="false">
+        </generic-detail-view-menu-widget>
+    </div>
+    <div class="panel-body" uib-collapse="vm.metaDataCollapsed">
+        <generic-show-element-state-widget base-model="vm.drive"
+                                           show-trashed="true"></generic-show-element-state-widget>
+        <div class="row">
+            <div class="form-horizontal" name="editDriveForm">
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <!-- Storage Title -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="drive_subject" translate
+                            title="{{ 'mandatory field' | translate }}">
+                            Title *
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="!perms.has('object.edit', vm.drive) || vm.isReadOnly()"
+                                on-save="vm.saveDrivePartial('title', ngModel)"
+                                on-save-multiple="vm.saveDrive()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.drive.title">
+                                <ng-include src="'js/screens/drive/driveForm.title.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Metadata -->
+                    <metadata-fields-widget
+                        base-model="vm.drive"
+                        base-url-model="drive"
+                        read-only="vm.isReadOnly()"
+                        on-save="vm.saveDrivePartial('metadata', vm.drive.metadata)"
+                        on-save-multiple="vm.saveDrive()"
+                        on-abort="vm.resetErrors()"
+                        metadata="vm.drive.metadata">
+                    </metadata-fields-widget>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <created-and-updated-by-widget element="vm.drive"></created-and-updated-by-widget>
+
+                    <!-- project -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="input_drive_create_project" translate>
+                            Project
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="!perms.has('object.edit', vm.drive) || vm.isReadOnly()"
+                                on-save="vm.saveDrivePartial('projects', ngModel)"
+                                on-save-multiple="vm.saveDrive()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.projectPks"
+                                compare-mode="array">
+                                <ng-include src="'js/screens/drive/driveForm.projects.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <!-- History -->
+                    <history-short-widget base-model="vm.drive" base-url-model="drive"></history-short-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <drive-display-widget drive="vm.drive"></drive-display-widget>
+    </div>
+</div>
+
+
+<!-- relations -->
+<relation-list-widget project="vm.project" base-model="vm.drive" base-url-model="drive"></relation-list-widget>

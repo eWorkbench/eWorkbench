@@ -1,0 +1,755 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "variables.less";
+@import "loadingbar.less";
+@import "pictures_font/style.less";
+
+//set global background color
+.primary-container {
+  background-color: unset; // @globale-background-color;
+}
+
+// set panel box-shadow
+.panel {
+  box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.5);
+  border: none; // need to disable border so box shadow looks nicer
+  // box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.5);
+}
+
+// set navbar box-shadow
+.navbar {
+  box-shadow: 0 3px 4px 0 #858585;
+}
+
+// add padding to button
+//.btn {
+//  padding: 4px 12px;
+//}
+// set button box-shadow
+.btn-primary {
+  background-image: none;
+  box-shadow: 1px 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.btn-warning {
+  background-image: none;
+  box-shadow: 1px 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.btn-default {
+  background-image: none;
+  box-shadow: 1px 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.btn-danger {
+  background-image: none;
+  box-shadow: 1px 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.fc-unthemed .fc-today {
+  background: #2C9BA9;
+  opacity: .1;
+}
+
+.toast-top-full-width {
+  top: 0;
+  right: 0;
+  width: 100%;
+}
+
+.toast-bottom-full-width {
+  bottom: 0;
+  right: 0;
+  width: 100%;
+}
+
+.toast-top-left {
+  top: 12px;
+  left: 12px;
+}
+
+.toast-top-center {
+  top: 12px;
+}
+
+.toast-top-right {
+  top: 12px;
+  right: 12px;
+}
+
+.toast-bottom-right {
+  right: 12px;
+  bottom: 12px;
+}
+
+.toast-bottom-center {
+  bottom: 12px;
+}
+
+.toast-bottom-left {
+  bottom: 12px;
+  left: 12px;
+}
+
+.toast-center {
+  top: 45%;
+}
+
+#my-toast-container {
+  position: fixed;
+  z-index: 999999;
+  pointer-events: auto;
+  /*overrides*/
+
+}
+
+#my-toast-container.toast-center,
+#my-toast-container.toast-top-center,
+#my-toast-container.toast-bottom-center {
+  width: 100%;
+  pointer-events: none;
+}
+
+#my-toast-container.toast-center > div,
+#my-toast-container.toast-top-center > div,
+#my-toast-container.toast-bottom-center > div {
+  margin: auto;
+  pointer-events: auto;
+}
+
+#my-toast-container.toast-center > button,
+#my-toast-container.toast-top-center > button,
+#my-toast-container.toast-bottom-center > button {
+  pointer-events: auto;
+}
+
+#my-toast-container * {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+#my-toast-container > div {
+  margin: 0 0 6px;
+  width: 300px;
+  -moz-border-radius: 3px 3px 3px 3px;
+  -webkit-border-radius: 3px 3px 3px 3px;
+  border-radius: 3px 3px 3px 3px;
+  background-position: 15px center;
+  background-repeat: no-repeat;
+  -moz-box-shadow: 0 0 12px #999999;
+  -webkit-box-shadow: 0 0 12px #999999;
+  box-shadow: 0 0 12px #999999;
+  color: #ffffff;
+  opacity: 0.8;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
+  filter: alpha(opacity=80);
+}
+
+#my-toast-container > :hover {
+  -moz-box-shadow: 0 0 12px #000000;
+  -webkit-box-shadow: 0 0 12px #000000;
+  box-shadow: 0 0 12px #000000;
+  opacity: 1;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  filter: alpha(opacity=100);
+  cursor: pointer;
+}
+
+#my-toast-container.toast-top-full-width > div,
+#my-toast-container.toast-bottom-full-width > div {
+  width: 96%;
+  margin: auto;
+}
+
+.toast {
+  background-color: #030303;
+}
+
+.toast-success {
+  background-color: #51a351;
+}
+
+.toast-error {
+  background-color: #bd362f;
+}
+
+.toast-info {
+  background-color: #2f96b4;
+}
+
+.toast-wait {
+  background-color: #2f96b4;
+}
+
+.toast-warning {
+  background-color: #f89406;
+}
+
+.navbar-header {
+  .navbar-brand {
+    float: left;
+    display: inline-block;
+
+    @media (max-width: 500px) {
+      width: ~"calc(100% - 120px)";
+
+      text-overflow: clip;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+  }
+}
+
+// if a sidebar (project or user manual) is expanded, we need to move the content
+.sidebar-expanded, .usermanual-expanded {
+  position: relative;
+
+  .uiview-container {
+
+    @media (min-width: 768px) {
+      left: 200px;
+      width: auto !important; // override the width of that container
+      top: @active-project-top-distance;
+    }
+
+    position: absolute;
+    right: 0px;
+  }
+}
+
+// position for project and user manual sidebar within the content
+project-sidebar-widget, user-manual-sidebar-widget {
+  .nav-pf-vertical {
+    box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top: @active-project-top-distance;
+    width: 180px;
+    bottom: inherit; // override the bottom position
+
+    .list-group-item > a {
+      width: 180px;
+    }
+  }
+
+  // mark the active menu item a bit better
+  .nav-pf-vertical .list-group-item.active > a:before {
+    width: 4px; // default: 3px
+    bottom: inherit;
+  }
+}
+
+.primary-container {
+  project-sidebar-widget, user-manual-sidebar-widget {
+    @media all and (max-width: 768px) {
+      display: none;
+    }
+  }
+}
+
+/*Responsive Design*/
+@media all and (max-width: 240px) {
+  #my-toast-container > div {
+    width: 11em;
+  }
+
+  #my-toast-container .toast-close-button {
+    right: -0.2em;
+    top: -0.2em;
+  }
+}
+
+@media all and (min-width: 241px) and (max-width: 480px) {
+  #my-toast-container > div {
+    width: 18em;
+  }
+
+  #my-toast-container .toast-close-button {
+    right: -0.2em;
+    top: -0.2em;
+  }
+}
+
+@media all and (min-width: 481px) and (max-width: 768px) {
+  #my-toast-container > div {
+    width: 25em;
+  }
+}
+
+/*
+ * AngularJS-Toaster
+ * Version 0.3
+*/
+:not(.no-enter)#my-toast-container > div.ng-enter,
+:not(.no-leave)#my-toast-container > div.ng-leave {
+  -webkit-transition: 1000ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+  -moz-transition: 1000ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+  -ms-transition: 1000ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+  -o-transition: 1000ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+  transition: 1000ms cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+}
+
+:not(.no-enter)#my-toast-container > div.ng-enter.ng-enter-active,
+:not(.no-leave)#my-toast-container > div.ng-leave {
+  opacity: 0.8;
+}
+
+:not(.no-leave)#my-toast-container > div.ng-leave.ng-leave-active,
+:not(.no-enter)#my-toast-container > div.ng-enter {
+  opacity: 0;
+}
+
+/* max width column */
+.col-max-width-125px {
+  max-width: 125px;
+}
+
+/* display a watermark (e.g. inside a ui grid table) */
+.watermark {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.25;
+  font-size: 3em;
+  width: 100%;
+  text-align: center;
+  z-index: 1000;
+}
+
+// automatically truncate text
+.truncate {
+  max-width: 0px;
+
+  span, a {
+    width: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+}
+
+.truncate-div {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.newline-to-break {
+  white-space: pre-line;
+}
+
+/* ui-view container */
+.primary-container > .uiview-container {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+a.user-not-active {
+  color: @user-is-not-active-nor-logged-in;
+}
+
+span.user-not-active {
+  color: @user-is-not-active-nor-logged-in-search;
+}
+
+
+/** loading bar - gray out the full screen */
+.gray-out-screen {
+  background-color: rgba(255, 255, 255, 0.4) !important;
+  //opacity: 0.5;
+}
+
+.disabled-screen {
+  pointer-events: none;
+}
+
+/** Configure fullscreen mode for the login form */
+.fullscreen {
+  z-index: 1040;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+
+.centerdiv {
+  margin: auto;
+  height: 400px;
+  max-width: 330px; // same for width
+  width: 330px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+a {
+  color: @anchor-color;
+}
+
+a:hover {
+  color: @anchor-hover-color;
+}
+
+.panel-title {
+  a, a:hover {
+    color: white;
+  }
+}
+
+//.panel-heading {
+//  height: 45px;
+//}
+
+// remove padding for items in the panel heading
+.panel-heading {
+  input, a, .btn {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+}
+
+// customize nav-tabs
+.nav-tabs {
+  background: @nav-tabs-background-color;
+  // sticky list items
+  > li {
+    > a {
+      border-right: 1px solid @nav-tabs-border-right-color;
+      padding-top: 8px;
+    }
+
+    > a:hover {
+      border-right: 1px solid @nav-tabs-border-right-color;
+      color: @nav-tabs-hover-link-color;
+    }
+
+    > a:focus {
+      border-right: 1px solid @nav-tabs-border-right-color;
+      color: @nav-tabs-hover-link-color;
+    }
+
+    &.active > a {
+      &,
+      &:hover,
+      &:focus {
+        background-color: transparent;
+        border-bottom: 6px solid @nav-tabs-active-border-bottom-color;
+        border-right: 1px solid @nav-tabs-border-right-color;
+      }
+    }
+  }
+
+  // closeable list items
+  > li.closeable {
+    > a {
+      border-right: 1px solid @nav-tabs-border-right-color;
+      color: @nav-tabs-closeable-color;
+      opacity: 0.8;
+    }
+
+    > a:hover {
+      border-right: 1px solid @nav-tabs-border-right-color;
+      color: @nav-tabs-closeable-hover-link-color;
+      opacity: 1;
+    }
+
+    > a:focus {
+      border-right: 1px solid @nav-tabs-border-right-color;
+      color: @nav-tabs-closeable-hover-link-color;
+      opacity: 1;
+    }
+
+    &.active > a {
+      &,
+      &:hover,
+      &:focus {
+        color: @nav-tabs-closeable-hover-link-color;
+        opacity: 0.8;
+        background-color: transparent;
+        border-bottom: 6px solid @nav-tabs-active-border-bottom-color;
+        border-right: 1px solid @nav-tabs-border-right-color;
+      }
+    }
+
+    i {
+      color: @nav-tabs-closeable-color;
+      opacity: 0.8;
+    }
+  }
+}
+
+//customize navbar brand
+.navbar-default {
+  .navbar-brand {
+    &:hover {
+      color: @navbar-default-brand-hover-color;
+    }
+
+    &:focus {
+      color: @navbar-default-brand-color;
+    }
+  }
+}
+
+
+// disable tabset outline
+.nav-tabs li a:focus {
+  outline: none;
+  outline: 0;
+}
+
+//customize hover color of add new object button in panel
+.panel-button {
+  a:hover {
+    color: @add_new_object_in_panel_hover_color;
+  }
+
+  i {
+    vertical-align: middle;
+    font-size: 14pt;
+  }
+}
+
+// set background color of task progress bar
+task-status-display-widget, project-list {
+  .task-color-new {
+    background: @task_status_new_bg_color;
+  }
+
+  .task-color-in-progress {
+    background: @task_status_in_progress_bg_color;
+  }
+
+  .task-color-testing {
+    background: @task_status_testing_bg_color;
+  }
+
+  .task-color-finish {
+    background: @task_status_finish_bg_color;
+  }
+
+  .task-color-close {
+    background: @task_status_close_bg_color;
+  }
+}
+
+
+.card-panel {
+  padding: 10px 15px 10px;
+  margin-bottom: 15px;
+  background-color: @card-background-color;
+  .card-box-shadow-mixin();
+}
+
+
+.element-panel {
+  .panel-heading {
+    // height: 50px;
+    font-size: 16pt;
+    min-height: 36px;
+    //overflow: hidden;
+
+    padding-top: 0px;
+    padding-bottom: 0px;
+
+    // the title of the column needs to have an overflow with ellipsis
+    > div:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: ~"calc(100% - 40px)";
+    }
+  }
+}
+
+
+.form-horizontal {
+  label {
+    margin-bottom: 3px;
+  }
+}
+
+
+.ng-animate-list-item {
+  &.ng-enter {
+    opacity: 0 !important;
+    transition: all .5s ease;
+  }
+
+  &.ng-enter-active {
+    opacity: 1 !important;
+  }
+}
+
+.popover-width {
+  max-width: 800px !important;
+}
+
+.popover-large {
+  max-width: 900px !important;
+}
+
+.popover-medium {
+  max-width: 600px !important;
+}
+
+.popover.bottom > .arrow:after {
+  border-bottom-color: #f5f5f5;
+}
+
+
+textarea.form-control {
+  resize: none;
+}
+
+// Fix: Select Dropdown in angular x-editable has a weird before element which breaks the layout
+.editable-controls.form-group:before {
+  content: '';
+}
+
+button, .btn {
+  &.btn-primary:focus {
+    outline: none;
+    border-color: darken(@btn-primary-bg, 20%);
+    box-shadow: 1px 2px 2px 0px fade(@btn-primary-bg, 80%);
+  }
+
+  &.btn-default:focus {
+    outline: none;
+    border-color: darken(@btn-default-bg, 20%);
+    box-shadow: 1px 2px 2px 0px fade(@btn-default-bg, 80%);
+  }
+}
+
+// disable input caret for readonly fields
+// this needs to be done by hiding the text (color: transparent) and rendering the text using a text-shadow
+[readonly='readonly'], [disabled='disabled'] {
+  color: transparent !important;
+  text-shadow: 0 0 0 #000;
+
+  // for readonly/disabled tiny mces, we need to disable the visual carets
+  .mce-visual-caret {
+    display: none;
+  }
+}
+
+// make sure tinymce modal dialogs are scrollable
+
+.mce-window {
+  max-height: 100vh !important;
+  max-width: 100vw !important;
+  overflow: auto;
+}
+
+// datepicker today icon
+.fake-icon-today {
+  content: 'Today';
+
+  &.en:before {
+    content: 'Today';
+  }
+
+  &.de:before {
+    content: 'Heute';
+  }
+}
+
+
+// make sure text within pre tags is breaking automatically
+pre {
+  white-space: pre-wrap; /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+
+.mce-content-body {
+  // make sure that words are broken if they are too long
+  overflow-wrap: break-word;
+
+  // all images should be "responsive"
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  // style tables differently
+  table {
+    td {
+      border: 1px dashed #BBB;
+      padding: 2px;
+      min-width: 5px;
+    }
+  }
+}
+
+
+.eric-green {
+  color: @eric-green;
+}
+
+@media print {
+  generic-detail-view-menu-widget, note-create-card-widget, .labbook-new-item-list, .labbook-left-side-menu {
+    display: none;
+  }
+
+  .labbook-board-paper {
+    padding: 0;
+    width: 100%;
+    margin-left: -30px;
+    margin-right: -30px;
+  }
+}
+
+
+.text-error {
+  color: @bs-error-text;
+}
+
+span.form-control-feedback.form-control-clear {
+  right: 8px;
+}
+
+.form-control-on-hover {
+  span.form-control-feedback {
+    display: none;
+  }
+
+  // input elements overlap the span for the icon (e.g., form-control-feedback)
+  input:hover ~ span.form-control-feedback, input:active ~ span.form-control-feedback, input:focus ~ span.form-control-feedback {
+    display: inline;
+    z-index: 50000;
+  }
+
+  &:hover, &:active {
+    span.form-control-feedback {
+      display: inline;
+    }
+  }
+}
+
+
+.screen-header-title {
+  font-size: @screen-header-title-size;
+  font-weight: @screen-header-title-weight;
+}
+
+// disable pointer events for pagination - Bug Ticket #6262 see https://github.com/angular-ui/bootstrap/issues/6262
+.pagination > .disabled a {
+  pointer-events: none;
+}

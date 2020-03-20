@@ -1,0 +1,4 @@
+{% load html_unescape project_child_tree %}
+{{ instance.name }}
+{% projectchildtree instance "" %}
+{{ instance.description | striptags | html_unescape}}

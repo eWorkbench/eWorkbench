@@ -1,0 +1,32 @@
+<div ng-repeat="diff in vm.diffs">
+    <div>
+        <!-- new directory inserted -->
+        <span ng-show="diff.inserted" translate
+              translate-params-directory-title="diff.item.name"
+        >
+            Created new folder <i>{{ directoryTitle }}</i>
+        </span>
+        <!-- directory removed/deleted -->
+        <span ng-show="diff.deleted" translate
+              translate-params-directory-title="diff.item.name"
+        >
+            Removed folder <i>{{ directoryTitle }}</i>
+        </span>
+        <!-- directory renamed -->
+        <span ng-show="diff.renamed" translate
+              translate-params-directory-title="diff.old.name"
+              translate-params-new-directory-title="diff.new.name"
+        >
+            Renamed folder <i>{{ directoryTitle }}</i> to <i>{{ newDirectoryTitle }}</i>
+        </span>
+        <!-- directory moved -->
+        <span ng-show="diff.moved" translate
+              translate-params-directory-title="diff.new.name"
+              translate-params-old-parent-title="diff.oldParentTitle"
+              translate-params-new-parent-title="diff.newParentTitle"
+        >
+            Moved folder <i>{{ directoryTitle }}</i> from <i>{{ oldParentTitle }}</i> to <i>{{ newParentTitle }}</i>
+        </span>
+
+    </div>
+</div>

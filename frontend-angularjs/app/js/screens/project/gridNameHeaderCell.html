@@ -1,0 +1,50 @@
+<div
+  role="columnheader"
+  ng-class="{ 'sortable': sortable, 'ui-grid-header-cell-last-col': isLastCol }"
+  ui-grid-one-bind-aria-labelledby-grid="col.uid + '-header-text ' + col.uid + '-sortdir-text'"
+  aria-sort="{{grid.appScope.orderDir == asc ? 'ascending' : ( grid.appScope.orderDir == desc ? 'descending' : (!grid.appScope.orderDir ? 'none' : 'other'))}}">
+  <div
+    role="button"
+    tabindex="0"
+    ng-click="grid.appScope.tableSort('name')"
+    class="ui-grid-cell-contents ui-grid-header-cell-primary-focus"
+    col-index="renderIndex">
+    <span class="ui-grid-header-cell-label" ui-grid-one-bind-id-grid="col.uid + '-header-text'">{{ col.displayName CUSTOM_FILTERS }}</span>
+
+    <span
+      ui-grid-one-bind-id-grid="col.uid + '-sortdir-text'"
+      ui-grid-visible="grid.appScope.orderDir"
+      aria-label="{{getSortDirectionAriaLabel()}}">
+      <i
+       ng-if="grid.appScope.orderBy === 'name'"
+       ng-class="{ 'ui-grid-icon-up-dir': grid.appScope.orderDir == asc, 'ui-grid-icon-down-dir': grid.appScope.orderDir == desc, 'ui-grid-icon-blank': !grid.appScope.orderDir }"
+       title="{{isSortPriorityVisible() ? i18n.headerCell.priority + ' ' + ( col.sort.priority + 1 )  : null}}"
+       aria-hidden="true">
+     </i>
+     <sub
+       ui-grid-visible="isSortPriorityVisible()"
+       class="ui-grid-sort-priority-number">
+       {{col.sort.priority + 1}}
+     </sub>
+    </span>
+  </div>
+
+  <div
+    role="button"
+    tabindex="0"
+    ui-grid-one-bind-id-grid="col.uid + '-menu-button'"
+    class="ui-grid-column-menu-button"
+    ng-if="grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false"
+    ng-click="toggleMenu($event)"
+    ng-keydown="headerCellArrowKeyDown($event)"
+    ui-grid-one-bind-aria-label="i18n.headerCell.aria.columnMenuButtonLabel"
+    aria-haspopup="true">
+    <i
+      class="ui-grid-icon-angle-down"
+      aria-hidden="true">
+      &nbsp;
+    </i>
+  </div>
+
+  <div ui-grid-filter ng-if="col.filterContainer === 'headerCell'"></div>
+</div>

@@ -1,0 +1,6 @@
+<!-- show a link to resource -->
+<a ng-if="vm.resource && vm.resourceUrl" ng-href="{{ vm.resourceUrl }}">
+    <ng-transclude>
+        {{vm.resource.name}}
+    </ng-transclude>
+</a>

@@ -1,0 +1,39 @@
+<!-- Created By (if available) -->
+<div class="form-group" ng-if="vm.element.created_by">
+    <label class="col-sm-2 col-md-3" translate>
+        Created by
+    </label>
+    <div class="col-sm-9">
+        <user-display-widget user="vm.element.created_by"></user-display-widget>
+    </div>
+</div>
+
+<!-- Created at (if available) -->
+<div class="form-group" ng-if="vm.element.created_at">
+    <label class="col-sm-2 col-md-3" translate>
+        Created at
+    </label>
+    <div class="col-sm-9">
+        {{ vm.element.created_at | smallDateWithToday }}
+    </div>
+</div>
+
+<!-- Last modified by (if available) -->
+<div class="form-group" ng-if="vm.element.last_modified_by">
+    <label class="col-sm-2 col-md-3" translate>
+        Last modified by
+    </label>
+    <div class="col-sm-9">
+        <user-display-widget user="vm.element.last_modified_by"></user-display-widget>
+    </div>
+</div>
+
+<!-- last modified at (if available) -->
+<div class="form-group" ng-if="vm.element.last_modified_at">
+    <label class="col-sm-2 col-md-3" translate>
+        Last modified at
+    </label>
+    <div class="col-sm-9">
+        {{ vm.element.last_modified_at | smallDateWithToday }}
+    </div>
+</div>

@@ -1,0 +1,64 @@
+<!-- Template for the model type selection popover -->
+<script type="text/ng-template" id="task-select-state">
+    <dl style="margin-bottom: 0px">
+        <dd ng-repeat="legend in vm.taskConverterService.taskStateOrder">
+            <!-- Checkbox with entity select -->
+            <label role="button">
+                <input ng-model="vm.selectedTaskStates[legend]"
+                       type="checkbox"
+                       ng-change="vm.taskStateFilterChanged()">
+                <i class="{{:: vm.taskConverterService.taskStateImages[legend]}} {{:: vm.taskConverterService.taskStates[legend] }}"></i>
+                <span>{{::  vm.taskConverterService.taskStateTexts[legend] }}</span>
+            </label>
+        </dd>
+    </dl>
+</script>
+
+<div class="card-panel element-panel">
+    <screen-header-function-bar
+        screen-new-entity="{{ 'New Task' | translate }}"
+        screen-new-entity-type="task"
+        selected-projects="vm.selectedProjects"
+        selected-users="vm.selectedUsers"
+        users="vm.users"
+        current-view="vm.currentView" search-field="vm.searchField">
+        <screen-title>
+            <span translate>Tasks</span>
+        </screen-title>
+        <additional-filter>
+            <!-- Task State Filter -->
+            <button class="btn btn-default"
+                    role="button"
+                    uib-popover-template="'task-select-state'"
+                    popover-trigger="'outsideClick'"
+                    popover-placement="bottom-left">
+                <i class="fa fa-filter"></i>
+                <span translate>Filter by task state</span>
+            </button>
+        </additional-filter>
+    </screen-header-function-bar>
+</div>
+
+<generic-list-loading-widget
+    loading-flag="vm.tasksLoaded"
+    loading-text="Tasks">
+</generic-list-loading-widget>
+
+<div class="card-panel" ng-if="vm.currentView == 'list' && vm.tasksLoaded">
+    <task-table-view tasks="vm.tasks" order-by="vm.orderBy" order-dir="vm.orderDir">
+    </task-table-view>
+</div>
+
+<task-card-view ng-if="vm.currentView == 'card' && vm.tasksLoaded" tasks="vm.tasks"></task-card-view>
+
+<div class="text-center" ng-if="vm.tasks.length > 0 && vm.tasksLoaded">
+    <ul uib-pagination
+        total-items="vm.numberOfTasks"
+        items-per-page="vm.currentLimit"
+        force-ellipses="true"
+        boundary-link-numbers="true"
+        max-size="15"
+        ng-model="vm.currentPage"
+        ng-change="vm.pageChanged()">
+    </ul>
+</div>

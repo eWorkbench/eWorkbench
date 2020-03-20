@@ -1,0 +1,103 @@
+{% block content %}
+    
+    <p>
+    <h4 class="created_file_title">
+        All file entries that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_file">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>File title</th>
+                <th>Description of the file</th>
+                <th>Directory path</th>
+                <th>File path</th>
+
+            </tr>
+
+            {% for file in user.file_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ file.fts_language }}</td>
+                    <td>{{ file.name }}</td>
+                    <td>{{ file.description }}</td>
+                    <td>{{ file.directory }}</td>
+                    <td>{{ file.path }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Mime type</th>
+                <th>File size</th>
+                <th>Associated projects</th>
+                <th>Reference to archived data</th>
+                <th>Original filename</th>
+
+            </tr>
+
+            {% for file in user.file_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ file.mime_type }}</td>
+                    <td>{{ file.file_size }}</td>
+                    <td>{% for project in file.projects.all %}
+                            {{ project }}
+                        {% endfor %}
+                    </td>
+                    <td>{{ file.uploaded_file_entry }}</td>
+                    <td>{{ file.original_filename }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for file in user.file_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ file.created_by }}</td>
+                    <td>{{ file.last_modified_by }}</td>
+                    <td>{{ file.created_at }}</td>
+                    <td>{{ file.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for file in user.file_created.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ file.cs_created_by }}</td>
+                    <td>{{ file.cs_last_modified_by }}</td>
+                    <td>{{ file.cs_created_at }}</td>
+                    <td>{{ file.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+
+{% endblock %}

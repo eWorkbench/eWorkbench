@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+    <form class="form-horizontal" name="createRelationNoteNew" ng-submit="vm.save()">
+        <div class="panel-body">
+            <!-- includes the specific form for creating the new element-->
+            <div ng-include="vm.createFormConfig"></div>
+        </div>
+        <div class="panel-footer text-right">
+            <button class="btn btn-default" type="button" ng-click="vm.cancel()" translate>Cancel</button>
+            <button class="btn btn-warning" type="submit" translate>Create</button>
+        </div>
+    </form>
+</div>

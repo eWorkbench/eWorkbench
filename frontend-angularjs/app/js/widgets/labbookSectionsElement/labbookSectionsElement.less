@@ -1,0 +1,118 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../theme/variables";
+
+.labbook-section {
+  background-color: @navbar-default-bg;
+  color: #fff;
+  width: 100%;
+  height: 100%;
+
+  box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.5);
+  display: block;
+
+  -webkit-transition: box-shadow 0.3s ease, border 0.3s ease;
+  -moz-transition: box-shadow 0.3s ease, border 0.3s ease;
+  -ms-transition: box-shadow 0.3s ease, border 0.3s ease;
+  -o-transition: box-shadow 0.3s ease, border 0.3s ease;
+  transition: box-shadow 0.3s ease, border 0.3s ease;
+
+  &:hover {
+    box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.8);
+  }
+
+  a {
+    color: @navbar-default-link-color;
+    &:hover {
+      color: @navbar-default-link-hover-color;
+    }
+  }
+
+  .labbook-cell-move {
+    cursor: move;
+  }
+
+  .labbook-section-index {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(50%);
+    -moz-transform: translateY(50%);
+    -ms-transform: translateY(50%);
+    -o-transform: translateY(50%);
+    transform: translateY(50%);
+    margin-left: 15px;
+  }
+
+  .labbook-section-date {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(50%);
+    -moz-transform: translateY(50%);
+    -ms-transform: translateY(50%);
+    -o-transform: translateY(50%);
+    transform: translateY(50%);
+    margin-left: 15px;
+    [readonly='readonly'] {
+      color: #fff !important;
+      text-shadow: none !important;
+      &:hover, &:active, &:focus {
+        color: lighten(#363636, 10%) !important;
+      }
+    }
+  }
+
+  .labbook-section-title {
+    font-weight: bold;
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(50%);
+    -moz-transform: translateY(50%);
+    -ms-transform: translateY(50%);
+    -o-transform: translateY(50%);
+    transform: translateY(50%);
+    [readonly='readonly'] {
+      color: #fff !important;
+      text-shadow: none !important;
+      &:hover, &:active, &:focus {
+        color: lighten(#363636, 10%) !important;
+      }
+    }
+  }
+
+  .form-control {
+    color: #fff;
+    background-color: @navbar-default-bg;
+    border: none;
+    &:hover, &:active, &:focus {
+      border: none;
+      color: #363636;
+      background-color: #fff;
+    }
+  }
+
+
+
+  .fa {
+    font-size: 16px;
+  }
+
+  .btn-primary {
+    background-color: @eric-orange;
+    border-color: @eric-orange;
+    &:hover, &:active, &:focus {
+      background-color: @eric-orange;
+      border-color: @eric-orange;
+    }
+  }
+
+
+}
+
+// remove the resize buttons
+.labbooksectionrow {
+  .gridster-item-resizable-handler {
+    display: none;
+  }
+}

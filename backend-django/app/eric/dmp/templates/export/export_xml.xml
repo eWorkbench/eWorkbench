@@ -1,0 +1,18 @@
+{% load i18n metadata_widget %}
+<?xml version="1.0" encoding="UTF-8"?>
+<dmp>
+    <dmp-name>{{ dmp.title }}</dmp-name>
+    <status>{{ dmp.status }}</status>
+    <metadata>{% all_metadata_as_xml dmp %}</metadata>
+    <created-by>{{ dmp.created_by.username }}</created-by>
+    <last-modified-at>{{ dmp.last_modified_at }}</last-modified-at>
+
+    <dmp-form-data>
+        {% for data in dmp_form_data %}
+            <data>
+                <name>{{ data.name }}</name>
+                <value><![CDATA[{{ data.value | safe }}]]></value>
+            </data>
+        {% endfor %}
+    </dmp-form-data>
+</dmp>

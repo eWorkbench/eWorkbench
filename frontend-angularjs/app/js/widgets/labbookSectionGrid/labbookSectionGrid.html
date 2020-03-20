@@ -1,0 +1,90 @@
+<!-- Section grid -->
+<div id="labbok-section-child-display">
+
+    <!-- board -->
+    <div ng-if="vm.sectionChildElementsLoaded">
+        <div class="labbook-board-paper">
+            <div class="text-center" ng-if="vm.sectionChildElements.length === 0">
+                <h2 style="color:#363636;" translate>No items were added to this section yet</h2>
+            </div>
+            <div class="toolbox-container"></div>
+
+            <div class="section-new-item-list-top" ng-if="vm.sectionChildElements.length > 0">
+                <div>
+                    <a style="display: inline-block;color: grey" ng-if="!vm.noteIsRendering"
+                       ng-click="vm.addNewNote('top')" role="button"
+                       title="{{ 'Create a new Text within this Section' | translate }}">
+                        <span class="{{ ::vm.mainElementIcons.note }}"></span>
+                    </a>
+                    <a style="display: inline-block;" ng-if="vm.noteIsRendering" role="button"
+                       title="{{ 'Create a new Text within this Section' | translate }}">
+                        <span class="{{ ::vm.mainElementIcons.note }}"></span>
+                    </a>
+                    <a style="display: inline-block;" ng-click="vm.addNewPicture('top')" role="button"
+                       title="{{ 'Upload a new picture to this Section' | translate }}">
+                        <span class="{{ ::vm.mainElementIcons.picture }}"></span>
+                    </a>
+                    <a style="display: inline-block;" ng-click="vm.addNewFile('top')" role="button"
+                       title="{{ 'Upload a new file to this Section' | translate }}">
+                        <span class="{{ ::vm.mainElementIcons.file }}"></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- angular gridster board, displaying the section child elements under the section element -->
+            <ul id="gridsterBoard" gridster="vm.sectionGridsterOpts">
+                <!-- iterate over all child elements -->
+                <li gridster-item
+                    data-row="childElement.position_y"
+                    data-col="childElement.position_x"
+                    data-sizex="childElement.width"
+                    data-sizey="childElement.height"
+                    ng-repeat="childElement in vm.sectionChildElements track by childElement.pk">
+
+                    <!-- Display a labbook card (cell) -->
+                    <div class="labbook-cell" style="width: 100%; height: 100%; overflow: hidden;">
+                        <!-- Render the Child Element as a labbook cell -->
+                        <!-- if the user has access to it -->
+                        <labbook-edit-child-element-widget
+                            section-child-elements="vm.sectionChildElements"
+                            is-in-section-grid="true"
+                            labbook-child-elements="vm.labbookChildElements"
+                            labbook="vm.labbook"
+                            section-element="vm.sectionElement"
+                            element="childElement"
+                            ng-if="childElement.child_object">
+                        </labbook-edit-child-element-widget>
+                        <!-- show "no permission" if the user has no access to the element -->
+                        <labbook-no-access-child-element-widget
+                            element="childElement"
+                            ng-if="!childElement.child_object">
+                        </labbook-no-access-child-element-widget>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="section-new-item-list-bottom">
+                <div>
+                    <a style="display: inline-block;color: grey" ng-if="!vm.noteIsRendering"
+                       ng-click="vm.addNewNote('bottom')" role="button"
+                       title="{{ 'Create a new Text within this Section' | translate }}">
+                        <span class="{{ ::vm.mainElementIcons.note }}"></span>
+                    </a>
+                    <a style="display: inline-block;" ng-if="vm.noteIsRendering" role="button"
+                       title="{{ 'Create a new Text within this Section' | translate }}">
+                        <span class="{{ ::vm.mainElementIcons.note }}"></span>
+                    </a>
+                    <a style="display: inline-block;" ng-click="vm.addNewPicture('bottom')" role="button"
+                       title="{{ 'Upload a new picture to this Section' | translate }}">
+                        <span class="{{ ::vm.mainElementIcons.picture }}"></span>
+                    </a>
+                    <a style="display: inline-block;" ng-click="vm.addNewFile('bottom')" role="button"
+                       title="{{ 'Upload a new file to this Section' | translate }}">
+                        <span class="{{ ::vm.mainElementIcons.file }}"></span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

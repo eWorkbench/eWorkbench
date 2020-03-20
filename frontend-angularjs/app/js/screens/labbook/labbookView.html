@@ -1,0 +1,382 @@
+<div class="panel panel-default element-panel">
+    <div class="panel-heading">
+        <div style="float: left" ng-click="vm.toggleMetaDataVisibility()"
+             role="button">
+            <span style="width: 13px" class="fa fa-caret-right" ng-show="vm.metaDataCollapsed"></span>
+            <span style="width: 13px" class="fa fa-caret-down" ng-show="!vm.metaDataCollapsed"></span>
+
+            <i class="{{:: vm.labbookIcon }}"></i> {{ vm.labbook.title }}
+        </div>
+        <generic-detail-view-menu-widget
+            ng-if="!vm.readOnly"
+            base-model="vm.labbook"
+            base-url-model="labbooks"
+            has-trash="true"
+            has-export="true"
+            has-restore="true"
+            has-new-element="true"
+            has-privileges="true"></generic-detail-view-menu-widget>
+    </div>
+    <div class="panel-body" uib-collapse="vm.metaDataCollapsed">
+        <generic-show-element-state-widget base-model="vm.labbook"
+                                           show-trashed="true"></generic-show-element-state-widget>
+        <generic-show-element-lock-status-widget on-lock-cb="vm.onLock()" on-unlock-cb="vm.onUnlock()"
+                                                 base-model="vm.labbook"
+                                                 read-only="vm.readOnly"
+                                                 show-locked="true"
+                                                 show-reload-message="true"></generic-show-element-lock-status-widget>
+        <div class="row">
+            <div class="form-horizontal" name="editLabbookForm">
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <!-- Labbook Subject -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="labbook_title" translate
+                            title="{{ 'mandatory field' | translate }}">
+                            Title *
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveLabbookPartial('title', ngModel)"
+                                on-save-multiple="vm.saveLabbook()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.labbook.title">
+                                <ng-include src="'js/screens/labbook/labbookForm.title.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Labbook Is template? -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="labbook_is_template">
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveLabbookPartial('is_template', ngModel)"
+                                on-save-multiple="vm.saveLabbook()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.labbook.is_template">
+                                <ng-include src="'js/screens/labbook/labbookForm.is_template.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="labbook_description">
+                            <span translate>Description</span>
+                            <!-- choose Template -->
+                            <text-template-widget ng-hide="vm.isReadOnly()"
+                                override-object-attribute="vm.labbook.description"></text-template-widget>
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                compare-mode="html"
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveLabbookPartial('description', ngModel)"
+                                on-save-multiple="vm.saveLabbook()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.labbook.description">
+                                <ng-include src="'js/screens/labbook/labbookForm.description.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- Metadata -->
+                    <metadata-fields-widget
+                        base-model="vm.labbook"
+                        base-url-model="labbook"
+                        read-only="vm.isReadOnly()"
+                        on-save="vm.saveLabbookPartial('metadata', vm.labbook.metadata)"
+                        on-save-multiple="vm.saveLabbook()"
+                        on-abort="vm.resetErrors()"
+                        metadata="vm.labbook.metadata">
+                    </metadata-fields-widget>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <created-and-updated-by-widget element="vm.labbook"></created-and-updated-by-widget>
+
+                    <!-- project -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="labbook_project" translate>
+                            Project
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveLabbookPartial('projects', ngModel)"
+                                on-save-multiple="vm.saveLabbook()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.projectPks"
+                                compare-mode="array">
+                                <ng-include src="'js/screens/labbook/labbookForm.projects.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <!-- History -->
+                    <history-short-widget base-model="vm.labbook" base-url-model="labbook"></history-short-widget>
+                    <!-- Versions -->
+                    <versions-short-widget readonly="vm.isReadOnly()" base-model="vm.labbook" base-url-model="labbook"
+                                           version-in-progress-always-visible="true"></versions-short-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div uib-collapse="vm.metaDataCollapsed">
+    <!-- relations -->
+    <relation-list-widget
+        project="vm.project" base-model="vm.labbook" base-url-model="labbook"></relation-list-widget>
+</div>
+
+<div ng-if="vm.checkImportInProgress()">
+    <div class="row text-center">
+        <h3><i class="fa fa-spinner fa-pulse"></i> Import in Progress, please wait.</h3>
+    </div>
+</div>
+
+<!-- Labbook grid -->
+<div id="labbookBoard" ng-if="!vm.checkImportInProgress()">
+    <!-- Labbook background -->
+    <div class="labbook-board">
+
+        <!-- Labbook Sections date filter -->
+        <div class="sections-date-filter" ng-if="vm.childElementsLoaded">
+             <div class="row">
+                 <div class="col-xs-2 sections-date-filter-title" translate>
+                     Display Sections:
+                 </div>
+                 <div class="col-xs-1 sections-date-filter-text text-right" translate>
+                     from
+                 </div>
+                 <div class="col-xs-2 sections-date-filter-datepicker">
+                    <validated-form-element
+                        id="input_section_date_filter_start_date"
+                        input-element="date"
+                        field-name="section_date_filter_start_date"
+                        placeholder="{{ vm.section_date_filter_start_date_placeholder }}"
+                        ng-model="vm.section_date_filter_start_date"
+                        date-picker-options="vm.sectionDateFilterPickerOptionsStartDate"
+                        errors="vm.errors['section_date_filter_start_date']">
+                    </validated-form-element>
+                 </div>
+                 <div class="col-xs-1 sections-date-filter-text text-right" translate>
+                     to
+                 </div>
+                 <div class="col-xs-2 sections-date-filter-datepicker">
+                    <validated-form-element
+                        id="input_section_date_filter_stop_date"
+                        input-element="date"
+                        field-name="section_date_filter_stop_date"
+                        placeholder="{{ vm.section_date_filter_stop_date_placeholder }}"
+                        ng-model="vm.section_date_filter_stop_date"
+                        date-picker-options="vm.sectionDateFilterPickerOptionsStopDate"
+                        errors="vm.errors['section_date_filter_stop_date']">
+                    </validated-form-element>
+                 </div>
+                 <div class="col-xs-2 sections-date-filter-filter-link">
+                     <a ng-click="vm.resetSectionFilter()" role="button"
+                        title="{{ 'Reset the section date filters' | translate }}" translate>
+                        Reset and Close Filter
+                     </a>
+                 </div>
+                 <div class="col-xs-2 sections-date-filter-new pull-right text-right">
+                    <a ng-if="!vm.sectionIsRendering" ng-click="vm.addNewSection('top')" role="button"
+                        title="{{ 'Add a new Section within this LabBook' | translate }}"translate>
+                        New Section
+                    </a>
+                    <a class="disabled-link" ng-if="vm.sectionIsRendering" role="button"
+                        title="{{ 'Add a new Section within this LabBook' | translate }}"translate>
+                        New Section
+                    </a>
+                 </div>
+             </div>
+
+            <div class="labbook-section-filter-grid" ng-if="vm.sectionFilterGrid">
+                <labbook-section-filter-grid
+                    section-elements="vm.sectionFilterChildElements"
+                    labbook="vm.labbook">
+                </labbook-section-filter-grid>
+            </div>
+
+        </div>
+
+        <!-- menu on the left side -->
+        <div style="position: absolute;" class="hidden-xs hidden-sm" id="sticky-container">
+            <div class="labbook-left-side-menu" hl-sticky="" offset-top="100" ng-if="vm.hasPermissionToAddNewModify()">
+                <div>
+                    <b translate>Add:</b>
+                </div>
+                <a style="display: block; margin-top: 10px" ng-if="!vm.noteIsRendering" ng-click="vm.addNewNote('top')" role="button"
+                   title="{{ 'Create a new Text within this LabBook' | translate }}">
+                    <span class="{{ ::vm.mainElementIcons.note }} fa-2x"></span>
+                </a>
+                <a style="display: block; margin-top: 10px; color: grey" ng-if="vm.noteIsRendering" role="button"
+                   title="{{ 'Create a new Text within this LabBook' | translate }}">
+                    <span class="{{ ::vm.mainElementIcons.note }} fa-2x"></span>
+                </a>
+                <a style="display: block; margin-top: 10px" ng-click="vm.addNewPicture('top')" role="button"
+                   title="{{ 'Upload a new picture to this LabBook' | translate }}">
+                    <span class="{{ ::vm.mainElementIcons.picture }} fa-2x"></span>
+                </a>
+                <a style="display: block; margin-top: 10px" ng-click="vm.addNewFile('top')" role="button"
+                   title="{{ 'Upload a new file to this LabBook' | translate }}">
+                    <span class="{{ ::vm.mainElementIcons.file }} fa-2x"></span>
+                </a>
+                <a style="display: block; margin-top: 10px" ng-click="vm.insertCellsFromTemplate()" role="button"
+                   title="{{ 'Insert cells from another LabBook' | translate }}">
+                    <span class="fa fa-clone fa-2x"></span>
+                </a>
+                <a style="display: block; margin-top: 10px" ng-if="!vm.sectionIsRendering" ng-click="vm.addNewSection('top')" role="button"
+                    title="{{ 'Add a new Section within this LabBook' | translate }}">
+                    <span class="{{ ::vm.mainElementIcons.labbooksection }} fa-2x"></span>
+                </a>
+                <a class="disabled-link" style="display: block; margin-top: 10px" ng-if="vm.sectionIsRendering" role="button"
+                    title="{{ 'Add a new Section within this LabBook' | translate }}">
+                    <span style="color: grey" class="{{ ::vm.mainElementIcons.labbooksection }} fa-2x"></span>
+                </a>
+            </div>
+        </div>
+        <!-- board -->
+        <div ng-if="vm.childElementsLoaded">
+            <div class="labbook-board-paper">
+                <div class="toolbox-container"></div>
+
+                <!-- angular gridster board, displaying the labbook with its child elements -->
+                <ul id="gridsterBoard" gridster="vm.gridsterOpts">
+                    <!-- iterate over all child elements and display everything except sections-->
+                    <li gridster-item
+                        data-row="childElement.position_y"
+                        data-col="childElement.position_x"
+                        data-sizex="childElement.width"
+                        data-sizey="childElement.height"
+                        ng-repeat="childElement in vm.childElements | filter: vm.isLabbookElement track by childElement.pk"
+                        ng-class="vm.rowClass(childElement)">
+
+                        <!-- Display a labbook card (cell) -->
+                        <div class="labbook-cell" style="width: 100%; height: 100%; overflow: hidden;">
+                            <!-- Render the Child Element as a labbook cell -->
+                            <!-- if the user has access to it -->
+                            <labbook-edit-child-element-widget
+                                section-child-elements="vm.childElements"
+                                element="childElement"
+                                labbook="vm.labbook"
+                                labbook-child-elements="vm.childElements"
+                                is-in-section-grid="false"
+                                section-element=""
+                                ng-if="childElement.child_object">
+                            </labbook-edit-child-element-widget>
+                            <!-- show "no permission" if the user has no access to the element -->
+                            <labbook-no-access-child-element-widget
+                                element="childElement"
+                                ng-if="!childElement.child_object">
+                            </labbook-no-access-child-element-widget>
+                        </div>
+                    </li>
+
+                    <!-- this is the where and how section elements are displayed  -->
+                    <li gridster-item
+                        data-row="childElement.position_y"
+                        data-col="childElement.position_x"
+                        data-sizex="childElement.width"
+                        data-sizey="childElement.height"
+                        ng-repeat="childElement in vm.childElements | filter:vm.isLabbookSection track by childElement.pk"
+                        ng-class="vm.rowClass(childElement)">
+
+                        <div class="labbook-section">
+                            <labbook-sections-element-widget
+                                labbook-child-elements="vm.childElements"
+                                section-element="childElement"
+                                labbook="vm.labbook"
+                                skip-next-websocket-refresh="vm.skipNextWebsocketRefresh"
+                                ng-if="childElement.child_object">
+                            </labbook-sections-element-widget>
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+            <div style="margin: auto; width: 40cm;" ng-show="vm.hasPermissionToAddNewModify()">
+                <div ng-show="vm.childElements.length == 0" style="text-align: center">
+
+                    <span class="fa fa-pencil fa-5x eric-green"></span><br/>
+
+                    <h2 translate>
+                        Your Labbook is empty.
+                    </h2>
+                    <span translate>
+                        Fill it by creating new items:
+                    </span>
+                </div>
+                <div ng-show="vm.childElements.length > 0" style="text-align: center; margin-top: 20px">
+                    <b translate>
+                        Add a new cell at the bottom:
+                    </b>
+                </div>
+                <div class="labbook-new-item-list">
+                    <div>
+                        <a style="display: inline-block;color: grey" ng-if="!vm.noteIsRendering" ng-click="vm.addNewNote('bottom')" role="button">
+                            <span class="{{ ::vm.mainElementIcons.note }} fa-5x"></span>
+                            <br/>
+                            <p translate>Text</p>
+                        </a>
+                        <a style="display: inline-block;" ng-if="vm.noteIsRendering" role="button">
+                            <span style="color: grey" class="{{ ::vm.mainElementIcons.note }} fa-5x"></span>
+                            <br/>
+                            <p translate>Text</p>
+                        </a>
+                        <a
+                            ngf-drop="vm.dragAndDropAddNewPicture($files)"
+                            ngf-pattern="'image/*'"
+                            ngf-accept="'image/*'"
+                            ngf-multiple="false"
+                            ngf-drag-over-class="'dragover'"
+                            style="display: inline-block;" ng-click="vm.addNewPicture('bottom')" role="button">
+                            <span class="{{ ::vm.mainElementIcons.picture }} fa-5x fa-fw hide-on-dragover"></span>
+                            <span class="fa fa-upload fa-5x show-on-dragover"></span>
+                            <br/>
+                            <p translate>Picture</p>
+                        </a>
+                        <a
+                            ngf-drop="vm.dragAndDropAddNewFile($files)"
+                            ngf-multiple="false"
+                            ngf-drag-over-class="'dragover'"
+                            style="display: inline-block;"
+                            ng-click="vm.addNewFile('bottom')" role="button">
+                            <span class="{{ ::vm.mainElementIcons.file }} fa-5x fa-fw hide-on-dragover"></span>
+                            <span class="fa fa-upload fa-5x show-on-dragover"></span>
+                            <br/>
+                            <p translate>File</p>
+                        </a>
+                        <a style="display: inline-block;" title="{{ 'Insert cells from another LabBook' }}"
+                           ng-click="vm.insertCellsFromTemplate()" role="button">
+                            <span class="fa fa-clone fa-5x fa-fw"></span>
+                            <br/>
+                            <p translate>LabBook</p>
+                        </a>
+                        <a style="display: inline-block;" ng-if="!vm.sectionIsRendering" ng-click="vm.addNewSection('bottom')" role="button"
+                            title="{{ 'Add a new Section within this LabBook' | translate }}">
+                            <span class="{{ ::vm.mainElementIcons.labbooksection }} fa-5x"></span>
+                            <br/>
+                            <p translate>Section</p>
+                        </a>
+                        <a class="disabled-link" style="display: inline-block;" ng-if="vm.sectionIsRendering" role="button"
+                            title="{{ 'Add a new Section within this LabBook' | translate }}">
+                            <span style="color: grey" class="{{ ::vm.mainElementIcons.labbooksection }} fa-5x"></span>
+                            <br/>
+                            <p translate>Section</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+

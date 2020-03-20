@@ -1,0 +1,11 @@
+<validated-form-element
+    id="kanbanboard_title"
+    auto-focus="vm.mode == 'create'"
+    input-element="text"
+    field-name="title"
+    placeholder="{{ 'Title' | translate }}"
+    ng-model="vm.kanbanboard.title"
+    ng-model-options="{'debounce': 100}"
+    ng-readonly="vm.isReadOnly()"
+    errors="vm.errors['title']">
+</validated-form-element>

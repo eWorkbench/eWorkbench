@@ -1,0 +1,26 @@
+<div style="width: 100%; border: 1px solid lightgray; margin-bottom: 10px"
+     ng-repeat="drive in vm.drives | filter: {deleted:false} | orderBy:'title' as filteredDrive track by drive.pk">
+
+    <div style="border-bottom: 1px solid lightgray; font-size: 12pt">
+        <div class="collapse-icon" ng-click="vm.toggleShowDrive(drive.pk)" role="button">
+            <span ng-show="!vm.collapseDrive[drive.pk]" class="fa fa-fw fa-angle-right"></span>
+            <span ng-show="vm.collapseDrive[drive.pk]" class="fa fa-fw fa-angle-down"></span>
+
+            <span class="{{:: vm.driveIcon }} fa-fw"></span>
+        </div>
+
+        <a ui-sref="drive-view({drive: drive})"
+           title="{{ 'View Storage' | translate }}">
+            {{ drive.title }}
+        </a>
+    </div>
+
+    <div uib-collapse="!vm.collapseDrive[drive.pk]" expanding="vm.isExpanding(drive.pk)" collapsed="vm.hasCollapsed(drive.pk)" style="margin: 10px">
+        <drive-display-widget
+            ng-if="vm.renderDrive[drive.pk]"
+            drive="drive"></drive-display-widget>
+    </div>
+</div>
+<div ng-if="filteredDrive.length == 0" translate>
+    No entries
+</div>

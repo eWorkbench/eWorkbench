@@ -1,0 +1,2 @@
+{% for metadata in metadata_list %}{{ metadata.field_name }}: {{ metadata.display_value }}
+{% endfor %}

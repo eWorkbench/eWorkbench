@@ -1,0 +1,10 @@
+<validated-form-element
+        rows="6"
+        id="labbook_description"
+        input-element="html"
+        field-name="labbook_description"
+        placeholder="{{ 'Please enter a labbook description' | translate }}"
+        ng-model="vm.labbook.description"
+        ng-readonly="vm.isReadOnly()"
+        errors="vm.errors['description']">
+</validated-form-element>

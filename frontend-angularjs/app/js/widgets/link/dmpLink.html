@@ -1,0 +1,6 @@
+<!-- show a link to dmps -->
+<a ng-if="vm.dmp && vm.dmpUrl" ng-href="{{ vm.dmpUrl }}">
+    <ng-transclude>
+        {{vm.dmp.title}}
+    </ng-transclude>
+</a>

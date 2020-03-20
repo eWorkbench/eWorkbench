@@ -1,0 +1,35 @@
+<div class="card-display">
+    <!-- card title: first name and last name -->
+    <h4 class="header">
+        <div class="ellipsis">
+            <i class="{{:: vm.resourceIcon}}"></i>
+            <resource-link resource="vm.resource"></resource-link>
+        </div>
+        <div ng-transclude="cardFunctions" style="display: inline-block; float: right"></div>
+    </h4>
+
+    <script type="text/ng-template" id="displayRelationResourceWidgetPopover.html">
+        <div ng-bind-html="vm.resource.description | asHtml"></div>
+    </script>
+
+    <!-- more details and picture -->
+    <div class="content mce-content-body">
+        <span class="font-color" translate>Type:</span> <i class="{{vm.resourceTypeIcon}}"></i> {{ vm.resourceType }}<br/>
+        <span class="font-color" translate>Location:</span> {{ vm.resource.location }}<br/>
+        <!--<span class="font-color" translate>Bookable on:</span> {{ vm.resource.bookable_hours.name }}<br />-->
+        <div uib-popover-template="'displayRelationResourceWidgetPopover.html'"
+             popover-placement="auto"
+             popover-trigger="'mouseenter'"
+             popover-popup-delay="500"
+             popover-popup-close-delay="500"
+             popover-class="popover-large"
+             class="newline-to-break" ng-bind-html="vm.resource.description | asHtml"></div>
+    </div>
+
+    <div class="card-footer" ng-transclude="cardFooter">
+        <span class="font-color" translate>Created by</span>
+        <user-display-widget user="vm.resource.created_by"></user-display-widget>
+        <span class="font-color">-</span>
+        <span class="font-color">{{ vm.resource.created_at | smallDateWithToday }}</span>
+    </div>
+</div>

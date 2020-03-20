@@ -1,0 +1,31 @@
+{% extends "admin/change_form.html" %}
+{% load static from staticfiles %}
+{% load i18n admin_static admin_modify %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "css/admin/anonymize_user.css" %}" />
+{% endblock %}
+
+{% block content %}
+
+    <div id="content-main">
+        <form action="" method="POST">
+            {% csrf_token %}
+
+            <p class="errornote">
+                {% blocktrans %}
+                    Please confirm the anonymization of &raquo;{{ user }}&laquo;. This cannot be undone!
+                {% endblocktrans %}
+            </p>
+
+            <div class="submit-row">
+                <p class="deletelink-box">
+                    <input type="submit" class="deletebutton" value="{% trans "Confirm Anonymization" %}">
+                </p>
+                <a href="{% url 'admin:auth_user_changelist' %}" class="button">{% trans "Cancel" %}</a>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

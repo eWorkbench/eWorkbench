@@ -1,0 +1,7 @@
+{% load html_unescape %}
+#{{ instance.task_id }}
+{{ instance.title }}
+{{ instance.description | striptags | html_unescape }}
+{% for checklist_item in instance.checklist_items.all %}
+    {{ checklist_item.title }}
+{% endfor %}

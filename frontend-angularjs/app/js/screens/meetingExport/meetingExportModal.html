@@ -1,0 +1,31 @@
+<div class="modal-header">
+    <h3 class="modal-title">
+        <span translate>Calendar ICAL Export</span>
+    </h3>
+</div>
+<div class="modal-body">
+    <div>
+        <span translate>There are two options available for exporting your calendar:</span>
+        <ul>
+            <li translate>
+                <a ng-href="{{ vm.exportUrl }}">Download an ICAL/ICS file</a> and open it with your preferred calendar application
+            </li>
+            <li translate>Import your calendar by using the URL below (e.g., as a 'Calendar from the Internet')</li>
+        </ul>
+    </div>
+    <div class="input-group">
+        <!-- Target -->
+        <input class="form-control" id="input" ng-value="vm.exportUrl">
+        <span class="input-group-btn">
+            <!-- Trigger -->
+            <button class="btn btn-default" ngclipboard data-clipboard-target="#input"
+                    title="{{ 'Copy to clipboard'| translate}}">
+                <i class="fa fa-clipboard" aria-hidden="true"></i>
+            </button>
+       </span>
+    </div>
+</div>
+<div class="modal-footer">
+    <!-- Button for Cancel -->
+    <button class="btn btn-default" ng-click="vm.close()" translate>Close</button>
+</div>

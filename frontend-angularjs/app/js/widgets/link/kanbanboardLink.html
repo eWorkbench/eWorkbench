@@ -1,0 +1,8 @@
+<!-- show a link to kanbanboards -->
+<a ng-if="vm.kanbanboard && vm.kanbanboardUrl" ng-href="{{ vm.kanbanboardUrl }}">
+    <ng-transclude>
+        <span>
+        {{ vm.kanbanboard.title }}
+        </span>
+    </ng-transclude>
+</a>

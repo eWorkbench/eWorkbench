@@ -1,0 +1,71 @@
+{% block content %}
+    <p>
+    <h4 class="created_relations_title">
+        All relations that the user has created:
+    </h4>
+    </p>
+
+    <p>
+    <div class="created_relations">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Left content type of the relation</th>
+                <th>Left id of the relation</th>
+                <th>Right content type of the relation</th>
+                <th>Right id of the relation</th>
+            </tr>
+
+            {% for relation in user.relation_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ relation.left_content_type }}</td>
+                    <td>{{ relation.left_object_id }}</td>
+                    <td>{{ relation.right_content_type }}</td>
+                    <td>{{ relation.right_object_id }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for relation in user.relation_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ relation.created_by }}</td>
+                    <td>{{ relation.last_modified_by }}</td>
+                    <td>{{ relation.created_at }}</td>
+                    <td>{{ relation.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for relation in user.relation_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ relation.cs_created_by }}</td>
+                    <td>{{ relation.cs_last_modified_by }}</td>
+                    <td>{{ relation.cs_created_at }}</td>
+                    <td>{{ relation.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

@@ -1,0 +1,31 @@
+<div class="card-display">
+    <!-- card title: first name and last name -->
+    <h4 class="header">
+        <div class="ellipsis">
+            <i class="{{ vm.fileIcon }}"></i>
+            <file-link file="vm.file">
+                {{ vm.file.title }}
+            </file-link>
+        </div>
+
+        <div ng-transclude="cardFunctions" style="display: inline-block; float: right">
+
+        </div>
+    </h4>
+    <!-- more details and picture -->
+    <div class="content">
+        <b translate>Download </b>
+        <a ng-click="vm.download()" role="button" title="{{ 'Download File' | translate }}" target="_blank">
+            {{ vm.file.name }}
+        </a>
+        <b>({{ vm.file.file_size | bytes }})</b>
+    </div>
+
+    <div class="card-footer" ng-transclude="cardFooter">
+        <span class="font-color" translate>Created by</span>
+        <user-display-widget user="vm.file.created_by"></user-display-widget>
+        <span class="font-color">-</span>
+
+        <span class="font-color">{{ vm.file.created_at | smallDateWithToday }}</span>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+<!-- Section filter grid -->
+<div id="labbok-section-filter-grid" ng-if="vm.sectionFilterChildElementsLoaded">
+    <!-- board -->
+    <div>
+        <div class="labbook-board-paper">
+            <div class="text-center" ng-if="vm.sectionFilterChildElements.length === 0">
+                <h2 style="color:#363636" translate>No sections found</h2>
+            </div>
+            <div class="toolbox-container"></div>
+
+            <!-- angular gridster board, displaying the filtered sections of a labbook -->
+            <ul id="gridsterBoard" gridster="vm.sectionFilterGridsterOpts">
+                <!-- iterate over all child elements -->
+                <li gridster-item
+                    data-row="childElement.position_y"
+                    data-col="childElement.position_x"
+                    data-sizex="childElement.width"
+                    data-sizey="childElement.height"
+                    ng-repeat="filterChildElement in vm.sectionFilterChildElements">
+
+                    <div class="labbook-section">
+                        <labbook-sections-element-widget
+                            labbook-child-elements="vm.sectionFilterChildElements"
+                            section-element="filterChildElement"
+                            labbook="vm.labbook"
+                            skip-next-websocket-refresh="vm.skipNextWebsocketRefresh"
+                            ng-if="filterChildElement.child_object">
+                        </labbook-sections-element-widget>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</div>

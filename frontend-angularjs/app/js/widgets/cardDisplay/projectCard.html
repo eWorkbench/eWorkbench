@@ -1,0 +1,66 @@
+<div class="card-display">
+    <!-- card title: subjecte -->
+    <h4 class="header">
+        <div class="ellipsis">
+            <i class="{{:: vm.projectIcon }}" aria-hidden="true" title="{{ 'Project' | translate}}"></i>
+             <project-link project-pk="vm.project.pk"></project-link>
+        </div>
+
+        <div ng-transclude="cardFunctions" style="display: inline-block; float: right">
+
+        </div>
+    </h4>
+
+    <script type="text/ng-template" id="displayProjectWidgetPopover.html">
+
+        <tree-grid class="project-card-treegrid"
+                   table-classes="table-hover"
+                   icon-expand="fa fa-angle-right fa-fw"
+                   icon-collapse="fa fa-angle-down fa-fw"
+                   icon-leaf="fa fa-fw"
+                   tree-control="vm.treeAPI"
+                   expand-on="vm.treeGridExpandingProperty"
+                   tree-data="vm.project.children"
+                   col-defs="vm.columnDefs">
+        </tree-grid>
+    </script>
+
+    <!-- more details and picture -->
+    <div class="content">
+        <div class="info">
+            <project-state-widget project-state="vm.project.project_state">
+            </project-state-widget>
+
+        </div>
+        <div class="pull-right" ng-show="vm.project.start_date">
+            <translate>Start</translate>
+            :
+            {{ vm.project.start_date | smallDateWithoutTime }}
+        </div>
+        <div class="pull-right">
+            <div ng-show="vm.project.start_date">
+                <translate>End</translate>
+                :
+                {{ vm.project.start_date | smallDateWithoutTime }}
+            </div>
+        </div>
+        <task-status-display-widget class="project-card-state" task-status="vm.project.tasks_status">
+        </task-status-display-widget>
+        <a uib-popover-template="'displayProjectWidgetPopover.html'"
+           ng-if="vm.project.children.length>0"
+           popover-placement="auto"
+           popover-trigger="'mouseover'"
+           popover-popup-delay="500"
+           popover-popup-close-delay="500"
+           popover-class="popover-large"
+           class="newline-to-break project-card-subprojects" role="button" ng-bind="'Show Sub Projects'|translate"></a>
+    </div>
+
+    <div class="card-footer" ng-transclude="cardFooter">
+        <div class="pull-right">
+        <task-status-completed-widget task-status="vm.project.tasks_status">
+        </task-status-completed-widget>
+        <span translate>completed</span>
+        </div>
+    </div>
+</div>

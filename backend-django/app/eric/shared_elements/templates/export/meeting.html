@@ -1,0 +1,56 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters metadata_widget %}
+
+{% block title %}
+    {% trans "Meeting" %} {{ instance.title }}
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {{ instance.title }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+
+    <p>{% trans "Start Date" %}: {{ instance.date_time_start | date_short }}</p>
+    <p>{% trans "End Date" %}: {{ instance.date_time_end | date_short }}</p>
+    {% if instance.location %}<p>{% trans "Location" %}: {{ instance.location }}</p>{% endif %}
+    {% if instance.resource %}<p>{% trans "Resource" %}: {{ instance.resource }}</p>{% endif %}
+
+    <p>{% trans "Metadata" %}:
+        {% all_metadata_as_html instance %}
+    </p>
+
+    <p>{% trans "Projects" %}:
+    <ul>
+        {% for project in instance.projects.all %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <p>{% trans "Attending users" %}:
+    <ul>
+        {% for user in instance.attending_users.all %}
+            <li>{% display_user_widget user %}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <p>{% trans "Attending contacts" %}:
+    <ul>
+        {% for contact in instance.attending_contacts.all %}
+            <li>{% simple_object_display contact %}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <div>
+        {{ instance.text | safe }}
+    </div>
+
+    <h3>{% trans "Links" %}</h3>
+    {% include "widgets/object_relations.html" %}
+{% endblock %}

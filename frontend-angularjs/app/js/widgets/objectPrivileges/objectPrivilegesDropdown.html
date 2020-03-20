@@ -1,0 +1,9 @@
+<div class="btn-group" uib-dropdown>
+    <button class="btn btn-default" role="button"
+            title="{{:: vm.tooltip }}"
+            ng-disabled="vm.ngDisabled"
+            ng-click="vm.togglePrivilege()"
+            ng-class="{'btn-primary': vm.ngModel == 'AL'}">
+        <i class="{{:: vm.iconClass }}"></i>
+    </button>
+</div>

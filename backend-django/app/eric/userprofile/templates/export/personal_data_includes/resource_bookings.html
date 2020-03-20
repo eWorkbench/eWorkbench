@@ -1,0 +1,49 @@
+<h4 translate>Resource Bookings</h4>
+
+<!-- Semantic data -->
+<table>
+    <tr>
+        <th>#</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Resource</th>
+        <th>Meeting</th>
+        <th>Comment</th>
+    </tr>
+
+    {% for booking in resource_bookings %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ booking.date_time_start }}</td>
+            <td>{{ booking.date_time_end }}</td>
+            <td>{{ booking.resource }}</td>
+            <td>{{ booking.meeting }}</td>
+            <td>{{ booking.comment }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<!-- Technical data -->
+<table>
+    <tr>
+        <th>#</th>
+        <th>ID</th>
+        <th>Created by</th>
+        <th>Created at</th>
+        <th>Last modified by</th>
+        <th>Last modified at</th>
+        <th>Version number</th>
+    </tr>
+
+    {% for booking in resource_bookings %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ booking.id }}</td>
+            <td>{{ booking.created_by }}</td>
+            <td>{{ booking.created_at }}</td>
+            <td>{{ booking.last_modified_by }}</td>
+            <td>{{ booking.last_modified_at }}</td>
+            <td>{{ booking.version_number }}</td>
+        </tr>
+    {% endfor %}
+</table>

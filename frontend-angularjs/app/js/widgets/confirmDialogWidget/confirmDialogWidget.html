@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h3 class="modal-title" ng-bind="vm.title"></h3>
+</div>
+<div class="modal-body">
+    {{ vm.message }}
+</div>
+
+<div class="modal-footer">
+    <!-- Disable-dialog checkbox -->
+    <div style="float:left">
+        <input id="do-not-show-message-checkbox" type="checkbox" ng-model="vm.doNotShowMessageAgain">
+        <label for="do-not-show-message-checkbox" style="font-weight:normal" translate>
+            Do not show this message again
+        </label>
+    </div>
+
+    <!-- Buttons for Confirm / Cancel -->
+    <div class="text-right">
+        <button class="btn btn-default" ng-click="vm.cancel()">{{ vm.cancelButtonText }}</button>
+        <button class="btn btn-warning" ng-click="vm.yesDelete()">{{ vm.okButtonText }}</button>
+    </div>
+</div>

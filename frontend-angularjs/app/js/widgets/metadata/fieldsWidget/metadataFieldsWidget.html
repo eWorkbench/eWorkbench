@@ -1,0 +1,42 @@
+<div ng-if="vm.isViewable">
+
+    <!-- Existing fields -->
+    <div class="form-group" ng-repeat="metadata in vm.metadata">
+        <label class="col-sm-2 col-md-3 metadata-field-label">
+            <!-- Field type -->
+            <metadata-field-type metadata="metadata"></metadata-field-type>
+
+            <!-- Remove field link -->
+            <a href="javascript:"
+               class="metadata-field-remove-link"
+               title="{{ 'Remove metadata' | translate }}"
+               ng-click="vm.markDeleted(metadata)"
+               ng-if="!vm.isReadOnly() && !metadata.deleted">
+                <span class="{{ :: vm.trashIcon }}"></span>
+            </a>
+        </label>
+        <div class="col-sm-9">
+            <!-- Metadata value -->
+            <!-- Editable select list to detect changes on a field -->
+            <editable-select-list edit-disabled="vm.isReadOnly()"
+                                  on-save="vm.save(metadata)"
+                                  on-save-multiple="vm.saveMultiple()"
+                                  on-abort="vm.abort(metadata)"
+                                  ng-model="metadata"
+                                  ng-model-fields="values,deleted,added"
+                                  compare-mode="metadata">
+                <metadata-field-values metadata="metadata" read-only="vm.isReadOnly() && !metadata.deleted">
+                </metadata-field-values>
+            </editable-select-list>
+        </div>
+    </div>
+
+    <!-- New field -->
+    <div class="form-group" ng-if="!vm.isReadOnly()">
+        <div style="margin:0 18px 0 0">
+            <select-metadata-field field="vm.newMetadataField" allow-create="true">
+            </select-metadata-field>
+        </div>
+    </div>
+
+</div>

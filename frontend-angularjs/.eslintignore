@@ -1,0 +1,11 @@
+app/.temp/*
+app/img/*
+app/locales/*
+app/js/app.routes.js
+**/fullCalendarCustomButtons.js
+**/hashcode.js
+**/selenium.js
+**/playground/*.js
+**/anx-angular-cached-resource.js
+tests/*
+gulpfile.js

@@ -1,0 +1,63 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>New DMP</h3>
+</div>
+<form class="form-horizontal" name="createDmp" ng-submit="vm.create()">
+    <div class="modal-body">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <!-- Dmp Name Field-->
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="task_project" translate
+                    title="{{ 'mandatory field' | translate }}">
+                    Name *
+                </label>
+                <div class="col-sm-9">
+                    <ng-include src="'js/screens/dmp/dmpForm.name.html'"></ng-include>
+                </div>
+            </div>
+
+            <!-- Dmp Template Field -->
+            <div class="form-group">
+                <label class="col-sm-4 col-md-3 control-label" for="input_dmp_name" translate
+                    title="{{ 'mandatory field' | translate }}">
+                    DMP Template *
+                </label>
+                <div class="col-sm-5 col-md-4">
+                    <div class="input-group" ng-class="{ 'has-error': vm.errors['dmp_form'].length > 0 }" style="width: 100%">
+                        <select id="input_dmp_template"
+                                ng-model="vm.dmp.dmp_form"
+                                class="form-control"
+                                style="width: 100%"
+                                ng-options="dmp_form.pk as dmp_form.title for dmp_form in vm.dmpForms" >
+                            <option value="" translate>Please select</option>
+                        </select>
+                        <p ng-show="vm.errors['dmp_form'].length > 0"  class="help-block">
+                            <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+                            {{ vm.errors['dmp_form'].join(', ') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- project -->
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="task_project" translate>
+                    Project
+                </label>
+                <div class="col-sm-9">
+                    <ng-include src="'js/screens/dmp/dmpForm.projects.html'"></ng-include>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <!-- Buttons for Create / Cancel -->
+        <div class="text-right">
+            <button id="button_dmp_create_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()" translate>
+                Cancel
+            </button>
+            <button id="button_dmp_create_save" class="btn btn-warning" translate>
+                Create
+            </button>
+        </div>
+    </div>
+</form>

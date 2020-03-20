@@ -1,0 +1,10 @@
+<validated-form-element
+    id="labbook_childelement_title"
+    auto-focus="vm.mode == 'create'"
+    input-element="text"
+    field-name="title"
+    placeholder="{{ 'Title' | translate }}"
+    ng-model="vm.elementTitle"
+    ng-readonly="vm.isReadonly()"
+    has-form-errors="vm.errors[vm.elementTitleAttributeName]">
+</validated-form-element>

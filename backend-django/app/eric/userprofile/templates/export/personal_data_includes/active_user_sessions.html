@@ -1,0 +1,82 @@
+{% block content %}
+    <p>
+    <h2 class="active_user_sessions_title">
+        Active user sessions:
+    </h2>
+    </p>
+    <p>
+    <div class="active_user_sessions">
+        <h4 class="modified_relations_title">
+            Multitoken auth :
+        </h4>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Last known ip</th>
+                <th>Created</th>
+                <th>User agent</th>
+
+            </tr>
+
+            {% for auth_token in user.auth_tokens.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ auth_token.last_known_ip }}</td>
+                    <td>{{ auth_token.created }}</td>
+                    <td>{{ auth_token.user_agent }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Auth token key</th>
+            </tr>
+
+            {% for auth_token in user.auth_tokens.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ auth_token.key }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <h4 class="modified_relations_title">
+            Reset password token :
+        </h4>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Last known ip</th>
+                <th>Created</th>
+                <th>User agent</th>
+
+            </tr>
+
+            {% for reset_token in reset_password_token.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ reset_token.ip_address }}</td>
+                    <td>{{ reset_token.created_at }}</td>
+                    <td>{{ reset_token.user_agent }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Token key</th>
+            </tr>
+
+            {% for reset_token in reset_password_token.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ reset_token.key }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% load i18n user_widgets date_filters %}
+
+<p>
+    {% blocktrans %}
+        You have been removed from the following task:
+    {% endblocktrans %}
+</p>
+<br />
+
+<p>{% trans "Title" %}: {{ instance.title }}</p>
+
+<p>{% trans "Start Date" %}: {{ instance.start_date | date_short }}</p>
+
+<p>{% trans "Due Date" %}: {{ instance.due_date | date_short }}</p>
+
+<p>{% trans "Task State" %}: {{ instance.get_state_display }}</p>
+
+<p>{% trans "Priority" %}: {{ instance.get_priority_display }}</p>
+
+<p>{% trans "Assignees" %}:
+<ul>
+    {% for user in instance.assigned_users.all %}
+        <li>
+            {% display_user_widget user %}
+        </li>
+    {% endfor %}
+</ul>
+</p>
+
+<p>{% trans "Sub Tasks" %}: </p>
+<table class="sub_tasks">
+    {% for subTask in instance.checklist_items.all %}
+        <tr>
+            <td>{% if subTask.checked %} &#10003; {% endif %}</td>
+            <td>{{ subTask.title }}</td>
+        </tr>
+    {% endfor %}
+</table>
+<br>
+
+<p>{% trans "Projects" %}:
+<ul>
+    {% for project in instance.projects.all %}
+        <li>{{ project.name }}</li>
+    {% endfor %}
+</ul>
+</p>
+
+<p>{% trans "Text" %}:
+<div>
+    {{ instance.description | safe }}
+</div>
+</p>

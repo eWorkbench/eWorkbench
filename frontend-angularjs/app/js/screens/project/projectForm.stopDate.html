@@ -1,0 +1,10 @@
+<validated-form-element
+        id="project_stop_date"
+        input-element="date"
+        field-name="project_stop_date"
+        placeholder="{{ 'Stop date of the project' | translate }}"
+        ng-model="vm.project.stop_date"
+        ng-readonly="!vm.canEditProject || vm.isReadOnly()"
+        date-picker-options="vm.datePickerOptionsStopDate"
+        errors="vm.errors['stop_date']">
+</validated-form-element>

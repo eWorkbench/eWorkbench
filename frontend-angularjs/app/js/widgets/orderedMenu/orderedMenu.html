@@ -1,0 +1,99 @@
+<!-- Popover template with the overflow menu -->
+<script type="text/ng-template" id="orderedMenu.popover.html">
+    <div class="ordered-menu-popover" ng-mouseover="vm.popoverOpened=true" dnd-list="vm.menuEntries"
+         dnd-dragover="vm.checkIfDragIsAllowed(index, 'overflow')"
+         dnd-allowed-types="['menuEntry']"
+         dnd-drop="vm.dropCallback(vm.selectedMenuEntry, index, 'overflow')">
+        <div class="menu-item"
+             ng-repeat="menuEntry in vm.menuEntries | orderBy: 'ordering' | limitTo: 100:vm.maxItemsBeforeOverflow"
+             ng-class="{'dndSelected': vm.selectedMenuEntry === menuEntry, 'editmode': vm.isEditing}"
+             dnd-draggable="menuEntry"
+             dnd-type="'menuEntry'"
+             dnd-disable-if="!vm.isEditing"
+             dnd-effect-allowed="move"
+             dnd-dragstart="vm.selectEntry(menuEntry)">
+            <a ng-if="!vm.isEditing" ng-href="{{:: menuEntry.url }}"
+                ng-click="vm.clickOnNavbar(menuEntry, $event)">
+                <i class="{{:: menuEntry.icon }}"></i>
+                {{:: menuEntry.title }}
+            </a>
+
+            <a ng-if="vm.isEditing">
+                <i class="{{:: menuEntry.icon }}"></i>
+                {{:: menuEntry.title }}
+            </a>
+        </div>
+
+        <div class="ordered-menu-settings" dnd-nodrag>
+            <!-- Show an Edit Button -->
+            <a role="button" tabindex="0" ng-show="!vm.isEditing" ng-click="vm.toggleEdit()"
+               title="{{ 'Enable Menu Edit' | translate }}">
+                <span class="{{:: vm.editIcon}}"></span>
+                <span translate>Edit Menu</span>
+            </a>
+            <!-- Show a save and a cancel button -->
+            <a class="cancel-button" style="padding-right: 10px;" role="button" tabindex="0" ng-show="vm.isEditing"
+               ng-click="vm.cancelChanges()">
+                <span class="{{:: vm.cancelIcon}}"></span>
+                <span translate>Cancel</span>
+            </a>
+            <a role="button" tabindex="0" ng-show="vm.isEditing"
+               ng-click="vm.saveChanges()">
+                <span class="{{:: vm.saveIcon}}"></span>
+                <span translate>Save</span>
+            </a>
+        </div>
+    </div>
+</script>
+
+<!-- Normal Navbar, which allows drag&drop -->
+<ul class="nav navbar-nav navbar-left menu-entries-dnd"
+    id="navbar-with-menu-entries-dnd"
+    ng-class="{'editmode': vm.isEditing, 'grayed-out': vm.grayOut}"
+    dnd-list="vm.menuEntries" dnd-horizontal-list="true"
+    dnd-allowed-types="['menuEntry']"
+    dnd-drop="vm.dropCallback(vm.selectedMenuEntry, index, 'normal')"
+>
+    <li class="menu-entry" ng-repeat="menuEntry in vm.menuEntries | orderBy: 'ordering' | limitTo: vm.maxItemsBeforeOverflow"
+        dnd-draggable="menuEntry"
+        dnd-type="'menuEntry'"
+        dnd-disable-if="!vm.isEditing"
+        dnd-effect-allowed="move"
+        dnd-dragstart="vm.selectEntry(menuEntry)"
+    >
+
+        <a ng-if="!vm.isEditing" ng-href="{{:: menuEntry.url }}"
+           ng-click="vm.clickOnNavbar(menuEntry, $event)"
+           data-toggle="collapse" data-target=".navbar-collapse.in">
+            <i class="{{:: menuEntry.icon }}"></i>
+            {{:: menuEntry.title }}
+        </a>
+
+        <a ng-if="vm.isEditing">
+            <i class="{{:: menuEntry.icon }}"></i>
+            {{:: menuEntry.title }}
+        </a>
+
+    </li>
+</ul>
+<!-- Popover with overflow items (needs to be in a separate UL so it is not part of the dnd-list -->
+<ul class="nav navbar-nav navbar-left overflow-ul" ng-class="{'grayed-out': vm.grayOut}">
+    <li ng-show="vm.menuEntries.length > vm.maxItemsBeforeOverflow"
+        ng-mouseover="vm.popoverOpened=true" ng-mouseleave="vm.popoverOpened=false">
+        <a style="font-weight: bold; min-width: 50px; text-align: center;"
+           role="button" uib-popover-template="'orderedMenu.popover.html'"
+           popover-is-open="vm.popoverOpened || vm.isEditing"
+           popover-class="overflowmenu-popover"
+           popover-trigger="'none'"
+           popover-placement="bottom">
+            <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+        </a>
+    </li>
+</ul>
+<!-- show a gray-out division while editing is active -->
+<div class="gray-out-while-editing" ng-if="vm.isEditing">
+
+</div>
+<div class="disable-while-editing" ng-if="vm.isEditing">
+
+</div>

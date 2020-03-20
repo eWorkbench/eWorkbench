@@ -1,0 +1,89 @@
+{% extends 'export/base_export.html' %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+    <style>
+        th, td {
+            padding: 3px 5px;
+            min-width: 50px;
+        }
+
+        td {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+    </style>
+
+    {% include "export/personal_data_includes/user_profile.html" %}
+    {% include "export/personal_data_includes/active_user_sessions.html" %}
+
+    <h2 class="elements_user_created_title">
+        All elements that the user has created:
+    </h2>
+
+    {% include "export/personal_data_includes/contact_created.html" %}
+    {% include "export/personal_data_includes/content_created.html" %}
+    {% include "export/personal_data_includes/directory_created.html" %}
+    {% include "export/personal_data_includes/dmp_created.html" %}
+    {% include "export/personal_data_includes/drive_created.html" %}
+    {% include "export/personal_data_includes/element_label_created.html" %}
+    {% include "export/personal_data_includes/file_created.html" %}
+    {% include "export/personal_data_includes/kanban_boards_created.html" %}
+    {% include "export/personal_data_includes/labbook_created.html" %}
+    {% include "export/personal_data_includes/meeting_created.html" %}
+    {% include "export/personal_data_includes/metadata_created.html" %}
+    {% include "export/personal_data_includes/model_privilege_created.html" %}
+    {% include "export/personal_data_includes/note_created.html" %}
+    {% include "export/personal_data_includes/notification_created.html" %}
+    {% include "export/personal_data_includes/picture_created.html" %}
+    {% include "export/personal_data_includes/project_created.html" %}
+    {% include "export/personal_data_includes/relation_created.html" %}
+    {% include "export/personal_data_includes/resource_created.html" %}
+    {% include "export/personal_data_includes/role_created.html" %}
+    {% include "export/personal_data_includes/task_created.html" %}
+    {% include "export/personal_data_includes/text_template_created.html" %}
+    {% include "export/personal_data_includes/uploaded_file_entry_created.html" %}
+    {% include "export/personal_data_includes/user_attends_meeting_created.html" %}
+    {% include "export/personal_data_includes/user_manual_created.html" %}
+    {% include "export/personal_data_includes/user_storage_limit_created.html" %}
+    {% include "export/personal_data_includes/version_created.html" %}
+
+    <h2 class="elements_user_modified_title">
+        All elements that the user has modified:
+    </h2>
+
+    {% include "export/personal_data_includes/contact_modified.html" %}
+    {% include "export/personal_data_includes/content_modified.html" %}
+    {% include "export/personal_data_includes/directory_modified.html" %}
+    {% include "export/personal_data_includes/dmp_modified.html" %}
+    {% include "export/personal_data_includes/drive_modified.html" %}
+    {% include "export/personal_data_includes/element_label_modified.html" %}
+    {% include "export/personal_data_includes/file_modified.html" %}
+    {% include "export/personal_data_includes/kanban_boards_modified.html" %}
+    {% include "export/personal_data_includes/labbook_modified.html" %}
+    {% include "export/personal_data_includes/meeting_modified.html" %}
+    {% include "export/personal_data_includes/metadata_modified.html" %}
+    {% include "export/personal_data_includes/model_privilege_modified.html" %}
+    {% include "export/personal_data_includes/note_modified.html" %}
+    {% include "export/personal_data_includes/notification_modified.html" %}
+    {% include "export/personal_data_includes/picture_modified.html" %}
+    {% include "export/personal_data_includes/project_modified.html" %}
+    {% include "export/personal_data_includes/relation_modified.html" %}
+    {% include "export/personal_data_includes/resource_modified.html" %}
+    {% include "export/personal_data_includes/role_modified.html" %}
+    {% include "export/personal_data_includes/task_modified.html" %}
+    {% include "export/personal_data_includes/text_template_modified.html" %}
+    {% include "export/personal_data_includes/uploaded_file_entry_modified.html" %}
+    {% include "export/personal_data_includes/user_attends_meeting_modified.html" %}
+    {% include "export/personal_data_includes/user_manual_modified.html" %}
+    {% include "export/personal_data_includes/user_storage_limit_modified.html" %}
+    {% include "export/personal_data_includes/version_modified.html" %}
+
+    <h2>Elements the user is linked with</h2>
+
+    {% include "export/personal_data_includes/resource_bookings.html" %}
+    {% include "export/personal_data_includes/change_sets.html" %}
+
+{% endblock %}

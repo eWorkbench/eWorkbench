@@ -1,0 +1,80 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../theme/variables";
+
+.move_to_section_row {
+  padding: 5px 0;
+
+  &:hover {
+    background-color: lighten(#9dc3d6, 10%);
+  }
+}
+
+.dropdown-menu {
+  z-index: 9000 !important;
+}
+
+#labbok-section-filter-grid {
+
+  // labbok left side menu
+  .labbook-left-side-menu {
+    margin-top: 30px;
+    height: 220px;
+    background-color: @navbar-default-bg;
+    text-align: center;
+    color: white;
+    width: 40px;
+
+    // define link colors for labbook left side menu
+    a {
+      color: @navbar-default-link-color;
+      &:hover {
+        color: @navbar-default-link-hover-color;
+      }
+    }
+  }
+
+  .labbook-cell {
+    background-color: #FCFCFC;
+    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.5);
+    display: block;
+
+    -webkit-transition: box-shadow 0.3s ease, border 0.3s ease;
+    -moz-transition: box-shadow 0.3s ease, border 0.3s ease;
+    -ms-transition: box-shadow 0.3s ease, border 0.3s ease;
+    -o-transition: box-shadow 0.3s ease, border 0.3s ease;
+    transition: box-shadow 0.3s ease, border 0.3s ease;
+
+    &:hover {
+      box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.8);
+    }
+
+
+    .labbook-cell-move {
+      cursor: move;
+    }
+
+    .labbook-cell-menu-icon {
+    }
+  }
+
+  .labbook-board-paper {
+    margin: auto;
+    //overflow-x: hidden;
+    //overflow-y: hidden;
+    border: 1px solid @navbar-default-bg;
+    background-color: #DCDCDC;
+    width: 40cm;
+    padding: 1cm 1cm 2cm;
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.5);
+  }
+}
+
+
+.labbook-section-filter-grid {
+  margin-top: 6px;
+  position: relative;
+  z-index: 1002;
+}

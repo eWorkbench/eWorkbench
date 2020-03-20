@@ -1,0 +1,5 @@
+<div style="display: inline" ng-repeat="breadcrumb in vm.breadcrumbs">
+    <a ng-href="{{ breadcrumb.url }}" ng-show="breadcrumb.url" ng-bind="breadcrumb.title"></a>
+    <span ng-show="!breadcrumb.url" ng-bind="breadcrumb.title"></span>
+    <span ng-show="!$last">/</span>
+</div>

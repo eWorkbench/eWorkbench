@@ -1,0 +1,74 @@
+{% block content %}
+    <p>
+    <h4 class="created_note_title">
+        All notes that the user has created:
+    </h4>
+    </p>
+    <p>
+
+    <div class="created_note">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Note subject</th>
+                <th>Note content</th>
+                <th>Associated projects</th>
+            </tr>
+
+            {% for note in user.note_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ note.fts_language }}</td>
+                    <td>{{ note.subject }}</td>
+                    <td>{{ note.content }}</td>
+                    <td>{% for project in note.projects.all %}
+                        <li>{{ project }}</li>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for note in user.note_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ note.created_by }}</td>
+                    <td>{{ note.last_modified_by }}</td>
+                    <td>{{ note.created_at }}</td>
+                    <td>{{ note.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for note in user.note_created.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ note.cs_created_by }}</td>
+                    <td>{{ note.cs_last_modified_by }}</td>
+                    <td>{{ note.cs_created_at }}</td>
+                    <td>{{ note.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

@@ -1,0 +1,11 @@
+<validated-form-element
+    id="picture_height"
+    auto-focus="vm.mode == 'create'"
+    input-element="text"
+    field-name="height"
+    placeholder="{{ 'Height in Pixels' | translate }}"
+    ng-model="vm.picture.height"
+    ng-model-options="{'debounce': 500}"
+    ng-readonly="vm.isReadOnly()"
+    errors="vm.errors['height']">
+</validated-form-element>

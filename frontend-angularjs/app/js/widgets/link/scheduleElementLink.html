@@ -1,0 +1,12 @@
+<!-- Special handling for resource bookings (has modal but no detail page) -->
+<resource-booking-link
+    ng-if="vm.entity.type == 'resourcebooking'"
+    resourcebooking="vm.entity">
+</resource-booking-link>
+
+<!-- Generic widget for tasks and meetings -->
+<generic-link
+    ng-if="vm.entity.type != 'resourcebooking'"
+    type="vm.entity.type"
+    object="vm.entity">
+</generic-link>

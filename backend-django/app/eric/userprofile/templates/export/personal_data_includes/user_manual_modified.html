@@ -1,0 +1,168 @@
+{% block content %}
+    
+    <p>
+    <h4 class="modified_user_manual_category_title">
+        All user manual category entries that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_user_manual_category">
+       <table>
+            <tr>
+                <th>#</th>
+                <th>Title of the user manual category</th>
+                <th>Description of the category</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+
+            </tr>
+
+            {% for usermanualcategory in user.usermanualcategory_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ usermanualcategory.title }}</td>
+                    <td>{{ usermanualcategory.description }}</td>
+                    <td>{{ usermanualcategory.created_by }}</td>
+                    <td>{{ usermanualcategory.last_modified_by }}</td>
+                    <td>{{ usermanualcategory.created_at }}</td>
+                    <td>{{ usermanualcategory.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for usermanualcategory in user.usermanualcategory_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ usermanualcategory.cs_created_by }}</td>
+                    <td>{{ usermanualcategory.cs_last_modified_by }}</td>
+                    <td>{{ usermanualcategory.cs_created_at }}</td>
+                    <td>{{ usermanualcategory.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+   <p>
+    <h4 class="modified_user_manual_helptext_title">
+        All user manual helptext entries that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_user_manual_helptext">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Title of the help text</th>
+                <th>Actual help text </th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+
+            </tr>
+
+            {% for usermanualhelptext in user.usermanualhelptext_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ usermanualhelptext.title }}</td>
+                    <td>{{ usermanualhelptext.text }}</td>
+                    <td>{{ usermanualhelptext.created_by }}</td>
+                    <td>{{ usermanualhelptext.last_modified_by }}</td>
+                    <td>{{ usermanualhelptext.created_at }}</td>
+                    <td>{{ usermanualhelptext.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for usermanualhelptext in user.usermanualhelptext_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ usermanualhelptext.cs_created_by }}</td>
+                    <td>{{ usermanualhelptext.cs_last_modified_by }}</td>
+                    <td>{{ usermanualhelptext.cs_created_at }}</td>
+                    <td>{{ usermanualhelptext.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+
+   <h4 class="modified_user_manual_placeholder_title">
+        All user manual helptext entries that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_user_manual_placeholder">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Key of the placeholder</th>
+                <th>Content of the placeholder</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+
+            </tr>
+
+            {% for usermanualplaceholder in user.usermanualplaceholder_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ usermanualplaceholder.key }}</td>
+                    <td>{{ usermanualplaceholder.content }}</td>
+                    <td>{{ usermanualplaceholder.created_by }}</td>
+                    <td>{{ usermanualplaceholder.last_modified_by }}</td>
+                    <td>{{ usermanualplaceholder.created_at }}</td>
+                    <td>{{ usermanualplaceholder.last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for usermanualplaceholder in user.usermanualplaceholder_modified.all %}
+               <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ usermanualplaceholder.cs_created_by }}</td>
+                    <td>{{ usermanualplaceholder.cs_last_modified_by }}</td>
+                    <td>{{ usermanualplaceholder.cs_created_at }}</td>
+                    <td>{{ usermanualplaceholder.cs_last_modified_at }}</td>
+               </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+    
+
+{% endblock %}

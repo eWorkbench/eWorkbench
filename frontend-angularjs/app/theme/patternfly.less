@@ -1,0 +1,43 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+/* import base patternfly file */
+@import "../../node_modules/patternfly/dist/less/patternfly.less";
+
+@import "variables";
+
+
+/* change patternfly font paths */
+@fa-font-path:      "../../node_modules/font-awesome/fonts";
+@font-path:         "../../node_modules/patternfly/dist/fonts";
+@icon-font-path:    "../../node_modules/bootstrap/fonts/";
+@img-path:          "../../node_modules/patternfly/dist/img";
+
+
+// fix: positioning of icons in input fields didn't work very well without this fix
+.form-control-feedback-positioning
+{
+  top: 6px !important;
+}
+
+
+.primary-container {
+  padding-top: 5px;
+  background-color: #D1D1D1;
+  margin: 10px;
+}
+
+
+.panel-body-scrollable
+{
+  overflow-y: auto;
+}
+
+// remove box shadows
+.btn {
+  .box-shadow(none);
+  &:active {
+    .box-shadow(none);
+  }
+}

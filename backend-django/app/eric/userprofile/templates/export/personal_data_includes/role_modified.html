@@ -1,0 +1,86 @@
+{% block content %}
+    <p>
+    <h4 class="modified_role_title">
+        All roles that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_role">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name of the role</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for role in user.role_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ role.name }}</td>
+                    <td>{{ role.created_by }}</td>
+                    <td>{{ role.last_modified_by }}</td>
+                    <td>{{ role.created_at }}</td>
+                    <td>{{ role.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for role in user.role_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ role.cs_created_by }}</td>
+                    <td>{{ role.cs_last_modified_by }}</td>
+                    <td>{{ role.cs_created_at }}</td>
+                    <td>{{ role.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+    <p>
+    <h4 class="modified_role_permission_assignment_title">
+        All role permission assignments that the user has modified:
+    </h4>
+    </p>
+
+    <p>
+    <div class="modified_role_permission_assignment">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Role</th>
+                <th>Permission</th>
+                 <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for rolepermissionassignment in user.rolepermissionassignment_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ rolepermissionassignment.role }}</td>
+                    <td>{{ rolepermissionassignment.permission }}</td>
+                    <td>{{ rolepermissionassignment.created_by }}</td>
+                    <td>{{ rolepermissionassignment.last_modified_by }}</td>
+                    <td>{{ rolepermissionassignment.created_at }}</td>
+                    <td>{{ rolepermissionassignment.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

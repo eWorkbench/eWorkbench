@@ -1,0 +1,15 @@
+{% load i18n captureas %}
+
+{% blocktrans %}This e-mail has been automatically generated, please do not reply!{% endblocktrans %}
+
+{% blocktrans %}Dear {{ username }}!{% endblocktrans %}
+
+{% blocktrans %}We are sending you this automated e-mail as you have been invited to {{ workbench_title }} - {{ workbench_url }} - by {{ current_user }} ({{ current_user.email }}).{% endblocktrans %}
+
+{{ message }}
+
+{% blocktrans %}You can login with the following credentials:{% endblocktrans %}
+{% trans "Username" %}: {{ username }}
+{% trans "Actication URL" %}: {{ reset_password_url }}
+
+{% blocktrans %}Please visit the activation url above and set a password!{% endblocktrans %}

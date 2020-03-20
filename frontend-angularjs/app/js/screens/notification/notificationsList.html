@@ -1,0 +1,45 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span translate>Notifications</span>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div ng-repeat="notification in vm.notifications | orderBy: '-created_at' track by notification.pk"
+             class="notification-row" ng-class="{'unread': !notification.read}">
+            <div class="notification-header">
+                <h3>
+                    <span ng-click="collapsed=!collapsed" role="button">
+                        <span class="{{ notification.icon }}"></span>
+                    </span>
+                    <a ui-sref="notifications/redirect({notification: notification})">
+                        {{ notification.title }}
+                    </a>
+                    <a ng-show="!notification.read" ng-click="vm.readNotification(notification)" role="button"
+                       title="{{ 'Mark as read' }}">
+                        <span class="fa fa-eye"></span>
+                    </a>
+                </h3>
+                <span>
+                    {{ notification.created_at | largeDate }} by <user-display-widget user="notification.created_by"></user-display-widget>
+                </span>
+            </div>
+
+            <div uib-collapse="!collapsed">
+                <blockquote>
+                    <div ng-bind-html="notification.message | asHtml"></div>
+                </blockquote>
+            </div>
+        </div>
+
+        <div ng-show="vm.notifications.length == 0">
+            <span translate>No notifications yet</span>
+        </div>
+
+        <ul uib-pagination total-items="vm.numberOfNotifications" items-per-page="vm.currentLimit"
+            force-ellipses="true"
+            boundary-link-numbers="true"
+            max-size="15"
+            ng-model="vm.currentPage" ng-change="vm.pageChanged()"></ul>
+    </div>
+</div>

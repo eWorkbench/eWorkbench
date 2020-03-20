@@ -1,0 +1,9 @@
+<validated-form-element id="file_title"
+                        input-element="text"
+                        field-name="title"
+                        placeholder="{{ 'Title of the file' | translate }}"
+                        auto-focus="vm.mode == 'create'"
+                        ng-model="vm.file.title"
+                        ng-readonly="vm.isReadOnly()"
+                        errors="vm.errors['title']">
+</validated-form-element>

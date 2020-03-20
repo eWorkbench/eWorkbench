@@ -1,0 +1,113 @@
+<div class="nav-pf-vertical">
+    <!--<project-link class="project-name" project-pk="vm.project.pk"></project-link>-->
+    <!--<a class="close-sidebar" tabindex="0" role="button" ng-click="vm.closeSidebar()"><i class="{{vm.mainActionIcons.close}}"></i></a>-->
+    <ul class="list-group">
+        <li ng-class="['list-group-item',{'active': vm.currentActivePage == 'history'}]"
+            ui-sref="history-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Last Activities</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'task'}"
+            ui-sref="task-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Tasks</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'kanbanboard'}"
+            ui-sref="kanbanboard-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Task Boards</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'drive'}"
+            ui-sref="drive-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Storages</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'file'}"
+            ui-sref="file-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Files</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'note'}"
+            ui-sref="note-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Comments</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'contact'}"
+            ui-sref="contact-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Contacts</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'schedule'}"
+            ui-sref="schedule({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Calendar</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'meeting'}"
+            ui-sref="meeting-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Meetings</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'resource'}"
+            ui-sref="resource-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>Resources</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'labbook'}"
+            ui-sref="labbook-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>LabBooks</translate>
+                </span>
+            </a>
+        </li>
+        <li class="list-group-item"
+            ng-class="{'active': vm.currentActivePage == 'dmp'}"
+            ui-sref="dmp-list({filterProjects:vm.project.pk})">
+            <a>
+                <span class="list-group-item-value">
+                    <translate>DMPs</translate>
+                </span>
+            </a>
+        </li>
+    </ul>
+</div>

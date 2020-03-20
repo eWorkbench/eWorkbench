@@ -1,0 +1,95 @@
+{% block content %}
+    <p>
+    <h4 class="modified_picture_title">
+        All pictures that the user has modified:
+    </h4>
+    </p>
+    <p>
+
+    <div class="modified_picture">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>FTS Language</th>
+                <th>Title of the picture</th>
+                <th>Width of the picture</th>
+                <th>Height of the picture</th>
+                <th>Size of the background image</th>
+            </tr>
+
+            {% for picture in user.picture_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ picture.fts_language }}</td>
+                    <td>{{ picture.title }}</td>
+                    <td>{{ picture.width }}</td>
+                    <td>{{ picture.height }}</td>
+                    <td>{{ picture.background_image_size }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Size of the rendered image</th>
+                <th>Reference to the archived data</th>
+                <th>Associated projects</th>
+            </tr>
+
+            {% for picture in user.picture_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ picture.fts_language }}</td>
+                    <td>{{ picture.title }}</td>
+                    <td>{% for project in picture.picture_modified.all %}
+                        <li>{{ project }}</li>
+                        {% endfor %}
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Created by</th>
+                <th>Last modified by</th>
+                <th>Created at:</th>
+                <th>Last modified at</th>
+            </tr>
+
+            {% for picture in user.picture_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ picture.created_by }}</td>
+                    <td>{{ picture.last_modified_by }}</td>
+                    <td>{{ picture.created_at }}</td>
+                    <td>{{ picture.last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>CS Created by</th>
+                <th>CS Last modified by</th>
+                <th>CS Created at:</th>
+                <th>CS Last modified at</th>
+            </tr>
+
+            {% for picture in user.picture_modified.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ picture.cs_created_by }}</td>
+                    <td>{{ picture.cs_last_modified_by }}</td>
+                    <td>{{ picture.cs_created_at }}</td>
+                    <td>{{ picture.cs_last_modified_at }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </p>
+{% endblock %}

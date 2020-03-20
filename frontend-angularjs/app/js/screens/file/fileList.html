@@ -1,0 +1,37 @@
+<div class="card-panel element-panel">
+    <screen-header-function-bar
+        screen-new-entity="{{ 'New File' | translate }}"
+        screen-new-entity-type="file"
+        selected-projects="vm.selectedProjects"
+        selected-users="vm.selectedUsers"
+        users="vm.users"
+        current-view="vm.currentView" search-field="vm.searchField">
+        <screen-title>
+            <span translate>Files</span>
+        </screen-title>
+    </screen-header-function-bar>
+</div>
+
+<generic-list-loading-widget
+    loading-flag="vm.filesLoaded"
+    loading-text="Files">
+</generic-list-loading-widget>
+
+<div class="card-panel" ng-if="vm.currentView == 'list' && vm.filesLoaded">
+    <file-table-view files="vm.files" order-by="vm.orderBy" order-dir="vm.orderDir">
+    </file-table-view>
+</div>
+
+<file-card-view ng-if="vm.currentView == 'card' && vm.filesLoaded" files="vm.files"></file-card-view>
+
+<div class="text-center" ng-if="vm.files.length > 0 && vm.filesLoaded">
+    <ul uib-pagination
+        total-items="vm.numberOfFiles"
+        items-per-page="vm.currentLimit"
+        force-ellipses="true"
+        boundary-link-numbers="true"
+        max-size="15"
+        ng-model="vm.currentPage"
+        ng-change="vm.pageChanged()">
+    </ul>
+</div>

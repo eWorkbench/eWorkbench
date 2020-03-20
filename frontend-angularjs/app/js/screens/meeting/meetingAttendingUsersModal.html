@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>Attending Users</h3>
+</div>
+<div class="modal-body">
+    <ul>
+        <li ng-repeat="user in meeting.attending_users">
+            <user-display-widget user="user"></user-display-widget>
+        </li>
+    </ul>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="dismiss()" translate>OK</button>
+</div>
