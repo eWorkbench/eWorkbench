@@ -2,9 +2,17 @@
 
 {% blocktrans %}Dear {{ user }}!{% endblocktrans %}
 
+{% if notification %}
 {% blocktrans %}We have a notification for you within {{ workbench_title }} - {{ workbench_url }}.{% endblocktrans %}
 
 {{ notification.title }}
-
-{% blocktrans %}Please visit the following URL for more details{% endblocktrans %}
-{{ notification | to_notification_url }}
+{% else %}
+{{ title }}
+{% endif %}
+{% if message != "" %}
+    {{ message | to_text }}
+{% endif %}
+{% if notification %}
+    {% blocktrans %}Please visit the following URL for more details{% endblocktrans %}
+    {{ notification | to_notification_url }}
+{% endif %}

@@ -1,0 +1,39 @@
+<div class="col-sm-12">
+    <label title="{{ 'Remind Attending Users and Contacts' | translate }}">
+        <input type="checkbox"
+               ng-disabled="vm.isReadOnly()"
+               ng-model="vm.meeting.scheduled_notification_writable.active">
+        <span translate>Remind attending users</span>
+    </label>
+</div>
+
+<div ng-if="vm.meeting.scheduled_notification_writable.active" style="width: 100%">
+    <div class="col-sm-2">
+        <validated-form-element-wrapper errors="vm.errors['scheduled_notification_writable']['timedelta_value']">
+            <number-form-element
+                ng-model="vm.meeting.scheduled_notification_writable.timedelta_value"
+                ng-readonly="vm.isReadOnly()"
+                max-decimal-places="0"
+                display-thousands-separator="vm.field.type_settings.thousands_separator"
+                placeholder="1"
+            >
+        </validated-form-element-wrapper>
+    </div>
+    <div class="col-sm-3">
+        <label class="sr-only" for="timedelta_unit">
+            <span translate>Unit of Time</span>
+        </label>
+        <selectize
+                ng-disabled="vm.isReadOnly()"
+                options="vm.meeting.scheduled_notification_writable.options"
+                config="{maxItems: 1}"
+                ng-model="vm.meeting.scheduled_notification_writable.timedelta_unit"
+        >
+        </selectize>
+    </div>
+    <div class="col-sm-7">
+        <!-- .selectize-input adds a padding for vertical alignment,
+        .disabled-screen disables pointer-events (no hover effect) -->
+        <span class="align-selectize-text selectize-input" translate>prior</span>
+    </div>
+</div>

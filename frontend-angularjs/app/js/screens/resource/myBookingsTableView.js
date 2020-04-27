@@ -225,9 +225,10 @@
 
             /**
              * default sorting
+             * must be the same as in app/js/services/dynamicTableSettings/defaultTableStates.js
              */
             vm.defaultOrderBy = "date_time_start";
-            vm.defaultOrderDir = "asc";
+            vm.defaultOrderDir = "desc";
             vm.orderBy = vm.defaultOrderBy;
             vm.orderDir = vm.defaultOrderDir;
 

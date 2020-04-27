@@ -277,7 +277,7 @@
                     {
                         "name": "Linked at",
                         "field": "created_at",
-                        "sort": {},
+                        "sort": {"direction":"desc"},
                         "width": "15%",
                         "filters": [{}],
                         "visible": true
@@ -328,8 +328,7 @@
                     },
                     {
                         "name": "Date",
-                        // can not use UI-Grid sort here, because it applies a frontend-sort to the current page only
-                        "sort": {},
+                        "sort": {"direction":"asc"},
                         "width": "*",
                         "filters": [{}],
                         "visible": true
@@ -496,7 +495,7 @@
                     {
                         "name": "Start Time",
                         "field": "date_time_start",
-                        "sort": {"direction": "asc"},
+                        "sort": {"direction": "desc"},
                         "width": "*",
                         "filters": [{}],
                         "visible": true
@@ -865,7 +864,7 @@
                     }, {
                         "name": "Booked From",
                         "field": "date_time_start",
-                        "sort": {"direction": "desc"},
+                        "sort": {"direction": "desc"}, // default
                         "width": "*",
                         "filters": [{}],
                         "visible": true

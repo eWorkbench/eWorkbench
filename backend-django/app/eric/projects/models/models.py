@@ -22,7 +22,7 @@ from django.db.models import Case, Value, When, Q
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
-from django.utils.timezone import localtime
+from django.utils.timezone import localtime, localdate
 from django.utils.translation import ugettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 from django_cleanhtmlfield.fields import HTMLField
@@ -390,7 +390,7 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         project_dict = self.__dict__
         # delete id for creating a new object
         del project_dict['id']
-        # duplicated project should not be soft deleted either the original project is
+        # duplicated project should not be soft deleted even if the original project is
         del project_dict['deleted']
         # variables are generated automatically
         del project_dict['version_number']
@@ -641,32 +641,39 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
     def duplicate_sub_projects(parent_pk_dict):
         """
         Duplicates the whole project tree based on a list of parent primary keys.
-        When the method is called from project viewset the list has only one entry which is the top of the project tree.
-        Then when it is called from inside this method the list has so many entries as sub projects exists.
+        When the method is called from project viewset, the list has only one entry which is the top of the project
+        tree. When it is called from inside this method, the list has as many entries as sub projects exists.
 
-        It finds for each parent project primary key the underlying sub projects
-        Foreach sub project sets the parent project id to the new pk of the parent project (because it was also
-        duplicated) and duplicates the sub projects too.
-        :param parent_pk_dict: dictionary of the old primary keys of the parent project and the new ones
+        For each parent project the primary keys of the underlying sub projects are fetched
+        For each sub project the parent project id is set to the pk of the duplicated parent project and the sub
+        projects are duplicated as well.
+        :param parent_pk_dict: dictionary of the original primary keys of the parent project and the new ones
         """
         if len(parent_pk_dict.keys()) > 0:
-            # to store old and new pks of the sub projects to find other sub projects
+            # store original and new pks of the sub projects in order to find other sub projects
             dict_pk = {}
 
-            old_parent_pk_list = parent_pk_dict.keys()
-            for old_parent_pk in old_parent_pk_list:
-                # get all sub_projects objects based on the parent_project. The old parent pk is used because the
-                # parent_project_id references to the old pk of the parent project
-                sub_projects = Project.objects.viewable().filter(parent_project__id=old_parent_pk)
-                # duplicate the sub project and set as parent pk the new pk of the parent project
+            original_parent_pk_list = parent_pk_dict.keys()
+            for original_parent_pk in original_parent_pk_list:
+                # get all sub_projects objects based on the parent_project. The original parent pk is used because the
+                # parent_project_id references to the original pk of the parent project
+                sub_projects = Project.objects.viewable().filter(parent_project__id=original_parent_pk)
+                # duplicate the sub project and set parent pk to the pk of the new parent project
                 for sub_project in sub_projects:
-                    sub_project_old_pk = sub_project.pk
+                    sub_project_original_pk = sub_project.pk
 
-                    # duplicates the sub project
-                    # change the parent project pk to the new pk of the parent (because it was duplicated too)
-                    duplicated_sub_project = sub_project.duplicate(parent_project_id=parent_pk_dict[old_parent_pk])
+                    # duplicate the sub project
+                    # change the parent project pk to the pk of the new parent (Because it was duplicated as well)
+                    duplicated_sub_project = sub_project.duplicate(parent_project_id=parent_pk_dict[original_parent_pk])
 
-                    dict_pk[sub_project_old_pk] = duplicated_sub_project.pk
+                    dict_pk[sub_project_original_pk] = duplicated_sub_project.pk
+
+                    # duplicate all tasks of the original sub_project and assign them to the new duplicated sub_project
+                    from eric.shared_elements.models import Task
+                    tasks = Task.objects.viewable().filter(projects__in=[sub_project_original_pk])
+                    if tasks:
+                        for task in tasks:
+                            duplicated_task = task.duplicate(projects=[duplicated_sub_project])
 
             # duplicate sub projects of the sub projects
             Project.duplicate_sub_projects(dict_pk)
@@ -1349,6 +1356,14 @@ class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
         blank=True
     )
 
+    @property
+    def local_date_time_start(self):
+        return localtime(self.date_time_start)
+
+    @property
+    def local_date_time_end(self):
+        return localtime(self.date_time_end)
+
     def __str__(self):
         return _("Resource booking for {} from {} to {}").format(
             self.resource,
@@ -1379,7 +1394,7 @@ class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
         :return:
         """
         start_date = localtime(self.date_time_start)
-        now = timezone.now()
+        now = localtime(timezone.now())
 
         if start_date < now:
             raise ValidationError({
@@ -1483,10 +1498,10 @@ class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
         raise ValidationError on the times
         :return:
         """
-        start_time = date_time_start.time()
-        end_time = date_time_end.time()
+        start_time = localtime(date_time_start).time()
+        end_time = localtime(date_time_end).time()
 
-        if date_time_start.isoweekday() not in bookable_days:
+        if localtime(date_time_start).isoweekday() not in bookable_days:
             raise ValidationError({
                 'date_time_start': ValidationError(
                     _('This resource cannot be booked on this day'),
@@ -1526,10 +1541,10 @@ class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
         :return:
         """
         in_between_days = []
-        start_date = date_time_start.date()
-        end_date = date_time_end.date()
-        start_time = date_time_start.time()
-        end_time = date_time_end.time()
+        start_date = localdate(date_time_start)
+        end_date = localdate(date_time_end)
+        start_time = localtime(date_time_start).time()
+        end_time = localtime(date_time_end).time()
 
         # only check if the start date is different to the end date
         if start_date == end_date:
@@ -1615,7 +1630,7 @@ class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
             return
 
         start_date = localtime(self.date_time_start)
-        now = timezone.now()
+        now = localtime(timezone.now())
         lead_time = start_date - now
 
         if time_before and lead_time < time_before:
@@ -1641,7 +1656,7 @@ class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
             return
 
         start_date = localtime(self.date_time_start)
-        now = timezone.now()
+        now = localtime(timezone.now())
         lead_time = start_date - now
 
         if time_before and lead_time > time_before:
@@ -1704,6 +1719,8 @@ class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
     @staticmethod
     def get_resource_booking_count_per_user(pk, resource, user, date_time_start, unit):
         resource_booking_objects = 0
+
+        date_time_start = localtime(date_time_start)
 
         if unit == 'DAY':
             # calculate the start datetime of the day in relation to date_time_start
@@ -1771,7 +1788,7 @@ class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
             unit = bookings_per_user.unit.upper()
 
             db_count = self.get_resource_booking_count_per_user(
-                self.pk, self.resource, user, self.date_time_start, unit
+                self.pk, self.resource, user, self.local_date_time_start, unit
             )
             if db_count >= bookings_per_user.count:
                 error = _('You have reached the maximum amount of bookings for this resource for this {}'

@@ -28,6 +28,7 @@
         $stateParams,
         $q,
         $timeout,
+        $filter,
         AuthRestService,
         IconImagesService,
         NoteRestService,
@@ -35,8 +36,7 @@
         toaster,
         PaginationCountHeader,
         WorkbenchElementsTranslationsService,
-        PaginatedHistoryRestServiceFactory,
-        ProjectSidebarService
+        PaginatedHistoryRestServiceFactory
     ) {
         'ngInject';
 
@@ -85,6 +85,7 @@
 
             /**
              * default sorting
+             * must be the same as in app/js/services/dynamicTableSettings/defaultTableStates.js
              */
             vm.orderBy = "date";
             vm.orderDir = 'asc';
@@ -95,10 +96,10 @@
             vm.filters = {};
 
             /**
-             * whether the note data has been loaded
+             * Flag to indicate loading status
              * @type {boolean}
              */
-            vm.historyLoaded = false;
+            vm.historyLoaded = true;
 
             /**
              * Get todays date at 00:00 for comparison
@@ -120,12 +121,19 @@
 
             /** get all model types */
             vm.modelTypes = WorkbenchElementsTranslationsService.contentTypeToModelName;
+            vm.modelList = [];
+            for (var key in vm.modelTypes) {
+                if (vm.modelTypes.hasOwnProperty(key)) {
+                    var value = vm.modelTypes[key];
 
-            /**
-             * Translations for model names
-             * @type {*|{}}
-             */
-            vm.modelNameToTranslation = WorkbenchElementsTranslationsService.modelNameToTranslation;
+                    vm.modelList.push({
+                        'key': key,
+                        'value': value,
+                        'display': WorkbenchElementsTranslationsService.modelNameToTranslation[value]
+                    });
+                }
+            }
+            vm.modelList = $filter('orderBy')(vm.modelList, 'display');
 
             vm.historyDetailsVisible = {};
 
@@ -226,6 +234,11 @@
          * Query History
          */
         vm.getHistory = function (limit, offset, ignoreLoadingBar) {
+            // query API with selected model filter only
+            if (!vm.filterSelectedType) {
+                return;
+            }
+
             // if no limit is defined, use the default ``changesPerPage``
             if (limit === undefined) {
                 limit = changesPerPage;
@@ -265,15 +278,16 @@
                 projectPk = vm.selectedProjects[0];
             }
 
+            vm.historyLoaded = false;
+
             // call REST API with the specified project and filters
-            return PaginatedHistoryRestServiceFactory('project', projectPk, ignoreLoadingBar).get(vm.filters).$promise.then(
+            PaginatedHistoryRestServiceFactory('project', projectPk, ignoreLoadingBar).get(vm.filters).$promise.then(
                 function success (response) {
                     vm.histories.length = 0;
                     for (var t = 0; t < response.results.length; t++) {
                         vm.histories.push(response.results[t]);
                     }
 
-                    vm.histories = response.results;
                     vm.numberOfChanges = response.count;
 
                     for (var i = 0; i < vm.histories.length; i++) {

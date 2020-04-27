@@ -4,6 +4,7 @@
 <form class="form-horizontal" name="newMeetingForm" ng-submit="vm.create()">
     <div class="modal-body">
         <ng-include src="'js/screens/meeting/smallMeetingView.html'"></ng-include>
+        {{ vm.meeting.scheduled_notification }}
     </div>
 
     <div class="modal-footer">

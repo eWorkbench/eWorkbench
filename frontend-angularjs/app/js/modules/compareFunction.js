@@ -301,6 +301,20 @@
                 };
             } else if (compareMethod === 'metadata') {
                 self.compareDetail = compareMetadata;
+            } else if (compareMethod === 'scheduledNotification') {
+                self.compareDetail = function (left, right) {
+                    if (left == null || right == null) {
+                        return 0;
+                    }
+
+                    if (left.timedelta_unit !== right.timedelta_unit ||
+                        left.timedelta_value !== right.timedelta_value ||
+                        left.active !== right.active) {
+                        return 1;
+                    }
+
+                    return 0;
+                };
             }
 
             if (modelFields && modelFields.length > 0) {

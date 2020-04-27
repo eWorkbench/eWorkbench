@@ -1,0 +1,42 @@
+<div>
+    <!-- Insert -->
+    <!-- Model Type | created by | user -->
+    <span ng-if="vm.isInsert"
+          translate
+          translate-params-model-name="vm.modelNameTranslation"
+          translate-params-history-change-text="vm.historyChangeText"
+    >
+       {{ modelName }}
+       {{ historyChangeText }}
+       by <user-display-widget user="vm.history.user"></user-display-widget>
+    </span>
+
+    <!-- Update -->
+    <!-- Singular -> Field, Plural -> Fields | field names | edited by | user -->
+    <span ng-if="vm.isUpdate && !vm.isFileUpload">
+        <span translate
+              translate-n="vm.history.change_records.length"
+              translate-comment="Field {{ a }} modified by {{ user }}"
+              translate-plural="Fields">
+            Field
+        </span>
+        <span ng-repeat="changeRecord in vm.history.change_records">
+            {{ vm.getTranslatedFieldName(changeRecord.field_name) }}<span ng-show="!$last">,</span>
+        </span>
+        {{ vm.historyChangeText }}
+        <span translate translate-comment="Field {{ a }} modified by {{ user }}">
+            by
+        </span>
+        <user-display-widget user="vm.history.user"></user-display-widget>
+    </span>
+
+    <!-- File Upload -->
+    <span ng-if="vm.isFileUpload">
+        <span translate>A new file was uploaded:</span>
+        {{ vm.fileName }}
+        <span translate translate-comment="Field {{ a }} modified by {{ user }}">
+            by
+        </span>
+        <user-display-widget user="vm.history.user"></user-display-widget>
+    </span>
+</div>

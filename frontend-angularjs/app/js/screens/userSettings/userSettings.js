@@ -53,6 +53,10 @@
                 'NOTIFICATION_CONF_MEETING_RELATION_CHANGED': {
                     'label': gettextCatalog.getString("Notify me when a link/comment was added to one of my meetings."),
                     'enabled': false
+                },
+                'NOTIFICATION_CONF_MEETING_REMINDER': {
+                    'label': gettextCatalog.getString("Remind me of upcoming meetings I attend."),
+                    'enabled': false
                 }
             };
 

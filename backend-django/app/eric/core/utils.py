@@ -133,12 +133,32 @@ def extract_image_attributes_for_regex_match(regex_match):
     :param regex_match: Image match
     :returns: Dictionary with image attributes as key value pairs.
     """
+    full_base64_data = regex_match.group(1)
+    if full_base64_data:
+        full_base64_data = full_base64_data.strip()
+
+    mime_type = regex_match.group(2)
+    if mime_type:
+        mime_type = mime_type.strip()
+
+    base64_image_string = regex_match.group(3)
+    if base64_image_string:
+        base64_image_string = base64_image_string.strip()
+
+    title = regex_match.group(4)
+    if title:
+        title = title.strip()
+
+    alt = regex_match.group(5)
+    if alt:
+        alt = alt.strip()
+
     return {
-        'full_base64_data': regex_match.group(1).strip(),
-        'mime_type': regex_match.group(2).strip(),
-        'base64_image_string': regex_match.group(3).strip(),
-        'title': regex_match.group(4).strip(),
-        'alt': regex_match.group(5).strip(),
+        'full_base64_data': full_base64_data,
+        'mime_type': mime_type,
+        'base64_image_string': base64_image_string,
+        'title': title,
+        'alt': alt,
     }
 
 

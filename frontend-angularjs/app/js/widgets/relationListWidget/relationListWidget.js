@@ -148,6 +148,7 @@
 
             /**
              * default sorting
+             * must be the same as in app/js/services/dynamicTableSettings/defaultTableStates.js
              */
             vm.defaultOrderBy = "created_at";
             vm.defaultOrderDir = "desc";

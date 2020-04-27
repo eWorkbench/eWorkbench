@@ -12,7 +12,8 @@ from django.utils import timezone
 from django.utils.timezone import timedelta
 from django.utils.translation import ugettext as _
 
-from eric.notifications.models import Notification
+from eric.notifications.models import Notification, ScheduledNotification, NotificationConfiguration
+from eric.shared_elements.models import Meeting
 from eric.site_preferences.models import options as site_preferences
 
 User = get_user_model()
@@ -20,6 +21,91 @@ User = get_user_model()
 
 class Command(BaseCommand):
     help = 'send notifications'
+
+    def create_notification(self, title, meeting, user, html_message):
+        existing_notification = Notification.objects.filter(
+            user=user,
+            content_type=meeting.get_content_type(),
+            object_id=meeting.pk,
+            read=False,
+            sent__isnull=True,
+            notification_type=NotificationConfiguration.NOTIFICATION_CONF_MEETING_REMINDER,
+            created_at__gte=timezone.now() - timedelta(seconds=60)
+        ).first()
+
+        if existing_notification:
+            # update existing notification
+            existing_notification.title = title
+            existing_notification.message = html_message
+            existing_notification.created_at = timezone.now()
+            existing_notification.save()
+        else:
+            Notification.objects.create(
+                user=user,
+                title=title,
+                message=html_message,
+                content_type=meeting.get_content_type(),
+                object_id=meeting.pk,
+                notification_type=NotificationConfiguration.NOTIFICATION_CONF_MEETING_REMINDER
+            )
+
+    def send_mail_to_contact(self, title, contact, html_message):
+        context = {
+            'title': title,
+            'message': html_message,
+            'user': '{first_name} {last_name}'.format(
+                first_name=contact.first_name,
+                last_name=contact.last_name),
+            'workbench_title': site_preferences.site_name
+        }
+
+        # render email text
+        email_html_message = render_to_string('email/single_notification_email.html', context)
+        email_plaintext_message = render_to_string('email/single_notification_email.txt', context)
+
+        msg = EmailMultiAlternatives(
+            # title:
+            "{site_name}: {title}".format(
+                site_name=site_preferences.site_name,
+                title=title,
+            ),
+            # message:
+            email_plaintext_message,
+            # from:
+            site_preferences.email_from,
+            # to:
+            [contact.email]
+        )
+        msg.attach_alternative(email_html_message, "text/html")
+        msg.send()
+
+    def process_scheduled_notifications(self):
+        scheduled_notifications = ScheduledNotification.objects.filter(
+            processed=False,
+            scheduled_date_time__lte=timezone.now(),
+            deleted=False,
+            active=True
+        )
+
+        for scheduled_notification in scheduled_notifications:
+            meeting = Meeting.objects.prefetch_common().get(pk=scheduled_notification.object_id)
+
+            attending_users = meeting.attending_users.all()
+            attending_contacts = meeting.attending_contacts.all()
+            title = _("Reminder: Meeting {title} starts at {date_time_start}".format(
+                title=meeting.title,
+                date_time_start=meeting.date_time_start
+            ))
+            html_message = render_to_string('notification/meeting_reminder.html', {'meeting': meeting})
+
+            for attending_user in attending_users:
+                self.create_notification(title, meeting, attending_user, html_message)
+
+            for contact in attending_contacts:
+                if contact.email:
+                    self.send_mail_to_contact(title, contact, html_message)
+
+        scheduled_notifications.update(processed=True)
 
     def send_single_notification_to_user(self, user, notification):
         """
@@ -86,6 +172,9 @@ class Command(BaseCommand):
         msg.send()
 
     def handle(self, *args, **options):
+        # process scheduled notifications first
+        self.process_scheduled_notifications()
+
         # get all notifications that have recently been sent
         users_that_recently_received_notifications = Notification.objects.filter(
             processed=True,
@@ -156,7 +245,7 @@ class Command(BaseCommand):
                 # only one notification, send this notification to the user
                 self.send_single_notification_to_user(user, user_notifications[0])
                 notification_pk_list.append(user_notifications[0].pk)
-            else:
+            elif len(user_notifications) > 1:
                 # multiple notifications, compile a message with aggregated notifications
                 for notification in user_notifications:
                     notification_pk_list.append(notification.pk)

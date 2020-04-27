@@ -8,8 +8,11 @@
 
 .ui-grid, .ui-grid-viewport {
   height: auto !important;
-  // we need some min-height, because the customization menu is not usable if the grid is very small
-  min-height: 300px;
+}
+
+.ui-grid-menu-mid {
+  // fix to make the menu visible, even if the ui-grid is very small
+  max-height: none !important;
 }
 
 .ui-grid-cell {

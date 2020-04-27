@@ -51,6 +51,52 @@ class APIAccess:
 
         return data
 
+    def create_labbook(self, data):
+        response = self.post("/labbooks/", data=data)
+        data = json.loads(response.text)
+
+        return data
+
+    def create_section(self, data):
+        response = self.post("/labbooksections/", data=data)
+        data = json.loads(response.text)
+
+        return data
+
+    def get_section_child_elements(self, labbook_pk, section_pk):
+        response = self.get("/labbooks/{labbook_pk}/elements/?section={section_pk}".format(
+            labbook_pk=labbook_pk,
+            section_pk=section_pk
+        ))
+        data = json.loads(response.text)
+
+        return data
+
+    def modify_section(self, pk, child_elements):
+        response = self.patch("/labbooksections/{pk}/".format(pk=pk),
+                              data={
+                                  'pk': pk,
+                                  'child_elements': child_elements,
+                              })
+        data = json.loads(response.text)
+
+        return data
+
+    def modify_labbook_child_element(self, labbook_pk, element_pk, position_y):
+        response = self.patch("/labbooks/{labbook_pk}/elements/{element_pk}/".format(
+            labbook_pk=labbook_pk,
+            element_pk=element_pk
+        ), data={'position_y': position_y})
+        data = json.loads(response.text)
+
+        return data
+
+    def create_note(self, data):
+        response = self.post("/notes/", data=data)
+        data = json.loads(response.text)
+
+        return data
+
     def get_notes(self):
         response = self.get("/notes/")
         data = json.loads(response.text)

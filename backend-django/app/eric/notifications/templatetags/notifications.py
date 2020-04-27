@@ -20,3 +20,15 @@ def to_notification_url(notification):
         workbench_url=settings.WORKBENCH_SETTINGS['url'],
         notification_pk=str(notification.pk)
     )
+
+
+@register.filter()
+def to_text(html):
+    """
+    Filter for converting a notification into a notification url
+    :param date:
+    :return:
+    """
+    from html2text import html2text
+
+    return html2text(html)

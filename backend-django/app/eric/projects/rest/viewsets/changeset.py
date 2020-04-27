@@ -4,15 +4,15 @@
 #
 from django.db.models import Q
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django_changeset.models import ChangeSet
 from django_userforeignkey.request import get_current_user
-from django.shortcuts import get_object_or_404
 
+from eric.core.models.abstract import parse_parameters_for_workbench_models, WorkbenchEntityMixin, \
+    get_all_workbench_models
 from eric.core.rest.viewsets import BaseAuthenticatedReadOnlyModelViewSet
-from eric.core.models.abstract import parse_parameters_for_workbench_models, get_all_workbench_models_with_args, \
-    WorkbenchEntityMixin, get_all_workbench_models
+from eric.projects.models import ProjectRoleUserAssignment
 from eric.projects.rest.serializers.changeset import ChangeSetSerializer, SimpleChangeSetSerializer
-from eric.projects.models import Project, ProjectRoleUserAssignment
 
 
 class GenericChangeSetViewSet(BaseAuthenticatedReadOnlyModelViewSet):
@@ -57,41 +57,37 @@ class GenericChangeSetViewSet(BaseAuthenticatedReadOnlyModelViewSet):
         return ChangeSet.objects.filter(
             object_type=self.parent_object.get_content_type(),
             object_uuid=self.parent_object.pk
-        ).select_related('user', 'user__userprofile', 'object_type').prefetch_related('change_records')
+        ).select_related(
+            'user', 'user__userprofile', 'object_type'
+        ).prefetch_related(
+            'change_records'
+        )
 
 
 class ChangeSetViewSet(BaseAuthenticatedReadOnlyModelViewSet):
     """ Viewset for all changes that the current user is allowed to see """
     serializer_class = ChangeSetSerializer
-
     search_model_param = 'model'
-
     ordering_fields = ('date',)
 
     def get_models_based_on_request(self, request):
         all_workbench_models = get_all_workbench_models(WorkbenchEntityMixin)
-        # append project and project role user assignments
-        all_workbench_models.append(ProjectRoleUserAssignment)
+        all_workbench_models.append(ProjectRoleUserAssignment)  # not a workbench entity of its own
 
         if not request:
             return all_workbench_models
 
         params = request.query_params.get(self.search_model_param, '')
-
-        # search on all available models if not restricted explicitly
         if not params:
             return all_workbench_models
 
         # parse params (split by ,)
-        requested_models = params.replace(',', ' ').split()
+        requested_model_names = params.replace(',', ' ').split()
 
-        limited_workbench_models = []
-
-        for model in all_workbench_models:
-            if model.__name__.lower() in requested_models:
-                limited_workbench_models.append(model)
-
-        return limited_workbench_models
+        return [
+            model for model in all_workbench_models
+            if model.__name__.lower() in requested_model_names
+        ]
 
     def get_queryset(self):
         """
@@ -103,22 +99,20 @@ class ChangeSetViewSet(BaseAuthenticatedReadOnlyModelViewSet):
         if user.is_anonymous:
             return ChangeSet.objects.none()
 
-        # get pks (ids) of all projects this user has access to
-        project_ids = Project.objects.viewable()
-
         # build a conditions list, where we will add more conditions with "OR"
         conditions = Q()
 
         # get all relevant search models
         workbench_models = self.get_models_based_on_request(self.request)
 
+        # temporary fix: load ChangeSets for single models only, to avoid excessive performance hits
+        # TODO: Fix underlying performance problem. Suspect #1: .prefetch_related('change_records')
+        if len(workbench_models) <= 0 or len(workbench_models) > 1:
+            return ChangeSet.objects.none()
+
         # iterate over search models
         for model in workbench_models:
-            if model == Project:
-                # special case for projects
-                object_ids = project_ids
-            else:
-                object_ids = model.objects.viewable()
+            object_ids = model.objects.viewable()
 
             # add conditions to existing conditions with OR
             conditions = conditions | Q(

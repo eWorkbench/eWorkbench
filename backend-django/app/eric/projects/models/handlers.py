@@ -4,6 +4,7 @@
 #
 """ contains the handlers for eric.projects"""
 import logging
+import uuid
 
 import django.dispatch
 from django.conf import settings
@@ -280,8 +281,9 @@ def check_workbench_element_relation_with_projects(sender, instance, action, mod
 
     # on both actions (pre_add and pre_remove), we can get the set of primary keys that is affected from kwargs
     project_pk_set = kwargs.get('pk_set')
-    # get all viewable projects of this primary key set
-    projects = Project.objects.viewable().filter(pk__in=project_pk_set)
+    # get all viewable projects of this primary key set, a newly generated cache_id is added to the request in order
+    # to fetch a fresh result from the DB, instead of a cached result
+    projects = Project.objects.viewable(cache_id=uuid.uuid4()).filter(pk__in=project_pk_set)
 
     # verify that all supplied project PKs are also viewable by the current user
     if len(project_pk_set) != len(projects):

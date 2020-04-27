@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
+import math
+import os
 import uuid
 from datetime import timedelta
 from uuid import uuid4
 
-import math
-import os
 import vobject
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -382,8 +382,10 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
             ("change_project_file", "Can change the project of a file"),
             ("add_file_without_project", "Can add a file without a project")
         )
-        track_fields = ('name', 'description', 'mime_type', 'file_size', 'path', 'projects', 'original_filename',
-                        'directory', 'deleted')
+        track_fields = (
+            'title', 'description', 'projects', 'deleted', 'directory',
+            'name', 'original_filename', 'mime_type', 'file_size', 'path',
+        )
         track_related_many = (
             ('metadata', ('field', 'values',)),
         )
@@ -911,6 +913,64 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
             model_item.save()
 
         Metadata.restore_all_from_entity(self, metadata.get("metadata"))
+
+    def duplicate(self, *args, **kwargs):
+        """
+        Duplicates the Task and removes all non-relevant variables (such as Django ChangeSet __original_data__)
+        """
+
+        from django.forms import model_to_dict
+        task_dict = model_to_dict(self)
+
+        # duplicated task should not be soft deleted, even if the original task is
+        del task_dict['deleted']
+
+        # related projects will be added separately after the duplicated task has been saved
+        del task_dict['projects']
+
+        # element labels will be added separately after the duplicated task has been saved
+        element_labels = task_dict['labels']
+        del task_dict['labels']
+
+        # assigned users will be added separately after the duplicated task has been saved
+        assigned_users = task_dict['assigned_users']
+        del task_dict['assigned_users']
+
+        # variables are generated automatically
+        del task_dict['version_number']
+        del task_dict['fts_language']
+
+        # rename to "Copy of <tasktitle>"
+        task_dict['title'] = ("Copy of {}".format(task_dict['title']))
+        task_dict['state'] = "NEW"
+
+        # create a new task object and save it
+        new_task_object = Task(**task_dict)
+        new_task_object.save()
+
+        # assign duplicated task to projects
+        projects = kwargs['projects']
+        if len(projects) > 0:
+            for project in projects:
+                new_task_object.projects.add(project)
+
+        # assign previously saved elements to duplicated task
+        if len(assigned_users) > 0:
+            for user in assigned_users:
+                TaskAssignedUser.objects.create(task=new_task_object, assigned_user=user)
+
+        if len(element_labels) > 0:
+            for label in element_labels:
+                new_label = ElementLabel.objects.create(name=label.name, color=label.color)
+                new_task_object.labels.add(new_label)
+
+        checklist = self.export_metadata()['checklist']
+        if len(checklist) > 0:
+            for item in checklist:
+                new_item = TaskCheckList.objects.create(**item)
+                new_task_object.checklist_items.add(new_item)
+
+        return new_task_object
 
 
 class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin, SoftDeleteMixin, RelationsMixIn,

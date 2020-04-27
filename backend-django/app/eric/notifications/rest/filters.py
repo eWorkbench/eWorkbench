@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from eric.core.rest.filters import BaseFilter
-from eric.notifications.models import Notification
+from eric.notifications.models import Notification, ScheduledNotification
 
 
 class NotificationFilter(BaseFilter):
@@ -13,4 +13,14 @@ class NotificationFilter(BaseFilter):
         fields = {
             'created_at': BaseFilter.DATE_COMPERATORS,
             'last_modified_at': BaseFilter.DATE_COMPERATORS
+        }
+
+
+class ScheduledNotificationFilter(BaseFilter):
+    """ Filter for ScheduledNotifications, allows filtering for the object_id field of the scheduled notification """
+
+    class Meta:
+        model = ScheduledNotification
+        fields = {
+            'object_id': BaseFilter.FOREIGNKEY_COMPERATORS
         }

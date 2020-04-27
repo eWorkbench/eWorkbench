@@ -126,13 +126,13 @@
                 vm.dashboardConfig = [
                     {
                         type: 'calendar',
-                        size: 2
+                        size: 3
                     },
-                    {
-                        type: 'activities',
-                        size: 1,
-                        data: vm.histories.splice(0, changesPerPage)
-                    },
+                    // {
+                    //     type: 'activities',
+                    //     size: 1,
+                    //     data: vm.histories.splice(0, changesPerPage)
+                    // },
                     {
                         type: 'tasks',
                         size: 2,
@@ -223,7 +223,7 @@
                         console.dir(response);
                         vm.dashboardData = response;
                         vm.projectsSubset = response.projects;
-                        vm.histories = response.history;
+                        // vm.histories = response.history;
                         vm.tasks = response.tasks;
                         vm.documents = response.files;
                         vm.resources = response.resources;

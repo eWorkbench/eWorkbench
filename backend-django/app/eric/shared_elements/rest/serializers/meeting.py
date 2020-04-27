@@ -5,10 +5,12 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 
 from eric.core.rest.serializers import BaseModelWithCreatedBySerializer, PublicUserSerializer, \
     BaseModelWithCreatedByAndSoftDeleteSerializer
 from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, EntityMetadataSerializer
+from eric.notifications.rest.serializers import ScheduledNotificationSerializer
 from eric.projects.models import Resource
 from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
 from eric.projects.rest.serializers.resource import ResourceSerializer
@@ -42,8 +44,10 @@ class MinimalisticMeetingSerializer(BaseModelWithCreatedBySerializer):
         )
 
 
-class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin):
+class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin,
+                        ScheduledNotificationSerializer):
     """ Serializer for Meetings """
+
     projects = ProjectPrimaryKeyRelatedField(many=True, required=False)
 
     resource = ResourceSerializer(read_only=True)
@@ -79,6 +83,14 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
         required=False,
     )
 
+    scheduled_notification = SerializerMethodField()
+
+    def get_scheduled_notification(self, instance):
+        return ScheduledNotificationSerializer.get_scheduled_notification(instance)
+
+    # a separate named field is required for writing to ScheduledNotification
+    scheduled_notification_writable = ScheduledNotificationSerializer(write_only=True, required=False)
+
     class Meta:
         model = Meeting
         fields = (
@@ -87,7 +99,7 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
             'attending_users', 'attending_contacts',
             'attending_contacts_pk', 'attending_users_pk',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'metadata',
+            'metadata', 'scheduled_notification', 'scheduled_notification_writable',
         )
 
     @transaction.atomic
@@ -99,10 +111,15 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
         """
         attending_users = None
         attending_contacts = None
+        scheduled_notification_writable = None
+
         if 'attending_users' in validated_data:
             attending_users = validated_data.pop('attending_users')
         if 'attending_contacts' in validated_data:
             attending_contacts = validated_data.pop('attending_contacts')
+
+        if 'scheduled_notification_writable' in validated_data:
+            scheduled_notification_writable = validated_data.pop('scheduled_notification_writable')
 
         metadata_list = self.pop_metadata(validated_data)
 
@@ -121,6 +138,9 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
 
         self.create_metadata(metadata_list, instance)
 
+        if scheduled_notification_writable:
+            self.update_or_create_schedulednotification(scheduled_notification_writable, instance)
+
         return instance
 
     @transaction.atomic
@@ -133,12 +153,16 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
         """
         attending_contacts = None
         attending_users = None
+        scheduled_notification_writable = None
 
         if 'attending_contacts' in validated_data:
             attending_contacts = validated_data.pop('attending_contacts')
 
         if 'attending_users' in validated_data:
             attending_users = validated_data.pop('attending_users')
+
+        if 'scheduled_notification_writable' in validated_data:
+            scheduled_notification_writable = validated_data.pop('scheduled_notification_writable')
 
         metadata_list = self.pop_metadata(validated_data)
         self.update_metadata(metadata_list, instance)
@@ -174,5 +198,8 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
                 ContactAttendsMeeting.objects.create(meeting=instance, contact=contact)
 
         instance = super(MeetingSerializer, self).update(instance, validated_data)
+
+        if scheduled_notification_writable:
+            self.update_or_create_schedulednotification(scheduled_notification_writable, instance)
 
         return instance

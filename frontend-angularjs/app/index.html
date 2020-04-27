@@ -268,6 +268,7 @@
     <script src="js/services/sort/genericSortService.js"></script>
     <script src="js/services/sort/userSortService.js"></script>
     <script src="js/services/sort/userListSortService.js"></script>
+    <script src="js/services/labbook/labbookService.js"></script>
 
     <!-- Register UI Router URL Matcher Types -->
     <script src="js/shared/urlMatcherType/urlMatcherTypePath.js"></script>
@@ -477,6 +478,7 @@
     <script src="js/screens/labbook/labbookView.js"></script>
     <script src="js/screens/labbook/labbookCreateModal.js"></script>
     <script src="js/screens/labbook/labbookSelectTemplateModal.js"></script>
+    <script src="js/screens/labbook/newElementLocationModal.js"></script>
 
     <!-- Picture Screens -->
     <script src="js/screens/picture/pictureList.js"></script>
@@ -666,6 +668,7 @@
     <script src="js/widgets/history/historyEntry.js"></script>
     <script src="js/widgets/history/historyShortWidget.js"></script>
     <script src="js/widgets/history/historyRecordDisplay.js"></script>
+    <script src="js/widgets/history/historyShortSummary.js"></script>
     <script src="js/widgets/htmlDiffWidget/htmlDiffWidget.js"></script>
     <script src="js/widgets/taskChecklistItemDiffWidget/taskChecklistItemDiffWidget.js"></script>
     <script src="js/widgets/kanbanboardColumnDiffWidget/kanbanboardColumnDiffWidget.js"></script>
@@ -760,6 +763,8 @@
     <script src="js/widgets/labbookSectionFilterGrid/labbookSectionFilterGrid.js"></script>
     <script src="js/shared/labbookGridOptions/labbookGridOptions.js"></script>
 
+    <script src="js/widgets/matomoTracking/matomoScript.js"></script>
+
     <script src=".temp/templates.js"></script>
     <!-- endbuild -->
 
@@ -792,20 +797,20 @@
 <div ng-include="'js/screens/toaster/toaster.html'"></div>
 
 <!-- Primary container -->
-<div class="primary-container {{projectSidebarExpanded}}">
+<div class="primary-container {{ projectSidebarExpanded }}">
     <!-- Maintenance -->
     <maintenance></maintenance>
     <project-breadcrumb-widget
-        ng-if="projectSidebarExpanded == 'sidebar-expanded'"></project-breadcrumb-widget>
+            ng-if="projectSidebarExpanded == 'sidebar-expanded'"></project-breadcrumb-widget>
 
     <project-sidebar-widget
-        ng-if="projectSidebarExpanded == 'sidebar-expanded'"></project-sidebar-widget>
+            ng-if="projectSidebarExpanded == 'sidebar-expanded'"></project-sidebar-widget>
 
     <user-manual-breadcrumb-widget
-        ng-if="projectSidebarExpanded == 'usermanual-expanded'"></user-manual-breadcrumb-widget>
+            ng-if="projectSidebarExpanded == 'usermanual-expanded'"></user-manual-breadcrumb-widget>
 
     <user-manual-sidebar-widget
-        ng-if="projectSidebarExpanded == 'usermanual-expanded'"></user-manual-sidebar-widget>
+            ng-if="projectSidebarExpanded == 'usermanual-expanded'"></user-manual-sidebar-widget>
 
     <!-- ui view -->
     <div ui-view class="uiview-container"></div>
@@ -818,5 +823,6 @@
 <!-- Login Page Fullscreen -->
 <login-screen></login-screen>
 
+<matomo-script></matomo-script>
 </body>
 </html>

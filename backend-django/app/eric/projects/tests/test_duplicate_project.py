@@ -3,9 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
+from django.utils.timezone import datetime
 from django.contrib.auth.models import Group
 
 from django.contrib.auth import get_user_model
+
+from eric.shared_elements.models import Task
 
 User = get_user_model()
 
@@ -14,6 +17,7 @@ from rest_framework import status
 
 from eric.projects.models import Role, Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin
+from eric.shared_elements.tests.core import TaskMixin
 
 # read http://www.django-rest-framework.org/api-guide/testing/ for more info about testing with django rest framework
 
@@ -21,7 +25,7 @@ HTTP_USER_AGENT = "APITestClient"
 REMOTE_ADDR = "127.0.0.1"
 
 
-class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin):
+class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, TaskMixin):
     """ Testing duplicate a project """
 
     # set up users
@@ -49,29 +53,71 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin):
         self.observer_role = Role.objects.filter(name="Observer").first()
 
         # create some projects with user1 to build up a project tree and assign user2 and user3 as observables
+        # add tasks to these projects
         # Project Tree:
         #   Project
+        #       Task 1
         #       Sub Project 1
+        #           Sub Task 1
         #           Sub Sub Project 1
+        #               Sub Sub Task 1
         #       Sub Project 2
+        #           Sub Task 2
 
         project = self.create_project(self.token1, "Project", "Project Description", "INIT",
                                       HTTP_USER_AGENT, REMOTE_ADDR)
         self.project_pk = project.pk
+
+
+        response = self.rest_create_task(
+            self.token1,
+            [self.project_pk], "Test Title Task 1", "Test Description", "NEW", "HIGH",
+            datetime.now(), datetime.now(), self.user1.pk,
+            HTTP_USER_AGENT, REMOTE_ADDR
+        )
+        task1 = json.loads(response.content.decode())
 
         sub_project_1 = self.create_project(self.token1, "Sub Project 1", "Project Description", "INIT",
                                             HTTP_USER_AGENT, REMOTE_ADDR)
         self.rest_set_parent_project(self.token1, sub_project_1, project)
         self.sub_project_1_pk = sub_project_1.pk
 
+        response = self.rest_create_task(
+            self.token1,
+            [self.sub_project_1_pk], "Test Title Sub Task 1", "Test Description", "NEW", "HIGH",
+            datetime.now(), datetime.now(), self.user1.pk,
+            HTTP_USER_AGENT, REMOTE_ADDR
+        )
+        sub_task1 = json.loads(response.content.decode())
+
         sub_sub_project_1 = self.create_project(self.token1, "Sub Sub Project 1", "Project Description", "INIT",
                                                 HTTP_USER_AGENT, REMOTE_ADDR)
         self.rest_set_parent_project(self.token1, sub_sub_project_1, sub_project_1)
+        self.sub_sub_project_1_pk = sub_sub_project_1.pk
+
+        response = self.rest_create_task(
+            self.token1,
+            [self.sub_sub_project_1_pk], "Test Title Sub Sub Task 1", "Test Description", "NEW", "HIGH",
+            datetime.now(), datetime.now(), self.user1.pk,
+            HTTP_USER_AGENT, REMOTE_ADDR
+        )
+        sub_sub_task1 = json.loads(response.content.decode())
+
 
         sub_project_2 = self.create_project(self.token1, "Sub Project 2", "Project Description", "INIT",
                                             HTTP_USER_AGENT, REMOTE_ADDR)
         self.rest_set_parent_project(self.token1, sub_project_2, project)
         self.sub_project_2_pk = sub_project_2.pk
+
+        response = self.rest_create_task(
+            self.token1,
+            [self.sub_project_2_pk], "Test Title Sub Task 2", "Test Description", "NEW", "HIGH",
+            datetime.now(), datetime.now(), self.user1.pk,
+            HTTP_USER_AGENT, REMOTE_ADDR
+        )
+
+        sub_task2 = json.loads(response.content.decode())
+
 
         self.rest_assign_user_to_project(self.token1, project, self.user2, self.observer_role,
                                          HTTP_USER_AGENT, REMOTE_ADDR)
@@ -79,7 +125,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin):
                                          HTTP_USER_AGENT, REMOTE_ADDR)
 
     def test_duplicate_parent_project(self):
-        """ Test for duplicating the parent project with its sub projects """
+        """ Test for duplicating the parent project with its sub projects and assigned tasks"""
 
         # get the parent project with all sub projects
         response = self.rest_get_project(self.token1, self.project_pk, HTTP_USER_AGENT, REMOTE_ADDR)
@@ -90,6 +136,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded = json.loads(response.content.decode())
         project_pk = decoded['pk']
+
         # the duplicated project must have other pk than the original project
         self.assertNotEqual(project_pk, original_project['pk'],
                             msg="The duplicated project should not have the same pk as the original project")
@@ -98,6 +145,23 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin):
         name = decoded['name']
         self.assertEqual(name, "Copy of %s" % (original_project['name']),
                          msg="The name of the duplicated object should have 'Copy of' before the original name")
+
+        # get the tasks of the original and duplicated project 'Project 1'
+        original_project_tasks = Task.objects.filter(projects__in=[original_project['pk']])
+        duplicated_project_tasks = Task.objects.filter(projects__in=[project_pk])
+
+        # check this sub project task
+        self.assertEqual(len(duplicated_project_tasks), len(original_project_tasks),
+                         msg="The duplicate project has to have the same count of tasks than the original "
+                             "project")
+
+        self.assertNotEqual(duplicated_project_tasks[0].pk, original_project_tasks[0].pk,
+                            msg="The sub project task PK of the duplicated sub project task is not the same "
+                                "as the sub project task pk of the original sub project task")
+
+        self.assertEqual(duplicated_project_tasks[0].title, "Copy of %s" % (original_project_tasks[0].title),
+                         msg="The sub project task title of the duplicated sub project is the same as the sub"
+                             "project task title of the original sub project with a 'Copy of' in front of it")
 
         # get sub projects of the original and duplicated project 'Project'
         original_sub_projects = Project.objects.filter(parent_project__id=original_project['pk'])
@@ -122,21 +186,56 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin):
                          msg="The sub project name of the duplicated project is the same as the sub project name of "
                              "the original project")
 
-        # get the sub project of the original and duplicated sub project 'Sub Project 1'
-        original_sub_project = Project.objects.filter(parent_project__id=original_sub_projects[0].pk)
-        duplicated_sub_project = Project.objects.filter(parent_project__id=duplicated_sub_projects[0].pk)
+        # get the tasks of the original and duplicated sub project 'Sub Project 1'
+        original_sub_project_tasks = Task.objects.filter(projects__in=[original_sub_projects[0].pk])
+        duplicated_sub_project_tasks = Task.objects.filter(projects__in=[duplicated_sub_projects[0].pk])
+
+        # check this sub project task
+        self.assertEqual(len(duplicated_sub_project_tasks), len(original_sub_project_tasks),
+                         msg="The duplicate project has to have the same count of tasks than the original "
+                             "project")
+
+        self.assertNotEqual(duplicated_sub_project_tasks[0].pk, original_sub_project_tasks[0].pk,
+                            msg="The sub project task PK of the duplicated sub project task is not the same "
+                                "as the sub project task pk of the original sub project task")
+
+        self.assertEqual(duplicated_sub_project_tasks[0].title, "Copy of %s" % (original_sub_project_tasks[0].title),
+                         msg="The sub project task title of the duplicated sub project is the same as the sub"
+                             "project task title of the original sub project with a 'Copy of' in front of it")
+
+        # get the sub sub project of the original and duplicated sub project 'Sub Project 1'
+        original_sub_sub_project = Project.objects.filter(parent_project__id=original_sub_projects[0].pk)
+        duplicated_sub_sub_project = Project.objects.filter(parent_project__id=duplicated_sub_projects[0].pk)
 
         # check this sub project
-        self.assertEqual(len(duplicated_sub_project), len(original_sub_project),
+        self.assertEqual(len(duplicated_sub_sub_project), len(original_sub_sub_project),
                          msg="The duplicate project has to have the same count of sub projects than the original "
                              "project")
 
-        self.assertNotEqual(duplicated_sub_project[0].pk, original_sub_project[0].pk,
+        self.assertNotEqual(duplicated_sub_sub_project[0].pk, original_sub_sub_project[0].pk,
                             msg="The sub sub project PK of the duplicated sub project is not the same as the sub sub"
                                 "project pk of the original sub project")
-        self.assertEqual(duplicated_sub_project[0].name, original_sub_project[0].name,
+        self.assertEqual(duplicated_sub_sub_project[0].name, original_sub_sub_project[0].name,
                          msg="The sub sub project name of the duplicated sub project is the same as the sub sub "
                              "project name of the original sub project")
+
+        # get the tasks of the original and duplicated sub sub project 'Sub Sub Project 1'
+        original_sub_sub_project_tasks = Task.objects.filter(projects__in=[original_sub_sub_project[0].pk])
+        duplicated_sub_sub_project_tasks = Task.objects.filter(projects__in=[duplicated_sub_sub_project[0].pk])
+
+        # check this sub project task
+        self.assertEqual(len(duplicated_sub_sub_project_tasks), len(original_sub_sub_project_tasks),
+                         msg="The duplicate project has to have the same count of tasks than the original "
+                             "project")
+
+        self.assertNotEqual(duplicated_sub_sub_project_tasks[0].pk, original_sub_sub_project_tasks[0].pk,
+                            msg="The sub project task PK of the duplicated sub project task is not the same "
+                                "as the sub project task pk of the original sub project task")
+
+        self.assertEqual(duplicated_sub_sub_project_tasks[0].title, "Copy of %s" % (original_sub_sub_project_tasks[0].title),
+                         msg="The sub project task title of the duplicated sub project is the same as the sub"
+                             "project task title of the original sub project with a 'Copy of' in front of it")
+
 
     def test_duplicate_sub_project(self):
         """ Test for duplicating the sub project with sub projects and check if the duplicated project is now a parent

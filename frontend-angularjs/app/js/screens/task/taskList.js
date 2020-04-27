@@ -83,6 +83,7 @@
 
             /**
              * default sorting
+             * must be the same as in app/js/services/dynamicTableSettings/defaultTableStates.js
              */
             vm.defaultOrderBy = "task_id";
             vm.defaultOrderDir = "asc";

@@ -73,18 +73,25 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
         duplicate instance has now no parent project anymore.
         """
         project_object = Project.objects.viewable().get(pk=kwargs['pk'])
-        pk = project_object.pk
+        original_project_pk = project_object.pk
 
         # duplicates the project
         # change name to "Copy of" + project name
         # the duplicated project can not be a sub project so set parent_project_id to NONE if it was set
         duplicated_project = project_object.duplicate(name=_("Copy of ") + project_object.name, parent_project_id=None)
 
-        dict_pk = dict()
-        dict_pk[pk] = duplicated_project.pk
+        dict_duplicated_project_pk = dict()
+        dict_duplicated_project_pk[original_project_pk] = duplicated_project.pk
+
+        # duplicate all tasks assigned to the project
+        from eric.shared_elements.models import Task
+        tasks = Task.objects.viewable().filter(projects__in=[original_project_pk])
+        if tasks:
+            for task in tasks:
+                task.duplicate(projects=[duplicated_project])
 
         # duplicate sub projects
-        Project.duplicate_sub_projects(dict_pk)
+        Project.duplicate_sub_projects(dict_duplicated_project_pk)
 
         serializer = self.get_serializer(duplicated_project)
 

@@ -442,14 +442,16 @@
          */
         $scope.$watch('vm.selectedBookingRules', function (newRules, oldRules) {
             for (var i = 0; i < newRules.length; i++) {
-                var rule = newRules[i];
+                var
+                    newRule = newRules[i],
+                    oldRule = oldRules[i];
 
-                if (rule.hours != null) {
-                    if (rule.minutes == null) {
-                        rule.minutes = '00';
+                if (newRule.hours != null) {
+                    if (newRule.minutes == null && oldRule.minutes == null) {
+                        newRule.minutes = '00';
                     }
-                } else if (rule.minutes != null) {
-                    rule.hours = '00';
+                } else if (newRule.minutes != null && oldRule.hours == null) {
+                    newRule.hours = '00';
                 }
             }
         }, true);

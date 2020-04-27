@@ -1,11 +1,14 @@
 <span ng-show="!value ">'-'</span>
+
 <span ng-if="value" ng-switch="fieldName">
     <span ng-switch-when="project">
         <project-link project-pk="value"></project-link>
     </span>
+
     <span ng-switch-when="parent_project">
         <project-link project-pk="value"></project-link>
     </span>
+
     <span ng-switch-when="projects">
         <!-- list all projects -->
         <div style="display: inline;" ng-repeat="project_pk in value | split:','">
@@ -13,18 +16,23 @@
             <span ng-show="!$last">,</span>
         </div>
     </span>
+
     <span ng-switch-when="assigned_user|user" ng-switch-when-separator="|">
         <user-display-widget user-pk="value"></user-display-widget>
     </span>
+
     <span ng-switch-when="resource">
         <resource-link resource-pk="value"></resource-link>
     </span>
+
     <span ng-switch-when="state">
         <task-state-priority-display-widget task-state="value"></task-state-priority-display-widget>
     </span>
+
     <span ng-switch-when="priority">
         <task-state-priority-display-widget task-priority="value"></task-state-priority-display-widget>
     </span>
+
     <span ng-switch-when="attending_contacts">
         <!-- list all contacts -->
         <div style="display: inline;" ng-repeat="contact_pk in value | split:','">
@@ -32,6 +40,7 @@
             <span ng-show="!$last">,</span>
         </div>
     </span>
+
     <span ng-switch-when="assigned_users|attending_users|user_availability_selected_users" ng-switch-when-separator="|">
         <!-- list all assigned users (to a meeting) and attending users to a task -->
         <div style="display: inline;" ng-repeat="user_pk in (value | split:',')">
@@ -39,23 +48,33 @@
             <span ng-show="!$last">,</span>
         </div>
     </span>
+
     <span ng-switch-when="start_date|due_date|date_time_start|date_time_end" ng-switch-when-separator="|">
         {{ value | smallDate }}
     </span>
+
     <span ng-switch-when="directory">
         <directory-link directory-pk="value"></directory-link>
     </span>
+
     <span ng-switch-when="type">
         <resource-type-widget resource-type="value"></resource-type-widget>
     </span>
+
     <span ng-switch-when="user_availability">
         <resource-user-availability-widget
             resource-user-availability="value">
         </resource-user-availability-widget>
     </span>
+
     <span ng-switch-when="role">
         <display-role-widget role-pk="value"></display-role-widget>
     </span>
+
+    <span ng-switch-when="file_size">
+        {{ value | bytes }}
+    </span>
+
     <span ng-switch-default>
         '{{ value }}'
     </span>

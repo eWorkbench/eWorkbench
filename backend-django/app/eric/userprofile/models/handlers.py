@@ -7,15 +7,12 @@ import uuid
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.db.models.signals import post_save, pre_save
+from django.contrib.postgres.fields import ArrayField
+from django.core.mail import EmailMultiAlternatives
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
-from django.core.mail import EmailMessage, EmailMultiAlternatives
-from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import ugettext_lazy as _
-
-from django_auth_ldap.backend import populate_user
 from django_rest_passwordreset.signals import reset_password_token_created
 
 from eric.site_preferences.models import options as site_preferences
@@ -44,47 +41,72 @@ def check_for_save_on_ldap_user(instance, created, *args, **kwargs):
 def create_user_profile_ldap(user, ldap_user, *args, **kwargs):
     """ Automatically create user profile and update ldap users profile """
 
-    try:
-        user_profile = user.userprofile
-    except:
-        # user profile does not exist yet
-        user_profile = UserProfile(user=user)
-
-    from django.conf import settings
+    user_profile = get_or_create_userprofile(user)
 
     # update ldap user profile - read attribute map from settings
+    from django.conf import settings
     if hasattr(settings, 'AUTH_LDAP_PROFILE_ATTR_MAP'):
-        # iterate over all attributes in the ldap profile attribute map
-        for attr in settings.AUTH_LDAP_PROFILE_ATTR_MAP.items():
-            # check that the attribute is actually provided by ldap
-            if not attr[1] in ldap_user.attrs:
-                logger.debug("create_user_profile_ldap: Could not find attribute {attribute_name} in ldap record".
-                             format(attribute_name=attr[1])
-                             )
-                # go to next attribute
-                continue
+        sync_mapped_ldap_attributes(settings.AUTH_LDAP_PROFILE_ATTR_MAP, user_profile, ldap_user)
 
-            # read value from the ldap attribute list
-            values = ldap_user.attrs[attr[1]]
-
-            # try to get the mapped field from meta data of UserProfile
-            field = UserProfile._meta.get_field(attr[0])
-
-            # check field type
-            try:
-                # if the field is an arrayfield, we are expecting an array of values and we can directly set it
-                if isinstance(field, ArrayField):
-                    setattr(user_profile, attr[0], values)
-                else:
-                    setattr(user_profile, attr[0], ",".join(values))
-            except:
-                logger.exception(
-                    "create_user_profile_ldap: Could not set attribute {attribute_name} to value {value}".format(
-                        attribute_name=attr[1], value=values
-                    )
-                )
     user_profile.type = UserProfile.LDAP_USER
     user_profile.save()
+
+
+def get_or_create_userprofile(user):
+    try:
+        return user.userprofile
+    except:
+        # user profile does not exist yet
+        return UserProfile(user=user)
+
+
+def sync_mapped_ldap_attributes(attribute_map, user_profile, ldap_user):
+    user = user_profile.user
+
+    missing_attributes = list()
+
+    # iterate over all attributes in the ldap profile attribute map
+    for attr in attribute_map.items():
+        model_field_name = attr[0]
+        ldap_attribute = attr[1]
+
+        # check that the attribute is actually provided by ldap
+        if ldap_attribute in ldap_user.attrs:
+            ldap_value = ldap_user.attrs[ldap_attribute]
+            set_user_profile_field_value(user_profile, model_field_name, ldap_value)
+        else:
+            missing_attributes.append(ldap_attribute)
+
+    if len(missing_attributes) > 0:
+        logger.debug(
+            'create_user_profile_ldap: [{username}] missing LDAP attributes: {missing_attributes}'.format(
+                username=user.username,
+                missing_attributes=','.join(missing_attributes)
+            )
+        )
+
+
+def set_user_profile_field_value(user_profile, field_name, value):
+    user = user_profile.user
+
+    # try to get the mapped field from meta data of UserProfile
+    field = UserProfile._meta.get_field(field_name)
+
+    # check field type
+    try:
+        # if the field is an arrayfield, we are expecting an array of values and we can directly set it
+        if isinstance(field, ArrayField):
+            setattr(user_profile, field_name, value)
+        else:
+            setattr(user_profile, field_name, ",".join(value))
+    except:
+        logger.exception(
+            "create_user_profile_ldap: [{username}] Could not set field {field_name} to value {value}".format(
+                username=user.username,
+                field_name=field_name,
+                value=value
+            )
+        )
 
 
 def assign_ldap_user_group(user, ldap_user, *args, **kwargs):

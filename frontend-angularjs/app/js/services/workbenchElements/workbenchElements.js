@@ -93,12 +93,13 @@
                 'exportable': true,
                 'searchable': true,
                 'labels': {
-                    "name": gettextCatalog.getString("Title"),
+                    "title": gettextCatalog.getString("Title"),
                     "directory": gettextCatalog.getString("Folder"),
                     "file_size": gettextCatalog.getString("File size"),
                     "path": gettextCatalog.getString("Path"),
                     "mime_type": gettextCatalog.getString("Mime type"),
-                    "original_filename": gettextCatalog.getString("Filename"),
+                    "name": gettextCatalog.getString("Filename"),
+                    "original_filename": gettextCatalog.getString("Original Filename"),
                     "description": gettextCatalog.getString("Description"),
                     "metadata": gettextCatalog.getString("Metadata")
                 }

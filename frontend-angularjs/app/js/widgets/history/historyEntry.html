@@ -1,4 +1,4 @@
-<div ng-repeat="change_record in vm.changeRecords">
+<div ng-repeat="change_record in vm.changeRecords" ng-if="vm.isChangeRecordVisible(change_record)">
     <!-- show field name unless the field name is path or labels or deleted -->
     <i ng-hide="change_record.field_name == 'path' || change_record.field_name == 'deleted' || change_record.field_name == 'labels' || change_record.field_name == 'dmp_form_data'">
         {{ ::vm.getTranslatedFieldName(change_record.field_name) }}
@@ -13,22 +13,23 @@
                  left-obj="change_record.old_value || ''"
                  right-obj="change_record.new_value"
                  options="{
-        editCost: 4,
-        interLineDiff: true,
-        ignoreTrailingNewLines: true,
-        attrs: {
-          insert: {
-            'data-attr': 'insert',
-            'class': 'insertion'
-          },
-          delete: {
-            'data-attr': 'delete'
-          },
-          equal: {
-            'data-attr': 'equal'
-          }
-        }
-      }"></div>
+                        editCost: 4,
+                        interLineDiff: true,
+                        ignoreTrailingNewLines: true,
+                        attrs: {
+                          insert: {
+                            'data-attr': 'insert',
+                            'class': 'insertion'
+                          },
+                          delete: {
+                            'data-attr': 'delete'
+                          },
+                          equal: {
+                            'data-attr': 'equal'
+                          }
+                        }
+                      }">
+            </div>
         </div>
 
         <!-- html content -->

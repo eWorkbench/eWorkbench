@@ -1,3 +1,7 @@
+#
+# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _

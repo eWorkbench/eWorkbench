@@ -94,9 +94,10 @@
 
             /**
              * default sorting
+             * must be the same as in app/js/services/dynamicTableSettings/defaultTableStates.js
              */
-            vm.defaultOrderBy = "last_name";
-            vm.defaultOrderDir = "desc";
+            vm.defaultOrderBy = "first_name";
+            vm.defaultOrderDir = "asc";
             vm.orderBy = vm.defaultOrderBy;
             vm.orderDir = vm.defaultOrderDir;
 

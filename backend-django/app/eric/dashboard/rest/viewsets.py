@@ -141,7 +141,7 @@ class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
             # 'meetings': self.get_serialized_data_for(request, 'meetings', num_elements),
             'contacts': self.get_serialized_data_for(request, 'contacts', num_elements),
             # 'notes': self.get_serialized_data_for(request, 'notes', num_elements),
-            'history': self.get_serialized_data_for(request, 'history', num_elements),
+            # 'history': self.get_serialized_data_for(request, 'history', num_elements),
             'dmps': self.get_serialized_data_for(request, 'dmps', num_elements),
             # 'kanbanboards': self.get_serialized_data_for(request, 'kanbanboards', num_elements),
             # 'labbooks': self.get_serialized_data_for(request, 'labbooks', num_elements),

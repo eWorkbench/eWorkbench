@@ -2,21 +2,21 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.template.loader import render_to_string
+from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext as _
+from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.timezone import datetime, timedelta
+from django.utils.timezone import timedelta
+from django.utils.translation import ugettext as _
 from django_userforeignkey.request import get_current_user
 
-from eric.projects.models import MyUser
-from eric.notifications.models import NotificationConfiguration
-from eric.shared_elements.models import Meeting, UserAttendsMeeting, Task, TaskAssignedUser
 from eric.notifications.models import Notification
+from eric.notifications.models import NotificationConfiguration, ScheduledNotification
+from eric.projects.models import MyUser
 from eric.projects.models import Project, ProjectRoleUserAssignment
 from eric.relations.models import Relation
+from eric.shared_elements.models import Meeting, UserAttendsMeeting, Task, TaskAssignedUser
 
 
 @receiver(post_save)
@@ -51,6 +51,23 @@ def create_notification_based_on_meeting_changes(sender, instance, *args, **kwar
 
     # refresh meeting from DB
     instance = Meeting.objects.prefetch_common().get(pk=instance.pk)
+
+    # if there's a ScheduledNotification related to this meeting,
+    # it's deletion-status needs to be updated based on the meeting's status
+    try:
+        scheduled_notification = ScheduledNotification.objects.get(object_id=instance.pk)
+        if scheduled_notification:
+            scheduled_notification.scheduled_date_time = ScheduledNotification.calculate_scheduled_date_time(
+                scheduled_notification.timedelta_unit,
+                scheduled_notification.timedelta_value,
+                instance.date_time_start
+            )
+            scheduled_notification.deleted = instance.deleted
+            # make sure the reminder is sent again after meeting details have changed
+            scheduled_notification.processed = False
+            scheduled_notification.save()
+    except ScheduledNotification.DoesNotExist:
+        pass
 
     attending_users = instance.attending_users.all().exclude(pk=get_current_user().pk)
 
@@ -457,7 +474,6 @@ def create_relation_notification(users, object, related_object, added):
             title = _("Link was removed from the meeting {title}".format(title=object.title))
 
     for user in users:
-
         context = {
             'user': user,
             'instance': object,

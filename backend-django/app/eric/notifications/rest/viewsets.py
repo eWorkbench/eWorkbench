@@ -3,14 +3,18 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django_userforeignkey.request import get_current_user
+from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
-from eric.core.rest.viewsets import BaseAuthenticatedUpdateOnlyModelViewSet, BaseAuthenticatedReadOnlyModelViewSet
-from eric.notifications.models import NotificationConfiguration, Notification
-from eric.notifications.rest.filters import NotificationFilter
-from eric.notifications.rest.serializers import NotificationConfigurationSerializer, NotificationSerializer
+from eric.core.rest.viewsets import BaseAuthenticatedUpdateOnlyModelViewSet, BaseAuthenticatedReadOnlyModelViewSet, \
+    BaseAuthenticatedModelViewSet, DeletableViewSetMixIn
+from eric.notifications.models import NotificationConfiguration, Notification, ScheduledNotification
+from eric.notifications.rest.filters import NotificationFilter, ScheduledNotificationFilter
+from eric.notifications.rest.serializers import NotificationConfigurationSerializer, NotificationSerializer, \
+    ScheduledNotificationSerializer
+from eric.projects.rest.viewsets import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet
 
 
 class NotificationConfigurationViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
@@ -60,7 +64,7 @@ class NotificationViewSet(BaseAuthenticatedReadOnlyModelViewSet):
     @action(detail=False, methods=['post'])
     def read_all(self, request):
         """
-        Mark all notifications of the current user as read as read
+        Mark all notifications of the current user as read
         :param request:
         :return:
         """
@@ -82,3 +86,17 @@ class NotificationViewSet(BaseAuthenticatedReadOnlyModelViewSet):
             'created_by', 'created_by__userprofile',
             'last_modified_by', 'last_modified_by__userprofile'
         )
+
+
+class ScheduledNotificationViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn,):
+    """REST API Viewset for notifications"""
+
+    serializer_class = ScheduledNotificationSerializer
+    filter_class = ScheduledNotificationFilter
+    search_fields = ()
+
+    # disable pagination for this endpoint
+    pagination_class = None
+
+    def get_queryset(self):
+        return ScheduledNotification.objects.all()

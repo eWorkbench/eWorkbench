@@ -2,6 +2,7 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+import datetime
 import uuid
 
 from django.contrib.postgres.fields import ArrayField
@@ -13,9 +14,10 @@ from django_changeset.models import RevisionModelMixin
 from django_userforeignkey.models.fields import UserForeignKey
 
 from eric.core.models import BaseModel
-from eric.core.models.abstract import ChangeSetMixIn
+from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin
 from django_cleanhtmlfield.fields import HTMLField
-from eric.notifications.models.managers import NotificationConfigurationManager, NotificationManager
+from eric.notifications.models.managers import NotificationConfigurationManager, NotificationManager, \
+    ScheduledNotificationManager
 
 
 class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
@@ -27,6 +29,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     NOTIFICATION_CONF_MEETING_USER_CHANGED = 'NOTIFICATION_CONF_MEETING_USER_CHANGED'
     NOTIFICATION_CONF_MEETING_CHANGED = 'NOTIFICATION_CONF_MEETING_CHANGED'
     NOTIFICATION_CONF_MEETING_RELATION_CHANGED = 'NOTIFICATION_CONF_MEETING_RELATION_CHANGED'
+    NOTIFICATION_CONF_MEETING_REMINDER = 'NOTIFICATION_CONF_MEETING_REMINDER'
 
     # Task
     NOTIFICATION_CONF_TASK_USER_CHANGED = 'NOTIFICATION_CONF_TASK_USER_CHANGED'
@@ -41,6 +44,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         (NOTIFICATION_CONF_MEETING_USER_CHANGED, _('Attended users of meeting has been changed')),
         (NOTIFICATION_CONF_MEETING_CHANGED, _('Meeting has been changed')),
         (NOTIFICATION_CONF_MEETING_RELATION_CHANGED, _('Relation of meeting has been changed')),
+        (NOTIFICATION_CONF_MEETING_REMINDER, _('Remind of meeting')),
         (NOTIFICATION_CONF_TASK_USER_CHANGED, _('Assigned users of task has been changed')),
         (NOTIFICATION_CONF_TASK_CHANGED, _('Task has been changed')),
         (NOTIFICATION_CONF_TASK_RELATION_CHANGED, _('Relation of task has been changed')),
@@ -161,3 +165,104 @@ class Notification(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
     def __str__(self):
         return _("Notification {title}").format(title=self.title)
+
+
+class ScheduledNotification(BaseModel, ChangeSetMixIn, SoftDeleteMixin,):
+    """schedules a notification on a given point in the future for a given object"""
+
+    objects = ScheduledNotificationManager()
+
+    class Meta:
+        verbose_name = _("ScheduledNotification")
+        verbose_name_plural = _("ScheduledNotifications")
+        track_fields = ('scheduled_date_time', 'object_id', 'content_type')
+
+    # ScheduledNotification time units
+
+    SCHEDULEDNOTIFICATION_TIME_UNIT_MINUTE = 'MINUTE'
+    SCHEDULEDNOTIFICATION_TIME_UNIT_HOUR = 'HOUR'
+    SCHEDULEDNOTIFICATION_TIME_UNIT_DAY = 'DAY'
+    SCHEDULEDNOTIFICATION_TIME_UNIT_WEEK = 'WEEK'
+
+    SCHEDULEDNOTIFICATION_TIME_UNIT_CHOICES = (
+        (SCHEDULEDNOTIFICATION_TIME_UNIT_MINUTE, _('minutes')),
+        (SCHEDULEDNOTIFICATION_TIME_UNIT_HOUR, _('hours')),
+        (SCHEDULEDNOTIFICATION_TIME_UNIT_DAY, _('days')),
+        (SCHEDULEDNOTIFICATION_TIME_UNIT_WEEK, _('weeks')),
+    )
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    scheduled_date_time = models.DateTimeField(
+        verbose_name=_("Scheduled date time")
+    )
+
+    timedelta_value = models.IntegerField(
+        verbose_name=_("Time value when the notification should created"),
+        default=1
+    )
+
+    timedelta_unit = models.CharField(
+        max_length=6,
+        choices=SCHEDULEDNOTIFICATION_TIME_UNIT_CHOICES,
+        verbose_name=_("Time unit when the notification should be created"),
+        default=SCHEDULEDNOTIFICATION_TIME_UNIT_DAY
+    )
+
+    active = models.BooleanField(
+        verbose_name=_("If scheduled notification is active"),
+        default=False,
+        db_index=True
+    )
+
+    processed = models.BooleanField(
+        verbose_name=_("If scheduled notification was processed"),
+        default=False,
+        db_index=True
+    )
+
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        verbose_name=_('Content type'),
+        null=True,
+        blank=True
+    )
+
+    object_id = models.UUIDField(
+        verbose_name=_('Object id of the scheduled notification content'),
+        null=True,
+        blank=True,
+        unique=True
+    )
+
+    content_object = GenericForeignKey(
+        'content_type',
+        'object_id'
+    )
+
+    def __str__(self):
+        return _("Scheduled Notification on {scheduled_date_time} for {objectid}").format(
+            scheduled_date_time=self.scheduled_date_time,
+            objectid=self.object_id,
+        )
+
+    @staticmethod
+    def calculate_scheduled_date_time(time_unit_choice, scheduled_timedelta_value, date_time_start):
+        if time_unit_choice == ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_MINUTE:
+            timedelta_keyword = 'minutes'
+        elif time_unit_choice == ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_HOUR:
+            timedelta_keyword = 'hours'
+        elif time_unit_choice == ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_DAY:
+            timedelta_keyword = 'days'
+        elif time_unit_choice == ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_WEEK:
+            timedelta_keyword = 'weeks'
+        else:
+            timedelta_keyword = 'days'
+
+        scheduled_date_time = date_time_start - datetime.timedelta(**{timedelta_keyword: scheduled_timedelta_value})
+        return scheduled_date_time

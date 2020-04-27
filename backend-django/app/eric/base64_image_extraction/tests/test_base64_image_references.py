@@ -82,6 +82,9 @@ class Base64ImageReferencesTestCase(TestCase):
         self.base64_image_tag = '<img src="{}" alt="Test_image.png" title="Test_image.png">'.format(
             self.full_base64_string
         )
+        self.base64_image_tag_incomplete = '<img src="{}">'.format(
+            self.full_base64_string
+        )
         self.image_attributes = {
             'full_base64_data': self.full_base64_string,
             'mime_type': 'image/png',
@@ -89,17 +92,34 @@ class Base64ImageReferencesTestCase(TestCase):
             'title': 'Test_image.png',
             'alt': 'Test_image.png',
         }
+        self.image_attributes_incomplete = {
+            'full_base64_data': self.full_base64_string,
+            'mime_type': 'image/png',
+            'base64_image_string': self.base64_string,
+            'title': None,
+            'alt': None,
+        }
 
         # test HTML content with two base64 image references and test messages with line breaks in between
         self.html_content = """
             Test message.
-            {}
+            {base64_image_tag}
             Another test message.
-            {}
+            {base64_image_tag}
             Last test message.
         """.format(
-            self.base64_image_tag,
-            self.base64_image_tag
+            base64_image_tag=self.base64_image_tag
+        )
+
+        # test HTML content with two incomplete base64 image references and test messages with line breaks in between
+        self.html_content_incomplete = """
+            Test message.
+            {base64_image_tag_incomplete}
+            Another test message.
+            {base64_image_tag_incomplete}
+            Last test message.
+        """.format(
+            base64_image_tag_incomplete=self.base64_image_tag_incomplete
         )
 
     def test_decode_base64_with_padding_correction(self):
@@ -181,3 +201,12 @@ class Base64ImageReferencesTestCase(TestCase):
         for match in matches:
             image_attributes = extract_image_attributes_for_regex_match(match)
             self.assertEqual(image_attributes, self.image_attributes)
+
+    def test_extract_incomplete_image_attributes_for_regex_match(self):
+        """Extract incomplete image attributes from a regex match"""
+        matches = get_base64_image_references(self.html_content_incomplete)
+        self.assertEqual(len(tuple(matches)), 2)
+
+        for match in matches:
+            image_attributes = extract_image_attributes_for_regex_match(match)
+            self.assertEqual(image_attributes, self.image_attributes_incomplete)

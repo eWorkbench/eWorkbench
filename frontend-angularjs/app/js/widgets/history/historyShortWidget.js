@@ -23,7 +23,7 @@
                 expanded: '=?',
                 changesPerPage: '=?'
             }
-        }
+        };
     });
 
     module.controller('HistoryShortWidgetController', function (
@@ -98,10 +98,8 @@
             }
 
             $scope.$watch('vm.baseModel.version_number', function () {
-                console.log('!!! vm.base model changed, reloading');
-
                 // update history depending on the current view mode
-                if (vm.viewMode == 'all') {
+                if (vm.viewMode === 'all') {
                     vm.getHistory(vm.currentLimit, vm.currentOffset);
                 } else {
                     vm.getHistory();
@@ -110,7 +108,6 @@
             }, true);
 
             vm.historyModelTypeService = HistoryModelTypeService;
-
             vm.historyDetailsVisible = {};
         };
 

@@ -386,7 +386,7 @@
                                 vm.sectionElement.child_object = response;
                                 // trigger removal from the section
                                 $rootScope.$emit("labbook-child-element-moved-from-section",
-                                    {element_id: vm.element.pk});
+                                    {element: vm.element});
                                 // trigger repositioning and adding to the labbook top level
                                 $rootScope.$emit("labbook-child-element-moved-back-to-labbook",
                                     {element: vm.element});

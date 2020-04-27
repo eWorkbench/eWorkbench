@@ -20,6 +20,6 @@
                 value: '='
             },
             templateUrl: 'js/widgets/history/historyRecordDisplay.html'
-        }
+        };
     });
 })();

@@ -214,10 +214,13 @@
             // remove the element from the child elements
             var currentChildElements = currentSection.child_object.child_elements;
             var child_elements = [];
+            var removedElement = {};
 
             for (var i = 0; i < currentChildElements.length; i++) {
                 if (currentChildElements[i] !== labbookChildElementPk) {
                     child_elements.push(currentChildElements[i]);
+                } else {
+                    removedElement = currentChildElements[i];
                 }
             }
             var data = {
@@ -230,7 +233,7 @@
                 function success (response) {
                     // trigger the removal of the element from the current grid
                     $rootScope.$emit("labbook-child-element-moved-from-section",
-                        {element_id: labbookChildElementPk});
+                        {element: removedElement});
                     d.resolve();
                 },
                 function error (rejection) {

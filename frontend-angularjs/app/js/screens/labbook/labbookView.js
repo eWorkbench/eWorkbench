@@ -150,11 +150,13 @@
         PictureRestService,
         WorkbenchElementChangesWebSocket,
         pictureCreateModalService,
+        newElementModalService,
         PermissionService,
         WorkbenchElementsTranslationsService,
         LabbookSectionsRestService,
         CalendarConfigurationService,
         LabbookGridOptions,
+        LabbookService,
         labbookImportInProgressService
     ) {
         'ngInject';
@@ -162,6 +164,7 @@
         var vm = this;
 
         this.$onInit = function () {
+            vm.recalculationInProgress = false;
             /**
              * REST Service for Labbook Child Elements
              */
@@ -267,7 +270,7 @@
                 enabled: true,
                 handles: ['e', 's', 'w', 'se', 'sw'],
                 stop: function (event, $element, widget) {
-                    vm.updateLabbookChildElements();
+                    vm.updateLabbookChildElements(vm.childElements);
                 }
             };
             vm.gridsterOpts.draggable = {
@@ -276,7 +279,7 @@
                 // widgets/labbookSectionGrid/labbookSectionGrid.js so drag events only happen within the right grid
                 handle: '.labbook-cell-move',
                 stop: function (event, $element, widget) {
-                    vm.updateLabbookChildElements();
+                    vm.updateLabbookChildElements(vm.childElements);
                 }
             };
 
@@ -286,6 +289,11 @@
             $scope.$on("labbook-remove-child-element", function (event, args) {
                 var childElement = args.childElement;
 
+                vm.recalculationInProgress = LabbookService.recalculatePositions(
+                    vm.childElements,
+                    childElement,
+                    vm.updateLabbookChildElements
+                );
                 childElement.$delete().then(function () {
                     vm.getAllChildElements();
                 });
@@ -420,6 +428,12 @@
                 angular.forEach(vm.childElements, function (childElement) {
                     if (childElement.pk !== removedChildElementPk) {
                         updatedChildElements.push(childElement);
+                    } else {
+                        vm.recalculationInProgress = LabbookService.recalculatePositions(
+                            vm.childElements,
+                            childElement,
+                            vm.updateLabbookChildElements
+                        );
                     }
                 });
                 vm.childElements = updatedChildElements;
@@ -456,17 +470,23 @@
          * triggers a softdelete of the section element on success
          */
         vm.removeSectionElement = function (sectionPk) {
-            var sectionElementPk = "";
+            var sectionElement = "";
 
             for (var i = 0; i < vm.childElements.length; i++) {
                 if (vm.childElements[i].child_object_id === sectionPk) {
-                    sectionElementPk = vm.childElements[i].pk;
+                    sectionElement = angular.copy(vm.childElements[i]);
                 }
             }
-            if (sectionElementPk) {
-                vm.labbookChildElementRestService.delete({pk: sectionElementPk}).$promise.then(
+            vm.recalculationInProgress = LabbookService.recalculatePositions(
+                vm.childElements,
+                sectionElement,
+                vm.updateLabbookChildElements
+            );
+            if (sectionElement) {
+                vm.labbookChildElementRestService.delete({pk: sectionElement.pk}).$promise.then(
                     function success (response) {
                         toaster.pop('success', gettextCatalog.getString("Section Deleted"));
+                        vm.getAllChildElements();
                     },
                     function error (rejection) {
                         console.log(rejection);
@@ -619,24 +639,39 @@
         };
 
         /**
+         * checks whether the new element is added to the labbook or to a section
+         */
+        var checkParentAndCalculatePosition = function (section, position, newWidth, newHeight) {
+            if (section == null) {
+                return calculatePositionOfNewElement(vm.childElements, position, newWidth, newHeight);
+            }
+
+            return calculatePositionOfNewElement(section.childElements, position, newWidth, newHeight);
+        }
+
+        /**
          * Calculates the position of the element when the element is added
          * E.g., if you want to add an element at the bottom of the grid, we need to calculate the x and y position
          * @param position [string] the position of the new element, either top or bottom
          */
-        var calculatePositionOfNewElement = function (position, newWidth, newHeight) {
+        var calculatePositionOfNewElement = function (elements, position, newWidth, newHeight) {
             var el = null,
                 i = 0;
 
+            if (elements == null) {
+                elements = vm.childElements;
+            }
+
             if (position == 'top') {
                 // move all child elements to the bottom by newHeight
-                for (i = 0; i < vm.childElements.length; i++) {
-                    el = vm.childElements[i];
+                for (i = 0; i < elements.length; i++) {
+                    el = elements[i];
 
                     el.position_y += newHeight;
                 }
                 // make sure to save the elements here to avoid movement on saves afterwards
                 $timeout(function () {
-                    vm.updateLabbookChildElements();
+                    vm.updateLabbookChildElements(elements);
                 }, 100);
 
                 return {
@@ -649,8 +684,8 @@
                 // determine the maximum position_y + the height of this item
                 var maxY = 0;
 
-                for (i = 0; i < vm.childElements.length; i++) {
-                    el = vm.childElements[i];
+                for (i = 0; i < elements.length; i++) {
+                    el = elements[i];
 
                     if (el.position_y + el.height > maxY) {
                         maxY = el.position_y + el.height;
@@ -658,7 +693,7 @@
                 }
                 // make sure to save the elements here to avoid movement on saves afterwards
                 $timeout(function () {
-                    vm.updateLabbookChildElements();
+                    vm.updateLabbookChildElements(elements);
                 }, 100);
 
                 return {
@@ -688,7 +723,7 @@
                 }).result.then(
                     function success (element) {
                         // 2. determine the position where the new element should go
-                        var data = calculatePositionOfNewElement("bottom", 20, 7);
+                        var data = calculatePositionOfNewElement(vm.childElements,"bottom", 20, 7);
 
                         data['child_object_id'] = element.pk;
                         data['child_object_content_type'] = element.content_type;
@@ -708,17 +743,19 @@
          * Add a new picture at the specified position
          * @param position the position (either "top" or "bottom")
          */
-        vm.addNewPicture = function (position) {
+        vm.addNewPicture = function (position, section) {
             // create the picture create modal dialog and let the user fill in the details of the picture
             pictureCreateModalService.open({'projects': vm.labbook.projects}).result.then(
                 function success (element) {
                     // 2. determine the position where the new element should go
-                    var data = calculatePositionOfNewElement(position, 20, 7);
+                    var data = {};
+
+                    data = checkParentAndCalculatePosition(section, position, 20, 7);
 
                     data['child_object_id'] = element.pk;
                     data['child_object_content_type'] = element.content_type;
 
-                    addNewLabbookChildElement(data);
+                    addNewLabbookChildElement(data, section);
                 },
                 function cancel () {
                 }
@@ -731,7 +768,7 @@
          * This first creates a note via the Notes REST API, and then adds it to the lab book child elements
          * @param position
          */
-        vm.addNewNote = function (position) {
+        vm.addNewNote = function (position, section) {
             vm.noteIsRendering = true;
             var data = {
                 'subject': gettextCatalog.getString("Title"),
@@ -743,12 +780,14 @@
             NoteRestService.create(data).$promise.then(
                 function success (element) {
                     // 2. determine the position where the new element should go
-                    var data = calculatePositionOfNewElement(position, 20, 7);
+                    var data = {};
+
+                    data = checkParentAndCalculatePosition(section, position, 20, 7);
 
                     data['child_object_id'] = element.pk;
                     data['child_object_content_type'] = element.content_type;
 
-                    addNewLabbookChildElement(data);
+                    addNewLabbookChildElement(data, section);
                 },
                 function error (rejection) {
                     if (rejection && rejection.data) {
@@ -790,7 +829,7 @@
             LabbookSectionsRestService.create(data).$promise.then(
                 function success (element) {
                     // 2. determine the position where the new element should go
-                    var data = calculatePositionOfNewElement(position, 20, 1);
+                    var data = calculatePositionOfNewElement(vm.childElements, position, 20, 1);
 
                     data['child_object_id'] = element.pk;
                     data['child_object_content_type'] = element.content_type;
@@ -821,6 +860,50 @@
         };
 
         /**
+         * Add a new element at the specified location
+         * @param height of new element
+         */
+        vm.addNewElement = function (nextFunction) {
+            var
+                elementType = '',
+                icon = '';
+
+            // sets the icon and the elementType for dialog title depending on nextFunction
+            switch (nextFunction) {
+                case vm.addNewSection:
+                    elementType = 'Section';
+                    icon = vm.mainElementIcons.labbooksection;
+                    break;
+                case vm.addNewNote:
+                    elementType = 'Note';
+                    icon = vm.mainElementIcons.note;
+                    break;
+                case vm.addNewPicture:
+                    elementType = 'Picture';
+                    icon = vm.mainElementIcons.picture;
+                    break;
+                case vm.addNewFile:
+                    elementType = 'File';
+                    icon = vm.mainElementIcons.file;
+                    break;
+                default:
+                    elementType = '';
+            }
+
+            newElementModalService.open(vm.childElements, elementType, icon, vm.labbook).result.then(
+                function success (data) {
+                    if (elementType === 'Section') {
+                        nextFunction(data.location);
+                    } else {
+                        nextFunction(data.location, data.section);
+                    }
+                },
+                function cancel () {
+                }
+            );
+        };
+
+        /**
          * This returns true if the row (grid item) is a labbook section, so sections can have
          * different CSS to the other elements
          */
@@ -843,7 +926,7 @@
             }).$promise.then(
                 function success (element) {
                     // 2. determine the position where the new element should go
-                    var data = calculatePositionOfNewElement("bottom", 20, 7);
+                    var data = calculatePositionOfNewElement(vm.childElements, "bottom", 20, 7);
 
                     data['child_object_id'] = element.pk;
                     data['child_object_content_type'] = element.content_type;
@@ -874,7 +957,7 @@
          * Asks the user for a file to upload
          * @param position
          */
-        vm.addNewFile = function (position) {
+        vm.addNewFile = function (position, section) {
             var data = {
                 'title': gettextCatalog.getString("New File"),
                 'projects': vm.labbook.projects
@@ -890,12 +973,14 @@
                     FileRestService.create(data).$promise.then(
                         function success (element) {
                             // 2. determine the position where the new element should go
-                            var data = calculatePositionOfNewElement(position, 20, 7);
+                            var data = {};
+
+                            data = checkParentAndCalculatePosition(section, position, 20, 7);
 
                             data['child_object_id'] = element.pk;
                             data['child_object_content_type'] = element.content_type;
 
-                            addNewLabbookChildElement(data);
+                            addNewLabbookChildElement(data, section);
                         },
                         function error (rejection) {
                             if (rejection.status == 507) {
@@ -927,7 +1012,7 @@
          */
         var addWorkbenchElementToLabbookFromTemplateCell = function (xPosition, width, height, element) {
             // determine the position where the new element should go
-            var data = calculatePositionOfNewElement("bottom", width, height);
+            var data = calculatePositionOfNewElement(vm.childElements,"bottom", width, height);
 
             data['position_x'] = xPosition;
             data['child_object_id'] = element.pk;
@@ -1216,6 +1301,7 @@
                 function success (response) {
                     // put the section element on the bottom of the labbook for now
                     var data = calculatePositionOfNewElement(
+                        vm.childElements,
                         "bottom",
                         childElement['width'],
                         childElement['height']
@@ -1511,14 +1597,26 @@
          * Add a new labbook child element via REST API
          * @param item
          */
-        var addNewLabbookChildElement = function (item) {
+        var addNewLabbookChildElement = function (item, section) {
             $rootScope.$emit("labbook-child-element-added-to-labbook");
+            if (section != null) {
+                // skipping the next websocket refresh, so the labbook top level grid
+                // doesn't show this element there for a short time
+                vm.skipNextWebsocketRefresh = true;
+            }
 
             // call rest api
             return vm.labbookChildElementRestService.create(item).$promise.then(
                 function success (response) {
                     if (!labbookImportInProgressService.checkForImportInProgress()) {
-                        toaster.pop('success', gettextCatalog.getString("Cell added"));
+                        if (section != null) {
+                            addChildElementToSection(response, section);
+                            setTimeout(function () {
+                                vm.skipNextWebsocketRefresh = false;
+                            }, 2000);
+                        } else {
+                            toaster.pop('success', gettextCatalog.getString("Cell added"));
+                        }
                     }
                 },
                 function error (rejection) {
@@ -1558,6 +1656,55 @@
             });
         };
 
+        /**
+         * Add child element to the section via REST API
+         * @param item
+         */
+        var addChildElementToSection = function (item, section) {
+            // add the elements pk to child elements
+            section.child_object.child_elements.push(item.pk);
+            var data = {
+                'pk': section.child_object.pk,
+                'child_elements': section.child_object.child_elements
+            };
+
+            // 1. update the child elements of the section
+            LabbookSectionsRestService.updatePartial(data).$promise.then(
+                function success (response) {
+                    // 2. trigger removal from the labbook grid
+                    $rootScope.$emit("labbook-child-element-added-to-section", {element_id: item.pk});
+                    toaster.pop('success', gettextCatalog.getString("Cell added"));
+                    vm.updateLabbookChildElements(section.childElements);
+                },
+                function error (rejection) {
+                    /**
+                     * Handle errors (Validation error, Permission error, unknown error)
+                     */
+                    if (rejection && rejection.data) {
+                        // Validation error - an error message is provided by the api
+                        console.log(rejection);
+                        toaster.pop('error', gettextCatalog.getString("Error"), rejection.data.detail);
+                    } else if (rejection.status == 403) {
+                        // Permission denied -> write our own error message
+                        toaster.pop('error', gettextCatalog.getString("Permission Denied"),
+                            gettextCatalog.getString("You do not have permissions to add an element in this LabBook")
+                        );
+                    } else {
+                        // Unknown error -> write our own error message
+                        console.log(rejection);
+                        toaster.pop('error', gettextCatalog.getString("Error"),
+                            gettextCatalog.getString("Could not add new cell")
+                        );
+                    }
+                }
+            ).finally(function () {
+                vm.noteIsRendering = false;
+                $timeout(function () {
+                    vm.getAllChildElements();
+                }, 2000);
+            });
+        };
+
         vm.refreshLabbookChildElements = function () {
             vm.labbookChildElementRestService.query().$promise.then(
                 function success (response) {
@@ -1583,7 +1730,7 @@
          * This is necessary, e.g., when a labbook child element is moved from one position to another position,
          * because movement of one element might cause movement of other elements
          */
-        vm.updateLabbookChildElements = function () {
+        vm.updateLabbookChildElements = function (elements) {
             if (!labbookImportInProgressService.checkForImportInProgress()) {
                 /**
                  * List of all child elements (collected in the for loop)
@@ -1595,13 +1742,13 @@
                 var capturedChildElements = [];
 
                 // collect the positioning of all child elements
-                for (var i = 0; i < vm.childElements.length; i++) {
+                for (var i = 0; i < elements.length; i++) {
                     capturedChildElements.push({
-                        'pk': vm.childElements[i].pk,
-                        'position_y': vm.childElements[i].position_y,
-                        'position_x': vm.childElements[i].position_x,
-                        'width': vm.childElements[i].width,
-                        'height': vm.childElements[i].height
+                        'pk': elements[i].pk,
+                        'position_y': elements[i].position_y,
+                        'position_x': elements[i].position_x,
+                        'width': elements[i].width,
+                        'height': elements[i].height
                     });
                 }
 
@@ -1613,6 +1760,7 @@
                         // skip next websocket fresh for roughly 100 ms
                         setTimeout(function () {
                             vm.skipNextWebsocketRefresh = false;
+                            vm.recalculationInProgress = false;
                         }, 100);
                     },
                     function error (rejection) {

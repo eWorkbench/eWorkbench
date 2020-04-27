@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from django.utils.timezone import datetime, timedelta
+from django.utils.timezone import datetime
 
 from rest_framework.test import APITestCase
 from rest_framework import status

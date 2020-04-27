@@ -9,7 +9,7 @@ from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.utils import timezone
-from django.utils.timezone import timedelta
+from django.utils.timezone import timedelta, localtime
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -87,7 +87,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.resource1 = Resource.objects.get(pk=json.loads(self.resource1.content.decode())["pk"])
 
         # set up start and end times
-        self.now = timezone.now()
+        self.now = localtime(timezone.now())
         self.date_time_start = self.now + timedelta(hours=1)
         self.date_time_end_30_minutes = self.now + timedelta(hours=1) + timedelta(minutes=30)
         self.date_time_end_1_hour = self.now + timedelta(hours=2)

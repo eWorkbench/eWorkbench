@@ -1,35 +1,17 @@
 <!-- Section grid -->
 <div id="labbok-section-child-display">
-
+    <div ng-if="vm.recalculationInProgress">
+        <div class="row text-center">
+            <h3>Recalculating positions, please wait. <i class="fa fa-spinner fa-pulse"></i></h3>
+        </div>
+    </div>
     <!-- board -->
-    <div ng-if="vm.sectionChildElementsLoaded">
+    <div ng-if="vm.sectionChildElementsLoaded && !vm.recalculationInProgress">
         <div class="labbook-board-paper">
             <div class="text-center" ng-if="vm.sectionChildElements.length === 0">
                 <h2 style="color:#363636;" translate>No items were added to this section yet</h2>
             </div>
             <div class="toolbox-container"></div>
-
-            <div class="section-new-item-list-top" ng-if="vm.sectionChildElements.length > 0">
-                <div>
-                    <a style="display: inline-block;color: grey" ng-if="!vm.noteIsRendering"
-                       ng-click="vm.addNewNote('top')" role="button"
-                       title="{{ 'Create a new Text within this Section' | translate }}">
-                        <span class="{{ ::vm.mainElementIcons.note }}"></span>
-                    </a>
-                    <a style="display: inline-block;" ng-if="vm.noteIsRendering" role="button"
-                       title="{{ 'Create a new Text within this Section' | translate }}">
-                        <span class="{{ ::vm.mainElementIcons.note }}"></span>
-                    </a>
-                    <a style="display: inline-block;" ng-click="vm.addNewPicture('top')" role="button"
-                       title="{{ 'Upload a new picture to this Section' | translate }}">
-                        <span class="{{ ::vm.mainElementIcons.picture }}"></span>
-                    </a>
-                    <a style="display: inline-block;" ng-click="vm.addNewFile('top')" role="button"
-                       title="{{ 'Upload a new file to this Section' | translate }}">
-                        <span class="{{ ::vm.mainElementIcons.file }}"></span>
-                    </a>
-                </div>
-            </div>
 
             <!-- angular gridster board, displaying the section child elements under the section element -->
             <ul id="gridsterBoard" gridster="vm.sectionGridsterOpts">
@@ -62,29 +44,6 @@
                     </div>
                 </li>
             </ul>
-
-            <div class="section-new-item-list-bottom">
-                <div>
-                    <a style="display: inline-block;color: grey" ng-if="!vm.noteIsRendering"
-                       ng-click="vm.addNewNote('bottom')" role="button"
-                       title="{{ 'Create a new Text within this Section' | translate }}">
-                        <span class="{{ ::vm.mainElementIcons.note }}"></span>
-                    </a>
-                    <a style="display: inline-block;" ng-if="vm.noteIsRendering" role="button"
-                       title="{{ 'Create a new Text within this Section' | translate }}">
-                        <span class="{{ ::vm.mainElementIcons.note }}"></span>
-                    </a>
-                    <a style="display: inline-block;" ng-click="vm.addNewPicture('bottom')" role="button"
-                       title="{{ 'Upload a new picture to this Section' | translate }}">
-                        <span class="{{ ::vm.mainElementIcons.picture }}"></span>
-                    </a>
-                    <a style="display: inline-block;" ng-click="vm.addNewFile('bottom')" role="button"
-                       title="{{ 'Upload a new file to this Section' | translate }}">
-                        <span class="{{ ::vm.mainElementIcons.file }}"></span>
-                    </a>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>

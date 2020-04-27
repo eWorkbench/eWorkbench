@@ -99,3 +99,21 @@ To clone your **default** database volume for your current branch you have to ex
 The argument `-o` is optional and generates the `docker-compose.override.yml` file.
 
 **Important**: Do **NOT** add the `docker-compose.override.yml` to the project repository! If you change to a branch where you need another volume clone just execute the command above or delete the override file to use the default volume again.
+
+### Adding licenseheaders
+
+In order to publish the workbench-project on Github, the following licenseheader needs to be added to all files where applicable (`*.py, *.js, *.scss, *.less, etc.`, BUT NOT: `*.html, *.xml, *.yml, etc.`):
+```
+Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+SPDX-License-Identifier: AGPL-3.0-or-later
+```
+
+Install the [licenseheaders](https://github.com/johann-petrak/licenseheaders) tool:
+
+```docker-compose run --rm python pip install -r requirements_dev.txt```
+
+Add the licenseheader to all files with this command
+
+`docker-compose run --rm python python -m licenseheaders -t ../LICENSE.txt`
+
+Be aware that this also adds headers to xml-files (Not wanted in export-templates) and removes comment-lines if they are at the very beginning of files. This makes it necessary to check the changes and adapt manually where needed.

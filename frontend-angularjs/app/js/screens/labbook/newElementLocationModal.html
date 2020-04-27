@@ -1,0 +1,52 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate><span class="{{ ::vm.icon }} fa-1x"></span> Add {{ vm.elementType }} Element</h3>
+</div>
+<form class="form-horizontal" name="newElementForm" ng-submit="vm.next()">
+    <div class="modal-body">
+        <div class="form-group" ng-if="vm.elementType !== 'Section'">
+            <div class="col-sm-3" translate>
+                Parent Element
+            </div>
+            <select id="parent"
+                    ng-model="vm.parent">
+                <option value="labbook" translate>Current LabBook</option>
+                <optgroup label="Section">
+                  <option ng-repeat="childElement in vm.labbookChildElements | filter:vm.isLabbookSection track by childElement.pk"
+                          ng-value="childElement">{{ childElement.child_object.title }}</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <!-- New Element Position -->
+        <div class="form-group">
+            <div class="col-sm-3" translate>
+                Position
+            </div>
+            <div class="col-sm-9">
+                <label class="radio-buttons col-sm-3">
+                    <input type="radio"
+                           ng-model="vm.location"
+                           value="top">
+                    <span translate>On top</span>
+                </label>
+                <label class="radio-buttons col-sm-3">
+                    <input type="radio"
+                           ng-model="vm.location"
+                           value="bottom">
+                    <span translate>Bottom</span>
+                </label>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <div class="text-right">
+            <button class="btn btn-default" type="button" ng-click="vm.dismiss()" translate>
+                Cancel
+            </button>
+            <button class="btn btn-warning" translate>
+                Insert Element
+            </button>
+        </div>
+    </div>
+</form>

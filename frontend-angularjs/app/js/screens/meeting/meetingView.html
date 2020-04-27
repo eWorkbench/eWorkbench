@@ -152,7 +152,8 @@
                         <label class="col-sm-2 col-md-3" for="meeting_text">
                             <span translate>Description</span>
                             <!-- choose Template -->
-                            <text-template-widget ng-hide="vm.isReadOnly()" override-object-attribute="vm.meeting.text"></text-template-widget>
+                            <text-template-widget ng-hide="vm.isReadOnly()"
+                                                  override-object-attribute="vm.meeting.text"></text-template-widget>
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
@@ -198,12 +199,30 @@
                             </editable-select-list>
                         </div>
                     </div>
+                    <!-- notification schedule -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="meeting_project" translate>
+                            Reminder
+                        </label>
+                        <div class="col-sm-9" style="text-align: left">
+                            <editable-select-list
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingPartial('scheduled_notification_writable', ngModel)"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.meeting.scheduled_notification_writable"
+                                    compare-mode="scheduledNotification">
+                                <ng-include src="'js/screens/meeting/meetingForm.reminder.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
                     <!-- History -->
                     <history-short-widget base-model="vm.meeting" base-url-model="meeting"></history-short-widget>
                     <!-- Versions -->
-                    <versions-short-widget readonly="vm.isReadOnly()" base-model="vm.meeting" base-url-model="meeting"></versions-short-widget>
+                    <versions-short-widget readonly="vm.isReadOnly()" base-model="vm.meeting"
+                                           base-url-model="meeting"></versions-short-widget>
                 </div>
             </div>
         </div>

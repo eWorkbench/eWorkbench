@@ -90,6 +90,23 @@ def get_current_version_from_git():
     return version
 
 
+@memoize(timeout=60 * 60)
+def get_current_version_from_version_file():
+    """
+    Returns a string of the current version from a version file located in the app dir
+    This is cached via memoize for an hour
+    :return: current version from git, e.g. "master (+1)"
+    """
+    try:
+        with open("version.txt") as infile:
+            version = infile.read().strip()
+    except:
+        # could not determine repository version
+        version = "Unknown version"
+
+    return version
+
+
 def current_version_view(request):
     """
     View that determines the current git repository version and branch and returns it
@@ -97,6 +114,9 @@ def current_version_view(request):
     :return: HttpResponse
     """
     version = get_current_version_from_git()
+
+    if version == "Unknown version":
+        version = get_current_version_from_version_file()
 
     return HttpResponse(version, content_type='text')
 

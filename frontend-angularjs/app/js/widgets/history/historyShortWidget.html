@@ -18,36 +18,7 @@
                     </td>
                     <td>
                         <div>
-                            <!-- Insert -->
-                            <!-- Model Type | created by | user -->
-                            <span ng-if="::history.changeset_type == 'I' ||
-                                           history.changeset_type == 'S' ||
-                                           history.changeset_type == 'D' ||
-                                           history.changeset_type == 'R'"
-                                  translate
-                                  translate-params-model-name="vm.modelNameToTranslation[history.object_type.model]"
-                                  translate-params-history-change-text="vm.historyModelTypeService.historyChangeText[history.changeset_type]"
-                            >
-                               {{ modelName }}
-                               {{ historyChangeText }}
-                               by <user-display-widget user="history.user"></user-display-widget>
-                            </span>
-                            <!-- Update -->
-                            <!-- Singular -> Field, Plural -> Fields | field names | edited by | user -->
-                            <span ng-if="::history.changeset_type == 'U'">
-                                <!-- Singular -> Field, Plural -> Fields -->
-                                <span translate translate-n="history.change_records.length"
-                                      translate-comment="Field {{ a }} modified by {{ user }}"
-                                      translate-plural="Fields">Field</span>
-                                <span ng-repeat="change_record in history.change_records">
-                                    {{ ::vm.getTranslatedFieldName(change_record.field_name) }}
-                                    <!-- Field names -->
-                                    <span ng-show="!$last">,</span>
-                                </span>
-                                {{ vm.historyModelTypeService.historyChangeText[history.changeset_type] }}
-                                <span translate translate-comment="Field {{ a }} modified by {{ user }}">by</span>
-                                <user-display-widget user="history.user"></user-display-widget>
-                            </span>
+                            <history-short-summary history="history" base-url-model="vm.baseUrlModel"></history-short-summary>
                         </div>
                         <div uib-collapse="!vm.historyDetailsVisible[history.pk]" ng-if="vm.historyDetailsVisible[history.pk]">
                             <history-entry-widget
@@ -60,7 +31,6 @@
                 </tr>
                 </tbody>
             </table>
-
 
             <!-- Depending on viewmode, we either show "Shore more changes" or a pagination -->
             <a class="pull-right clickable"
@@ -77,7 +47,8 @@
             </a>
 
             <ul ng-show="vm.viewMode == 'all'" uib-pagination total-items="vm.numberOfChanges" force-ellipses="true"
-                ng-model="vm.currentPage" ng-change="vm.pageChanged()"></ul>
+                ng-model="vm.currentPage" ng-change="vm.pageChanged()">
+            </ul>
 
         </div>
     </div>

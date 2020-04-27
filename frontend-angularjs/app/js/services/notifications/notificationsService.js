@@ -184,7 +184,7 @@
         var readNotificationAndGoToElement = function (notification) {
             service.readNotification(notification).then(
                 function () {
-                    // go to the noficiation url
+                    // go to the notification url
                     window.location.href = notification.url;
                 }
             );

@@ -134,6 +134,12 @@
             vm.isLocked = false;
 
             /**
+             * Set default options for scheduled notification (meeting reminder)
+             * @type {Object}
+             */
+            vm.setScheduledNotificationDefaults();
+
+            /**
              * On any change of date_time_start, adapt date_time_end accordingly.
              * This is accomplished by calculating the time difference in minutes from the original date_time_start and
              * the new date_time_start, and adding exatly that value to date_time_end
@@ -315,6 +321,30 @@
         };
 
         /**
+         * Sets default values for vm.meeting.scheduled_notification_writable
+         * When reading from the backend, vm.meeting.scheduled_notification is filled in (If it exists)
+         * To write/save, we need to submit vm.meeting.scheduled_notification_writable, as this is used in the
+         * backend's nested serializer
+         * For convenience, vm.meeting.scheduled_notification_writable is also used in all templates.
+         */
+        vm.setScheduledNotificationDefaults = function () {
+            if (vm.meeting.scheduled_notification === null) {
+                vm.meeting.scheduled_notification_writable = {};
+                vm.meeting.scheduled_notification_writable.timedelta_unit = 'DAY';
+                vm.meeting.scheduled_notification_writable.timedelta_value = null;
+                vm.meeting.scheduled_notification_writable.active = false;
+            } else {
+                vm.meeting.scheduled_notification_writable = vm.meeting.scheduled_notification;
+            }
+            vm.meeting.scheduled_notification_writable.options = [
+                {value: 'MINUTE', text: gettextCatalog.getString('minutes')},
+                {value: 'HOUR', text: gettextCatalog.getString('hours')},
+                {value: 'DAY', text: gettextCatalog.getString('days')},
+                {value: 'WEEK', text: gettextCatalog.getString('weeks')}
+            ];
+        };
+
+        /**
          * Reset Meeting Dates by refreshing the object via REST API
          */
         vm.resetMeetingDates = function () {
@@ -356,6 +386,8 @@
                 function success (response) {
                     updateAttendingUsersAndContacts(response);
                     vm.meeting = response;
+
+                    vm.setScheduledNotificationDefaults();
 
                     vm.checkForFullDayMeeting();
                     // worked
@@ -405,12 +437,22 @@
             // set attending contacts
             vm.meeting.attending_contacts_pk = vm.attendingContactsPk;
 
+            // if scheduled_notification_writable has not been set to active and its timedelta_value is empty,
+            // we do not submit it to the backend (As it contains some default values,
+            // which will lead to an error-response)
+            if (vm.meeting.scheduled_notification_writable.active === false &&
+                vm.meeting.scheduled_notification_writable.timedelta_value === null) {
+                delete vm.meeting.scheduled_notification_writable;
+            }
+
             // update task via rest api
             vm.meeting.$update().then(
                 function success (response) {
                     updateAttendingUsersAndContacts(response);
 
                     vm.meeting = response;
+
+                    vm.setScheduledNotificationDefaults();
 
                     vm.checkForFullDayMeeting();
                     // worked
@@ -471,6 +513,8 @@
 
                     vm.meeting = response;
 
+                    vm.setScheduledNotificationDefaults();
+
                     vm.checkForFullDayMeeting();
 
                     // worked
@@ -482,8 +526,17 @@
                      */
                     if (rejection && rejection.data && rejection.data[key]) {
                         // Validation error - an error message is provided by the api
-                        d.reject(rejection.data[key].join(", "));
-                        vm.errors = rejection.data;
+                        if (typeof (rejection.data[key] === 'object') && rejection.data[key] !== null) {
+                            var errMsgs = '';
+
+                            for (var i = 0; i < rejection.data[key].length; i++) {
+                                errMsgs += rejection.data[key][i] + ', ';
+                            }
+                            d.reject(errMsgs);
+                        } else {
+                            d.reject(rejection.data[key].join(", "));
+                        }
+                        vm.errors[key] = rejection.data[key];
                     } else if (rejection.data.non_field_errors) {
                         // non_field_error occured (e.g., object has already been trashed/soft-deleted) and can
                         // therefore no longer be edited

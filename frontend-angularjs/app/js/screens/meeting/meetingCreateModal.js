@@ -188,6 +188,20 @@
             }
 
             /**
+             * Meeting scheduled_notification_writable object
+             */
+            vm.meeting.scheduled_notification_writable = {};
+            vm.meeting.scheduled_notification_writable.timedelta_unit = 'DAY';
+            vm.meeting.scheduled_notification_writable.timedelta_value = null;
+            vm.meeting.scheduled_notification_writable.active = false;
+            vm.meeting.scheduled_notification_writable.options = [
+                {value: 'MINUTE', text: gettextCatalog.getString('minutes')},
+                {value: 'HOUR', text: gettextCatalog.getString('hours')},
+                {value: 'DAY', text: gettextCatalog.getString('days')},
+                {value: 'WEEK', text: gettextCatalog.getString('weeks')}
+            ];
+
+            /**
              * On any change of date_time_start, adapt date_time_end accordingly.
              * This is accomplished by calculating the time difference in minutes from the original date_time_start and
              * the new date_time_start, and adding exatly that value to date_time_end
@@ -273,7 +287,6 @@
                     vm.resources = response;
                 },
                 function error (rejection) {
-                    console.log(rejection);
                     toaster.pop('error', gettextCatalog.getString("Failed to get Resources"));
                 }
             );
@@ -290,18 +303,20 @@
             vm.meeting.projects = vm.projectPks;
             vm.errors = {};
 
+            // don't submit scheduled_notification_writable if it has not been set to active
+            if (vm.meeting.scheduled_notification_writable.active === false) {
+                delete vm.meeting.scheduled_notification_writable;
+            }
+
             MeetingRestService.create(vm.meeting).$promise.then(
                 function success (response) {
                     vm.meeting = response;
-                    // update attendees
                     toaster.pop('success', gettextCatalog.getString("Meeting created"));
-
                     $uibModalInstance.close(response);
                 },
                 function error (rejection) {
                     // On error we need to check which kind of error we got
                     toaster.pop('error', gettextCatalog.getString("Failed to create meeting"));
-                    console.log(rejection);
                     vm.errors = rejection.data;
 
                     // handle permission denied errors
