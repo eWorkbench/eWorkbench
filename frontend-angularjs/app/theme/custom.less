@@ -13,7 +13,7 @@
 
 // set panel box-shadow
 .panel {
-  box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.5);
   border: none; // need to disable border so box shadow looks nicer
   // box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.5);
 }
@@ -30,22 +30,22 @@
 // set button box-shadow
 .btn-primary {
   background-image: none;
-  box-shadow: 1px 2px 2px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 .btn-warning {
   background-image: none;
-  box-shadow: 1px 2px 2px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 .btn-default {
   background-image: none;
-  box-shadow: 1px 2px 2px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 .btn-danger {
   background-image: none;
-  box-shadow: 1px 2px 2px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 .fc-unthemed .fc-today {
@@ -217,14 +217,14 @@
     }
 
     position: absolute;
-    right: 0px;
+    right: 0;
   }
 }
 
 // position for project and user manual sidebar within the content
 project-sidebar-widget, user-manual-sidebar-widget {
   .nav-pf-vertical {
-    box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.7);
+    box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.7);
     position: absolute;
     top: @active-project-top-distance;
     width: 180px;
@@ -321,7 +321,7 @@ project-sidebar-widget, user-manual-sidebar-widget {
 
 // automatically truncate text
 .truncate {
-  max-width: 0px;
+  max-width: 0;
 
   span, a {
     width: inherit;
@@ -374,10 +374,10 @@ span.user-not-active {
 .fullscreen {
   z-index: 1040;
   position: fixed;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
 }
@@ -415,8 +415,8 @@ a:hover {
 // remove padding for items in the panel heading
 .panel-heading {
   input, a, .btn {
-    padding-top: 0px;
-    padding-bottom: 0px;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 
@@ -561,8 +561,8 @@ task-status-display-widget, project-list {
     min-height: 36px;
     //overflow: hidden;
 
-    padding-top: 0px;
-    padding-bottom: 0px;
+    padding-top: 0;
+    padding-bottom: 0;
 
     // the title of the column needs to have an overflow with ellipsis
     > div:first-child {
@@ -574,13 +574,11 @@ task-status-display-widget, project-list {
   }
 }
 
-
 .form-horizontal {
   label {
     margin-bottom: 3px;
   }
 }
-
 
 .ng-animate-list-item {
   &.ng-enter {
@@ -609,7 +607,6 @@ task-status-display-widget, project-list {
   border-bottom-color: #f5f5f5;
 }
 
-
 textarea.form-control {
   resize: none;
 }
@@ -623,13 +620,13 @@ button, .btn {
   &.btn-primary:focus {
     outline: none;
     border-color: darken(@btn-primary-bg, 20%);
-    box-shadow: 1px 2px 2px 0px fade(@btn-primary-bg, 80%);
+    box-shadow: 1px 2px 2px 0 fade(@btn-primary-bg, 80%);
   }
 
   &.btn-default:focus {
     outline: none;
     border-color: darken(@btn-default-bg, 20%);
-    box-shadow: 1px 2px 2px 0px fade(@btn-default-bg, 80%);
+    box-shadow: 1px 2px 2px 0 fade(@btn-default-bg, 80%);
   }
 }
 
@@ -646,7 +643,6 @@ button, .btn {
 }
 
 // make sure tinymce modal dialogs are scrollable
-
 .mce-window {
   max-height: 100vh !important;
   max-width: 100vw !important;
@@ -698,7 +694,6 @@ pre {
   }
 }
 
-
 .eric-green {
   color: @eric-green;
 }
@@ -715,7 +710,6 @@ pre {
     margin-right: -30px;
   }
 }
-
 
 .text-error {
   color: @bs-error-text;
@@ -743,7 +737,6 @@ span.form-control-feedback.form-control-clear {
   }
 }
 
-
 .screen-header-title {
   font-size: @screen-header-title-size;
   font-weight: @screen-header-title-weight;
@@ -752,10 +745,4 @@ span.form-control-feedback.form-control-clear {
 // disable pointer events for pagination - Bug Ticket #6262 see https://github.com/angular-ui/bootstrap/issues/6262
 .pagination > .disabled a {
   pointer-events: none;
-}
-
-//
-.align-selectize-text {
-  pointer-events: none;
-  border: 1px solid #fff;
 }

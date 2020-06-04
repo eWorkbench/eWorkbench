@@ -16,6 +16,7 @@ from eric.labbooks.tests.core import LabBookMixin
 from eric.metadata.models.models import MetadataField
 from eric.metadata.tests import http_info
 from eric.pictures.tests.core import PictureMixin
+from eric.projects.models import Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin
 from eric.shared_elements.models import Task
 from eric.shared_elements.tests.core import NoteMixin, TaskMixin, ContactMixin, MeetingMixin, FileMixin
@@ -39,7 +40,8 @@ class SearchTestMixin(AuthenticationMixin, ModelPrivilegeMixin, HelperMixin, Pro
         self.selection_field = self.create_field("MySelection", MetadataField.BASE_TYPE_SELECTION)
 
         # create some workbench entities
-        self.project = self.create_project(self.token, "MyProject", "My test project", "INIT", **http_info)
+        self.project = self.create_project(self.token, "MyProject", "My test project",
+                                           Project.INITIALIZED, **http_info)
         self.note1 = self.create_note("Note1")
         self.note2 = self.create_note("Note2")
         self.note3 = self.create_note("Note3")
@@ -997,7 +999,7 @@ class ViewableFilterTest(SearchTestMixin, APITestCase):
         suffix = user.username
 
         project_title = "project_{}".format(suffix)
-        project = self.create_project(token, project_title, "My test project", "INIT", **http_info)
+        project = self.create_project(token, project_title, "My test project", Project.INITIALIZED, **http_info)
 
         note_title = "note_{}".format(suffix)
         note, response = self.create_note_orm(token, project.pk, note_title, "MyDescription", **http_info)

@@ -4,11 +4,10 @@
 <form class="form-horizontal" name="newElementForm" ng-submit="vm.next()">
     <div class="modal-body">
         <div class="form-group" ng-if="vm.elementType !== 'Section'">
-            <div class="col-sm-3" translate>
+            <label class="col-sm-3" for="parent" translate>
                 Parent Element
-            </div>
-            <select id="parent"
-                    ng-model="vm.parent">
+            </label>
+            <select id="parent" ng-model="vm.parent">
                 <option value="labbook" translate>Current LabBook</option>
                 <optgroup label="Section">
                   <option ng-repeat="childElement in vm.labbookChildElements | filter:vm.isLabbookSection track by childElement.pk"
@@ -19,9 +18,9 @@
 
         <!-- New Element Position -->
         <div class="form-group">
-            <div class="col-sm-3" translate>
+            <label class="col-sm-3" translate>
                 Position
-            </div>
+            </label>
             <div class="col-sm-9">
                 <label class="radio-buttons col-sm-3">
                     <input type="radio"

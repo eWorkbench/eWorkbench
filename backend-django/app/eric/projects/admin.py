@@ -4,14 +4,14 @@
 #
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter, DropdownFilter, ChoiceDropdownFilter
 from django_changeset.models import ChangeSet, ChangeRecord
 
 from eric.core.admin.is_deleteable import DeleteableModelAdmin
 
 from eric.projects.models import Project, Resource, Role, ProjectRoleUserAssignment, \
-    UserStorageLimit, ResourceBooking, ResourceBookingRuleMinimumDuration, ResourceBookingRuleMaximumDuration, \
+    UserStorageLimit, ResourceBookingRuleMinimumDuration, ResourceBookingRuleMaximumDuration, \
     ResourceBookingRuleBookableHours, ResourceBookingRuleMinimumTimeBefore, ResourceBookingRuleMaximumTimeBefore, \
     ResourceBookingRuleTimeBetween, ResourceBookingRuleBookingsPerUser
 from eric.model_privileges.admin import ModelPrivilegeInline
@@ -320,29 +320,6 @@ class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         make_type_offeq,
         make_type_itres,
     ]
-
-
-@admin.register(ResourceBooking)
-class ResourceBookingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    list_display = (
-        'date_time_start',
-        'date_time_end',
-        'resource',
-        'meeting',
-        'created_at',
-    )
-    list_select_related = ('created_at', 'created_by')
-    list_filter = (
-        ('created_by', RelatedDropdownFilter),
-    )
-    search_fields = (
-        'resource__name',
-        'meeting__title',
-        'comment',
-        "created_by__username",
-        "created_by__email",
-    )
-    inlines = (ModelPrivilegeInline,)
 
 
 @admin.register(UserStorageLimit)

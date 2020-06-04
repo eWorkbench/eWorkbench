@@ -19,7 +19,7 @@ class TaskViewSet(
 ):
     """ REST API Viewset for tasks """
     serializer_class = TaskSerializer
-    filter_class = TaskFilter
+    filterset_class = TaskFilter
 
     search_fields = ()
     ordering_fields = ('task_id', 'title', 'priority', 'state', 'start_date', 'due_date', 'assigned_users')
@@ -36,7 +36,7 @@ class TaskViewSet(
 class MyTaskViewSet(viewsets.ReadOnlyModelViewSet):
     """ Viewset for meetings """
     serializer_class = TaskSerializer
-    filter_class = TaskFilter
+    filterset_class = TaskFilter
     search_fields = ()
 
     # disable pagination for this endpoint

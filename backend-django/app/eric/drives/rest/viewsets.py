@@ -140,7 +140,7 @@ class DriveViewSet(
     BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn, ExportableViewSetMixIn
 ):
     serializer_class = DriveSerializer
-    filter_class = DriveFilter
+    filterset_class = DriveFilter
 
     def get_queryset(self):
         """

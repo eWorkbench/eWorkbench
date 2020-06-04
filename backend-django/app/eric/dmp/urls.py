@@ -30,15 +30,15 @@ router.register(r'dmpforms', DmpFormViewSet)
 DMPS
 with history and relations and dmp form data
 """
-router.register(r'dmps', DmpViewSet, base_name='dmp')
+router.register(r'dmps', DmpViewSet, basename='dmp')
 
 dmp_router = routers.NestedSimpleRouter(router, r'dmps', lookup='dmp')
-dmp_router.register(r'relations', RelationViewSet, base_name='dmp-relation')
+dmp_router.register(r'relations', RelationViewSet, basename='dmp-relation')
 dmp_router.register(r'history', GenericChangeSetViewSet,
-                    base_name='dmp-changeset-paginated')
-dmp_router.register(r'privileges', ModelPrivilegeViewSet, base_name='dmp-privileges')
+                    basename='dmp-changeset-paginated')
+dmp_router.register(r'privileges', ModelPrivilegeViewSet, basename='dmp-privileges')
 
-dmp_router.register(r'data', DmpFormDataViewSet, base_name='dmpformdata')
+dmp_router.register(r'data', DmpFormDataViewSet, basename='dmpformdata')
 
 urlpatterns = [
     # REST Endpoints for dmps (history, relations)

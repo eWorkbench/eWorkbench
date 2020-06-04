@@ -5,14 +5,10 @@
 import os
 import re
 import shutil
-import uuid
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.functional import cached_property
 from django.utils.http import urlquote
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-from djangodav.utils import url_join
 from hashlib import md5, sha256
 from mimetypes import guess_type
 
@@ -20,17 +16,15 @@ from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-from django.core.files.uploadedfile import UploadedFile, TemporaryUploadedFile, SimpleUploadedFile
+from django.core.files.uploadedfile import UploadedFile, SimpleUploadedFile
 from django.db import transaction
 from django.http import Http404, HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
-from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django_userforeignkey.request import get_current_request
 from djangodav.base.resources import MetaEtagMixIn
 from djangodav.db.resources import NameLookupDBDavMixIn, BaseDBDavResource
-from djangodav.fs.resources import BaseFSDavResource
 from djangodav.views import DavView
 from djangodav.responses import ResponseException
 from djangodav.auth.rest import RestAuthViewMixIn

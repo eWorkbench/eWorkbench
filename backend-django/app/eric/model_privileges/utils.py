@@ -207,6 +207,7 @@ class BasePrivilege(object):
     Base Privilege that should be inherited by other privileges
     needs to implement static method get_privileges(obj)
     """
+
     @staticmethod
     def get_privileges(obj):
         raise NotImplementedError

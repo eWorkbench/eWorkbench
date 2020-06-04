@@ -4,7 +4,7 @@
 #
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 from rest_framework_nested.serializers import NestedHyperlinkedIdentityField

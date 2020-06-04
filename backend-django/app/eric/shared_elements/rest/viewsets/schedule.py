@@ -7,20 +7,16 @@ import vobject
 from django.conf import settings
 from django.http import HttpResponse
 from django.utils import timezone
-from django_userforeignkey.request import get_current_user
+from django.utils.timezone import localtime
+from eric.core.rest.viewsets import BaseGenericViewSet
+from eric.core.utils import convert_html_to_text
+from eric.shared_elements.models import Task, Meeting
+from eric.shared_elements.rest.filters import MeetingFilter, TaskFilter
+from eric.shared_elements.rest.serializers import MinimalisticTaskSerializer, MinimalisticMeetingSerializer
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
-
-from eric.core.rest.viewsets import BaseGenericViewSet
-from eric.core.utils import convert_html_to_text
-from eric.projects.models.models import ResourceBooking
-from eric.projects.rest.filters import ResourceBookingFilter
-from eric.projects.rest.serializers import MinimalisticResourceBookingSerializer
-from eric.shared_elements.models import Task, Meeting
-from eric.shared_elements.rest.filters import MeetingFilter, TaskFilter
-from eric.shared_elements.rest.serializers import MinimalisticTaskSerializer, MinimalisticMeetingSerializer
 
 
 class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
@@ -45,59 +41,41 @@ class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
             'projects',
         ).filter(deleted=False)
 
-    def get_my_resourcebookings_queryset(self):
-        return ResourceBooking.objects.viewable().prefetch_related('resource', 'meeting')
-
     def get_filtered_schedule_elements(self):
         show_tasks = self.request.query_params.get('show_tasks', 1)
-
         show_meetings = self.request.query_params.get('show_meetings', 1)
 
-        show_my_resourcebookings = self.request.query_params.get('show_my_resourcebookings', 1)
-
         tasks = Task.objects.none()
-        my_resource_bookings = ResourceBooking.objects.none()
         meetings = Meeting.objects.none()
 
         if show_tasks == 1 or show_tasks == '1':
             # filter all viewable tasks, that are assigned to the current user, and that have a start and due date
             tasks = self.get_tasks_queryset()
             # overwrite filter class for tasks
-            self.filter_class = TaskFilter
+            self.filterset_class = TaskFilter
             tasks = self.filter_queryset(tasks)
-
-        if show_my_resourcebookings == 1 or show_my_resourcebookings == '1':
-            # filter all viewable resource_bookings, that were created by the current user
-            my_resource_bookings = self.get_my_resourcebookings_queryset()
-            # overwrite filter class for resource_bookings
-            self.filter_class = ResourceBookingFilter
-            my_resource_bookings = self.filter_queryset(my_resource_bookings)
 
         if show_meetings == 1 or show_meetings == '1':
             # filter all viewable meetings, that are attending to the current user
             meetings = self.get_meetings_queryset()
             # overwrite filter class for meetings
-            self.filter_class = MeetingFilter
+            self.filterset_class = MeetingFilter
             meetings = self.filter_queryset(meetings)
 
-        return tasks, my_resource_bookings, meetings
+        return tasks, meetings
 
     def list(self, request, *args, **kwargs):
-        tasks, my_resource_bookings, meetings = self.get_filtered_schedule_elements()
+        tasks, meetings = self.get_filtered_schedule_elements()
 
         serialized_tasks = MinimalisticTaskSerializer(
             tasks, many=True, context={'request': self.request}
-        ).data
-
-        serialized_my_resourcebookings = MinimalisticResourceBookingSerializer(
-            my_resource_bookings, many=True, context={'request': self.request}
         ).data
 
         serialized_meetings = MinimalisticMeetingSerializer(
             meetings, many=True, context={'request': self.request}
         ).data
 
-        return Response(serialized_tasks + serialized_my_resourcebookings + serialized_meetings)
+        return Response(serialized_tasks + serialized_meetings)
 
     @action(detail=False, methods=['GET'], url_path="get_export_link", url_name="get_export_link")
     def get_ical_export_link(self, request, *args, **kwargs):
@@ -157,7 +135,7 @@ class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
     @action(detail=False, methods=['GET'], url_path="export")
     def ical_export(self, *args, **kwargs):
         """Endpoint for the iCal export"""
-        tasks, resource_bookings, meetings = self.get_filtered_schedule_elements()
+        tasks, meetings = self.get_filtered_schedule_elements()
 
         calendar = vobject.iCalendar()
         calendar.add('method').value = 'PUBLISH'  # IE/Outlook needs this
@@ -192,27 +170,6 @@ class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
             # add assigned users
             for user in task.assigned_users.all():
                 event.add('attendee').value = "MAILTO: %(attendee)s" % {'attendee': user.email}
-
-        # iterate over all resource_bookings
-        for resource_booking in resource_bookings:
-            event = calendar.add('vevent')
-
-            # meta information: created, last modified, dtstamp (ical creation)
-            event.add('created').value = resource_booking.created_at  # created_at modification timestamp
-            event.add('last-modified').value = resource_booking.last_modified_at  # last modification timestamp
-            event.add('dtstamp').value = timezone.now()  # when the ical information is being created (so basically now)
-
-            # resource_booking info
-            event.add('dtstart').value = resource_booking.date_time_start  # start date
-            event.add('dtend').value = resource_booking.date_time_end  # end date
-            event.add('summary').value = resource_booking.resource.name  # title
-            event.add('uid').value = str(resource_booking.pk)  # uid
-
-            # creator of the resource_booking
-            event.add('organizer').value = "CN:%(organizer_name)s:MAILTO:%(organizer_mail)s" % {
-                'organizer_name': str(resource_booking.created_by),
-                'organizer_mail': resource_booking.created_by.email
-            }
 
         cal_stream = calendar.serialize()
 

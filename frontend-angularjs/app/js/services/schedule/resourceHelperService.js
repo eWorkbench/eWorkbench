@@ -17,7 +17,7 @@
         var service = {};
 
         /**
-         * Returns true if all of the wantedUserPks is associated to the given event (meeting/task).
+         * Returns true if all of the wantedUserPks is associated to the given event (appointment/task).
          * Also returns true, if there are no defined wantedUserPks.
          * @param event
          * @param wantedUserPks
@@ -71,9 +71,9 @@
                 return defaultColor;
             }
 
-            if ("resource" in schedule && schedule.content_type_model === 'projects.resourcebooking') {
+            if ("resource" in schedule && schedule.content_type_model === 'shared_elements.meeting') {
                 for (var i = 0; i < selectedResources.length; i++) {
-                    if (schedule["resource"].pk == selectedResources[i].pk) {
+                    if (schedule["resource"] && schedule["resource"].pk === selectedResources[i].pk) {
 
                         return selectedResources[i].color;
                     }
@@ -113,7 +113,7 @@
         };
 
         /**
-         * Gets a list of the PKs of all users of an event (meeting/task).
+         * Gets a list of the PKs of all users of an event (appointment/task).
          * @param event
          * @returns {Array}
          */
@@ -160,7 +160,7 @@
         };
 
         /**
-         * Gets a list of all users of a list of resources (meetings, tasks).
+         * Gets a list of all users of a list of resources (appointments, tasks).
          * @param resourceList
          * @returns {Array}
          */

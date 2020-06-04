@@ -7,12 +7,12 @@ import uuid
 from ckeditor_uploader.fields import RichTextUploadingField
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
 
 from eric.core.models import BaseModel
-from eric.core.models.abstract import OrderingModelMixin, ChangeSetMixIn
+from eric.core.models.abstract import ChangeSetMixIn
 
 
 class Content(BaseModel, ChangeSetMixIn, RevisionModelMixin):

@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from django.db.models.signals import post_save, pre_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+
 from django_userforeignkey.request import get_current_user
 
 from eric.core.models import permission_checks_disabled

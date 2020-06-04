@@ -26,21 +26,21 @@ router = get_api_router()
 Kanban Boards
 with history and relations
 """
-router.register(r'kanbanboards', KanbanBoardViewSet, base_name='kanbanboard')
+router.register(r'kanbanboards', KanbanBoardViewSet, basename='kanbanboard')
 
 kanban_board_router = routers.NestedSimpleRouter(router, r'kanbanboards', lookup='kanbanboard')
-kanban_board_router.register(r'relations', RelationViewSet, base_name='kanbanboard-relation')
+kanban_board_router.register(r'relations', RelationViewSet, basename='kanbanboard-relation')
 kanban_board_router.register(r'history', GenericChangeSetViewSet,
-                             base_name='kanbanboard-changeset-paginated')
-kanban_board_router.register(r'privileges', ModelPrivilegeViewSet, base_name='kanbanboard-privileges')
+                             basename='kanbanboard-changeset-paginated')
+kanban_board_router.register(r'privileges', ModelPrivilegeViewSet, basename='kanbanboard-privileges')
 
 # register sub view for assigned tasks
-kanban_board_router.register(r'tasks', KanbanBoardColumnTaskAssignmentViewSet, base_name='kanbanboard-tasks')
+kanban_board_router.register(r'tasks', KanbanBoardColumnTaskAssignmentViewSet, basename='kanbanboard-tasks')
 
 # register sub view for tasks, which list all assignments of a task
 tasks_router = routers.NestedSimpleRouter(router, r'tasks', lookup='task')
 tasks_router.register(r'kanbanboard_assignments', TaskKanbanBoardAssignmentsViewSet,
-                      base_name='task-kanbanboard-assignments')
+                      basename='task-kanbanboard-assignments')
 
 
 urlpatterns = [

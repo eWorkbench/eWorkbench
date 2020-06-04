@@ -12,7 +12,7 @@ class RoleViewSet(BaseAuthenticatedModelViewSet):
     """ Viewset for Roles """
     serializer_class = MinimalisticRoleSerializer
     queryset = Role.objects.all()
-    filter_class = RoleFilter
+    filterset_class = RoleFilter
 
     # disable pagination for this endpoint
     pagination_class = None

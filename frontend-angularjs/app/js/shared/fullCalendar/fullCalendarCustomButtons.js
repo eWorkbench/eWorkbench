@@ -7488,7 +7488,7 @@
             var getAttendingUserString = function (eventUsers) {
                 return eventUsers.map(function (user) {
                     // If first_name and last_name exists in the userprofile use those ...
-                    if (user.userprofile.first_name && user.userprofile.last_name) {
+                    if (user.userprofile && user.userprofile.first_name && user.userprofile.last_name) {
                         return user.userprofile.first_name + " " + user.userprofile.last_name;
                     } else {
                         // ... otherwise use the username as fallback
@@ -7538,22 +7538,6 @@
                         ? '<div class="fc-title">'
                         + '<span>'
                         + 'Assigned: ' + htmlEscape(getAttendingUserString(event.assigned_users))
-                        + '</span>'
-                        + '</div>'
-                        : ''
-                ) +
-                (event.resource && event.resource.name
-                        ? '<div class="fc-title">'
-                        + '<span>'
-                        + 'Booked resource: ' + htmlEscape(event.resource.name)
-                        + '</span>'
-                        + '</div>'
-                        : ''
-                ) +
-                (event.booked_by
-                        ? '<div class="fc-title">'
-                        + '<span>'
-                        + 'Booked by: ' + htmlEscape(getAttendingUserString([event.booked_by]))
                         + '</span>'
                         + '</div>'
                         : ''
@@ -10665,7 +10649,7 @@
 
                                 if (buttonName === 'export') {
                                     btnClass = 'btn-warning';
-                                } else if (buttonName === 'bookresource') {
+                                } else if (buttonName === 'bookresource' || buttonName === 'bookroom') {
                                     btnClass = 'btn-primary';
                                 } else {
                                     btnClass = 'btn-default';

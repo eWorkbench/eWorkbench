@@ -2,15 +2,21 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+import json
 import os
 import logging
+from datetime import timedelta
 
 from django.db.models.signals import post_delete, pre_save, post_save
 from django.dispatch import receiver
-
+from django.utils import timezone
 from eric.base64_image_extraction.utils import convert_text_with_base64_images_to_file_references
+from eric.core.tests import custom_json_handler
 from eric.ms_office_handling.models.handlers import OFFICE_TEMP_FILE_PREFIX
 from eric.shared_elements.models import File, Meeting, Note, Task, UploadedFileEntry
+from eric.versions.models import Version
+from django.utils.translation import ugettext_lazy as _
+from time import sleep
 
 
 logger = logging.getLogger('eric.shared_elements.models.handlers')
@@ -128,3 +134,52 @@ def add_project_for_webdav_uploads(sender, instance, *args, **kwargs):
                 instance.projects.add(project.pk)
     except:
         pass
+
+
+def handle_version_on_file_path_updates(old_file):
+    """
+    Actually creates the Version using the old_file data
+    :param old_file:
+    :return:
+    """
+    try:
+        now = timezone.now()
+        now_delta = now - timedelta(seconds=2)
+        object_id = old_file.pk
+        metadata = old_file.export_metadata()
+        metadata = json.loads(json.dumps(metadata, default=custom_json_handler))
+        content_type = old_file.get_content_type()
+        summary = _("File replaced: {} (auto-generated)").format(old_file.name)
+        same_version = Version.objects.filter(
+            object_id=object_id,
+            created_at__gte=now_delta,
+            content_type=content_type,
+        ).exists()
+        if not same_version:
+            Version.objects.create(
+                content_type=content_type,
+                object_id=object_id,
+                metadata=metadata,
+                summary=summary
+            )
+    except Exception as error:
+        logger.error("ERROR: Error in handle_version_on_file_path_updates: {}".format(error))
+
+
+@receiver(pre_save, sender=File)
+def create_version_on_file_path_updates(sender, instance, *args, **kwargs):
+    """
+    Before saving a File, check if the path.path is being updated and create a version using the old data.
+    :param sender:
+    :param instance:
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    try:
+        old_file = File.objects.get(pk=instance.pk)
+    except File.DoesNotExist:
+        pass  # Object is new.
+    else:
+        if not old_file.path.path == instance.path.path:
+            handle_version_on_file_path_updates(old_file)

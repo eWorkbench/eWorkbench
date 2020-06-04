@@ -17,7 +17,7 @@
         var service = {};
 
         /**
-         * Returns true if all of the wantedUserPks are associated to the given event (meeting/task).
+         * Returns true if all of the wantedUserPks are associated to the given event (appointment/task).
          * Also returns true, if there are no defined wantedUserPks.
          * @param event
          * @param wantedUserPks
@@ -75,7 +75,7 @@
         };
 
         /**
-         * Gets a list of the PKs of all users of an event (meeting/task).
+         * Gets a list of the PKs of all users of an event (appointment/task).
          * @param event
          * @returns {Array}
          */
@@ -122,7 +122,7 @@
         };
 
         /**
-         * Gets a list of all users of a list of schedules (meetings, tasks).
+         * Gets a list of all users of a list of schedules (appointments, tasks).
          * @param scheduleList
          * @returns {Array}
          */

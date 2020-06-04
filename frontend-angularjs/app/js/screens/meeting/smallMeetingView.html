@@ -1,4 +1,4 @@
-<!-- Meeting Title -->
+<!-- Appointment Title -->
 <div class="form-group">
     <label class="col-sm-3 control-label" for="meeting_title" translate
         title="{{ 'mandatory field' | translate }}">
@@ -32,23 +32,35 @@
     </div>
 </div>
 
-<!-- Meeting Location -->
-<div class="form-group">
-    <label class="col-sm-3 control-label" for="meeting_location" translate>
-        Location
-    </label>
-    <div class="col-sm-9">
-        <ng-include src="'js/screens/meeting/meetingForm.location.html'"></ng-include>
-    </div>
-</div>
-
 <!-- Resource -->
-<div class="form-group">
+<div class="form-group" ng-if="!vm.isStudyRoom">
     <label class="col-sm-3 control-label" for="meeting_resource" translate>
         Resource
     </label>
     <div class="col-sm-9">
         <ng-include src="'js/screens/meeting/meetingForm.resource.html'"></ng-include>
+    </div>
+</div>
+
+<div class="form-group" ng-if="vm.isStudyRoom == true">
+    <label class="col-sm-3 control-label" for="meeting_resource" translate>
+        Resource
+    </label>
+    <div class="col-sm-9">
+        {{ vm.resource.name }}
+    </div>
+    <error-display class="has-error"  error="vm.errors['resource']"></error-display>
+</div>
+
+<hr>
+
+<!-- Appointment Location -->
+<div class="form-group" ng-if="!vm.isStudyRoom">
+    <label class="col-sm-3 control-label" for="meeting_location" translate>
+        Location
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/meeting/meetingForm.location.html'"></ng-include>
     </div>
 </div>
 
@@ -63,7 +75,7 @@
 </div>
 
 <!-- Attending Contacts -->
-<div class="form-group">
+<div class="form-group" ng-if="!vm.isStudyRoom">
     <label class="col-sm-3 control-label" for="meeting_attending_contacts" translate>
         Attending contacts
     </label>
@@ -77,7 +89,8 @@
     <label class="col-sm-3 control-label" for="meeting_text">
     </label>
     <div class="col-sm-9">
-        <ng-include src="'js/screens/meeting/meetingForm.reminder.html'"></ng-include>
+        <meeting-reminder-widget meeting="vm.meeting" template="vm.template" errors="vm.errors" read-only="vm.isReadOnly()">
+        </meeting-reminder-widget>
     </div>
 </div>
 
@@ -85,8 +98,6 @@
 <div class="form-group">
     <label class="col-sm-3 control-label" for="meeting_text">
         <span translate>Description</span>
-        <!-- choose Template -->
-        <text-template-widget ng-hide="vm.isReadOnly()" override-object-attribute="vm.meeting.text"></text-template-widget>
     </label>
     <div class="col-sm-9">
         <ng-include src="'js/screens/meeting/meetingForm.text.html'"></ng-include>
@@ -102,7 +113,7 @@
 </small-entity-view-metadata>
 
 <!-- project -->
-<div class="form-group">
+<div class="form-group" ng-if="!vm.isStudyRoom">
     <label class="col-sm-3 control-label" for="meeting_project" translate>
         Project
     </label>

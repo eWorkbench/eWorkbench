@@ -7,7 +7,7 @@ import uuid
 from django.db import models
 from django.urls import reverse
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import CreatedModifiedByMixin
 from django_userforeignkey.models.fields import UserForeignKey
 from django_userforeignkey.request import get_current_user
@@ -69,6 +69,7 @@ class CaldavItem(CreatedModifiedByMixin):
         verbose_name=_("The user that deleted the item via CalDav"),
         default=None,
         null=True,
+        on_delete=models.SET_NULL
     )
 
     @property

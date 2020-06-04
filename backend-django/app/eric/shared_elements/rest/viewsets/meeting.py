@@ -6,18 +6,24 @@ import jwt
 import vobject
 from django.conf import settings
 from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django_filters.rest_framework import DjangoFilterBackend
 from django_userforeignkey.request import get_current_user
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.utils.timezone import datetime
 
-from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn
+from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedModelViewSet
 from eric.core.utils import convert_html_to_text
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, \
     LockableViewSetMixIn
+from eric.search.rest.filters import FTSSearchFilter
 from eric.shared_elements.models import Meeting, UserAttendsMeeting
 from eric.shared_elements.rest.filters import MeetingFilter
 from eric.shared_elements.rest.serializers import MeetingSerializer
+from weasyprint import HTML
+from django.utils.encoding import force_text
 
 
 class MeetingViewSet(
@@ -26,7 +32,7 @@ class MeetingViewSet(
 ):
     """ Viewset for meetings """
     serializer_class = MeetingSerializer
-    filter_class = MeetingFilter
+    filterset_class = MeetingFilter
     search_fields = ()
 
     ordering_fields = ('date_time_start', 'date_time_end', 'title', 'location', 'created_at', 'created_by',
@@ -144,7 +150,7 @@ class MeetingViewSet(
 class MyMeetingViewSet(viewsets.ReadOnlyModelViewSet):
     """ Viewset for meetings """
     serializer_class = MeetingSerializer
-    filter_class = MeetingFilter
+    filterset_class = MeetingFilter
     search_fields = ()
 
     # disable pagination for this endpoint
@@ -152,3 +158,80 @@ class MyMeetingViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Meeting.objects.viewable().prefetch_common().prefetch_related('projects')
+
+
+class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetMixIn):
+    """ Viewset for meetings """
+    serializer_class = MeetingSerializer
+    filter_class = MeetingFilter
+    search_fields = ()
+
+    ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
+                       'attending_users', 'date_time_start', 'date_time_end',
+                       'text', 'created_by', 'created_at')
+
+    # disable pagination for this endpoint
+    pagination_class = None
+
+    def get_queryset(self):
+        return Meeting.objects.resourcebookings_my_viewable().prefetch_common().prefetch_related(
+            'projects'
+        ).filter(deleted=False).filter(resource__deleted=False)
+
+    @action(detail=True, methods=['GET'])
+    def export(self, request, format=None, *args, **kwargs):
+        """ Endpoint for the MyResourceBooking Export """
+
+        return ExportableViewSetMixIn.export(self, request, *args, **kwargs)
+
+    @action(detail=False, methods=['GET'], url_path='export_many/(?P<pk_list>[^/.]+)')
+    def export_many(self, request, pk_list, *args, **kwargs):
+        """ Endpoint for the MyResourceBooking Export """
+        now = datetime.now()
+
+        booking_pks = pk_list.split(',')
+
+        booking_objects = Meeting.objects.filter(pk__in=booking_pks)
+
+        filepath = 'export/meeting_many.html'
+        filename = 'appointment_resource_bookings_{}.pdf'.format(now)
+
+        # provide a context for rendering
+        context = {
+            'instances': booking_objects,
+            'now': now
+        }
+
+        # render the HTML to a string
+        export = render_to_string(filepath, context)
+        # and convert it into a PDF document
+        pdf_document = HTML(string=force_text(export).encode('UTF-8')).render()
+        export = pdf_document.write_pdf()
+
+        # finally, respond with the PDF document
+        response = HttpResponse(export)
+        # inline content -> enables displaying the file in the browser
+        response['Content-Disposition'] = 'inline; filename="{}"'.format(filename)
+        # Deactivate debug toolbar by setting content type != text/html
+        response['Content-Type'] = 'application/pdf;'
+
+        return response
+
+
+class AllResourceBookingViewSet(BaseAuthenticatedModelViewSet):
+    """ Viewset for meetings """
+    serializer_class = MeetingSerializer
+    filter_class = MeetingFilter
+    search_fields = ()
+
+    ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
+                       'attending_users', 'date_time_start', 'date_time_end',
+                       'text', 'created_by', 'created_at')
+
+    # disable pagination for this endpoint
+    pagination_class = None
+
+    def get_queryset(self):
+        return Meeting.objects.resourcebookings_all_viewable().prefetch_common().prefetch_related(
+            'projects'
+        ).filter(deleted=False).filter(resource__deleted=False)

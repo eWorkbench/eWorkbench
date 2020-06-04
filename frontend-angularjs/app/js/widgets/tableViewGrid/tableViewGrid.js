@@ -25,7 +25,9 @@
                 gridOptions: '=',
                 // Sorting
                 orderBy: '=',
-                orderDir: '='
+                orderDir: '=',
+                // extra onRegisterApi callback (gridOptions.onRegisterApi would be overwritten)
+                onRegisterApi: '<?'
             }
         };
     });
@@ -48,33 +50,9 @@
                 gridOptions: '=',
                 // Sorting
                 orderBy: '=',
-                orderDir: '='
-            }
-        };
-    });
-
-    module.directive('tableViewGridWithPagination', function () {
-        "ngInject";
-
-        return {
-            templateUrl: 'js/widgets/tableViewGrid/gridWithPagination.html',
-            restrict: 'E',
-            bindToController: true,
-            controllerAs: 'vm',
-            controller: "TableViewGridController",
-            scope: {
-                // Unique key that identifies the table view. Used for storing the saved settings.
-                key: '@',
-                // Data to display in the grid
-                data: '<',
-                // Specific UI-Grid configuration
-                gridOptions: '=',
-                // Sorting
-                orderBy: '=',
                 orderDir: '=',
-                // The absolute number of items available
-                // (via API, not necessarily in the data collection -- might differ because of pagination)
-                numberOfItems: '<'
+                // extra onRegisterApi callback (gridOptions.onRegisterApi would be overwritten)
+                onRegisterApi: '<?'
             }
         };
     });
@@ -102,7 +80,7 @@
 
             vm.gridOptions.useExternalSorting = true;
             vm.gridOptions.onRegisterApi = function (gridApi) {
-                vm.gridApi = gridApi;
+                // handle sort change
                 vm.gridApi = gridApi;
                 vm.gridApi.core.on.sortChanged($scope, function (grid, sortColumns) {
                     if (sortColumns.length === 0) {
@@ -113,6 +91,8 @@
                         vm.orderDir = sortColumns[0].sort.direction;
                     }
                 });
+
+                // add reset menu entry
                 vm.gridOptions.gridMenuCustomItems = [
                     {
                         title: gettextCatalog.getString('Reset table configuration to default'),
@@ -124,6 +104,7 @@
                     }
                 ];
 
+                // define scrollbar handling
                 vm.gridOptions.enableHorizontalScrollbar = uiGridConstants.scrollbars.WHEN_NEEDED;
                 vm.gridOptions.enableVerticalScrollbar = uiGridConstants.scrollbars.NEVER;
 
@@ -131,6 +112,12 @@
                 $timeout(function () {
                     vm.resetToDefaultState();
                     vm.restoreSavedState();
+                    vm.stateLoaded = true;
+
+                    // run extra onRegisterApi callback if defined
+                    if (vm.onRegisterApi) {
+                        vm.onRegisterApi(gridApi);
+                    }
                 }, 0);
 
                 // prevent ui-grid from catching scroll events,
@@ -202,7 +189,6 @@
             if (state) {
                 vm.gridApi.saveState.restore($scope, state);
             }
-            vm.stateLoaded = true;
 
             // Setup events so we're notified when grid state changes.
             // These have to be here instead of the init: columnVisibilityChanged fires on init

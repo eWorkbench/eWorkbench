@@ -19,7 +19,7 @@ router.register(r'menu_entries', MenuEntryViewSet, 'menuentry')
 # create a nested router
 menu_entries_router = routers.NestedSimpleRouter(router, r'menu_entries', lookup='menu_entry')
 # register menu_entry_parameters as a subroute of menu_entries
-menu_entries_router.register(r'menu_entry_parameters', MenuEntryParameterViewSet, base_name='menu_entry_parameters')
+menu_entries_router.register(r'menu_entry_parameters', MenuEntryParameterViewSet, basename='menu_entry_parameters')
 
 urlpatterns = [
     url(r'^', include(menu_entries_router.urls))

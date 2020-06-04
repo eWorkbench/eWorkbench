@@ -20,9 +20,9 @@
 
     <p>{{ title }}</p>
     {% if message != "" %}
-        <p>
-            {{ message | safe }}
-        </p>
+    <p>
+        {{ message | safe }}
+    </p>
     {% endif %}
     {% if notification %}
         <p>{% blocktrans %}Please visit {{ workbench_link }} for details!{% endblocktrans %}</p>

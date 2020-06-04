@@ -34,6 +34,10 @@ class Command(BaseCommand):
                 })
 
                 # use `update` to not trigger any model signals
-                model_class.objects.filter(pk=model_instance.pk).update(**{
-                    'fts_index': model_instance._get_search_vector(),
-                })
+                try:
+                    model_class.objects.filter(pk=model_instance.pk).update(**{
+                        'fts_index': model_instance._get_search_vector(),
+                    })
+                except AttributeError as e:
+                    # attribute error might be raised for DB rows of models that do not exist anymore in code
+                    logger.error(e)

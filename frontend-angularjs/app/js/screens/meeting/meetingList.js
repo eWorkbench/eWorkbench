@@ -8,7 +8,7 @@
     var module = angular.module('screens');
 
     /**
-     * Component for displaying and filtering a Meeting List
+     * Component for displaying and filtering a Appointment List
      */
     module.component('meetingList', {
         templateUrl: 'js/screens/meeting/meetingList.html',
@@ -18,9 +18,9 @@
     });
 
     /**
-     * Meeting List Controller
+     * Appointment List Controller
      *
-     * Displays a Meeting List and provides filters
+     * Displays a Appointment List and provides filters
      */
     module.controller('MeetingListController', function (
         $timeout,
@@ -56,7 +56,7 @@
             vm.currentView = 'list';
 
             /**
-             * A list of Meetings
+             * A list of Appointments
              * @type {Array}
              */
             vm.meetings = [];
@@ -73,7 +73,7 @@
             vm.searchField = undefined;
 
             /**
-             * List of users which is pre-filled based on the meetings fetched from REST API
+             * List of users which is pre-filled based on the appointments fetched from REST API
              * @type {Array}
              */
             vm.users = [];
@@ -115,7 +115,7 @@
             vm.filters = {};
 
             /**
-             * Whether or not meetings have finished loading
+             * Whether or not appointments have finished loading
              * @type {boolean}
              */
             vm.meetingsLoaded = false;
@@ -130,7 +130,7 @@
             }
         };
 
-        //is triggered when the meeting was deleted, trashed or restored (genericDeleteMenu.js)
+        //is triggered when the appointment was deleted, trashed or restored (genericDeleteMenu.js)
         $scope.$on('objectDeletedEvent', function () {
             vm.getMeetings(vm.currentLimit, vm.currentOffset);
         });
@@ -148,7 +148,7 @@
         });
 
         /**
-         * Query Meetings from REST API
+         * Query Appointments from REST API
          */
         vm.getMeetings = function (limit, offset) {
             // if no limit is defined, use the default ``changesPerPage``
@@ -209,12 +209,12 @@
                     for (var i = 0; i < response.length; i++) {
                         var meeting = response[i];
 
-                        // collect users that created a meeting
+                        // collect users that created an appointment
                         vm.users.push(meeting.created_by);
                     }
                 },
                 function error (rejection) {
-                    toaster.pop('error', gettextCatalog.getString("Could not load meetings"));
+                    toaster.pop('error', gettextCatalog.getString("Could not load appointments"));
                 }
             ).finally(function () {
                 vm.meetingsLoaded = true;

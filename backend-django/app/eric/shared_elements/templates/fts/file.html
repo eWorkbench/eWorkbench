@@ -1,6 +1,7 @@
-{% load html_unescape %}
+{% load html_unescape file_filters %}
 {{ instance.title }}
 {{ instance.name }}
+{{ instance | file_extension }}
 {{ instance.original_filename }}
 {{ instance.description | striptags | html_unescape }}
 {# print file history #}

@@ -1,7 +1,5 @@
 -r requirements.txt
 -r requirements_docs.txt
-# Pinned to 1.11 because Version 2.0 "Removed support for Django’s
-# deprecated MIDDLEWARE_CLASSES setting.", which we still use.
-django-debug-toolbar==1.11
-pycodestyle<2.4
+django-debug-toolbar==2.2.*
+pycodestyle==2.6.*
 licenseheaders

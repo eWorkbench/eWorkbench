@@ -9,14 +9,14 @@
         module = angular.module('services');
 
     /**
-     * Define API Endpoint for /api/resourcebookings using ngResource
+     * Define API Endpoint for /api/resourcebookings/all using ngResource
      */
     module.factory('ResourceBookingsRestService', function (cachedResource, restApiUrl, ResourceBookingConverterService) {
         'ngInject';
 
         // create ng-resource for api endpoint /api/resourcebookings, with parameter resourcebookings id
         return cachedResource(
-            restApiUrl + 'resourcebookings/:pk/',
+            restApiUrl + 'resourcebookings/all/:pk/',
             {pk: '@pk', resource: '@resource', projects: '@filter_by_project_pk'},
             {
                 'search': {
@@ -53,13 +53,13 @@
                     'isArray': false
                 },
                 'softDelete': {
-                    'url': restApiUrl + 'resourcebookings/:pk/soft_delete/',
+                    'url': restApiUrl + 'resourcebookings/all/:pk/soft_delete/',
                     'method': 'PATCH',
                     'isArray': false,
                     'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray
                 },
                 'restore': {
-                    'url': restApiUrl + 'resourcebookings/:pk/restore/',
+                    'url': restApiUrl + 'resourcebookings/all/:pk/restore/',
                     'method': 'PATCH',
                     'isArray': false,
                     'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray

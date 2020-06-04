@@ -19,18 +19,18 @@ NOTIFICATIONS_TIME_BETWEEN_EMAILS = 1
 # CORS Configuration
 CORS_ORIGIN_REGEX_WHITELIST = (
     # localhost without port:
-    '^(http?://)?localhost$',
-    '^(http?://)?127\.0\.0\.1$',
-    '^(http?://)?0\.0\.0\.0$',
+    r'^(http?://)?localhost$',
+    r'^(http?://)?127\.0\.0\.1$',
+    r'^(http?://)?0\.0\.0\.0$',
     # localhost with port:
-    '^(http?://)?localhost:(\d+)$',
-    '^(http?://)?127\.0\.0\.1:(\d+)$',
-    '^(http?://)?0\.0\.0\.0:(\d+)$',
+    r'^(http?://)?localhost:(\d+)$',
+    r'^(http?://)?127\.0\.0\.1:(\d+)$',
+    r'^(http?://)?0\.0\.0\.0:(\d+)$',
     # workbench.local:
-    '^(http?://)?workbench.local:(\d+)$',  # localhost:any port
+    r'^(http?://)?workbench.local:(\d+)$',  # localhost:any port
     # private network ranges:
-    '^(http?://)?10\.(\d+)\.(\d+)\.(\d+):(\d+)$',  # 10.x.x.x:any port
-    '^(http?://)?192\.168\.(\d+)\.(\d+):(\d+)$',  # 192.168.x.x:any port
+    r'^(http?://)?10\.(\d+)\.(\d+)\.(\d+):(\d+)$',  # 10.x.x.x:any port
+    r'^(http?://)?192\.168\.(\d+)\.(\d+):(\d+)$',  # 192.168.x.x:any port
 )
 
 AUTHENTICATION_BACKENDS = \
@@ -48,7 +48,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'HOST': 'db',
         'PORT': '5432',
-        'NAME': 'eric',
+        'NAME': 'eric2',
         'USER': 'eric',
         'PASSWORD': 'eric'
     }
@@ -78,6 +78,17 @@ AUTH_LDAP_USER_ASSIGN_GROUP_BASED_ON_ATTRIBUTE = {
     ]
 }
 
+# required attributes that are missing will cause an error log
+AUTH_LDAP_REQUIRED_ATTRIBUTES = [
+]
+
+# user ldap attributes
+# "user_attribute": "ldap_attribute"
+AUTH_LDAP_USER_ATTR_MAP = {
+}
+
+# user profile ldap attributes
+# "userprofile_attribute": "ldap_attribute"
 AUTH_LDAP_PROFILE_ATTR_MAP = {
     "first_name": "description",
 }
@@ -95,11 +106,6 @@ ADMIN = [
 CONTACT_ADMIN = [
     ('Contact Admin', 'contact@workbench.local'),
 ]
-
-# activate logging for ldap
-logger = logging.getLogger('django_auth_ldap')
-logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG)
 
 # EMail Settings (maildump server)
 EMAIL_HOST = 'maildump'

@@ -2,13 +2,14 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.http import Http404
-from rest_framework.views import exception_handler
-from rest_framework.exceptions import APIException, ValidationError, PermissionDenied
-from django_changeset.models.mixins import ConcurrentUpdateException
-import django.core.exceptions
-
 import logging
+from smtplib import SMTPException
+
+import django.core.exceptions
+from django.http import Http404
+from django_changeset.models.mixins import ConcurrentUpdateException
+from rest_framework.exceptions import APIException, ValidationError, PermissionDenied
+from rest_framework.views import exception_handler
 
 from eric.projects.models import UserStorageLimitReachedException, MaxFileSizeReachedException
 
@@ -104,6 +105,9 @@ def custom_exception_handler(exc, context):
             exc = PermissionDenied(exc)
         else:
             exc = PermissionDenied()
+    # Handle mail errors (e.g. mail quota exceeded)
+    elif type(exc) is SMTPException:
+        exc = APIException(exc)
     elif isinstance(exc, APIException) or isinstance(exc, Http404):
         # exc is a rest_framework APIException, so we can pass it on to the rest api exception handler
         pass

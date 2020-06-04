@@ -1,10 +1,9 @@
 <div class="modal-header">
-    <h3 class="modal-title" translate>New Meeting</h3>
+    <h3 class="modal-title" translate>New Appointment</h3>
 </div>
 <form class="form-horizontal" name="newMeetingForm" ng-submit="vm.create()">
     <div class="modal-body">
         <ng-include src="'js/screens/meeting/smallMeetingView.html'"></ng-include>
-        {{ vm.meeting.scheduled_notification }}
     </div>
 
     <div class="modal-footer">

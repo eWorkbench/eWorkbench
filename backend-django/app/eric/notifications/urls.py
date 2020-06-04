@@ -11,9 +11,9 @@ from eric.notifications.rest.viewsets import NotificationConfigurationViewSet, N
 router = get_api_router()
 
 # notification routes
-router.register(r'notifications', NotificationViewSet, base_name='notifications')
-router.register(r'notification_configuration', NotificationConfigurationViewSet, base_name='notification_configuration')
-router.register(r'scheduled_notification', ScheduledNotificationViewSet, base_name='scheduled_notification')
+router.register(r'notifications', NotificationViewSet, basename='notifications')
+router.register(r'notification_configuration', NotificationConfigurationViewSet, basename='notification_configuration')
+router.register(r'scheduled_notification', ScheduledNotificationViewSet, basename='scheduled_notification')
 
 urlpatterns = [
 ]

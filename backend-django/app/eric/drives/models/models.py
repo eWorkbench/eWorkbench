@@ -6,16 +6,16 @@ import uuid
 import logging
 
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.utils.functional import cached_property
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_changeset.models import RevisionModelMixin
 
-from eric.core.models import BaseModel, LockMixin
+from eric.core.models import BaseModel
 from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
 from eric.metadata.models.fields import MetadataRelation
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
@@ -172,24 +172,26 @@ class Directory(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         Validates that the title of the directory is unique (based on parent directory and drive)
         :return:
         """
-        # select all directories that have the same drive and the same parent as select_for_update()
-        all_dir_pks = Directory.objects.all().filter(
-            drive=self.drive, directory=self.directory
-        ).select_for_update().values_list('id', flat=True)
+        # wrap everything in a transaction because select_for_update() needs it
+        with transaction.atomic():
+            # select all directories that have the same drive and the same parent as select_for_update()
+            all_dir_pks = Directory.objects.all().filter(
+                drive=self.drive, directory=self.directory
+            ).select_for_update().values_list('id', flat=True)
 
-        # get all directories that are associated to the same drive and have the same parent directory
-        dirs = Directory.objects.all().filter(
-            id__in=all_dir_pks, name__iexact=self.name
-        ).exclude(pk=self.pk)  # exclude the current directory though!
+            # get all directories that are associated to the same drive and have the same parent directory
+            dirs = Directory.objects.all().filter(
+                id__in=all_dir_pks, name__iexact=self.name
+            ).exclude(pk=self.pk)  # exclude the current directory though!
 
-        if dirs.exists():
-            raise ValidationError({
-                'name': ValidationError(
-                    _('Name must be unique within the same hierarchy'),
-                    params={'name': self.name},
-                    code='invalid'
-                )
-            })
+            if dirs.exists():
+                raise ValidationError({
+                    'name': ValidationError(
+                        _('Name must be unique within the same hierarchy'),
+                        params={'name': self.name},
+                        code='invalid'
+                    )
+                })
 
     def clean(self):
         """ validates that a directory always has a parent directory """
@@ -208,7 +210,6 @@ class Drive(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteM
         verbose_name = _("Drive")
         verbose_name_plural = _("Drives")
         permissions = (
-            ("view_drive", "Can view a drive"),
             ("trash_drive", "Can trash a drive"),
             ("restore_drive", "Can restore a drive"),
             ("change_project_drive", "Can change the project of a drive"),

@@ -13,7 +13,8 @@
         controllerAs: 'vm',
         bindings: {
             calendarConfig: '<',
-            selectedResource: '<'
+            selectedResource: '<',
+            isStudyRoom: '<'
         }
     });
 
@@ -33,7 +34,8 @@
         ScheduleHelperService,
         ResourceHelperService,
         ResourceBookingCreateEditModalService,
-        ResourceBookingsRestService
+        ResourceBookingsRestService,
+        PermissionService
     ) {
         'ngInject';
 
@@ -46,7 +48,7 @@
          * @param view
          */
         var renderToolTip = function (entry, element, view) {
-            if (entry.content_type_model === "projects.resourcebooking") {
+            if (entry.content_type_model === "shared_elements.meeting") {
                 element.attr({
                     'calendar-tooltip-widget': '',
                     'resourcebooking': "vm.schedulesDict['" + entry.pk + "']"
@@ -99,8 +101,7 @@
             };
 
             // create a modal and wait for a result
-            var modalService = ResourceBookingCreateEditModalService;
-            var modal = modalService.openCreate(template, vm.selectedResource);
+            var modal = ResourceBookingCreateEditModalService.openCreate(template, vm.selectedResource, vm.isStudyRoom);
 
             modal.result.then().catch(
                 function () {
@@ -113,28 +114,32 @@
          * edits a resourcebooking on a click-event for url 'resourcebooking'
          */
         var onEventClick = function (eventObj, jsEvent, view) {
-            if (eventObj.url === "resourcebooking") {
-                // don't open the url if the url is 'resourcebooking'
-                jsEvent.preventDefault();
+            // don't open the url if the url is 'resourcebooking'
+            jsEvent.preventDefault();
 
-                // delete eventObj.source.events to avoid cycles
-                delete eventObj.source.events;
+            // delete eventObj.source.events to avoid cycles
+            delete eventObj.source.events;
 
-                if ( eventObj.editable === false ) {
+            // check a second time if the user has edit permissions for the appointment
+            eventObj.editable = PermissionService.has('object.edit', eventObj);
+
+            // this will be the third check to get the actual permission
+            if (!eventObj.editable) {
+                eventObj.editable = PermissionService.has('object.edit', eventObj);
+                if (!eventObj.editable) {
                     return;
                 }
-
-                // create a modal and wait for a result
-                var modalService = ResourceBookingCreateEditModalService;
-                var modal = modalService.openEdit(eventObj);
-
-                modal.result.then(modalService.viewElement)
-                    .catch(
-                        function () {
-                            console.log("Modal canceled");
-                        }
-                    );
             }
+
+            var modalService = ResourceBookingCreateEditModalService;
+
+            // create a modal and wait for a result
+            var modal = modalService.openEdit(eventObj, vm.isStudyRoom);
+
+            modal.result.then(function () {
+                vm.getResourceBookings();
+            });
+
         };
 
         this.$onInit = function () {
@@ -147,7 +152,7 @@
             vm.user.$get();
 
             /**
-             * a list of Meetings and Tasks
+             * a list of Appointments and Tasks
              * @type {Array}
              */
             vm.schedules = [];
@@ -177,6 +182,7 @@
             vm.calendarConfig.selectable = true;
             vm.calendarConfig.eventRender = renderToolTip;
             vm.calendarConfig.eventClick = onEventClick;
+            vm.calendarConfig.eventDurationEditable = false;
             vm.calendarConfig.customButtons = { //add functionality to custom button 'Export' and 'Schedules'
                 export: {
                     text: gettextCatalog.getString("Export"),
@@ -196,6 +202,16 @@
                             vm.bookResource();
                         });
                     }
+                },
+                bookroom: {
+                    //click on the button opens the schedule overview page.
+                    //The correct url is defined in the attribute: vm.calendarConfig.href
+                    text: gettextCatalog.getString("Book Room"),
+                    click: function () {
+                        $scope.$apply(function () {
+                            vm.bookResource();
+                        });
+                    }
                 }
             };
             vm.getResourceBookings();
@@ -205,7 +221,6 @@
             var queryFactory = FilteredScheduleQueryFactory
                 .createQuery()
                 .filterProjects(vm.selectedProjects)
-                .showMyResourceBookings(vm.showMyResourceBookings)
                 .searchText(vm.searchField);
 
             if (!hideDateFilters) {
@@ -246,25 +261,29 @@
                         var schedules = [];
 
                         for (var j = 0; j < response.length; j++) {
-                            var booking = response[j];
+                            var meeting = response[j];
 
-                            if (booking.created_by.pk == vm.user.pk) {
+                            meeting.booking = true;
 
-                                booking.url = "resourcebooking";
-                                booking.borderColor = '#d2cdc8';
-                                booking.textColor = 'black';
-                                booking.color = ResourceHelperService.getResourceColor(booking, vm.selectedResource.pk);
+                            // we will actually have to do this check three times as the PermissionService sometimes
+                            // returns undefined and false first before returning the actual permission
+                            // the other two times are located in the onEventClick function
+                            meeting.editable = PermissionService.has('object.edit', meeting);
 
-                                booking.booked_by = booking.created_by;
+                            if (meeting.created_by.pk === vm.user.pk) {
+                                meeting.borderColor = '#d2cdc8';
+                                meeting.textColor = 'black';
+                                meeting.color = ResourceHelperService.getResourceColor(meeting, vm.selectedResource.pk);
+                                meeting.doubleKlick = false;
                             } else {
-                                booking.color = ResourceHelperService.selectColor(9);
-                                booking.editable = false;
-                                booking.url = "resourcebooking";
-                                booking.booked_by = '';
+                                meeting.doubleKlick = true;
+                                meeting.textColor = 'white';
+                                meeting.color = ResourceHelperService.selectColor(9);
+                                meeting.booking = true;
                             }
-                            vm.schedulesDict[booking.pk] = booking;
+                            vm.schedulesDict[meeting.pk] = meeting;
 
-                            schedules.push(booking);
+                            schedules.push(meeting);
                         }
                         vm.schedules = angular.copy(schedules);
                     },
@@ -278,10 +297,8 @@
          * Book a resource
          */
         vm.bookResource = function () {
-            var modalService = ResourceBookingCreateEditModalService;
-
             // create a modal and wait for a result
-            var modal = modalService.openCreate(null, vm.selectedResource);
+            var modal = ResourceBookingCreateEditModalService.openCreate(null, vm.selectedResource, vm.isStudyRoom);
 
             modal.result.then().catch(
                 function () {

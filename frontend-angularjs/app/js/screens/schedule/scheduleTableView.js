@@ -18,7 +18,6 @@
             selectedProjects: '<?',
             searchField: '<?',
             showTasks: '<?',
-            showMyResourceBookings: '<?',
             showMeetings: '<?',
             selectedUsers: '<?',
             preSelectedUsers: '='
@@ -45,17 +44,17 @@
 
         this.$onInit = function () {
             /**
-             * a list of Meetings and Tasks which where received by the API
+             * a list of Appointments and Tasks which where received by the API
              */
             vm.schedules = [];
 
             /**
-             * a list of filtered meetings and tasks (auto generated based on filters)
+             * a list of filtered appointments and tasks (auto generated based on filters)
              */
             vm.filteredSchedules = [];
 
             /**
-             * Whether or not tasks and meetings have finished loading
+             * Whether or not tasks and appointments have finished loading
              * @type {boolean}
              */
             vm.schedulesLoaded = false;
@@ -149,13 +148,12 @@
                 .filterDateRange(startTime, endTime)
                 .showMeetings(vm.showMeetings)
                 .showTasks(vm.showTasks)
-                .showMyResourceBookings(vm.showMyResourceBookings)
                 .searchText(vm.searchField)
                 .query();
         };
 
         /**
-         * Update Filtered tasks and meetings
+         * Update Filtered tasks and appointments
          * resets vm.filteredSchedules to an empty list, iterates over the appointments
          * in vm.schedules.
          * Applies the following filters:
@@ -184,7 +182,7 @@
 
         /**
          * List of users which is pre-filled based on the schedules fetched from REST API
-         * (attending users of the meeting, assigned users of the task)
+         * (attending users of the appointment, assigned users of the task)
          * @param data
          */
         var preFillListOfUsers = function (data) {
@@ -227,7 +225,7 @@
 
         // Watch potential filter settings and load the new data from the api
         $scope.$watchGroup(
-            ["vm.searchField", "vm.showTasks", "vm.showMeetings", "vm.showMyResourceBookings", "vm.selectedProjects"],
+            ["vm.searchField", "vm.showTasks", "vm.showMeetings", "vm.selectedProjects"],
             vm.updateSchedules
         );
         // Watch potential filter settings and filter the data local (no api call)

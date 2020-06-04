@@ -23,13 +23,13 @@ class FileFilter(BaseFilter):
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
 
-    projects_recursive = RecursiveProjectsListFilter(name='projects')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     recently_modified_by_me = RecentlyModifiedByMeFilter()
 
-    drive = django_filters.ModelChoiceFilter(name='directory__drive', queryset=Drive.objects.all())
+    drive = django_filters.ModelChoiceFilter(field_name='directory__drive', queryset=Drive.objects.all())
 
 
 class TaskFilter(BaseFilter):
@@ -46,15 +46,15 @@ class TaskFilter(BaseFilter):
             'start_date': BaseFilter.DATE_COMPERATORS
         }
 
-    id = ListFilter(name='id', exclude=True)
+    id = ListFilter(field_name='id', exclude=True)
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
 
-    projects_recursive = RecursiveProjectsListFilter(name='projects')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
-    state = ListFilter(name='state')
+    state = ListFilter(field_name='state')
 
     recently_modified_by_me = RecentlyModifiedByMeFilter()
 
@@ -92,9 +92,9 @@ class ContactFilter(BaseFilter):
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
 
-    projects_recursive = RecursiveProjectsListFilter(name='projects')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     recently_modified_by_me = RecentlyModifiedByMeFilter()
 
@@ -106,6 +106,7 @@ class MeetingFilter(BaseFilter):
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
             'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
+            'resource': BaseFilter.FOREIGNKEY_COMPERATORS,
             'attending_users': BaseFilter.FOREIGNKEY_COMPERATORS,
             'date_time_end': BaseFilter.DATE_COMPERATORS,
             'date_time_start': BaseFilter.DATE_COMPERATORS
@@ -113,9 +114,9 @@ class MeetingFilter(BaseFilter):
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
 
-    projects_recursive = RecursiveProjectsListFilter(name='projects')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     recently_modified_by_me = RecentlyModifiedByMeFilter()
 
@@ -153,9 +154,9 @@ class NoteFilter(BaseFilter):
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
 
-    projects_recursive = RecursiveProjectsListFilter(name='projects')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     recently_modified_by_me = RecentlyModifiedByMeFilter()
 

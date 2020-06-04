@@ -9,7 +9,7 @@
         module = angular.module('screens');
 
     /**
-     * Service for creating a meeting-create modal dialog
+     * Service for creating a appointment-create modal dialog
      */
     module.service('meetingCreateModalService', function (
         $state,
@@ -58,9 +58,9 @@
     });
 
     /**
-     * Meeting Create Controller
+     * Appointment Create Controller
      *
-     * Displays the meeting create form
+     * Displays the appointment create form
      */
     module.controller('MeetingCreateModalController', function (
         $scope,
@@ -86,12 +86,15 @@
             vm = this;
 
         /**
-         * Whether meeting start_date and/or stop_date are currently being reset (e.g., because of a $resource query)
+         * Whether appointment start_date and/or stop_date are currently being reset
+         * (e.g., because of a $resource query)
          * @type {boolean}
          */
         var meetingDateIsResetting = false;
 
         this.$onInit = function () {
+            vm.template = template;
+
             /**
              * Dictionary of errors
              * @type {{}}
@@ -164,14 +167,17 @@
              * be shown in the modal view else the default data
              */
             if (template) {
-                vm.meeting = template;
+                vm.meeting = angular.copy(template);
                 if (vm.meeting.title) {
                     vm.meeting.title = gettextCatalog.getString('Copy of ') + vm.meeting.title;
+                } else {
+                    vm.meeting.title = "Appointment";
                 }
                 vm.projectPks = vm.meeting.projects;
                 vm.attendingContactsPk = vm.meeting.attending_contacts_pk;
                 vm.attendingUsersPk = vm.meeting.attending_users_pk;
-                vm.resources = vm.meeting.resource_pk;
+                // a resource could be booked so we remove it here
+                vm.meeting.resource_pk = "";
                 vm.location = vm.meeting.location;
                 vm.isFullDay = vm.meeting.full_day;
                 if (vm.meeting.full_day) {
@@ -183,23 +189,10 @@
             } else {
                 vm.meeting = {
                     date_time_start: moment().startOf('hour').add(1, 'h'), // set start_date to current date + 1 hour
-                    date_time_end: moment().startOf('hour').add(2, 'h') // set due_date to start_date + 2 hours
+                    date_time_end: moment().startOf('hour').add(2, 'h'), // set due_date to start_date + 2 hours
+                    title: "Appointment"
                 };
             }
-
-            /**
-             * Meeting scheduled_notification_writable object
-             */
-            vm.meeting.scheduled_notification_writable = {};
-            vm.meeting.scheduled_notification_writable.timedelta_unit = 'DAY';
-            vm.meeting.scheduled_notification_writable.timedelta_value = null;
-            vm.meeting.scheduled_notification_writable.active = false;
-            vm.meeting.scheduled_notification_writable.options = [
-                {value: 'MINUTE', text: gettextCatalog.getString('minutes')},
-                {value: 'HOUR', text: gettextCatalog.getString('hours')},
-                {value: 'DAY', text: gettextCatalog.getString('days')},
-                {value: 'WEEK', text: gettextCatalog.getString('weeks')}
-            ];
 
             /**
              * On any change of date_time_start, adapt date_time_end accordingly.
@@ -218,7 +211,7 @@
                     $timeout(function () {
                         vm.meeting.date_time_end = moment(vm.meeting.date_time_end).add(diffMinutes, 'minutes');
 
-                        // if this is a full day meeting, make sure to "round" date_time_end to the end of the day
+                        // if this is a full day appointment, make sure to "round" date_time_end to the end of the day
                         if (vm.isFullDay) {
                             vm.meeting.date_time_end = moment(vm.meeting.date_time_end).endOf("day");
                         }
@@ -297,26 +290,22 @@
          * Calls REST API to create a new contact and redirects to contact/view on success
          */
         vm.create = function () {
-            // assign users and contacts to the meeting object
+            // assign users and contacts to the appointment object
             vm.meeting.attending_users_pk = vm.attendingUsersPk;
             vm.meeting.attending_contacts_pk = vm.attendingContactsPk;
             vm.meeting.projects = vm.projectPks;
             vm.errors = {};
 
-            // don't submit scheduled_notification_writable if it has not been set to active
-            if (vm.meeting.scheduled_notification_writable.active === false) {
-                delete vm.meeting.scheduled_notification_writable;
-            }
-
             MeetingRestService.create(vm.meeting).$promise.then(
                 function success (response) {
                     vm.meeting = response;
-                    toaster.pop('success', gettextCatalog.getString("Meeting created"));
+                    toaster.pop('success', gettextCatalog.getString("Appointment created"));
                     $uibModalInstance.close(response);
                 },
                 function error (rejection) {
                     // On error we need to check which kind of error we got
-                    toaster.pop('error', gettextCatalog.getString("Failed to create meeting"));
+                    toaster.pop('error', gettextCatalog.getString("Failed to create appointment"));
+                    console.log(rejection);
                     vm.errors = rejection.data;
 
                     // handle permission denied errors
@@ -326,7 +315,7 @@
                         if (vm.meeting.projects && vm.meeting.projects.length > 0) {
                             vm.errors['projects'] = [
                                 gettextCatalog.getString(
-                                    "You do not have permissions to create a new meeting in at least one of the " +
+                                    "You do not have permissions to create a new appointment in at least one of the " +
                                     "specified projects"
                                 )
                             ];
@@ -334,7 +323,7 @@
                             // permission denied -> user must select a project
                             vm.errors['projects'] = [
                                 gettextCatalog.getString(
-                                    "You do not have permissions to create a new meeting without selecting a project"
+                                    "You do not have permissions to create a new appointment without selecting a project"
                                 )
                             ];
                         }

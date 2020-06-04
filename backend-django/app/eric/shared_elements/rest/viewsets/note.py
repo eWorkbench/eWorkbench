@@ -17,7 +17,7 @@ class NoteViewSet(
 ):
     """ REST API Viewset for notes """
     serializer_class = NoteSerializer
-    filter_class = NoteFilter
+    filterset_class = NoteFilter
     search_fields = ()
 
     ordering_fields = ('subject', 'created_at', 'created_by')

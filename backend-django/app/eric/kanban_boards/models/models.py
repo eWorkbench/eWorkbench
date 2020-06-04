@@ -4,11 +4,10 @@
 #
 import os
 import uuid
-import logging
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.validators import RegexValidator
 
@@ -20,7 +19,6 @@ from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
 from eric.projects.models import FileSystemStorageLimitByUser, scramble_uploaded_filename
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
-from eric.shared_elements.models import Task
 from eric.kanban_boards.models.managers import KanbanBoardManager, KanbanBoardColumnManager, \
     KanbanBoardColumnTaskAssignmentManager
 
@@ -41,7 +39,6 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
         verbose_name_plural = _("Kanban Boards")
         ordering = ["title"]
         permissions = (
-            ("view_kanbanboard", "Can view a Kanban Board of a project"),
             ("trash_kanbanboard", "Can trash a Kanban Board"),
             ("restore_kanbanboard", "Can restore a Kanban Board"),
             ("change_project_kanbanboard", "Can change the project of a Kanban Board"),
@@ -302,7 +299,8 @@ class KanbanBoardColumnTaskAssignment(BaseModel, OrderingModelMixin, ChangeSetMi
     )
 
     task = models.ForeignKey(
-        'shared_elements.Task'
+        'shared_elements.Task',
+        on_delete=models.CASCADE
     )
 
     def validate_task_only_once_in_board(self):

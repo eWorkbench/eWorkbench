@@ -1,0 +1,173 @@
+<div class="modal-header">
+    <h3 class="modal-title" translate>Merge Contacts</h3>
+</div>
+<form class="form-horizontal" id="merge-contact-form">
+    <!-- hacky fix: hidden button to catch auto-submit of top-most button by enter key while focus is on an input -->
+    <button class="hidden" aria-hidden="true">
+        <!-- needs some value here -->
+        &nbsp;
+    </button>
+
+    <div class="modal-body">
+        <!-- Base Contact Selection -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="base-contact-selectize" translate>
+                Base contact
+            </label>
+            <div class="col-sm-8">
+                <merge-contact-modal-contact-selectize-widget
+                        id="base-contact-selectize"
+                        placeholder="{{ 'Select base contact' | translate }}"
+                        contacts="vm.contacts"
+                        selected-contact-pk="vm.selectedContactPks[0].pk"
+                        loaded-contacts="vm.loadedContacts"
+                        exclude-pks="vm.excludedContactPks"
+                        max-items="1">
+                </merge-contact-modal-contact-selectize-widget>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+
+        <!-- Other Contacts Selection -->
+        <div class="form-group other-contacts-container" ng-repeat="contact in vm.selectedContactPks"
+             ng-if="$index > 0">
+            <label class="col-sm-2 control-label" for="contact-selectize-{{ $index }}" translate>
+                Contact #{{ $index }}
+            </label>
+            <div class="col-sm-8 selectize-container">
+                <merge-contact-modal-contact-selectize-widget
+                        id="contact-selectize-{{ $index }}"
+                        placeholder="{{ 'Select contact' | translate }}"
+                        contacts="vm.contacts"
+                        selected-contact-pk="vm.selectedContactPks[$index].pk"
+                        loaded-contacts="vm.loadedContacts"
+                        exclude-pks="vm.excludedContactPks"
+                        max-items="1">
+                </merge-contact-modal-contact-selectize-widget>
+                <div class="will-be-trashed-container">will be trashed</div>
+            </div>
+            <div class="col-sm-2 buttons-container">
+                <div class="button-container remove-contact">
+                    <a role="button" class="remove-contact-button"
+                       ng-click="vm.removeContact($index)"
+                       ng-if="vm.selectedContacts.length > 2"
+                       title="Remove selected contact #{{ $index }}">
+                        <span class="fa fa-trash"></span>
+                    </a>
+                </div>
+                <div class="button-container set-base-contact">
+                    <button class="btn non-primary-button"
+                            ng-click="vm.switchBaseContact($index)"
+                            title="Switch contact #{{ $index }} with base contact"
+                            translate>
+                        Set as base
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Contact Button -->
+        <div class="form-group">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-10">
+                <a role="button" class="add-contact-button" ng-click="vm.addContact()"
+                   title="Add an additional contact">
+                    <span class="fa fa-plus"></span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Inputs -->
+        <div ng-if="vm.canMerge">
+            <hr>
+
+            <merge-contact-modal-input-group
+                    label="Academic Title"
+                    field-name="academic_title"
+                    input-element="text"
+                    contacts="vm.selectedContacts"
+                    selected-value-index="vm.selectedValueIndices.academic_title"
+                    errors="vm.errors">
+            </merge-contact-modal-input-group>
+
+            <merge-contact-modal-input-group
+                    label="Firstname"
+                    field-name="first_name"
+                    input-element="text"
+                    contacts="vm.selectedContacts"
+                    selected-value-index="vm.selectedValueIndices.first_name"
+                    errors="vm.errors">
+            </merge-contact-modal-input-group>
+
+            <merge-contact-modal-input-group
+                    contacts="vm.selectedContacts"
+                    errors="vm.errors"
+                    input-element="text"
+                    label="Lastname"
+                    field-name="last_name"
+                    selected-value-index="vm.selectedValueIndices.last_name">
+            </merge-contact-modal-input-group>
+
+            <merge-contact-modal-input-group
+                    contacts="vm.selectedContacts"
+                    errors="vm.errors"
+                    input-element="text"
+                    label="E-Mail"
+                    field-name="email"
+                    selected-value-index="vm.selectedValueIndices.email">
+            </merge-contact-modal-input-group>
+
+            <merge-contact-modal-input-group
+                    contacts="vm.selectedContacts"
+                    errors="vm.errors"
+                    input-element="text"
+                    label="Phone"
+                    field-name="phone"
+                    selected-value-index="vm.selectedValueIndices.phone">
+            </merge-contact-modal-input-group>
+
+            <merge-contact-modal-input-group
+                    contacts="vm.selectedContacts"
+                    errors="vm.errors"
+                    input-element="text"
+                    label="Company"
+                    field-name="company"
+                    selected-value-index="vm.selectedValueIndices.company">
+            </merge-contact-modal-input-group>
+
+            <merge-contact-modal-input-group
+                    contacts="vm.selectedContacts"
+                    errors="vm.errors"
+                    input-element="html"
+                    label="Notes"
+                    field-name="notes"
+                    selected-value-index="vm.selectedValueIndices.notes">
+            </merge-contact-modal-input-group>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label" translate>
+                    Other data
+                </label>
+                <div class="col-sm-8 other-data-text-container" translate>
+                    Only the selected fields from above will be saved in the base contact.<br>
+                    Custom metadata, project assignments, links or privileges of other contacts will not be merged.
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="!vm.canMerge" class="important-hint" translate>
+            Please select a base contact and at least one other contact to merge.
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div class="text-right">
+            <button class="btn btn-default" type="button" translate ng-click="vm.dismiss()">
+                Cancel
+            </button>
+            <button class="btn btn-warning" translate ng-disabled="!vm.canMerge" ng-click="vm.merge()">
+                Merge
+            </button>
+        </div>
+    </div>
+</form>

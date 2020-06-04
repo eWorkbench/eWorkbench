@@ -10,7 +10,7 @@ from django.shortcuts import render_to_response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from eric.core.utils import rfc5987_content_disposition
 
@@ -26,7 +26,7 @@ class ConvertTiffToPngView(APIView):
         return render_to_response("tiff_to_png.html", {})
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             raise PermissionDenied
 
         # retrieve image from uploaded files

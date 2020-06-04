@@ -91,7 +91,7 @@
                  */
                 vm.notes = [];
                 /**
-                 * List of meetings
+                 * List of appointments
                  * @type {Array}
                  */
                 vm.meetings = [];

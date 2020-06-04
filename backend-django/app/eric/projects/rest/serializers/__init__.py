@@ -16,8 +16,7 @@ from eric.projects.models import Project, ProjectRoleUserAssignment, Role
 from eric.projects.models import UserStorageLimit
 from eric.projects.rest.serializers.changeset import ChangeSetSerializer, ChangeRecordSerializer
 # import serializers from this package
-from eric.projects.rest.serializers.resource import ResourceSerializer, ResourceBookingSerializer, \
-    MinimalisticResourceBookingSerializer
+from eric.projects.rest.serializers.resource import ResourceSerializer
 from eric.shared_elements.models import Task
 from eric.userprofile.rest.serializers import MyUserProfileSerializer
 

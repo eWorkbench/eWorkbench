@@ -4,6 +4,7 @@
 #
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
+from eric.core.utils import remove_none_values_from_dict
 from eric.versions.tests import HTTP_USER_AGENT, REMOTE_ADDRESS
 
 
@@ -173,7 +174,7 @@ class VersionRestMixin:
         self.set_credentials(http_info)
         return self.client.post(
             path=self.get_version_list_url(endpoint, endpoint_id),
-            data=data,
+            data=remove_none_values_from_dict(data),
             HTTP_USER_AGENT=http_info.user_agent,
             REMOTE_ADDR=http_info.remote_address)
 
@@ -183,7 +184,7 @@ class VersionRestMixin:
         self.set_credentials(http_info)
         response = self.client.put(
             path=self.get_version_url(endpoint, endpoint_id, extension_id),
-            data=data,
+            data=remove_none_values_from_dict(data),
             HTTP_USER_AGENT=http_info.user_agent,
             REMOTE_ADDR=http_info.remote_address)
         return response

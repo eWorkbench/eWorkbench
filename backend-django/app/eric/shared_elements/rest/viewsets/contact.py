@@ -21,7 +21,7 @@ class ContactViewSet(
 ):
     """ REST API ViewSet for Contacts """
     serializer_class = ContactSerializer
-    filter_class = ContactFilter
+    filterset_class = ContactFilter
 
     search_fields = ()
     ordering_fields = ('first_name', 'last_name', 'email', 'created_at', 'created_by', 'academic_title', 'phone',

@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
@@ -46,7 +46,6 @@ class LabBook(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         verbose_name = _("LabBook")
         verbose_name_plural = _("LabBooks")
         permissions = (
-            ("view_labbook", "Can view a labbook"),
             ("trash_labbook", "Can trash a labbook"),
             ("restore_labbook", "Can restore a labbook"),
             ("change_project_labbook", "Can change the project of a labbook"),
@@ -182,7 +181,8 @@ class LabBookChildElement(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMix
     lab_book = models.ForeignKey(
         "labbooks.LabBook",
         verbose_name=_("Which labbook this element is a child of"),
-        related_name="child_elements"
+        related_name="child_elements",
+        on_delete=models.CASCADE
     )
 
     @property
@@ -326,7 +326,6 @@ class LabbookSection(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMixin, S
         ordering = ["date", "title"]
         track_fields = ("date", "title", "projects", "child_elements", "deleted")
         permissions = (
-            ("view_labbooksection", "Can view a LabBook section"),
             ("trash_labbooksection", "Can trash a LabBook section"),
             ("restore_labbooksection", "Can restore a LabBook section"),
             ("change_project_labbooksection", "Can change the project of a LabBook section"),

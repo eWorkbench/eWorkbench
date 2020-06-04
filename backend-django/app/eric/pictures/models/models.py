@@ -13,7 +13,7 @@ import os
 from django.conf import settings
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin, WorkbenchEntityMixin
@@ -64,7 +64,6 @@ class Picture(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         verbose_name_plural = _("Pictures")
         ordering = ["title"]
         permissions = (
-            ("view_picture", "Can view a picture of a project"),
             ("trash_picture", "Can trash a picture"),
             ("restore_picture", "Can restore a picture"),
             ("change_project_picture", "Can change the project of a picture"),

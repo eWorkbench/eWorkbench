@@ -11,14 +11,14 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
+from django_cleanhtmlfield.fields import HTMLField
 from django_userforeignkey.request import get_current_user
 
 from eric.base64_image_extraction.models import ExtractedImage
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
 from eric.core.models.abstract import OrderingModelMixin, SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
-from django_cleanhtmlfield.fields import HTMLField
 from eric.dmp.models.managers import DmpManager, DmpFormDataManager, DmpFormFieldManager, DmpFormManager
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
@@ -42,13 +42,11 @@ class Dmp(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMix
         verbose_name_plural = _("DMPs")
         ordering = ["title", "status"]
         permissions = (
-            ("view_dmp", "Can view a dmp of a project"),
             ("trash_dmp", "Can trash a dmp"),
             ("restore_dmp", "Can restore a dmp"),
             ("add_dmp_without_project", "Can add a dmp without a project")
         )
         track_fields = ('title', 'status', 'projects', 'dmp_form', 'deleted')
-        # track_related = ('dmp_form_data', )  # Todo: Check if this works as intended
         track_related_many = (
             ('dmp_form_data', ('pk', 'name', 'value',)),
             ('metadata', ('field', 'values',)),
@@ -90,7 +88,8 @@ class Dmp(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMix
     dmp_form = models.ForeignKey(
         'DmpForm',
         verbose_name=_("Which dmp form is this dmp associated to"),
-        related_name="dmps"
+        related_name="dmps",
+        on_delete=models.CASCADE
     )
 
     # reference to many projects (can be 0 projects, too)
@@ -117,7 +116,7 @@ class Dmp(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMix
             return
 
         # else: it's an update, check that dmp_form has not changed
-        if dmp_object.dmp_form != self.dmp_form:
+        if dmp_object.dmp_form_id != self.dmp_form_id:
             raise ValidationError({
                 'dmp_form': ValidationError(
                     _('You are not allowed to change the dmp form'),
@@ -293,7 +292,8 @@ class DmpFormField(BaseModel, OrderingModelMixin, ChangeSetMixIn, RevisionModelM
     dmp_form = models.ForeignKey(
         'DmpForm',
         verbose_name=_("Which dmp form is this dmp form field associated to"),
-        related_name="dmp_form_fields"
+        related_name="dmp_form_fields",
+        on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -309,9 +309,6 @@ class DmpFormData(BaseModel, OrderingModelMixin, ChangeSetMixIn, RevisionModelMi
         verbose_name = _("DMP Form Data")
         verbose_name_plural = _("DMP Form Data")
         ordering = ["ordering", "name", "type"]
-        permissions = (
-            ("view_dmp_form_data", "Can view dmp form data of a project"),
-        )
         track_fields = ('value', 'name', 'type', 'infotext', 'dmp', 'dmp_form_field',)
 
     id = models.UUIDField(
@@ -340,13 +337,15 @@ class DmpFormData(BaseModel, OrderingModelMixin, ChangeSetMixIn, RevisionModelMi
     dmp = models.ForeignKey(
         'Dmp',
         verbose_name=_("Which dmp is this dmp form data associated to"),
-        related_name="dmp_form_data"
+        related_name="dmp_form_data",
+        on_delete=models.CASCADE
     )
 
     dmp_form_field = models.ForeignKey(
         'DmpFormField',
         verbose_name=_("Which dmp form field is this dmp form data associated to"),
-        related_name="dmp_form_data"
+        related_name="dmp_form_data",
+        on_delete=models.CASCADE
     )
 
     extracted_images = GenericRelation(ExtractedImage)

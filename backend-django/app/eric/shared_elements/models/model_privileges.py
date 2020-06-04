@@ -2,6 +2,8 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from django_userforeignkey.request import get_current_user
+
 from eric.model_privileges.utils import BasePrivilege, UserPermission, register_privilege, \
     get_model_privileges_and_project_permissions_for
 from eric.shared_elements.models import Task, Meeting, Contact
@@ -54,6 +56,34 @@ class MeetingPrivilege(BasePrivilege):
                 # overwrite the privilege
                 permissions_by_user[attending_user.pk].view_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
                 permissions_by_user[attending_user.pk].edit_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+
+        return permissions_by_user
+
+
+# The execution_order=999 parameter means that this Privilege is executed after Privileges with lower numbers.
+# This is needed so the existing privileges are not overwritten with this one.
+@register_privilege(Meeting, execution_order=999)
+class MeetingResourcePrivilege(BasePrivilege):
+    """
+    If a user can edit a resource, the user is allowed to view, edit and trash and restore meetings where
+    this resource is booked in
+    """
+    @staticmethod
+    def get_privileges(obj, permissions_by_user=dict()):
+        from eric.projects.models import Resource
+
+        if obj.resource:
+            meeting_resource_is_editable = Resource.objects.editable().filter(pk=obj.resource.pk).exists()
+
+            user = get_current_user()
+
+            if meeting_resource_is_editable:
+                # create a new privilege for the user
+                permissions_by_user[user.pk] = UserPermission(
+                    user,
+                    obj.pk, obj.get_content_type(),
+                    is_context_permission=True, can_view=True, can_edit=True, can_trash=True, can_restore=True
+                )
 
         return permissions_by_user
 

@@ -16,7 +16,6 @@
             searchField: '<?',
             showTasks: '<?',
             showMeetings: '<?',
-            showMyResourceBookings: '<?',
             selectedUsers: '<?',
             calendarConfig: '<',
             preSelectedUsers: '=',
@@ -67,13 +66,6 @@
                 });
 
                 $compile(element)($scope);
-            } else if (entry.content_type_model === "projects.resourcebooking") {
-                element.attr({
-                    'calendar-tooltip-widget': '',
-                    'resourcebooking': "vm.schedulesDict['" + entry.pk + "']"
-                });
-
-                $compile(element)($scope);
             }
         };
 
@@ -93,7 +85,7 @@
         };
 
         /**
-         * creates a new meeting on a select-event (Click and/or Drag on calendar)
+         * creates a new appointment on a select-event (Click and/or Drag on calendar)
          */
         var onSelectRange = function (startDate, endDate) {
             var fullDay = false;
@@ -114,7 +106,7 @@
                 fullDay = true;
             }
 
-            // create a meeting-template
+            // create an appointment-template
             var template = {
                 date_time_start: start,
                 date_time_end: end,
@@ -138,51 +130,27 @@
                 });
         };
 
-        /**
-         * edits a resourcebooking on a click-event for url 'resourcebooking'
-         */
-        var onEventClick = function (eventObj, jsEvent, view) {
-            if (eventObj.url === "resourcebooking") {
-                // don't open the url if the url is 'resourcebooking'
-                jsEvent.preventDefault();
-
-                // delete eventObj.source.events to avoid cycles
-                delete eventObj.source.events;
-
-                // create a modal and wait for a result
-                var modal = ResourceBookingCreateEditModalService.openEdit(eventObj);
-
-                modal.result.then(
-                    function success (response) {
-                        vm.updateSchedules();
-                    }, function error (rejection) {
-                        console.log("Modal canceled");
-                    }
-                );
-            }
-        };
-
         this.$onInit = function () {
             /**
-             * a list of Meetings and Tasks
+             * a list of Appointments and Tasks
              * @type {Array}
              */
             vm.schedules = [];
 
             /**
-             * Filtered meetings and tasks list (auto generated based on filters)
+             * Filtered appointments and tasks list (auto generated based on filters)
              * @type {Array}
              */
             vm.filteredSchedules = [];
 
             /**
-             * Whether or not tasks and meetings have finished loading
+             * Whether or not tasks and appointments have finished loading
              * @type {boolean}
              */
             vm.schedulesLoaded = false;
 
             /**
-             * dictionary for rendering the tooltip text of the task or meeting
+             * dictionary for rendering the tooltip text of the task or appointment
              */
             vm.schedulesDict = {};
 
@@ -203,9 +171,9 @@
             vm.calendarConfig = angular.copy(vm.calendarConfig);
             vm.calendarConfig.viewRender = viewRender;
             vm.calendarConfig.select = onSelectRange;
-            vm.calendarConfig.selectable = true; // add meeting with specific time-/daterange by click&drag in calendar
+            // add appointment with specific time-/daterange by click&drag in calendar
+            vm.calendarConfig.selectable = true;
             vm.calendarConfig.eventRender = renderToolTip;
-            vm.calendarConfig.eventClick = onEventClick;
             vm.calendarConfig.customButtons = { //add functionality to custom button 'Export' and 'Schedules'
                 export: {
                     text: gettextCatalog.getString("Export"),
@@ -232,7 +200,6 @@
                 .filterProjects(vm.selectedProjects)
                 .showMeetings(vm.showMeetings)
                 .showTasks(vm.showTasks)
-                .showMyResourceBookings(vm.showMyResourceBookings)
                 .searchText(vm.searchField);
 
             if (!hideDateFilters) {
@@ -243,7 +210,7 @@
         };
 
         /**
-         * Update Filtered tasks and meetings
+         * Update Filtered tasks and appointments
          * resets vm.filteredSchedules to an empty array, and then iterates over all schedules
          * Applies the following filters:
          * - filterBySelectedUser (assigned_users, attending_users)
@@ -278,7 +245,7 @@
                         i = 0,
                         responseLength = response.length;
 
-                    // List of users which is pre-filled based on the schedules (attending users of the meeting,
+                    // List of users which is pre-filled based on the schedules (attending users of the appointment,
                     // assigned users of the task) fetched from REST API
                     vm.preSelectedUsers.length = 0;
 
@@ -290,7 +257,7 @@
 
                         switch (entry.content_type_model) {
                             case 'shared_elements.meeting':
-                                //opened view by click on meeting
+                                //opened view by click on appointment
                                 entry.url = $state.href('meeting-view', {meeting: entry});
 
                                 //for display
@@ -298,7 +265,7 @@
                                 entry.borderColor = '#8fc3c6';
                                 entry.textColor = 'black';
 
-                                //collect users that are attended to meetings
+                                //collect users that are attended to appointments
                                 vm.preSelectedUsers = vm.preSelectedUsers.concat(entry.attending_users);
                                 break;
 
@@ -317,17 +284,6 @@
 
                                 //collect users that are assigned to tasks
                                 vm.preSelectedUsers = vm.preSelectedUsers.concat(entry.assigned_users);
-                                break;
-
-                            case 'projects.resourcebooking':
-                                // set url to identifier for resource bookings, so we can handle them later
-                                entry.url = "resourcebooking";
-
-                                //for display
-                                entry.color = '#ffe3c9';
-                                entry.borderColor = '#d2cdc8';
-                                entry.textColor = 'black';
-                                entry.booked_by = entry.created_by;
                                 break;
 
                             default:
@@ -358,7 +314,7 @@
 
         // Watch potential filter settings and update vm.filteredSchedules
         $scope.$watchGroup(
-            ["vm.searchField", "vm.showTasks", "vm.showMeetings", "vm.showMyResourceBookings", "vm.selectedProjects"],
+            ["vm.searchField", "vm.showTasks", "vm.showMeetings", "vm.selectedProjects"],
             vm.updateSchedules
         );
         // Watch potential filter settings and update vm.filteredSchedules
@@ -376,14 +332,20 @@
                 var schedules = vm.schedules;
 
                 for (var i = 0; i < vm.selectedResources.length; i++) {
-                    ResourceBookingsRestService.query({resource: vm.selectedResources[i].pk}).$promise.then(
+                    ResourceBookingsRestService.query({
+                        resource: vm.selectedResources[i].pk,
+                        end_date__gte:  vm.viewStartTime.toISOString(),
+                        start_date__lte: vm.viewEndTime.toISOString()
+                    }).$promise.then(
                         function success (response) {
                             for (var j = 0; j < response.length; j++) {
                                 var booking = response[j];
 
                                 booking.additional = true;
 
-                                booking.url = "resourcebooking";
+                                //opened view by click on appointment
+                                booking.url = $state.href('meeting-view', {meeting: booking});
+
                                 booking.borderColor = '#d2cdc8';
                                 booking.textColor = 'black';
                                 booking.color = ResourceHelperService.selectColor(vm.selectedResources.length);
@@ -397,7 +359,7 @@
                                         alreadyInSchedule = true;
                                     }
                                 }
-                                if (!alreadyInSchedule && booking.content_type_model === 'projects.resourcebooking') {
+                                if (!alreadyInSchedule) {
                                     vm.schedulesDict[booking.pk] = booking;
                                     schedules.push(booking);
                                 }
@@ -414,6 +376,15 @@
         };
 
         /**
+         * Watch vm.showMeetings and remove the resource filters if set to false
+         */
+        $scope.$watch("vm.showMeetings", function (newVal, oldVal) {
+            if (newVal !== oldVal && newVal === false) {
+                $rootScope.$emit("schedule:removeSelectedResources");
+            }
+        });
+
+        /**
          * Watch vm.selectedResources and add additional resource bookings
          */
         $scope.$watch("vm.selectedResources", function () {
@@ -425,23 +396,26 @@
          */
         $rootScope.$on("resource-removed-from-selection", function (event, args) {
             var resource_pk = args.resource_pk;
+            var indexes = [];
 
-            var schedules = vm.schedules;
-
+            // iterate through vm.schedules to find indexes of additional bookings that should now be removed
             for (var i = 0; i < vm.schedules.length; i++) {
                 if (vm.schedules[i].resource
                     && vm.schedules[i].resource.pk === resource_pk
                     && vm.schedules[i].additional
-                    && vm.schedules[i].content_type_model === 'projects.resourcebooking') {
-                    var index = schedules.indexOf(vm.schedules[i]);
+                    && vm.schedules[i].content_type_model === 'shared_elements.meeting') {
 
-                    if (index > -1) {
-                        schedules.splice(index, 1);
+                    var index = vm.schedules.indexOf(vm.schedules[i]);
+
+                    if (index >= 0) {
+                        indexes.push(index);
                     }
                 }
             }
-
-            vm.schedules = schedules;
+            // remove the indexed elements from vm.schedules
+            while (indexes.length) {
+                vm.schedules.splice(indexes.pop(), 1);
+            }
             updateFilteredSchedules();
         });
     });

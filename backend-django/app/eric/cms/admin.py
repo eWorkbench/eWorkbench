@@ -15,11 +15,14 @@ User = get_user_model()
 class ContentAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     class Media:
         css = {
-            'all': ('eric/admin/css/dmp_form_admin.css',),
+            'all': (
+                'eric/admin/css/dmp_form_admin.css',
+            ),
         }
-        js = {
-            'js': ('ckeditor/ckeditor/ckeditor.js', 'eric/admin/js/dmp_form_admin.js',),
-        }
+        js = (
+            'ckeditor/ckeditor/ckeditor.js',
+            'eric/admin/js/dmp_form_admin.js',
+        )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

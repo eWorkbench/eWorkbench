@@ -32,6 +32,6 @@
             vm.meetingIcon = IconImagesService.mainElementIcons.meeting;
         };
 
-        console.log('Meeting List Controller');
+        console.log('Appointment List Controller');
     });
 })();

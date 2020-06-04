@@ -287,6 +287,24 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         return self.prefetch_related('attending_contacts')
 
+    # resourcebookings/my
+    def resourcebookings_my_viewable(self):
+        from eric.projects.models.models import Resource
+        user = get_current_user()
+
+        resource_viewable = Q(resource__in=Resource.objects.viewable())
+        created_by_user = Q(created_by=user)
+        return self.filter(resource_viewable, created_by_user)
+
+    # resourcebookings/all
+    def resourcebookings_all_viewable(self):
+        from eric.projects.models.models import Resource
+        from eric.shared_elements.models.models import Meeting
+
+        resource_viewable = Q(resource__in=Resource.objects.viewable())
+        viewable_for_user = Q(pk__in=Meeting.objects.viewable())
+        return self.filter(resource_viewable | viewable_for_user)
+
 
 class BaseMeetingPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
     """
@@ -394,6 +412,37 @@ class MeetingAttendingUsersViewableEditableQuerySet:
         return Q(
             pk__in=meeting_pks
         )
+
+
+def get_meetings_where_the_booked_resource_is_editable():
+    from eric.projects.models import Resource
+
+    return Q(resource__in=Resource.objects.editable())
+
+
+@extend_queryset(MeetingQuerySet)
+class MeetingResourceAdministratorViewableEditableTrashableQuerySet:
+    """
+    Extending Meeting QuerySet for Resource Administrators
+    If a user can edit a resource, the user is allowed to view, edit and trash and restore meetings where
+    this resource is booked in
+    """
+
+    @staticmethod
+    def _viewable():
+        return get_meetings_where_the_booked_resource_is_editable()
+
+    @staticmethod
+    def _editable():
+        return get_meetings_where_the_booked_resource_is_editable()
+
+    @staticmethod
+    def _trashable():
+        return get_meetings_where_the_booked_resource_is_editable()
+
+    @staticmethod
+    def _restoreable():
+        return get_meetings_where_the_booked_resource_is_editable()
 
 
 class ElementLabelQuerySet(QuerySet, ChangeSetQuerySetMixin):

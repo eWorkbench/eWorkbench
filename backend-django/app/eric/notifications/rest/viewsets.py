@@ -42,7 +42,7 @@ class NotificationViewSet(BaseAuthenticatedReadOnlyModelViewSet):
 
     serializer_class = NotificationSerializer
     search_fields = ()
-    filter_class = NotificationFilter
+    filterset_class = NotificationFilter
 
     pagination_class = LimitOffsetPagination
 

@@ -9,7 +9,7 @@
         module = angular.module('services');
 
     /**
-     * Factory for services to query schedules (meetings, tasks) with filters.
+     * Factory for services to query schedules (appointments, tasks) with filters.
      */
     module.factory('FilteredScheduleQueryFactory', function (
         $q,
@@ -55,14 +55,6 @@
         factory.showTasks = function (showTasks) {
             if (showTasks === false) {
                 factory.filters['show_tasks'] = 0;
-            }
-
-            return factory;
-        };
-
-        factory.showMyResourceBookings = function (showMyResourceBookings) {
-            if (showMyResourceBookings === false) {
-                factory.filters['show_my_resourcebookings'] = 0;
             }
 
             return factory;

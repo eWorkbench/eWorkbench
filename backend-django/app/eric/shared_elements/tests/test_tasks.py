@@ -72,13 +72,13 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         # create two projects
         self.project1 = self.create_project(
             self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", "START",
+            "Only user1 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
         self.project2 = self.create_project(
             self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", "START",
+            "Only user2 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
@@ -327,8 +327,8 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         """
         Tests creating a new task within a project
         """
-        project = self.create_project(self.token1, "My Own Project", "Nobody else has access to this project", "START",
-                                      HTTP_USER_AGENT, REMOTE_ADDR)
+        project = self.create_project(self.token1, "My Own Project", "Nobody else has access to this project",
+                                      Project.STARTED, HTTP_USER_AGENT, REMOTE_ADDR)
 
         # get all Tasks from rest api for this project
         response = self.rest_get_tasks_for_project(self.token1, project.pk, HTTP_USER_AGENT, REMOTE_ADDR)

@@ -14,7 +14,7 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from eric.dmp.models import DmpForm
+from eric.dmp.models import DmpForm, Dmp
 from eric.dmp.tests.core import DmpsMixin
 from eric.drives.tests.core import DriveMixin
 from eric.kanban_boards.models import KanbanBoard
@@ -121,7 +121,7 @@ class CleanDatabaseTest(
 
         self.dmp_form = DmpForm.objects.create(title='test dmpform title', description='test dmpform desc')
 
-        self.dmp_status = 'NEW'
+        self.dmp_status = Dmp.FINAL
 
         self.standalone_dmp1 = self.rest_create_dmp(self.token1, None, 'Test DMP Title', self.dmp_status,
                                                     self.dmp_form.pk,
@@ -133,7 +133,7 @@ class CleanDatabaseTest(
         # create a project with elements assigned to it
         self.project1 = self.create_project(
             self.token1, "My Own Project (testuser1)",
-            "Only testuser1 has access to this project", "START",
+            "Only testuser1 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
@@ -246,7 +246,7 @@ class CleanDatabaseTest(
         # create a project with elements assigned to it
         self.project2 = self.create_project(
             self.token2, "My Own Project (testuser2)",
-            "Only testuser2 has access to this project", "START",
+            "Only testuser2 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 

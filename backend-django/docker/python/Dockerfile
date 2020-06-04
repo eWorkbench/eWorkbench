@@ -1,8 +1,4 @@
-FROM python:3.5.6-jessie
-
-# Using Jessie repository from Debian archive
-RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
-    sed -i '/jessie-updates/d' /etc/apt/sources.list
+FROM python:3.7-stretch
 
 # Install runtime dependencies
 RUN apt-get update && \
@@ -15,8 +11,7 @@ RUN apt-get update && \
         sudo \
         build-essential \
         libpq-dev \
-        libmysqlclient-dev \
-        libpng12-dev \
+        libpng-dev \
         libmcrypt-dev \
         libmcrypt4 \
         libcurl3-dev \

@@ -24,6 +24,7 @@
     });
 
     module.controller('OrderedMenuWidgetController', function (
+        $rootScope,
         $scope,
         $state,
         $timeout,
@@ -83,7 +84,6 @@
          * @param $event
          */
         vm.clickOnNavbar = function (menuEntry, $event) {
-            console.log("On click");
             if (vm.grayOut) {
                 // prevent default / prevent click from being handled by anything else
                 $event.preventDefault();
@@ -110,8 +110,6 @@
                         // do nothing
                     }
                 );
-
-                console.log("Do you really want to leave the project?");
             }
         };
 
@@ -127,6 +125,7 @@
             return OrderedMenuRestService.query().$promise.then(
                 function success (response) {
                     vm.menuEntries = vm.filterDuplicates(response);
+                    vm.mainMenuEntries = angular.copy(vm.menuEntries);
                 },
                 function error (rejection) {
                     console.log(rejection);
@@ -298,8 +297,6 @@
                 i++;
             }
 
-            console.log("Ordered Menu: Displaying " + i + " items (params: newWidth=" + newWidth + ", usernameAndHelpWidgetWidth=" + usernameAndHelpWidgetWidth + ", searchbarWidth=" + searchbarWidth + ", headerWidth=" + headerWidth + ")");
-
             vm.maxItemsBeforeOverflow = i;
         };
 
@@ -319,7 +316,6 @@
             return jQuery(".navbar-header").outerWidth();
         }, function (newValue, oldValue) {
             if (newValue && newValue > 0) {
-                console.log("!!! changed from " + oldValue + " to " + newValue);
                 calculateMaxItemsBeforeOverflow();
             }
         });
@@ -337,5 +333,16 @@
 
         // get menu entries, then calculate the max items before overflow
         getMenuEntries().then(calculateMaxItemsBeforeOverflow);
+
+        /**
+         * changes the entries in the menu
+         */
+        $rootScope.$on("change-menu-entries", function (event, opt) {
+            if (opt.menu_entries) {
+                vm.menuEntries = opt.menu_entries;
+            } else {
+                vm.menuEntries = vm.mainMenuEntries;
+            }
+        });
     });
 })();

@@ -8,7 +8,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import CreatedModifiedByMixIn
 
 from eric.core.models import BaseModel
@@ -77,7 +77,7 @@ class MetadataField(BaseModel, CreatedModifiedByMixIn):
 
     type_settings = JSONField(
         verbose_name=_("Values for base type settings"),
-        default={},
+        default=dict,
         null=False,
         blank=True,
     )
@@ -129,9 +129,6 @@ class Metadata(BaseModel, CreatedModifiedByMixIn):
 
     class Meta:
         ordering = ['created_at', ]
-        permissions = (
-            ("view_metadata", "Can view metadata"),
-        )
 
     id = models.UUIDField(
         primary_key=True,

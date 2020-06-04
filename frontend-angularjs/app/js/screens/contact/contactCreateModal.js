@@ -134,11 +134,26 @@
 
                 // copy user data to avoid changing data via bindings
                 // (changes in vm.contact would otherwise change the data displayed in the user selection field)
-                var userCopy = angular.copy(user);
+                var userCopy = angular.copy(user),
+                    profile = angular.copy(userCopy.userprofile);
 
-                vm.contact = userCopy.userprofile;
+                vm.contact = profile;
+                vm.contact.academic_title = profile.academic_title;
+                vm.contact.first_name = profile.first_name;
+                vm.contact.last_name = profile.last_name;
+                vm.contact.phone = profile.phone;
                 vm.contact.email = userCopy.email;
-                vm.contact.company = userCopy.userprofile.org_zug_mitarbeiter_lang.join(', ');
+                vm.contact.notes = '';
+                if (profile.email_others && profile.email_others.length > 0) {
+                    vm.contact.notes += '<ul>';
+                    for (var m = 0; m < profile.email_others; m++) {
+                        vm.contact.notes += '<li>' + profile.email_others + '</li>';
+                    }
+                    vm.contact.notes += '</ul>';
+                }
+                if (profile.org_zug_mitarbeiter_lang) {
+                    vm.contact.company = profile.org_zug_mitarbeiter_lang.join(', ');
+                }
                 vm.contact.metadata = [];
 
                 vm.userProfileHasBeenSelected = true;

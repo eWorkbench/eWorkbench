@@ -150,6 +150,7 @@
         PictureRestService,
         WorkbenchElementChangesWebSocket,
         pictureCreateModalService,
+        fileCreateModalService,
         newElementModalService,
         PermissionService,
         WorkbenchElementsTranslationsService,
@@ -242,6 +243,11 @@
             vm.sectionFilterGrid = false;
 
             /**
+             * Default placement position for new elements
+             */
+            vm.defaultPlacement = 'bottom';
+
+            /**
              * Initialize WebSocket: Subscribe to changes on the websocket
              */
             var wsUnsubscribeFunction = WorkbenchElementChangesWebSocket.subscribe(
@@ -320,7 +326,7 @@
                                 // Validation error - an error message is provided by the api
                                 console.log(rejection);
                                 toaster.pop('error', gettextCatalog.getString("Error"), rejection.data.detail);
-                            } else if (rejection.status == 403) {
+                            } else if (rejection.status === 403) {
                                 // Permission denied -> write our own error message
                                 toaster.pop('error', gettextCatalog.getString("Permission Denied"),
                                     gettextCatalog.getString("You do not have permissions to remove " +
@@ -351,35 +357,24 @@
 
                 // check if a user filter is selected
                 if (section_pk && section_pk.length > 0) {
-                    filters['section'] =  section_pk;
+                    filters['section'] = section_pk;
                 }
 
                 vm.labbookChildElementRestService.query(filters).$promise.then(
                     function success (response) {
-                        // first update the position of the elements being moved, this puts each element
-                        // on the bottom of the labbook
+                        // first update the position of the elements being moved
+                        // this puts each element on the bottom of the labbook
                         var sectionChildElements = response;
 
                         for (var i = 0; i < sectionChildElements.length; i++) {
                             var childElement = sectionChildElements[i];
-                            var el = null,
-                                j = 0;
-                            // determine the maximum position_y
-                            var maxY = 0;
 
-                            for (j = 0; j < vm.childElements.length; j++) {
-                                el = vm.childElements[j];
-
-                                if (el.position_y + el.height > maxY) {
-                                    maxY = el.position_y + el.height;
-                                }
-                            }
-
-                            childElement.position_y = maxY;
+                            childElement.position_y = vm.getBottomY(vm.childElements);
                             childElement.$update();
                             vm.childElements.push(childElement);
                         }
-                        // the remove the child elements from the section,
+
+                        // then remove the child elements from the section,
                         // which puts them automatically back in the labbook
                         vm.removeSectionChildElements(args.section.pk);
                     }
@@ -394,24 +389,10 @@
             $rootScope.$on("labbook-child-element-moved-back-to-labbook", function (event, args) {
                 var movedChildElement = args.element;
 
-                // determine the maximum position_y + the height of this item
-                var maxY = 0;
-                var el = null,
-                    i = 0;
-
-                for (i = 0; i < vm.childElements.length; i++) {
-                    el = vm.childElements[i];
-
-                    if (el.position_y + el.height > maxY) {
-                        maxY = el.position_y + el.height;
-                    }
-                }
-                movedChildElement.position_y = maxY;
+                movedChildElement.position_y = vm.getBottomY(vm.childElements);
                 movedChildElement.$update().then(
                     function success (response) {
-                        var updatedElement = response;
-
-                        vm.childElements.push(updatedElement);
+                        vm.childElements.push(response);
                     }
                 );
             });
@@ -461,9 +442,9 @@
             vm.filteredOutSections = [];
 
             vm.getAllChildElements();
-
             updateProjectPks(vm.labbook);
-        };
+
+        }; // end onInit
 
         /**
          * This removes a section element from the labbook child elements and
@@ -564,7 +545,8 @@
                 if (start_date > stop_date) {
                     vm.section_date_filter_stop_date = "";
                     vm.section_date_filter_stop_date_placeholder = gettextCatalog.getString(
-                        'Date must be after the Start date');
+                        'Date must be after the Start date'
+                    );
                 } else {
                     vm.filtersections();
                 }
@@ -642,33 +624,32 @@
          * checks whether the new element is added to the labbook or to a section
          */
         var checkParentAndCalculatePosition = function (section, position, newWidth, newHeight) {
-            if (section == null) {
-                return calculatePositionOfNewElement(vm.childElements, position, newWidth, newHeight);
-            }
+            var childElements = section ? section.childElements : vm.childElements;
 
-            return calculatePositionOfNewElement(section.childElements, position, newWidth, newHeight);
+            return calculatePositionOfNewElement(childElements, position, newWidth, newHeight);
         }
 
         /**
          * Calculates the position of the element when the element is added
          * E.g., if you want to add an element at the bottom of the grid, we need to calculate the x and y position
          * @param position [string] the position of the new element, either top or bottom
+         * @param elements
+         * @param newWidth
+         * @param newHeight
          */
         var calculatePositionOfNewElement = function (elements, position, newWidth, newHeight) {
             var el = null,
-                i = 0;
+                i = undefined;
 
-            if (elements == null) {
-                elements = vm.childElements;
-            }
+            elements = elements || vm.childElements;
 
-            if (position == 'top') {
+            if (position === 'top') {
                 // move all child elements to the bottom by newHeight
                 for (i = 0; i < elements.length; i++) {
                     el = elements[i];
-
                     el.position_y += newHeight;
                 }
+
                 // make sure to save the elements here to avoid movement on saves afterwards
                 $timeout(function () {
                     vm.updateLabbookChildElements(elements);
@@ -680,17 +661,7 @@
                     'position_x': 0,
                     'position_y': 0
                 };
-            } else if (position == 'bottom') {
-                // determine the maximum position_y + the height of this item
-                var maxY = 0;
-
-                for (i = 0; i < elements.length; i++) {
-                    el = elements[i];
-
-                    if (el.position_y + el.height > maxY) {
-                        maxY = el.position_y + el.height;
-                    }
-                }
+            } else if (position === 'bottom') {
                 // make sure to save the elements here to avoid movement on saves afterwards
                 $timeout(function () {
                     vm.updateLabbookChildElements(elements);
@@ -700,7 +671,7 @@
                     'height': newHeight,
                     'width': newWidth,
                     'position_x': 0,
-                    'position_y': maxY
+                    'position_y': vm.getBottomY(elements)
                 };
             }
 
@@ -708,6 +679,18 @@
             console.error("Unknown position " + position);
 
             return {};
+        };
+
+        vm.getBottomY = function (elements) {
+            var maxY = 0,
+                element = undefined;
+
+            for (var i = 0; i < elements.length; i++) {
+                element = elements[i];
+                maxY = Math.max(maxY, element.position_y + element.height);
+            }
+
+            return maxY;
         };
 
         /**
@@ -723,7 +706,7 @@
                 }).result.then(
                     function success (element) {
                         // 2. determine the position where the new element should go
-                        var data = calculatePositionOfNewElement(vm.childElements,"bottom", 20, 7);
+                        var data = calculatePositionOfNewElement(vm.childElements, vm.defaultPlacement, 20, 7);
 
                         data['child_object_id'] = element.pk;
                         data['child_object_content_type'] = element.content_type;
@@ -742,15 +725,14 @@
         /**
          * Add a new picture at the specified position
          * @param position the position (either "top" or "bottom")
+         * @param section
          */
         vm.addNewPicture = function (position, section) {
             // create the picture create modal dialog and let the user fill in the details of the picture
             pictureCreateModalService.open({'projects': vm.labbook.projects}).result.then(
                 function success (element) {
                     // 2. determine the position where the new element should go
-                    var data = {};
-
-                    data = checkParentAndCalculatePosition(section, position, 20, 7);
+                    var data = checkParentAndCalculatePosition(section, position, 20, 7);
 
                     data['child_object_id'] = element.pk;
                     data['child_object_content_type'] = element.content_type;
@@ -758,15 +740,16 @@
                     addNewLabbookChildElement(data, section);
                 },
                 function cancel () {
+                    console.log("PictureCreateModal canceled");
                 }
             );
         };
-
 
         /**
          * Add a new note at the specified position
          * This first creates a note via the Notes REST API, and then adds it to the lab book child elements
          * @param position
+         * @param section
          */
         vm.addNewNote = function (position, section) {
             vm.noteIsRendering = true;
@@ -780,21 +763,19 @@
             NoteRestService.create(data).$promise.then(
                 function success (element) {
                     // 2. determine the position where the new element should go
-                    var data = {};
+                    var elementData = checkParentAndCalculatePosition(section, position, 20, 7);
 
-                    data = checkParentAndCalculatePosition(section, position, 20, 7);
+                    elementData['child_object_id'] = element.pk;
+                    elementData['child_object_content_type'] = element.content_type;
 
-                    data['child_object_id'] = element.pk;
-                    data['child_object_content_type'] = element.content_type;
-
-                    addNewLabbookChildElement(data, section);
+                    addNewLabbookChildElement(elementData, section);
                 },
                 function error (rejection) {
                     if (rejection && rejection.data) {
                         // Validation error - an error message is provided by the api
                         console.log(rejection);
                         toaster.pop('error', gettextCatalog.getString("Error"), rejection.data.detail);
-                    } else if (rejection.status == 403) {
+                    } else if (rejection.status === 403) {
                         // Permission denied -> write our own error message
                         toaster.pop('error', gettextCatalog.getString("Permission Denied"),
                             gettextCatalog.getString("You do not have permissions to create a new Note in this LabBook")
@@ -829,19 +810,19 @@
             LabbookSectionsRestService.create(data).$promise.then(
                 function success (element) {
                     // 2. determine the position where the new element should go
-                    var data = calculatePositionOfNewElement(vm.childElements, position, 20, 1);
+                    var elementData = calculatePositionOfNewElement(vm.childElements, position, 20, 1);
 
-                    data['child_object_id'] = element.pk;
-                    data['child_object_content_type'] = element.content_type;
+                    elementData['child_object_id'] = element.pk;
+                    elementData['child_object_content_type'] = element.content_type;
 
-                    addNewLabbookChildElement(data);
+                    addNewLabbookChildElement(elementData);
                 },
                 function error (rejection) {
                     if (rejection && rejection.data) {
                         // Validation error - an error message is provided by the api
                         console.log(rejection);
                         toaster.pop('error', gettextCatalog.getString("Error"), rejection.data.detail);
-                    } else if (rejection.status == 403) {
+                    } else if (rejection.status === 403) {
                         // Permission denied -> write our own error message
                         toaster.pop('error', gettextCatalog.getString("Permission Denied"),
                             gettextCatalog.getString("You do not have permissions to create a new LabbookSection" +
@@ -861,11 +842,9 @@
 
         /**
          * Add a new element at the specified location
-         * @param height of new element
          */
         vm.addNewElement = function (nextFunction) {
-            var
-                elementType = '',
+            var elementType = '',
                 icon = '';
 
             // sets the icon and the elementType for dialog title depending on nextFunction
@@ -887,7 +866,8 @@
                     icon = vm.mainElementIcons.file;
                     break;
                 default:
-                    elementType = '';
+                    console.error("Unknown element type");
+                    break;
             }
 
             newElementModalService.open(vm.childElements, elementType, icon, vm.labbook).result.then(
@@ -899,6 +879,7 @@
                     }
                 },
                 function cancel () {
+                    console.log("NewElementModal canceled");
                 }
             );
         };
@@ -915,7 +896,6 @@
 
         /**
          * When the user drag and drops a file on the "new file" button
-         * @param $files
          */
         vm.dragAndDropAddNewFile = function (files) {
             FileRestService.create({
@@ -926,7 +906,7 @@
             }).$promise.then(
                 function success (element) {
                     // 2. determine the position where the new element should go
-                    var data = calculatePositionOfNewElement(vm.childElements, "bottom", 20, 7);
+                    var data = calculatePositionOfNewElement(vm.childElements, vm.defaultPlacement, 20, 7);
 
                     data['child_object_id'] = element.pk;
                     data['child_object_content_type'] = element.content_type;
@@ -936,7 +916,7 @@
                 function error (rejection) {
                     console.log(rejection);
 
-                    if (rejection.status == 507) {
+                    if (rejection.status === 507) {
                         // handle insufficient storage error - occurs when user storage limit was reached
                         var rejectionMessage = GlobalErrorHandlerService.handleRestApiStorageError(rejection);
 
@@ -955,49 +935,23 @@
         /**
          * Add a new file at the specified position
          * Asks the user for a file to upload
-         * @param position
          */
         vm.addNewFile = function (position, section) {
-            var data = {
-                'title': gettextCatalog.getString("New File"),
-                'projects': vm.labbook.projects
-            };
+            var template = undefined,
+                projectPks = vm.labbook.projects;
 
-            // open file picker, and once a file is selected, upload it
-            selectFileWithPicker().then(
-                function success (file) {
-                    data['path'] = file;
-                    data['name'] = file[0].name;
+            fileCreateModalService.open(template, projectPks).result.then(
+                function success (element) {
+                    // 2. determine the position where the new element should go
+                    var data = checkParentAndCalculatePosition(section, position, 20, 7);
 
-                    // 1. create a new note via REST API
-                    FileRestService.create(data).$promise.then(
-                        function success (element) {
-                            // 2. determine the position where the new element should go
-                            var data = {};
+                    data['child_object_id'] = element.pk;
+                    data['child_object_content_type'] = element.content_type;
 
-                            data = checkParentAndCalculatePosition(section, position, 20, 7);
-
-                            data['child_object_id'] = element.pk;
-                            data['child_object_content_type'] = element.content_type;
-
-                            addNewLabbookChildElement(data, section);
-                        },
-                        function error (rejection) {
-                            if (rejection.status == 507) {
-                                // handle insufficient storage error - occurs when user storage limit was reached
-                                var rejectionMessage =
-                                    GlobalErrorHandlerService.handleRestApiStorageError(rejection);
-
-                                toaster.pop('error', rejectionMessage.toasterTitle, rejectionMessage.validationMessage);
-                            } else if (rejection.data && rejection.data.non_field_errors) {
-                                // report with errors
-                                toaster.pop('error', gettextCatalog.getString("Upload failed"),
-                                    rejection.data.non_field_errors.join(", "));
-                            } else {
-                                toaster.pop('error', gettextCatalog.getString("Upload failed"));
-                            }
-                        }
-                    );
+                    addNewLabbookChildElement(data, section);
+                },
+                function cancel () {
+                    console.log("FileCreateModal canceled");
                 }
             );
         };
@@ -1011,14 +965,12 @@
          * @returns {*}
          */
         var addWorkbenchElementToLabbookFromTemplateCell = function (xPosition, width, height, element) {
-            // determine the position where the new element should go
-            var data = calculatePositionOfNewElement(vm.childElements,"bottom", width, height);
+            var data = calculatePositionOfNewElement(vm.childElements, vm.defaultPlacement, width, height);
 
             data['position_x'] = xPosition;
             data['child_object_id'] = element.pk;
             data['child_object_content_type'] = element.content_type;
 
-            // add the picture as a new labbook element
             return addNewLabbookChildElement(data);
         };
 
@@ -1030,14 +982,8 @@
          */
         var createWorkbenchElementFromTemplateCell = function (contentType, childElement) {
             var existingWorkbenchElement = childElement.child_object;
-
-            /**
-             * Promise for creating a new file/note/picture (filled within the switch statement)
-             * @type {null}
-             */
             var promise = null;
 
-            // select the content type (file, note, picture)
             switch (contentType) {
                 case "shared_elements.file":
                     promise = FileRestService.create({
@@ -1092,9 +1038,9 @@
                         childElement.width,
                         childElement.height,
                         response
-                    ).then(function (response) {
+                    ).then(function (addElementResponse) {
                         console.log("LabBook: Finished adding childelement " + childElement.display);
-                        defer.resolve(response);
+                        defer.resolve(addElementResponse);
                     });
                 },
                 function error (rejection) {
@@ -1155,14 +1101,14 @@
                     var childElements = response.child_elements;
 
                     childElements.push(sectionChildElementPk);
-                    var data = {
+                    var sectionData = {
                         'pk': section.pk,
                         'child_elements': childElements
                     };
 
                     // 3. add the newly created element to the section child_elements
                     defer = addLabbookChildElementToSectionForSectionImport(
-                        data,
+                        sectionData,
                         sectionChildElementPk,
                         childElement,
                         defer,
@@ -1190,10 +1136,10 @@
                     var removedChildElementPk = sectionChildElementPk;
                     var updatedChildElements = [];
 
-                    // we remove the new section element fro the labbook here
-                    angular.forEach(vm.childElements, function (childElement) {
-                        if (childElement.pk !== removedChildElementPk) {
-                            updatedChildElements.push(childElement);
+                    // we remove the new section element from the labbook here
+                    angular.forEach(vm.childElements, function (currentElement) {
+                        if (currentElement.pk !== removedChildElementPk) {
+                            updatedChildElements.push(currentElement);
                         }
                     });
                     vm.childElements = updatedChildElements;
@@ -1229,6 +1175,7 @@
             data['width'] = childElement['width'];
             data['position_x'] = childElement['position_x'];
             data['position_y'] = childElement['position_y'];
+
             // 4. now lets set the positioning in the section as it was before
             vm.labbookChildElementRestService.updatePartial(data).$promise.then(
                 function success (response) {
@@ -1302,7 +1249,7 @@
                     // put the section element on the bottom of the labbook for now
                     var data = calculatePositionOfNewElement(
                         vm.childElements,
-                        "bottom",
+                        vm.defaultPlacement,
                         childElement['width'],
                         childElement['height']
                     );
@@ -1360,19 +1307,19 @@
 
             // wait for the promise (create) to be resolved
             promise.then(
-                function success (response) {
+                function success (createSectionResponse) {
                     console.log("adding " + existingWorkbenchElement.content_type_model +
                         " at the following position: " + sectionElement.position_x);
 
-                    var section = response;
+                    var section = createSectionResponse;
 
                     // response contains the new element -> add it to the labbook
                     addWorkbenchElementToLabbookFromTemplateCell(
                         sectionElement.position_x,
                         sectionElement.width,
                         sectionElement.height,
-                        response
-                    ).then(function (response) {
+                        createSectionResponse
+                    ).then(function (addElementResponse) {
                         console.log("LabBook: Finished adding childelement " + sectionElement.display);
 
                         var sectionPromiseChain = $q.when();
@@ -1386,7 +1333,7 @@
                             );
                         });
                         sectionPromiseChain.then(function () {
-                            defer.resolve(response);
+                            defer.resolve(addElementResponse);
                         });
                     })
                 },
@@ -1405,7 +1352,6 @@
          * as a template
          * When this dialog is closed, we are getting an object with a list of cells and an object with sections
          * and their children that should be added to the Labbook, with pre-filled content
-         * @param position
          */
         vm.insertCellsFromTemplate = function () {
             var modalInstance = $uibModal.open({
@@ -1516,7 +1462,7 @@
                         // Validation error - an error message is provided by the api
                         d.reject(rejection.data);
                         vm.errors = rejection.data;
-                    } else if (rejection.status == 403) {
+                    } else if (rejection.status === 403) {
                         // Permission denied -> write our own error message
                         d.reject(gettextCatalog.getString("Permission denied"));
                     } else {
@@ -1575,7 +1521,7 @@
                         // therefore no longer be edited
                         d.reject(rejection.data.non_field_errors);
                         vm.errors[key] = rejection.data.non_field_errors;
-                    } else if (rejection.status == 403) {
+                    } else if (rejection.status === 403) {
                         // Permission denied -> write our own error message
                         d.reject(gettextCatalog.getString("Permission denied"));
                         vm.errors[key] = [rejection.data.detail];
@@ -1596,13 +1542,15 @@
         /**
          * Add a new labbook child element via REST API
          * @param item
+         * @param section
          */
         var addNewLabbookChildElement = function (item, section) {
-            $rootScope.$emit("labbook-child-element-added-to-labbook");
             if (section != null) {
                 // skipping the next websocket refresh, so the labbook top level grid
                 // doesn't show this element there for a short time
                 vm.skipNextWebsocketRefresh = true;
+            } else {
+                $rootScope.$emit("labbook-child-element-added-to-labbook");
             }
 
             // call rest api
@@ -1613,6 +1561,7 @@
                             addChildElementToSection(response, section);
                             setTimeout(function () {
                                 vm.skipNextWebsocketRefresh = false;
+                                $rootScope.$emit("new-child-element-added-to-section", {section: section});
                             }, 2000);
                         } else {
                             toaster.pop('success', gettextCatalog.getString("Cell added"));
@@ -1629,7 +1578,7 @@
                         if (!labbookImportInProgressService.checkForImportInProgress()) {
                             toaster.pop('error', gettextCatalog.getString("Error"), rejection.data.detail);
                         }
-                    } else if (rejection.status == 403) {
+                    } else if (rejection.status === 403) {
                         // Permission denied -> write our own error message
                         if (!labbookImportInProgressService.checkForImportInProgress()) {
                             toaster.pop('error', gettextCatalog.getString("Permission Denied"),
@@ -1659,6 +1608,7 @@
         /**
          * Add child element to the section via REST API
          * @param item
+         * @param section
          */
         var addChildElementToSection = function (item, section) {
             // add the elements pk to child elements
@@ -1684,7 +1634,7 @@
                         // Validation error - an error message is provided by the api
                         console.log(rejection);
                         toaster.pop('error', gettextCatalog.getString("Error"), rejection.data.detail);
-                    } else if (rejection.status == 403) {
+                    } else if (rejection.status === 403) {
                         // Permission denied -> write our own error message
                         toaster.pop('error', gettextCatalog.getString("Permission Denied"),
                             gettextCatalog.getString("You do not have permissions to add an element in this LabBook")
@@ -1773,7 +1723,7 @@
                             vm.skipNextWebsocketRefresh = false;
                         }, 100);
 
-                        if (rejection.status == 403) {
+                        if (rejection.status === 403) {
                             // Permission denied -> write our own error message
                             toaster.pop('error', gettextCatalog.getString("Permission Denied"),
                                 gettextCatalog.getString("You do not have permissions to modify cells of a LabBook")
@@ -1808,11 +1758,11 @@
             }
         };
 
-        vm.isLabbookSection =  function (childElement) {
+        vm.isLabbookSection = function (childElement) {
             return childElement.child_object_content_type_model === 'labbooks.labbooksection';
         };
 
-        vm.isLabbookElement =  function (childElement) {
+        vm.isLabbookElement = function (childElement) {
             return childElement.child_object_content_type_model !== 'labbooks.labbooksection';
         };
 

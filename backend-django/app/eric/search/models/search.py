@@ -13,7 +13,7 @@ class FollowedBySearchQuery(SearchQuery):
     sql_template_invert = '!!({})'
 
     # only allow -, . and words for our search values
-    regex_strip = re.compile('(?!-)(?!\.)[\W]+', re.UNICODE)
+    regex_strip = re.compile(r'(?!-)(?!\.)[\W]+', re.UNICODE)
 
     def clean_values(self, raw_values):
         """ Cleans raw search values by removing any non word, non . and non - """

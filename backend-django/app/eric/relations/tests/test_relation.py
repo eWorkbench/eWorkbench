@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin
 from eric.shared_elements.tests.core import TaskMixin, NoteMixin, ContactMixin, MeetingMixin
@@ -62,7 +62,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
             self.token1,
             "DMP Project",
             "Unittest DMP Project",
-            "INIT",
+            Project.INITIALIZED,
             HTTP_USER_AGENT,
             REMOTE_ADDR
         )
@@ -71,7 +71,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
             self.token1,
             "DMP Project",
             "Unittest DMP Project",
-            "INIT",
+            Project.INITIALIZED,
             HTTP_USER_AGENT,
             REMOTE_ADDR
         )

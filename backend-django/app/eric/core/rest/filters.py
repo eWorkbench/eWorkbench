@@ -6,13 +6,13 @@ from datetime import timedelta, datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models.constants import LOOKUP_SEP
 from django.forms.widgets import NullBooleanSelect
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_filters.rest_framework import FilterSet
 from django_filters import Filter
+from django_filters.constants import EMPTY_VALUES as FILTER_EMPTY_VALUES
 from django_filters.fields import Lookup
 from django_filters import filters as django_filters
 from django_userforeignkey.request import get_current_user
@@ -39,8 +39,13 @@ class ListFilter(Filter):
     A custom filter which allows more than one value to be provided in a list
     """
     def filter(self, qs, value):
-        value_list = value.split(u',')
-        return super(ListFilter, self).filter(qs, Lookup(value_list, 'in'))
+        if value in FILTER_EMPTY_VALUES:
+            return qs
+
+        self.lookup_expr = 'in'
+        value_list = value.split(',')
+
+        return super(ListFilter, self).filter(qs, value_list)
 
 
 class RecursiveProjectsListFilter(Filter):
@@ -48,9 +53,15 @@ class RecursiveProjectsListFilter(Filter):
     A custom filter which gets all the sub-projects of a project and adds those to the filter
     """
     def filter(self, qs, value):
+        if value in FILTER_EMPTY_VALUES:
+            return qs
+
         from eric.projects.models import Project
         project = Project.objects.get(pk=value)
-        return super(RecursiveProjectsListFilter, self).filter(qs, Lookup(project.project_tree, 'in'))
+
+        self.lookup_expr = 'in'
+
+        return super(RecursiveProjectsListFilter, self).filter(qs, project.project_tree)
 
 
 class BooleanDefaultField(forms.BooleanField):
@@ -119,6 +130,9 @@ class RecentlyModifiedByMeFilter(Filter):
         super(RecentlyModifiedByMeFilter, self).__init__(*args, **kwargs)
 
     def filter(self, qs, value):
+        if value in FILTER_EMPTY_VALUES:
+            return qs
+
         # convert string to int and when the string is no valid integer than throw an exception
         try:
             value = int(value)

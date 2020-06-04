@@ -5,6 +5,8 @@
 import uuid
 
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -53,7 +55,8 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_("User for this entity permission assignment"),
-        related_name="model_privileges_new"
+        related_name="model_privileges_new",
+        on_delete=models.CASCADE
     )
 
     full_access_privilege = models.CharField(

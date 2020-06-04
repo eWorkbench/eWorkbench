@@ -7,7 +7,6 @@
         </div>
 
         <div ng-transclude="cardFunctions" style="display: inline-block; float: right">
-
         </div>
     </h4>
     <!-- more details and picture -->
@@ -28,14 +27,11 @@
 
                 <!-- show project only if it is set -->
                 <span ng-show="vm.contact.project">
-                    <i class="{{:: vm.projectIcon }}" title="{{ Project | translate }}"></i>:
+                    <i class="{{ vm.projectIcon }}" title="{{ Project | translate }}"></i>:
                     <project-link project-pk="vm.contact.project"></project-link>
                 </span>
             </p>
         </div>
-        <!--<div class="contact-picture">-->
-        <!--<img ng-src="{{ vm.contact.picture }}" class="img-responsive">-->
-        <!--</div>-->
     </div>
 
     <div class="card-footer" ng-transclude="cardFooter">

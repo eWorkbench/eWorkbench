@@ -13,7 +13,7 @@ from eric.model_privileges.models import ModelPrivilege
 from eric.pictures.models import Picture
 from eric.pictures.tests.core import PictureMixin
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TestLockMixin
-from eric.projects.models import ElementLock
+from eric.projects.models import ElementLock, Project
 from eric.shared_elements.models import Task, File, Note, disable_permission_checks
 from eric.shared_elements.tests.core import ContactMixin, MeetingMixin, NoteMixin, TaskMixin, \
     ContactAttendsMeetingMixin, UserAttendsMeetingMixin, ElementLabelMixin, FileMixin
@@ -80,13 +80,16 @@ class GenericVersionIntegrationTest(VersionRestMixin, ProjectsMixin, Authenticat
         self.user2, self.token2 = self.create_user_and_login("user2")
 
     def set_up_projects(self):
-        self.project1 = self.create_project(self.token_su, "MyProject", "My test project", "INIT", **http_info)
-        self.project2 = self.create_project(self.token_su, "MySecondProject", "My second project", "INIT", **http_info)
-        self.project3 = self.create_project(self.token_su, "MyThirdProject", "My third project", "INIT", **http_info)
+        self.project1 = self.create_project(self.token_su, "MyProject", "My test project",
+                                            Project.INITIALIZED, **http_info)
+        self.project2 = self.create_project(self.token_su, "MySecondProject", "My second project",
+                                            Project.INITIALIZED, **http_info)
+        self.project3 = self.create_project(self.token_su, "MyThirdProject", "My third project",
+                                            Project.INITIALIZED, **http_info)
 
         # create a temporary project, which we will delete after creating the first version
         self.project_tmp = self.create_project(
-            self.token_su, "tmp project", "tmp", "INIT", **http_info)
+            self.token_su, "tmp project", "tmp", Project.INITIALIZED, **http_info)
 
     def allow_model_access(self, endpoint, model, pk, user):
         self.set_model_privilege_for_user(

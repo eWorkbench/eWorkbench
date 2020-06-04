@@ -71,13 +71,13 @@ class NotesTest(APITestCase, AuthenticationMixin, UserMixin, NoteMixin, Projects
         # create two projects
         self.project1 = self.create_project(
             self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", "START",
+            "Only user1 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
         self.project2 = self.create_project(
             self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", "START",
+            "Only user2 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
@@ -302,8 +302,8 @@ class NotesTest(APITestCase, AuthenticationMixin, UserMixin, NoteMixin, Projects
 
     def test_create_and_get_notes(self):
         """ Test getting all users and finding specific users """
-        project = self.create_project(self.token1, "My Own Project", "Nobody else has access to this project", "START",
-                                      HTTP_USER_AGENT, REMOTE_ADDR)
+        project = self.create_project(self.token1, "My Own Project", "Nobody else has access to this project",
+                                      Project.STARTED, HTTP_USER_AGENT, REMOTE_ADDR)
 
         # get all Notes from rest api for this project
         response = self.rest_get_notes_for_project(self.token1, project.pk, HTTP_USER_AGENT, REMOTE_ADDR)

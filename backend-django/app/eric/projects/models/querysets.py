@@ -242,13 +242,13 @@ class BaseProjectEntityPermissionQuerySet(
     """
 
     @classmethod
-    def add_extended_queryset_filter(cls, filter_class):
+    def add_extended_queryset_filter(cls, filterset_class):
         """
         Adds a filter class to the extended queryset filters
-        :param filter_class:
+        :param filterset_class:
         :return:
         """
-        cls.extended_queryset_filters.append(filter_class)
+        cls.extended_queryset_filters.append(filterset_class)
 
     def _get_extended_viewable_filters(self):
         """
@@ -259,9 +259,9 @@ class BaseProjectEntityPermissionQuerySet(
         conds = Q()
 
         # get all filter classes that provide a viewable method, and join it with the existing filter conditions
-        for filter_class in type(self).extended_queryset_filters:
-            if hasattr(filter_class, '_viewable') and callable(filter_class._viewable):
-                conds |= filter_class._viewable()
+        for filterset_class in type(self).extended_queryset_filters:
+            if hasattr(filterset_class, '_viewable') and callable(filterset_class._viewable):
+                conds |= filterset_class._viewable()
 
         return conds
 
@@ -274,9 +274,39 @@ class BaseProjectEntityPermissionQuerySet(
         conds = Q()
 
         # get all filter classes that provide a editable method, and join it with the existing filter conditions
+        for filterset_class in type(self).extended_queryset_filters:
+            if hasattr(filterset_class, '_editable') and callable(filterset_class._editable):
+                conds |= filterset_class._editable()
+
+        return conds
+
+    def _get_extended_trashable_filters(self):
+        """
+        Returns a joined Q list of filter conditions for the .trashable() filter
+        :return: a joined list of deletable filter conditions
+        :rtype: django.db.models.Q
+        """
+        conds = Q()
+
+        # get all filter classes that provide a trashable method, and join it with the existing filter conditions
         for filter_class in type(self).extended_queryset_filters:
-            if hasattr(filter_class, '_editable') and callable(filter_class._editable):
-                conds |= filter_class._editable()
+            if hasattr(filter_class, '_trashable') and callable(filter_class._trashable):
+                conds |= filter_class._trashable()
+
+        return conds
+
+    def _get_extended_restoreable_filters(self):
+        """
+        Returns a joined Q list of filter conditions for the .restoreable() filter
+        :return: a joined list of restoreable filter conditions
+        :rtype: django.db.models.Q
+        """
+        conds = Q()
+
+        # get all filter classes that provide a deletable method, and join it with the existing filter conditions
+        for filter_class in type(self).extended_queryset_filters:
+            if hasattr(filter_class, '_restoreable') and callable(filter_class._restoreable):
+                conds |= filter_class._restoreable()
 
         return conds
 
@@ -289,9 +319,9 @@ class BaseProjectEntityPermissionQuerySet(
         conds = Q()
 
         # get all filter classes that provide a deletable method, and join it with the existing filter conditions
-        for filter_class in type(self).extended_queryset_filters:
-            if hasattr(filter_class, '_deletable') and callable(filter_class._deletable):
-                conds |= filter_class._deletable()
+        for filterset_class in type(self).extended_queryset_filters:
+            if hasattr(filterset_class, '_deletable') and callable(filterset_class._deletable):
+                conds |= filterset_class._deletable()
 
         return conds
 
@@ -512,7 +542,7 @@ class BaseProjectEntityPermissionQuerySet(
                 # get all entities where the current user has restore access
                 model_privileges__restore_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
                 model_privileges__user=user
-            )
+            ) | self._get_extended_restoreable_filters()
         ).exclude(
             # exclude all entities that are listed in deny object ids
             id__in=deny_object_ids
@@ -563,7 +593,7 @@ class BaseProjectEntityPermissionQuerySet(
                 # get all entities where the current user has restore access
                 model_privileges__trash_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
                 model_privileges__user=user
-            )
+            ) | self._get_extended_trashable_filters()
         ).exclude(
             # exclude all entities that are listed in deny object ids
             id__in=deny_object_ids
@@ -672,7 +702,12 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         )
 
         if "all" in project_pks:
-            return self.all().filter(parent_project__isnull=True)
+            # can see all projects => there are no orphans => return projects without parents only
+            return self.all().filter(
+                parent_project__isnull=True
+            ).exclude(
+                deleted=True
+            )
 
         return self.filter(
             pk__in=project_pks
@@ -684,7 +719,7 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
 
     def deletable(self, *args, **kwargs):
         """
-        Returns all projects (and sub projects) that are deleteble by the current user
+        Returns all projects (and sub projects) that are deletable by the current user
         - User must have delete_project permission
         - Project must already be soft deleted (deleted=True)
         :return: QuerySet
@@ -697,6 +732,7 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
             return self.filter(deleted=True)
 
         return self.filter(
+            deleted=True,
             pk__in=project_pks
         )
 
@@ -744,9 +780,17 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         current user
         :return: QuerySet
         """
+
+        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
+            self.model,
+            'change_parent_project'
+        )
+
+        if "all" in project_pks:
+            return self.filter(deleted=False)
+
         return self.filter(
-            pk__in=BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(self.model,
-                                                                                     'change_parent_project')
+            pk__in=project_pks
         )
 
     def not_closed_or_deleted_or_canceled(self, *args, **kwargs):
@@ -769,8 +813,17 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         :param kwargs:
         :return:
         """
+
+        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
+            self.model,
+            'change_project'
+        )
+
+        if "all" in project_pks:
+            return self.all()
+
         return self.filter(
-            pk__in=BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(self.model, 'change_project')
+            pk__in=project_pks
         )
 
 
@@ -840,51 +893,6 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
             # exclude all entities that are listed in deny object ids
             id__in=deny_object_ids
         ).distinct()
-
-
-class ResourceBookingQuerySet(ResourceQuerySet):
-    """
-    QuerySet for resource bookings
-    """
-
-    # my/resourcebookings
-    def viewable(self):
-        from eric.projects.models.models import Resource
-        user = get_current_user()
-
-        resource_viewable = Q(resource__in=Resource.objects.viewable())
-        created_by_user = Q(created_by=user)
-        return self.filter(resource_viewable, created_by_user)
-
-    # resourcebookings
-    def viewable_all(self):
-        from eric.projects.models.models import Resource
-        user = get_current_user()
-
-        resource_viewable = Q(resource__in=Resource.objects.viewable())
-        created_by_user = Q(created_by=user)
-        return self.filter(resource_viewable | created_by_user)
-
-    def editable(self):
-        from eric.projects.models.models import Resource
-        user = get_current_user()
-
-        resource_editable = Q(resource__in=Resource.objects.editable())
-        created_by_user = Q(created_by=user)
-        return self.filter(resource_editable | created_by_user)
-
-    def deletable(self):
-        from eric.projects.models.models import Resource
-        user = get_current_user()
-
-        resource_deletable = Q(resource__in=Resource.objects.deletable())
-        created_by_user = Q(created_by=user)
-        return self.filter(resource_deletable | created_by_user)
-
-    def prefetch_common(self, *args, **kwargs):
-        return super(ResourceBookingQuerySet, self) \
-            .prefetch_common(*args, **kwargs) \
-            .prefetch_related('resource', 'meeting')
 
 
 class UserStorageLimitQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):

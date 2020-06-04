@@ -48,7 +48,7 @@ class ProjectsUserAssignmentTest(APITestCase, AuthenticationMixin, ProjectsMixin
         self.user1.groups.add(self.user_group)
 
         # create project with user1
-        project = self.create_project(self.token1, "Test Project", "Project Description", "INIT",
+        project = self.create_project(self.token1, "Test Project", "Project Description", Project.INITIALIZED,
                                       HTTP_USER_AGENT, REMOTE_ADDR)
         # get assignments for this project (should work)
         response = self.rest_get_user_project_assignments(self.token1, project, HTTP_USER_AGENT, REMOTE_ADDR)
@@ -118,7 +118,7 @@ class ProjectsUserAssignmentTest(APITestCase, AuthenticationMixin, ProjectsMixin
         self.user1.groups.add(self.user_group)
 
         # create project with user1
-        project = self.create_project(self.token1, "Test Project", "Project Description", "INIT",
+        project = self.create_project(self.token1, "Test Project", "Project Description", Project.INITIALIZED,
                                       HTTP_USER_AGENT, REMOTE_ADDR)
 
         # assign user2 to this project as a student (should work)
@@ -142,7 +142,7 @@ class ProjectsUserAssignmentTest(APITestCase, AuthenticationMixin, ProjectsMixin
         self.user1.groups.add(self.user_group)
 
         # create project with user1
-        project = self.create_project(self.token1, "Test Project", "Project Description", "INIT",
+        project = self.create_project(self.token1, "Test Project", "Project Description", Project.INITIALIZED,
                                       HTTP_USER_AGENT, REMOTE_ADDR)
         # get assignments for this project (should work)
         response = self.rest_get_user_project_assignments(self.token1, project, HTTP_USER_AGENT, REMOTE_ADDR)

@@ -17,9 +17,9 @@
         {{ object.text | safe }}
     {% elif object_type == 'Contact' %}
         <i>{{ object.academic_title }} {{ object.first_name }} {{ object.last_name }}</i><br />
-        {% trans "Company" %}: {{ object.company }}<br />
-        {% trans "Phone Number" %}: {{ object.phone }}<br />
-        {% trans "Email" %}: {{ object.email }}
+        {% if object.company %}{% trans "Company" %}: {{ object.company }}<br />{% endif %}
+        {% if object.phone %}{% trans "Phone Number" %}: {{ object.phone }}<br />{% endif %}
+        {% if object.email %}{% trans "e-Mail" %}: {{ object.email }}{% endif %}
     {% elif object_type == 'File' %}
         <i>{% trans "File" %} {{ object.name }}</i><br />
         File Name: {{ object.original_filename }}<br />

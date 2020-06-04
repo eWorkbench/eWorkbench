@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ contains basic admin functionality for eric workbench notifications """
-
+from django import forms
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.forms import SimpleArrayField
 
 from eric.notifications.models import NotificationConfiguration, Notification
 
@@ -32,8 +33,17 @@ class NotificationAdmin(admin.ModelAdmin):
     )
 
 
+class NotificationConfigurationAdminForm(forms.ModelForm):
+    allowed_notifications = SimpleArrayField(forms.CharField(), widget=forms.Textarea)
+
+    class Meta:
+        fields = '__all__'
+        model = NotificationConfiguration
+
+
 @admin.register(NotificationConfiguration)
 class NotificationConfigurationAdmin(admin.ModelAdmin):
+    form = NotificationConfigurationAdminForm
     list_display = ('user',)
     raw_id_fields = ('user',)
     search_fields = (

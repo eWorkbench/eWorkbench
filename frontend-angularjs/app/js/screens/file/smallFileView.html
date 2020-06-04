@@ -64,10 +64,6 @@
 <div class="form-group">
     <label class="col-sm-3 control-label" for="file_description">
         <span translate>Description</span>
-        <span ng-hide="vm.isReadOnly()">
-            <!-- choose Template -->
-            <text-template-widget ng-hide="vm.isReadOnly()" override-object-attribute="vm.file.description"></text-template-widget>
-        </span>
     </label>
     <div class="col-sm-9">
         <editable-select-list

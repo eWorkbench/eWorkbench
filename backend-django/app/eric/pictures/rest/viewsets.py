@@ -39,7 +39,7 @@ class PictureViewSet(
 ):
     """ REST API Viewset for notes """
     serializer_class = PictureSerializer
-    filter_class = PictureFilter
+    filterset_class = PictureFilter
     search_fields = ()
 
     ordering_fields = ('title', 'created_at', 'created_by', 'last_modified_at', 'last_modified_by', 'height', 'width')

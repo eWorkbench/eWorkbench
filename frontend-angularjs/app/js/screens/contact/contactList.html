@@ -1,21 +1,28 @@
 <div class="card-panel element-panel">
     <screen-header-function-bar
-        screen-title="{{ 'Contact' | translate }}"
-        screen-new-entity="{{ 'New Contact' | translate }}"
-        screen-new-entity-type="contact"
-        selected-projects="vm.selectedProjects"
-        selected-users="vm.selectedUsers"
-        users="vm.users"
-        current-view="vm.currentView" search-field="vm.searchField">
+            screen-title="{{ 'Contact' | translate }}"
+            screen-new-entity="{{ 'New Contact' | translate }}"
+            screen-new-entity-type="contact"
+            selected-projects="vm.selectedProjects"
+            selected-users="vm.selectedUsers"
+            users="vm.users"
+            current-view="vm.currentView" search-field="vm.searchField">
         <screen-title>
             <span translate>Contacts</span>
         </screen-title>
+        <additional-buttons>
+            <button type="button" class="btn" tabindex="0"
+                    title="{{ 'Click to merge duplicate contacts' | translate }}"
+                    ng-click="vm.mergeContacts()">
+                <span translate>Merge duplicates</span>
+            </button>
+        </additional-buttons>
     </screen-header-function-bar>
 </div>
 
 <generic-list-loading-widget
-    loading-flag="vm.contactsLoaded"
-    loading-text="Contacts">
+        loading-flag="vm.contactsLoaded"
+        loading-text="Contacts">
 </generic-list-loading-widget>
 
 <div class="card-panel" ng-if="vm.currentView == 'list' && vm.contactsLoaded">

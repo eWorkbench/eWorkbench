@@ -5,12 +5,13 @@
 #
 from __future__ import unicode_literals
 
-from django.conf import settings
+import uuid
+
 import django.contrib.postgres.fields.jsonb
-from django.db import migrations, models
 import django.db.models.deletion
 import django_userforeignkey.models.fields
-import uuid
+from django.conf import settings
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

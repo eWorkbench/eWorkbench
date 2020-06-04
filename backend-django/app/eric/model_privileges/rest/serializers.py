@@ -4,6 +4,7 @@
 #
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_nested.serializers import NestedHyperlinkedIdentityField
 
 from eric.core.rest.serializers import BaseModelSerializer, PublicUserSerializer
@@ -42,3 +43,15 @@ class ModelPrivilegeSerializer(BaseModelSerializer):
             'view_privilege', 'edit_privilege', 'delete_privilege', 'restore_privilege', 'trash_privilege',
             'content_type', 'content_type_pk', 'object_id'
         )
+        # There is a bug in DRF 3.11, which will be fixed in an upcoming version:
+        # https://github.com/encode/django-rest-framework/issues/7100 and
+        # https://github.com/encode/django-rest-framework/pull/7143
+        # Meanwhile the following workaround will work.
+        # The field names are the ones used in the serializer not the ones used in the model.
+        validators = [
+            UniqueTogetherValidator(queryset=ModelPrivilege.objects.all(), fields=[
+                'user_pk',
+                'content_type_pk',
+                'object_id'
+            ]),
+        ]

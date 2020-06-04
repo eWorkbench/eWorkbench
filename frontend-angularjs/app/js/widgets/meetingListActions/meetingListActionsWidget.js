@@ -31,6 +31,6 @@
             vm.addIcon = IconImagesService.mainActionIcons.add;
         };
 
-        console.log('Meeting List Actions Controller');
+        console.log('Appointment List Actions Controller');
     });
 })();

@@ -162,7 +162,6 @@ Backend (REST API)
               verbose_name_plural = _("Elements")
               ordering = ["title"]
               permissions = (
-                  ("view_{element}", "Can view a Element of a project"),
                   ("trash_{element}", "Can trash a Element"),
                   ("restore_{element}", "Can restore a Element"),
                   ("change_project_{element}", "Can change the project of a Element"),
@@ -244,7 +243,7 @@ Backend (REST API)
 
           deleted = BooleanDefaultFilter()
 
-          projects = ListFilter(name='projects')
+          projects = ListFilter(field_name='projects')
 
 
   * Create a new serializer (inherit from ``BaseModelWithCreatedByAndSoftDeleteSerializer``) which should include
@@ -300,13 +299,13 @@ Backend (REST API)
       # register REST API Routers
       router = get_api_router()
 
-      router.register(r'{element_url}', {Element}ViewSet, base_name='{element}')
+      router.register(r'{element_url}', {Element}ViewSet, basename='{element}')
 
       {element}_router = routers.NestedSimpleRouter(router, r'{element_url}', lookup='{element}')
-      {element}_router.register(r'relations', RelationViewSet, base_name='{element}-relation')
+      {element}_router.register(r'relations', RelationViewSet, basename='{element}-relation')
       {element}_router.register(r'history', GenericChangeSetViewSet,
-                                 base_name='{element}-changeset-paginated')
-      {element}_router.register(r'privileges', ModelPrivilegeViewSet, base_name='{element}-privileges')
+                                 basename='{element}-changeset-paginated')
+      {element}_router.register(r'privileges', ModelPrivilegeViewSet, basename='{element}-privileges')
 
       urlpatterns = [
           url(r'^', include({element}_router.urls)),

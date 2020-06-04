@@ -9,9 +9,9 @@
                ng-if="vm.resourceBookings.length > 0"
                class="btn btn-default btn-lg"
                ng-click="vm.exportAllResourceBookings()"
-               title="Export all"
+               title="Export"
                translate
-            >Export all</a>
+            >Export</a>
             <div class="checkbox" style="display: inline-block; margin-left: 20px;">
                 <label>
                     <input type="checkbox" ng-model="vm.hidePastBookings" ng-change="vm.saveSetting()">
@@ -28,7 +28,7 @@
             order-dir="vm.orderDir">
         </table-view-grid>
         <div class="text-center">
-            <h3 ng-if="vm.resourceBookings.length === 0">There are no bookings to show</h3>
+            <h3 ng-if="vm.resourceBookings.length === 0">No Bookings to show</h3>
         </div>
     </div>
 </div>

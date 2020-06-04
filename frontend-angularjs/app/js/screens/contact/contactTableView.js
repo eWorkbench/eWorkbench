@@ -26,8 +26,7 @@
      * Controller for contacts as a table
      */
     module.controller('ContactTableViewController', function (
-        gettextCatalog,
-        uiGridConstants
+        gettextCatalog
     ) {
         var vm = this;
 

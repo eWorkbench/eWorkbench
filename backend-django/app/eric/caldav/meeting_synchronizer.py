@@ -8,16 +8,17 @@ from datetime import datetime, date
 import pytz
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_cleanhtmlfield.helpers import convert_text_to_html
 from django_userforeignkey.request import get_current_user
 from radicale import ical
 
 from eric.caldav.models import CaldavItem
+from eric.caldav.utils import create_or_update_caldav_item_for_meeting
 from eric.caldav.wrappers import VEventWrapper
 from eric.shared_elements.models import Meeting, UserAttendsMeeting, ContactAttendsMeeting, vobject
 
-logger = logging.getLogger('MeetingSynchronizer')
+LOGGER = logging.getLogger(__name__)
 
 
 class MeetingSynchronizer:
@@ -63,17 +64,17 @@ class MeetingSynchronizer:
                 self.update_single_event(caldav_item, input_event, name)
         except PermissionDenied:
             meeting = caldav_item.meeting if caldav_item and caldav_item.meeting else None
-            logger.info(
+            LOGGER.info(
                 'User <{username}> tried to create/edit an event via Caldav but had no permission to do so.'.format(
                     username=get_current_user().username
                 ))
             if caldav_item:
-                logger.info('CaldavItem: ID: <{id}> Name: <{name}>'.format(
+                LOGGER.info('CaldavItem: ID: <{id}> Name: <{name}>'.format(
                     id=caldav_item.pk,
                     name=caldav_item.name,
                 ))
             if meeting:
-                logger.info('Meeting: ID: <{id}> Name: <{title}>'.format(
+                LOGGER.info('Meeting: ID: <{id}> Name: <{title}>'.format(
                     id=meeting.pk,
                     title=meeting.title,
                 ))
@@ -102,14 +103,8 @@ class MeetingSynchronizer:
         else:
             meeting = Meeting()
 
-        # updating meeting information
-        # => and create caldav item if there is none yet (via signal handlers)
         self.update_meeting(meeting, input_event)
-        # update caldav item
-        caldav_item = meeting.caldavitem
-        caldav_item.name = name
-        caldav_item.text = input_event.serialize()
-        caldav_item.save()
+        create_or_update_caldav_item_for_meeting(meeting, name=name)
 
     def update_meeting(self, meeting, input_event):
         meeting.title = input_event.read('summary')
@@ -220,10 +215,7 @@ class MeetingSynchronizer:
             except:
                 print("Unknown timezone {}".format(first_tz.name))
 
-        if not active_tz:
-            active_tz = timezone.get_default_timezone()
-
-        return active_tz
+        return active_tz or timezone.get_default_timezone()
 
     def process_datetime(self, dt_object):
         """

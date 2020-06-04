@@ -178,7 +178,7 @@
                 if (modelName === workbenchElements.elements['projects.project'].modelName) {
                     vm.duplicateProject(vm.baseModel)
                 } else {
-                    // duplicate task, note, file, meeting, contacts
+                    // duplicate task, note, file, appointment, contacts
                     var duplicatedObject = vm.getBaseModelClone();
 
                     if (modelName === workbenchElements.elements['shared_elements.file'].modelName) {

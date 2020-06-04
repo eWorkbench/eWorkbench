@@ -2,12 +2,13 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from django_filters import BooleanFilter
 from django.contrib.auth import get_user_model
 from django.db.models.constants import LOOKUP_SEP
 
 from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter
 from eric.core.rest.filters import ListFilter, RecursiveProjectsListFilter, RecentlyModifiedByMeFilter
-from eric.projects.models import Project, ProjectRoleUserAssignment, Resource, Role, ResourceBooking
+from eric.projects.models import Project, ProjectRoleUserAssignment, Resource, Role
 
 User = get_user_model()
 
@@ -23,9 +24,9 @@ class ProjectRoleUserAssignmentFilter(BaseFilter):
             'role': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
-    project = ListFilter(name='project')
-    role = ListFilter(name='role')
-    user = ListFilter(name='user')
+    project = ListFilter(field_name='project')
+    role = ListFilter(field_name='role')
+    user = ListFilter(field_name='user')
 
 
 class ProjectFilter(BaseFilter):
@@ -40,7 +41,7 @@ class ProjectFilter(BaseFilter):
 
     deleted = BooleanDefaultFilter()
 
-    project_state = ListFilter(name='project_state')
+    project_state = ListFilter(field_name='project_state')
 
     @property
     def qs(self):
@@ -82,7 +83,7 @@ class UserFilter(BaseFilter):
             'username': BaseFilter.STRING_COMPERATORS,
         }
 
-    username = ListFilter(name='username')
+    username = ListFilter(field_name='username')
 
 
 class ResourceFilter(BaseFilter):
@@ -95,64 +96,17 @@ class ResourceFilter(BaseFilter):
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
             'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
+            'branch_library': BaseFilter.CHOICE_COMPERATORS,
         }
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
+    study_room = BooleanFilter()
 
-    projects_recursive = RecursiveProjectsListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
 
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
-
-
-class ResourceBookingFilter(BaseFilter):
-    """ Filter for ResourceBooking, which allows filtering by type """
-
-    class Meta:
-        model = ResourceBooking
-        fields = {
-            'date_time_start': BaseFilter.DATE_COMPERATORS,
-            'date_time_end': BaseFilter.DATE_COMPERATORS,
-            'resource': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'meeting': BaseFilter.FOREIGNKEY_COMPERATORS,
-        }
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
-
-    @classmethod
-    def get_filter_name(cls, field_name, lookup_expr):
-        """
-        Combine a field name and lookup expression into a usable filter name.
-        Exact lookups are the implicit default, so "exact" is stripped from the
-        end of the filter name.
-        """
-        if field_name == 'date_time_start' or field_name == 'start_date':
-            field_name = 'start_date'
-        elif field_name == 'date_time_end' or field_name == 'due_date':
-            field_name = 'end_date'
-
-        filter_name = LOOKUP_SEP.join([field_name, lookup_expr])
-
-        # This also works with transformed exact lookups, such as 'date__exact'
-        _exact = LOOKUP_SEP + 'exact'
-        if filter_name.endswith(_exact):
-            filter_name = filter_name[:-len(_exact)]
-
-        return filter_name
-
-
-class MyResourceBookingFilter(BaseFilter):
-    """ Filter for ResourceBooking, which allows filtering by type """
-
-    class Meta:
-        model = ResourceBooking
-        fields = {
-            'date_time_start': BaseFilter.DATE_COMPERATORS,
-            'date_time_end': BaseFilter.DATE_COMPERATORS,
-            'resource': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'meeting': BaseFilter.FOREIGNKEY_COMPERATORS,
-        }
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     recently_modified_by_me = RecentlyModifiedByMeFilter()
 
@@ -166,4 +120,4 @@ class RoleFilter(BaseFilter):
             'permission': BaseFilter.CHOICE_COMPERATORS,
         }
 
-    permission = ListFilter(name='permissions__codename')
+    permission = ListFilter(field_name='permissions__codename')

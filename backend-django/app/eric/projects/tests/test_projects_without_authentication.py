@@ -48,7 +48,7 @@ class ProjectsWithoutAuthTest(APITestCase, AuthenticationMixin, ProjectsMixin):
         old_project_count = Project.objects.all().count()
         response = self.client.post('/api/projects/',
                                     {'name': "Test project name", 'description': "test project description",
-                                     'project_state': "INIT"},
+                                     'project_state': Project.INITIALIZED},
                                     HTTP_USER_AGENT="Test API", REMOTE_ADDR="127.0.0.1")
         self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_401_UNAUTHORIZED])
 
@@ -72,7 +72,7 @@ class ProjectsWithoutAuthTest(APITestCase, AuthenticationMixin, ProjectsMixin):
         :return:
         """
         response = self.rest_edit_project("some-invalid-token", self.project.pk, "Test Project", "Test Description",
-                                          "INIT", HTTP_USER_AGENT, REMOTE_ADDR)
+                                          Project.INITIALIZED, HTTP_USER_AGENT, REMOTE_ADDR)
 
         self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_401_UNAUTHORIZED])
 

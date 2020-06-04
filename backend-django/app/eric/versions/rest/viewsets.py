@@ -10,13 +10,13 @@ from django.db import transaction
 from django.http import Http404, QueryDict, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.datastructures import MultiValueDict
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
-from eric.core.models import disable_permission_checks, DisableSignals
+from eric.core.models import DisableSignals
 from eric.core.models.abstract import parse_parameters_for_workbench_models
 from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet
 from eric.core.tests import custom_json_handler

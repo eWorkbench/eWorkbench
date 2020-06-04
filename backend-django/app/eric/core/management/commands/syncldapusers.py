@@ -5,29 +5,23 @@
 import time
 
 import ldap
-from ldap.controls import SimplePagedResultsControl
-
-from django.db import transaction
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.core.cache.backends.dummy import DummyCache
+from django.core.management.base import BaseCommand
+from django_auth_ldap.backend import LDAPBackend
+from django_auth_ldap.backend import _LDAPUser
+from ldap.controls import SimplePagedResultsControl
 
 from eric.core.decorators import disable_django_caching
 from eric.core.models import disable_permission_checks
 from eric.notifications.models import NotificationConfiguration
 from eric.projects.models import UserStorageLimit
 from eric.userprofile.models import UserProfile
-from eric.userprofile.models.handlers import create_user_profile_ldap, assign_ldap_user_group
-
-from django.core.management.base import BaseCommand
-from django.contrib.auth.models import Permission
-from django_auth_ldap.backend import LDAPBackend
-from django_auth_ldap.backend import LDAPSearch, _LDAPUser
-
-from django.conf import settings
-
 
 User = get_user_model()
+
+PAGE_SIZE = 50
 
 
 def create_controls(pagesize):
@@ -51,9 +45,6 @@ def set_cookie(lc_object, pctrls, pagesize):
     cookie = pctrls[0].cookie
     lc_object.cookie = cookie
     return cookie
-
-
-PAGE_SIZE = 50
 
 
 class Command(BaseCommand):

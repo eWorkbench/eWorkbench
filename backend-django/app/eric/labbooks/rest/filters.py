@@ -22,9 +22,9 @@ class LabBookFilter(BaseFilter):
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
 
-    projects_recursive = RecursiveProjectsListFilter(name='projects')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     recently_modified_by_me = RecentlyModifiedByMeFilter()
 
@@ -39,8 +39,8 @@ class LabbookSectionFilter(BaseFilter):
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
-    child_elements = ListFilter(name='child_elements')
+    child_elements = ListFilter(field_name='child_elements')
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')

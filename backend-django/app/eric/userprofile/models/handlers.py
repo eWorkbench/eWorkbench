@@ -12,13 +12,13 @@ from django.core.mail import EmailMultiAlternatives
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.signals import reset_password_token_created
 
 from eric.site_preferences.models import options as site_preferences
 from eric.userprofile.models import UserProfile
 
-logger = logging.getLogger('eric.userprofile.models.handlers')
+LDAP_LOGGER = logging.getLogger('eric.ldap')
 
 User = get_user_model()
 
@@ -63,27 +63,36 @@ def get_or_create_userprofile(user):
 def sync_mapped_ldap_attributes(attribute_map, user_profile, ldap_user):
     user = user_profile.user
 
-    missing_attributes = list()
+    # Hint: LDAP does not send attributes with empty values.
 
-    # iterate over all attributes in the ldap profile attribute map
-    for attr in attribute_map.items():
-        model_field_name = attr[0]
-        ldap_attribute = attr[1]
-
-        # check that the attribute is actually provided by ldap
-        if ldap_attribute in ldap_user.attrs:
-            ldap_value = ldap_user.attrs[ldap_attribute]
-            set_user_profile_field_value(user_profile, model_field_name, ldap_value)
-        else:
-            missing_attributes.append(ldap_attribute)
-
+    # check if any mapped attributes are missing => log info otherwise
+    missing_attributes = [attr for attr in attribute_map.values() if attr not in ldap_user.attrs]
     if len(missing_attributes) > 0:
-        logger.debug(
-            'create_user_profile_ldap: [{username}] missing LDAP attributes: {missing_attributes}'.format(
+        LDAP_LOGGER.info(
+            '[{username}] missing (or empty) LDAP attributes: {missing_attributes}'.format(
                 username=user.username,
-                missing_attributes=','.join(missing_attributes)
+                missing_attributes=', '.join(missing_attributes)
             )
         )
+
+    # check if any attributes are missing that are marked as required => log warning otherwise
+    required_attributes = settings.AUTH_LDAP_REQUIRED_ATTRIBUTES \
+        if hasattr(settings, 'AUTH_LDAP_REQUIRED_ATTRIBUTES') else []
+
+    missing_required_attributes = [attr for attr in missing_attributes if attr in required_attributes]
+    if len(missing_required_attributes) > 0:
+        LDAP_LOGGER.error(
+            '[{username}] missing required LDAP attributes: {missing_attributes}'.format(
+                username=user.username,
+                missing_attributes=', '.join(missing_required_attributes)
+            )
+        )
+
+    # iterate over all attributes in the ldap profile attribute map
+    for model_field, ldap_attribute in attribute_map.items():
+        if ldap_attribute in ldap_user.attrs:
+            ldap_value = ldap_user.attrs[ldap_attribute]
+            set_user_profile_field_value(user_profile, model_field, ldap_value)
 
 
 def set_user_profile_field_value(user_profile, field_name, value):
@@ -94,17 +103,17 @@ def set_user_profile_field_value(user_profile, field_name, value):
 
     # check field type
     try:
-        # if the field is an arrayfield, we are expecting an array of values and we can directly set it
+        # if the field is an ArrayField, we are expecting an array of values and we can directly set it
         if isinstance(field, ArrayField):
             setattr(user_profile, field_name, value)
         else:
             setattr(user_profile, field_name, ",".join(value))
     except:
-        logger.exception(
-            "create_user_profile_ldap: [{username}] Could not set field {field_name} to value {value}".format(
+        LDAP_LOGGER.exception(
+            "[{username}] Could not set field {field_name} to value {value}".format(
                 username=user.username,
                 field_name=field_name,
-                value=value
+                value=','.join(value)
             )
         )
 

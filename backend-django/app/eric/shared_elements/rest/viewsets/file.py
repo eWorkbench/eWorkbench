@@ -7,7 +7,7 @@ import uuid
 
 from django.core.files.uploadedfile import UploadedFile
 from django.http import FileResponse, QueryDict
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, APIException
 
@@ -35,7 +35,7 @@ class FileViewSet(
 ):
     """ REST API Viewset for files with a download endpoint """
     serializer_class = FileSerializer
-    filter_class = FileFilter
+    filterset_class = FileFilter
     search_fields = ()
 
     ordering_fields = ('title', 'name', 'file_size', 'created_at', 'created_by')

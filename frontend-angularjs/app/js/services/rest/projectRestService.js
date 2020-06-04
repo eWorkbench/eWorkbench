@@ -46,7 +46,7 @@
         };
 
         /**
-         * add project_pk, start and end to the meeting
+         * add project_pk, start and end to the appointment
          *    start and end are used for the angular ui calendar
          * convert date_time_start and date_time_end
          * @param project

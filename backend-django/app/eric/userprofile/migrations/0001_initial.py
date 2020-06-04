@@ -5,10 +5,11 @@
 #
 from __future__ import unicode_literals
 
-from django.conf import settings
 import django.contrib.postgres.fields
-from django.db import migrations, models
 import django.db.models.deletion
+from django.conf import settings
+from django.db import migrations, models
+
 import eric.userprofile.models.models
 
 

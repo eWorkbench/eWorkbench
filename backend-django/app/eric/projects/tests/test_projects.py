@@ -148,7 +148,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         """
         old_project_count = Project.objects.all().count()
 
-        response = self.rest_create_project(self.token5, "New Project", "Some Project Description", "INIT",
+        response = self.rest_create_project(self.token5, "New Project", "Some Project Description", Project.INITIALIZED,
                                             HTTP_USER_AGENT, REMOTE_ADDR)
 
         # project should not have been created, HTTP response code should be 403 forbidden
@@ -164,7 +164,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
 
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token1)
 
-        project = self.create_project(self.token1, "New Project", "Some Project Description", "INIT",
+        project = self.create_project(self.token1, "New Project", "Some Project Description", Project.INITIALIZED,
                                       HTTP_USER_AGENT, REMOTE_ADDR)
 
         self.assertEqual(Project.objects.all().count(), old_project_count + 1,
@@ -173,7 +173,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         # verify project name and description
         self.assertEquals(project.description, "Some Project Description")
         self.assertEquals(project.name, "New Project")
-        self.assertEquals(project.project_state, "INIT")
+        self.assertEquals(project.project_state, Project.INITIALIZED)
 
     def test_edit_project_with_roles(self):
         """ Try to edit a project with the wrong user """
@@ -183,7 +183,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         self.user1.groups.add(self.user_group)
 
         # create project
-        project = self.create_project(self.token1, "Test Project", "Project Description", "INIT",
+        project = self.create_project(self.token1, "Test Project", "Project Description", Project.INITIALIZED,
                                       HTTP_USER_AGENT, REMOTE_ADDR)
 
         self.assertEqual(Project.objects.all().count(), old_project_count + 1,
@@ -192,10 +192,10 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         # verify project name and description
         self.assertEquals(project.description, "Project Description")
         self.assertEquals(project.name, "Test Project")
-        self.assertEquals(project.project_state, "INIT")
+        self.assertEquals(project.project_state, Project.INITIALIZED)
 
         # try to edit project
-        self.edit_project(self.token1, project.pk, "Test Project Test", "Project Description more", "START",
+        self.edit_project(self.token1, project.pk, "Test Project Test", "Project Description more", Project.STARTED,
                           HTTP_USER_AGENT, REMOTE_ADDR)
 
         project.refresh_from_db()
@@ -203,7 +203,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         # verify new project name and new project description
         self.assertEquals(project.description, "Project Description more")
         self.assertEquals(project.name, "Test Project Test")
-        self.assertEquals(project.project_state, "START")
+        self.assertEquals(project.project_state, Project.STARTED)
 
         self.assertEqual(Project.objects.all().count(), old_project_count + 1,
                          msg="There should be exactly one project in the database")
@@ -220,13 +220,13 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         self.user1.groups.add(self.user_group)
 
         # create project with user1
-        project = self.create_project(self.token1, "Test Project", "Project Description", "INIT",
+        project = self.create_project(self.token1, "Test Project", "Project Description", Project.INITIALIZED,
                                       HTTP_USER_AGENT, REMOTE_ADDR)
 
         # verify project name and description
         self.assertEquals(project.description, "Project Description")
         self.assertEquals(project.name, "Test Project")
-        self.assertEquals(project.project_state, "INIT")
+        self.assertEquals(project.project_state, Project.INITIALIZED)
 
         # try to get project with user2
         response = self.rest_get_project(self.token2, project.pk, HTTP_USER_AGENT, REMOTE_ADDR)
@@ -235,7 +235,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # try to edit project with user2
-        response = self.rest_edit_project(self.token2, project.pk, "Test Project Test", "Project Desc", "START",
+        response = self.rest_edit_project(self.token2, project.pk, "Test Project Test", "Project Desc", Project.STARTED,
                                           HTTP_USER_AGENT, REMOTE_ADDR)
 
         # this should not work, as the user can not see this project
@@ -244,7 +244,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         # verify project name and description are still the same
         self.assertEquals(project.description, "Project Description")
         self.assertEquals(project.name, "Test Project")
-        self.assertEquals(project.project_state, "INIT")
+        self.assertEquals(project.project_state, Project.INITIALIZED)
 
         self.assertEqual(Project.objects.all().count(), old_project_count + 1,
                          msg="There should be exactly one additional project in the database")
@@ -259,13 +259,13 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         self.user1.groups.add(self.user_group)
 
         # create project with user1
-        project = self.create_project(self.token1, "Test Project", "Project Description", "INIT",
+        project = self.create_project(self.token1, "Test Project", "Project Description", Project.INITIALIZED,
                                       HTTP_USER_AGENT, REMOTE_ADDR)
 
         # verify project name and description
         self.assertEquals(project.description, "Project Description")
         self.assertEquals(project.name, "Test Project")
-        self.assertEquals(project.project_state, "INIT")
+        self.assertEquals(project.project_state, Project.INITIALIZED)
 
         # assign user2 to this project as a student
         response = self.rest_assign_user_to_project(self.token1, project, self.user2, self.student_role,
@@ -285,7 +285,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # try to edit project with user2
-        response = self.rest_edit_project(self.token2, project.pk, "Test Project Test", "Project Desc", "START",
+        response = self.rest_edit_project(self.token2, project.pk, "Test Project Test", "Project Desc", Project.STARTED,
                                           HTTP_USER_AGENT, REMOTE_ADDR)
 
         # this should not work, as the user can not see this project
@@ -294,12 +294,12 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         # verify project name and description are still the same
         self.assertEquals(project.description, "Project Description")
         self.assertEquals(project.name, "Test Project")
-        self.assertEquals(project.project_state, "INIT")
+        self.assertEquals(project.project_state, Project.INITIALIZED)
 
     def test_delete_project(self):
         """ Tries to delete a project using REST API """
         pro1 = self.create_project(self.token1,
-                                   "My Own Project", "Nobody else has access to this project", "START",
+                                   "My Own Project", "Nobody else has access to this project", Project.STARTED,
                                    HTTP_USER_AGENT, REMOTE_ADDR)
         # Try to delete this project (should not work, as project needs to be soft deleted first)
         response = self.client.delete('/api/projects/{}/'.format(pro1.pk),
@@ -340,7 +340,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         """ Tries to create a project without being authed """
         response = self.client.post('/api/projects/',
                                     {'name': "Test project name", 'description': "test project description",
-                                     'project_state': "INIT"},
+                                     'project_state': Project.INITIALIZED},
                                     HTTP_USER_AGENT="Test API", REMOTE_ADDR="127.0.0.1")
         self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_401_UNAUTHORIZED])
 
@@ -352,7 +352,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         # do not send a project name
         response = self.client.post('/api/projects/',
                                     {'description': "test project description",
-                                     'project_state': "INIT"},
+                                     'project_state': Project.INITIALIZED},
                                     HTTP_USER_AGENT="Test API", REMOTE_ADDR="127.0.0.1")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.content.decode(), '{"name":["This field is required."]}')
@@ -360,7 +360,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         # send an empty name
         response = self.client.post('/api/projects/',
                                     {'name': "", 'description': "test project description",
-                                     'project_state': "INIT"},
+                                     'project_state': Project.INITIALIZED},
                                     HTTP_USER_AGENT="Test API", REMOTE_ADDR="127.0.0.1")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.content.decode(), '{"name":["This field may not be blank."]}')
@@ -368,14 +368,14 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         # do not send a description (allowed)
         response = self.client.post('/api/projects/',
                                     {'name': "project without description",
-                                     'project_state': "INIT"},
+                                     'project_state': Project.INITIALIZED},
                                     HTTP_USER_AGENT="Test API", REMOTE_ADDR="127.0.0.1")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # send an empty description
         response = self.client.post('/api/projects/',
                                     {'name': "project without description", 'description': "",
-                                     'project_state': "INIT"},
+                                     'project_state': Project.INITIALIZED},
                                     HTTP_USER_AGENT="Test API", REMOTE_ADDR="127.0.0.1")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -386,7 +386,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
                                     HTTP_USER_AGENT="Test API", REMOTE_ADDR="127.0.0.1")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
-        self.assertEqual(decoded['project_state'], "INIT")
+        self.assertEqual(decoded['project_state'], Project.INITIALIZED)
 
         # send without project_state (allowed, should default to INIT)
         response = self.client.post('/api/projects/',
@@ -394,7 +394,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
                                     HTTP_USER_AGENT="Test API", REMOTE_ADDR="127.0.0.1")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
-        self.assertEqual(decoded['project_state'], "INIT")
+        self.assertEqual(decoded['project_state'], Project.INITIALIZED)
 
     def test_get_without_auth(self):
         """ Tries to do various things with the projects endpoint without being authenticated """
@@ -446,9 +446,9 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
         :return:
         """
         pro1 = self.create_project(self.token1, "My Own Project", "Nobody else has access to this project",
-                                   "START", HTTP_USER_AGENT, REMOTE_ADDR)
+                                   Project.STARTED, HTTP_USER_AGENT, REMOTE_ADDR)
         pro2 = self.create_project(self.token2, "Other Users Project", "Nobody else has access to this project",
-                                   "INIT", HTTP_USER_AGENT, REMOTE_ADDR)
+                                   Project.INITIALIZED, HTTP_USER_AGENT, REMOTE_ADDR)
 
         # user1 can get this project pro1
         response = self.rest_get_project(self.token1, pro1.pk, HTTP_USER_AGENT, REMOTE_ADDR)

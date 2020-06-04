@@ -1,0 +1,110 @@
+/*
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+@import "../../../../theme/variables";
+
+@selectize-email-color: #8D8D8D;
+
+merge-contact-modal-contact-selectize-widget {
+  .email-display {
+    color: @selectize-email-color;
+  }
+}
+
+merge-contact-modal-input-group {
+  .inputs-container {
+    display: table;
+
+    .input-row {
+      display: table-row;
+
+      .radio-container {
+        display: table-cell;
+        vertical-align: top;
+        width: 25px;
+        padding-top: 2px;
+      }
+
+      .input-field-container {
+        display: table-cell;
+        padding-bottom: 3px;
+      }
+
+      .input-label-container {
+        display: table-cell;
+        width: 148px;
+        vertical-align: top;
+        margin-top: 3px;
+        padding: 3px 0 0 14px;
+        color: grey;
+      }
+    }
+  }
+}
+
+#merge-contact-form {
+  .important-hint {
+    color: #363636;
+    font-size: 22px;
+    text-align: center;
+    font-weight: 300;
+    line-height: 1.1;
+    margin: 0.5cm 0.8cm;
+    padding-top: 20px
+  }
+
+  .other-contacts-container {
+    .selectize-container {
+      margin-bottom: -10px;
+    }
+
+    .will-be-trashed-container {
+      text-align: right;
+      color: grey;
+    }
+
+    .buttons-container {
+      display: table;
+      padding-left: 0;
+
+      .button-container {
+        display: table-cell;
+      }
+
+      .button-container.remove-contact {
+        text-align: left;
+
+        .remove-contact-button {
+          padding: 5px;
+          text-decoration: none;
+        }
+      }
+
+      .button-container.set-base-contact {
+        text-align: right;
+      }
+    }
+  }
+
+  .other-data-text-container {
+    margin: 3px 0 0 24px;
+  }
+
+  .non-primary-button {
+    color: black;
+    background-color: #eee;
+    box-shadow: 1px 2px 2px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .add-contact-button {
+    display: inline-block;
+    padding: 0 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    margin: -10px 0 0 0;
+    overflow: hidden;
+    background-color: #ccc;
+  }
+}

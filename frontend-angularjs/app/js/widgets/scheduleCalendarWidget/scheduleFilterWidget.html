@@ -1,8 +1,8 @@
 <div style="display: inline-block; margin-right: 10px; margin-top: 2px">
-    <!-- Show Meetings Filter -->
-    <label title="{{ 'Toggle meetings filter' | translate }}">
+    <!-- Show Appointments Filter -->
+    <label title="{{ 'Toggle appointments filter' | translate }}">
         <input type="checkbox" ng-model="vm.showMeetings" ng-change="vm.toggleShowMeetings">
-        <span translate>Meetings</span>
+        <span translate>Appointments</span>
     </label>
 </div>
 <div style="display: inline-block; margin-top: 2px; margin-right: 10px">
@@ -12,11 +12,3 @@
         <span translate>Tasks</span>
     </label>
 </div>
-<div style="display: inline-block; margin-top: 2px">
-    <!-- Show Resource Bookings Filter -->
-    <label title="{{ 'Toggle resource bookings filter' | translate }}">
-        <input type="checkbox" ng-model="vm.showMyResourceBookings" ng-change="vm.toggleShowMyResourceBookings">
-        <span translate>My Resource Bookings</span>
-    </label>
-</div>
-

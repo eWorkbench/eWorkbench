@@ -11,7 +11,7 @@ from django.utils.timezone import timedelta
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from eric.projects.models import Role
+from eric.projects.models import Role, Project
 from eric.shared_elements.models import Meeting, Contact, ContactAttendsMeeting, UserAttendsMeeting
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin
 from eric.shared_elements.tests.core import UserAttendsMeetingMixin, ContactAttendsMeetingMixin, MeetingMixin, ContactMixin
@@ -56,7 +56,8 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token1)
 
         # create a new project
-        self.project = self.create_project(self.token1, "New Project", "Unittest User / Contact attends meetings Project", "INIT",
+        self.project = self.create_project(self.token1, "New Project",
+                                           "Unittest User / Contact attends meetings Project", Project.INITIALIZED,
                                            HTTP_USER_AGENT, REMOTE_ADDR)
 
         # there should be zero meetings

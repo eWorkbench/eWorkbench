@@ -8,7 +8,7 @@
     var module = angular.module('screens');
 
     /**
-     * Meeting list as a table
+     * Appointment list as a table
      */
     module.component('meetingTableView', {
         templateUrl: 'js/screens/meeting/meetingTableView.html',
@@ -24,7 +24,7 @@
     });
 
     /**
-     * Controller for meetings as a table
+     * Controller for appointments as a table
      */
     module.controller('MeetingTableViewController', function (
         gettextCatalog,

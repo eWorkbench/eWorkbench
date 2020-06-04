@@ -2,6 +2,7 @@
         ng-readonly="vm.isReadOnly()"
         selected-resource-pk="vm.meeting.resource_pk"
         max-items="1"
-        placeholder="{{ 'Select a resource (optional)' | translate }}"
+        placeholder="{{ 'Book a resource (optional)' | translate }}"
+        error="vm.errors['resource']"
         resources="vm.resources">
 </resource-selectize-widget>

@@ -13,8 +13,7 @@
         controllerAs: 'vm',
         bindings: {
             showTasks: '=?',
-            showMeetings: '=?',
-            showMyResourceBookings: '=?'
+            showMeetings: '=?'
         }
     });
 
@@ -26,7 +25,6 @@
         this.$onInit = function () {
             vm.showTasks = true;
             vm.showMeetings = true;
-            vm.showMyResourceBookings = true;
         };
 
         /**
@@ -41,13 +39,6 @@
          */
         vm.toggleShowMeetings = function () {
             vm.showMeetings = !vm.showMeetings;
-        };
-
-        /**
-         * Toggles the showMyResourceBookings flag
-         */
-        vm.toggleMyShowResourceBookings = function () {
-            vm.showMyResourceBookings = !vm.showMyResourceBookings;
         };
     });
 })();

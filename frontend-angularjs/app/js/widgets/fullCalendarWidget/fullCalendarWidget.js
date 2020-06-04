@@ -196,10 +196,10 @@
         vm.updateChanges = function (changedObject) {
             vm.onEventChange(changedObject).then(
                 function success (response) {
-                    toaster.pop('success', gettextCatalog.getString("Meeting updated"));
+                    toaster.pop('success', gettextCatalog.getString("Appointment updated"));
                 },
                 function error (rejection) {
-                    toaster.pop('error', gettextCatalog.getString("Failed to update meeting"));
+                    toaster.pop('error', gettextCatalog.getString("Failed to update appointment"));
                     $timeout(vm.updateCalendarSources);
                 }
             )

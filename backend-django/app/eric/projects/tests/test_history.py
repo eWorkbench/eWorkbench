@@ -13,7 +13,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from eric.projects.models import Project, ProjectRoleUserAssignment, Role
-from eric.shared_elements.models import Note
+from eric.shared_elements.models import Note, Task
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ProjectsMixin
 from eric.shared_elements.tests.core import NoteMixin, TaskMixin, ContactMixin
 
@@ -62,13 +62,13 @@ class HistoryTest(APITestCase, AuthenticationMixin, ProjectsMixin, TaskMixin, Co
         # create two projects
         self.project1 = self.create_project(
             self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", "START",
+            "Only user1 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
         self.project2 = self.create_project(
             self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", "START",
+            "Only user2 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
@@ -136,7 +136,7 @@ class HistoryTest(APITestCase, AuthenticationMixin, ProjectsMixin, TaskMixin, Co
         # create a new task with user1
         response = self.rest_create_task(
             self.token1,
-            None, "Test Title", "Test Description", "NEW", "HIGH",
+            None, "Test Title", "Test Description", Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH,
             datetime.now(), datetime.now(), self.user1.pk,
             HTTP_USER_AGENT, REMOTE_ADDR
         )

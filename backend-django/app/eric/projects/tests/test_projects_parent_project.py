@@ -6,7 +6,7 @@ import json
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -48,22 +48,22 @@ class ProjectsParentProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin)
     def test_set_parent_project_to_access_another_project(self):
         """ Tests changing the parent project """
         # create project with student1
-        student1_project1 = self.create_project(self.token1, "Master of student1", "Project Description", "INIT",
-                                      HTTP_USER_AGENT, REMOTE_ADDR)
+        student1_project1 = self.create_project(self.token1, "Master of student1", "Project Description",
+                                                Project.INITIALIZED, HTTP_USER_AGENT, REMOTE_ADDR)
 
-        student1_project2 = self.create_project(self.token1, "Slave of student1", "Project Description", "INIT",
-                                                HTTP_USER_AGENT, REMOTE_ADDR)
+        student1_project2 = self.create_project(self.token1, "Slave of student1", "Project Description",
+                                                Project.INITIALIZED, HTTP_USER_AGENT, REMOTE_ADDR)
 
         # relate project2 to project1
         response = self.rest_set_parent_project(self.token1, student1_project2, student1_project1)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # create project with student2
-        student2_project1 = self.create_project(self.token2, "Master of student2", "Project Description", "INIT",
-                                                HTTP_USER_AGENT, REMOTE_ADDR)
+        student2_project1 = self.create_project(self.token2, "Master of student2", "Project Description",
+                                                Project.INITIALIZED, HTTP_USER_AGENT, REMOTE_ADDR)
 
-        student2_project2 = self.create_project(self.token2, "Slave of student2", "Project Description", "INIT",
-                                                HTTP_USER_AGENT, REMOTE_ADDR)
+        student2_project2 = self.create_project(self.token2, "Slave of student2", "Project Description",
+                                                Project.INITIALIZED, HTTP_USER_AGENT, REMOTE_ADDR)
 
         # relate project2 to project1
         response = self.rest_set_parent_project(self.token2, student2_project2, student2_project1)

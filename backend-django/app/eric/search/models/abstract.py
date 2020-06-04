@@ -7,9 +7,10 @@ import logging
 import django.db.models.options as options
 
 from django.db import models
+from django.db.models import TextField
 from django.db.models.signals import pre_save
 from django.db.models.expressions import Value, Func
-from django.utils.text import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.template.loader import get_template
 from django.contrib.postgres.search import SearchVectorField, SearchVector
@@ -41,14 +42,14 @@ class FTSMixin(models.Model):
     fts_index = SearchVectorField(
         editable=False,
         null=True,
-        verbose_name=_(u"FTS Index"),
+        verbose_name=_("FTS Index"),
     )
 
     fts_language = models.CharField(
         max_length=64,
         choices=FTS_LANGUAGES,
         default=FTS_LANGUAGE_ENGLISH_KEY,
-        verbose_name=_(u"FTS Language"),
+        verbose_name=_("FTS Language"),
     )
 
     class Meta:
@@ -78,7 +79,9 @@ class FTSMixin(models.Model):
 
         fts_document = fts_template.render(context)
 
-        return SearchVector(Func(Value(fts_document), function='unaccent'), config=self.fts_language)
+        return SearchVector(Func(
+            Value(fts_document), function='unaccent', output_field=TextField()
+        ), config=self.fts_language)
 
     @staticmethod
     @receiver(pre_save)

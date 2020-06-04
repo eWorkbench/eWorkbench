@@ -25,6 +25,7 @@
      */
     module.controller('MyBookingsTableViewController', function (
         $scope,
+        $state,
         $window,
         $rootScope,
         gettextCatalog,
@@ -81,14 +82,6 @@
                     '</resource-type-widget></div>'
             };
 
-            var resourceDescriptionColumn = {
-                name: gettextCatalog.getString("Resource Description"),
-                field: 'resource__description',
-                cellTemplate: '<div ng-class="{\'past-resource-booking\': grid.appScope.bookingIsInThePast(row)}" ' +
-                    'title="{{row.entity.resource.description}}">{{row.entity.resource.description}}' +
-                    '</div>'
-            };
-
             var resourceLocationColumn = {
                 name: gettextCatalog.getString("Resource Location"),
                 field: 'resource__location',
@@ -96,20 +89,27 @@
                     'title="{{row.entity.resource.location}}">{{row.entity.resource.location}}</div>'
             };
 
+            var resourceDescriptionColumn = {
+                name: gettextCatalog.getString("Resource Description"),
+                field: 'resource__description',
+                cellTemplate: '<div ng-class="{\'past-resource-booking\': grid.appScope.bookingIsInThePast(row)}">' +
+                    '<div><span ng-bind-html="row.entity.resource.description | htmlToPlaintext"></span></div></div>'
+            };
+
             var meetingNameColumn = {
-                name: gettextCatalog.getString("Meeting"),
-                field: 'meeting__title',
+                name: gettextCatalog.getString("Appointment"),
+                field: 'title',
                 cellTemplate: '<div ng-class="{\'past-resource-booking\': grid.appScope.bookingIsInThePast(row)}" ' +
-                    'title="{{row.entity.meeting.title}}">' +
-                    '<a ng-click="grid.appScope.goToMeeting(row.entity.meeting)">{{row.entity.meeting.title}}</a>' +
+                    'title="{{row.entity.title}}">' +
+                    '<a ng-click="grid.appScope.goToMeeting(row.entity)">{{row.entity.title}}</a>' +
                     '</div>'
             };
 
             var meetingAttendingUsersColumn = {
-                name: gettextCatalog.getString("Meeting attending users"),
-                field: 'meeting__attending_users',
+                name: gettextCatalog.getString("Appointment attending users"),
+                field: 'attending_users',
                 cellTemplate: '<div ng-class="{\'past-resource-booking\': grid.appScope.bookingIsInThePast(row)}">' +
-                    '<meeting-attending-users-cell-widget meeting="row.entity.meeting">' +
+                    '<meeting-attending-users-cell-widget meeting="row.entity">' +
                     '</meeting-attending-users-cell-widget></div>'
             };
 
@@ -128,24 +128,26 @@
             };
 
             var commentColumn = {
-                name: gettextCatalog.getString("Description"),
-                field: 'comment',
+                name: gettextCatalog.getString("Appointment Description"),
+                field: 'text',
                 cellTemplate: '<div ng-class="{\'past-resource-booking\': grid.appScope.bookingIsInThePast(row)}">' +
-                    '{{ row.entity.comment }}</div>'
+                    '<div><span ng-bind-html="row.entity.text | htmlToPlaintext"></span></div></div>'
             };
 
             var createdByColumn = {
-                name: gettextCatalog.getString("Booked by"),
+                name: gettextCatalog.getString("Created by"),
                 field: 'created_by',
-                cellTemplate: '<div ng-if="row.entity.created_by">' +
-                    '<user-display-widget user="row.entity.created_by"></user-display-widget></div>',
+                cellTemplate: '<div ng-class="{\'past-resource-booking\': grid.appScope.bookingIsInThePast(row)}">' +
+                    '<div ng-if="row.entity.created_by">' +
+                    '<user-display-widget user="row.entity.created_by"></user-display-widget></div></div>',
                 sortingAlgorithm: UserSortService.sortAlgorithm
             };
 
             var createdAtColumn = {
-                name: gettextCatalog.getString("Booked at"),
+                name: gettextCatalog.getString("Created at"),
                 field: 'created_at',
-                cellTemplate: '<div>{{ row.entity.created_at | smallDate }}</div>'
+                cellTemplate: '<div ng-class="{\'past-resource-booking\': grid.appScope.bookingIsInThePast(row)}">' +
+                    '<div>{{ row.entity.created_at | smallDate }}</div></div>'
             };
 
             var exportColumn = {
@@ -169,7 +171,7 @@
                 enableHiding: false,
                 cellTemplate: '<div ng-if="!grid.appScope.bookingIsInThePast(row)" class="text-center">' +
                     '<a role="button" ng-click="grid.appScope.deleteResourceBooking(row.entity)" ' +
-                    'title="{{ \'Delete\'| translate}}">' +
+                    'title="{{ \'Delete this booking\'| translate}}">' +
                     '<i class="{{:: grid.appScope.icons.delete }}" aria-hidden="true"></i></a>' +
                     '</div>'
             };
@@ -196,8 +198,8 @@
                 columnDefs: [
                     resourceNameColumn,
                     resourceTypeColumn,
-                    resourceDescriptionColumn,
                     resourceLocationColumn,
+                    resourceDescriptionColumn,
                     meetingNameColumn,
                     meetingAttendingUsersColumn,
                     bookedStartTimeColumn,
@@ -227,8 +229,8 @@
              * default sorting
              * must be the same as in app/js/services/dynamicTableSettings/defaultTableStates.js
              */
-            vm.defaultOrderBy = "date_time_start";
-            vm.defaultOrderDir = "desc";
+            vm.defaultOrderBy = "date_time_end";
+            vm.defaultOrderDir = "asc";
             vm.orderBy = vm.defaultOrderBy;
             vm.orderDir = vm.defaultOrderDir;
 
@@ -304,7 +306,7 @@
             }
 
             if (vm.hidePastBookings) {
-                filters['date_time_end__gt'] = moment().toISOString();
+                filters['end_date__gt'] = moment().toISOString();
             }
 
             // if vm.resource exists it means that we are in a detail view, then we only
@@ -340,11 +342,13 @@
          * the ResourceBooking or not
          * @returns {*}
          */
-        vm.deleteResourceBooking = function (resourceBooking) {
+        vm.deleteResourceBooking = function (appointment) {
             var modalInstance = confirmDialogWidget.open({
-                title: gettextCatalog.getString('Delete Resource Booking?'),
+                title: gettextCatalog.getString('Delete Appointment Resource Booking?'),
                 message: gettextCatalog.getString('Do you really want to delete this booking for ')
-                    + resourceBooking.resource.name + '?',
+                    + appointment.resource.name + '? ' +
+                    gettextCatalog.getString('(This will remove the resource from the appointment, but not ' +
+                        'delete the appointment itself.)'),
                 cancelButtonText: gettextCatalog.getString('Cancel'),
                 okButtonText: gettextCatalog.getString('Delete'),
                 dialogKey: 'DeleteResourceBooking'
@@ -353,7 +357,9 @@
             modalInstance.result.then(
                 function confirm (doDelete) {
                     if (doDelete) {
-                        resourceBooking.$delete().then(
+                        appointment.resource = null;
+                        appointment.resource_pk = null;
+                        appointment.$update().then(
                             function success (response) {
                                 toaster.pop('success', gettextCatalog.getString("Deleted"));
                                 $rootScope.$broadcast('objectDeletedEvent');
@@ -392,7 +398,7 @@
         };
 
         vm.goToMeeting = function (meeting) {
-            NavigationService.goToModelView(meeting, false);
+            return $state.go("meeting-view", {meeting: meeting});
         };
 
         /**
@@ -439,7 +445,7 @@
             MyResourceBookingsRestServiceExport.export(resourceBooking.pk).then(function (response) {
                 var data = new Blob([response.data], {type: 'application/pdf;charset=utf-8'});
 
-                FileSaver.saveAs(data, 'resourceBooking_' + resourceBooking.pk + '.pdf');
+                FileSaver.saveAs(data, 'Appointment_Resource_Booking_' + moment().toISOString() + '_' + resourceBooking.pk + '.pdf');
             });
         };
 
@@ -457,7 +463,7 @@
                 MyResourceBookingsRestServiceExport.export_many(pkList.join(',')).then(function (response) {
                     var data = new Blob([response.data], {type: 'application/pdf;charset=utf-8'});
 
-                    FileSaver.saveAs(data, 'resourceBookings_' + moment() + '.pdf');
+                    FileSaver.saveAs(data, 'Appointment_Resource_Bookings_' + moment().toISOString() + '.pdf');
                 });
             } else {
                 toaster.pop('error', gettextCatalog.getString("Nothing to export"));

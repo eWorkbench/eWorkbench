@@ -8,7 +8,7 @@
     var module = angular.module('screens');
 
     /**
-     * Meeting List as calendar
+     * Appointment List as calendar
      */
     module.component('meetingCalendarView', {
         templateUrl: 'js/screens/meeting/meetingCalenderView.html',
@@ -20,7 +20,7 @@
     });
 
     /**
-     * Controller for meeting list as cards
+     * Controller for appointment list as cards
      */
     module.controller('MeetingCalendarViewController', function (
         $scope,
@@ -155,11 +155,11 @@
 
             MeetingRestService.updatePartial(changedData).$promise.then(
                 function success (response) {
-                    toaster.pop('success', gettextCatalog.getString("Meeting updated"));
+                    toaster.pop('success', gettextCatalog.getString("Appointment updated"));
                 },
                 function error (rejection) {
                     // an error happened
-                    toaster.pop('error', gettextCatalog.getString("Failed to update meeting"));
+                    toaster.pop('error', gettextCatalog.getString("Failed to update appointment"));
                     vm.meetingsDict[changedObject.pk].$get();
 
                     $timeout(vm.updateCalendarSources);
@@ -191,7 +191,7 @@
         };
 
         $scope.$watch("vm.meetings", function () {
-            console.log("meetings changed");
+            console.log("appointments changed");
             vm.meetingsDict = {};
 
             for (var i = 0; i < vm.meetings.length; i++) {
@@ -199,7 +199,7 @@
                 vm.meetingsDict[vm.meetings[i].pk] = vm.meetings[i];
             }
 
-            //set meetings to calendar view
+            //set appointments to calendar view
             vm.calendarSources = [vm.meetings];
             //update calendar view
             console.log("should update calendar view now...");

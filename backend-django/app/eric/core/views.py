@@ -179,7 +179,7 @@ def clean_workbench_models(request, *args, **kwargs):
     """Purge data from all workbench models"""
 
     if hasattr(settings, 'CLEAN_ALL_WORKBENCH_MODELS') and settings.CLEAN_ALL_WORKBENCH_MODELS:
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             all_workbench_models = get_all_workbench_models(WorkbenchEntityMixin)
 
             # disable all model-receivers (e.g. check_model_privileges, which blocked the deletion)

@@ -31,7 +31,7 @@
             input.setAttribute('type', 'file');
 
             // whether or not to accept multiple files
-            if (typeof multipleFiles !== "undefined" && multipleFiles == true) {
+            if (typeof multipleFiles !== "undefined" && multipleFiles) {
                 input.setAttribute('multiple', '');
             }
 
@@ -46,6 +46,7 @@
             };
 
             // click it
+            // FIXME: Some browsers deny click events (in some cases), if the element is not visible to the user
             input.click();
 
             return defer.promise;

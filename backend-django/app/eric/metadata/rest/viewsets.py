@@ -9,7 +9,7 @@ from django.http import Http404, QueryDict, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDict
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_userforeignkey.request import get_current_user
 from rest_framework import status
 from rest_framework.exceptions import ValidationError

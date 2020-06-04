@@ -37,7 +37,8 @@ def create_notification_configuration(sender, instance, *args, **kwargs):
                         NotificationConfiguration.NOTIFICATION_CONF_TASK_RELATION_CHANGED,
                         NotificationConfiguration.NOTIFICATION_CONF_TASK_USER_CHANGED,
                         NotificationConfiguration.NOTIFICATION_CONF_PROJECT_CHANGED,
-                        NotificationConfiguration.NOTIFICATION_CONF_PROJECT_USER_CHANGED
+                        NotificationConfiguration.NOTIFICATION_CONF_PROJECT_USER_CHANGED,
+                        NotificationConfiguration.NOTIFICATION_CONF_MEETING_REMINDER,
                     ]
                 }
             )

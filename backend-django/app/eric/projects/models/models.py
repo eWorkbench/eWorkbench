@@ -4,10 +4,9 @@
 #
 """ Contains the project models for eRIC """
 import logging
+import os
 import uuid
 
-import os
-import calendar
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
@@ -18,18 +17,16 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadhandler import MemoryFileUploadHandler
 from django.db import models
-from django.db.models import Case, Value, When, Q
+from django.db.models import Case, Value, When
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 from django.utils.timezone import localtime, localdate
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 from django_cleanhtmlfield.fields import HTMLField
 from django_request_cache import cache_for_request
 from django_userforeignkey.request import get_current_user
-from django.utils.timezone import datetime, timedelta
-
 from eric.core.admin.is_deleteable import IsDeleteableMixin
 from eric.core.models import BaseModel, LockMixin
 from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
@@ -38,7 +35,7 @@ from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
 from eric.projects.models.cache import ALL_PROJECTS_CACHE_KEY, get_cache_key_for_sub_projects
 from eric.projects.models.exceptions import UserStorageLimitReachedException, MaxFileSizeReachedException
 from eric.projects.models.managers import ProjectManager, ResourceManager, ProjectRoleUserAssignmentManager, \
-    UserStorageLimitManager, RoleManager, ElementLockManager, ResourceBookingManager
+    UserStorageLimitManager, RoleManager, ElementLockManager
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
 from eric.site_preferences.models import options
@@ -190,7 +187,8 @@ class ElementLock(BaseModel):
     locked_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_("Who locked this element"),
-        related_name="locked_elements"
+        related_name="locked_elements",
+        on_delete=models.CASCADE
     )
 
     content_type = models.ForeignKey(
@@ -229,7 +227,6 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         verbose_name_plural = _("Projects")
         ordering = ["name", "start_date", "project_state", ]
         permissions = (
-            ("view_project", "Can view a project"),
             ("trash_project", "Can trash a project"),
             ("restore_project", "Can restore a project"),
             ("invite_external_user", "Can invite external users"),
@@ -338,6 +335,8 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         # check if this is an anonymous user --> no permissions
         if user.is_anonymous:
             return Permission.objects.none()
+        elif user.is_superuser:
+            return Permission.objects.all()
 
         pk_list = self.parent_pk_list
 
@@ -731,12 +730,14 @@ class RolePermissionAssignment(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
     role = models.ForeignKey(
         'Role',
-        verbose_name=_("The assigned permission is for this role")
+        verbose_name=_("The assigned permission is for this role"),
+        on_delete=models.CASCADE
     )
 
     permission = models.ForeignKey(
         'auth.Permission',
-        verbose_name=_("The permission which is assigned to this role")
+        verbose_name=_("The permission which is assigned to this role"),
+        on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -754,9 +755,6 @@ class ProjectRoleUserAssignment(BaseModel, ChangeSetMixIn, RevisionModelMixin, I
             ('user', 'project'),
             ('user', 'project', 'role')
         )
-        permissions = (
-            ('view_projectroleuserassignment', "Can view the project role user assignment"),
-        )
         # default ordering by username and project
         ordering = ['user__username', 'project']
         track_fields = ('user', 'project', 'role',)
@@ -770,19 +768,22 @@ class ProjectRoleUserAssignment(BaseModel, ChangeSetMixIn, RevisionModelMixin, I
     user = models.ForeignKey(
         "projects.MyUser",
         related_name='assigned_projects_roles',
-        verbose_name=_("Which user is assigned to this project and role")
+        verbose_name=_("Which user is assigned to this project and role"),
+        on_delete=models.CASCADE
     )
 
     project = models.ForeignKey(
         'Project',
         related_name='assigned_users_roles',
-        verbose_name=_("Which project is assigned to this user and role")
+        verbose_name=_("Which project is assigned to this user and role"),
+        on_delete=models.CASCADE
     )
 
     role = models.ForeignKey(
         'Role',
         related_name='assigned_users_projects',
-        verbose_name=_("Which role is assigned to this user and project")
+        verbose_name=_("Which role is assigned to this user and project"),
+        on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -808,7 +809,7 @@ class ProjectRoleUserAssignment(BaseModel, ChangeSetMixIn, RevisionModelMixin, I
         # get all current project managers
         assignments = ProjectRoleUserAssignment.objects.filter(
             project=self.project,
-            role=Role.objects.filter(default_role_on_project_create=True)
+            role__in=Role.objects.filter(default_role_on_project_create=True)
         )
 
         # if there is only one left, raise a validation error
@@ -1094,6 +1095,25 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         (SELECTED_USERS, "Only selected users"),
     )
 
+    # define branch library
+    CHEMISTRY = "CHEM"
+    MATH_IT = "MAIT"
+    MEDICINE = "MEDIC"
+    PHYSICS = "PHY"
+    SPORT_HEALTH_SCIENCES = "SHSCI"
+    MAIN_CAMPUS = "MCAMP"
+    WEIHENSTEPHAN = "WEIH"
+    # define branch library choices
+    BRANCH_LIBRARY_CHOICES = (
+        (CHEMISTRY, "Chemistry"),
+        (MATH_IT, "Mathematics & Informatics"),
+        (MEDICINE, "Medicine"),
+        (PHYSICS, "Physics"),
+        (SPORT_HEALTH_SCIENCES, "Sport & Health Sciences"),
+        (MAIN_CAMPUS, "Main Campus"),
+        (WEIHENSTEPHAN, "Weihenstephan"),
+    )
+
     class Meta(WorkbenchEntityMixin.Meta):
         verbose_name = _("Resource")
         verbose_name_plural = _("Resources")
@@ -1113,7 +1133,6 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
             'deleted',
         )
         permissions = (
-            ("view_resource", "Can view a resource of a project"),
             ("trash_resource", "Can trash a resource"),
             ("restore_resource", "Can restore a resource"),
             ("change_project_resource", "Can change the project of a resource"),
@@ -1209,10 +1228,44 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         blank=True,
     )
 
+    study_room = models.BooleanField(
+        verbose_name=_("Study Room"),
+        default=False,
+    )
+
+    branch_library = models.CharField(
+        verbose_name=_("Branch Library of Study Room"),
+        max_length=5,
+        choices=BRANCH_LIBRARY_CHOICES,
+        blank=True,
+    )
+
     metadata = MetadataRelation()
 
     def __str__(self):
         return _("Resource {}").format(self.name)
+
+    def clean(self):
+        """
+        Extra model field validations
+        """
+        if self.study_room and not self.branch_library:
+            raise ValidationError({
+                'branch_library': ValidationError(
+                    _('You have to choose a branch library if study room is selected'),
+                    code='invalid'
+                )
+            })
+
+        if self.branch_library and not self.study_room:
+            raise ValidationError({
+                'branch_library': ValidationError(
+                    _('You have to choose a study room if a branch library is selected'),
+                    code='invalid'
+                )
+            })
+
+        super(Resource, self).clean()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """
@@ -1252,571 +1305,9 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         )
 
 
-def get_duration_parts(duration):
-    """
-    Calculates the days, hours, minutes of a given duration (datetime.timedelta)
-    A datetime.timedelta has .days and .total_seconds() that are relevant here
-    duration.days gives the days easily
-    duration.total_seconds() gives you the total amount of seconds, so we need to subtract the days
-    first so we can calculate the hours and minutes correctly
-    :param duration:
-    :return: tuple
-    """
-    days = duration.days
-    rest_seconds = duration.total_seconds() - (days * 24 * 3600)
-    hours = int(rest_seconds // 3600)
-    minutes = int((rest_seconds % 3600) // 60)
-    return days, hours, minutes
-
-
-def get_duration_str(duration):
-    """
-    This first gets the duration parts and then sets up the strings according to the numbers
-    :param duration:
-    :return: str
-    """
-    days, hours, minutes = get_duration_parts(duration)
-
-    hour_unit = "hours"
-    day_unit = "days"
-    if days == 1:
-        day_unit = "day"
-
-    if days > 0:
-        return "{days} {day_unit}, {hours}:{minutes:02} {hour_unit}".format(
-            days=days,
-            hours=hours,
-            minutes=minutes,
-            day_unit=day_unit,
-            hour_unit=hour_unit,
-        )
-    return "{hours}:{minutes:02} {hour_unit}".format(
-        hours=hours,
-        minutes=minutes,
-        hour_unit=hour_unit,
-    )
-
-
-class ResourceBooking(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin):
-    """ Booking of a resource """
-    objects = ResourceBookingManager()
-
-    class Meta:
-        verbose_name = _("Resource booking")
-        verbose_name_plural = _("Resource bookings")
-        ordering = ["-last_modified_at", "-created_at", "-date_time_start"]
-        track_fields = (
-            'date_time_start',
-            'date_time_end',
-            'resource',
-            'meeting'
-        )
-        permissions = (
-            ("create_resourcebooking", "Can create a resourcebooking"),
-            ("view_resourcebooking", "Can view a resourcebooking"),
-            ("edit_resourcebooking", "Can edit a resourcebooking"),
-            ("change_resourcebooking_meeting", "Can edit the meeting of a resourcebooking"),
-        )
-        fts_template = 'fts/resource_booking.html'
-        export_template = 'export/resourcebooking_one_pdf.html'
-
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
-
-    date_time_start = models.DateTimeField(
-        verbose_name=_("Booking start date and time")
-    )
-
-    date_time_end = models.DateTimeField(
-        verbose_name=_("Booking end date and time")
-    )
-
-    resource = models.ForeignKey(
-        'projects.Resource',
-        on_delete=models.CASCADE,
-        verbose_name=_("Booked resource"),
-        related_name="bookings",
-    )
-
-    meeting = models.ForeignKey(
-        'shared_elements.Meeting',
-        on_delete=models.SET_NULL,
-        verbose_name=_("Meeting the resource is booked for"),
-        related_name="resource_bookings",
-        blank=True,
-        null=True
-    )
-
-    comment = models.TextField(
-        verbose_name=_("Booking comment"),
-        default='',
-        blank=True
-    )
-
-    @property
-    def local_date_time_start(self):
-        return localtime(self.date_time_start)
-
-    @property
-    def local_date_time_end(self):
-        return localtime(self.date_time_end)
-
-    def __str__(self):
-        return _("Resource booking for {} from {} to {}").format(
-            self.resource,
-            self.date_time_start,
-            self.date_time_end,
-        )
-
-    def validate_date_time_start_end(self):
-        """
-        Validates that the ResourceBooking `date_time_start` is before `date_time_end`
-        :return:
-        """
-        if self.date_time_end < self.date_time_start:
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('Start date must be before end date'),
-                    code='invalid'
-                ),
-                'date_time_end': ValidationError(
-                    _('End date must be after start date'),
-                    code='invalid'
-                ),
-            })
-
-    def validate_booking_is_not_in_the_past(self):
-        """
-        Validates that the ResourceBooking date_time_start is not in the past
-        :return:
-        """
-        start_date = localtime(self.date_time_start)
-        now = localtime(timezone.now())
-
-        if start_date < now:
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('Start date must not be in the past'),
-                    code='invalid'
-                ),
-            })
-
-    def validate_booking_doesnt_exist_already(self):
-        """
-        Validates that the ResourceBooking doesn't already exist for the resource at this time
-        exclude if pk is the same to allow patching (editing)
-        filter only if the resource is the same
-        then look if times overlap
-        if entries exist raise ValidationError on the times
-        :return:
-        """
-        resource_booking_objects = ResourceBooking.objects \
-            .exclude(pk=self.pk) \
-            .filter(resource=self.resource) \
-            .filter(date_time_start__lt=self.date_time_end) \
-            .filter(date_time_end__gt=self.date_time_start)
-
-        if resource_booking_objects.exists():
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('This resource is already booked at this time'),
-                    code='invalid'
-                ),
-                'date_time_end': ValidationError(
-                    _('This resource is already booked at this time'),
-                    code='invalid'
-                ),
-            })
-
-    def validate_booking_rule_minimum_duration(self):
-        """
-        Validates the booking rule for minimum duration if it exists
-        raise ValidationError on the times
-        :return:
-        """
-        try:
-            minimum_duration = self.resource.booking_rule_minimum_duration.duration
-        except AttributeError:
-            return
-
-        booking_duration = self.date_time_end - self.date_time_start
-
-        if minimum_duration and booking_duration < minimum_duration:
-            duration_str = get_duration_str(minimum_duration)
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('This resource has a minimum booking duration of {duration_str}').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                ),
-                'date_time_end': ValidationError(
-                    _('This resource has a minimum booking duration of {duration_str}').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                )
-            })
-
-    def validate_booking_rule_maximum_duration(self):
-        """
-        Validates the booking rule for maximum duration if it exists
-        raise ValidationError on the times
-        :return:
-        """
-        try:
-            maximum_duration = self.resource.booking_rule_maximum_duration.duration
-        except AttributeError:
-            return
-
-        booking_duration = self.date_time_end - self.date_time_start
-
-        if maximum_duration and booking_duration > maximum_duration:
-            duration_str = get_duration_str(maximum_duration)
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('This resource has a maximum booking duration of {duration_str}').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                ),
-                'date_time_end': ValidationError(
-                    _('This resource has a maximum booking duration of {duration_str}').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                )
-            })
-
-    @staticmethod
-    def check_bookable_weekdays_and_times(bookable_days, bookable_times, date_time_start, date_time_end):
-        """
-        Check if the weekdays and times are bookable
-        raise ValidationError on the times
-        :return:
-        """
-        start_time = localtime(date_time_start).time()
-        end_time = localtime(date_time_end).time()
-
-        if localtime(date_time_start).isoweekday() not in bookable_days:
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('This resource cannot be booked on this day'),
-                    code='invalid'
-                ),
-            })
-
-        if start_time < bookable_times.time_start or start_time > bookable_times.time_end:
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('The start time is outside the bookable times'),
-                    code='invalid'
-                ),
-            })
-
-        if date_time_end.isoweekday() not in bookable_days:
-            raise ValidationError({
-                'date_time_end': ValidationError(
-                    _('This resource cannot be booked on this day'),
-                    code='invalid'
-                ),
-            })
-
-        if end_time < bookable_times.time_start or end_time > bookable_times.time_end:
-            raise ValidationError({
-                'date_time_end': ValidationError(
-                    _('The end time is outside the bookable times'),
-                    code='invalid'
-                ),
-            })
-
-    @staticmethod
-    def check_if_bookable_for_period(bookable_days, date_time_start, date_time_end):
-        """
-        Find days and times that are in between start date and end date that are not bookable
-        raise ValidationError on the times
-        :return:
-        """
-        in_between_days = []
-        start_date = localdate(date_time_start)
-        end_date = localdate(date_time_end)
-        start_time = localtime(date_time_start).time()
-        end_time = localtime(date_time_end).time()
-
-        # only check if the start date is different to the end date
-        if start_date == end_date:
-            return
-
-        # using the delta between end and start date we set up a list of days that are in between
-        delta = end_date - start_date
-        for i in range(delta.days + 1):
-            day = start_date + timedelta(days=i)
-            in_between_days.append(day.isoweekday())
-
-        # now we iterate over the in_between_days and raise an error if elements are not in bookable_days
-        for in_between_day in in_between_days:
-            if in_between_day not in bookable_days:
-                raise ValidationError({
-                    'date_time_start': ValidationError(
-                        _('There are days between the start date and the end date that are not bookable '
-                          'for this resource'),
-                        code='invalid'
-                    ),
-                    'date_time_end': ValidationError(
-                        _('There are days between the start date and the end date that are not bookable '
-                          'for this resource'),
-                        code='invalid'
-                    ),
-                })
-
-        # here we find times that are in between start date and end date that are not bookable
-        # logically if start and end times exist and the days are different (the if 1 level higher) there must
-        # be times that are not bookable
-        if start_time and end_time:
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('There are times between the start date and the end date that are not bookable '
-                      'for this resource'),
-                    code='invalid'
-                ),
-                'date_time_end': ValidationError(
-                    _('There are times between the start date and the end date that are not bookable '
-                      'for this resource'),
-                    code='invalid'
-                ),
-            })
-
-    def validate_booking_rule_bookable_hours(self):
-        """
-        Validates the booking rule for bookable hours if it exists
-        raise ValidationError on the times
-        :return:
-        """
-        try:
-            bookable_times = self.resource.booking_rule_bookable_hours
-        except AttributeError:
-            bookable_times = None
-
-        if not bookable_times:
-            return
-
-        # build days list with datetime.isoweekday() (Monday is 1 and Sunday is 7) where the value is True
-        weekdays = {
-            'monday': 1, 'tuesday': 2, 'wednesday': 3, 'thursday': 4, 'friday': 5, 'saturday': 6, 'sunday': 7
-        }
-        bookable_days = []
-        for day, day_value in weekdays.items():
-            if getattr(bookable_times, day):
-                bookable_days.append(day_value)
-
-        # check if the weekdays and times are bookable
-        self.check_bookable_weekdays_and_times(bookable_days, bookable_times, self.date_time_start, self.date_time_end)
-
-        # find days and times that are in between start date and end date that are not bookable
-        self.check_if_bookable_for_period(bookable_days, self.date_time_start, self.date_time_end)
-
-    def validate_booking_rule_minimum_time_before(self):
-        """
-        Validates the booking rule for time before if it exists
-        raise ValidationError on the times
-        :return:
-        """
-        try:
-            time_before = self.resource.booking_rule_minimum_time_before.duration
-        except AttributeError:
-            return
-
-        start_date = localtime(self.date_time_start)
-        now = localtime(timezone.now())
-        lead_time = start_date - now
-
-        if time_before and lead_time < time_before:
-            duration_str = get_duration_str(time_before)
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('This resource must be booked at least {duration_str} in advance').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                ),
-            })
-
-    def validate_booking_rule_maximum_time_before(self):
-        """
-        Validates the booking rule for time before if it exists
-        raise ValidationError on the times
-        :return:
-        """
-        try:
-            time_before = self.resource.booking_rule_maximum_time_before.duration
-        except AttributeError:
-            return
-
-        start_date = localtime(self.date_time_start)
-        now = localtime(timezone.now())
-        lead_time = start_date - now
-
-        if time_before and lead_time > time_before:
-            duration_str = get_duration_str(time_before)
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('This resource cannot be booked more than {duration_str} in advance').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                ),
-            })
-
-    def validate_booking_rule_time_between(self):
-        """
-        Validates the booking rule for time between if it exists
-        raise ValidationError on the times
-        :return:
-        """
-        try:
-            time_between = self.resource.booking_rule_time_between.duration
-        except AttributeError:
-            time_between = None
-
-        if not time_between:
-            return
-
-        resource_booking_objects = ResourceBooking.objects \
-            .exclude(pk=self.pk) \
-            .filter(resource=self.resource) \
-            .filter(
-                Q(
-                    # Looks for bookings before the new booking that don't have enough time between
-                    date_time_end__lte=self.date_time_start,
-                    date_time_end__gt=self.date_time_start - time_between
-                ) | Q(
-                    # Looks for bookings after the new booking that don't have enough time between
-                    date_time_start__gte=self.date_time_end,
-                    date_time_start__lt=self.date_time_end + time_between
-                )
-            )
-
-        if resource_booking_objects.exists():
-            duration_str = get_duration_str(time_between)
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('This resource needs at least {duration_str} between bookings').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                ),
-                'date_time_end': ValidationError(
-                    _('This resource needs at least {duration_str} between bookings').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                ),
-            })
-
-    @staticmethod
-    def get_resource_booking_count_per_user(pk, resource, user, date_time_start, unit):
-        resource_booking_objects = 0
-
-        date_time_start = localtime(date_time_start)
-
-        if unit == 'DAY':
-            # calculate the start datetime of the day in relation to date_time_start
-            start_of_the_day = datetime(date_time_start.year, date_time_start.month, date_time_start.day)
-            # calculate the end datetime of the day in relation to date_time_start
-            end_of_the_day = start_of_the_day + timedelta(days=1) - timedelta(seconds=1)
-            # now get the objects that are relevant to the day of date_time_start
-            resource_booking_objects = ResourceBooking.objects \
-                .exclude(pk=pk) \
-                .filter(resource=resource) \
-                .filter(created_by=user) \
-                .filter(date_time_start__gte=start_of_the_day) \
-                .filter(date_time_start__lte=end_of_the_day)
-
-        elif unit == 'WEEK':
-            # calculate the start datetime of the week in relation to date_time_start
-            start_of_the_week = date_time_start - timedelta(days=date_time_start.weekday())
-            start_of_the_week = datetime(start_of_the_week.year, start_of_the_week.month, start_of_the_week.day)
-            # calculate the end datetime of the week in relation to date_time_start
-            end_of_the_week = start_of_the_week + timedelta(days=7) - timedelta(seconds=1)
-            # now get the objects that are relevant to the week of date_time_start
-            resource_booking_objects = ResourceBooking.objects \
-                .exclude(pk=pk) \
-                .filter(resource=resource) \
-                .filter(created_by=user) \
-                .filter(date_time_start__gte=start_of_the_week) \
-                .filter(date_time_start__lte=end_of_the_week)
-
-        elif unit == 'MONTH':
-            # calculate the start datetime of the month in relation to date_time_start
-            start_of_the_month = datetime(date_time_start.year, date_time_start.month, 1)
-            # calculate the end datetime of the month in relation to date_time_start
-            days_in_the_month = calendar.monthrange(date_time_start.year, date_time_start.month)[1]
-            end_of_the_month = start_of_the_month + timedelta(days=days_in_the_month) - timedelta(seconds=1)
-            # now get the objects that are relevant to the month of date_time_start
-            resource_booking_objects = ResourceBooking.objects \
-                .exclude(pk=pk) \
-                .filter(resource=resource) \
-                .filter(created_by=user) \
-                .filter(date_time_start__gte=start_of_the_month) \
-                .filter(date_time_start__lte=end_of_the_month)
-
-        return resource_booking_objects.count()
-
-    def validate_booking_rule_bookings_per_user(self):
-        """
-        Validates the booking rule for bookings per user if it exists
-        raise ValidationError on the start time
-        :return:
-        """
-        try:
-            bookings_per_user_list = self.resource.booking_rule_bookings_per_user
-        except AttributeError:
-            bookings_per_user_list = None
-
-        if not bookings_per_user_list:
-            return
-
-        user = get_current_user()
-        bookings_per_user_list = bookings_per_user_list.all()
-
-        # check if there is a bookings_per_user_list, then iterate through the list to get
-        # the count and unit objects to compare with what already exists for this user
-        for bookings_per_user in bookings_per_user_list:
-            unit = bookings_per_user.unit.upper()
-
-            db_count = self.get_resource_booking_count_per_user(
-                self.pk, self.resource, user, self.local_date_time_start, unit
-            )
-            if db_count >= bookings_per_user.count:
-                error = _('You have reached the maximum amount of bookings for this resource for this {}'
-                          .format(unit.lower()))
-
-                raise ValidationError({
-                    'date_time_start': ValidationError(
-                        error,
-                        code='invalid'
-                    ),
-                })
-
-    def clean(self):
-        """ validate the Resource Booking """
-        self.validate_date_time_start_end()
-        self.validate_booking_is_not_in_the_past()
-        self.validate_booking_doesnt_exist_already()
-        self.validate_booking_rule_minimum_duration()
-        self.validate_booking_rule_maximum_duration()
-        self.validate_booking_rule_bookable_hours()
-        self.validate_booking_rule_minimum_time_before()
-        self.validate_booking_rule_maximum_time_before()
-        self.validate_booking_rule_time_between()
-        self.validate_booking_rule_bookings_per_user()
-
-
 class ResourceBookingRuleMinimumDuration(models.Model):
     """ Booking rule for minimum duration """
+
     class Meta:
         verbose_name = _("Resource booking rule minimum duration")
         verbose_name_plural = _("Resource booking rules minimum duration")
@@ -1841,6 +1332,7 @@ class ResourceBookingRuleMinimumDuration(models.Model):
 
 class ResourceBookingRuleMaximumDuration(models.Model):
     """ Booking rule for maximum duration """
+
     class Meta:
         verbose_name = _("Resource booking rule maximum duration")
         verbose_name_plural = _("Resource booking rules maximum duration")
@@ -1865,6 +1357,7 @@ class ResourceBookingRuleMaximumDuration(models.Model):
 
 class ResourceBookingRuleBookableHours(models.Model):
     """ Booking rule for bookable hours """
+
     class Meta:
         verbose_name = _("Resource booking rule bookable hours")
         verbose_name_plural = _("Resource booking rules bookable hours")
@@ -1928,6 +1421,7 @@ class ResourceBookingRuleBookableHours(models.Model):
 
 class ResourceBookingRuleMinimumTimeBefore(models.Model):
     """ Booking rule for minimum time before """
+
     class Meta:
         verbose_name = _("Resource booking rule minimum time before")
         verbose_name_plural = _("Resource booking rules minimum time before")
@@ -1952,6 +1446,7 @@ class ResourceBookingRuleMinimumTimeBefore(models.Model):
 
 class ResourceBookingRuleMaximumTimeBefore(models.Model):
     """ Booking rule for maximum time before """
+
     class Meta:
         verbose_name = _("Resource booking rule maximum time before")
         verbose_name_plural = _("Resource booking rules maximum time before")
@@ -1976,6 +1471,7 @@ class ResourceBookingRuleMaximumTimeBefore(models.Model):
 
 class ResourceBookingRuleTimeBetween(models.Model):
     """ Booking rule for time between """
+
     class Meta:
         verbose_name = _("Resource booking rule time between")
         verbose_name_plural = _("Resource booking rules time between")
@@ -2031,7 +1527,8 @@ class ResourceBookingRuleBookingsPerUser(models.Model):
         'projects.Resource',
         verbose_name=_("Booking rules for bookings_per_user"),
         related_name="booking_rule_bookings_per_user",
-        blank=True
+        blank=True,
+        on_delete=models.CASCADE,
     )
 
     def validate_booking_rule_overlap(self):
@@ -2044,9 +1541,9 @@ class ResourceBookingRuleBookingsPerUser(models.Model):
         :return:
         """
         if ResourceBookingRuleBookingsPerUser.objects \
-                .exclude(pk=self.pk)\
-                .filter(resource=self.resource)\
-                .filter(unit=self.unit)\
+                .exclude(pk=self.pk) \
+                .filter(resource=self.resource) \
+                .filter(unit=self.unit) \
                 .exists():
             raise ValidationError({
                 'unit': ValidationError(

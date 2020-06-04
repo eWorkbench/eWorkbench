@@ -4,10 +4,8 @@
 #
 import os
 import uuid
-import logging
-from uuid import uuid4
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django_userforeignkey.models.fields import UserForeignKey
 
@@ -44,7 +42,8 @@ class MenuEntry(BaseModel, OrderingModelMixin, VisibleModelMixin):
     owner = UserForeignKey(
         auto_user_add=True,
         verbose_name=_("User that owns the menu entry"),
-        related_name="menu_entries"
+        related_name="menu_entries",
+        on_delete=models.SET_NULL
     )
 
     def __str__(self):
@@ -81,7 +80,8 @@ class MenuEntryParameter(BaseModel):
     menu_entry = models.ForeignKey(
         MenuEntry,
         related_name="menu_entry_parameters",
-        verbose_name=_("Which Menu Entry is this parameter associated to")
+        verbose_name=_("Which Menu Entry is this parameter associated to"),
+        on_delete=models.CASCADE
     )
 
     name = models.CharField(

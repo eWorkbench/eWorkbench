@@ -33,7 +33,7 @@
         var vm = this;
 
         /**
-         * Watch Meeting and generate an URL for the given meeting
+         * Watch Appointment and generate an URL for the given appointment
          */
         $scope.$watch("vm.meeting", function () {
             if (vm.meeting) {

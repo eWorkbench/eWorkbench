@@ -22,8 +22,8 @@ class DriveFilter(BaseFilter):
 
     deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(name='projects')
+    projects = ListFilter(field_name='projects')
 
-    projects_recursive = RecursiveProjectsListFilter(name='projects')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     recently_modified_by_me = RecentlyModifiedByMeFilter()

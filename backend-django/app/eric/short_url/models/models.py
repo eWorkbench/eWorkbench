@@ -5,7 +5,7 @@
 import uuid
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework.reverse import reverse
 
@@ -27,7 +27,8 @@ class ShortURL(models.Model):
 
     created_by = UserForeignKey(
         auto_user_add=True,
-        verbose_name=_("The user that created the short url")
+        verbose_name=_("The user that created the short url"),
+        on_delete=models.SET_NULL
     )
 
     created_at = models.DateTimeField(

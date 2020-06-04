@@ -9,13 +9,13 @@
         module = angular.module('shared');
 
     /**
-     * Register a meeting type for ui-router
+     * Register a labbook type for ui-router
      */
     module.config(function (ResourceUrlTypeFactoryServiceProvider) {
         'ngInject';
 
         /**
-         * Meeting Type definition
+         * Labbook Type definition
          */
         ResourceUrlTypeFactoryServiceProvider.registerType(
             'labbook',

@@ -19,10 +19,10 @@ urls = []
 
 
 def add_sub_urls(endpoint, viewset, model_name):
-    router.register(endpoint, viewset, base_name=model_name)
+    router.register(endpoint, viewset, basename=model_name)
 
     sub_router = routers.NestedSimpleRouter(router, endpoint, lookup=model_name)
-    sub_router.register(r'versions', VersionViewSet, base_name='%s-version'.format(model_name))
+    sub_router.register(r'versions', VersionViewSet, basename='%s-version'.format(model_name))
 
     urls.extend(sub_router.urls)
 

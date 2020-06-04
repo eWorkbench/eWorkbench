@@ -38,16 +38,16 @@ def convert_html_to_text(html):
     "Forked" from django_cleanhtmlfield.helpers.convert_html_to_text().
     """
     # remove all existing newlines
-    html = html.replace(u"\n", u"")
+    html = html.replace("\n", "")
 
     # add line breaks for paragraphs
-    html = html.replace(u"</p>", u"</p>\n")
+    html = html.replace("</p>", "</p>\n")
 
     # convert line breaks to newlines
-    html = html.replace(u"<br>", u"\n")
-    html = html.replace(u"<br/>", u"\n")
-    html = html.replace(u"<br />", u"\n")
-    html = html.replace(u"&nbsp;", u" ")
+    html = html.replace("<br>", "\n")
+    html = html.replace("<br/>", "\n")
+    html = html.replace("<br />", "\n")
+    html = html.replace("&nbsp;", " ")
 
     # strip all html tags
     soup = BeautifulSoup(html, "html.parser")
@@ -228,3 +228,13 @@ def convert_base64_image_strings_to_file_references(data):
         })
 
     return image_references
+
+
+def remove_none_values_from_dict(data):
+    """
+    Removes all entries from a dict which contain None values.
+
+    :param data: Dict with the desired data
+    :returns: Dict without None values
+    """
+    return {key: value for key, value in data.items() if value is not None}

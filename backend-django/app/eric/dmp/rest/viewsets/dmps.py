@@ -7,14 +7,9 @@ from rest_framework.decorators import action
 
 from django.db.models import Prefetch
 from django.contrib.contenttypes.models import ContentType
-from django_changeset.models import ChangeSet, ChangeRecord
+from django_changeset.models import ChangeSet
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
-
-from weasyprint import HTML
 
 from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn
 from eric.dmp.rest.filters import DmpFilter
@@ -31,7 +26,7 @@ class DmpViewSet(
 ):
     """ Viewset for dmps """
     serializer_class = DmpSerializerExtended
-    filter_class = DmpFilter
+    filterset_class = DmpFilter
     search_fields = ()
 
     ordering_fields = ('title', 'dmp_form', 'status', 'created_at', 'created_by', 'last_modified_at',

@@ -15,7 +15,6 @@
         </thead>
         <tbody>
         <tr ng-repeat="object in vm.objectList | filter: {deleted:true} | orderBy:vm.sortColumn:vm.sortReverse as filteredObjectList">
-            <!-- -->
             <td ng-click="vm.close()">
                 <generic-link type="vm.type" object="object"></generic-link>
             </td>

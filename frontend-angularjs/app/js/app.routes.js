@@ -155,7 +155,7 @@
                 title: function ($queryParams, gettextCatalog) {
                     "ngInject";
 
-                    return gettextCatalog.getString("Meetings");
+                    return gettextCatalog.getString("Appointments");
                 },
                 icon: function ($queryParams, IconImagesService) {
                     "ngInject";
@@ -178,7 +178,7 @@
                 title: function ($queryParams, gettextCatalog) {
                     "ngInject";
 
-                    return gettextCatalog.getString("Meetings") + " - " + $queryParams.meeting.title;
+                    return gettextCatalog.getString("Appointments") + " - " + $queryParams.meeting.title;
                 },
                 simpleTitle: function ($queryParams, gettextCatalog) {
                     "ngInject";
@@ -817,7 +817,25 @@
                 needsAuth: true,
                 activeMenuItem: 'schedule'
             }
-        )
+        ).state('study-room-booking',
+            {
+                title: function ($queryParams, gettextCatalog) {
+                    "ngInject";
+
+                    return gettextCatalog.getString("Study Room Booking");
+                },
+                icon: function ($queryParams, IconImagesService) {
+                    "ngInject";
+
+                    return IconImagesService.mainElementIcons.meeting;
+                },
+                breadcrumb: function () {
+                    return [];
+                },
+                url: '/study-room-booking',
+                component: 'studyRoomView',
+                needsAuth: true
+            })
         // User profile
             .state('preferences',
                 {

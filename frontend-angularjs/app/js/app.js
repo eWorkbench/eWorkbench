@@ -215,7 +215,22 @@
             // formula plugin
             'formula': {
                 path: '/node_modules/tinymce-formula'
-            }
+            },
+            'textpattern_patterns': [
+                {start: '*', end: '*', format: 'italic'},
+                {start: '**', end: '**', format: 'bold'},
+                {start: '***', end: '***', format: ['bold', 'italic']},
+                {start: '#', format: 'h1'},
+                {start: '##', format: 'h2'},
+                {start: '###', format: 'h3'},
+                {start: '####', format: 'h4'},
+                {start: '#####', format: 'h5'},
+                {start: '######', format: 'h6'}
+                // default auto-lists disabled
+                // {start: '1. ', cmd: 'InsertOrderedList'},
+                // {start: '* ', cmd: 'InsertUnorderedList'},
+                // {start: '- ', cmd: 'InsertUnorderedList'}
+            ]
         });
     });
 
@@ -305,8 +320,8 @@
 
         // make monday the first day of the week (datepicker)
         moment.lang('en', {
-            week : {
-                dow : 1 // Monday is the first day of the week
+            week: {
+                dow: 1 // Monday is the first day of the week
             }
         });
 

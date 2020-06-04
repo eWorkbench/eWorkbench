@@ -1,6 +1,6 @@
 <div class="card-panel element-panel">
     <schedule-screen-header-function-bar
-        screen-new-entity="{{ 'New Meeting' | translate }}"
+        screen-new-entity="{{ 'New Appointment' | translate }}"
         screen-new-entity-type="meeting"
         card-view-title="{{'Card View' | translate}}"
         list-view-title="{{'List View' | translate}}"
@@ -19,8 +19,7 @@
         <additional-filter>
             <schedule-filter-widget
                 show-meetings="vm.showMeetings"
-                show-tasks="vm.showTasks"
-                show-my-resource-bookings="vm.showMyResourceBookings">
+                show-tasks="vm.showTasks">
             </schedule-filter-widget>
         </additional-filter>
     </schedule-screen-header-function-bar>
@@ -32,7 +31,6 @@
         selected-projects="vm.selectedProjects"
         search-field="vm.searchField"
         show-tasks="vm.showTasks"
-        show-my-resource-bookings="vm.showMyResourceBookings"
         show-meetings="vm.showMeetings"
         selected-users="vm.selectedUsers"
         calendar-config="vm.calendarConfig"
@@ -47,7 +45,6 @@
         selected-projects="vm.selectedProjects"
         search-field="vm.searchField"
         show-tasks="vm.showTasks"
-        show-my-resource-bookings="vm.showMyResourceBookings"
         show-meetings="vm.showMeetings"
         selected-users="vm.selectedUsers"
         calendar-config="vm.calendarConfig"
@@ -61,7 +58,6 @@
         selected-projects="vm.selectedProjects"
         search-field="vm.searchField"
         show-tasks="vm.showTasks"
-        show-my-resource-bookings="vm.showMyResourceBookings"
         show-meetings="vm.showMeetings"
         selected-users="vm.selectedUsers"
         pre-selected-users="vm.users">

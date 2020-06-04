@@ -34,7 +34,8 @@
         gettextCatalog,
         toaster,
         PaginationCountHeader,
-        DynamicTableSettingsService
+        DynamicTableSettingsService,
+        mergeContactModalService
     ) {
         'ngInject';
 
@@ -128,13 +129,13 @@
              * search field will trigger the correct API call.
              */
             if (!$stateParams.filterProjects) {
-                vm.getContacts(vm.currentLimit, vm.currentOffset);
+                vm.refreshContacts();
             }
         };
 
         //is triggered when the contact was deleted, trashed or restored (genericDeleteMenu.js)
         $scope.$on('objectDeletedEvent', function () {
-            vm.getContacts(vm.currentLimit, vm.currentOffset);
+            vm.refreshContacts();
         });
 
         $scope.$on('objectTrashedEvent', function () {
@@ -144,12 +145,16 @@
                 vm.currentOffset -= contactsPerPage;
             }
 
-            vm.getContacts(vm.currentLimit, vm.currentOffset);
+            vm.refreshContacts();
         });
 
         $scope.$on('objectRestoredEvent', function () {
-            vm.getContacts(vm.currentLimit, vm.currentOffset);
+            vm.refreshContacts();
         });
+
+        vm.refreshContacts = function () {
+            vm.getContacts(vm.currentLimit, vm.currentOffset);
+        };
 
         /**
          * Query Contacts (either with or without a project)
@@ -232,7 +237,7 @@
             vm.currentOffset = (vm.currentPage - 1) * contactsPerPage;
             vm.currentLimit = contactsPerPage;
 
-            vm.getContacts(vm.currentLimit, vm.currentOffset);
+            vm.refreshContacts();
         };
 
         vm.resetPaging = function () {
@@ -240,29 +245,42 @@
             vm.currentPage = 1;
         };
 
+        vm.mergeContacts = function () {
+            var modal = mergeContactModalService.open();
+
+            modal.result.then(
+                function success () {
+                    vm.refreshContacts();
+                },
+                function dismiss () {
+                    console.log("Merge Modal dismissed");
+                }
+            )
+        };
+
         $scope.$on("project-removed-from-filter-selection", function () {
             vm.selectedProjects = [];
             vm.resetPaging();
-            vm.getContacts(vm.currentLimit, vm.currentOffset);
+            vm.refreshContacts();
         });
 
         $scope.$on("user-removed-from-filter-selection", function () {
             vm.selectedUsers = [];
             vm.resetPaging();
-            vm.getContacts(vm.currentLimit, vm.currentOffset);
+            vm.refreshContacts();
         });
 
         $scope.$watch("vm.selectedProjects", function () {
             vm.resetPaging();
             if (vm.selectedProjects && vm.selectedProjects.length > 0) {
-                vm.getContacts(vm.currentLimit, vm.currentOffset);
+                vm.refreshContacts();
             }
         }, true);
 
         $scope.$watch("vm.selectedUsers", function () {
             vm.resetPaging();
             if (vm.selectedUsers && vm.selectedUsers.length > 0) {
-                vm.getContacts(vm.currentLimit, vm.currentOffset);
+                vm.refreshContacts();
             }
         }, true);
 
@@ -270,7 +288,7 @@
             if (vm.searchField !== undefined && (vm.searchField.length >= 3 || vm.searchField.length === 0)) {
                 vm.filters['search'] = vm.searchField.toLowerCase();
                 vm.resetPaging();
-                vm.getContacts(vm.currentLimit, vm.currentOffset);
+                vm.refreshContacts();
             }
         }, true);
 
@@ -279,18 +297,18 @@
              *  When the user changes the column-ordering, vm.gridApi.core.on.sortChanged() in tableViewGrid
              *  is triggered, which then modifies vm.orderBy and vm.orderDir. This change is detected here
              *  and get<Element>() is executed with the ordering-filter using the new values of orderBy/orderDir
-            */
+             */
             if ((newValue[0] === null) && (oldValue[0] !== vm.defaultOrderBy)) {
                 // triggered when the sorting is reset (i.e. when newValue[0] is null),
                 // defaultOrderBy/defaultOrderDir is applied to the order-filter.
                 // Only applies when the change didn't occur from the default to null (e.g. on page-loading)
                 vm.orderBy = vm.defaultOrderBy;
                 vm.orderDir = vm.defaultOrderDir;
-                vm.getContacts(vm.currentLimit, vm.currentOffset);
+                vm.refreshContacts();
             }
             if ((newValue !== oldValue) && (vm.orderBy !== null)) {
                 // triggered when sorting by column or direction has changed (But not on sort-reset)
-                vm.getContacts(vm.currentLimit, vm.currentOffset);
+                vm.refreshContacts();
             }
         }, true);
     });

@@ -11,9 +11,11 @@ from rest_framework.test import APITestCase
 
 from eric.core.tests import test_utils
 from eric.model_privileges.models import ModelPrivilege
+from eric.projects.models import Project
 from eric.shared_elements.tests.core import FileMixin
 from eric.shared_elements.models import File
 from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
+from eric.versions.models import Version
 
 HTTP_USER_AGENT = "APITestClient"
 REMOTE_ADDR = "127.0.0.1"
@@ -55,8 +57,8 @@ class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMi
         HTTP_USER_AGENT = "APITestClient"
         REMOTE_ADDR = "127.0.0.1"
 
-        project = self.create_project(self.token1, "My Own Project", "Nobody else has access to this project", "START",
-                                      HTTP_USER_AGENT, REMOTE_ADDR)
+        project = self.create_project(self.token1, "My Own Project", "Nobody else has access to this project",
+                                      Project.STARTED, HTTP_USER_AGENT, REMOTE_ADDR)
 
         # get all files from rest api for this project
         response = self.rest_get_files_for_project(self.token1, project.pk, HTTP_USER_AGENT, REMOTE_ADDR)
@@ -303,3 +305,32 @@ class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMi
 
         # now the file should not exist anymore
         self.assertFalse(os.path.exists(filename), msg="File should no longer exist on disk")
+
+    def test_automatic_version_creation_on_file_update(self):
+        """
+        Updates a file, which should trigger the creation of an automatic version
+        :return:
+        """
+        number_of_versions = Version.objects.all().count()
+        self.assertEqual(number_of_versions, 0)
+
+        # create a file
+        response = self.rest_create_file(self.token1, None, 'Test Title', 'Test Description',
+                                         'somefile.txt', 1024, HTTP_USER_AGENT, REMOTE_ADDR)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # decode response
+        decoded = json.loads(response.content.decode())
+        # get file object from db
+        file = File.objects.get(pk=decoded['pk'])
+
+        # update the file
+        response = self.rest_update_file(self.token1, file.pk, None, 'Test Title', 'Test Description',
+                                         'yetanother.txt', 2048, HTTP_USER_AGENT, REMOTE_ADDR)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        number_of_versions = Version.objects.all().count()
+        self.assertEqual(number_of_versions, 1)
+
+        version = Version.objects.all().last()
+        self.assertEqual(version.summary, "File replaced: somefile.txt (auto-generated)")

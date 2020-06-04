@@ -25,7 +25,7 @@ class CustomSimpleRouter(routers.DefaultRouter):
     """
     Adds a "better" get default base name method
     """
-    def get_default_base_name(self, viewset):
+    def get_default_basename(self, viewset):
         # get the serializer class of the viewset
         serializer = getattr(viewset, 'serializer_class', None)
         # if serializer is set and .Meta.model is set, we can access the models name and return it
@@ -33,14 +33,14 @@ class CustomSimpleRouter(routers.DefaultRouter):
             return serializer.Meta.model.__name__.lower()
 
         # else: do whatever the super class wants to do
-        return super(CustomSimpleRouter, self).get_default_base_name(viewset)
+        return super(CustomSimpleRouter, self).get_default_basename(viewset)
 
 
 class CustomNestedSimpleRouter(routers.NestedSimpleRouter):
     """
     Adds a "better" get default base name method
     """
-    def get_default_base_name(self, viewset):
+    def get_default_basename(self, viewset):
         # get the serializer class of the viewset
         serializer = getattr(viewset, 'serializer_class', None)
         # if serializer is set and .Meta.model is set, we can access the models name and return it
@@ -48,4 +48,4 @@ class CustomNestedSimpleRouter(routers.NestedSimpleRouter):
             return serializer.Meta.model.__name__.lower()
 
         # else: do whatever the super class wants to do
-        return super(CustomNestedSimpleRouter, self).get_default_base_name(viewset)
+        return super(CustomNestedSimpleRouter, self).get_default_basename(viewset)

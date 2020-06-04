@@ -14,16 +14,17 @@
             </button>
 
             <div style="display: inline-block; width: 50px" class="pull-right">
-                <notifications-navbar-widget ng-if="vm.Auth.isLoggedIn && vm.isSmallScreen"></notifications-navbar-widget>
+                <notifications-navbar-widget ng-if="vm.Auth.isLoggedIn && vm.isSmallScreen && !vm.study_room_mode"></notifications-navbar-widget>
             </div>
 
 
             <div role="button" ui-sref="main" class="navbar-brand">
                 <img height="20" style="display: inline;" class="navbar-brand-icon"
-                     ng-src="{{:: vm.sitePreferences.site_logo }}" alt="Icon"/>
+                     ng-src="{{:: vm.sitePreferences.site_logo }}" alt="Icon"
+                     ng-if="!vm.study_room_mode"/>
                 <span>
-                    {{:: vm.sitePreferences.site_name }}
-                    <sup>{{:: vm.backendVersion }}</sup>
+                    {{ vm.sitePreferences.site_name }}
+                    <sup ng-if="!vm.study_room_mode">{{:: vm.backendVersion }}</sup>
                 </span>
             </div>
         </div>
@@ -54,18 +55,18 @@
                         <!--<li ng-show="vm.Auth.currentUser.is_staff">-->
                         <!--<a ng-href="{{ restApiUrl }}" target="_blank">Api</a>-->
                         <!--</li>-->
-                        <li>
+                        <li ng-if="!vm.study_room_mode">
                             <a ui-sref="preferences" data-toggle="collapse" data-target=".navbar-collapse.in" translate>
                                 Profile
                             </a>
                         </li>
-                        <li>
+                        <li ng-if="!vm.study_room_mode">
                             <a ng-show="vm.currentUser.userprofile.type != 'l'"
                                ui-sref="preferences/password" data-toggle="collapse" data-target=".navbar-collapse.in" translate>
                                 Change Password
                             </a>
                         </li>
-                        <li>
+                        <li ng-if="!vm.study_room_mode">
                             <a ui-sref="preferences/userSettings" data-toggle="collapse" data-target=".navbar-collapse.in" translate>
                                 Settings
                             </a>
@@ -76,7 +77,7 @@
                 </li>
 
                 <!-- Site Information -->
-                <li class="dropdown">
+                <li class="dropdown" ng-if="!vm.study_room_mode">
                     <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         <span title="{{ 'Information' | translate }}" class="fa fa-question-circle"></span>
                     </a>

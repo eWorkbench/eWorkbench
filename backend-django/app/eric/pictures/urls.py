@@ -23,13 +23,13 @@ router = get_api_router()
 Pictures
 with history and relations
 """
-router.register(r'pictures', PictureViewSet, base_name='picture')
+router.register(r'pictures', PictureViewSet, basename='picture')
 
 pictures_router = routers.NestedSimpleRouter(router, r'pictures', lookup='picture')
-pictures_router.register(r'relations', RelationViewSet, base_name='picture-relation')
+pictures_router.register(r'relations', RelationViewSet, basename='picture-relation')
 pictures_router.register(r'history', GenericChangeSetViewSet,
-                         base_name='picture-changeset-paginated')
-pictures_router.register(r'privileges', ModelPrivilegeViewSet, base_name='picture-privileges')
+                         basename='picture-changeset-paginated')
+pictures_router.register(r'privileges', ModelPrivilegeViewSet, basename='picture-privileges')
 
 
 urlpatterns = [

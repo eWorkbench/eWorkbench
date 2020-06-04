@@ -25,7 +25,8 @@
 
 <!-- List View -->
 <div ng-if="vm.currentView === 'list'">
-    <div ui-grid="vm.gridOptions" ui-grid-expandable class="grid"></div>
+    <project-table-view projects="vm.projects" order-by="vm.orderBy" order-dir="vm.orderDir"></project-table-view>
+
     <div class="task-legend clearfix">
         <div ng-include="'js/widgets/projectLegend/projectLegendWidget.html'"></div>
     </div>

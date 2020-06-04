@@ -1,5 +1,51 @@
 # Changelog
 
+## Version 1.18.2 - June 2020
+- Fixed LabBook file upload into section by using the create-new-file dialog instead of automatically opening a file picker
+- Upgraded Docker setup to Postgres 12 (requires backup and restore; data folder is incompatible)
+- Disabled Postgres JIT in Docker setup to fix massive performance issues with queries for comments (JIT=on is new default since Postgres V12)
+
+## Version 1.18.1 - May 2020
+- Upgraded python packages (incl. Django Rest Framework) to the latest releases
+- Added Django command to fix orphaned workbench elements
+- Removed text template feature
+- Fixed problems with meeting reminder UI and validation
+- Fixed a bug that caused changes in resource booking rules to propagate to previously opened resources
+- Made CalDAV handling, iCal export, and e-Mail handling more robust
+- Fixed various bugs related to the Django 2 upgrade:
+  - Admin area: CMS content, DMP form, User Manual
+  - Resource creation and duplication
+  - DMP trashing
+  - LabBook section filtering
+
+## Version 1.18 - May 2020
+- Upgraded to Django 2.2 LTS and updated most Python packages 
+- Merged Meetings and Resource Bookings into a single element (Appointments)
+- Added feature to merge contacts
+- Added a special booking page for study rooms
+- Files: The current version is finalized automatically when a new file is uploaded
+- Files: Fixed full text search index => Searching by file extension should work now
+- LabBook: Fixed a bug where removing an element from a section and creating a new element in that section caused an error
+- Disabled automatic conversion of text to lists (in description fields, etc.)
+- Enhanced the project list-view to save personalized table settings
+- Made some UX improvements for appointment reminders
+
+## Version 1.17.1 - April 2020
+- Performance Hotfix for Last Activities
+- Changed LabBook add-menu placement default to "bottom"
+
+## Version 1.17 - April 2020
+- added meeting reminders
+- recalculate labbook positions when element is removed
+- fixed notifications for external users
+- added Matomo tracking
+- minor booking rule optimisations
+- more beautiful file history
+- fixed a bug with copy/pasted images in textfields
+- fixed a bug where where table data was loaded two times
+- updated api examples
+- duplicate tasks when project is duplicated
+
 ## Version 1.16.1 - March 2020
 - Mandatory input fields are marked with a star
 - Registration and password reset links are valid for 72 hours (increased from 24 hours before)

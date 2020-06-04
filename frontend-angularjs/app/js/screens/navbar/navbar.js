@@ -23,11 +23,13 @@
      * Provides a logout function for the logout button in the menu
      */
     module.controller('NavbarController', function (
+        $rootScope,
         $scope,
         $state,
         $transitions,
         $window,
         $cookies,
+        $timeout,
         BackendVersionService,
         AuthRestService,
         ProjectSidebarService,
@@ -70,6 +72,7 @@
 
             /* get site preferences */
             vm.sitePreferences = SitePreferences.preferences;
+            vm.main_site_name = vm.sitePreferences.site_name;
 
             vm.Auth = AuthRestService;
 
@@ -166,6 +169,18 @@
          */
         $scope.$on("$destroy", function () {
             vm.projectSidebarServiceUnsubscribeFunction();
+        });
+
+        /**
+         * changes the name of the site
+         */
+        $rootScope.$on("change-navbar", function (event, opt) {
+            if (opt.custom_site_name != null) {
+                vm.sitePreferences.site_name = opt.custom_site_name;
+            } else {
+                vm.sitePreferences.site_name = vm.main_site_name;
+            }
+            vm.study_room_mode = opt.study_room_mode;
         });
     });
 })();

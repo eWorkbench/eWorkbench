@@ -8,7 +8,7 @@
     var module = angular.module('screens');
 
     /**
-     * Scope stack view for meeting view.
+     * Scope stack view for appointment view.
      */
     module.component('meetingView', {
         templateUrl: 'js/screens/meeting/meetingView.html',
@@ -21,7 +21,7 @@
     });
 
     /**
-     * Small meeting view for dialogs
+     * Small appointment view for dialogs
      */
     module.component('smallMeetingView', {
         templateUrl: 'js/screens/meeting/smallMeetingView.html',
@@ -35,9 +35,9 @@
     });
 
     /**
-     * Meeting Detail View Controller
+     * Appointment Detail View Controller
      *
-     * Displays the Meeting Detail View
+     * Displays the Appointment Detail View
      */
     module.controller('MeetingViewController', function (
         $scope,
@@ -59,7 +59,8 @@
         var vm = this;
 
         /**
-         * Whether meeting start_date and/or stop_date are currently being reset (e.g., because of a $resource query)
+         * Whether appointment start_date and/or stop_date are currently being reset
+         * (e.g., because of a $resource query)
          * @type {boolean}
          */
         var meetingDateIsResetting = false;
@@ -116,7 +117,7 @@
             vm.datePickerOptionsStopDate = angular.copy(datePickerOptions);
 
             /**
-             * Whether the meeting is a full day meeting or not (automatically determined, toggled)
+             * Whether the appointment is a full day appointment or not (automatically determined, toggled)
              * @type {boolean}
              */
             vm.isFullDay = false;
@@ -132,12 +133,6 @@
              * @type {boolean}
              */
             vm.isLocked = false;
-
-            /**
-             * Set default options for scheduled notification (meeting reminder)
-             * @type {Object}
-             */
-            vm.setScheduledNotificationDefaults();
 
             /**
              * On any change of date_time_start, adapt date_time_end accordingly.
@@ -156,7 +151,7 @@
                     $timeout(function () {
                         vm.meeting.date_time_end = moment(vm.meeting.date_time_end).add(diffMinutes, 'minutes');
 
-                        // if this is a full day meeting, make sure to "round" date_time_end to the end of the day
+                        // if this is a full day appointment, make sure to "round" date_time_end to the end of the day
                         if (vm.isFullDay) {
                             vm.meeting.date_time_end = moment(vm.meeting.date_time_end).endOf("day");
                         }
@@ -171,7 +166,6 @@
                 .then(vm.getResources);
 
             updateAttendingUsersAndContacts(vm.meeting);
-
             vm.checkForFullDayMeeting();
         };
 
@@ -294,7 +288,7 @@
                 function success (response) {
                     vm.contacts = response;
 
-                    // also add all contacts that are currently within the meeting
+                    // also add all contacts that are currently within the appointment
                     for (var i = 0; i < vm.meeting.attending_contacts.length; i++) {
                         vm.contacts.push(vm.meeting.attending_contacts[i]);
                     }
@@ -321,31 +315,7 @@
         };
 
         /**
-         * Sets default values for vm.meeting.scheduled_notification_writable
-         * When reading from the backend, vm.meeting.scheduled_notification is filled in (If it exists)
-         * To write/save, we need to submit vm.meeting.scheduled_notification_writable, as this is used in the
-         * backend's nested serializer
-         * For convenience, vm.meeting.scheduled_notification_writable is also used in all templates.
-         */
-        vm.setScheduledNotificationDefaults = function () {
-            if (vm.meeting.scheduled_notification === null) {
-                vm.meeting.scheduled_notification_writable = {};
-                vm.meeting.scheduled_notification_writable.timedelta_unit = 'DAY';
-                vm.meeting.scheduled_notification_writable.timedelta_value = null;
-                vm.meeting.scheduled_notification_writable.active = false;
-            } else {
-                vm.meeting.scheduled_notification_writable = vm.meeting.scheduled_notification;
-            }
-            vm.meeting.scheduled_notification_writable.options = [
-                {value: 'MINUTE', text: gettextCatalog.getString('minutes')},
-                {value: 'HOUR', text: gettextCatalog.getString('hours')},
-                {value: 'DAY', text: gettextCatalog.getString('days')},
-                {value: 'WEEK', text: gettextCatalog.getString('weeks')}
-            ];
-        };
-
-        /**
-         * Reset Meeting Dates by refreshing the object via REST API
+         * Reset Appointment Dates by refreshing the object via REST API
          */
         vm.resetMeetingDates = function () {
             meetingDateIsResetting = true;
@@ -361,11 +331,10 @@
         };
 
         /**
-         * Saves meeting dates via REST API
+         * Saves appointment dates via REST API
          */
         vm.saveMeetingDates = function () {
             vm.readOnly = true;
-            // always initialize with primary key
             var data = {
                 pk: vm.meeting.pk
             };
@@ -373,10 +342,7 @@
             data['date_time_start'] = vm.meeting.date_time_start;
             data['date_time_end'] = vm.meeting.date_time_end;
 
-            console.log('on before save: save meeting partial');
-
-            // reset errors
-            vm.errors = {};
+            vm.resetErrors();
 
             // we need to use $q to tell x-editable that an error happened
             var d = $q.defer();
@@ -386,11 +352,7 @@
                 function success (response) {
                     updateAttendingUsersAndContacts(response);
                     vm.meeting = response;
-
-                    vm.setScheduledNotificationDefaults();
-
                     vm.checkForFullDayMeeting();
-                    // worked
                     d.resolve();
                 },
                 function error (rejection) {
@@ -407,7 +369,7 @@
                         vm.errors['date_time_end'] = [rejection.data.detail];
                     } else {
                         // Unknown error -> write our own error message
-                        toaster.pop('error', gettextCatalog.getString("Failed to update Meeting"));
+                        toaster.pop('error', gettextCatalog.getString("Failed to update Appointment"));
                         d.reject(gettextCatalog.getString("Unknown error"));
                         vm.errors['date_time_start'] = [gettextCatalog.getString("Unknown error")];
                         vm.errors['date_time_end'] = [gettextCatalog.getString("Unknown error")];
@@ -421,41 +383,25 @@
         };
 
         /**
-         * Saves a meeting via REST API as a full update
+         * Saves a appointment via REST API as a full update
          */
         vm.saveMeeting = function () {
             vm.readOnly = true;
             // we need to use $q to tell x-editable that an error happened
             var d = $q.defer();
 
-            // set projects
             vm.meeting.projects = vm.projectPks;
-
-            // set attending users
             vm.meeting.attending_users_pk = vm.attendingUsersPk;
-
-            // set attending contacts
             vm.meeting.attending_contacts_pk = vm.attendingContactsPk;
 
-            // if scheduled_notification_writable has not been set to active and its timedelta_value is empty,
-            // we do not submit it to the backend (As it contains some default values,
-            // which will lead to an error-response)
-            if (vm.meeting.scheduled_notification_writable.active === false &&
-                vm.meeting.scheduled_notification_writable.timedelta_value === null) {
-                delete vm.meeting.scheduled_notification_writable;
-            }
+            vm.resetErrors();
 
-            // update task via rest api
+            // update meeting via rest api
             vm.meeting.$update().then(
                 function success (response) {
                     updateAttendingUsersAndContacts(response);
-
                     vm.meeting = response;
-
-                    vm.setScheduledNotificationDefaults();
-
                     vm.checkForFullDayMeeting();
-                    // worked
                     d.resolve();
                 },
                 function error (rejection) {
@@ -469,9 +415,13 @@
                     } else if (rejection.status == 403) {
                         // Permission denied -> write our own error message
                         d.reject(gettextCatalog.getString("Permission denied"));
+                    } else if (rejection.status === 400 && rejection.data['resource']) {
+                        // Resource Booking Error
+                        d.reject(gettextCatalog.getString("Resource Booking Error"));
+                        vm.errors['resource'] = rejection.data['resource'];
                     } else {
                         // Unknown error -> write our own error message
-                        toaster.pop('error', gettextCatalog.getString("Failed to update Meeting"));
+                        toaster.pop('error', gettextCatalog.getString("Failed to update Appointment"));
                         d.reject(gettextCatalog.getString("Unknown error"));
                     }
                 }
@@ -483,7 +433,7 @@
         };
 
         /**
-         * Saves a meeting via REST API partial update
+         * Saves a appointment via REST API partial update
          * @param key
          * @param value
          */
@@ -500,8 +450,7 @@
                 data[key] = null;
             }
 
-            // reset errors
-            vm.errors = {};
+            vm.resetErrors();
 
             // we need to use $q to tell x-editable that an error happened
             var d = $q.defer();
@@ -510,14 +459,8 @@
             MeetingRestService.updatePartial(data).$promise.then(
                 function success (response) {
                     updateAttendingUsersAndContacts(response);
-
                     vm.meeting = response;
-
-                    vm.setScheduledNotificationDefaults();
-
                     vm.checkForFullDayMeeting();
-
-                    // worked
                     d.resolve();
                 },
                 function error (rejection) {
@@ -546,9 +489,13 @@
                         // Permission denied -> write our own error message
                         d.reject(gettextCatalog.getString("Permission denied"));
                         vm.errors[key] = [rejection.data.detail];
+                    } else if (rejection.status === 400 && rejection.data['resource']) {
+                        // Resource Booking Error
+                        d.reject(gettextCatalog.getString("Resource Booking Error"));
+                        vm.errors['resource'] = rejection.data['resource'];
                     } else {
                         // Unknown error -> write our own error message
-                        toaster.pop('error', gettextCatalog.getString("Failed to update Meeting"));
+                        toaster.pop('error', gettextCatalog.getString("Failed to update Appointment"));
                         d.reject(gettextCatalog.getString("Unknown error"));
                         vm.errors[key] = [gettextCatalog.getString("Unknown error")];
                     }

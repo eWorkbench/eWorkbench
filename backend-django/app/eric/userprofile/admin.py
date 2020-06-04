@@ -17,6 +17,7 @@ from django.template.loader import get_template
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_changeset.models import ChangeSet
 from django_rest_passwordreset.models import ResetPasswordToken
@@ -89,10 +90,10 @@ class UserAdmin(BaseUserAdmin):
             _('Anonymize User'),
         )
 
-        return ' '.join([
+        return mark_safe(' '.join([
             export_user_data,
             anonymize_user
-        ])
+        ]))
 
     user_actions.short_description = 'Actions'
     user_actions.allow_tags = True
@@ -105,7 +106,6 @@ class UserAdmin(BaseUserAdmin):
         from eric.labbooks.models import LabBook
         from eric.pictures.models import Picture
         from eric.shared_elements.models import Task, Note, Meeting, Contact, File
-        from eric.projects.models import ResourceBooking
 
         start_time = time.perf_counter()
 
@@ -174,18 +174,10 @@ class UserAdmin(BaseUserAdmin):
         if not user:
             raise Http404
 
-        created_by = Q(created_by=user)
-        modified_by = Q(last_modified_by=user)
-
-        resource_bookings = ResourceBooking.objects \
-            .filter(created_by | modified_by) \
-            .select_related('resource', 'meeting')
-
         context = {
             "user": user,
             "reset_password_token": ResetPasswordToken.objects.filter(user=user),
             "change_sets": ChangeSet.objects.filter(user=user).prefetch_related('change_records'),
-            "resource_bookings": resource_bookings
         }
         template = get_template('export/personal_data.html')
 

@@ -6,6 +6,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FO
 from rest_framework.test import APITestCase
 
 from eric.labbooks.tests.core import LabBookMixin
+from eric.projects.models import Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TestLockMixin
 from eric.shared_elements.models import Note
 from eric.shared_elements.tests.core import NoteMixin
@@ -24,7 +25,7 @@ class LabBookVersionSpecialCasesTest(APITestCase, VersionRestMixin, ProjectsMixi
         self.http_info = HttpInfo(auth_token=self.token, user_agent=HTTP_USER_AGENT, remote_address=REMOTE_ADDRESS)
 
         self.project = self.create_project(
-            self.token, "MyProject", "My test project", "INIT", **http_info)
+            self.token, "MyProject", "My test project", Project.INITIALIZED, **http_info)
 
         self.labbook, response = self.create_labbook_orm(
             self.token, self.project.pk, "My labbook", False, **http_info)

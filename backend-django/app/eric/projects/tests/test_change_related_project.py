@@ -5,12 +5,12 @@
 import json
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from eric.projects.models import Role, RolePermissionAssignment, Permission
+from eric.projects.models import Role, RolePermissionAssignment, Permission, Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, TestLockMixin
 from eric.shared_elements.tests.core import ContactMixin
 
@@ -56,14 +56,14 @@ class ChangeRelatedProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, 
         # create 2 new projects with user 1
         # user 1 is then the project manager of both projects
         self.project1 = self.create_project(self.token1, "New Project 1",
-                                            "Unittest update related project1", "INIT",
+                                            "Unittest update related project1", Project.INITIALIZED,
                                             HTTP_USER_AGENT, REMOTE_ADDR)
         self.project2 = self.create_project(self.token1, "New Project 2",
-                                            "Unittest update related project2", "INIT",
+                                            "Unittest update related project2", Project.INITIALIZED,
                                             HTTP_USER_AGENT, REMOTE_ADDR)
         # create a third project where user1 does not have access to
         self.project3 = self.create_project(self.token2, "New Project 3",
-                                            "Unittest update related project3", "INIT",
+                                            "Unittest update related project3", Project.INITIALIZED,
                                             HTTP_USER_AGENT, REMOTE_ADDR)
 
         # assign user2 to both projects with the role that he can not change related projects

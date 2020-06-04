@@ -21,7 +21,7 @@
         'ngInject';
 
         /**
-         * Transforms the schedule response to either a meeting or a task response
+         * Transforms the schedule response to either an appointment or a task response
          * @param data
          * @param headersGetter
          * @returns {*|any|Object|Array|string|number}

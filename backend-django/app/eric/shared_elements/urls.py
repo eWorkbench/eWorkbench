@@ -20,68 +20,69 @@ from eric.shared_elements.rest.viewsets import ContactViewSet, NoteViewSet, File
 
 # register REST API Routers
 from eric.shared_elements.rest.viewsets.contact import ContactShareViewSet
+from eric.shared_elements.rest.viewsets.meeting import MyResourceBookingViewSet, AllResourceBookingViewSet
 
 router = get_api_router()
 
 
 # personal data routes
-router.register(r'my/meetings', MyMeetingViewSet, base_name='mymeeting')
-router.register(r'my/tasks', MyTaskViewSet, base_name='mytask')
+router.register(r'my/meetings', MyMeetingViewSet, basename='mymeeting')
+router.register(r'my/tasks', MyTaskViewSet, basename='mytask')
 # my schedule (contains all entities that have dates set and should be displayed in a calendar)
-router.register(r'my/schedule', MyScheduleViewSet, base_name='myschedule')
+router.register(r'my/schedule', MyScheduleViewSet, basename='myschedule')
 
 
 """
 Contacts
 with history and relations
 """
-router.register(r'contacts', ContactViewSet, base_name='contact')
+router.register(r'contacts', ContactViewSet, basename='contact')
 
 contacts_router = routers.NestedSimpleRouter(router, r'contacts', lookup='contact')
-contacts_router.register(r'relations', RelationViewSet, base_name='contact-relation')
+contacts_router.register(r'relations', RelationViewSet, basename='contact-relation')
 contacts_router.register(r'history', GenericChangeSetViewSet,
-                         base_name='contact-changeset-paginated')
-contacts_router.register(r'privileges', ModelPrivilegeViewSet, base_name='contact-privileges')
+                         basename='contact-changeset-paginated')
+contacts_router.register(r'privileges', ModelPrivilegeViewSet, basename='contact-privileges')
 
-router.register(r'sharecontact', ContactShareViewSet, base_name='sharecontact')
+router.register(r'sharecontact', ContactShareViewSet, basename='sharecontact')
 
 """
 Tasks
 with history and relations
 """
-router.register(r'tasks', TaskViewSet, base_name='task')
+router.register(r'tasks', TaskViewSet, basename='task')
 
 tasks_router = routers.NestedSimpleRouter(router, r'tasks', lookup='task')
-tasks_router.register(r'relations', RelationViewSet, base_name='task-relation')
+tasks_router.register(r'relations', RelationViewSet, basename='task-relation')
 tasks_router.register(r'history', GenericChangeSetViewSet,
-                      base_name='task-changeset-paginated')
-tasks_router.register(r'privileges', ModelPrivilegeViewSet, base_name='task-privileges')
+                      basename='task-changeset-paginated')
+tasks_router.register(r'privileges', ModelPrivilegeViewSet, basename='task-privileges')
 
 
 """
 Files
 with history and relations
 """
-router.register(r'files', FileViewSet, base_name='file')
+router.register(r'files', FileViewSet, basename='file')
 
 files_router = routers.NestedSimpleRouter(router, r'files', lookup='file')
-files_router.register(r'relations', RelationViewSet, base_name='file-relation')
+files_router.register(r'relations', RelationViewSet, basename='file-relation')
 files_router.register(r'history', GenericChangeSetViewSet,
-                      base_name='file-changeset-paginated')
-files_router.register(r'privileges', ModelPrivilegeViewSet, base_name='file-privileges')
+                      basename='file-changeset-paginated')
+files_router.register(r'privileges', ModelPrivilegeViewSet, basename='file-privileges')
 
 
 """
 Notes
 with history and relations
 """
-router.register(r'notes', NoteViewSet, base_name='note')
+router.register(r'notes', NoteViewSet, basename='note')
 
 notes_router = routers.NestedSimpleRouter(router, r'notes', lookup='note')
-notes_router.register(r'relations', RelationViewSet, base_name='note-relation')
+notes_router.register(r'relations', RelationViewSet, basename='note-relation')
 notes_router.register(r'history', GenericChangeSetViewSet,
-                      base_name='note-changeset-paginated')
-notes_router.register(r'privileges', ModelPrivilegeViewSet, base_name='note-privileges')
+                      basename='note-changeset-paginated')
+notes_router.register(r'privileges', ModelPrivilegeViewSet, basename='note-privileges')
 
 
 """
@@ -89,21 +90,27 @@ Meetings
 with history and relations
 and attending contacts and attending users
 """
-router.register(r'meetings', MeetingViewSet, base_name='meeting')
+router.register(r'meetings', MeetingViewSet, basename='meeting')
 
 meetings_router = routers.NestedSimpleRouter(router, r'meetings', lookup='meeting')
-meetings_router.register(r'relations', RelationViewSet, base_name='meeting-relation')
+meetings_router.register(r'relations', RelationViewSet, basename='meeting-relation')
 meetings_router.register(r'history', GenericChangeSetViewSet,
-                         base_name='meeting-changeset-paginated')
-# meetings_router.register(r'attending_contacts', ContactAttendsMeetingViewSet, base_name='contactattendsmeeting')
-# meetings_router.register(r'attending_users', UserAttendsMeetingViewSet, base_name='userattendsmeeting')
-meetings_router.register(r'privileges', ModelPrivilegeViewSet, base_name='meeting-privileges')
+                         basename='meeting-changeset-paginated')
+# meetings_router.register(r'attending_contacts', ContactAttendsMeetingViewSet, basename='contactattendsmeeting')
+# meetings_router.register(r'attending_users', UserAttendsMeetingViewSet, basename='userattendsmeeting')
+meetings_router.register(r'privileges', ModelPrivilegeViewSet, basename='meeting-privileges')
+
+"""
+Resource Bookings
+"""
+router.register(r'resourcebookings/my', MyResourceBookingViewSet, basename='myresourcebooking')
+router.register(r'resourcebookings/all', AllResourceBookingViewSet, basename='allresourcebooking')
 
 
 """
 Element Labels (generic endpoint)
 """
-router.register(r'element_labels', ElementLabelViewSet, base_name='element_labels')
+router.register(r'element_labels', ElementLabelViewSet, basename='element_labels')
 
 
 urlpatterns = [

@@ -2,7 +2,6 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django_userforeignkey.request import get_current_user
 from rest_framework import serializers
@@ -31,7 +30,8 @@ class ContactSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
     class Meta:
         model = Contact
         fields = (
-            'academic_title', 'first_name', 'last_name', 'email', 'phone', 'company', 'projects',
+            'academic_title', 'first_name', 'last_name',
+            'email', 'phone', 'company', 'projects', 'notes',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
             'url', 'metadata',
         )
@@ -62,7 +62,7 @@ class ContactShareSerializer(ContactSerializer):
         model = Contact
         fields = (
             # standard fields, excluding "projects"
-            'academic_title', 'first_name', 'last_name', 'email', 'phone', 'company', 'metadata',
+            'academic_title', 'first_name', 'last_name', 'email', 'phone', 'company', 'notes', 'metadata',
             # custom fields for this serializer
             'created_for',
         )
@@ -71,26 +71,31 @@ class ContactShareSerializer(ContactSerializer):
     def create(self, validated_data):
         # take created_for field out of validated data
         receiving_user = validated_data.pop('created_for')
+        sending_user = get_current_user()
 
         # pass usual data to standard contact serializer
         instance = super().create(validated_data)
 
-        # add access privilege for the chosen user (created_for field)
-        from eric.model_privileges.models import ModelPrivilege
-        ModelPrivilege.objects.create(
-            user=receiving_user,
-            full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
-            content_object=instance,
-        )
+        # hand over access to the receiving user
+        if receiving_user != sending_user:
+            # add access privilege for the receiving user (created_for field)
+            from eric.model_privileges.models import ModelPrivilege
+            ModelPrivilege.objects.update_or_create(
+                user=receiving_user,
+                content_type=instance.content_type,
+                object_id=instance.pk,
+                defaults={
+                    'full_access_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                }
+            )
 
-        # remove access privilege from self
-        sending_user = get_current_user()
-        initial_privilege = ModelPrivilege.objects.filter(
-            user=sending_user,
-            object_id=instance.pk,
-            content_type=ContentType.objects.get_for_model(instance),
-        )
-        initial_privilege.delete()
+            # remove access privilege from self
+            initial_privilege = ModelPrivilege.objects.filter(
+                user=sending_user,
+                object_id=instance.pk,
+                content_type=instance.content_type,
+            )
+            initial_privilege.delete()
 
         return instance
 

@@ -26,6 +26,73 @@
 
         // grid-ui does not provide a way to restore to the initial state, so there they are, hard-coded
         return {
+            "grid_state_projects":
+                {
+                    "columns": [
+                        {
+                            "name": "Expand",
+                            "field": "pk",
+                            "visible": true,
+                            "width": 25,
+                            "sort": {},
+                            "filters": [{}]
+                        },
+                        {
+                            "name": "Project Name",
+                            "field": "name",
+                            "visible": true,
+                            "width": "*",
+                            "sort": {"direction": "desc"},
+                            "filters": [{}]
+                        },
+                        {
+                            "name": "Progress",
+                            "field": "tasks_status",
+                            "visible": true,
+                            "width": "25%",
+                            "sort": {},
+                            "filters": [{}]
+                        },
+                        {
+                            "name": "Start Date",
+                            "field": "start_date",
+                            "visible": true,
+                            "width": "10%",
+                            "sort": {},
+                            "filters": [{}]
+                        },
+                        {
+                            "name": "Stop Date",
+                            "field": "stop_date",
+                            "visible": true,
+                            "width": "10%",
+                            "sort": {},
+                            "filters": [{}]
+                        },
+                        {
+                            "name": "Done",
+                            "field": "tasks_status_completed",
+                            "visible": true,
+                            "width": "10%",
+                            "sort": {},
+                            "filters": [{}]
+                        },
+                        {
+                            "name": "Status",
+                            "field": "project_state",
+                            "visible": true,
+                            "width": "10%",
+                            "sort": {},
+                            "filters": [{}]
+                        },
+                        trashColumn
+                    ],
+                    "scrollFocus": {},
+                    "selection": [],
+                    "grouping": {},
+                    "treeView": {},
+                    "pagination": {}
+                },
             "grid_state_dmps": {
                 "columns": [
                     {
@@ -277,7 +344,7 @@
                     {
                         "name": "Linked at",
                         "field": "created_at",
-                        "sort": {"direction":"desc"},
+                        "sort": {"direction": "desc"},
                         "width": "15%",
                         "filters": [{}],
                         "visible": true
@@ -328,7 +395,7 @@
                     },
                     {
                         "name": "Date",
-                        "sort": {"direction":"asc"},
+                        "sort": {"direction": "asc"},
                         "width": "*",
                         "filters": [{}],
                         "visible": true
@@ -344,10 +411,7 @@
                 "grouping": {},
                 "treeView": {},
                 "selection": [],
-                "pagination": {
-                    "paginationPageSize": 250,
-                    "paginationCurrentPage": 1
-                },
+                "pagination": {},
                 "scrollFocus": {}
             },
             "grid_state_contacts": {
@@ -495,7 +559,7 @@
                     {
                         "name": "Start Time",
                         "field": "date_time_start",
-                        "sort": {"direction": "desc"},
+                        "sort": {"direction": "asc"},
                         "width": "*",
                         "filters": [{}],
                         "visible": true
@@ -834,13 +898,6 @@
                         "filters": [{}],
                         "visible": true
                     }, {
-                        "name": "Resource Description",
-                        "field": "resource__description",
-                        "sort": {},
-                        "width": "*",
-                        "filters": [{}],
-                        "visible": false
-                    }, {
                         "name": "Resource Location",
                         "field": "resource__location",
                         "sort": {},
@@ -848,49 +905,56 @@
                         "filters": [{}],
                         "visible": false
                     }, {
-                        "name": "Meeting",
-                        "field": "meeting__title",
-                        "sort": {},
-                        "width": "*",
-                        "filters": [{}],
-                        "visible": true
-                    }, {
-                        "name": "Meeting attending users",
-                        "field": "meeting__attending_users",
+                        "name": "Resource Description",
+                        "field": "resource__description",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
                         "visible": false
                     }, {
+                        "name": "Appointment",
+                        "field": "title",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    }, {
+                        "name": "Appointment attending users",
+                        "field": "attending_users",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    }, {
                         "name": "Booked From",
                         "field": "date_time_start",
-                        "sort": {"direction": "desc"}, // default
+                        "sort": {},
                         "width": "*",
                         "filters": [{}],
                         "visible": true
                     }, {
                         "name": "Booked To",
                         "field": "date_time_end",
-                        "sort": {},
+                        "sort": {"direction": "asc"},
                         "width": "*",
                         "filters": [{}],
                         "visible": true
                     }, {
-                        "name": "Description",
-                        "field": "comment",
+                        "name": "Appointment Description",
+                        "field": "text",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
-                        "visible": true
+                        "visible": false
                     }, {
-                        "name": "Booked by",
+                        "name": "Created by",
                         "field": "created_by",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
                         "visible": true
                     }, {
-                        "name": "Booked at",
+                        "name": "Created at",
                         "field": "created_at",
                         "sort": {},
                         "width": "*",
@@ -913,71 +977,82 @@
             "grid_state_resourcebookings_detail": {
                 "columns": [
                     {
-                        "name": "Booked From",
-                        "sort": {"direction": "desc"},
-                        "width": "*",
-                        "filters": [{}],
-                        "visible": true
-                    }, {
-                        "name": "Booked To",
-                        "sort": {},
-                        "width": "*",
-                        "filters": [{}],
-                        "visible": true
-                    }, {
                         "name": "Resource Name",
+                        "field": "resource__name",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
-                        "visible": false
+                        "visible": true
                     }, {
                         "name": "Resource Type",
+                        "field": "resource__type",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    }, {
+                        "name": "Resource Location",
+                        "field": "resource__location",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
                         "visible": false
                     }, {
                         "name": "Resource Description",
+                        "field": "resource__description",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
                         "visible": false
                     }, {
-                        "name": "Resource Location",
+                        "name": "Appointment",
+                        "field": "title",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    }, {
+                        "name": "Appointment attending users",
+                        "field": "attending_users",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    }, {
+                        "name": "Booked From",
+                        "field": "date_time_start",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    }, {
+                        "name": "Booked To",
+                        "field": "date_time_end",
+                        "sort": {"direction": "asc"},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    }, {
+                        "name": "Appointment Description",
+                        "field": "text",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
                         "visible": false
                     }, {
-                        "name": "Meeting",
+                        "name": "Created by",
+                        "field": "created_by",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
                         "visible": true
                     }, {
-                        "name": "Meeting attending users",
+                        "name": "Created at",
+                        "field": "created_at",
                         "sort": {},
                         "width": "*",
                         "filters": [{}],
-                        "visible": true
-                    }, {
-                        "name": "Comment",
-                        "sort": {},
-                        "width": "*",
-                        "filters": [{}],
-                        "visible": true
-                    }, {
-                        "name": "Booked by",
-                        "sort": {},
-                        "width": "*",
-                        "filters": [{}],
-                        "visible": true
-                    }, {
-                        "name": "Booked at",
-                        "sort": {},
-                        "width": "*",
-                        "filters": [{}],
-                        "visible": true
+                        "visible": false
                     }, exportColumn, trashColumn, {
                         "name": "Rebook",
                         "sort": {},

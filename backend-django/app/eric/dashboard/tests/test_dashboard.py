@@ -13,6 +13,7 @@ from django.utils.timezone import datetime, timedelta
 from rest_framework.test import APITestCase
 from rest_framework import status
 
+from eric.projects.models import Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin
 from eric.shared_elements.models import Task
 from eric.shared_elements.tests.core import TaskMixin, MeetingMixin, NoteMixin, ContactMixin
@@ -53,13 +54,13 @@ class DashboardTest(APITestCase, AuthenticationMixin, DashboardMixin, ProjectsMi
         # create two projects
         self.project1 = self.create_project(
             self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", "START",
+            "Only user1 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
         self.project2 = self.create_project(
             self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", "START",
+            "Only user2 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 

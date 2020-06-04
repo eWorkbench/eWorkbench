@@ -13,7 +13,7 @@ from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, Entity
 from eric.notifications.rest.serializers import ScheduledNotificationSerializer
 from eric.projects.models import Resource
 from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
-from eric.projects.rest.serializers.resource import ResourceSerializer
+from eric.projects.rest.serializers.resource import MinimalisticResourceSerializer
 from eric.shared_elements.models import Meeting, Contact, ContactAttendsMeeting, UserAttendsMeeting
 from eric.shared_elements.rest.serializers.contact import MinimalisticContactSerializer
 
@@ -30,7 +30,7 @@ class ContactPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
 
 
 class MinimalisticMeetingSerializer(BaseModelWithCreatedBySerializer):
-    resource = ResourceSerializer(read_only=True)
+    resource = MinimalisticResourceSerializer(read_only=True)
 
     attending_users = PublicUserSerializer(read_only=True, many=True)
 
@@ -39,7 +39,7 @@ class MinimalisticMeetingSerializer(BaseModelWithCreatedBySerializer):
     class Meta:
         model = Meeting
         fields = (
-            'title', 'date_time_start', 'date_time_end', 'text', 'resource', 'attending_users', 'attending_contacts',
+            'title', 'date_time_start', 'date_time_end', 'resource', 'attending_users', 'attending_contacts',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at'
         )
 
@@ -50,7 +50,7 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
 
     projects = ProjectPrimaryKeyRelatedField(many=True, required=False)
 
-    resource = ResourceSerializer(read_only=True)
+    resource = MinimalisticResourceSerializer(read_only=True)
 
     resource_pk = serializers.PrimaryKeyRelatedField(
         queryset=Resource.objects.all(),

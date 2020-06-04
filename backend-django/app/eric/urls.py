@@ -8,9 +8,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from anexia_monitoring import urls as monitor_urls
 from django.views.generic import TemplateView
-from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
 
@@ -25,7 +23,7 @@ urlpatterns = [
     # include dbsettings URL
     url(r'^admin/settings/', include('dbsettings.urls')),
 
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 
     # schema definition for Django Rest Framework
     url(r'^schema/$', schema_view),
@@ -80,9 +78,6 @@ urlpatterns = [
 
     # include eric sortable menu
     url(r'^api/', include('eric.sortable_menu.urls')),
-
-    # texttemplates
-    url(r'^api/', include('eric.texttemplates.urls')),
 
     # dashboard
     url(r'^api/', include('eric.dashboard.urls')),

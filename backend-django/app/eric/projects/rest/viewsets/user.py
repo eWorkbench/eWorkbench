@@ -2,41 +2,35 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import os
-import mimetypes
 import logging
+import mimetypes
+import os
 
-from django.contrib.auth.password_validation import validate_password, get_password_validators
-from django.http import FileResponse, HttpResponseForbidden
+from PIL import Image, ImageOps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
-from django.utils.translation import ugettext_lazy as _
+from django.http import FileResponse, HttpResponseForbidden
 from django.template.loader import render_to_string
+from django.utils.translation import gettext_lazy as _
 from django_auth_ldap.backend import LDAPBackend
-
-from rest_framework import viewsets, status, exceptions
-from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import detail_route, action, parser_classes
-from rest_framework.exceptions import NotFound
-from rest_framework.throttling import UserRateThrottle
-
-from PIL import Image, ImageOps
-
+from django_rest_passwordreset.models import ResetPasswordToken
 from django_userforeignkey.request import get_current_user
-
-from eric.site_preferences.models import options as site_preferences
 from eric.core.rest.viewsets import BaseGenericViewSet, BaseAuthenticatedUpdateOnlyModelViewSet
-from eric.userprofile.models import UserProfile
 from eric.projects.models import MyUser
 from eric.projects.rest.permissions import IsStaffOrTargetUserOrReadOnly, CanInviteExternalUsers
 from eric.projects.rest.serializers import PublicUserSerializer, MyUserSerializer, InviteUserSerializer
-from eric.userprofile.rest.serializers import UserProfileAvatarSerializer
-from django_rest_passwordreset.models import ResetPasswordToken
+from eric.site_preferences.models import options as site_preferences
+from rest_framework import viewsets, status, exceptions
+from rest_framework.decorators import action, parser_classes
+from rest_framework.exceptions import NotFound
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
 
 User = get_user_model()
 
@@ -68,11 +62,10 @@ class PublicUserViewSet(BaseGenericViewSet,
         Allows searching for users
     """
     # do not use user.objects.all here
-    queryset = MyUser.objects.none()  # .select_related('userprofile')
+    queryset = MyUser.objects.none()
     serializer_class = PublicUserSerializer
-    # filter_class = UserFilter
     permission_classes = (IsAuthenticated, IsStaffOrTargetUserOrReadOnly,)
-    filter_fields = ('is_staff',)
+    filterset_fields = ('is_staff',)
     search_fields = ('username', 'email', 'userprofile__first_name', 'userprofile__last_name',)
     # allow order by
     ordering_field = ('username', 'email',)
@@ -84,31 +77,43 @@ class PublicUserViewSet(BaseGenericViewSet,
     pagination_class = None
 
     def get_queryset(self):
-        from eric.projects.models import Project
         from eric.userprofile.models import UserProfile
+
+        user = self.request.user
 
         # prevent empty search requests that would lead to information leakage
         if 'search' in self.request.query_params and len(self.request.query_params['search']) > 1:
-            user = get_current_user()
-            users = MyUser.objects.all().filter(is_active=True).select_related('userprofile')
-
-            # filter users only by shared projects
-            users_with_shared_projects = users.filter(
-                pk__in=Project.objects.viewable().values_list('assigned_users_roles__user__pk', flat=True)
-            )
-
-            # union select with all other LDAP users too
-            if user.userprofile.type == UserProfile.LDAP_USER:
-                return (
-                    users_with_shared_projects | users.filter(
-                        userprofile__type=UserProfile.LDAP_USER
-                    )
-                ).distinct()
-
-            return users_with_shared_projects
-
+            if user.is_superuser:
+                # superusers can find all users
+                users = self.get_all_users()
+            elif user.userprofile.type == UserProfile.LDAP_USER:
+                # LDAP users can find all other LDAP users + users in shared projects
+                users = (self.get_users_with_shared_projects() | self.get_ldap_users()).distinct()
+            else:
+                # non-LDAP users can find users of shared projects only
+                users = self.get_users_with_shared_projects()
         else:
-            return MyUser.objects.all().filter(is_active=True).filter(pk=self.request.user.pk)
+            # no search term -> return self only
+            users = self.get_all_users().filter(pk=user.pk)
+
+        return users.select_related('userprofile')
+
+    @staticmethod
+    def get_all_users():
+        return MyUser.objects.filter(is_active=True)
+
+    @classmethod
+    def get_ldap_users(cls):
+        from eric.userprofile.models import UserProfile
+
+        return cls.get_all_users().filter(userprofile__type=UserProfile.LDAP_USER)
+
+    @classmethod
+    def get_users_with_shared_projects(cls):
+        from eric.projects.models import Project
+
+        pks = Project.objects.viewable().values_list('assigned_users_roles__user__pk', flat=True)
+        return cls.get_all_users().filter(pk__in=pks)
 
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated, CanInviteExternalUsers])
     def invite_user(self, request, *args, **kwargs):
@@ -216,6 +221,8 @@ class MyUserViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
     serializer_class = MyUserSerializer
 
     def get_object(self):
+        from eric.userprofile.models import UserProfile
+
         """ Return the current user
         For ldap users we need to update the users profile (and the related groups)
         """
@@ -291,6 +298,9 @@ class MyUserViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
     @parser_classes((FormParser, MultiPartParser,))
     def update_avatar(self, request, *args, **kwargs):
         """ Endpoint for accepting a multi part upload for the users avatar"""
+
+        from eric.userprofile.rest.serializers import UserProfileAvatarSerializer
+
         if 'avatar' in request.data:
             # get the user object
             user = self.get_object()

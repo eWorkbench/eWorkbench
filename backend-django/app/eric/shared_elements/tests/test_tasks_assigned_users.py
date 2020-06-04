@@ -69,13 +69,13 @@ class TasksAssignedUsersTest(APITestCase, AuthenticationMixin, UserMixin, TaskMi
         # create two projects
         self.project1 = self.create_project(
             self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", "START",
+            "Only user1 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
         self.project2 = self.create_project(
             self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", "START",
+            "Only user2 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 

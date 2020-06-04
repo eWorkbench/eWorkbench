@@ -14,10 +14,10 @@ router = get_api_router()
 
 
 # register user manual category and help texts
-router.register('user_manual', UserManualCategoriesViewset, base_name='usermanualcategory')
+router.register('user_manual', UserManualCategoriesViewset, basename='usermanualcategory')
 
 user_manual_router = routers.NestedSimpleRouter(router, r'user_manual', lookup='usermanualcategory')
-user_manual_router.register(r'help_texts', UserManualHelpTextViewset, base_name='usermanualcategory-usermanualhelptext')
+user_manual_router.register(r'help_texts', UserManualHelpTextViewset, basename='usermanualcategory-usermanualhelptext')
 
 
 urlpatterns = [

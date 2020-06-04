@@ -11,9 +11,6 @@ from django.db import connection
 from django_changeset.models.mixins import RevisionModelMixin
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.core.cache.backends.base import BaseCache
-from django.core.cache.backends.locmem import LocMemCache
-from django.utils.synch import RWLock
 from django.utils.cache import add_never_cache_headers
 from django_userforeignkey.request import get_current_user
 
@@ -43,7 +40,7 @@ class HTTPXForwardedForMiddleware(MiddlewareMixin):
                 request.META['REMOTE_ADDR'] = request.META['HTTP_X_FORWARDED_FOR'].split(",")[0].strip()
 
 
-class JWTMiddlewareForDownloads(object):
+class JWTMiddlewareForDownloads(MiddlewareMixin):
     """
     Middleware which checks for a "jwt" query parameter and authorizes the user within that token to access the
     path in the decoded payload of the token
@@ -86,7 +83,7 @@ class JWTMiddlewareForDownloads(object):
                 pass
 
 
-class DisableChangeSetForReadOnlyRequestsMiddleware(object):
+class DisableChangeSetForReadOnlyRequestsMiddleware(MiddlewareMixin):
     """
     Middleware class for disabling the revision model (changeset) for GET/HEAD/OPTIONS calls
     This used to be in the dispatch method of the REST API ViewSet, but it is better suited within the Request/Response
@@ -111,7 +108,7 @@ class DisableChangeSetForReadOnlyRequestsMiddleware(object):
 # https://gist.github.com/j4mie/956843
 # and
 # https://djangosnippets.org/snippets/1826/
-class RequestTimeLoggingMiddleware(object):
+class RequestTimeLoggingMiddleware(MiddlewareMixin):
     """Middleware class logging request time to stderr.
 
     This class can be used to measure time of request processing
@@ -202,7 +199,7 @@ class RequestTimeLoggingMiddleware(object):
         return response
 
 
-class DisableClientSideCachingMiddleware(object):
+class DisableClientSideCachingMiddleware(MiddlewareMixin):
     """
     Internet Explorer / Edge tends to cache REST API calls, unless some specific HTTP headers are added by our
     application.

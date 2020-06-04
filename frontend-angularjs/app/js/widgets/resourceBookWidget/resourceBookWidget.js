@@ -40,10 +40,8 @@
          * Book a resource
          */
         vm.bookResource = function () {
-            var modalService = ResourceBookingCreateEditModalService;
-
             // create a modal and wait for a result
-            var modal = modalService.openCreate(null, vm.resource);
+            var modal = ResourceBookingCreateEditModalService.openCreate(null, vm.resource);
 
             modal.result.then().catch(
                 function () {

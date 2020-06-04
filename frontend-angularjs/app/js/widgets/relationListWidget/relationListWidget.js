@@ -258,7 +258,7 @@
         /**
          * opens a modal dialog for creating a new relation
          * @param model {{}} specify with which model the relation should be created
-         *                    (etc. Task, Meeting, File, Contact, Note)
+         *                    (etc. Task, Appointment, File, Contact, Note)
          */
         vm.createGenericRelation = function (model) {
             // open modal dialog
@@ -292,7 +292,7 @@
                         for (var i = 0; i < selectedItems.length; i++) {
                             /**
                              * create new relation between the current model
-                             * and the selected model (etc. Task, Meeting, File,
+                             * and the selected model (etc. Task, Appointment, File,
                              * Contact, Note)
                              * @type {{right_content_type: *, right_object_id, left_content_type: *, left_object_id}}
                              */

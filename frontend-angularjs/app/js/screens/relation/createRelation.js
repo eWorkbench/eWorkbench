@@ -42,7 +42,7 @@
 
     /**
      * Controller for handling creating a new relation in a modal dialog
-     * Allows searching for an existing element, or also creating a new one (Task, Meeting, Note, Contact, File)
+     * Allows searching for an existing element, or also creating a new one (Task, Appointment, Note, Contact, File)
      */
     module.controller('CreateRelationModalController', function (
         $injector,

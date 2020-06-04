@@ -9,6 +9,7 @@ from django.contrib.auth.models import Group
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from eric.projects.models import Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, MeMixin
 from eric.shared_elements.tests.core import FileMixin
 
@@ -49,8 +50,7 @@ class UserStorageLimitTest(APITestCase, AuthenticationMixin, ProjectsMixin, File
         self.superuser_token = self.login_and_return_token("superuser", "sudo", HTTP_USER_AGENT, REMOTE_ADDR)
 
         # create a new project
-        self.project = self.create_project(self.token1, "New Project",
-                                           "User storage limit test", "INIT",
+        self.project = self.create_project(self.token1, "New Project", "User storage limit test", Project.INITIALIZED,
                                            HTTP_USER_AGENT, REMOTE_ADDR)
 
     def test_user_storage_limit_fields(self):

@@ -3,7 +3,13 @@
 
     var module = angular.module('services');
 
-    module.service('LabbookService', function () {
+    module.service('LabbookService', function (
+        $rootScope,
+        $q,
+        toaster,
+        gettextCatalog,
+        LabbookSectionsRestService
+    ) {
         "ngInject";
 
         var service = {};
@@ -57,6 +63,59 @@
             }
 
             return false;
+        };
+
+        /**
+         * Removes an element from a section
+         */
+        service.removeFromCurrentSection = function (currentSection, labbookChildElementPk) {
+            // we need to use $q to tell x-editable that an error happened
+            var d = $q.defer();
+
+            // if there is no current section, we stop the process here by returning the promise
+            if (!currentSection) {
+                return d.promise;
+            }
+
+            // remove the element from the child elements
+            var currentChildElements = currentSection.child_object.child_elements;
+            var child_elements = [];
+
+            for (var i = 0; i < currentChildElements.length; i++) {
+                if (currentChildElements[i] !== labbookChildElementPk) {
+                    child_elements.push(currentChildElements[i]);
+                }
+            }
+
+            var data = {
+                'pk': currentSection.child_object.pk,
+                'child_elements': child_elements
+            };
+
+            // updates the child elements using the new data
+            LabbookSectionsRestService.updatePartial(data).$promise.then(
+                function success (response) {
+                    d.resolve();
+                },
+                function error (rejection) {
+                    /**
+                     * Handle errors (Validation error, Permission error, unknown error)
+                     */
+                    if (rejection && rejection.data) {
+                        // Validation error - an error message is provided by the api
+                        d.reject(rejection.data);
+                    } else if (rejection.status == 403) {
+                        // Permission denied -> write our own error message
+                        d.reject(gettextCatalog.getString("Permission denied"));
+                    } else {
+                        // Unknown error -> write our own error message
+                        toaster.pop('error', gettextCatalog.getString("Failed to update Element"));
+                        d.reject(gettextCatalog.getString("Unknown error"));
+                    }
+                }
+            );
+
+            return d.promise;
         };
 
         return service;

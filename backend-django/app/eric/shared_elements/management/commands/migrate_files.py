@@ -9,7 +9,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db.models import Model
-from django.utils.translation import ugettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models import disable_permission_checks

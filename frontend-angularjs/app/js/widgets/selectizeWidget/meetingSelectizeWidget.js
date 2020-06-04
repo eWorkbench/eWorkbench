@@ -8,7 +8,7 @@
     var module = angular.module('widgets');
 
     /**
-     * Widget for selecting one or many meetings
+     * Widget for selecting one or many appointments
      */
     module.directive('meetingSelectizeWidget', function () {
         return {

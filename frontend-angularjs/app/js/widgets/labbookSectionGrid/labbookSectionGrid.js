@@ -80,9 +80,24 @@
                     childElement,
                     vm.updateLabbookChildElements
                 );
-                childElement.$delete().then(function () {
-                    vm.getAllChildElements(vm.sectionElement.child_object_id);
-                });
+
+                childElement.$delete().then(
+                    function success () {
+                        LabbookService.removeFromCurrentSection(vm.sectionElement, childElement.pk).then(
+                            function success () {
+                                vm.getAllChildElements(vm.sectionElement.child_object_id);
+                            },
+                            function error (rejection) {
+                                console.log(rejection);
+                                toaster.pop('error', gettextCatalog.getString("Failed to remove element from section"));
+                            }
+                        );
+                    },
+                    function error (rejection) {
+                        console.log(rejection);
+                        toaster.pop('error', gettextCatalog.getString("Failed to delete element"));
+                    }
+                );
             });
 
             /**
@@ -121,23 +136,33 @@
              */
             $rootScope.$on("labbook-child-element-moved-from-section", function (event, args) {
                 var removedChildElement = args.element;
-                var updatedChildElements = [];
 
-                vm.recalculationInProgress = LabbookService.recalculatePositions(
-                    vm.sectionChildElements,
-                    removedChildElement,
-                    vm.updateLabbookChildElements
-                );
-                // loop over the child elements and remove the one that has been removed from this section
-                angular.forEach(vm.sectionChildElements, function (childElement) {
-                    if (childElement.pk !== removedChildElement.pk) {
-                        updatedChildElements.push(childElement);
+                vm.getAllChildElements(vm.sectionElement.child_object_id).$promise.then(
+                    function success () {
+                        vm.recalculationInProgress = LabbookService.recalculatePositions(
+                            vm.sectionChildElements,
+                            removedChildElement,
+                            vm.updateLabbookChildElements
+                        );
+                    },
+                    // This is added to avoid console warnings, the error is already handled in vm.getAllChildElements.
+                    function error (rejection) {
                     }
-                });
-                vm.sectionChildElements = updatedChildElements;
+                );
             });
         };
 
+        /**
+         *
+         * Refresh the child elements when a new item is added to the section
+         */
+        $rootScope.$on("new-child-element-added-to-section", function (event, args) {
+            var section = args.section;
+
+            if (section && section.child_object_id) {
+                vm.refreshLabbookChildElements(section.child_object_id);
+            }
+        });
         /**
          * Updates positioning of ALL labbook child elements in this section grid via the REST API
          *
@@ -238,6 +263,8 @@
          * @returns {promise}
          */
         vm.getAllChildElements = function (element_id) {
+            var d = $q.defer();
+
             var filters = {};
 
             // we are adding a filter here: ?section=<section.pk>
@@ -246,12 +273,20 @@
             }
 
             // this query uses the section filter so we only get child elements of the section from the api
-            return vm.labbookChildElementRestService.query(filters).$promise.then(
+            vm.labbookChildElementRestService.query(filters).$promise.then(
                 function success (response) {
                     vm.sectionChildElements = response;
                     vm.sectionChildElementsLoaded = true;
+                    d.resolve();
+                },
+                function error (rejection) {
+                    d.reject(rejection);
+                    console.log(rejection);
+                    toaster.pop('error', gettextCatalog.getString("Failed to get child elements"));
                 }
             );
+
+            return d.promise;
         };
     });
 })();

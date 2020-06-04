@@ -54,11 +54,6 @@ docker-compose run --rm python python manage.py createsuperuser
 docker-compose run --rm python python manage.py loaddata eric/fixtures/dmps
 ```
 
-* Load Fixtures for Texttemplates:
-```bash
-docker-compose run --rm python python manage.py loaddata eric/fixtures/texttemplates
-```
-
 * Load Fixtures for Resources
 ```bash
 docker-compose run --rm python python manage.py loaddata eric/fixtures/resources

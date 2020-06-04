@@ -5,17 +5,17 @@
 import datetime
 import uuid
 
-from django.contrib.postgres.fields import ArrayField
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
-from django_userforeignkey.models.fields import UserForeignKey
+from django_cleanhtmlfield.fields import HTMLField
 
 from eric.core.models import BaseModel
 from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin
-from django_cleanhtmlfield.fields import HTMLField
 from eric.notifications.models.managers import NotificationConfigurationManager, NotificationManager, \
     ScheduledNotificationManager
 
@@ -77,7 +77,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         models.CharField(
             max_length=64,
             choices=NOTIFICATION_CONF_CHOICES),
-        default=list(),
+        default=list,
         blank=True,
         null=True,
         verbose_name=_("Notifications that the user want to receive")
@@ -95,7 +95,7 @@ class Notification(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     class Meta:
         verbose_name = _("Notification")
         verbose_name_plural = _("Notifications")
-        ordering = ('-last_modified_at', '-created_at', )
+        ordering = ('-last_modified_at', '-created_at',)
         track_fields = ('title', 'read', 'sent', 'processed', 'object_id', 'content_type')
 
     id = models.UUIDField(
@@ -167,7 +167,7 @@ class Notification(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         return _("Notification {title}").format(title=self.title)
 
 
-class ScheduledNotification(BaseModel, ChangeSetMixIn, SoftDeleteMixin,):
+class ScheduledNotification(BaseModel, ChangeSetMixIn, SoftDeleteMixin, ):
     """schedules a notification on a given point in the future for a given object"""
 
     objects = ScheduledNotificationManager()
@@ -177,18 +177,16 @@ class ScheduledNotification(BaseModel, ChangeSetMixIn, SoftDeleteMixin,):
         verbose_name_plural = _("ScheduledNotifications")
         track_fields = ('scheduled_date_time', 'object_id', 'content_type')
 
-    # ScheduledNotification time units
+    TIME_UNIT_MINUTE = 'MINUTE'
+    TIME_UNIT_HOUR = 'HOUR'
+    TIME_UNIT_DAY = 'DAY'
+    TIME_UNIT_WEEK = 'WEEK'
 
-    SCHEDULEDNOTIFICATION_TIME_UNIT_MINUTE = 'MINUTE'
-    SCHEDULEDNOTIFICATION_TIME_UNIT_HOUR = 'HOUR'
-    SCHEDULEDNOTIFICATION_TIME_UNIT_DAY = 'DAY'
-    SCHEDULEDNOTIFICATION_TIME_UNIT_WEEK = 'WEEK'
-
-    SCHEDULEDNOTIFICATION_TIME_UNIT_CHOICES = (
-        (SCHEDULEDNOTIFICATION_TIME_UNIT_MINUTE, _('minutes')),
-        (SCHEDULEDNOTIFICATION_TIME_UNIT_HOUR, _('hours')),
-        (SCHEDULEDNOTIFICATION_TIME_UNIT_DAY, _('days')),
-        (SCHEDULEDNOTIFICATION_TIME_UNIT_WEEK, _('weeks')),
+    TIME_UNIT_CHOICES = (
+        (TIME_UNIT_MINUTE, _('minutes')),
+        (TIME_UNIT_HOUR, _('hours')),
+        (TIME_UNIT_DAY, _('days')),
+        (TIME_UNIT_WEEK, _('weeks')),
     )
 
     id = models.UUIDField(
@@ -203,14 +201,12 @@ class ScheduledNotification(BaseModel, ChangeSetMixIn, SoftDeleteMixin,):
 
     timedelta_value = models.IntegerField(
         verbose_name=_("Time value when the notification should created"),
-        default=1
     )
 
     timedelta_unit = models.CharField(
         max_length=6,
-        choices=SCHEDULEDNOTIFICATION_TIME_UNIT_CHOICES,
-        verbose_name=_("Time unit when the notification should be created"),
-        default=SCHEDULEDNOTIFICATION_TIME_UNIT_DAY
+        choices=TIME_UNIT_CHOICES,
+        verbose_name=_("Time unit when the notification should be created")
     )
 
     active = models.BooleanField(
@@ -252,17 +248,16 @@ class ScheduledNotification(BaseModel, ChangeSetMixIn, SoftDeleteMixin,):
         )
 
     @staticmethod
-    def calculate_scheduled_date_time(time_unit_choice, scheduled_timedelta_value, date_time_start):
-        if time_unit_choice == ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_MINUTE:
-            timedelta_keyword = 'minutes'
-        elif time_unit_choice == ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_HOUR:
-            timedelta_keyword = 'hours'
-        elif time_unit_choice == ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_DAY:
-            timedelta_keyword = 'days'
-        elif time_unit_choice == ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_WEEK:
-            timedelta_keyword = 'weeks'
+    def calculate_scheduled_date_time(time_unit, timedelta_value, date_time_start):
+        if time_unit == ScheduledNotification.TIME_UNIT_MINUTE:
+            delta = datetime.timedelta(minutes=timedelta_value)
+        elif time_unit == ScheduledNotification.TIME_UNIT_HOUR:
+            delta = datetime.timedelta(hours=timedelta_value)
+        elif time_unit == ScheduledNotification.TIME_UNIT_DAY:
+            delta = datetime.timedelta(days=timedelta_value)
+        elif time_unit == ScheduledNotification.TIME_UNIT_WEEK:
+            delta = datetime.timedelta(weeks=timedelta_value)
         else:
-            timedelta_keyword = 'days'
+            raise ValidationError("Unhandled time unit")
 
-        scheduled_date_time = date_time_start - datetime.timedelta(**{timedelta_keyword: scheduled_timedelta_value})
-        return scheduled_date_time
+        return date_time_start - delta

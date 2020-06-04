@@ -2,7 +2,7 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework.serializers import RelatedField
 from django_userforeignkey.request import get_current_user
 from django.core.exceptions import ValidationError

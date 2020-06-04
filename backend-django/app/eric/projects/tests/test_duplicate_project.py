@@ -64,7 +64,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, Task
         #       Sub Project 2
         #           Sub Task 2
 
-        project = self.create_project(self.token1, "Project", "Project Description", "INIT",
+        project = self.create_project(self.token1, "Project", "Project Description", Project.INITIALIZED,
                                       HTTP_USER_AGENT, REMOTE_ADDR)
         self.project_pk = project.pk
 
@@ -77,7 +77,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, Task
         )
         task1 = json.loads(response.content.decode())
 
-        sub_project_1 = self.create_project(self.token1, "Sub Project 1", "Project Description", "INIT",
+        sub_project_1 = self.create_project(self.token1, "Sub Project 1", "Project Description", Project.INITIALIZED,
                                             HTTP_USER_AGENT, REMOTE_ADDR)
         self.rest_set_parent_project(self.token1, sub_project_1, project)
         self.sub_project_1_pk = sub_project_1.pk
@@ -90,7 +90,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, Task
         )
         sub_task1 = json.loads(response.content.decode())
 
-        sub_sub_project_1 = self.create_project(self.token1, "Sub Sub Project 1", "Project Description", "INIT",
+        sub_sub_project_1 = self.create_project(self.token1, "Sub Sub Project 1", "Project Description", Project.INITIALIZED,
                                                 HTTP_USER_AGENT, REMOTE_ADDR)
         self.rest_set_parent_project(self.token1, sub_sub_project_1, sub_project_1)
         self.sub_sub_project_1_pk = sub_sub_project_1.pk
@@ -104,7 +104,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, Task
         sub_sub_task1 = json.loads(response.content.decode())
 
 
-        sub_project_2 = self.create_project(self.token1, "Sub Project 2", "Project Description", "INIT",
+        sub_project_2 = self.create_project(self.token1, "Sub Project 2", "Project Description", Project.INITIALIZED,
                                             HTTP_USER_AGENT, REMOTE_ADDR)
         self.rest_set_parent_project(self.token1, sub_project_2, project)
         self.sub_project_2_pk = sub_project_2.pk

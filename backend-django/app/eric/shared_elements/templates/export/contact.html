@@ -42,6 +42,11 @@
     </ul>
     </p>
 
+    <p>
+        {% trans "Notes" %}:
+        {{ instance.notes | safe }}
+    </p>
+
     <h3>{% trans "Links" %}</h3>
 
     {% include "widgets/object_relations.html" %}

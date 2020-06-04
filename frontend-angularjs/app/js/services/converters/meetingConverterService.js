@@ -42,14 +42,14 @@
             return service.convertMeetingFromRestAPI(meeting);
         };
         /**
-         * add start and end to the meeting
+         * add start and end to the appointment
          *    start and end are used for the angular ui calendar
          * convert date_time_start and date_time_end
          * @param meeting
          * @returns {*}
          */
         service.convertMeetingFromRestAPI = function (meeting) {
-            // do not convert objects that do not contain an actual meeting
+            // do not convert objects that do not contain an actual appointment
             // this is the case when rest api throws an error
             if (!meeting.pk) {
                 return meeting;

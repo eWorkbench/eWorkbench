@@ -189,7 +189,6 @@
              * tiny mce options
              * @type {{}}
              */
-
             $scope.tinymceOptions = {
                 'inline': true,
                 'selector': 'div.editable',

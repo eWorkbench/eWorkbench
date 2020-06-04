@@ -1,24 +1,24 @@
 <div class="modal-header">
-    <h3 ng-if="vm.isEditing" class="modal-title" translate>Edit resource booking</h3>
-    <h3 ng-if="!vm.isEditing" class="modal-title" translate>Book a resource</h3>
+    <h3 class="modal-title" translate>Appointment Resource Booking</h3>
 </div>
-<form class="form-horizontal" name="newResourceBookingForm" ng-submit="vm.save()">
+<form class="form-horizontal" name="newMeetingForm" ng-submit="vm.create()">
     <div class="modal-body">
-        <ng-include src="'js/screens/resource/smallResourceBookingView.html'"></ng-include>
+        <ng-include src="'js/screens/meeting/smallMeetingView.html'"></ng-include>
     </div>
 
     <div class="modal-footer">
-        <!-- Buttons for Create / Cancel -->
+        <!-- Buttons for Confirm / Cancel -->
         <div class="text-right">
-            <button id="button_resourcebooking_create_cancel" class="btn btn-default" type="button" ng-click="vm.dismiss()"
-                    translate>
+            <button id="button_meeting_create_cancel" class="btn btn-default" type="button"
+                    ng-click="vm.dismiss()" translate>
                 Cancel
             </button>
-            <button ng-if="vm.isEditing" id="button_resourcebooking_delete" class="btn btn-danger" type="button" ng-click="vm.deleteResourceBooking()"
-                    translate>
-                Delete Booking
+            <button id="button_meeting_create_delete" class="btn btn-danger" type="button" translate
+                    ng-if="vm.meeting.pk"
+                    ng-click="vm.deleteResourceBooking()">
+                Delete Resource Booking
             </button>
-            <button id="button_resourcebooking_create_save" class="btn btn-warning" translate>
+            <button id="button_meeting_create_save" class="btn btn-warning" translate>
                 Confirm
             </button>
         </div>

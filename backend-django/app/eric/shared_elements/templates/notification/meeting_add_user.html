@@ -2,24 +2,15 @@
 
 <p>
     {% blocktrans %}
-        You have been added to the following meeting:
+        You have been added to the following appointment:
     {% endblocktrans %}
 </p>
 <br />
 
-<p>{% trans "Title" %}: {{ instance.title }}</p>
-<p>{% trans "Start Date" %}: {{ instance.date_time_start | date_short }}</p>
-<p>{% trans "End Date" %}: {{ instance.date_time_end | date_short }}</p>
-{% if instance.location %}<p>{% trans "Location" %}: {{ instance.location }}</p>{% endif %}
+<p>{% trans "Name" %}: {{ instance.title }}</p>
+<p>{% trans "From" %}: {{ instance.date_time_start | date_short }}</p>
+<p>{% trans "To" %}: {{ instance.date_time_end | date_short }}</p>
 {% if instance.resource %}<p>{% trans "Resource" %}: {{ instance.resource }}</p>{% endif %}
-
-<p>{% trans "Projects" %}:
-<ul>
-    {% for project in instance.projects.all %}
-        <li>{{ project.name }}</li>
-    {% endfor %}
-</ul>
-</p>
 
 <p>{% trans "Attending users" %}:
 <ul>
@@ -41,4 +32,12 @@
 <div>
     {{ instance.text | safe }}
 </div>
+</p>
+
+<p>{% trans "Projects" %}:
+<ul>
+    {% for project in instance.projects.all %}
+        <li>{{ project.name }}</li>
+    {% endfor %}
+</ul>
 </p>

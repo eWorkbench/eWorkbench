@@ -11,6 +11,7 @@ from rest_framework.utils import json
 from eric.metadata.models.models import MetadataField
 from eric.metadata.tests import HTTP_USER_AGENT, REMOTE_ADDRESS, http_info
 from eric.metadata.tests.rest_mixin import MetadataRestRequestBuilder
+from eric.projects.models import Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin
 from eric.shared_elements.models import Task
 from eric.shared_elements.tests.core import TaskMixin
@@ -43,7 +44,7 @@ class MetadataAPITest(APITestCase, AuthenticationMixin, ModelPrivilegeMixin, Hel
         )
 
         self.project = self.create_project(
-            self.token, "MyProject", "My test project", "INIT", **http_info
+            self.token, "MyProject", "My test project", Project.INITIALIZED, **http_info
         )
 
         self.task, response = self.create_task_orm(

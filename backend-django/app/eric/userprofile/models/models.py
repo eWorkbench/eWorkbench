@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
 from django.utils.deconstruct import deconstructible
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from eric.core.models import BaseModel
 
@@ -37,7 +37,7 @@ class UserProfile(BaseModel):
     """ Profile of a user, containing additional information """
     REQUIRED_FIELDS = ('user',)
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # custom fields
     # User Type Choices
     NORMAL_USER = 'u'
@@ -84,7 +84,7 @@ class UserProfile(BaseModel):
         models.EmailField(
             max_length=128,
             blank=True),
-        default=list(),
+        default=list,
         blank=True,
         null=True,
         verbose_name=_("Other E-mail addresses of the user")
@@ -93,7 +93,7 @@ class UserProfile(BaseModel):
         models.CharField(
             max_length=128,
             blank=True),
-        default=list(),
+        default=list,
         blank=True,
         null=True,
         verbose_name=_("Which organisation this user belongs to (if the user is an employee)")
@@ -102,7 +102,7 @@ class UserProfile(BaseModel):
         models.CharField(
             max_length=256,
             blank=True),
-        default=list(),
+        default=list,
         blank=True,
         null=True,
         verbose_name=_("org_zug_mitarbeiter_lang")
@@ -111,7 +111,7 @@ class UserProfile(BaseModel):
         models.CharField(
             max_length=128,
             blank=True),
-        default=list(),
+        default=list,
         blank=True,
         null=True,
         verbose_name=_("Which organization this user belongs to (if the user is a student)")
@@ -120,7 +120,7 @@ class UserProfile(BaseModel):
         models.CharField(
             max_length=256,
             blank=True),
-        default=list(),
+        default=list,
         blank=True,
         null=True,
         verbose_name=_("org_zug_student_lang")

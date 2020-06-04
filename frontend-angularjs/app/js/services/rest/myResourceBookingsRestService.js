@@ -9,14 +9,14 @@
         module = angular.module('services');
 
     /**
-     * Define API Endpoint for /api/my/resourcebookings using ngResource
+     * Define API Endpoint for /api/resourcebookings/my using ngResource
      */
     module.factory('MyResourceBookingsRestService', function (cachedResource, restApiUrl, ResourceBookingConverterService) {
         'ngInject';
 
         // create ng-resource for api endpoint /api/resourcebookings, with parameter resourcebookings id
         return cachedResource(
-            restApiUrl + 'my/resourcebookings/:pk/',
+            restApiUrl + 'resourcebookings/my/:pk/',
             {pk: '@pk', resource: '@resource'},
             {
                 'get': {
@@ -66,12 +66,12 @@
 
         return {
             'export' : function (pk) {
-                var url = restApiUrl + "my/resourcebookings/" + pk + "/export/";
+                var url = restApiUrl + "resourcebookings/my/" + pk + "/export/";
 
                 return $http.get(url, {responseType: 'arraybuffer'});
             },
             'export_many' : function (pkList) {
-                var url = restApiUrl + "my/resourcebookings/export_many/" + pkList;
+                var url = restApiUrl + "resourcebookings/my/export_many/" + pkList;
 
                 return $http.get(url, {responseType: 'arraybuffer'});
             }

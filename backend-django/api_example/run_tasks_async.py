@@ -3,6 +3,9 @@ import getpass
 from eric import APIAccess
 import grequests
 
+from eric.shared_elements.models import Task
+
+
 def exception_handler(request, exception):
     print("Request failed")
     print(exception)
@@ -22,10 +25,10 @@ headers = {
 
 task = {
     "project": None,
-    "state":"NEW",
-    "priority":"NORM",
-    "start_date":"2017-09-06T09:00:00.000Z",
-    "due_date":"2017-09-07T10:00:00.000Z",
+    "state": Task.TASK_STATE_NEW,
+    "priority": Task.TASK_PRIORITY_NORMAL,
+    "start_date": "2017-09-06T09:00:00.000Z",
+    "due_date": "2017-09-07T10:00:00.000Z",
     "assigned_users": [],
     "title": "Schmafu",
     "assigned_users_pk": [],

@@ -6,7 +6,7 @@ from django.db import transaction
 from django.db.models import Q, Count, F
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -404,7 +404,7 @@ class LabBookViewSet(
 ):
     """ REST API ViewSet for Contacts """
     serializer_class = LabBookSerializer
-    filter_class = LabBookFilter
+    filterset_class = LabBookFilter
 
     search_fields = ()
     ordering_fields = ('title', 'created_at', 'created_by', 'last_modified_at', 'last_modified_by')

@@ -445,10 +445,6 @@ msgstr ""
 msgid "Choose file to add"
 msgstr ""
 
-#: js/widgets/textTemplateWidget/textTemplateWidget.html:2
-msgid "Choose template"
-msgstr ""
-
 #: js/widgets/literallycanvas/literallyCanvasDrawingWidgetMenu.html:49
 msgid "Circle"
 msgstr ""
@@ -753,10 +749,6 @@ msgstr "Projekt anlegen"
 msgid "Could not load schedules"
 msgstr "Projekt anlegen"
 
-#: js/widgets/textTemplateWidget/textTemplateWidget.js:42
-msgid "Could not load text templates"
-msgstr ""
-
 #: js/screens/labbook/labbookView.js:868
 #, fuzzy
 msgid "Could not modify cells of LabBook"
@@ -1057,13 +1049,6 @@ msgstr ""
 #: js/services/workbenchElements/workbenchElements.js:47
 #: js/services/workbenchElements/workbenchElements.js:84
 msgid "Description"
-msgstr ""
-
-#: js/screens/labbook/labbookCreateModal.html:27
-msgid ""
-"Description\n"
-"                <text-template-widget ng-hide=\"vm.isReadOnly()\" override-"
-"object-attribute=\"vm.labbook.description\"></text-template-widget>"
 msgstr ""
 
 #: js/screens/relationForms/createTaskForm.html:24
@@ -2767,10 +2752,6 @@ msgstr "Letzte Aktivitäten"
 msgid "No results"
 msgstr ""
 
-#: js/widgets/textTemplateWidget/textTemplateWidget.html:9
-msgid "No templates are available"
-msgstr ""
-
 #: js/screens/labbook/smallLabbookView.html:98
 msgid "None"
 msgstr ""
@@ -3598,10 +3579,6 @@ msgstr "Projekt anlegen"
 
 #: js/screens/meeting/meetingForm.attendingUsers.html:6
 msgid "Select attending users"
-msgstr ""
-
-#: js/widgets/textTemplateWidget/textTemplateWidget.html:7
-msgid "Select template"
 msgstr ""
 
 #: js/screens/userSettings/userSettings.html:13

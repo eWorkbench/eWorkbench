@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import ChangeSet
 from django_userforeignkey.request import get_current_user
 from rest_framework.decorators import action
@@ -53,7 +53,7 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
     """ ViewSet for creating and querying projects;
     on query, only list the projects that an authenticated user is associated to (for now) """
     serializer_class = ProjectSerializerExtended
-    filter_class = ProjectFilter
+    filterset_class = ProjectFilter
     search_fields = ()
     ordering_fields = ['pk', 'name', 'start_date', 'stop_date']
 
@@ -167,7 +167,7 @@ class ProjectTreeViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
     Detail-view returns the requested project and all its descendants
     """
     serializer_class = ProjectTreeSerializer
-    filter_class = ProjectFilter
+    filterset_class = ProjectFilter
     search_fields = ()
 
     # disable pagination for this endpoint

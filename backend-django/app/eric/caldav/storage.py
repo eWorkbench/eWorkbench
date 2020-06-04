@@ -87,14 +87,12 @@ class Collection(ical.Collection):
           Remove object named ``name`` from collection.
         """
         item = CaldavItem.objects.filter(name=name).first()
+        meeting = item.meeting
 
-        if item.meeting:
-            meeting = item.meeting
-            if meeting.is_trashable():
-                meeting.trash()
-                item.set_deleted()
-                item.save()
-        else:
+        if meeting and meeting.is_trashable():
+            meeting.trash()
+
+        if not meeting or meeting.is_trashable():
             item.set_deleted()
             item.save()
 

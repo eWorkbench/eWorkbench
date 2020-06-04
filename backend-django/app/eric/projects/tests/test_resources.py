@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from eric.core.tests import test_utils
-from eric.projects.models import Role, Resource
+from eric.projects.models import Role, Resource, Project
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ProjectsMixin, ResourceMixin
 
 User = get_user_model()
@@ -73,13 +73,13 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
         # create two projects
         self.project1 = self.create_project(
             self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", "START",
+            "Only user1 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
         self.project2 = self.create_project(
             self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", "START",
+            "Only user2 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 

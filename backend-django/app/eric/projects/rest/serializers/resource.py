@@ -16,7 +16,7 @@ from django.conf import settings
 from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer, BaseModelWithCreatedBySerializer,\
     PublicUserSerializer, PublicUserGroupSerializer
 from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, EntityMetadataSerializer
-from eric.projects.models import Resource, ResourceBooking, ResourceBookingRuleMinimumDuration, \
+from eric.projects.models import Resource, ResourceBookingRuleMinimumDuration, \
     ResourceBookingRuleMaximumDuration, ResourceBookingRuleBookableHours, ResourceBookingRuleMinimumTimeBefore, \
     ResourceBookingRuleMaximumTimeBefore, ResourceBookingRuleTimeBetween, ResourceBookingRuleBookingsPerUser
 from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
@@ -95,6 +95,22 @@ class ResourceBookingRuleBookingsPerUserSerializer(serializers.ModelSerializer):
             'id',
             'count',
             'unit',
+        )
+
+
+class MinimalisticResourceSerializer(BaseModelWithCreatedBySerializer):
+    """ Minimalistic Serializer for Resources """
+    class Meta:
+        model = Resource
+        fields = (
+            'pk',
+            'name',
+            'type',
+            'responsible_unit',
+            'location',
+            'contact',
+            'created_by',
+            'created_at',
         )
 
 
@@ -187,6 +203,8 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
             'name',
             'description',
             'type',
+            'study_room',
+            'branch_library',
             'responsible_unit',
             'location',
             'contact',
@@ -224,6 +242,14 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
         """
         user_availability_selected_users = None
         user_availability_selected_user_groups = None
+        booking_rule_minimum_duration = None
+        booking_rule_maximum_duration = None
+        booking_rule_minimum_time_before = None
+        booking_rule_maximum_time_before = None
+        booking_rule_time_between = None
+        booking_rule_bookings_per_user = None
+        booking_rule_bookable_hours = None
+
         metadata_list = self.pop_metadata(validated_data)
 
         # get user_availability_selected_users from validated data (if it is available)
@@ -233,6 +259,34 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
         # get user_availability_selected_user_groups from validated data (if it is available)
         if 'user_availability_selected_user_groups' in validated_data:
             user_availability_selected_user_groups = validated_data.pop('user_availability_selected_user_groups')
+
+        # get booking_rule_minimum_duration from validated data (if it is available)
+        if 'booking_rule_minimum_duration' in validated_data:
+            booking_rule_minimum_duration = validated_data.pop('booking_rule_minimum_duration')
+
+        # get booking_rule_maximum_duration from validated data (if it is available)
+        if 'booking_rule_maximum_duration' in validated_data:
+            booking_rule_maximum_duration = validated_data.pop('booking_rule_maximum_duration')
+
+        # get booking_rule_minimum_time_before from validated data (if it is available)
+        if 'booking_rule_minimum_time_before' in validated_data:
+            booking_rule_minimum_time_before = validated_data.pop('booking_rule_minimum_time_before')
+
+        # get booking_rule_maximum_time_before from validated data (if it is available)
+        if 'booking_rule_maximum_time_before' in validated_data:
+            booking_rule_maximum_time_before = validated_data.pop('booking_rule_maximum_time_before')
+
+        # get booking_rule_time_between from validated data (if it is available)
+        if 'booking_rule_time_between' in validated_data:
+            booking_rule_time_between = validated_data.pop('booking_rule_time_between')
+
+        # get booking_rule_bookings_per_user from validated data (if it is available)
+        if 'booking_rule_bookings_per_user' in validated_data:
+            booking_rule_bookings_per_user = validated_data.pop('booking_rule_bookings_per_user')
+
+        # get booking_rule_bookable_hours from validated data (if it is available)
+        if 'booking_rule_bookable_hours' in validated_data:
+            booking_rule_bookable_hours = validated_data.pop('booking_rule_bookable_hours')
 
         # create the resource using ResourceSerializer
         instance = super(ResourceSerializer, self).create(validated_data)
@@ -246,6 +300,66 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
         if user_availability_selected_user_groups:
             for user_group in user_availability_selected_user_groups:
                 instance.user_availability_selected_user_groups.add(user_group)
+
+        # create the booking rules and add them to the instance
+        # now create booking_rule_minimum_duration
+        if booking_rule_minimum_duration:
+            ResourceBookingRuleMinimumDuration.objects.create(
+                duration=booking_rule_minimum_duration['duration'],
+                resource=instance
+            )
+
+        # now create booking_rule_maximum_duration
+        if booking_rule_maximum_duration:
+            ResourceBookingRuleMaximumDuration.objects.create(
+                duration=booking_rule_maximum_duration['duration'],
+                resource=instance
+            )
+
+        # now create booking_rule_minimum_time_before
+        if booking_rule_minimum_time_before:
+            ResourceBookingRuleMinimumTimeBefore.objects.create(
+                duration=booking_rule_minimum_time_before['duration'],
+                resource=instance
+            )
+
+        # now create booking_rule_maximum_time_before
+        if booking_rule_maximum_time_before:
+            ResourceBookingRuleMaximumTimeBefore.objects.create(
+                duration=booking_rule_maximum_time_before['duration'],
+                resource=instance
+            )
+
+        # now create booking_rule_time_between
+        if booking_rule_time_between:
+            ResourceBookingRuleTimeBetween.objects.create(
+                duration=booking_rule_time_between['duration'],
+                resource=instance
+            )
+
+        # now create booking_rule_bookings_per_user
+        if booking_rule_bookings_per_user:
+            for item in booking_rule_bookings_per_user:
+                ResourceBookingRuleBookingsPerUser.objects.create(
+                    count=item['count'],
+                    unit=item['unit'],
+                    resource=instance
+                )
+
+        # now create booking_rule_bookable_hours
+        if booking_rule_bookable_hours:
+            ResourceBookingRuleBookableHours.objects.create(
+                monday=booking_rule_bookable_hours['monday'],
+                tuesday=booking_rule_bookable_hours['tuesday'],
+                wednesday=booking_rule_bookable_hours['wednesday'],
+                thursday=booking_rule_bookable_hours['thursday'],
+                friday=booking_rule_bookable_hours['friday'],
+                saturday=booking_rule_bookable_hours['saturday'],
+                sunday=booking_rule_bookable_hours['sunday'],
+                time_start=booking_rule_bookable_hours['time_start'],
+                time_end=booking_rule_bookable_hours['time_end'],
+                resource=instance
+            )
 
         self.create_metadata(metadata_list, instance)
 
@@ -449,73 +563,3 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
         instance = super(ResourceSerializer, self).update(instance, validated_data)
 
         return instance
-
-
-class ResourceBookingSerializer(BaseModelWithCreatedBySerializer):
-    """ Serializer for Resource Bookings """
-
-    resource = ResourceSerializer(read_only=True)
-
-    resource_pk = serializers.PrimaryKeyRelatedField(
-        queryset=Resource.objects.all(),
-        source='resource',
-        many=False,
-        required=False,
-        allow_null=True
-    )
-
-    from eric.shared_elements.models import Meeting
-    from eric.shared_elements.rest.serializers.meeting import MeetingSerializer
-
-    meeting = MeetingSerializer(read_only=True)
-
-    meeting_pk = serializers.PrimaryKeyRelatedField(
-        queryset=Meeting.objects.all(),
-        source='meeting',
-        many=False,
-        required=False,
-        allow_null=True
-    )
-
-    class Meta:
-        model = ResourceBooking
-        fields = (
-            'pk',
-            'url',
-            'date_time_start',
-            'date_time_end',
-            'resource',
-            'resource_pk',
-            'meeting',
-            'meeting_pk',
-            'comment',
-            'created_by',
-            'created_at',
-            'last_modified_by',
-            'last_modified_at',
-        )
-
-
-class MinimalisticResourceBookingSerializer(BaseModelWithCreatedBySerializer):
-    """ Serializer for Resource Bookings """
-
-    resource = ResourceSerializer(read_only=True)
-
-    from eric.shared_elements.rest.serializers.meeting import MeetingSerializer
-    meeting = MeetingSerializer(read_only=True)
-
-    class Meta:
-        model = ResourceBooking
-        fields = (
-            'pk',
-            'url',
-            'date_time_start',
-            'date_time_end',
-            'resource',
-            'meeting',
-            'comment',
-            'created_by',
-            'created_at',
-            'last_modified_by',
-            'last_modified_at',
-        )

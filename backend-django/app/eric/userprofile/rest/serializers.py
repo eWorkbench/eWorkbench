@@ -4,7 +4,7 @@
 #
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from eric.userprofile.models import UserProfile

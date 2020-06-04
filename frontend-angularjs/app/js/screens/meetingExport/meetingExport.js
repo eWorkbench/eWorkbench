@@ -8,7 +8,7 @@
     var module = angular.module('screens');
 
     /**
-     * Service for opening the Meeting Export Modal Dialog
+     * Service for opening the Appointment Export Modal Dialog
      */
     module.service('meetingExportService', function (
         $uibModal

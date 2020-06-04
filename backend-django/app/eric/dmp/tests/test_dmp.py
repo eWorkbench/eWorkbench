@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from eric.projects.models import Role
+from eric.projects.models import Role, Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin
 from eric.dmp.tests.core import DmpsMixin
 from eric.dmp.models import DmpForm, DmpFormField, Dmp, DmpFormData
@@ -71,7 +71,8 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token1)
 
         # create a new project
-        self.project = self.create_project(self.token1, "DMP Project", "Unittest DMP Project", "INIT", HTTP_USER_AGENT, REMOTE_ADDR)
+        self.project = self.create_project(self.token1, "DMP Project", "Unittest DMP Project", Project.INITIALIZED,
+                                           HTTP_USER_AGENT, REMOTE_ADDR)
 
         # get project manager role
         self.projectManagerRole = Role.objects.filter(default_role_on_project_create=True).first()
@@ -124,23 +125,23 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         """ tries to create a DMP """
 
         # create a new dmp which is associated to dmp form 1
-        dmp = self.create_dmp(self.token1, self.project.pk, "First DMP", "NEW", self.dmp_form1.pk,
+        dmp = self.create_dmp(self.token1, self.project.pk, "First DMP", Dmp.NEW, self.dmp_form1.pk,
                               HTTP_USER_AGENT, REMOTE_ADDR)
         # verify that a dmp was saved in the database
         self.assertEquals(Dmp.objects.all().count(), 1)
         self.assertEquals(dmp.title, "First DMP")
-        self.assertEquals(dmp.status, "NEW")
+        self.assertEquals(dmp.status, Dmp.NEW)
 
         # verify that two DMP Form Data related to the dmp were created
         self.assertEquals(DmpFormData.objects.filter(dmp=dmp).count(), 2)
 
         # create another dmp (dmp form 2)
-        dmp2 = self.create_dmp(self.token1, self.project.pk, "Second DMP", "NEW", self.dmp_form2.pk,
+        dmp2 = self.create_dmp(self.token1, self.project.pk, "Second DMP", Dmp.NEW, self.dmp_form2.pk,
                                HTTP_USER_AGENT, REMOTE_ADDR)
         # verify that a dmp was saved in the database
         self.assertEquals(Dmp.objects.all().count(), 2)
         self.assertEquals(dmp2.title, "Second DMP")
-        self.assertEquals(dmp2.status, "NEW")
+        self.assertEquals(dmp2.status, Dmp.NEW)
 
         # verify that three DMP Form Data related to the dmp were created
         self.assertEquals(DmpFormData.objects.filter(dmp=dmp2).count(), 3)
@@ -151,7 +152,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
     def test_create_dmp_without_project(self):
         """ tries to create a DMP without project """
 
-        response = self.rest_create_dmp(self.token1, None, "First DMP", "NEW", self.dmp_form1.pk,
+        response = self.rest_create_dmp(self.token1, None, "First DMP", Dmp.NEW, self.dmp_form1.pk,
                                         HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
@@ -159,10 +160,10 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         self.user1.user_permissions.add(self.add_dmp_without_project_permission)
 
         # create a new dmp which is associated to dmp form 1
-        dmp = self.create_dmp(self.token1, None, "First DMP", "NEW", self.dmp_form1.pk,
+        dmp = self.create_dmp(self.token1, None, "First DMP", Dmp.NEW, self.dmp_form1.pk,
                               HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(dmp.title, "First DMP")
-        self.assertEquals(dmp.status, "NEW")
+        self.assertEquals(dmp.status, Dmp.NEW)
 
         self.assertEquals(Dmp.objects.all().count(), 2)
 
@@ -173,7 +174,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         response = self.client.post(
             '/api/dmps/',
             {
-                'status': 'NEW',
+                'status': Dmp.NEW,
                 'dmp_form': self.dmp_form1.pk
             },
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
@@ -187,7 +188,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
             '/api/dmps/',
             {
                 'title': '',
-                'status': 'NEW',
+                'status': Dmp.NEW,
                 'dmp_form': self.dmp_form1.pk
             },
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
@@ -209,7 +210,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
-        self.assertEqual(decoded['status'], "NEW")
+        self.assertEqual(decoded['status'], Dmp.NEW)
 
         # send an empty dmp status (allowed, default value should be NEW)
         response = self.client.post(
@@ -225,14 +226,14 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
-        self.assertEqual(decoded['status'], "NEW")
+        self.assertEqual(decoded['status'], Dmp.NEW)
 
         # do not send a dmp form id
         response = self.client.post(
             '/api/dmps/',
             {
                 'title': 'new dmp',
-                'status': 'NEW',
+                'status': Dmp.NEW,
                 'projects': [self.project.pk]
             },
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
@@ -246,7 +247,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
             '/api/dmps/',
             {
                 'title': 'new dmp',
-                'status': 'NEW',
+                'status': Dmp.NEW,
                 'dmp_form': '',
                 'projects': [self.project.pk]
             },
@@ -260,13 +261,14 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         """ tries to update a dmp with their nested dmp form data and checks if values were updated """
 
         # create a new dmp
-        dmp_object = self.create_dmp(self.token1, self.project.pk, "New DMP", "NEW", self.dmp_form1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
+        dmp_object = self.create_dmp(self.token1, self.project.pk, "New DMP", Dmp.NEW, self.dmp_form1.pk,
+                                     HTTP_USER_AGENT, REMOTE_ADDR)
         # get a dmp form data object for the specific dmp object
         dmp_form_data_object = DmpFormData.objects.filter(dmp=dmp_object.pk).first()
 
         data = {
             'title': 'update dmp',
-            'status': 'PROG',
+            'status': Dmp.PROGRESS,
             'dmp_form': str(self.dmp_form1.pk),
             'dmp_form_data': [
                 {
@@ -289,11 +291,11 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
 
         # check if the dmp title and status have been changed
         self.assertNotEqual(decoded_response['title'], 'New DMP', msg="check if the title has not the old value")
-        self.assertNotEqual(decoded_response['status'], 'NEW', msg="check if the status has not the old value")
+        self.assertNotEqual(decoded_response['status'], Dmp.NEW, msg="check if the status has not the old value")
 
         # check if the dmp title and status have been updated correctly
-        self.assertEqual(decoded_response['title'],'update dmp', msg="check if the title was updated")
-        self.assertEqual(decoded_response['status'], 'PROG', msg="check if the status was updated")
+        self.assertEqual(decoded_response['title'], 'update dmp', msg="check if the title was updated")
+        self.assertEqual(decoded_response['status'], Dmp.PROGRESS, msg="check if the status was updated")
 
         # check if the dmp form data value has been updated correctly
         self.assertEqual(decoded_response['dmp_form_data'][0]['value'], '12345',
@@ -303,13 +305,13 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         """ tries to update a dmp with wrong parameter """
 
         # create a new dmp with dmp form 1
-        dmp_object = self.create_dmp(self.token1, self.project.pk, "Update DMP", "NEW", self.dmp_form1.pk,
+        dmp_object = self.create_dmp(self.token1, self.project.pk, "Update DMP", Dmp.NEW, self.dmp_form1.pk,
                                      HTTP_USER_AGENT, REMOTE_ADDR)
         # get first dmp form data object for the specific dmp object
         dmp_form_data_object = DmpFormData.objects.filter(dmp=dmp_object.pk).first()
 
         # create a new dmp with dmp form 2
-        dmp_object_2 = self.create_dmp(self.token1, self.project.pk, "Update DMP 2", "NEW", self.dmp_form2.pk,
+        dmp_object_2 = self.create_dmp(self.token1, self.project.pk, "Update DMP 2", Dmp.NEW, self.dmp_form2.pk,
                                        HTTP_USER_AGENT, REMOTE_ADDR)
         # get first dmp form data object for the specific dmp object
         second_dmp_form_data_objects = DmpFormData.objects.filter(dmp=dmp_object_2.pk)
@@ -319,7 +321,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         response = self.client.put(
             '/api/dmps/{}/'.format(dmp_object.pk),
             {
-                'status': 'PROG',
+                'status': Dmp.PROGRESS,
                 'dmp_form': self.dmp_form1.pk
             },
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
@@ -328,7 +330,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         self.assertEqual(response.content.decode(), '{"title":["This field is required."]}')
 
         # send an empty title
-        response = self.update_dmp(self.token1, self.project.pk, "", "PROG", dmp_object.pk,
+        response = self.update_dmp(self.token1, self.project.pk, "", Dmp.PROGRESS, dmp_object.pk,
                                    self.dmp_form1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.content.decode(), '{"title":["This field may not be blank."]}')
@@ -344,21 +346,21 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         decoded = json.loads(response.content.decode())
-        self.assertEqual(decoded['status'], "NEW")
+        self.assertEqual(decoded['status'], Dmp.NEW)
 
         # send an empty status (allowed, default value should be NEW)
         response = self.update_dmp(self.token1, self.project.pk, "update dmp", "", dmp_object.pk,
                                    self.dmp_form1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         decoded = json.loads(response.content.decode())
-        self.assertEqual(decoded['status'], "NEW")
+        self.assertEqual(decoded['status'], Dmp.NEW)
 
         # do not send a dmp form
         response = self.client.put(
             '/api/dmps/{}/'.format(dmp_object.pk),
             {
                 'title': 'new dmp',
-                'status': 'NEW'
+                'status': Dmp.NEW
             },
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
@@ -367,20 +369,20 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         self.assertEqual(response.content.decode(), '{"dmp_form":["This field is required."]}')
 
         # send an empty dmp form
-        response = self.update_dmp(self.token1, self.project.pk, "update dmp", "PROG", dmp_object.pk,
+        response = self.update_dmp(self.token1, self.project.pk, "update dmp", Dmp.PROGRESS, dmp_object.pk,
                                    "", HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.content.decode(), '{"dmp_form":["This field may not be null."]}')
 
         # send a wrong dmp form
-        response = self.update_dmp(self.token1, self.project.pk, "update dmp", "PROG", dmp_object.pk,
+        response = self.update_dmp(self.token1, self.project.pk, "update dmp", Dmp.PROGRESS, dmp_object.pk,
                                    self.dmp_form2.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.content.decode(), '{"dmp_form":["You are not allowed to change the dmp form"]}')
 
         # send an empty project pk (allowed, project pk is in the URL)
-        response = self.update_dmp(self.token1, self.project.pk, "update dmp", "PROG", dmp_object.pk, self.dmp_form1.pk,
-                                   HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.update_dmp(self.token1, self.project.pk, "update dmp", Dmp.PROGRESS, dmp_object.pk,
+                                   self.dmp_form1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(decoded_response['projects'][0], str(self.project.pk), msg="check if the project pk was not updated")
@@ -388,7 +390,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         # do not send a dmp form data pk
         data = {
             'title': 'update dmp',
-            'status': 'PROG',
+            'status': Dmp.PROGRESS,
             'dmp_form': str(self.dmp_form1.pk),
             'dmp_form_data': [
                 {
@@ -407,7 +409,8 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         self.assertEqual(response.content.decode(), '{"dmp_form_data":["Not all fields are provided"]}')
 
         # send an empty dmp form data pk
-        response = self.update_dmp_and_nested_dmp_form_data(self.token1, self.project.pk, "update dmp", "PROG", dmp_object.pk,
+        response = self.update_dmp_and_nested_dmp_form_data(self.token1, self.project.pk, "update dmp",
+                                                            Dmp.PROGRESS, dmp_object.pk,
                                                             self.dmp_form1.pk, '', '12345',
                                                             HTTP_USER_AGENT,
                                                             REMOTE_ADDR)
@@ -416,7 +419,8 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         self.assertEqual(response.content.decode(), '{"dmp_form_data":["Not all fields are provided"]}')
 
         # send a wrong dmp form data pk
-        response = self.update_dmp_and_nested_dmp_form_data(self.token1, self.project.pk, "update dmp", "PROG", dmp_object.pk,
+        response = self.update_dmp_and_nested_dmp_form_data(self.token1, self.project.pk, "update dmp",
+                                                            Dmp.PROGRESS, dmp_object.pk,
                                                             self.dmp_form1.pk, second_dmp_form_data_object.pk, '12345',
                                                             HTTP_USER_AGENT,
                                                             REMOTE_ADDR)
@@ -427,7 +431,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         # do not send a dmp form data value
         data = {
             'title': 'update dmp',
-            'status': 'PROG',
+            'status': Dmp.PROGRESS,
             'dmp_form': str(self.dmp_form1.pk),
             'dmp_form_data': [
                 {
@@ -447,22 +451,24 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
         self.assertEqual(response.content.decode(), '{"dmp_form_data":["Not all fields are provided"]}')
 
         # send a text value but type is specified for numbers
-        response = self.update_dmp_and_nested_dmp_form_data(self.token1, self.project.pk, "update dmp", "PROG", dmp_object.pk,
-                                                            self.dmp_form1.pk, dmp_form_data_object.pk, 'my new value',
-                                                            HTTP_USER_AGENT,
-                                                            REMOTE_ADDR)
+        response = self.update_dmp_and_nested_dmp_form_data(self.token1, self.project.pk, "update dmp", Dmp.PROGRESS,
+                                                            dmp_object.pk, self.dmp_form1.pk, dmp_form_data_object.pk,
+                                                            'my new value', HTTP_USER_AGENT, REMOTE_ADDR)
         # decode response and load it into json
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.content.decode(), '{"'+format(dmp_form_data_object.pk)+'":["The value has to be a number"]}')
+        self.assertEqual(response.content.decode(),
+                         '{"'+format(dmp_form_data_object.pk)+'":["The value has to be a number"]}')
 
         # send a text value, type is specified for text (allowed)
-        response = self.update_dmp_and_nested_dmp_form_data(self.token1, self.project.pk, "update dmp", "PROG", dmp_object_2.pk,
-                                                            self.dmp_form2.pk, second_dmp_form_data_object.pk, 'my new value', HTTP_USER_AGENT,
-                                                            REMOTE_ADDR)
+        response = self.update_dmp_and_nested_dmp_form_data(self.token1, self.project.pk, "update dmp", Dmp.PROGRESS,
+                                                            dmp_object_2.pk, self.dmp_form2.pk,
+                                                            second_dmp_form_data_object.pk, 'my new value',
+                                                            HTTP_USER_AGENT, REMOTE_ADDR)
         # decode response and load it into json
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(decoded_response['dmp_form_data'][1]['value'], 'my new value', msg="value should have been updated")
+        self.assertEqual(decoded_response['dmp_form_data'][1]['value'], 'my new value',
+                         msg="value should have been updated")
 
     def test_dmp_status_final_with_correct_user(self):
         """ tries to update a dmp when the status flag was set to final and the current user is the creator """
@@ -483,7 +489,7 @@ class DmpsTest(APITestCase, AuthenticationMixin, ProjectsMixin, DmpsMixin):
 
         # check if the dmp title and status have been updated correctly
         self.assertEqual(decoded_response['title'],'Updated DMP', msg="check if the title was updated")
-        self.assertEqual(decoded_response['status'], 'FIN', msg="check if the status was updated")
+        self.assertEqual(decoded_response['status'], Dmp.FINAL, msg="check if the status was updated")
 
         # check if the dmp form data value has been updated correctly
         self.assertEqual(decoded_response['dmp_form_data'][0]['value'], '12345',

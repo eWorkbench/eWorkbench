@@ -6,7 +6,7 @@ from django.contrib.postgres.fields.jsonb import KeyTextTransform, KeyTransform
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import localtime
 from django.utils.translation import get_language
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from eric.core.templatetags.date_filters import date_short
 from eric.metadata.models.models import MetadataField
@@ -197,11 +197,11 @@ class KeyDecimalTransform(KeyTextTransform):
             previous = previous.lhs
         lhs, params = compiler.compile(previous)
         if len(key_transforms) > 1:
-            return u"((%s %s %%s)::decimal)" % (lhs, self.nested_operator), [key_transforms] + params
+            return "((%s %s %%s)::decimal)" % (lhs, self.nested_operator), [key_transforms] + params
         try:
             int(self.key_name)
         except ValueError:
-            lookup = u"'%s'" % self.key_name
+            lookup = "'%s'" % self.key_name
         else:
-            lookup = u"%s" % self.key_name
-        return u"((%s %s %s)::decimal)" % (lhs, self.operator, lookup), params
+            lookup = "%s" % self.key_name
+        return "((%s %s %s)::decimal)" % (lhs, self.operator, lookup), params

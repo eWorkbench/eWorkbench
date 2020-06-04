@@ -42,7 +42,7 @@
     </span>
 
     <span ng-switch-when="assigned_users|attending_users|user_availability_selected_users" ng-switch-when-separator="|">
-        <!-- list all assigned users (to a meeting) and attending users to a task -->
+        <!-- list all assigned users (to an appointment) and attending users to a task -->
         <div style="display: inline;" ng-repeat="user_pk in (value | split:',')">
             <user-display-widget user-pk="user_pk"></user-display-widget>
             <span ng-show="!$last">,</span>

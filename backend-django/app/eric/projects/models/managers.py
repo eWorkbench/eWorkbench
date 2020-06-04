@@ -4,13 +4,12 @@
 #
 from eric.core.models import BaseManager
 from eric.projects.models.querysets import ProjectQuerySet, ProjectRoleUserAssignmentQuerySet, RoleQuerySet, \
-    ResourceQuerySet, UserStorageLimitQuerySet, ElementLockQuerySet, ResourceBookingQuerySet
+    ResourceQuerySet, UserStorageLimitQuerySet, ElementLockQuerySet
 
 # create managers for all our important objects
 ProjectManager = BaseManager.from_queryset(ProjectQuerySet)
 ProjectRoleUserAssignmentManager = BaseManager.from_queryset(ProjectRoleUserAssignmentQuerySet)
 ResourceManager = BaseManager.from_queryset(ResourceQuerySet)
-ResourceBookingManager = BaseManager.from_queryset(ResourceBookingQuerySet)
 RoleManager = BaseManager.from_queryset(RoleQuerySet)
 UserStorageLimitManager = BaseManager.from_queryset(UserStorageLimitQuerySet)
 ElementLockManager = BaseManager.from_queryset(ElementLockQuerySet)

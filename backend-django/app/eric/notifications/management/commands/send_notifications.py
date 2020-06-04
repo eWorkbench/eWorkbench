@@ -9,9 +9,10 @@ from django.core.management import BaseCommand
 from django.db.models import Subquery
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.timezone import timedelta
+from django.utils.timezone import timedelta, localtime
 from django.utils.translation import ugettext as _
 
+from eric.core.templatetags.date_filters import date_short
 from eric.notifications.models import Notification, ScheduledNotification, NotificationConfiguration
 from eric.shared_elements.models import Meeting
 from eric.site_preferences.models import options as site_preferences
@@ -94,9 +95,9 @@ class Command(BaseCommand):
             attending_contacts = meeting.attending_contacts.all()
             title = _("Reminder: Meeting {title} starts at {date_time_start}".format(
                 title=meeting.title,
-                date_time_start=meeting.date_time_start
+                date_time_start=date_short(localtime(meeting.date_time_start))
             ))
-            html_message = render_to_string('notification/meeting_reminder.html', {'meeting': meeting})
+            html_message = render_to_string('notification/meeting_reminder.html', {'instance': meeting})
 
             for attending_user in attending_users:
                 self.create_notification(title, meeting, attending_user, html_message)

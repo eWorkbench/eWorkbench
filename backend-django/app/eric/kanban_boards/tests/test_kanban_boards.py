@@ -971,7 +971,7 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # add a new kanban board column as user2 (should work)
-        new_column_1 = {"title": "New column", "task_state": "NEW", "icon": "", "ordering": 3,
+        new_column_1 = {"title": "New column", "task_state": Task.TASK_STATE_NEW, "icon": "", "ordering": 3,
                         "color": "rgba(224,224,224,0.65)"}
         kanban_board_columns.append(new_column_1)
         response = self.rest_update_kanbanboard_child_elements(self.token2, kanban_board_pk, kanban_board_columns,

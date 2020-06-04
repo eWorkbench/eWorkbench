@@ -22,7 +22,7 @@ class ProjectRoleUserAssignmentViewSet(BaseAuthenticatedNestedProjectModelViewSe
     serializer_class = ProjectRoleUserAssignmentSerializerExtended
 
     search_fields = ('user__username', 'user__email', 'user__first_name', 'user__last_name',)
-    filter_class = ProjectRoleUserAssignmentFilter
+    filterset_class = ProjectRoleUserAssignmentFilter
 
     # disable pagination for this endpoint
     pagination_class = None

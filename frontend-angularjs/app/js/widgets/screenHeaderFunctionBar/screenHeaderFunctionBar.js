@@ -32,7 +32,8 @@
             },
             transclude: {
                 'screenTitle': '?screenTitle',
-                'additionalFilter': '?additionalFilter'
+                'additionalFilter': '?additionalFilter',
+                'additionalButtons': '?additionalButtons'
             },
             controllerAs: 'vm',
             bindToController: true

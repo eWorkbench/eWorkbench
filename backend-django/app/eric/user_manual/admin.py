@@ -26,12 +26,10 @@ class UserManualCategoryAdmin(admin.ModelAdmin):
                 'eric/admin/css/dmp_form_admin.css',
             ),
         }
-        js = {
-            'js': (
-                'ckeditor/ckeditor/ckeditor.js',
-                'eric/admin/js/dmp_form_admin.js',
-            ),
-        }
+        js = (
+            'ckeditor/ckeditor/ckeditor.js',
+            'eric/admin/js/dmp_form_admin.js',
+        )
 
     list_display = (
         'title',

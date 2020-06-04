@@ -27,7 +27,7 @@ class MenuEntryViewSet(BaseAuthenticatedModelViewSet):
 
     pagination_class = None
 
-    filter_fields = ('visible', )
+    filterset_fields = ('visible', )
 
     def get_queryset(self):
         return MenuEntry.objects.viewable().prefetch_related('menu_entry_parameters')

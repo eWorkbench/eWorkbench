@@ -8,7 +8,7 @@
     var module = angular.module('widgets');
 
     /**
-     * Angular Directive that displays a meeting as a card
+     * Angular Directive that displays a appointment as a card
      */
     module.directive('meetingCardDisplay', function () {
         return {
@@ -28,7 +28,7 @@
     });
 
     /**
-     * Controller for Meeting Card Display
+     * Controller for Appointment Card Display
      */
     module.controller('MeetingCardDisplayController', function (
         IconImagesService
@@ -36,7 +36,7 @@
         var vm = this;
 
         /**
-         * Meeting Icon
+         * Appointment Icon
          * @type {string}
          */
         vm.meetingIcon = IconImagesService.mainElementIcons.meeting;

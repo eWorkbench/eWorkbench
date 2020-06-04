@@ -15,16 +15,16 @@ from eric.drives.rest.viewsets import DriveViewSet, DriveSubDirectoriesViewSet
 # register REST API Routers
 router = get_api_router()
 
-router.register(r'drives', DriveViewSet, base_name='drive')
+router.register(r'drives', DriveViewSet, basename='drive')
 
 drive_router = routers.NestedSimpleRouter(router, r'drives', lookup='drive')
-drive_router.register(r'relations', RelationViewSet, base_name='drive-relation')
+drive_router.register(r'relations', RelationViewSet, basename='drive-relation')
 drive_router.register(r'history', GenericChangeSetViewSet,
-                      base_name='drive-changeset-paginated')
-drive_router.register(r'privileges', ModelPrivilegeViewSet, base_name='drive-privileges')
+                      basename='drive-changeset-paginated')
+drive_router.register(r'privileges', ModelPrivilegeViewSet, basename='drive-privileges')
 
 # register sub view for all sub directories of the drive
-drive_router.register(r'sub_directories', DriveSubDirectoriesViewSet, base_name='drive-sub_directories')
+drive_router.register(r'sub_directories', DriveSubDirectoriesViewSet, basename='drive-sub_directories')
 
 urlpatterns = [
     url(r'^', include(drive_router.urls)),

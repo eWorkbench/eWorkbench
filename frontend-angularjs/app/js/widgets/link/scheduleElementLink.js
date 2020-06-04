@@ -8,7 +8,7 @@
     var module = angular.module('widgets');
 
     /**
-     * Widget that displays a link to edit a schedule element (meeting, task, resource booking).
+     * Widget that displays a link to edit a schedule element (appointment, task, resource booking).
      */
     module.directive('scheduleElementLink', function () {
         'ngInject';

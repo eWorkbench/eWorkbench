@@ -6,12 +6,11 @@ import logging
 
 import os
 from django.conf import settings
-from django.db.models import F, Max, Q, Count
+from django.db.models import F, Max, Q, Count, FloatField
 from django.http import QueryDict, FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.decorators import detail_route
 from rest_framework.exceptions import NotFound
 
 from eric.core.models import disable_permission_checks
@@ -72,7 +71,7 @@ class KanbanBoardViewSet(
 ):
     """ REST API Viewset for Kanban Boards """
     serializer_class = KanbanBoardSerializer
-    filter_class = KanbanBoardFilter
+    filterset_class = KanbanBoardFilter
 
     search_fields = ()
     ordering_fields = ('title', 'created_at', 'created_by', 'last_modified_at', 'last_modified_by')
@@ -108,7 +107,7 @@ class KanbanBoardViewSet(
 
         return HttpResponse(status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['GET'], url_path='background_image.png')
+    @action(detail=True, methods=['GET'], url_path='background_image.png', url_name='background-image.png')
     def download_background_image(self, request, format=None, *args, **kwargs):
         """ Provides a detail route endpoint for downloading the background image """
         # get the picture
@@ -131,7 +130,8 @@ class KanbanBoardViewSet(
 
         return response
 
-    @detail_route(methods=['GET'], url_path='background_image_thumbnail.png')
+    @action(detail=True, methods=['GET'], url_path='background_image_thumbnail.png',
+            url_name='background-image-thumbnail.png')
     def download_background_image_thumbnail(self, request, format=None, *args, **kwargs):
         """ Provides a detail route endpoint for downloading the background image """
         # get the picture
@@ -225,7 +225,9 @@ class KanbanBoardColumnTaskAssignmentViewSet(
         # for each column we need to determine the currently highest ordering, and the expected next ordering
         max_ordering_qs = KanbanBoardColumnTaskAssignment.objects.filter(
             kanban_board_column__kanban_board=self.parent_object
-        ).order_by('kanban_board_column').values('kanban_board_column').annotate(max_ordering=Max('ordering'))
+        ).order_by('kanban_board_column').values('kanban_board_column').annotate(
+            max_ordering=Max('ordering', output_field=FloatField())
+        )
 
         # convert max_ordering_qs into a dict, where the kanban_board_column is the primary key and the index field
         max_ordering = {}
@@ -279,7 +281,7 @@ class KanbanBoardColumnTaskAssignmentViewSet(
             max_ordering = KanbanBoardColumnTaskAssignment.objects.filter(
                 kanban_board_column=column
             ).aggregate(
-                max_ordering=Max('ordering')
+                max_ordering=Max('ordering', output_field=FloatField())
             )['max_ordering']
 
             if max_ordering is None:

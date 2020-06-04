@@ -2,17 +2,14 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import os
 import logging
 
-from django.core.exceptions import ValidationError, PermissionDenied
-from django.db.models.signals import pre_delete, pre_save, post_delete, post_save
+from django.core.exceptions import PermissionDenied
+from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
 
 from eric.core.models import disable_permission_checks
 from eric.projects.models.handlers import check_create_roles_for_other_workbench_elements
-from eric.shared_elements.models import Task
 from eric.kanban_boards.models.models import KanbanBoard, KanbanBoardColumn, KanbanBoardColumnTaskAssignment
 
 logger = logging.getLogger(__name__)

@@ -8,7 +8,7 @@
     var module = angular.module('widgets');
 
     /**
-     * for linking to note, task, meeting, file, contact, project or dmp
+     * for linking to note, task, appointment, file, contact, project or dmp
      */
     module.directive('mainDashboardLink', function () {
         return {

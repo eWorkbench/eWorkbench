@@ -16,7 +16,7 @@ from eric.dmp.tests.core import DmpsMixin
 from eric.labbooks.tests.core import LabBookMixin
 from eric.model_privileges.models import ModelPrivilege
 from eric.pictures.tests.core import PictureMixin
-from eric.projects.models import ElementLock
+from eric.projects.models import ElementLock, Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TestLockMixin
 from eric.shared_elements.models import Task
 from eric.shared_elements.tests.core import ContactMixin, MeetingMixin, NoteMixin, TaskMixin, FileMixin
@@ -66,7 +66,7 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         self.project1 = self.create_project(
             self.token_author,
             "MyProject", "My test project",
-            "INIT",
+            Project.INITIALIZED,
             HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         # assign the users to the project

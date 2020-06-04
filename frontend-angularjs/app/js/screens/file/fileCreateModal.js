@@ -21,7 +21,7 @@
          * Opens the modal dialog
          * @returns {$uibModalInstance}
          */
-        service.open = function (template) {
+        service.open = function (template, projectPks) {
             return $uibModal.open({
                 templateUrl: 'js/screens/file/fileCreateModal.html',
                 controller: 'FileCreateModalController',
@@ -30,6 +30,9 @@
                 resolve: {
                     template: function () {
                         return template;
+                    },
+                    projectPks: function () {
+                        return projectPks;
                     }
                 }
             });
@@ -72,7 +75,9 @@
         gettextCatalog,
         IconImagesService,
         toaster,
-        template
+        // modal service params:
+        template,
+        projectPks
     ) {
         'ngInject';
 
@@ -124,6 +129,10 @@
                 vm.projectPks = vm.file.projects;
             } else {
                 vm.file = {};
+            }
+
+            if (projectPks) {
+                vm.projectPks = projectPks;
             }
         };
 

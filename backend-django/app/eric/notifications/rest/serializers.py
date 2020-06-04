@@ -1,11 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import serializers
 #
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 
 from eric.core.rest.serializers import BaseModelSerializer, PublicUserSerializer
@@ -53,42 +53,12 @@ class NotificationSerializer(BaseModelSerializer):
 
 
 class ScheduledNotificationSerializer(BaseModelSerializer):
-    options = serializers.SerializerMethodField()
-
-    def validate_timedelta_value(self, value):
-        """
-        make sure that the timedelta_value is a positive integer
-        """
-        try:
-            val = int(value)
-            if val < 0:
-                raise serializers.ValidationError(_("Value must be a positive integer"))
-            else:
-                return value
-        except:
-            raise serializers.ValidationError(_("Value must be a positive integer"))
-
-    @staticmethod
-    def get_scheduled_notification(meeting):
-        try:
-            instance = ScheduledNotification.objects.get(object_id=meeting.pk)
-            instance.options = ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_CHOICES
-            serializer = ScheduledNotificationSerializer(instance)
-            return serializer.data
-        except ScheduledNotification.DoesNotExist:
-            return None
-
-    def get_options(self, instance):
-        options = []
-        for value, text in ScheduledNotification.SCHEDULEDNOTIFICATION_TIME_UNIT_CHOICES:
-            options.append({'text': text, 'value': value})
-        return options
-
     class Meta:
         model = ScheduledNotification
         fields = (
-            'scheduled_date_time', 'timedelta_value', 'timedelta_unit', 'content_type', 'object_id',
-            'active', 'processed', 'deleted', 'options',
+            'scheduled_date_time', 'timedelta_value', 'timedelta_unit',
+            'content_type', 'object_id',
+            'active', 'processed', 'deleted',
         )
         # Validators need to be turned off for object_id in order to allow updating this nested serializer (nested in
         # MeetingSerializer),
@@ -98,21 +68,67 @@ class ScheduledNotificationSerializer(BaseModelSerializer):
             'scheduled_date_time': {'required': False},
         }
 
+    def validate_timedelta_value(self, value):
+        try:
+            val = int(value)
+        except ValueError:
+            raise ValidationError(_("Value must be a positive integer"))
+
+        if val < 0:
+            raise ValidationError(_("Value must be a positive integer"))
+
+        return value
+
+    def validate_timedelta_unit(self, unit):
+        valid_units = [unit[0] for unit in ScheduledNotification.TIME_UNIT_CHOICES]
+        if unit not in valid_units:
+            raise ValidationError(_("Invalid time unit"))
+
+        return unit
+
+    @staticmethod
+    def get_scheduled_notification(meeting):
+        try:
+            instance = ScheduledNotification.objects.get(object_id=meeting.pk)
+            instance.options = ScheduledNotification.TIME_UNIT_CHOICES
+            serializer = ScheduledNotificationSerializer(instance)
+            return serializer.data
+        except ScheduledNotification.DoesNotExist:
+            return None
+
     @staticmethod
     def update_or_create_schedulednotification(scheduled_notification, instance):
-        timedelta_value = scheduled_notification['timedelta_value']
-        timedelta_unit = scheduled_notification['timedelta_unit']
+        timedelta_value = scheduled_notification.get('timedelta_value', None)
+        timedelta_unit = scheduled_notification.get('timedelta_unit', None)
 
-        scheduled_date_time = ScheduledNotification.calculate_scheduled_date_time(timedelta_unit,
-                                                                                  timedelta_value,
-                                                                                  instance.date_time_start
-                                                                                  )
+        if not timedelta_value:
+            raise ValidationError({
+                'scheduled_notification_writable': {
+                    'timedelta_value': [
+                        _("Time delta value is required")
+                    ]
+                }
+            })
+
+        if not timedelta_unit:
+            raise ValidationError({
+                'scheduled_notification_writable': {
+                    'timedelta_value': [
+                        _("Time delta unit is required")
+                    ]
+                }
+            })
+
+        scheduled_date_time = ScheduledNotification.calculate_scheduled_date_time(
+            timedelta_unit, timedelta_value, instance.date_time_start
+        )
 
         now = timezone.now()
+        active = scheduled_notification.get('active', False)
 
         # make sure that we are not scheduling a reminder that lies in the past
-        if scheduled_date_time < now:
-            raise serializers.ValidationError({
+        if active and scheduled_date_time < now:
+            raise ValidationError({
                 'scheduled_notification_writable': {
                     'timedelta_value': [
                         _("Reminder lies in the past")
@@ -122,11 +138,13 @@ class ScheduledNotificationSerializer(BaseModelSerializer):
 
         content_type_id = ContentType.objects.get_for_model(instance).pk
 
-        ScheduledNotification.objects.update_or_create(object_id=instance.pk,
-                                                       defaults={
-                                                           'scheduled_date_time': scheduled_date_time,
-                                                           'timedelta_value': timedelta_value,
-                                                           'timedelta_unit': timedelta_unit,
-                                                           'active': scheduled_notification['active'],
-                                                           'content_type_id': content_type_id
-                                                       })
+        ScheduledNotification.objects.update_or_create(
+            object_id=instance.pk,
+            defaults={
+                'scheduled_date_time': scheduled_date_time,
+                'timedelta_value': timedelta_value,
+                'timedelta_unit': timedelta_unit,
+                'active': active,
+                'content_type_id': content_type_id
+            }
+        )

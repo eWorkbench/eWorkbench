@@ -31,7 +31,7 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
             'description': "<p>Some <b>Task</b> Description</p>",
             'project_pks': None,
             'state': Task.TASK_STATE_NEW,
-            'priority': 'HIGH',
+            'priority': Task.TASK_PRIORITY_HIGH,
             'start_date': datetime.now(),
             'due_date': datetime.now()+timedelta(days=1),
             'assigned_user': []
@@ -40,7 +40,7 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
             'description': "Yet Another Test Description",
             'project_pks': None,
             'state': Task.TASK_STATE_NEW,
-            'priority': 'LOW',
+            'priority': Task.TASK_PRIORITY_LOW,
             'start_date': datetime.now(),
             'due_date': datetime.now()+timedelta(hours=1),
             'assigned_user': []
@@ -245,13 +245,15 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
         self.assertEquals(Task.objects.all().count(), 0)
 
         # create project 1
-        response = self.rest_create_project(self.token1, "My Master Project", "Some description", "INIT", HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_create_project(self.token1, "My Master Project", "Some description", Project.INITIALIZED,
+                                            HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded_project1 = json.loads(response.content.decode())
         project1 = Project.objects.filter(pk=decoded_project1['pk']).first()
 
         # create project 2, which is a sub project of project 1
-        response = self.rest_create_project(self.token1, "My Sub Project", "Some description", "INIT", HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_create_project(self.token1, "My Sub Project", "Some description", Project.INITIALIZED,
+                                            HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded_project2 = json.loads(response.content.decode())
         project2 = Project.objects.filter(pk=decoded_project2['pk']).first()

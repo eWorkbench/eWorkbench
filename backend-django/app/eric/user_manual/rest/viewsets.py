@@ -95,7 +95,7 @@ class UserManualHelpTextViewset(
 ):
     """ REST API Viewset for User Manual Help Texts """
     serializer_class = UserManualHelpTextSerializer
-    filter_class = UserManualHelpTextFilter
+    filterset_class = UserManualHelpTextFilter
     search_fields = ('title', )
 
     # disable pagination for this endpoint

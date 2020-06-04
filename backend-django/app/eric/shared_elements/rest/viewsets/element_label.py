@@ -14,7 +14,7 @@ class ElementLabelViewSet(
 ):
     """ REST API ViewSet for Contacts """
     serializer_class = ElementLabelSerializer
-    filter_class = ElementLabelFilter
+    filterset_class = ElementLabelFilter
 
     # disable pagination for this endpoint
     pagination_class = None

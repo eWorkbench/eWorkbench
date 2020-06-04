@@ -33,6 +33,24 @@
                 'OFFEQ': 2,
                 'ITRES': 1
             },
+            'branchLibraryTexts': {
+                'CHEM': gettextCatalog.getString('Chemistry'),
+                'MAIT': gettextCatalog.getString('Mathematics & Informatics'),
+                'MEDIC': gettextCatalog.getString('Medicine'),
+                'PHY': gettextCatalog.getString('Physics'),
+                'SHSCI': gettextCatalog.getString('Sport & Health Sciences'),
+                'MCAMP': gettextCatalog.getString('Main Campus'),
+                'WEIH': gettextCatalog.getString('Weihenstephan')
+            },
+            'branchLibraryOrder': {
+                'CHEM': 7,
+                'MAIT': 6,
+                'MEDIC': 5,
+                'PHY': 4,
+                'SHSCI': 3,
+                'MCAMP': 2,
+                'WEIH': 1
+            },
             'resourceUserAvailabilityImages': {
                 'GLB': 'fa fa-globe',
                 'PRJ': 'fa fa-book',

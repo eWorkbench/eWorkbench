@@ -39,6 +39,7 @@
 
     module.controller('ScheduleScreenHeaderFunctionBarController', function (
         $injector,
+        $rootScope,
         $scope,
         $state,
         $stateParams,
@@ -329,6 +330,11 @@
 
                 vm.selectedResources.push(resource);
             }
+        });
+
+        // remove the resource filters
+        $rootScope.$on("schedule:removeSelectedResources", function () {
+            vm.checkboxSelectedResources = [];
         });
     });
 })();

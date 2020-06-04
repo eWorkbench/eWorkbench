@@ -40,20 +40,20 @@ def convert_text_to_html(input_str):
     input_str = soup.encode_contents(encoding="utf8").decode("utf8")
 
     # convert newlines to line breaks
-    input_str = input_str.replace(u"\n", u"<br/>")
+    input_str = input_str.replace("\n", "<br/>")
 
     return clean_html(input_str, strip_unsafe=True)
 
 
 def convert_html_to_text(input_str):
     # remove all existing newlines
-    input_str = input_str.replace(u"\n", u"")
+    input_str = input_str.replace("\n", "")
 
     # convert line breaks to newlines
-    input_str = input_str.replace(u"<br>", u"\n")
-    input_str = input_str.replace(u"<br/>", u"\n")
-    input_str = input_str.replace(u"<br />", u"\n")
-    input_str = input_str.replace(u"&nbsp;", u" ")
+    input_str = input_str.replace("<br>", "\n")
+    input_str = input_str.replace("<br/>", "\n")
+    input_str = input_str.replace("<br />", "\n")
+    input_str = input_str.replace("&nbsp;", " ")
 
     # strip all html tags
     soup = BeautifulSoup(input_str, "html.parser")

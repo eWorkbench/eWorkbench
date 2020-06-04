@@ -22,6 +22,7 @@
                 ngReadonly: "=",
                 placeholder: "@",
                 resources: "=",
+                error: "<?",
                 maxItems: '=',
                 selectedResourcePk: '='
             }

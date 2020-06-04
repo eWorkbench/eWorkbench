@@ -5,12 +5,14 @@
 import json
 
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
+
 from django.contrib.auth.models import Group
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework import status
+from eric.projects.models import Role, Project
 
-from eric.projects.models import Role
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, MeMixin
 from eric.userprofile.models import UserProfile
 
@@ -81,7 +83,7 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
             {
                 'name': 'Test project',
                 'description': 'Test description',
-                'project_state': 'INIT'
+                'project_state': Project.INITIALIZED
             },
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )

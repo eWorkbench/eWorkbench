@@ -5,7 +5,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.admin import GenericTabularInline
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from eric.core.admin.is_deleteable import DeleteableModelAdmin
 from eric.model_privileges.models import ModelPrivilege

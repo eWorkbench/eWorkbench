@@ -5,24 +5,20 @@
 import json
 from datetime import timedelta
 
-from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
-from django.utils.translation import ugettext_lazy as _
 from django_changeset.models import RevisionModelMixin
-
 from rest_framework import status
 
 from eric.core.models import disable_permission_checks
-from eric.kanban_boards.tests.core import KanbanBoardMixin
-from eric.labbooks.tests.core import LabbookSectionMixin
-
-from eric.projects.models import Project, ProjectRoleUserAssignment, Role
-from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, ChangeSetMixin
-from eric.shared_elements.tests.core import TaskMixin, NoteMixin, ContactMixin, FileMixin
-from eric.shared_elements.models import Task
-from eric.model_privileges.models import ModelPrivilege
 from eric.core.tests import test_utils
+from eric.labbooks.tests.core import LabbookSectionMixin
+from eric.model_privileges.models import ModelPrivilege
+from eric.projects.models import Project, Role
+from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, ChangeSetMixin
+from eric.shared_elements.models import Task
+from eric.shared_elements.tests.core import TaskMixin, NoteMixin, ContactMixin, FileMixin
 
 User = get_user_model()
 
@@ -47,7 +43,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         :return:
         """
         self.student_role = self.create_student_role()
-        self.observer_role = Role.objects.filter(name="Observer").first()
+        self.observer_role = self.create_strict_observer_role()
         self.pm_role = Role.objects.filter(default_role_on_project_create=True).first()
 
         self.user_group = Group.objects.get(name='User')
@@ -88,13 +84,13 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # create two projects
         self.project1 = self.create_project(
             self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", "START",
+            "Only user1 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
         self.project2 = self.create_project(
             self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", "START",
+            "Only user2 has access to this project", Project.STARTED,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
 
@@ -932,6 +928,9 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded_assignment = json.loads(response.content.decode())
 
+        # user1 needs to unlock the element
+        self.rest_generic_unlock_entity(self.token1, element.pk)
+
         # now user2 can see the element, but should not be able to change anything of that element
         # in other words: just being able to see the element does not lead to being able to edit/update the element
         response = self.rest_generic_set_project(self.token2, element.pk, [self.project1.pk, self.project2.pk])
@@ -954,6 +953,9 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # and those two projects should now be available
         self.assertEquals(element.projects.all().count(), 2)
+
+        # user2 needs to unlock the element
+        self.rest_generic_unlock_entity(self.token2, element.pk)
 
         # user1 can try to remove project2 again - but user1 is not a PM in project2, so it should not work
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk])
@@ -1315,13 +1317,8 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         Tests the recently modified by me feature with wrong parameters (non integers)
         :return:
         """
-        response = self.rest_generic_recently_modified_by_me(self.token1, "")
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         response = self.rest_generic_recently_modified_by_me(self.token1, "abc")
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        response = self.rest_generic_recently_modified_by_me(self.token1, "?")
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         response = self.rest_generic_recently_modified_by_me(self.token1, "!")
@@ -1330,7 +1327,8 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         response = self.rest_generic_recently_modified_by_me(self.token1, "#")
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_search(self):
+
+def test_search(self):
         """
         Tests the search functionality of the endpoint, such as full text search aswell as recently modified by me
         :return:

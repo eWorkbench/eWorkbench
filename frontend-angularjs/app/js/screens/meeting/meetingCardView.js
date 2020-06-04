@@ -8,7 +8,7 @@
     var module = angular.module('screens');
 
     /**
-     * Meeting List as cards
+     * Appointment List as cards
      */
     module.component('meetingCardView', {
         templateUrl: 'js/screens/meeting/meetingCardView.html',
@@ -20,7 +20,7 @@
     });
 
     /**
-     * Controller for meeting list as cards
+     * Controller for appointment list as cards
      */
     module.controller('MeetingCardViewController', function () {
         "ngInject";

@@ -33,7 +33,7 @@
         </div>
 
         <!-- html content -->
-        <div ng-switch-when="html_content|description|content|text" ng-switch-when-separator="|"
+        <div ng-switch-when="html_content|description|content|text|notes" ng-switch-when-separator="|"
              style="overflow: auto; max-height: 300px;">
             <html-diff-widget left-obj="change_record.old_value || ''"
                               right-obj="change_record.new_value"></html-diff-widget>

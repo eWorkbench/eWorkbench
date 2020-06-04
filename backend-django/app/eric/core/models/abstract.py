@@ -2,13 +2,14 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from functools import lru_cache
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils.text import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_changeset.models import ChangeSet, ChangesetVersionField
 from django_changeset.models.mixins import CreatedModifiedByMixIn
-from functools import lru_cache
 
 from eric.core.models import BaseModel
 
@@ -32,7 +33,7 @@ class OrderingModelMixin(models.Model):
     ordering = models.PositiveIntegerField(
         default=0,
         db_index=True,
-        verbose_name=_(u"Ordering"),
+        verbose_name=_("Ordering"),
     )
 
 
@@ -53,7 +54,7 @@ class VisibleModelMixin(models.Model):
     visible = models.BooleanField(
         default=True,
         db_index=True,
-        verbose_name=_(u"Whether this entry is visible or not"),
+        verbose_name=_("Whether this entry is visible or not"),
     )
 
 
@@ -97,7 +98,7 @@ class SoftDeleteMixin(models.Model):
     deleted = models.BooleanField(
         default=False,
         db_index=True,
-        verbose_name=_(u"Whether this entry is deleted or not")
+        verbose_name=_("Whether this entry is deleted or not")
     )
 
     def trash(self):
@@ -205,6 +206,16 @@ def get_all_workbench_models(*args):
             workbench_models.append(model)
 
     return workbench_models
+
+
+@lru_cache(maxsize=None, typed=True)
+def get_workbench_models_with_special_permissions():
+    """ Gets all Workbench models that support ModelPrivileges """
+
+    return [
+        model for model in get_all_workbench_models(WorkbenchEntityMixin)
+        if hasattr(model._meta, "can_have_special_permissions") and model._meta.can_have_special_permissions
+    ]
 
 
 @lru_cache(maxsize=None, typed=True)

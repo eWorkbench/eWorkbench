@@ -38,20 +38,20 @@
             vm.enabledNotificationsObject = [];
 
             /**
-             * for Meetings: includes all elements for display
+             * for Appointments: includes all elements for display
              */
             vm.notificationConfigurationMeetings = {
                 'NOTIFICATION_CONF_MEETING_USER_CHANGED': {
                     'label': gettextCatalog.getString("Notify me when I was added or removed as an attending user of " +
-                        "a meeting."),
+                        "an appointment."),
                     'enabled': false
                 },
                 'NOTIFICATION_CONF_MEETING_CHANGED': {
-                    'label': gettextCatalog.getString("Notify me when one of my meetings was changed."),
+                    'label': gettextCatalog.getString("Notify me when one of my appointments was changed."),
                     'enabled': false
                 },
                 'NOTIFICATION_CONF_MEETING_RELATION_CHANGED': {
-                    'label': gettextCatalog.getString("Notify me when a link/comment was added to one of my meetings."),
+                    'label': gettextCatalog.getString("Notify me when a link/comment was added to one of my appointments."),
                     'enabled': false
                 },
                 'NOTIFICATION_CONF_MEETING_REMINDER': {
@@ -94,7 +94,7 @@
             };
 
             /**
-             * Whether or not all meeting notifications are selected
+             * Whether or not all appointment notifications are selected
              * @type {boolean}
              */
             vm.allMeetingsSelected = false;
@@ -177,14 +177,14 @@
         var setConfigurationNotificationFlag = function () {
             var meeting_keys = Object.keys(vm.notificationConfigurationMeetings);
 
-            // Meetings
+            // Appointments
             vm.allMeetingsSelected = true;
             for (var i = 0; i < meeting_keys.length; i++) {
                 if (vm.enabledNotificationsObject.allowed_notifications.indexOf(meeting_keys[i]) >= 0) {
                     vm.notificationConfigurationMeetings[meeting_keys[i]].enabled = true;
                 } else {
                     vm.notificationConfigurationMeetings[meeting_keys[i]].enabled = false;
-                    // at least one meeting notification is unselected - change allMeetingsSelected to false
+                    // at least one appointment notification is unselected - change allMeetingsSelected to false
                     vm.allMeetingsSelected = false;
                 }
             }
@@ -223,7 +223,7 @@
          * @returns {Array}
          */
         var getAllEnabledConfigurations = function () {
-            //Meetings
+            //Appointments
             var meeting_keys = Object.keys(vm.notificationConfigurationMeetings),
                 enabledNotifications = [],
                 i = 0;
@@ -297,8 +297,8 @@
 
 
         /**
-         * triggered when user toggles the 'select/unselect all meetings' checkbox
-         * selects or unselects all meeting notifications
+         * triggered when user toggles the 'select/unselect all appointments' checkbox
+         * selects or unselects all appointment notifications
          */
         vm.toggleAllMeetings = function () {
             vm.allMeetingsSelected = !vm.allMeetingsSelected;
@@ -313,7 +313,7 @@
         };
 
         /**
-         * triggered when a meeting notification was selected/unselected
+         * triggered when a appointment notification was selected/unselected
          * change vm.allMeetingsSelected to false when at least one notification is unselected
          * change vm.allMeetingsSelected to true when all notifications are selected
          * @param notification

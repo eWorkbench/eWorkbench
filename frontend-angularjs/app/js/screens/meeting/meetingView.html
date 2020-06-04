@@ -4,15 +4,15 @@
             <i class="{{:: vm.meetingIcon }}"></i> {{ vm.meeting.title }}
         </div>
         <generic-detail-view-menu-widget
-            ng-if="!vm.readOnly"
-            base-model="vm.meeting"
-            base-url-model="meetings"
-            has-trash="true"
-            has-export="true"
-            has-restore="true"
-            has-privileges="true"
-            has-new-element="true"
-            has-duplicate="true"></generic-detail-view-menu-widget>
+                ng-if="!vm.readOnly"
+                base-model="vm.meeting"
+                base-url-model="meetings"
+                has-trash="true"
+                has-export="true"
+                has-restore="true"
+                has-privileges="true"
+                has-new-element="true"
+                has-duplicate="true"></generic-detail-view-menu-widget>
     </div>
     <div class="panel-body">
         <generic-show-element-state-widget base-model="vm.meeting"
@@ -26,19 +26,19 @@
         <div class="row">
             <div class="form-horizontal" name="editMeetingForm">
                 <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
-                    <!-- Meeting title -->
+                    <!-- Appointment title -->
                     <div class="form-group">
                         <label class="col-sm-2 col-md-3" for="meeting_title" translate
-                            title="{{ 'mandatory field' | translate }}">
+                               title="{{ 'mandatory field' | translate }}">
                             Title *
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.saveMeetingPartial('title', ngModel)"
-                                on-save-multiple="vm.saveMeeting()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.meeting.title">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingPartial('title', ngModel)"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.meeting.title">
                                 <ng-include src="'js/screens/meeting/meetingForm.title.html'"></ng-include>
                             </editable-select-list>
                         </div>
@@ -51,14 +51,14 @@
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.saveMeetingDates()"
-                                on-save-multiple="vm.saveMeeting()"
-                                on-abort="vm.resetMeetingDates()"
-                                compare-mode="date"
-                                compare-mode-date-granularity="minutes"
-                                ng-model="vm.meeting"
-                                ng-model-fields="date_time_start,date_time_end">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingDates()"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetMeetingDates()"
+                                    compare-mode="date"
+                                    compare-mode-date-granularity="minutes"
+                                    ng-model="vm.meeting"
+                                    ng-model-fields="date_time_start,date_time_end">
                                 <div>
                                     <div style="width: 130px; float: left">
                                         <ng-include src="'js/screens/meeting/meetingForm.startDate.html'"></ng-include>
@@ -84,11 +84,11 @@
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.saveMeetingPartial('location', ngModel)"
-                                on-save-multiple="vm.saveMeeting()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.meeting.location">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingPartial('location', ngModel)"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.meeting.location">
                                 <ng-include src="'js/screens/meeting/meetingForm.location.html'"></ng-include>
                             </editable-select-list>
                         </div>
@@ -101,11 +101,11 @@
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.saveMeetingPartial('resource_pk', ngModel)"
-                                on-save-multiple="vm.saveMeeting()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.meeting.resource_pk">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingPartial('resource_pk', ngModel)"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.meeting.resource_pk">
                                 <ng-include src="'js/screens/meeting/meetingForm.resource.html'"></ng-include>
                             </editable-select-list>
                         </div>
@@ -118,12 +118,12 @@
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.saveMeetingPartial('attending_users_pk', ngModel)"
-                                on-save-multiple="vm.saveMeeting()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.attendingUsersPk"
-                                compare-mode="array">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingPartial('attending_users_pk', ngModel)"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.attendingUsersPk"
+                                    compare-mode="array">
                                 <ng-include src="'js/screens/meeting/meetingForm.attendingUsers.html'"></ng-include>
                             </editable-select-list>
                         </div>
@@ -136,12 +136,12 @@
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.saveMeetingPartial('attending_contacts_pk', ngModel)"
-                                on-save-multiple="vm.saveMeeting()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.attendingContactsPk"
-                                compare-mode="array">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingPartial('attending_contacts_pk', ngModel)"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.attendingContactsPk"
+                                    compare-mode="array">
                                 <ng-include src="'js/screens/meeting/meetingForm.attendingContacts.html'"></ng-include>
                             </editable-select-list>
                         </div>
@@ -151,18 +151,15 @@
                     <div class="form-group">
                         <label class="col-sm-2 col-md-3" for="meeting_text">
                             <span translate>Description</span>
-                            <!-- choose Template -->
-                            <text-template-widget ng-hide="vm.isReadOnly()"
-                                                  override-object-attribute="vm.meeting.text"></text-template-widget>
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                compare-mode="html"
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.saveMeetingPartial('text', ngModel)"
-                                on-save-multiple="vm.saveMeeting()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.meeting.text">
+                                    compare-mode="html"
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingPartial('text', ngModel)"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.meeting.text">
                                 <ng-include src="'js/screens/meeting/meetingForm.text.html'"></ng-include>
                             </editable-select-list>
                         </div>
@@ -170,13 +167,13 @@
 
                     <!-- Metadata -->
                     <metadata-fields-widget
-                        base-model="vm.meeting"
-                        base-url-model="meeting"
-                        read-only="vm.isReadOnly()"
-                        on-save="vm.saveMeetingPartial('metadata', vm.meeting.metadata)"
-                        on-save-multiple="vm.saveMeeting()"
-                        on-abort="vm.resetErrors()"
-                        metadata="vm.meeting.metadata">
+                            base-model="vm.meeting"
+                            base-url-model="meeting"
+                            read-only="vm.isReadOnly()"
+                            on-save="vm.saveMeetingPartial('metadata', vm.meeting.metadata)"
+                            on-save-multiple="vm.saveMeeting()"
+                            on-abort="vm.resetErrors()"
+                            metadata="vm.meeting.metadata">
                     </metadata-fields-widget>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
@@ -189,22 +186,22 @@
                         </label>
                         <div class="col-sm-9" style="text-align: left">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.saveMeetingPartial('projects', ngModel)"
-                                on-save-multiple="vm.saveMeeting()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.projectPks"
-                                compare-mode="array">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.saveMeetingPartial('projects', ngModel)"
+                                    on-save-multiple="vm.saveMeeting()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.projectPks"
+                                    compare-mode="array">
                                 <ng-include src="'js/screens/meeting/meetingForm.projects.html'"></ng-include>
                             </editable-select-list>
                         </div>
                     </div>
                     <!-- notification schedule -->
                     <div class="form-group">
-                        <label class="col-sm-2 col-md-3" for="meeting_project" translate>
+                        <label class="col-sm-2 col-md-3" for="meeting_reminder" translate>
                             Reminder
                         </label>
-                        <div class="col-sm-9" style="text-align: left">
+                        <div class="col-sm-9" style="text-align:left">
                             <editable-select-list
                                     edit-disabled="vm.isReadOnly()"
                                     on-save="vm.saveMeetingPartial('scheduled_notification_writable', ngModel)"
@@ -212,7 +209,9 @@
                                     on-abort="vm.resetErrors()"
                                     ng-model="vm.meeting.scheduled_notification_writable"
                                     compare-mode="scheduledNotification">
-                                <ng-include src="'js/screens/meeting/meetingForm.reminder.html'"></ng-include>
+                                <meeting-reminder-widget meeting="vm.meeting" errors="vm.errors"
+                                                         read-only="vm.isReadOnly()">
+                                </meeting-reminder-widget>
                             </editable-select-list>
                         </div>
                     </div>

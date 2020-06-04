@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils.timezone import timedelta
 from django.utils import timezone
 from django.core.management.base import BaseCommand
-from eric.projects.models import ResourceBooking
+from eric.shared_elements.models import Meeting
 from django.utils.timezone import localtime
 
 
@@ -27,7 +27,7 @@ class Command(BaseCommand):
 
         resource_id = options['resource_id']
         if resource_id:
-            booking_objects = ResourceBooking.objects.filter(
+            booking_objects = Meeting.objects.filter(
                 Q(
                     # filter for resource by pk
                     # and the date_time_start must be within the range between start_date_time and end_date_time
@@ -43,7 +43,7 @@ class Command(BaseCommand):
                 )).order_by('date_time_start')
 
             # write the csv file into the app dir (next to manage.py)
-            filename = 'resourcebooking-example-export-{}.csv'.format(start_date_time.strftime('%Y-%m-%d'))
+            filename = 'appointment-resource-booking-example-export-{}.csv'.format(start_date_time.strftime('%Y-%m-%d'))
             with open(filename, 'w', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 # the first row has the headlines

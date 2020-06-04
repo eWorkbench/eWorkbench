@@ -81,6 +81,7 @@
                     "academic_title": gettextCatalog.getString("Academic title"),
                     "first_name": gettextCatalog.getString("Firstname"),
                     "last_name": gettextCatalog.getString("Lastname"),
+                    "notes": gettextCatalog.getString("Notes"),
                     "metadata": gettextCatalog.getString("Metadata")
                 }
             },
@@ -106,8 +107,8 @@
             },
             'shared_elements.meeting': {
                 'modelName': 'meeting',
-                'translation': gettextCatalog.getString("Meeting"),
-                'translationPlural': gettextCatalog.getString("Meetings"),
+                'translation': gettextCatalog.getString("Appointment"),
+                'translationPlural': gettextCatalog.getString("Appointments"),
                 'icon': 'fa fa-calendar',
                 'relatable': true,
                 'exportable': true,

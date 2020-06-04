@@ -8,6 +8,9 @@ from __future__ import unicode_literals
 from django.db import migrations
 from django_changeset.models import RevisionModelMixin
 
+CANCEL = 'CANCE'
+DELETED = 'DEL'
+
 
 def change_project_state_from_deleted_to_cancel(apps, schema_editor):
     RevisionModelMixin.set_enabled(False)
@@ -15,7 +18,7 @@ def change_project_state_from_deleted_to_cancel(apps, schema_editor):
 
     Project = apps.get_model('projects', 'Project')
 
-    Project.objects.filter(project_state='DEL').update(project_state='CANCE', deleted=True)
+    Project.objects.filter(project_state=DELETED).update(project_state=CANCEL, deleted=True)
 
     RevisionModelMixin.set_enabled(True)
 

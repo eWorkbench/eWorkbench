@@ -20,25 +20,25 @@ from eric.labbooks.rest.viewsets import LabBookViewSet, LabBookChildElementViewS
 router = get_api_router()
 
 
-router.register(r'labbooks', LabBookViewSet, base_name='labbook')
+router.register(r'labbooks', LabBookViewSet, basename='labbook')
 
 labbook_router = routers.NestedSimpleRouter(router, r'labbooks', lookup='labbook')
-labbook_router.register(r'relations', RelationViewSet, base_name='labbook-relation')
+labbook_router.register(r'relations', RelationViewSet, basename='labbook-relation')
 labbook_router.register(r'history', GenericChangeSetViewSet,
-                        base_name='labbook-changeset-paginated')
-labbook_router.register(r'privileges', ModelPrivilegeViewSet, base_name='labbook-privileges')
+                        basename='labbook-changeset-paginated')
+labbook_router.register(r'privileges', ModelPrivilegeViewSet, basename='labbook-privileges')
 
 # register sub view for all child-elements of the labbook
-labbook_router.register(r'elements', LabBookChildElementViewSet, base_name='labbook-elements')
+labbook_router.register(r'elements', LabBookChildElementViewSet, basename='labbook-elements')
 
 
 # LabbookSection
-router.register(r'labbooksections', LabbookSectionViewSet, base_name='labbooksection')
+router.register(r'labbooksections', LabbookSectionViewSet, basename='labbooksection')
 
 labbooksection_router = routers.NestedSimpleRouter(router, r'labbooksections', lookup='labbooksection')
-labbooksection_router.register(r'relations', RelationViewSet, base_name='labbooksection-relation')
-labbooksection_router.register(r'history', GenericChangeSetViewSet, base_name='labbooksection-changeset-paginated')
-labbooksection_router.register(r'privileges', ModelPrivilegeViewSet, base_name='labbooksection-privileges')
+labbooksection_router.register(r'relations', RelationViewSet, basename='labbooksection-relation')
+labbooksection_router.register(r'history', GenericChangeSetViewSet, basename='labbooksection-changeset-paginated')
+labbooksection_router.register(r'privileges', ModelPrivilegeViewSet, basename='labbooksection-privileges')
 
 urlpatterns = [
     url(r'^', include(labbook_router.urls)),

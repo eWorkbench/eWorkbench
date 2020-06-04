@@ -7,7 +7,7 @@
 
         <validated-form-element     id="input_new_relation_meeting_title"
                                     input-element="text" field-name="title"
-                                    placeholder="{{ 'Title of the meeting' | translate }}"
+                                    placeholder="{{ 'Title of the appointment' | translate }}"
                                     ng-model="vm.modelObject.title"  errors="vm.errors['title']">
         </validated-form-element>
     </div>
@@ -21,7 +21,7 @@
 
         <validated-form-element     id="input_new_relation_meeting_text"
                                     input-element="textarea" field-name="text"
-                                    placeholder="{{ 'Text of the meeting' | translate }}" rows="3"
+                                    placeholder="{{ 'Text of the appointment' | translate }}" rows="3"
                                     ng-model="vm.modelObject.text"  errors="vm.errors['text']">
         </validated-form-element>
     </div>
@@ -35,7 +35,7 @@
 
         <validated-form-element id="input_new_relation_meeting_start_date"
                                 input-element="date" field-name="start_date"
-                                placeholder="{{ 'Start date and time for the meeting' | translate }}"
+                                placeholder="{{ 'Start date and time for the appointment' | translate }}"
                                 ng-model="vm.modelObject.date_time_start"
                                 date-picker-options="vm.datePickerOptions"
                                 errors="vm.errors['date_time_start']">
@@ -51,7 +51,7 @@
 
         <validated-form-element id="input_new_relation_meeting_end_date"
                                 input-element="date" field-name="end_date"
-                                placeholder="{{ 'End date and time for the meeting' | translate }}"
+                                placeholder="{{ 'End date and time for the appointment' | translate }}"
                                 ng-model="vm.modelObject.date_time_end"
                                 date-picker-options="vm.datePickerOptions"
                                 errors="vm.errors['date_time_end']">

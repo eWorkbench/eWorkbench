@@ -1,6 +1,6 @@
 <div class="card-panel element-panel">
     <screen-header-function-bar
-        screen-new-entity="{{ 'New Meeting' | translate }}"
+        screen-new-entity="{{ 'New Appointment' | translate }}"
         screen-new-entity-type="meeting"
         card-view-title="{{ 'Card View' | translate }}"
         selected-projects="vm.selectedProjects"
@@ -8,14 +8,14 @@
         users="vm.users"
         current-view="vm.currentView" search-field="vm.searchField">
         <screen-title>
-            <span translate>Meetings</span>
+            <span translate>Appointments</span>
         </screen-title>
     </screen-header-function-bar>
 </div>
 
 <generic-list-loading-widget
     loading-flag="vm.meetingsLoaded"
-    loading-text="Meetings">
+    loading-text="Appointments">
 </generic-list-loading-widget>
 
 <div class="card-panel" ng-if="vm.currentView == 'list' && vm.meetingsLoaded">

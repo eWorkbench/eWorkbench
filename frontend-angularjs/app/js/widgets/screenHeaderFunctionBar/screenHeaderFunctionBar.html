@@ -11,7 +11,7 @@
             {{ vm.screenNewEntity }}
         </a>
     </div>
-    <div class="col-xs-12 col-sm-9 col-md-9 col-lg-7">
+    <div class="col-xs-12 col-sm-9 col-md-9 col-lg-6">
         <div class="form-horizontal" style="margin-top: 5px">
             <div class="row">
                 <div class="col-xs-6 col-sm-3 col-md-3" ng-if="vm.showProjectField">
@@ -48,12 +48,12 @@
         </div>
     </div>
     <!-- Display a "New" button aswell as list view vs. card view -->
-    <div class="hidden-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 text-right">
+    <div class="hidden-xs col-xs-12 col-sm-6 col-md-4 col-lg-4 text-right">
         <screen-header-function-bar-view-button
             ng-if="vm.showViewField"
             current-view="vm.currentView"
             title="vm.listViewTitle"
-            text-title="{{::'List View' | translate}}"
+            text-title="{{ ::'List View' | translate }}"
             view-name="list"
             icon-class="fa-th-list">
         </screen-header-function-bar-view-button>
@@ -62,7 +62,7 @@
             ng-if="vm.showViewField"
             current-view="vm.currentView"
             title="vm.cardViewTitle"
-            text-title="{{::'Card View' | translate}}"
+            text-title="{{ ::'Card View' | translate }}"
             view-name="card"
             icon-class="fa-th">
         </screen-header-function-bar-view-button>
@@ -85,6 +85,9 @@
                 <i class="fa fa-trash" aria-hidden="true"></i>
                 <span translate>Show</span>
             </button>
+        </div>
+
+        <div ng-transclude="additionalButtons" class="pull-right trashed-button">
         </div>
     </div>
 </div>
