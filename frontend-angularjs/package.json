@@ -61,7 +61,7 @@
     "tough-cookie": "^2.4.3"
   },
   "dependencies": {
-    "angular": "~1.7.8",
+    "angular": "~1.8.0",
     "angular-animate": "~1.7.8",
     "angular-anx-bootstrap-grid-tree": "git+https://github.com/anx-ckreuzberger/tree-grid-directive.git#0.5.1",
     "angular-bootstrap-colorpicker": "^3.0.32",
