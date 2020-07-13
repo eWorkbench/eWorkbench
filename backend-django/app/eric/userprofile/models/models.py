@@ -2,9 +2,9 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+import os
 from uuid import uuid4
 
-import os
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -54,12 +54,12 @@ class UserProfile(BaseModel):
     # app/eric/projects/migrations/0079_create_user_email_uppercase_index.py
     first_name = models.CharField(
         max_length=128,
-        verbose_name=_('first name'),
+        verbose_name=_('First name'),
         blank=True
     )
     last_name = models.CharField(
         max_length=128,
-        verbose_name=_('last name'),
+        verbose_name=_('Last name'),
         blank=True
     )
     anonymized = models.BooleanField(
@@ -72,7 +72,7 @@ class UserProfile(BaseModel):
         blank=True
     )
     additional_information = models.TextField(
-        verbose_name=_("Additional informations of the user"),
+        verbose_name=_("Additional information about the user"),
         blank=True
     )
     country = models.CharField(
@@ -81,45 +81,35 @@ class UserProfile(BaseModel):
         blank=True
     )
     email_others = ArrayField(
-        models.EmailField(
-            max_length=128,
-            blank=True),
+        models.EmailField(max_length=128, blank=True),
         default=list,
         blank=True,
         null=True,
         verbose_name=_("Other E-mail addresses of the user")
     )
     org_zug_mitarbeiter = ArrayField(
-        models.CharField(
-            max_length=128,
-            blank=True),
+        models.CharField(max_length=128, blank=True),
         default=list,
         blank=True,
         null=True,
         verbose_name=_("Which organisation this user belongs to (if the user is an employee)")
     )
     org_zug_mitarbeiter_lang = ArrayField(
-        models.CharField(
-            max_length=256,
-            blank=True),
+        models.CharField(max_length=256, blank=True),
         default=list,
         blank=True,
         null=True,
         verbose_name=_("org_zug_mitarbeiter_lang")
     )
     org_zug_student = ArrayField(
-        models.CharField(
-            max_length=128,
-            blank=True),
+        models.CharField(max_length=128, blank=True),
         default=list,
         blank=True,
         null=True,
         verbose_name=_("Which organization this user belongs to (if the user is a student)")
     )
     org_zug_student_lang = ArrayField(
-        models.CharField(
-            max_length=256,
-            blank=True),
+        models.CharField(max_length=256, blank=True),
         default=list,
         blank=True,
         null=True,
@@ -175,6 +165,7 @@ class UserProfile(BaseModel):
         blank=True,
         editable=False
     )
+
     website = models.URLField(
         verbose_name=_("URL of the User"),
         null=True,

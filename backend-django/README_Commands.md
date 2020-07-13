@@ -2,6 +2,53 @@
 
 # eRIC Workbench Backend - Commands
 
+## Usage statistics
+The `wbstats` command prints various usage metrics as TSV (tab separated values). 
+
+Command for production environments (without Docker):
+```bash
+python manage.py wbstats
+```
+
+The output can be piped into a file that can be read with programs like LibreOffice Calc or Microsoft Excel:
+```bash
+python manage.py wbstats > wbstats_$(date +%F_%H-%M).tsv
+```
+
+
+Command for development environments:
+```bash
+docker-compose run --rm python python manage.py wbstats
+```
+
+## Re-Generate Full Text Search Database
+When FTS templates are modified this command can be executed to update all FTS indexes. 
+```bash
+docker-compose run --rm python python manage.py ftsrebuild
+```
+
+## Invalidate the project cache
+Projects are cached in memory and the cache is invalidated automatically when there are changes.
+When the server is restarted it can be useful to invalidate the project cache manually using the following command:
+```bash
+docker-compose run --rm python python manage.py invalidate_project_cache
+```
+
+## Fixing Permission Labels
+If you update the labels/titles of a custom model permission, you need to run the following command:
+```bash
+docker-compose run --rm python python manage.py fixpermissionlabels
+```
+
+## Sync Menu Entries
+When new menu entries are added or existing entries are removed, the sortable menu needs to be synced for all existing
+users. The following command does this for you:
+```bash
+docker-compose run --rm python python manage.py sync_sortable_menu
+``` 
+
+## Built-in Framework Commands
+
 ## Creating a new app
 There is a ``django_app_template.tar.gz`` which contains an app template that you can use with the following command:
 ```bash
@@ -30,27 +77,9 @@ Tests are run using djangos testrunter:
 docker-compose run --rm python python manage.py test
 ```
 
-## Re-Generate Full Text Search Database
-```bash
-docker-compose run --rm python python manage.py ftsrebuild
-```
-
-## Fixing Permission Labels
-If you update the labels/titles of a custom model permission, you need to run the following command:
-```bash
-docker-compose run --rm python python manage.py fixpermissionlabels
-```
-
 ## Install/Upgrade Python Requirements
 ```bash
 docker-compose run --rm python pip install -r requirements.txt --upgrade
-```
-
-## Invalidate the project cache
-Projects are cached in memory and the cache is invalidated automatically when there are changes.
-When the server is restarted it can be useful to invalidate the project cache manually using the following command:
-```bash
-docker-compose run --rm python python manage.py invalidate_project_cache
 ```
 
 ## Backups

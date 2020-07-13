@@ -17,12 +17,12 @@ class HelperMixin:
 
     def set_model_privilege_for_user(
         self, token, endpoint, model, pk, user,
-        full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        view_privilege=ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        edit_privilege=ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        delete_privilege=ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        trash_privilege=ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        restore_privilege=ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL):
+        full_access_privilege=ModelPrivilege.NEUTRAL,
+        view_privilege=ModelPrivilege.NEUTRAL,
+        edit_privilege=ModelPrivilege.NEUTRAL,
+        delete_privilege=ModelPrivilege.NEUTRAL,
+        trash_privilege=ModelPrivilege.NEUTRAL,
+        restore_privilege=ModelPrivilege.NEUTRAL):
         response = self.rest_create_privilege(
             auth_token=token,
             model=endpoint,

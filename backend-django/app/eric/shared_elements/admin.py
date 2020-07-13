@@ -9,10 +9,10 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
-from eric.model_privileges.admin import ModelPrivilegeInline
+from eric.model_privileges.admin import ModelPrivilegeInline, ReadOnlyModelPrivilegeInline
 from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin
 from eric.shared_elements.models import Contact, Note, Meeting, Task, TaskAssignedUser, File, \
-    UploadedFileEntry, UserAttendsMeeting, ContactAttendsMeeting, TaskCheckList
+    UploadedFileEntry, UserAttendsMeeting, ContactAttendsMeeting, TaskCheckList, CalendarAccess
 
 User = get_user_model()
 
@@ -225,3 +225,23 @@ class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         ContactAttendsMeetingInline,
         ModelPrivilegeInline,
     )
+
+
+@admin.register(CalendarAccess)
+class CalendarAccessAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    list_display = (
+        'created_by',
+        'created_at',
+    )
+    search_fields = (
+        "created_by__username",
+        "created_by__email",
+    )
+
+    # using the read-only model privilege inline here
+    inlines = (ReadOnlyModelPrivilegeInline,)
+
+    # adding new instances should be disabled for this model as the created_by field would be the superuser,
+    # but we need the created_by field to be the owner of the calendar
+    def has_add_permission(self, request, obj=None):
+        return False

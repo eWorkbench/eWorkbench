@@ -3,23 +3,57 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
-import os
 import logging
+import os
 from datetime import timedelta
 
 from django.db.models.signals import post_delete, pre_save, post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
+from django_rest_multitokenauth.signals import post_auth
+from django_userforeignkey.request import get_current_request
+
 from eric.base64_image_extraction.utils import convert_text_with_base64_images_to_file_references
 from eric.core.tests import custom_json_handler
+from eric.model_privileges.models import ModelPrivilege
 from eric.ms_office_handling.models.handlers import OFFICE_TEMP_FILE_PREFIX
-from eric.shared_elements.models import File, Meeting, Note, Task, UploadedFileEntry
+from eric.shared_elements.models import File, Meeting, Note, Task, UploadedFileEntry, CalendarAccess
 from eric.versions.models import Version
-from django.utils.translation import ugettext_lazy as _
-from time import sleep
-
 
 logger = logging.getLogger('eric.shared_elements.models.handlers')
+
+
+@receiver(post_auth)
+def auto_create_calendar_access_privileges(sender, user, *args, **kwargs):
+    """
+    On post_auth, automatically create the calendar access privileges (if the user does not have any) and give
+    the user full_access_privilege for his calendar.
+    This is needed so new users get to have the Calendar Access Privileges. There is also a migration operation that
+    does the same for existing users, but that won't work for users that come after the migration.
+    :param sender:
+    :param user:
+    :param args:
+    :param kwargs:
+    :return:
+    """
+
+    # set current requests user (as during auth, that user is not set yet)
+    request = get_current_request()
+    if request and (not hasattr(request, 'user') or request.user.is_anonymous):
+        request.user = user
+
+    if CalendarAccess.objects.viewable().count() == 0:
+        # no CalendarAccess found, so lets create one
+        new_privilege = CalendarAccess.objects.create()
+        # let's also give the user full_access privileges
+        perm = ModelPrivilege(
+            user=user,
+            full_access_privilege=ModelPrivilege.ALLOW,
+            content_type=CalendarAccess.get_content_type(),
+            object_id=new_privilege.pk
+        )
+        perm.save()
 
 
 @receiver(post_delete)

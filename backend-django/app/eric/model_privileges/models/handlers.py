@@ -7,9 +7,8 @@ import logging
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db.models.signals import post_save, pre_save, pre_delete, post_delete
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import gettext_lazy as _
-
+from django.utils.translation import ugettext_lazy as _
 from django_userforeignkey.request import get_current_user
 
 from eric.core.models import permission_checks_disabled
@@ -61,7 +60,7 @@ def check_model_privileges(instance, *args, **kwargs):
             content_type=instance.content_type,
             object_id=instance.object_id,
             user=user,
-            full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+            full_access_privilege=ModelPrivilege.ALLOW,
     ).exists():
         raise PermissionDenied
 
@@ -78,13 +77,13 @@ def disallow_change_of_last_full_access_privilege(instance, *args, **kwargs):
     if not existing_model_privilege:
         return
 
-    if existing_model_privilege.full_access_privilege != ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
+    if existing_model_privilege.full_access_privilege != ModelPrivilege.ALLOW:
         return
 
     if ModelPrivilege.objects.exclude(id=instance.id).filter(
             content_type=instance.content_type,
             object_id=instance.object_id,
-            full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            full_access_privilege=ModelPrivilege.ALLOW
     ).count() > 0:
         # someone else is owner -> okay
         return
@@ -109,16 +108,20 @@ def disallow_delete_of_last_full_access_privilege(instance, *args, **kwargs):
         return
 
     # allow deleting model privilege if the underlying content object has already been soft deleted
-    if instance.content_object.deleted:
-        return
+    # CalendarAccess has no attribute 'deleted', so we except the AttributeError and just log it here
+    try:
+        if instance.content_object.deleted:
+            return
+    except AttributeError as error:
+        logger.info("In disallow_delete_of_last_full_access_privilege: {}".format(error))
 
-    if instance.full_access_privilege != ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
+    if instance.full_access_privilege != ModelPrivilege.ALLOW:
         return
 
     if ModelPrivilege.objects.exclude(id=instance.id).filter(
             content_type=instance.content_type,
             object_id=instance.object_id,
-            full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            full_access_privilege=ModelPrivilege.ALLOW
     ).count() > 0:
         # someone else is owner -> okay
         return
@@ -162,6 +165,6 @@ def auto_create_owner_entity_permission(instance, created, *args, **kwargs):
     # now can_have_special_permissions = True, and we need to create the assignment
     ModelPrivilege.objects.create(
         user=current_user,
-        full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+        full_access_privilege=ModelPrivilege.ALLOW,
         content_object=instance
     )

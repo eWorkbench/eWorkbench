@@ -25,6 +25,7 @@ from django.utils.timezone import datetime, timedelta
 from django.utils.timezone import localtime, localdate
 from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
+from django_changeset.models.mixins import CreatedModifiedByMixIn
 from django_cleanhtmlfield.fields import HTMLField
 from django_userforeignkey.request import get_current_user
 
@@ -41,7 +42,7 @@ from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
 from eric.shared_elements.models.managers import ContactManager, NoteManager, FileManager, TaskManager, \
     TaskAssignedUserManager, TaskCheckListManager, MeetingManager, UserAttendsMeetingManager, \
-    ContactAttendsMeetingManager, ElementLabelManager
+    ContactAttendsMeetingManager, ElementLabelManager, CalendarAccessManager
 
 METADATA_VERSION_KEY = "metadata_version"
 UNHANDLED_VERSION_ERROR = NotImplementedError("Unhandled metadata version")
@@ -1973,3 +1974,30 @@ class ElementLabel(BaseModel, RevisionModelMixin, ChangeSetMixIn):
 
     def __str__(self):
         return self.name
+
+
+class CalendarAccess(BaseModel, CreatedModifiedByMixIn, ModelPrivilegeMixIn, WorkbenchEntityMixin):
+    """
+    We are using the created_by field coming from the CreatedModifiedByMixIn to identify the owner of the Calendar.
+    This could be rewritten to use a OneToOne field to the User model in the future.
+    """
+
+    objects = CalendarAccessManager()
+
+    class Meta:
+        verbose_name = _("Calendar Access Privilege")
+        verbose_name_plural = _("Calendar Access Privileges")
+        ordering = ('created_by',)
+
+        def get_default_serializer(*args, **kwargs):
+            from eric.shared_elements.rest.serializers import CalendarAccessSerializer
+            return CalendarAccessSerializer
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    def __str__(self):
+        return _("Access for the Calendar of User {created_by}").format(created_by=self.created_by.username)

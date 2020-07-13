@@ -40,7 +40,7 @@ class CollectionTest(APITestCase, UserMixin, UserAttendsMeetingMixin, Authentica
 
         # Meeting where user1 is CREATOR/ORGANIZER
         self.meeting_created_by_user1, response = self.create_meeting_orm(
-            auth_token=token1, project_pk=None, title='Meeting created by user1',
+            auth_token=token1, project_pk=None, title='Appointment created by user1',
             description='', start_date=now(), end_date=now(),
             **COMMON_DATA
         )
@@ -48,7 +48,7 @@ class CollectionTest(APITestCase, UserMixin, UserAttendsMeetingMixin, Authentica
 
         # Meeting where user1 is ATTENDING
         self.meeting_where_user1_is_attending, response = self.create_meeting_orm(
-            auth_token=token2, project_pk=None, title='Meeting where user1 is attending',
+            auth_token=token2, project_pk=None, title='Appointment where user1 is attending',
             description='', start_date=now(), end_date=now(),
             attending_users=[user1.pk],
             **COMMON_DATA
@@ -57,7 +57,7 @@ class CollectionTest(APITestCase, UserMixin, UserAttendsMeetingMixin, Authentica
 
         # Meeting that is not linked to user1
         self.meeting_not_linked_to_user1, response = self.create_meeting_orm(
-            auth_token=token2, project_pk=None, title='Meeting that is not linked to user1',
+            auth_token=token2, project_pk=None, title='Appointment that is not linked to user1',
             description='', start_date=now(), end_date=now(),
             **COMMON_DATA
         )

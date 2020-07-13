@@ -139,7 +139,7 @@ class MyEndpointsTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Me
 
         # query the my schedule endpoint
         response = self.client.get(
-            '/api/my/schedule/',
+            '/api/my/schedule/?show_meetings_for={}'.format(self.user1.pk),
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
         self.assertEquals(response.status_code, status.HTTP_200_OK)

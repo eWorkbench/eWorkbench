@@ -17,8 +17,8 @@
         bindings: {
             selectedProjects: '<?',
             searchField: '<?',
-            showTasks: '<?',
-            showMeetings: '<?',
+            showMyTasks: '<?',
+            showMyMeetings: '<?',
             selectedUsers: '<?',
             preSelectedUsers: '='
         }
@@ -36,12 +36,17 @@
         MyScheduleRestService,
         $q,
         $scope,
-        toaster
+        toaster,
+        AuthRestService
     ) {
         "ngInject";
         var vm = this;
 
         this.$onInit = function () {
+            /**
+             * The current user
+             */
+            vm.currentUser = AuthRestService.getCurrentUser();
             /**
              * a dictionary of Appointments and Tasks which where received by the API group by months
              * It contains:
@@ -126,8 +131,8 @@
                 .createQuery()
                 .filterProjects(vm.selectedProjects)
                 .filterDateRange(startTime, endTime)
-                .showMeetings(vm.showMeetings)
-                .showTasks(vm.showTasks)
+                .showMeetings(vm.showMyMeetings, vm.currentUser.pk, vm.selectedUsers)
+                .showMyTasks(vm.showMyTasks)
                 .searchText(vm.searchField)
                 .query();
         };
@@ -175,13 +180,11 @@
                     var schedule = values[j];
 
                     // apply the filters
-                    var showInFilteredProjects = ScheduleHelperService.scheduleContainsAllWantedUsers(
-                        schedule,
-                        vm.selectedUsers
-                    );
+                    var scheduleIsNoDuplicate = ScheduleHelperService
+                        .scheduleIsNoDuplicate(schedule, filteredSchedulesValues);
 
                     // add entry when filter fits
-                    if (showInFilteredProjects) {
+                    if (scheduleIsNoDuplicate) {
                         filteredSchedulesValues.push(schedule);
                     }
                 }
@@ -331,14 +334,15 @@
             }
         };
 
-        // Watch potential filter settings and load the new data from the api
+        // Watch potential filter settings and update vm.filteredSchedules
         $scope.$watchGroup(
-            ["vm.searchField", "vm.showTasks", "vm.showMeetings", "vm.selectedProjects"],
+            ["vm.searchField", "vm.showMyTasks", "vm.showMyMeetings", "vm.selectedUsers", "vm.selectedProjects"],
             vm.updateSchedules
         );
-        // Watch potential filter settings and filter the data local (no api call)
+
+        // Watch potential filter settings and update vm.filteredSchedules
         $scope.$watchGroup(
-            ["vm.selectedUsers"],
+            ["vm.selectedResources"],
             updateFilteredSchedules
         );
     });

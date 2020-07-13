@@ -75,10 +75,50 @@
                 for (var i = 0; i < selectedResources.length; i++) {
                     if (schedule["resource"] && schedule["resource"].pk === selectedResources[i].pk) {
 
-                        return selectedResources[i].color;
+                        return this.selectColor(i);
                     }
                 }
             }
+
+            return defaultColor;
+        };
+
+        service.selectUserColor = function (amountSelected) {
+            var userColors = [
+                "#C2ED98",
+                "#8f97cf",
+                "#F7F570",
+                "#98A9D7",
+                "#d66b67",
+                "#B243B6",
+                "#F1F487",
+                "#F59B7C",
+                "#FED776",
+                "#F363B1",
+                "#FDBF3B",
+                "#E08963",
+                "#93EE81",
+                "#FFBFA3"
+            ];
+
+            return userColors[amountSelected];
+        };
+
+        service.getUserColor = function (schedule, selectedUsers) {
+
+            var defaultColor = '#badee0';
+
+            for (var i = 0; i < selectedUsers.length; i++) {
+                if (typeof selectedUsers[i] === 'string' || selectedUsers[i] instanceof String) {
+                    for (var j = 0; j < schedule["attending_users"].length; j++) {
+                        if (String(schedule["attending_users"][j].pk) === String(selectedUsers[i])) {
+
+                            return this.selectUserColor(i);
+                        }
+                    }
+                }
+            }
+
 
             return defaultColor;
         };

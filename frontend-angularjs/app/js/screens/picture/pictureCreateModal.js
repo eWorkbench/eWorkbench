@@ -214,7 +214,6 @@
          *
          * The user needs to select the page that needs to be converted
          * @param pdfFile
-         * @param page
          * @returns {*}
          */
         var convertPdfToPng = function (pdfFile) {
@@ -225,9 +224,8 @@
             // load the pdf file into memory
             fileReader.onload = function (ev) {
                 // now load the file using pdf.js
-                window.pdfjsLib.getDocument(fileReader.result).then(function getPdfHelloWorld (pdf) {
-
-                    if (pdf.numPages == 1) {
+                window.pdfjsLib.getDocument(fileReader.result).then(function loadPdf (pdf) {
+                    if (pdf.numPages === 1) {
                         // only a single page, we can convert it immediately
                         pdf.getPage(1).then(exportPdfPageCanvasAsBlob).then(function (theBlob) {
                             defer.resolve(new File([theBlob], pdfFile.name + ".png"));
@@ -380,6 +378,8 @@
 
                     convertPdfToPng(vm.picture.background_image[0]).then(function (imageFile) {
                         vm.picture.background_image = [imageFile];
+                    }, function dismiss () {
+                        console.log("Conversion canceled");
                     });
                 } else {
                     console.log("Image has changed, calculating width/height");

@@ -16,8 +16,9 @@
                 <!-- ui calendar -->
                 <div class="col-xs-12">
                     <schedule-calendar-widget
-                        show-tasks="vm.showTasks"
-                        show-meetings="vm.showMeetings"
+                        show-my-tasks="vm.showMyTasks"
+                        show-my-meetings="vm.showMyMeetings"
+                        selected-users="vm.selectedUsers"
                         calendar-config="vm.calendarConfig"
                         pre-selected-users="[]"
                         selected-projects="[]">
@@ -26,8 +27,8 @@
 
                 <div class="task-meeting-checkboxes">
                     <schedule-filter-widget
-                        show-meetings="vm.showMeetings"
-                        show-tasks="vm.showTasks">
+                        show-my-meetings="vm.showMyMeetings"
+                        show-my-tasks="vm.showMyTasks">
                     </schedule-filter-widget>
                 </div>
             </div>

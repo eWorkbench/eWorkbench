@@ -124,6 +124,12 @@
             vm.attendingContactsPk = [];
 
             /**
+             * For who the meeting is created
+             */
+            vm.createForPk = null;
+            vm.createFor = null;
+
+            /**
              * A list of available resources
              * @type {Array}
              */
@@ -295,6 +301,10 @@
             vm.meeting.attending_contacts_pk = vm.attendingContactsPk;
             vm.meeting.projects = vm.projectPks;
             vm.errors = {};
+
+            if (vm.createForPk) {
+                vm.meeting.create_for = vm.createForPk;
+            }
 
             MeetingRestService.create(vm.meeting).$promise.then(
                 function success (response) {

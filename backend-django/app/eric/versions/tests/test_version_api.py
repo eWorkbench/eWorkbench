@@ -16,7 +16,7 @@ from eric.dmp.tests.core import DmpsMixin
 from eric.labbooks.tests.core import LabBookMixin
 from eric.model_privileges.models import ModelPrivilege
 from eric.pictures.tests.core import PictureMixin
-from eric.projects.models import ElementLock, Project
+from eric.projects.models import Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TestLockMixin
 from eric.shared_elements.models import Task
 from eric.shared_elements.tests.core import ContactMixin, MeetingMixin, NoteMixin, TaskMixin, FileMixin
@@ -273,9 +273,8 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         return json.loads(response.content.decode())['results']
 
     def set_model_privileges(self, endpoint, model, pk):
-        allow = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        deny = ModelPrivilege.PRIVILEGE_CHOICES_DENY
-        neutral = ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL
+        allow = ModelPrivilege.ALLOW
+        deny = ModelPrivilege.DENY
 
         # author has full access automatically
 

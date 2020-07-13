@@ -82,7 +82,7 @@ def create_notification_based_on_meeting_changes(sender, instance, *args, **kwar
         # render html message
         html_message = render_to_string('notification/meeting_changed.html', context)
 
-        title = _("Meeting {title} has changed".format(title=instance.title))
+        title = _("Appointment {title} has changed").format(title=instance.title)
 
         existing_notification = Notification.objects.filter(
             user=attended_user,

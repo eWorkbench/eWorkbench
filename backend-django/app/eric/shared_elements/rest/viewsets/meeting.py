@@ -5,25 +5,25 @@
 import jwt
 import vobject
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django_filters.rest_framework import DjangoFilterBackend
+from django.utils.encoding import force_text
+from django.utils.timezone import datetime
 from django_userforeignkey.request import get_current_user
-from rest_framework import viewsets, filters
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.utils.timezone import datetime
+from weasyprint import HTML
 
 from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedModelViewSet
 from eric.core.utils import convert_html_to_text
+from eric.model_privileges.models import ModelPrivilege
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, \
     LockableViewSetMixIn
-from eric.search.rest.filters import FTSSearchFilter
 from eric.shared_elements.models import Meeting, UserAttendsMeeting
 from eric.shared_elements.rest.filters import MeetingFilter
 from eric.shared_elements.rest.serializers import MeetingSerializer
-from weasyprint import HTML
-from django.utils.encoding import force_text
 
 
 class MeetingViewSet(
@@ -40,7 +40,8 @@ class MeetingViewSet(
 
     def perform_create(self, serializer):
         """
-        Ensure that the current user is always attending the meeting they created
+        Ensure that the current user is always attending the meeting they created, unless the current user creates
+        a meeting for another user through calendar access privileges
 
         We need to do this here (rather than in a pre_save/post_save handler)
         :param serializer:
@@ -48,10 +49,28 @@ class MeetingViewSet(
         """
         instance = serializer.save()
 
-        UserAttendsMeeting.objects.get_or_create(
-            meeting=instance,
-            user=get_current_user(),
-        )
+        #
+        if instance.create_for:
+            User = get_user_model()
+            create_for_user = User.objects.filter(pk=instance.create_for).first()
+            if create_for_user:
+                # add the create_for_user to attending users here
+                UserAttendsMeeting.objects.get_or_create(
+                    meeting=instance,
+                    user=create_for_user,
+                )
+                # also give the create_for_user full access privileges for the meeting
+                ModelPrivilege.objects.get_or_create(
+                    content_type=Meeting.get_content_type(),
+                    object_id=instance.pk,
+                    user=create_for_user,
+                    full_access_privilege=ModelPrivilege.ALLOW
+                )
+        else:
+            UserAttendsMeeting.objects.get_or_create(
+                meeting=instance,
+                user=get_current_user(),
+            )
 
     def get_queryset(self):
         """

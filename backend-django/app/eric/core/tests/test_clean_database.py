@@ -36,7 +36,7 @@ User = get_user_model()
 
 HTTP_USER_AGENT = "APITestClient"
 REMOTE_ADDR = "127.0.0.1"
-EXPECTED_NUMBER_OF_WORKBENCH_RECORDS = 48
+EXPECTED_NUMBER_OF_WORKBENCH_RECORDS = 50
 
 
 class CleanDatabaseTest(
@@ -108,7 +108,7 @@ class CleanDatabaseTest(
                                                       'Still a standalone note',
                                                       HTTP_USER_AGENT, REMOTE_ADDR)
 
-        self.standalone_meeting1 = self.rest_create_meeting(self.token1, None, 'Standalone Meeting', 'Meet me alone!',
+        self.standalone_meeting1 = self.rest_create_meeting(self.token1, None, 'Standalone Appointment', 'Meet me alone!',
                                                             timezone.now(), timezone.now(),
                                                             HTTP_USER_AGENT, REMOTE_ADDR)
 
@@ -225,7 +225,7 @@ class CleanDatabaseTest(
                                                       'Still a standalone note',
                                                       HTTP_USER_AGENT, REMOTE_ADDR)
 
-        self.standalone_meeting2 = self.rest_create_meeting(self.token2, None, 'Standalone Meeting', 'Meet me alone!',
+        self.standalone_meeting2 = self.rest_create_meeting(self.token2, None, 'Standalone Appointment', 'Meet me alone!',
                                                             timezone.now(), timezone.now(),
                                                             HTTP_USER_AGENT, REMOTE_ADDR)
 
@@ -287,7 +287,7 @@ class CleanDatabaseTest(
                                                     'Still a project note',
                                                     HTTP_USER_AGENT, REMOTE_ADDR)
 
-        self.project2_meeting1 = self.rest_create_meeting(self.token2, self.project2.pk, 'Project Meeting',
+        self.project2_meeting1 = self.rest_create_meeting(self.token2, self.project2.pk, 'Project Appointment',
                                                           'Meet all the project members!', timezone.now(),
                                                           timezone.now(),
                                                           HTTP_USER_AGENT, REMOTE_ADDR)

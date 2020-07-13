@@ -5,7 +5,7 @@
 from eric.core.models import BaseManager
 from eric.shared_elements.models.querysets import ContactQuerySet, ElementLabelQuerySet, \
     NoteQuerySet, FileQuerySet, TaskQuerySet, TaskAssignedUserQuerySet, TaskCheckListQuerySet, \
-    MeetingQuerySet, UserAttendsMeetingQuerySet, ContactAttendsMeetingQuerySet
+    MeetingQuerySet, UserAttendsMeetingQuerySet, ContactAttendsMeetingQuerySet, CalendarAccessQuerySet
 
 ContactManager = BaseManager.from_queryset(ContactQuerySet)
 ElementLabelManager = BaseManager.from_queryset(ElementLabelQuerySet)
@@ -17,3 +17,4 @@ TaskCheckListManager = BaseManager.from_queryset(TaskCheckListQuerySet)
 MeetingManager = BaseManager.from_queryset(MeetingQuerySet)
 UserAttendsMeetingManager = BaseManager.from_queryset(UserAttendsMeetingQuerySet)
 ContactAttendsMeetingManager = BaseManager.from_queryset(ContactAttendsMeetingQuerySet)
+CalendarAccessManager = BaseManager.from_queryset(CalendarAccessQuerySet)

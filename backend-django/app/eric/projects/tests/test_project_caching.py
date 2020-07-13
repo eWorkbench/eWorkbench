@@ -124,25 +124,25 @@ class ProjectCachingTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestRe
         self.rest_create_privilege(self.token, 'projects', prj_B.pk, self.user2.pk, **HTTP_INFO)
         self.rest_patch_privilege(
             self.token, 'projects', prj_B.pk, self.user2.pk, {
-                'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+                'view_privilege': ModelPrivilege.ALLOW
             }, **HTTP_INFO
         )
         self.rest_create_privilege(self.token, 'projects', prj_B1.pk, self.user2.pk, **HTTP_INFO)
         self.rest_patch_privilege(
             self.token, 'projects', prj_B1.pk, self.user2.pk, {
-                'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_DENY
+                'view_privilege': ModelPrivilege.DENY
             }, **HTTP_INFO
         )
         self.rest_create_privilege(self.token, 'projects', prj_B2.pk, self.user2.pk, **HTTP_INFO)
         self.rest_patch_privilege(
             self.token, 'projects', prj_B2.pk, self.user2.pk, {
-                'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_DENY
+                'view_privilege': ModelPrivilege.DENY
             }, **HTTP_INFO
         )
         self.rest_create_privilege(self.token, 'projects', prj_B2x.pk, self.user2.pk, **HTTP_INFO)
         self.rest_patch_privilege(
             self.token, 'projects', prj_B2x.pk, self.user2.pk, {
-                'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_DENY
+                'view_privilege': ModelPrivilege.DENY
             }, **HTTP_INFO
         )
 

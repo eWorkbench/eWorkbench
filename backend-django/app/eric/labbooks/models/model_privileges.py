@@ -2,12 +2,12 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from eric.model_privileges.utils import BasePrivilege, UserPermission, register_privilege, \
-    get_model_privileges_and_project_permissions_for
-from eric.shared_elements.models import File, Note
-from eric.pictures.models import Picture
 from eric.labbooks.models import LabBook, LabbookSection
 from eric.model_privileges.models import ModelPrivilege
+from eric.model_privileges.utils import BasePrivilege, UserPermission, register_privilege, \
+    get_model_privileges_and_project_permissions_for
+from eric.pictures.models import Picture
+from eric.shared_elements.models import File, Note
 
 
 @register_privilege(Picture, execution_order=999)
@@ -20,7 +20,9 @@ class LabBookCellPrivilege(BasePrivilege):
     Same is true for edit: if a user can edit a labbook, the user can also edit all cells within the LabBook
     """
     @staticmethod
-    def get_privileges(obj, permissions_by_user=dict()):
+    def get_privileges(obj, permissions_by_user=None):
+        permission_by_user = permissions_by_user or dict()
+
         # get all LabBooks that contain the picture
         lab_books = LabBook.objects.viewable().filter(
             child_elements__child_object_content_type=obj.get_content_type(),
@@ -37,27 +39,18 @@ class LabBookCellPrivilege(BasePrivilege):
 
                 # check if user is already in permissions_by_user
                 if user.pk not in permissions_by_user.keys():
-                    permissions_by_user[user.pk] = UserPermission(
-                        user,
-                        obj.pk, obj.get_content_type()
-                    )
+                    permissions_by_user[user.pk] = UserPermission(user, obj.pk, obj.get_content_type())
 
                 # check if view privilege is set
-                if priv.view_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW \
-                        or priv.full_access_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
-                    permissions_by_user[user.pk].view_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-                    permissions_by_user[user.pk].is_context_permission = True
-                elif priv.view_privilege == ModelPrivilege.PRIVILEGE_CHOICES_DENY:
-                    permissions_by_user[user.pk].view_privilege = ModelPrivilege.PRIVILEGE_CHOICES_DENY
-                    permissions_by_user[user.pk].is_context_permission = True
+                if priv.view_privilege == ModelPrivilege.ALLOW or priv.full_access_privilege == ModelPrivilege.ALLOW:
+                    permissions_by_user[user.pk].view_privilege = ModelPrivilege.ALLOW
+                elif priv.view_privilege == ModelPrivilege.DENY:
+                    permissions_by_user[user.pk].view_privilege = ModelPrivilege.DENY
 
                 # check if edit privilege is set
-                if priv.edit_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW \
-                        or priv.full_access_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
-                    permissions_by_user[user.pk].edit_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-                    permissions_by_user[user.pk].is_context_permission = True
-                elif priv.edit_privilege == ModelPrivilege.PRIVILEGE_CHOICES_DENY:
-                    permissions_by_user[user.pk].edit_privilege = ModelPrivilege.PRIVILEGE_CHOICES_DENY
-                    permissions_by_user[user.pk].is_context_permission = True
+                if priv.edit_privilege == ModelPrivilege.ALLOW or priv.full_access_privilege == ModelPrivilege.ALLOW:
+                    permissions_by_user[user.pk].edit_privilege = ModelPrivilege.ALLOW
+                elif priv.edit_privilege == ModelPrivilege.DENY:
+                    permissions_by_user[user.pk].edit_privilege = ModelPrivilege.DENY
 
         return permissions_by_user

@@ -456,9 +456,15 @@ def check_update_roles(sender, instance, *args, **kwargs):
     if user.has_perm(get_permission_name(instance.__class__, 'change')):
         return
 
-    # check if this instance is editable
-    if hasattr(instance, 'is_editable') and not instance.is_editable():
-        raise PermissionDenied
+    # allow the user to edit if he was attending, so he can remove himself
+    if hasattr(instance, 'attending_users') and user in instance.attending_users.all():
+        logger.debug("In check_update_roles: User is attending so user is allowed to edit")
+    else:
+        # check if this instance is editable
+        if hasattr(instance, 'is_editable') and not instance.is_editable():
+            logger.debug("In check_update_roles: Checking editable() viewset - "
+                         "could not find object -> PermissionDenied")
+            raise PermissionDenied
 
 
 @receiver(post_save, sender=Project)

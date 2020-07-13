@@ -46,3 +46,20 @@ class ModelPrivilegeInline(GenericTabularInline):
     verbose_name_plural = _('Privileges')
     raw_id_fields = ('user',)
     extra = 1
+
+
+class ReadOnlyModelPrivilegeInline(GenericTabularInline):
+    """
+    This is used for Calendar Access Privileges as creation/deletion by superusers would lead to side effects
+    """
+    model = ModelPrivilege
+    verbose_name = _('Privilege')
+    verbose_name_plural = _('Privileges')
+    raw_id_fields = ('user',)
+    extra = 1
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

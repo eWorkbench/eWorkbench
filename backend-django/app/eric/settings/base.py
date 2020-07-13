@@ -333,12 +333,12 @@ LOGGING = {
         # put LDAP logs into separate file
         'django_auth_ldap': {
             'handlers': ['ldap', 'console', ],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
         'eric.ldap': {
             'handlers': ['ldap', 'console', ],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': False,
         },
         # put ContactForm logs into separate file

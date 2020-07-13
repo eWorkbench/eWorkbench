@@ -10,6 +10,7 @@ from django_changeset.models.queryset import ChangeSetQuerySetMixin
 from django_userforeignkey.request import get_current_user
 
 from eric.core.models.abstract import get_all_workbench_models, WorkbenchEntityMixin
+from eric.notifications.models.querysets import ScheduledNotificationQuerySet
 from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, extend_queryset
 
 logger = logging.getLogger(__name__)
@@ -398,19 +399,35 @@ class TaskAssignedUsersViewableEditableQuerySet:
 class MeetingAttendingUsersViewableEditableQuerySet:
     """
     Extending Meeting QuerySet for Attending Users
-    If a user is attending to a meeting, the user is allowed to view the meeting
+    If a user is attending to a meeting, the user is allowed to view, edit, trash and restore the meeting
     """
 
     @staticmethod
     def _viewable():
-        from eric.shared_elements.models import Meeting
         user = get_current_user()
-
-        # get all tasks that the current user is assigned to
-        meeting_pks = Meeting.objects.filter(attending_users=user).values_list('pk')
-
         return Q(
-            pk__in=meeting_pks
+            attending_users=user
+        )
+
+    @staticmethod
+    def _editable():
+        user = get_current_user()
+        return Q(
+            attending_users=user
+        )
+
+    @staticmethod
+    def _trashable():
+        user = get_current_user()
+        return Q(
+            attending_users=user
+        )
+
+    @staticmethod
+    def _restoreable():
+        user = get_current_user()
+        return Q(
+            attending_users=user
         )
 
 
@@ -466,3 +483,149 @@ class ElementLabelQuerySet(QuerySet, ChangeSetQuerySetMixin):
     def prefetch_common(self):
         return self.prefetch_related('created_by', 'created_by__userprofile',
                                      'last_modified_by', 'last_modified_by__userprofile')
+
+
+class CalendarAccessQuerySet(QuerySet, ChangeSetQuerySetMixin):
+    """
+    QuerySet for Calendar Access Privileges
+    """
+
+    def viewable(self):
+        current_user = get_current_user()
+
+        return self.filter(created_by=current_user)
+
+    def editable(self):
+        current_user = get_current_user()
+
+        return self.filter(created_by=current_user)
+
+    def deletable(self):
+        current_user = get_current_user()
+
+        return self.filter(created_by=current_user)
+
+    def prefetch_common(self):
+        return self.prefetch_related('created_by', 'created_by__userprofile',
+                                     'last_modified_by', 'last_modified_by__userprofile')
+
+
+@extend_queryset(MeetingQuerySet)
+class MeetingCalendarAccessQuerySet:
+    """
+    If a user gets a permissions for a Calendar, the user should have the same for Meetings
+    """
+    @staticmethod
+    def _viewable():
+        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.model_privileges.models import ModelPrivilege
+        user = get_current_user()
+
+        calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
+        model_privilege_users = ModelPrivilege.objects.all().filter(
+            Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                view_privilege=ModelPrivilege.ALLOW
+            ) | Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                full_access_privilege=ModelPrivilege.ALLOW
+            )
+        ).values('created_by')
+
+        return Q(
+            created_by__in=model_privilege_users
+        )
+
+    @staticmethod
+    def _editable():
+        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.model_privileges.models import ModelPrivilege
+        user = get_current_user()
+
+        calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
+        model_privilege_users = ModelPrivilege.objects.all().filter(
+            Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                edit_privilege=ModelPrivilege.ALLOW
+            ) | Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                full_access_privilege=ModelPrivilege.ALLOW
+            )
+        ).values('created_by')
+
+        return Q(
+            created_by__in=model_privilege_users
+        )
+
+    @staticmethod
+    def _trashable():
+        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.model_privileges.models import ModelPrivilege
+        user = get_current_user()
+
+        calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
+        model_privilege_users = ModelPrivilege.objects.all().filter(
+            Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                trash_privilege=ModelPrivilege.ALLOW
+            ) | Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                full_access_privilege=ModelPrivilege.ALLOW
+            )
+        ).values('created_by')
+
+        return Q(
+            created_by__in=model_privilege_users
+        )
+
+    @staticmethod
+    def _restoreable():
+        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.model_privileges.models import ModelPrivilege
+        user = get_current_user()
+
+        calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
+        model_privilege_users = ModelPrivilege.objects.all().filter(
+            Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                restore_privilege=ModelPrivilege.ALLOW
+            ) | Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                full_access_privilege=ModelPrivilege.ALLOW
+            )
+        ).values('created_by')
+
+        return Q(
+            created_by__in=model_privilege_users
+        )
+
+    @staticmethod
+    def _deletable():
+        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.model_privileges.models import ModelPrivilege
+        user = get_current_user()
+
+        calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
+        model_privilege_users = ModelPrivilege.objects.all().filter(
+            Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                delete_privilege=ModelPrivilege.ALLOW
+            ) | Q(
+                content_type=calendar_access_privilege_content_type_id,
+                user=user,
+                full_access_privilege=ModelPrivilege.ALLOW
+            )
+        ).values('created_by')
+
+        return Q(
+            created_by__in=model_privilege_users
+        )

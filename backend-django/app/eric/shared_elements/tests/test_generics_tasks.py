@@ -6,15 +6,15 @@ import json
 
 from django.utils import timezone
 from django.utils.timezone import datetime, timedelta
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.test import APITestCase
 
-from eric.projects.models import Project
-from eric.shared_elements.models import Task, TaskCheckList
-from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
-from eric.model_privileges.models import ModelPrivilege
-from eric.shared_elements.tests.core import ElementLabelMixin
 from eric.core.tests import test_utils
+from eric.model_privileges.models import ModelPrivilege
+from eric.projects.models import Project
+from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
+from eric.shared_elements.models import Task, TaskCheckList
+from eric.shared_elements.tests.core import ElementLabelMixin
 
 HTTP_USER_AGENT = "APITestClient"
 REMOTE_ADDR = "127.0.0.1"
@@ -87,16 +87,16 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
         # and privilege 1 should be for user2
         self.assertEquals(decoded_privileges[1]['user']['pk'], self.user2.pk)
         # verify that user1 is the owner
-        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
+        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.ALLOW)
         # verify that user2 only has view and edit privilege
-        self.assertEquals(decoded_privileges[1]['full_access_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(decoded_privileges[1]['view_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
-        self.assertEquals(decoded_privileges[1]['edit_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
-        self.assertEquals(decoded_privileges[1]['delete_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(decoded_privileges[1]['restore_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['full_access_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['view_privilege'], ModelPrivilege.ALLOW)
+        self.assertEquals(decoded_privileges[1]['edit_privilege'], ModelPrivilege.ALLOW)
+        self.assertEquals(decoded_privileges[1]['delete_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['restore_privilege'], ModelPrivilege.NEUTRAL)
 
         # now override the view_privilege for user2
-        decoded_privileges[1]['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_DENY
+        decoded_privileges[1]['view_privilege'] = ModelPrivilege.DENY
         response = self.rest_update_privilege(self.token1, "tasks", task.pk,
                                               self.user2.pk, decoded_privileges[1], HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
@@ -115,13 +115,13 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
         # and privilege 1 should be for user2
         self.assertEquals(decoded_privileges[1]['user']['pk'], self.user2.pk)
         # verify that user1 is the owner
-        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
+        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.ALLOW)
         # verify that user2 only has view and edit privilege
-        self.assertEquals(decoded_privileges[1]['full_access_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(decoded_privileges[1]['view_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_DENY)
-        self.assertEquals(decoded_privileges[1]['edit_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
-        self.assertEquals(decoded_privileges[1]['delete_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(decoded_privileges[1]['restore_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['full_access_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['view_privilege'], ModelPrivilege.DENY)
+        self.assertEquals(decoded_privileges[1]['edit_privilege'], ModelPrivilege.ALLOW)
+        self.assertEquals(decoded_privileges[1]['delete_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['restore_privilege'], ModelPrivilege.NEUTRAL)
 
     def test_create_update_task_checklist(self):
         """

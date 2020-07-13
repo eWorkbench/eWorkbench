@@ -124,6 +124,32 @@ class ContactAttendsMeetingMixin:
         return response
 
 
+class CalendarAccessMixin:
+    """
+    Mixin which provides several wrapper methods for the
+    api/meeting/meeting_pk/attending_contact/update_contacts endpoint
+    """
+
+    def update_attending_contacts(self, auth_token, meeting_id, contact_id_list, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for update attending users from a specific meeting
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        data = {
+            'attending_contacts_pk': contact_id_list
+        }
+
+        # Make a REST API call for update attending contacts from a specific meeting
+        response = self.client.patch(
+            '/api/meetings/{}/'.format(meeting_id),
+            json.dumps(data, default=custom_json_handler), content_type='application/json',
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR,
+        )
+
+        return response
+
+
 class FileMixin(TestLockMixin):
     """
     Mixin which provides several wrapper methods for the /api/files/ endpoint
@@ -1144,6 +1170,29 @@ class MeetingMixin(TestLockMixin):
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
         return response
+
+    def rest_update_meeting_remove_resource(self, auth_token, meeting_pk, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for removing the resource of a meeting
+        :param auth_token:
+        :param meeting_pk:
+        :param HTTP_USER_AGENT:
+        :param REMOTE_ADDR:
+        :return: response
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        data = {
+            'resource_pk': ""
+        }
+
+        return self.client.patch(
+            '/api/meetings/{}/'.format(meeting_pk),
+            json.dumps(data, default=custom_json_handler),
+            content_type='application/json',
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
 
     def rest_update_meeting_project(self, auth_token, meeting_pk, project_pks, HTTP_USER_AGENT, REMOTE_ADDR):
         """

@@ -16,6 +16,7 @@ from eric.projects.rest.filters import ProjectFilter
 from eric.projects.rest.serializers import PublicUserSerializer, ProjectBreadcrumbSerializer, \
     ProjectSerializerExtended, ProjectTreeSerializer
 from eric.projects.rest.viewsets import ChangeSetViewSet, get_object_or_404
+from eric.shared_elements.models import CalendarAccess
 
 
 class ProjectUsersViewSet(BaseAuthenticatedReadOnlyModelViewSet):
@@ -134,6 +135,10 @@ class ProjectChangeSetViewSet(ChangeSetViewSet):
                 if model == Project:
                     # special case for projects
                     object_ids = project_ids
+                elif model == CalendarAccess:
+                    # special case for CalendarAccess:
+                    # it has no projects, so we can pass here
+                    pass
                 else:
                     object_ids = model.objects.viewable().for_project(
                         project_pk,

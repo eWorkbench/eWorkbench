@@ -87,14 +87,14 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # meeting 3
-        response = self.rest_create_meeting(self.token1, self.project.pk, "Third Meeting", "Some Text for this meeting",
+        response = self.rest_create_meeting(self.token1, self.project.pk, "Third Appointment", "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.meeting3 = Meeting.objects.get(pk=decoded['pk'])
 
         # meeting 4
-        response = self.rest_create_meeting(self.token1, self.project.pk, "Fourth Meeting", "Some Text for this meeting",
+        response = self.rest_create_meeting(self.token1, self.project.pk, "Fourth Appointment", "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
@@ -501,22 +501,14 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.unlock(self.token1, "meetings", self.meeting1.pk, REMOTE_ADDR, HTTP_USER_AGENT)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
-        # now user2 should see the meeting, but is not allowed to update it (remove all users from meeting)
+        # now user2 should see the meeting and is allowed to update it (remove all users from meeting)
         response = self.update_attending_users(self.token2, self.meeting1.pk, [], HTTP_USER_AGENT,
                                                REMOTE_ADDR)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # it also should not be possible for user2 to add another user
-        # now user2 should see the meeting, but is not allowed to update it
-        response = self.update_attending_users(self.token2, self.meeting1.pk,
-                                               [self.user1.pk, self.user2.pk, self.user3.pk], HTTP_USER_AGENT,
-                                               REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # also verify that attending users of this meeting are still set to two
-        self.assertEquals(self.meeting1.attending_users.all().count(), 2, msg="there should be two attending users")
+        self.assertEquals(self.meeting1.attending_users.all().count(), 0, msg="there should be zero attending users")
 
     def test_meeting_update_attending_contacts_without_permission(self):
         """ Tries to update attending contacts of a meeting without having the proper permission """
@@ -537,7 +529,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         self.assertEquals(self.meeting1.attending_contacts.all().count(), 1, msg="there should be zero attending contacts")
 
-        # give user2 the view privilege for the meeting, by making user2 an attending user
+        # give user2 the view, edit and trash privilege for the meeting, by making user2 an attending user
         response = self.update_attending_users(self.token1, self.meeting1.pk, [self.user1.pk, self.user2.pk], HTTP_USER_AGENT,
                                                REMOTE_ADDR)
 
@@ -547,19 +539,11 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.unlock(self.token1, "meetings", self.meeting1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
-        # now user2 should see the meeting, but is not allowed to update it (remove all users from meeting)
+        # now user2 should see the meeting and is allowed to update it (remove all users from meeting)
         response = self.update_attending_contacts(self.token2, self.meeting1.pk, [], HTTP_USER_AGENT,
                                                   REMOTE_ADDR)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # it also should not be possible for user2 to add another user
-        # now user2 should see the meeting, but is not allowed to update it
-        response = self.update_attending_contacts(self.token2, self.meeting1.pk,
-                                                  [self.contact1.pk],
-                                                  HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # also verify that attending users of this meeting are still set to two
-        self.assertEquals(self.meeting1.attending_contacts.all().count(), 1, msg="there should be zero attending contacts")
+        self.assertEquals(self.meeting1.attending_contacts.all().count(), 0, msg="there should be zero attending contacts")

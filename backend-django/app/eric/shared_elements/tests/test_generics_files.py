@@ -12,9 +12,9 @@ from rest_framework.test import APITestCase
 from eric.core.tests import test_utils
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.models import Project
-from eric.shared_elements.tests.core import FileMixin
-from eric.shared_elements.models import File
 from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
+from eric.shared_elements.models import File
+from eric.shared_elements.tests.core import FileMixin
 from eric.versions.models import Version
 
 HTTP_USER_AGENT = "APITestClient"
@@ -246,7 +246,7 @@ class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMi
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
         response = self.rest_generic_patch_privilege(self.token2, file2['pk'], self.user1.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW
         })
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 

@@ -12,8 +12,8 @@
         controller: 'ScheduleFilterWidgetController',
         controllerAs: 'vm',
         bindings: {
-            showTasks: '=?',
-            showMeetings: '=?'
+            showMyTasks: '=?',
+            showMyMeetings: '=?'
         }
     });
 
@@ -23,22 +23,22 @@
         var vm = this;
 
         this.$onInit = function () {
-            vm.showTasks = true;
-            vm.showMeetings = true;
+            vm.showMyTasks = true;
+            vm.showMyMeetings = true;
         };
 
         /**
-         * Toggles the showTasks flag
+         * Toggles the showMyTasks flag
          */
-        vm.toggleShowTasks = function () {
-            vm.showTasks = !vm.showTasks;
+        vm.toggleShowMyTasks = function () {
+            vm.showMyTasks = !vm.showMyTasks;
         };
 
         /**
-         * Toggles the showMeetings flag
+         * Toggles the showMyMeetings flag
          */
-        vm.toggleShowMeetings = function () {
-            vm.showMeetings = !vm.showMeetings;
+        vm.toggleShowMyMeetings = function () {
+            vm.showMyMeetings = !vm.showMyMeetings;
         };
     });
 })();

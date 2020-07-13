@@ -47,7 +47,8 @@
 
     module.controller('UserCheckboxListWidgetController', function (
         $scope,
-        UserNameService
+        UserNameService,
+        ResourceHelperService
     ) {
         "ngInject";
 
@@ -62,6 +63,10 @@
             removeFromArray(user, vm.users);
             removeFromArray(user, vm.selectedUsers);
             removeFromArray(user.pk, vm.isUserSelectedMap);
+            vm.isUserSelectedMap[user.pk] = undefined;
+            for (var i = 0; i < vm.users.length; i++) {
+                vm.users[i].color = ResourceHelperService.selectUserColor(vm.selectedUsers.length - 1);
+            }
         };
 
         vm.updateSelectionStatus = function (user) {
@@ -70,11 +75,29 @@
             if (isSelected) {
                 if (!arrayContains(user, vm.selectedUsers)) {
                     vm.selectedUsers.push(user);
+                    user.color = ResourceHelperService.selectUserColor(vm.selectedUsers.length - 1);
                 }
             } else {
                 removeFromArray(user, vm.selectedUsers);
+                for (var i = 0; i < vm.users.length; i++) {
+                    if (user.pk === vm.users[i].pk) {
+                        vm.users[i].color = "#FFFFFF";
+                    } else {
+                        vm.users[i].color = ResourceHelperService.selectUserColor(vm.selectedUsers.length - 1);
+                    }
+                }
             }
         };
+
+        $scope.$watch('vm.selectedUsers', function (newValue, oldValue) {
+            var user = null;
+
+            for (var i = 0; i < vm.users.length; i++) {
+                user = vm.users[i];
+
+                user.color = ResourceHelperService.selectUserColor(vm.selectedUsers.length - 1);
+            }
+        });
 
         /**
          * Any the the vm.users collection changes:
@@ -92,6 +115,7 @@
 
                 // select (check) new users
                 if (vm.isUserSelectedMap[user.pk] === undefined) {
+                    user.color = ResourceHelperService.selectUserColor(vm.users.length - 1);
                     vm.isUserSelectedMap[user.pk] = true;
                     vm.selectedUsers.push(user);
                 }

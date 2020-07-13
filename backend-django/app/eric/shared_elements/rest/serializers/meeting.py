@@ -126,6 +126,11 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
         # delegate creating the meeting to the current serializer
         instance = super(MeetingSerializer, self).create(validated_data)
 
+        # read the request data and add the value of create_for to the instance, which is the pk of a user
+        # in the MeetingViewSet we will use it to change attending_users accordingly and to give full access privilege
+        request = self.context['request']
+        instance.create_for = request.data.get('create_for')
+
         # create attending users
         if attending_users:
             for user in attending_users:

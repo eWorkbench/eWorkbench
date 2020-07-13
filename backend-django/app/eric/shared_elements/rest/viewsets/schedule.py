@@ -7,7 +7,7 @@ import vobject
 from django.conf import settings
 from django.http import HttpResponse
 from django.utils import timezone
-from django.utils.timezone import localtime
+from django_userforeignkey.request import get_current_user
 from eric.core.rest.viewsets import BaseGenericViewSet
 from eric.core.utils import convert_html_to_text
 from eric.shared_elements.models import Task, Meeting
@@ -36,14 +36,40 @@ class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
             'projects',
         ).filter(deleted=False, start_date__isnull=False, due_date__isnull=False)
 
-    def get_meetings_queryset(self):
-        return Meeting.objects.viewable().prefetch_common().attending().prefetch_related(
+    def get_meetings_queryset(self, show_meetings_for):
+        qs = Meeting.objects.none()
+        current_user = get_current_user()
+        # overwrite filter class for meetings
+        self.filterset_class = MeetingFilter
+        if str(current_user.pk) in show_meetings_for:
+            # this is the queryset for the current user, which uses viewable and attending
+            qs = Meeting.objects.viewable().prefetch_common().attending().prefetch_related(
+                'projects',
+            ).filter(deleted=False, date_time_start__isnull=False, date_time_end__isnull=False)
+            # we have to filter the queryset here before the union as filtering on unions isnt supported
+            qs = self.filter_queryset(qs)
+        # this is the queryset for users other than the current user, which uses viewable()
+        qs_extended = Meeting.objects.viewable().prefetch_common().prefetch_related(
             'projects',
-        ).filter(deleted=False)
+        ).exclude(
+            attending_users=current_user
+        ).filter(
+            attending_users__in=show_meetings_for,
+            deleted=False,
+            date_time_start__isnull=False,
+            date_time_end__isnull=False
+        )
+        # we have to filter the queryset here before the union as filtering on unions isnt supported
+        qs_extended = self.filter_queryset(qs_extended)
+        # now we can build the union
+        qs = qs.union(qs_extended)
+        return qs
 
     def get_filtered_schedule_elements(self):
         show_tasks = self.request.query_params.get('show_tasks', 1)
         show_meetings = self.request.query_params.get('show_meetings', 1)
+
+        show_meetings_for = self.request.query_params.getlist('show_meetings_for', None)
 
         tasks = Task.objects.none()
         meetings = Meeting.objects.none()
@@ -57,10 +83,8 @@ class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
 
         if show_meetings == 1 or show_meetings == '1':
             # filter all viewable meetings, that are attending to the current user
-            meetings = self.get_meetings_queryset()
-            # overwrite filter class for meetings
-            self.filterset_class = MeetingFilter
-            meetings = self.filter_queryset(meetings)
+            if show_meetings_for:
+                meetings = self.get_meetings_queryset(show_meetings_for)
 
         return tasks, meetings
 

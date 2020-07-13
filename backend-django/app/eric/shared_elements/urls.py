@@ -4,20 +4,16 @@
 #
 """ URL Configuration for shared elements """
 from django.conf.urls import url, include
-
 from rest_framework_nested import routers
 
 from eric.core.rest.routers import get_api_router
-
-from eric.projects.rest.viewsets import GenericChangeSetViewSet
 from eric.model_privileges.rest.viewsets import ModelPrivilegeViewSet
-
+from eric.projects.rest.viewsets import GenericChangeSetViewSet
 # relations
 from eric.relations.rest.viewsets import RelationViewSet
-
 from eric.shared_elements.rest.viewsets import ContactViewSet, NoteViewSet, FileViewSet, TaskViewSet, \
-    MeetingViewSet, MyTaskViewSet, MyScheduleViewSet, MyMeetingViewSet, ElementLabelViewSet
-
+    MeetingViewSet, MyTaskViewSet, MyScheduleViewSet, MyMeetingViewSet, ElementLabelViewSet, \
+    CalendarAccessViewSet
 # register REST API Routers
 from eric.shared_elements.rest.viewsets.contact import ContactShareViewSet
 from eric.shared_elements.rest.viewsets.meeting import MyResourceBookingViewSet, AllResourceBookingViewSet
@@ -30,6 +26,19 @@ router.register(r'my/meetings', MyMeetingViewSet, basename='mymeeting')
 router.register(r'my/tasks', MyTaskViewSet, basename='mytask')
 # my schedule (contains all entities that have dates set and should be displayed in a calendar)
 router.register(r'my/schedule', MyScheduleViewSet, basename='myschedule')
+
+"""
+Calendar Access Privileges
+with privileges
+"""
+router.register(r'calendar-access-privileges', CalendarAccessViewSet, basename='calendaraccess')
+
+calendar_access_privileges_router = routers.NestedSimpleRouter(
+    router, r'calendar-access-privileges', lookup='calendaraccess'
+)
+calendar_access_privileges_router.register(
+    r'privileges', ModelPrivilegeViewSet, basename='calendaraccess-privileges'
+)
 
 
 """
@@ -128,4 +137,7 @@ urlpatterns = [
 
     # REST Endpoints for meetings  (history, relations)
     url(r'^', include(meetings_router.urls)),
+
+    # REST Endpoints for calendar_access_privileges  (privileges)
+    url(r'^', include(calendar_access_privileges_router.urls)),
 ]

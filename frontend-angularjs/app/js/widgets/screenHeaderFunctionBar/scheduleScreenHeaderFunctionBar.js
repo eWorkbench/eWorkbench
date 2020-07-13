@@ -44,6 +44,7 @@
         $state,
         $stateParams,
         $timeout,
+        $uibModal,
         AuthRestService,
         FilterUrlStateService,
         WorkbenchElementsTranslationsService,
@@ -54,7 +55,8 @@
         gettextCatalog,
         toaster,
         displayTrashedItemsWidget,
-        GenericModelService
+        GenericModelService,
+        CalendarAccessPrivilegeRestService
     ) {
         "ngInject";
 
@@ -64,6 +66,7 @@
             vm.loadedUserData = [];
             vm.userSelectizeSelectedPks = [];
             vm.userSeletizeUsers = [];
+            vm.checkboxUsers = [];
             vm.checkboxUsers = [];
             vm.checkboxSelectedUsers = [];
             vm.resourceSelectizeSelectedPks = [];
@@ -138,6 +141,80 @@
                 // since there's no query parameter, we return an empty option list
                 vm.selectedProjects = [];
             }
+
+            // reset vm.calendarAccessPrivilege
+            vm.calendarAccessPrivilege = null;
+
+            vm.userPlaceholderDefault = gettextCatalog.getString('Display appointments of ...');
+            vm.userPlaceholderHover = gettextCatalog.getString('Search user who gave me access');
+            vm.userPlaceholder = vm.userPlaceholderDefault;
+
+            vm.resourcePlaceholderDefault = gettextCatalog.getString('Display resource bookings ...');
+            vm.resourcePlaceholderHover = gettextCatalog.getString('Search resource');
+            vm.resourcePlaceholder = vm.resourcePlaceholderDefault;
+        };
+
+        vm.changeUserPlaceholderToHover = function () {
+            vm.userPlaceholder = vm.userPlaceholderHover;
+        };
+
+        vm.changeUserPlaceholderToDefault = function () {
+            vm.userPlaceholder = vm.userPlaceholderDefault;
+        };
+
+        vm.changeResourcePlaceholderToHover = function () {
+            vm.resourcePlaceholder = vm.resourcePlaceholderHover;
+        };
+
+        vm.changeResourcePlaceholderToDefault = function () {
+            vm.resourcePlaceholder = vm.resourcePlaceholderDefault;
+        };
+
+        vm.getCalendarAccessPrivileges = function () {
+            // if we already have vm.calendarAccessPrivilege we don't need to query the API again
+            if (vm.calendarAccessPrivilege) {
+                return vm.showPrivileges();
+            }
+
+            // if vm.calendarAccessPrivilege isn't set we need to query and show the modal on success
+            return CalendarAccessPrivilegeRestService.query().$promise.then(
+                function success (response) {
+                    // there should only be one result per user
+                    vm.calendarAccessPrivilege = response[0];
+                    // now we can open the modal
+                    vm.showPrivileges();
+                },
+                function error (rejection) {
+                    toaster.pop('error', gettextCatalog.getString("Failed to query privileges"));
+                    console.log(rejection);
+                }
+            )
+        };
+
+        /**
+         * Opens modal dialog for privileges
+         */
+        vm.showPrivileges = function () {
+            var modalInstance = $uibModal.open({
+                templateUrl: 'js/screens/objectPrivileges/objectPrivilegesModalView.html',
+                controller: 'ObjectPrivilegesModalViewController',
+                controllerAs: 'vm',
+                bindToController: true,
+                resolve: {
+                    baseUrlModel: function () {
+                        return "calendar-access-privileges";
+                    },
+                    baseModel: function () {
+                        return vm.calendarAccessPrivilege;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (result) {
+                console.log("modal closed with result", result);
+            }).catch(function (reason) {
+                console.log("Modal dismissed with reason", reason);
+            });
         };
 
         var decodeFilterOptionsFromCurrentState = function () {
@@ -264,6 +341,19 @@
             }
         });
 
+        // checks if the user was already added to the user-checkbox-list-widget
+        vm.checkboxUsersContainsUser = function (loadedUser) {
+            var result = false;
+
+            for (var i = 0; i < vm.checkboxUsers.length; i++) {
+                if (vm.checkboxUsers[i].pk === loadedUser.pk) {
+                    result = true;
+                }
+            }
+
+            return result;
+        };
+
         /**
          * Take new user out of the user-selectize element and put them into the user-checkbox-list-widget.
          */
@@ -272,7 +362,7 @@
                 var loadedUserPk = vm.userSelectizeSelectedPks,
                     loadedUser = vm.loadedUserData[loadedUserPk];
 
-                if (loadedUser) {
+                if (loadedUser && !vm.checkboxUsersContainsUser(loadedUser)) {
                     vm.checkboxUsers.push(loadedUser);
                     vm.userSelectizeSelectedPks = null;
                 }

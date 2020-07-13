@@ -24,7 +24,7 @@ class Command(BaseCommand):
             print('# ' + model_name)
 
             objects_without_full_access_privilege = model.objects.exclude(
-                model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+                model_privileges__full_access_privilege=ModelPrivilege.ALLOW
             )
 
             for obj in objects_without_full_access_privilege:

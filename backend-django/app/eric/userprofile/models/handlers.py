@@ -93,29 +93,48 @@ def sync_mapped_ldap_attributes(attribute_map, user_profile, ldap_user):
         if ldap_attribute in ldap_user.attrs:
             ldap_value = ldap_user.attrs[ldap_attribute]
             set_user_profile_field_value(user_profile, model_field, ldap_value)
+        elif len(missing_required_attributes) <= 0:
+            # clear missing attributes only if all required attributes are present
+            # to avoid clearing values because of connection problems
+            clear_user_profile_field(user_profile, model_field)
 
 
-def set_user_profile_field_value(user_profile, field_name, value):
-    user = user_profile.user
+def clear_user_profile_field(user_profile, field_name):
+    clear_value = get_clear_field_value(field_name)
+    set_user_profile_field_value(user_profile, field_name, clear_value)
 
-    # try to get the mapped field from meta data of UserProfile
+
+def get_clear_field_value(field_name):
+    """ Gets the empty-value for fields on the user profile """
+
     field = UserProfile._meta.get_field(field_name)
 
-    # check field type
+    if isinstance(field, ArrayField):
+        return []
+    elif field.null:
+        return None
+    elif field.blank:
+        return ''
+    else:
+        return field.default
+
+
+def set_user_profile_field_value(user_profile, field_name, new_value):
+    user = user_profile.user
     try:
-        # if the field is an ArrayField, we are expecting an array of values and we can directly set it
-        if isinstance(field, ArrayField):
-            setattr(user_profile, field_name, value)
-        else:
-            setattr(user_profile, field_name, ",".join(value))
-    except:
-        LDAP_LOGGER.exception(
-            "[{username}] Could not set field {field_name} to value {value}".format(
-                username=user.username,
-                field_name=field_name,
-                value=','.join(value)
-            )
-        )
+        old_value = getattr(user_profile, field_name)
+    except AttributeError:
+        old_value = get_clear_field_value(field_name)
+
+    # process LDAP value (array to string for non-ArrayFields)
+    field = UserProfile._meta.get_field(field_name)
+    if not isinstance(field, ArrayField):
+        new_value = ",".join(new_value)
+
+    # update value if it changed
+    if old_value != new_value:
+        LDAP_LOGGER.info(f'[{user.username}] Field "{field_name}" changed from "{old_value}" to "{new_value}"')
+        setattr(user_profile, field_name, new_value)
 
 
 def assign_ldap_user_group(user, ldap_user, *args, **kwargs):

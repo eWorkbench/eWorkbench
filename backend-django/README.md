@@ -7,13 +7,14 @@ The backend consists of an authenticated REST API built with Python 3, Django 1.
 See also:
 * [Development Setup](README_DevSetup.md)
 * [Commands](README_Commands.md)
-* [Changelog](CHANGELOG.md)
+* [General Changelog](CHANGELOG.md)
+* [API Changelog](api-changes.md)
 
 ## Installation instructions for a production system
 This README contains information for developers only. If you are looking for installation instructions, please take a 
 look at the [docs/](docs/) folder.
 
-### Generating the Sphinx documentation
+## Generating the Sphinx documentation
 
 ```bash
 pip install sphinx

@@ -44,16 +44,31 @@
             return factory;
         };
 
-        factory.showMeetings = function (showMeetings) {
-            if (showMeetings === false) {
-                factory.filters['show_meetings'] = 0;
+        factory.showMeetings = function (showMyMeetings, currentUserPk, selectedUsers) {
+            // if My Meetings is checked we add the current user to selectedUsers if he isn't already in there
+            if (showMyMeetings === true && currentUserPk) {
+                if (!selectedUsers.includes(currentUserPk)) {
+                    selectedUsers.push(currentUserPk);
+                }
+            }
+            // if My Meetings is unchecked we remove the current user from selectedUsers
+            if (showMyMeetings === false && currentUserPk) {
+                var index = selectedUsers.indexOf(currentUserPk);
+
+                if (selectedUsers.indexOf(currentUserPk) > -1) {
+                    selectedUsers.splice(index, 1);
+                }
+            }
+            // now we set up the filter for all selected users
+            if (selectedUsers) {
+                factory.filters['show_meetings_for'] = selectedUsers;
             }
 
             return factory;
         };
 
-        factory.showTasks = function (showTasks) {
-            if (showTasks === false) {
+        factory.showMyTasks = function (showMyTasks) {
+            if (showMyTasks === false) {
                 factory.filters['show_tasks'] = 0;
             }
 

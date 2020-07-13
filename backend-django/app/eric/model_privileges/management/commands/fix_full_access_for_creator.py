@@ -61,7 +61,7 @@ class Command(BaseCommand):
 
     @classmethod
     def get_objects_without_full_access_privilege(cls, model, creator_username):
-        qs = model.objects.exclude(model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
+        qs = model.objects.exclude(model_privileges__full_access_privilege=ModelPrivilege.ALLOW)
 
         if creator_username:
             qs = qs.filter(created_by__username=creator_username)
@@ -78,7 +78,7 @@ class Command(BaseCommand):
                 object_id=obj.pk
             )
 
-        privileges.full_access_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        privileges.full_access_privilege = ModelPrivilege.ALLOW
 
         with disable_permission_checks(ModelPrivilege):
             privileges.save()

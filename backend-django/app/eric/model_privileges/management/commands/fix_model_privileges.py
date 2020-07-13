@@ -2,16 +2,13 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.core.management.base import BaseCommand
-from django.contrib.auth.models import Permission
-from django.db.models import Count
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-
-from eric.model_privileges.models import ModelPrivilege
-from datetime import timedelta
+from django.core.management.base import BaseCommand
+from django.db.models import Count
 
 from eric.core.models.base import disable_permission_checks
+from eric.model_privileges.models import ModelPrivilege
 
 User = get_user_model()
 
@@ -93,7 +90,7 @@ class Command(BaseCommand):
                     for o in objects:
                         perm = ModelPrivilege(
                             user=user,
-                            full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                            full_access_privilege=ModelPrivilege.ALLOW,
                             content_type=ct,
                             object_id=o.id
                         )

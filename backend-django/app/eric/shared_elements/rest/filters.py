@@ -7,7 +7,7 @@ from django.db.models.constants import LOOKUP_SEP
 
 from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter
 from eric.drives.models import Drive
-from eric.shared_elements.models import Contact, Task, Meeting, Note, File, ElementLabel
+from eric.shared_elements.models import Contact, Task, Meeting, Note, File, ElementLabel, CalendarAccess
 from eric.core.rest.filters import ListFilter, RecursiveProjectsListFilter, RecentlyModifiedByMeFilter
 
 
@@ -167,4 +167,13 @@ class ElementLabelFilter(BaseFilter):
         model = ElementLabel
         fields = {
             'name': BaseFilter.STRING_COMPERATORS
+        }
+
+
+class CalendarAccessFilter(BaseFilter):
+    """ Filter for Calendar Access Privileges """
+    class Meta:
+        model = CalendarAccess
+        fields = {
+            'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }

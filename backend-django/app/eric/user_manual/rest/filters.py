@@ -7,7 +7,6 @@ from eric.user_manual.models import UserManualHelpText
 
 
 class UserManualHelpTextFilter(BaseFilter):
-    """ Filter for Meeting, which allows filtering by date_time and project """
     class Meta:
         model = UserManualHelpText
         fields = {

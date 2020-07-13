@@ -4,17 +4,16 @@
 #
 import json
 
-from django.utils.timezone import datetime, timedelta
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from eric.core.tests import test_utils
 from eric.drives.models import Drive, Directory
 from eric.drives.tests.core import DriveMixin
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
 from eric.shared_elements.models import File
 from eric.shared_elements.tests.core import NoteMixin, FileMixin
-from eric.core.tests import test_utils
 
 HTTP_USER_AGENT = "APITestClient"
 REMOTE_ADDR = "127.0.0.1"
@@ -277,7 +276,7 @@ class TestGenericsDrives(APITestCase, EntityChangeRelatedProjectTestMixin, Drive
                                               REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded_privilege = json.loads(response.content.decode())
-        decoded_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        decoded_privilege['view_privilege'] = ModelPrivilege.ALLOW
 
         response = self.rest_update_privilege(self.token1, "drives", str(drive.pk), self.user2.pk, decoded_privilege,
                                               HTTP_USER_AGENT, REMOTE_ADDR)
@@ -290,7 +289,7 @@ class TestGenericsDrives(APITestCase, EntityChangeRelatedProjectTestMixin, Drive
         self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # give user2 the edit privilege for the drive
-        decoded_privilege['edit_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        decoded_privilege['edit_privilege'] = ModelPrivilege.ALLOW
 
         response = self.rest_update_privilege(self.token1, "drives", str(drive.pk), self.user2.pk, decoded_privilege,
                                               HTTP_USER_AGENT, REMOTE_ADDR)
@@ -531,7 +530,7 @@ class TestGenericsDrives(APITestCase, EntityChangeRelatedProjectTestMixin, Drive
         response = self.rest_create_privilege(self.token1, "drives", str(drive.pk), self.user2.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded_privilege = json.loads(response.content.decode())
-        decoded_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        decoded_privilege['view_privilege'] = ModelPrivilege.ALLOW
 
         response = self.rest_update_privilege(self.token1, "drives", str(drive.pk), self.user2.pk, decoded_privilege, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
@@ -544,8 +543,8 @@ class TestGenericsDrives(APITestCase, EntityChangeRelatedProjectTestMixin, Drive
         response = self.rest_get_privileges_for_user(self.token2, "files", decoded_file['pk'], self.user2.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_privilege_for_file = json.loads(response.content.decode())
-        self.assertEquals(decoded_privilege_for_file['view_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
-        self.assertEquals(decoded_privilege_for_file['edit_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
+        self.assertEquals(decoded_privilege_for_file['view_privilege'], ModelPrivilege.ALLOW)
+        self.assertEquals(decoded_privilege_for_file['edit_privilege'], ModelPrivilege.NEUTRAL)
 
     def test_can_not_remove_file_from_directory_if_directory_is_not_editable(self):
         """
@@ -580,7 +579,7 @@ class TestGenericsDrives(APITestCase, EntityChangeRelatedProjectTestMixin, Drive
         decoded_privilege = json.loads(response.content.decode())
 
         # update privilege
-        decoded_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        decoded_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_update_privilege(self.token1, "drives", str(drive.pk), self.user2.pk, decoded_privilege,
                                               HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
@@ -595,8 +594,8 @@ class TestGenericsDrives(APITestCase, EntityChangeRelatedProjectTestMixin, Drive
         response = self.rest_create_privilege(self.token2, "files", decoded_file['pk'], self.user1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded_privilege = json.loads(response.content.decode())
-        decoded_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        decoded_privilege['edit_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        decoded_privilege['view_privilege'] = ModelPrivilege.ALLOW
+        decoded_privilege['edit_privilege'] = ModelPrivilege.ALLOW
 
         # update privilege
         response = self.rest_update_privilege(self.token2, "files", decoded_file['pk'], self.user1.pk, decoded_privilege,
@@ -663,7 +662,7 @@ class TestGenericsDrives(APITestCase, EntityChangeRelatedProjectTestMixin, Drive
         decoded_privilege = json.loads(response.content.decode())
 
         # update privilege
-        decoded_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        decoded_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_update_privilege(self.token1, "drives", str(drive.pk), self.user2.pk, decoded_privilege, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 

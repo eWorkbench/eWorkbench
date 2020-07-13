@@ -370,6 +370,10 @@ class BaseProjectEntityPermissionQuerySet(
         :return:
         """
         user = get_current_user()
+        if user.is_anonymous:
+            return self.none()
+        elif user.is_superuser:
+            return self.all()
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'view')
@@ -383,7 +387,7 @@ class BaseProjectEntityPermissionQuerySet(
         # get all object ids where view_privilege is set to deny
         deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
             user=user,
-            view_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY
+            view_privilege=ModelPrivilege.DENY
         ).values_list('object_id', flat=True)
 
         return self.filter(
@@ -392,11 +396,11 @@ class BaseProjectEntityPermissionQuerySet(
                 projects__pk__in=project_pks
             ) | Q(
                 # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | Q(
                 # get all entities where the current user has read access
-                model_privileges__view_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__view_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | self._get_extended_viewable_filters()
         ).exclude(
@@ -419,6 +423,11 @@ class BaseProjectEntityPermissionQuerySet(
         """
         user = get_current_user()
 
+        if user.is_anonymous:
+            return self.none()
+        elif user.is_superuser:
+            return self.all()
+
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'change')
         )
@@ -431,7 +440,7 @@ class BaseProjectEntityPermissionQuerySet(
         # get all object ids where edit_privilege is set to deny
         deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
             user=user,
-            edit_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY
+            edit_privilege=ModelPrivilege.DENY
         ).values_list('object_id', flat=True)
 
         return self.filter(
@@ -440,11 +449,11 @@ class BaseProjectEntityPermissionQuerySet(
                 projects__pk__in=project_pks
             ) | Q(
                 # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | Q(
                 # get all entities where the current user has edit access
-                model_privileges__edit_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__edit_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | self._get_extended_editable_filters()
         ).exclude(
@@ -467,6 +476,11 @@ class BaseProjectEntityPermissionQuerySet(
         """
         user = get_current_user()
 
+        if user.is_anonymous:
+            return self.none()
+        elif user.is_superuser:
+            return self.all()
+
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'delete')
         )
@@ -479,7 +493,7 @@ class BaseProjectEntityPermissionQuerySet(
         # get all object ids where edit_privilege is set to deny
         deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
             user=user,
-            delete_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY
+            delete_privilege=ModelPrivilege.DENY
         ).values_list('object_id', flat=True)
 
         return self.filter(
@@ -488,11 +502,11 @@ class BaseProjectEntityPermissionQuerySet(
                 projects__pk__in=project_pks
             ) | Q(
                 # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | Q(
                 # get all entities where the current user has read access
-                model_privileges__delete_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__delete_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | self._get_extended_deletable_filters()
         ).exclude(
@@ -515,6 +529,11 @@ class BaseProjectEntityPermissionQuerySet(
         """
         user = get_current_user()
 
+        if user.is_anonymous:
+            return self.none()
+        elif user.is_superuser:
+            return self.all()
+
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'restore')
         )
@@ -527,7 +546,7 @@ class BaseProjectEntityPermissionQuerySet(
         # get all object ids where edit_privilege is set to deny
         deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
             user=user,
-            restore_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY
+            restore_privilege=ModelPrivilege.DENY
         ).values_list('object_id', flat=True)
 
         return self.filter(
@@ -536,11 +555,11 @@ class BaseProjectEntityPermissionQuerySet(
                 projects__pk__in=project_pks
             ) | Q(
                 # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | Q(
                 # get all entities where the current user has restore access
-                model_privileges__restore_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__restore_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | self._get_extended_restoreable_filters()
         ).exclude(
@@ -566,6 +585,11 @@ class BaseProjectEntityPermissionQuerySet(
         """
         user = get_current_user()
 
+        if user.is_anonymous:
+            return self.none()
+        elif user.is_superuser:
+            return self.all()
+
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'trash')
         )
@@ -578,7 +602,7 @@ class BaseProjectEntityPermissionQuerySet(
         # get all object ids where edit_privilege is set to deny
         deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
             user=user,
-            trash_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY
+            trash_privilege=ModelPrivilege.DENY
         ).values_list('object_id', flat=True)
 
         return self.filter(
@@ -587,11 +611,11 @@ class BaseProjectEntityPermissionQuerySet(
                 projects__pk__in=project_pks
             ) | Q(
                 # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | Q(
                 # get all entities where the current user has restore access
-                model_privileges__trash_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__trash_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | self._get_extended_trashable_filters()
         ).exclude(
@@ -614,6 +638,11 @@ class BaseProjectEntityPermissionQuerySet(
         """
         user = get_current_user()
 
+        if user.is_anonymous:
+            return self.none()
+        elif user.is_superuser:
+            return self.all()
+
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'change_project')
         )
@@ -626,7 +655,7 @@ class BaseProjectEntityPermissionQuerySet(
         # get all object ids where edit_privilege is set to deny
         deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
             user=user,
-            edit_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY
+            edit_privilege=ModelPrivilege.DENY
         ).values_list('object_id', flat=True)
 
         return self.filter(
@@ -635,11 +664,11 @@ class BaseProjectEntityPermissionQuerySet(
                 projects__pk__in=project_pks
             ) | Q(
                 # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | Q(
                 # get all entities where the current user has read access
-                model_privileges__edit_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__edit_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             )
         ).exclude(
@@ -849,6 +878,11 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
         from eric.projects.models.models import Resource
         user = get_current_user()
 
+        if user.is_anonymous:
+            return self.none()
+        elif user.is_superuser:
+            return self.all()
+
         # get all projects where the current user has the view_resource permission
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'view')
@@ -863,7 +897,7 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
         # get all object ids where view_privilege is set to deny
         deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
             user=user,
-            view_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY
+            view_privilege=ModelPrivilege.DENY
         ).values_list('object_id', flat=True)
 
         return self.filter(
@@ -882,11 +916,11 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
                 projects__pk__in=project_pks
             ) | Q(
                 # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | Q(
                 # get all entities where the current user has read access
-                model_privileges__view_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                model_privileges__view_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user
             ) | self._get_extended_viewable_filters()
         ).exclude(

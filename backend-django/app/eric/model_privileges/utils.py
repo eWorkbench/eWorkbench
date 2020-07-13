@@ -11,7 +11,6 @@ User = get_user_model()
 
 def UserPermission(
         user, object_id, content_type,
-        is_project_permission=False, is_context_permission=False,
         can_view=False, can_edit=False, can_delete=False, can_restore=False, can_trash=False, is_owner=False
 ):
     """
@@ -20,18 +19,12 @@ def UserPermission(
     """
     return ModelPrivilege(
         user=user,
-        full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        if is_owner else ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        view_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        if can_view else ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        edit_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        if can_edit else ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        trash_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        if can_trash else ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        delete_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        if can_delete else ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
-        restore_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        if can_restore else ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL,
+        full_access_privilege=ModelPrivilege.ALLOW if is_owner else ModelPrivilege.NEUTRAL,
+        view_privilege=ModelPrivilege.ALLOW if can_view else ModelPrivilege.NEUTRAL,
+        edit_privilege=ModelPrivilege.ALLOW if can_edit else ModelPrivilege.NEUTRAL,
+        trash_privilege=ModelPrivilege.ALLOW if can_trash else ModelPrivilege.NEUTRAL,
+        delete_privilege=ModelPrivilege.ALLOW if can_delete else ModelPrivilege.NEUTRAL,
+        restore_privilege=ModelPrivilege.ALLOW if can_restore else ModelPrivilege.NEUTRAL,
         object_id=object_id,
         content_type=content_type
     )
@@ -44,7 +37,7 @@ def collect_additional_privileges_for(entity, obj, for_user=None):
     :param obj:
     :return:
     """
-    permissions_by_user = {}
+    permissions_by_user = dict()
 
     # for the specified entity get all privileges and process them
     if entity in privileges_by_class:
@@ -103,33 +96,30 @@ def get_project_and_additional_inherited_privileges_for(entity, obj, user=None):
             users = User.objects.filter(pk__in=user_pks).in_bulk()
 
             # collect role permissions by user (edit, delete, view) in the permission_by_user dict
-            for rp in role_permissions:
+            for role_perm in role_permissions:
                 # get the user_pk
-                user_pk = rp['user']
+                user_pk = role_perm['user']
                 # make sure an entry for user exists in permissions_by_user
                 if user_pk not in permissions_by_user:
                     # does not exist --> create a new entry and set defaults to False
                     permissions_by_user[user_pk] = UserPermission(
                         users.get(user_pk),
                         obj.pk,
-                        obj.get_content_type(),
-                        is_project_permission=True
+                        obj.get_content_type()
                     )
 
-                perm = rp['role__permissions__codename']
-
-                # permissions_by_user[user]['is_project_permission'] = True
+                perm = role_perm['role__permissions__codename']
 
                 if "change_" in perm:
-                    permissions_by_user[user_pk].edit_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+                    permissions_by_user[user_pk].edit_privilege = ModelPrivilege.ALLOW
                 elif "delete_" in perm:
-                    permissions_by_user[user_pk].delete_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+                    permissions_by_user[user_pk].delete_privilege = ModelPrivilege.ALLOW
                 elif "view_" in perm:
-                    permissions_by_user[user_pk].view_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+                    permissions_by_user[user_pk].view_privilege = ModelPrivilege.ALLOW
                 elif "trash_" in perm:
-                    permissions_by_user[user_pk].trash_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+                    permissions_by_user[user_pk].trash_privilege = ModelPrivilege.ALLOW
                 elif "restore_" in perm:
-                    permissions_by_user[user_pk].restore_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+                    permissions_by_user[user_pk].restore_privilege = ModelPrivilege.ALLOW
 
     return permissions_by_user
 
@@ -165,32 +155,14 @@ def get_model_privileges_and_project_permissions_for(entity, obj, user=None):
         model_privilege.content_object = obj
         # check if a user exists
         if model_privilege.user_id in inherited_privileges_by_user:
-            user_pp = inherited_privileges_by_user[model_privilege.user_id]
+            inherited_privileges = inherited_privileges_by_user[model_privilege.user_id]
 
-            # check users project permission for the view privilege
-            if user_pp.view_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW \
-                    and model_privilege.view_privilege != ModelPrivilege.PRIVILEGE_CHOICES_DENY:
-                model_privilege.view_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-            # check users project permission for the edit privilege
-            if user_pp.edit_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW \
-                    and model_privilege.edit_privilege != ModelPrivilege.PRIVILEGE_CHOICES_DENY:
-                model_privilege.edit_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-            # check users project permission for the delete privilege
-            if user_pp.delete_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW \
-                    and model_privilege.delete_privilege != ModelPrivilege.PRIVILEGE_CHOICES_DENY:
-                model_privilege.delete_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-            # check users project permission for the trash privilege
-            if user_pp.trash_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW \
-                    and model_privilege.trash_privilege != ModelPrivilege.PRIVILEGE_CHOICES_DENY:
-                model_privilege.trash_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-            # check users project permission for the restore privilege
-            if user_pp.restore_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW \
-                    and model_privilege.restore_privilege != ModelPrivilege.PRIVILEGE_CHOICES_DENY:
-                model_privilege.restore_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-            # check users project permission for the full access privilege
-            if user_pp.full_access_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW \
-                    and model_privilege.full_access_privilege != ModelPrivilege.PRIVILEGE_CHOICES_DENY:
-                model_privilege.full_access_privilege = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            # allow privilege if granted by project and not denied via direct privilege
+            for privilege, permission in ModelPrivilege.PRIVILEGE_TO_PERMISSION_MAP.items():
+                project_allows = getattr(inherited_privileges, privilege) == ModelPrivilege.ALLOW
+                direct_privilege_denies = getattr(model_privilege, privilege) == ModelPrivilege.DENY
+                if project_allows and not direct_privilege_denies:
+                    setattr(model_privilege, permission, ModelPrivilege.ALLOW)
 
             del inherited_privileges_by_user[model_privilege.user_id]
 

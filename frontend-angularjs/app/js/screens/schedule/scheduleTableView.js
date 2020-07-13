@@ -17,8 +17,8 @@
         bindings: {
             selectedProjects: '<?',
             searchField: '<?',
-            showTasks: '<?',
-            showMeetings: '<?',
+            showMyTasks: '<?',
+            showMyMeetings: '<?',
             selectedUsers: '<?',
             preSelectedUsers: '='
         }
@@ -37,12 +37,18 @@
         $q,
         $scope,
         toaster,
-        UserSortService
+        UserSortService,
+        AuthRestService
     ) {
         "ngInject";
         var vm = this;
 
         this.$onInit = function () {
+            /**
+             * The current user
+             */
+            vm.currentUser = AuthRestService.getCurrentUser();
+
             /**
              * a list of Appointments and Tasks which where received by the API
              */
@@ -146,8 +152,8 @@
                 .createQuery()
                 .filterProjects(vm.selectedProjects)
                 .filterDateRange(startTime, endTime)
-                .showMeetings(vm.showMeetings)
-                .showTasks(vm.showTasks)
+                .showMeetings(vm.showMyMeetings, vm.currentUser.pk, vm.selectedUsers)
+                .showMyTasks(vm.showMyTasks)
                 .searchText(vm.searchField)
                 .query();
         };
@@ -157,7 +163,7 @@
          * resets vm.filteredSchedules to an empty list, iterates over the appointments
          * in vm.schedules.
          * Applies the following filters:
-         * - filterBySelectedUser (assigned_users, attending_users)
+         * - scheduleIsNoDuplicate (schedule, schedules)
          *
          */
         var updateFilteredSchedules = function () {
@@ -167,13 +173,11 @@
                 vm.schedules[i].type = vm.schedules[i].content_type_model.split('.')[1];
 
                 // apply the filters
-                var showInFilteredProjects = ScheduleHelperService.scheduleContainsAllWantedUsers(
-                    vm.schedules[i],
-                    vm.selectedUsers
-                );
+                var scheduleIsNoDuplicate = ScheduleHelperService
+                    .scheduleIsNoDuplicate(vm.schedules[i], vm.filteredSchedules);
 
                 // add entry when filter fits
-                if (showInFilteredProjects) {
+                if (scheduleIsNoDuplicate) {
                     vm.filteredSchedules.push(vm.schedules[i]);
                 }
             }
@@ -223,14 +227,15 @@
             }
         };
 
-        // Watch potential filter settings and load the new data from the api
+        // Watch potential filter settings and update vm.filteredSchedules
         $scope.$watchGroup(
-            ["vm.searchField", "vm.showTasks", "vm.showMeetings", "vm.selectedProjects"],
+            ["vm.searchField", "vm.showMyTasks", "vm.showMyMeetings", "vm.selectedUsers", "vm.selectedProjects"],
             vm.updateSchedules
         );
-        // Watch potential filter settings and filter the data local (no api call)
+
+        // Watch potential filter settings and update vm.filteredSchedules
         $scope.$watchGroup(
-            ["vm.selectedUsers"],
+            ["vm.selectedResources"],
             updateFilteredSchedules
         );
     });

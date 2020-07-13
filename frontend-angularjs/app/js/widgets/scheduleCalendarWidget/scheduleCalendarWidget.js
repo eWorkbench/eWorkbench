@@ -14,12 +14,12 @@
         bindings: {
             selectedProjects: '<?',
             searchField: '<?',
-            showTasks: '<?',
-            showMeetings: '<?',
+            showMyTasks: '<?',
+            showMyMeetings: '<?',
             selectedUsers: '<?',
             calendarConfig: '<',
             preSelectedUsers: '=',
-            selectedResources: "<?"
+            selectedResources: '<?'
         }
     });
 
@@ -39,7 +39,8 @@
         ResourceHelperService,
         ResourceBookingCreateEditModalService,
         meetingCreateModalService,
-        ResourceBookingsRestService
+        ResourceBookingsRestService,
+        AuthRestService
     ) {
         'ngInject';
 
@@ -132,6 +133,11 @@
 
         this.$onInit = function () {
             /**
+             * The current user
+             */
+            vm.currentUser = AuthRestService.getCurrentUser();
+
+            /**
              * a list of Appointments and Tasks
              * @type {Array}
              */
@@ -198,8 +204,8 @@
             var queryFactory = FilteredScheduleQueryFactory
                 .createQuery()
                 .filterProjects(vm.selectedProjects)
-                .showMeetings(vm.showMeetings)
-                .showTasks(vm.showTasks)
+                .showMeetings(vm.showMyMeetings, vm.currentUser.pk, vm.selectedUsers)
+                .showMyTasks(vm.showMyTasks)
                 .searchText(vm.searchField);
 
             if (!hideDateFilters) {
@@ -213,7 +219,7 @@
          * Update Filtered tasks and appointments
          * resets vm.filteredSchedules to an empty array, and then iterates over all schedules
          * Applies the following filters:
-         * - filterBySelectedUser (assigned_users, attending_users)
+         * - scheduleIsNoDuplicate (schedule, schedules)
          */
         var updateFilteredSchedules = function () {
             vm.filteredSchedules = [];
@@ -221,12 +227,19 @@
             for (var i = 0; i < vm.schedules.length; i++) {
                 var schedule = vm.schedules[i];
 
-                var showInFilteredProjects = ScheduleHelperService
-                    .scheduleContainsAllWantedUsers(schedule, vm.selectedUsers);
+                // check if the entry has already been added to vm.filteredSchedules
+                var scheduleIsNoDuplicate = ScheduleHelperService
+                    .scheduleIsNoDuplicate(schedule, vm.filteredSchedules);
 
-                if (showInFilteredProjects) {
-                    schedule.color = ResourceHelperService.getResourceColor(schedule, vm.selectedResources);
-
+                if (scheduleIsNoDuplicate) {
+                    // if the entry is an appointment get the right colors
+                    if (schedule.content_type_model === 'shared_elements.meeting')  {
+                        schedule.color = ResourceHelperService.getResourceColor(schedule, vm.selectedResources);
+                    }
+                    if (schedule.content_type_model === 'shared_elements.meeting' && !schedule.additional) {
+                        schedule.color = ResourceHelperService.getUserColor(schedule, vm.selectedUsers);
+                    }
+                    // finally push the entry to vm.filteredSchedules
                     vm.filteredSchedules.push(schedule);
                 }
             }
@@ -258,6 +271,8 @@
                         switch (entry.content_type_model) {
                             case 'shared_elements.meeting':
                                 //opened view by click on appointment
+                                entry.icon = 'fa-calendar';
+                                entry.type = 'Appointment';
                                 entry.url = $state.href('meeting-view', {meeting: entry});
 
                                 //for display
@@ -265,12 +280,14 @@
                                 entry.borderColor = '#8fc3c6';
                                 entry.textColor = 'black';
 
-                                //collect users that are attended to appointments
+                                //collect users that are attended to meetings
                                 vm.preSelectedUsers = vm.preSelectedUsers.concat(entry.attending_users);
                                 break;
 
                             case 'shared_elements.task':
                                 //opened view by click on task
+                                entry.icon = 'fa-tasks';
+                                entry.type = 'Task';
                                 entry.url = $state.href('task-view', {task: entry});
 
                                 //for display
@@ -314,12 +331,13 @@
 
         // Watch potential filter settings and update vm.filteredSchedules
         $scope.$watchGroup(
-            ["vm.searchField", "vm.showTasks", "vm.showMeetings", "vm.selectedProjects"],
+            ["vm.searchField", "vm.showMyTasks", "vm.showMyMeetings", "vm.selectedUsers", "vm.selectedProjects"],
             vm.updateSchedules
         );
+
         // Watch potential filter settings and update vm.filteredSchedules
         $scope.$watchGroup(
-            ["vm.selectedUsers", "vm.selectedResources"],
+            ["vm.selectedResources"],
             updateFilteredSchedules
         );
 
@@ -343,12 +361,15 @@
 
                                 booking.additional = true;
 
+                                booking.icon = 'fa-cubes';
+                                booking.type = 'Appointment';
+
                                 //opened view by click on appointment
                                 booking.url = $state.href('meeting-view', {meeting: booking});
 
                                 booking.borderColor = '#d2cdc8';
                                 booking.textColor = 'black';
-                                booking.color = ResourceHelperService.selectColor(vm.selectedResources.length);
+                                booking.color = ResourceHelperService.selectColor(vm.selectedResources.length - 1);
 
                                 booking.booked_by = booking.created_by;
 

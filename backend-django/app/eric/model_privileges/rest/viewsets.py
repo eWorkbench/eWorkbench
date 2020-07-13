@@ -16,7 +16,7 @@ from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet
 from eric.model_privileges.models import ModelPrivilege
 from eric.model_privileges.rest.serializers import ModelPrivilegeSerializer
 from eric.model_privileges.utils import get_model_privileges_and_project_permissions_for
-from eric.shared_elements.models import Task, Meeting, Contact
+from eric.shared_elements.models import Task, Meeting, Contact, CalendarAccess
 
 User = get_user_model()
 
@@ -58,6 +58,9 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         elif entity == Contact:
             # special case for Contacts: prefetch attending meetings
             qs = qs.prefetch_related('attending_meetings')
+        elif entity == CalendarAccess:
+            # special case for CalenderAccessPrivilege: it has no projects
+            qs = entity.objects.viewable()
 
         return get_object_or_404(qs, pk=pk)
 
@@ -122,12 +125,12 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
             # however, we can create a new privilege with everything set to deny to fulfill the wish of the user
             ModelPrivilege.objects.create(
                 user=instance.user,
-                full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY,
-                view_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY,
-                edit_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY,
-                delete_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY,
-                trash_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY,
-                restore_privilege=ModelPrivilege.PRIVILEGE_CHOICES_DENY,
+                full_access_privilege=ModelPrivilege.DENY,
+                view_privilege=ModelPrivilege.DENY,
+                edit_privilege=ModelPrivilege.DENY,
+                delete_privilege=ModelPrivilege.DENY,
+                trash_privilege=ModelPrivilege.DENY,
+                restore_privilege=ModelPrivilege.DENY,
                 content_object=self.parent_object
             )
 
@@ -142,7 +145,7 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         """
         Update a model privilege
 
-        Special case: If the modal privilege is "inherited", it does not exist (therefore instnace.pk == "").
+        Special case: If the modal privilege is "inherited", it does not exist (therefore instance.pk == "").
         :param request:
         :param args:
         :param kwargs:
@@ -153,13 +156,12 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         user_id = kwargs.get('user_id', None)
 
         # Reset all other privileges if full_access is allowed
-        if "full_access_privilege" in request.data \
-                and request.data["full_access_privilege"] == instance.PRIVILEGE_CHOICES_ALLOW:
-            request.data["view_privilege"] = instance.PRIVILEGE_CHOICES_NEUTRAL
-            request.data["edit_privilege"] = instance.PRIVILEGE_CHOICES_NEUTRAL
-            request.data["delete_privilege"] = instance.PRIVILEGE_CHOICES_NEUTRAL
-            request.data["trash_privilege"] = instance.PRIVILEGE_CHOICES_NEUTRAL
-            request.data["restore_privilege"] = instance.PRIVILEGE_CHOICES_NEUTRAL
+        if "full_access_privilege" in request.data and request.data["full_access_privilege"] == ModelPrivilege.ALLOW:
+            request.data["view_privilege"] = ModelPrivilege.NEUTRAL
+            request.data["edit_privilege"] = ModelPrivilege.NEUTRAL
+            request.data["delete_privilege"] = ModelPrivilege.NEUTRAL
+            request.data["trash_privilege"] = ModelPrivilege.NEUTRAL
+            request.data["restore_privilege"] = ModelPrivilege.NEUTRAL
 
         # Special case: privilege does not exist
         if instance.pk == "":

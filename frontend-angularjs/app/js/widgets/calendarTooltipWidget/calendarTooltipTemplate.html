@@ -1,28 +1,34 @@
 <!-- Template for the calendar tooltip widget -->
 <div ng-if="vm.event">
-    <p>{{ vm.event.title }}</p>
-    <p>{{ vm.event.date_time_start | smallDate }} - {{ vm.event.date_time_end | smallDate }}</p>
+    <p>{{ vm.event.type }}</p>
+    <p>Title: {{ vm.event.title }}</p>
+    <p>Attending Users: <meeting-attending-users-cell-widget meeting="vm.event"></meeting-attending-users-cell-widget></p>
+    <p ng-if="vm.event.resource">Resource: {{ vm.event.resource.name }}</p>
+    <p>Starts at: {{ vm.event.date_time_start | smallDate }}</p>
+    <p>Ends at: {{ vm.event.date_time_end | smallDate }}</p>
 
 <!--    <p ng-show="vm.event.resource">Booked Resource: {{ vm.event.resource.name }}</p>-->
     <p ng-bind-html="vm.event.text | htmlToPlaintext"></p>
 </div>
 <!-- Appointment -->
 <div ng-if="vm.meeting">
-    <p>{{ vm.meeting.title }}</p>
-    <p>{{ vm.meeting.date_time_start | smallDate }} - {{ vm.meeting.date_time_end | smallDate }}</p>
+    <p>Title: {{ vm.meeting.title }}</p>
+    <p>Starts at: {{ vm.meeting.date_time_start | smallDate }}</p>
+    <p>Ends at: {{ vm.meeting.date_time_end | smallDate }}</p>
 
 <!--    <p ng-show="vm.meeting.resource">Booked Resource: {{ vm.meeting.resource.name }}</p>-->
     <p ng-bind-html="vm.meeting.text | htmlToPlaintext"></p>
 </div>
-
 <!-- Task -->
 <div ng-if="vm.task">
-    <p>{{ vm.task.title }}</p>
-    <p>{{ vm.task.start_date | smallDate }} - {{ vm.task.due_date | smallDate }}</p>
+    <p>{{ vm.task.type }}</p>
+    <p>Title: {{ vm.task.title }}</p>
+    <p>Assigned Users: <task-assigned-users-cell-widget task="vm.task"></task-assigned-users-cell-widget></p>
+    <p>Starts at: {{ vm.task.start_date | smallDate }}</p>
+    <p>Is due at: {{ vm.task.due_date | smallDate }}</p>
 
     <p ng-bind-html="vm.task.description | htmlToPlaintext"></p>
 </div>
-
 <!-- Ressource -->
 <div ng-if="vm.resourcebooking">
     <p>{{ vm.resourcebooking.title }}</p>

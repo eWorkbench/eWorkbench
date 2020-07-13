@@ -153,7 +153,7 @@ class TestGenericsLabBooks(APITestCase, EntityChangeRelatedProjectTestMixin, Lab
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
         response = self.rest_generic_patch_privilege(self.token1, labbook.pk, self.user2.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW
         })
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -176,7 +176,7 @@ class TestGenericsLabBooks(APITestCase, EntityChangeRelatedProjectTestMixin, Lab
 
         # give user2 the edit privilege on the labbook
         response = self.rest_generic_patch_privilege(self.token1, labbook.pk, self.user2.pk, {
-            'edit_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'edit_privilege': ModelPrivilege.ALLOW
         })
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -186,7 +186,7 @@ class TestGenericsLabBooks(APITestCase, EntityChangeRelatedProjectTestMixin, Lab
 
         # now remove the edit privilege of user2 (set to neutral)
         response = self.rest_generic_patch_privilege(self.token1, labbook.pk, self.user2.pk, {
-            'edit_privilege': ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL
+            'edit_privilege': ModelPrivilege.NEUTRAL
         })
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -392,12 +392,12 @@ class CreateNoteInLabbookPermissionTest(
         self.assertEqual(len(labbook_elements), 1)
 
     def assert_only_view_privilege(self, privilege):
-        self.assertEquals(privilege['view_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
-        self.assertEquals(privilege['edit_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(privilege['full_access_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(privilege['delete_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(privilege['trash_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(privilege['restore_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
+        self.assertEquals(privilege['view_privilege'], ModelPrivilege.ALLOW)
+        self.assertEquals(privilege['edit_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(privilege['full_access_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(privilege['delete_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(privilege['trash_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(privilege['restore_privilege'], ModelPrivilege.NEUTRAL)
 
     def assert_user_has_only_view_privilege_on_labbook(self, token, user, labbook):
         response = self.rest_get_privileges_for_user(
@@ -439,7 +439,7 @@ class CreateNoteInLabbookPermissionTest(
         self.assertEqual(response.status_code, HTTP_201_CREATED)
 
         privilege = {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW
         }
         response = self.rest_patch_privilege(
             token,

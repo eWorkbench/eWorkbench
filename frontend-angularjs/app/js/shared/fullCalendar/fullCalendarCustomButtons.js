@@ -7526,18 +7526,15 @@
                 ) +
                 '>' +
                 '<div class="fc-content">' +
-                (event.attending_users
-                        ? '<div class="fc-title">'
-                        + '<span>'
-                        + 'Attending: ' + htmlEscape(getAttendingUserString(event.attending_users))
-                        + '</span>'
-                        + '</div>'
+                (event.icon
+                        ? '<i class="fa ' + htmlEscape(event.icon) + '"></i>'
+                        + '&nbsp'
                         : ''
                 ) +
-                (event.assigned_users
-                        ? '<div class="fc-title">'
+                (event.type
+                        ? '<div style="display: inline-block;" class="fc-title">'
                         + '<span>'
-                        + 'Assigned: ' + htmlEscape(getAttendingUserString(event.assigned_users))
+                        + htmlEscape(event.type) + '&nbsp'
                         + '</span>'
                         + '</div>'
                         : ''
@@ -7553,7 +7550,9 @@
                 ) +
                 (event.title
                         ? '<div class="fc-title">'
+                        + '<span><strong>'
                         + htmlEscape(event.title)
+                        + '</strong></span>'
                         + '</div>'
                         : ''
                 ) +

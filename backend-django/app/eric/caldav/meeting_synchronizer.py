@@ -74,7 +74,7 @@ class MeetingSynchronizer:
                     name=caldav_item.name,
                 ))
             if meeting:
-                LOGGER.info('Meeting: ID: <{id}> Name: <{title}>'.format(
+                LOGGER.info('Appointment: ID: <{id}> Name: <{title}>'.format(
                     id=meeting.pk,
                     title=meeting.title,
                 ))

@@ -85,7 +85,7 @@ class ContactShareSerializer(ContactSerializer):
                 content_type=instance.content_type,
                 object_id=instance.pk,
                 defaults={
-                    'full_access_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
+                    'full_access_privilege': ModelPrivilege.ALLOW,
                 }
             )
 

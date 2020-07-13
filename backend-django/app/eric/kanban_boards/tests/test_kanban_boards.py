@@ -741,7 +741,7 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
         response = self.rest_generic_patch_privilege(self.token1, kanban_board_pk, self.user2.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW
         })
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -850,7 +850,7 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
         response = self.rest_patch_privilege(self.token1, "tasks", task1_pk, self.user2.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW
         }, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -859,7 +859,7 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
         response = self.rest_patch_privilege(self.token1, "tasks", task2_pk, self.user2.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW
         }, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -868,7 +868,7 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
         response = self.rest_patch_privilege(self.token1, "tasks", task3_pk, self.user2.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW
         }, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -962,7 +962,7 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
 
         # give user2 edit permissions for the kanban view
         response = self.rest_generic_patch_privilege(self.token1, kanban_board_pk, self.user2.pk, {
-            'edit_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'edit_privilege': ModelPrivilege.ALLOW
         })
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -1022,7 +1022,7 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
 
         # now remove the edit privilege of user2 (set to neutral)
         response = self.rest_generic_patch_privilege(self.token1, kanban_board_pk, self.user2.pk, {
-            'edit_privilege': ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL
+            'edit_privilege': ModelPrivilege.NEUTRAL
         })
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -1109,8 +1109,8 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
 
         # patch the privileges with the view and edit privilege for user1
         response = self.rest_patch_privilege(self.token2, "kanbanboards", kanban_board_pk, self.user1.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
-            'edit_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW,
+            'edit_privilege': ModelPrivilege.ALLOW
         }, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -1138,7 +1138,7 @@ class TestGenericsKanbanBoards(APITestCase, EntityChangeRelatedProjectTestMixin,
         )
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_privilege = json.loads(response.content.decode())
-        self.assertEquals(decoded_privilege['view_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
+        self.assertEquals(decoded_privilege['view_privilege'], ModelPrivilege.ALLOW)
 
         # try to update the task with user2 (should not work)
         response = self.rest_update_task(

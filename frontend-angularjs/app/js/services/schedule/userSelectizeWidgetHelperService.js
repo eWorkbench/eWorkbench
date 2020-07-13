@@ -97,11 +97,53 @@
         };
 
         /**
+         * Calls querys to the API on search for calendar access privileges
+         * @param vm
+         * @param accessUserPk
+         * @param accessEditable
+         * @param query
+         * @param callback
+         */
+        service.queryAccessOnSearch = function (vm, accessUserPk, accessEditable, query, callback) {
+            // check if query contains anything
+            if (!query.length || query.length < 2) {
+                // minimum of two characters before we fire a query to rest API
+                return callback();
+            }
+
+            // query rest API - on success, we use callback with the response array
+            return service.searchAccessUserViaRest(accessUserPk, accessEditable, query).$promise.then(
+                function success (response) {
+                    callback(response);
+                },
+                function error (rejection) {
+                    console.log("Error querying user search endpoint");
+                    console.log(rejection);
+                    callback();
+                }
+            )
+        };
+
+        /**
          * Querys the API
          * @param searchValue
          */
         service.searchUserViaRest = function (searchValue) {
             return UserRestService.resource.search({search: searchValue});
+        };
+
+        /**
+         * Querys the API with the access flag
+         * @param accessUserPk
+         * @param accessEditable
+         * @param searchValue
+         */
+        service.searchAccessUserViaRest = function (accessUserPk, accessEditable, searchValue) {
+            return UserRestService.resource.search({
+                access_user: accessUserPk,
+                access_editable: accessEditable,
+                search: searchValue
+            });
         };
 
         /**

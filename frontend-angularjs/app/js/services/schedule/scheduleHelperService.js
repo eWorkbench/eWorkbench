@@ -33,11 +33,37 @@
                 return true;
             }
 
+            // if the event is a meeting we return true as it is already filtered by user by the API
+            if (event.content_type_model === 'shared_elements.meeting') {
+                return true;
+            }
+
             var userPks = service.getUserPksOfEvent(event);
 
             // check that every wanted user is associated with the event
             for (var i = 0; i < wantedUserPks.length; i++) {
                 if (userPks.indexOf(wantedUserPks[i]) < 0) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        /**
+         * Returns true if the schedule is not already in schedules
+         * @param schedule
+         * @param schedules
+         */
+        service.scheduleIsNoDuplicate = function (schedule, schedules) {
+            // in scheduleCardView data can be loaded by an infinite-scroll-like mechanism
+            // and the noDataAvailable value can occur
+            if (schedule.content_type_model === 'noDataAvailable') {
+                return true;
+            }
+
+            for (var i = 0; i < schedules.length; i++) {
+                if (schedules[i].pk === schedule.pk) {
                     return false;
                 }
             }

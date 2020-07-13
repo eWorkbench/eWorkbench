@@ -5,11 +5,10 @@
 import uuid
 
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ugettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
@@ -25,15 +24,24 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
     """
     objects = ModelPrivilegeManager()
 
-    PRIVILEGE_CHOICES_ALLOW = "AL"
-    PRIVILEGE_CHOICES_DENY = "DE"
-    PRIVILEGE_CHOICES_NEUTRAL = "NE"
+    ALLOW = "AL"
+    DENY = "DE"
+    NEUTRAL = "NE"
 
     PRIVILEGE_CHOICES = [
-        (PRIVILEGE_CHOICES_ALLOW, _("Allow")),
-        (PRIVILEGE_CHOICES_DENY, _("Deny")),
-        (PRIVILEGE_CHOICES_NEUTRAL, _("Neutral"))
+        (ALLOW, _("Allow")),
+        (DENY, _("Deny")),
+        (NEUTRAL, _("Neutral"))
     ]
+
+    PRIVILEGE_TO_PERMISSION_MAP = {
+        'full_access_privilege': 'is_owner',
+        'view_privilege': 'can_view',
+        'edit_privilege': 'can_edit',
+        'trash_privilege': 'can_trash',
+        'restore_privilege': 'can_restore',
+        'delete_privilege': 'can_delete',
+    }
 
     class Meta:
         ordering = ['full_access_privilege', 'user__username']
@@ -63,7 +71,7 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
         max_length=2,
         choices=PRIVILEGE_CHOICES,
         verbose_name=_("Whether the user has full access on this entity"),
-        default=PRIVILEGE_CHOICES_NEUTRAL,
+        default=NEUTRAL,
         db_index=True
     )
 
@@ -71,7 +79,7 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
         max_length=2,
         choices=PRIVILEGE_CHOICES,
         verbose_name=_("Whether the user is allowed or not allowed to view this entity"),
-        default=PRIVILEGE_CHOICES_NEUTRAL,
+        default=NEUTRAL,
         db_index=True
     )
 
@@ -79,7 +87,7 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
         max_length=2,
         choices=PRIVILEGE_CHOICES,
         verbose_name=_("Whether the user is allowed or not allowed to edit this entity"),
-        default=PRIVILEGE_CHOICES_NEUTRAL,
+        default=NEUTRAL,
         db_index=True
     )
 
@@ -87,7 +95,7 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
         max_length=2,
         choices=PRIVILEGE_CHOICES,
         verbose_name=_("Whether the user is allowed or not allowed to delete this entity"),
-        default=PRIVILEGE_CHOICES_NEUTRAL,
+        default=NEUTRAL,
         db_index=True
     )
 
@@ -95,7 +103,7 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
         max_length=2,
         choices=PRIVILEGE_CHOICES,
         verbose_name=_("Whether the user is allowed or not allowed to trash this entity"),
-        default=PRIVILEGE_CHOICES_NEUTRAL,
+        default=NEUTRAL,
         db_index=True
     )
 
@@ -103,7 +111,7 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
         max_length=2,
         choices=PRIVILEGE_CHOICES,
         verbose_name=_("Whether the user is allowed or not allowed to restore this entity"),
-        default=PRIVILEGE_CHOICES_NEUTRAL,
+        default=NEUTRAL,
         db_index=True
     )
 
@@ -125,22 +133,22 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
     def __str__(self):
         permissions = []
 
-        if self.full_access_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
+        if self.full_access_privilege == ModelPrivilege.ALLOW:
             permissions.append(_("Full Access"))
 
-        if self.view_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
+        if self.view_privilege == ModelPrivilege.ALLOW:
             permissions.append(_("View"))
 
-        if self.edit_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
+        if self.edit_privilege == ModelPrivilege.ALLOW:
             permissions.append(_("Edit"))
 
-        if self.delete_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
+        if self.delete_privilege == ModelPrivilege.ALLOW:
             permissions.append(_("Delete"))
 
-        if self.restore_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
+        if self.restore_privilege == ModelPrivilege.ALLOW:
             permissions.append(_("Restore"))
 
-        if self.trash_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
+        if self.trash_privilege == ModelPrivilege.ALLOW:
             permissions.append(_("Trash"))
 
         return _("User %(username)s permissions for %(entity_name)s: %(permissions)s") % {
@@ -151,19 +159,15 @@ class ModelPrivilege(BaseModel, ChangeSetMixIn, RevisionModelMixin, IsDeleteable
 
     def is_deleteable(self):
         """
-        Verifies whether this entity is deleteable or not
+        Verifies whether this privilege can be deleted or not.
+        A FullAccess privilege may only be deleted if there are other users with FullAccess.
         :return:
         """
-        if not self.full_access_privilege == ModelPrivilege.PRIVILEGE_CHOICES_ALLOW:
-            # if is_owner is false, this entity is always deletable
+        if not self.full_access_privilege == ModelPrivilege.ALLOW:
             return True
 
-        # else: if there are others that have is_owner, then this entity is deleteable
-        if ModelPrivilege.objects.exclude(id=self.id).filter(
-                content_type=self.content_type,
-                object_id=self.object_id,
-                full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        ).count() > 0:
-            return True
-
-        return False
+        return ModelPrivilege.objects.exclude(id=self.id).filter(
+            content_type=self.content_type,
+            object_id=self.object_id,
+            full_access_privilege=ModelPrivilege.ALLOW
+        ).exists()

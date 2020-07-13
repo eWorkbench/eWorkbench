@@ -6,14 +6,14 @@ import json
 
 from django.utils import timezone
 from django.utils.timezone import timedelta
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.test import APITestCase
 
-from eric.shared_elements.tests.core import MeetingMixin
-from eric.shared_elements.models import Meeting
-from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
-from eric.model_privileges.models import ModelPrivilege
 from eric.core.tests import test_utils
+from eric.model_privileges.models import ModelPrivilege
+from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
+from eric.shared_elements.models import Meeting
+from eric.shared_elements.tests.core import MeetingMixin
 
 HTTP_USER_AGENT = "APITestClient"
 REMOTE_ADDR = "127.0.0.1"
@@ -41,7 +41,7 @@ class TestGenericMeetings(APITestCase, EntityChangeRelatedProjectTestMixin, Meet
 
     def test_meeting_privileges_for_attending_users(self):
         """
-        Whenever a user attends a meeting, they should be able to see the meeting
+        Whenever a user attends a meeting, they should be able to read, edit and trash the meeting
         This is basically the same as TestGenericsTask.test_meeting_privileges_for_assigned_users just for meetings
         :return:
         """
@@ -81,16 +81,17 @@ class TestGenericMeetings(APITestCase, EntityChangeRelatedProjectTestMixin, Meet
         # and privilege 1 should be for user2
         self.assertEquals(decoded_privileges[1]['user']['pk'], self.user2.pk)
         # verify that user1 is the owner
-        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
-        # verify that user2 only has read access
-        self.assertEquals(decoded_privileges[1]['full_access_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(decoded_privileges[1]['view_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
-        self.assertEquals(decoded_privileges[1]['edit_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(decoded_privileges[1]['delete_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(decoded_privileges[1]['restore_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
+        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.ALLOW)
+        # verify that user2 only has read, edit and trash access
+        self.assertEquals(decoded_privileges[1]['full_access_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['view_privilege'], ModelPrivilege.ALLOW)
+        self.assertEquals(decoded_privileges[1]['edit_privilege'], ModelPrivilege.ALLOW)
+        self.assertEquals(decoded_privileges[1]['trash_privilege'], ModelPrivilege.ALLOW)
+        self.assertEquals(decoded_privileges[1]['delete_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['restore_privilege'], ModelPrivilege.ALLOW)
 
         # now override the view_privilege for user2
-        decoded_privileges[1]['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_DENY
+        decoded_privileges[1]['view_privilege'] = ModelPrivilege.DENY
         response = self.rest_update_privilege(self.token1, "meetings", meeting.pk,
                                               self.user2.pk, decoded_privileges[1], HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)

@@ -54,6 +54,9 @@
                 },
                 allDaySlot: true
             };
+
+            vm.showMyMeetings = true;
+            vm.selectedUsers = [];
         };
 
     });

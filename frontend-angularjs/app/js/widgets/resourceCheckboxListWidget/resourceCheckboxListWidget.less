@@ -13,24 +13,4 @@ resource-checkbox-list-widget {
     border-style: dotted;
     border-width: thin;
   }
-
-  // to hide the checkbox itself
-  input[type=checkbox] {
-    display: none;
-  }
-
-  // unchecked icon
-  input[type=checkbox] + label:before {
-    font-family: FontAwesome;
-    display: inline-block;
-    color: #3a99fc;
-    content: "\f0c8";
-    letter-spacing: 5px;
-  }
-
-  // checked icon
-  input[type=checkbox]:checked + label:before {
-    content: "\f14a";
-    letter-spacing: 5px;
-  }
 }

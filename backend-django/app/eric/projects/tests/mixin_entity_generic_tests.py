@@ -663,7 +663,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(element.deleted, False)
 
         # give user2 the view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -680,7 +680,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(element.deleted, False)
 
         # give user2 privilege "TRASH" for this element
-        user2_privilege['trash_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['trash_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -714,7 +714,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.rest_generic_unlock_entity(self.token1, element.pk)
 
         # give user2 view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -730,7 +730,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(element.deleted, True)
 
         # give user2 the restore privilege
-        user2_privilege['restore_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['restore_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -750,12 +750,12 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         element, user2_privilege = self.generic_create_entity_and_add_another_user(0, self.user2)
 
         # give user2 view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # update the privilege, also give the edit privilege
-        user2_privilege['edit_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -803,7 +803,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(element.deleted, True)
 
         # give user2 view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -819,8 +819,8 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(element.deleted, True)
 
         # give user2 the edit and delete privilege
-        user2_privilege['edit_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
-        user2_privilege['delete_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege['delete_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -988,7 +988,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # it should have user1
         self.assertEquals(decoded_privileges[0]['user_pk'], self.user1.pk)
         self.assertEquals(decoded_privileges[0]['object_id'], decoded_response['pk'])
-        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
+        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.ALLOW)
 
     def generic_create_entity_and_return_from_db(self, token, entity_index):
         """
@@ -1034,11 +1034,11 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         user2_privilege = json.loads(response.content.decode())
         # verify that all privileges for this user are set to neutral (for now)
         self.assertEquals(user2_privilege['user']['pk'], self.user2.pk)
-        self.assertEquals(user2_privilege['view_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(user2_privilege['edit_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(user2_privilege['trash_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(user2_privilege['delete_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
-        self.assertEquals(user2_privilege['restore_privilege'], ModelPrivilege.PRIVILEGE_CHOICES_NEUTRAL)
+        self.assertEquals(user2_privilege['view_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(user2_privilege['edit_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(user2_privilege['trash_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(user2_privilege['delete_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(user2_privilege['restore_privilege'], ModelPrivilege.NEUTRAL)
 
         # try to access this entity with user2 (should not work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
@@ -1058,7 +1058,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         element, user2_privilege = self.generic_create_entity_and_add_another_user(0, self.user2)
 
         # update privilege (should work): add view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -1075,7 +1075,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # now modify the privilege such that user2 is DENIED viewing the element
-        user2_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_DENY
+        user2_privilege['view_privilege'] = ModelPrivilege.DENY
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -1119,7 +1119,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # now remove the view privilege from user3
         response = self.rest_generic_patch_privilege(self.token1, element.pk, self.user3.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_DENY
+            'view_privilege': ModelPrivilege.DENY
         })
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
@@ -1144,7 +1144,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         element, user2_privilege = self.generic_create_entity_and_add_another_user(0, self.user2)
 
         # update privilege (should work): add view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -1172,7 +1172,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # update privilege (should work): add edit privilege
-        user2_privilege['edit_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+        user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -1203,7 +1203,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.rest_generic_unlock_entity(self.token1, element.pk)
 
         # now deny the edit privilege for user2 (should work)
-        user2_privilege['edit_privilege'] = ModelPrivilege.PRIVILEGE_CHOICES_DENY
+        user2_privilege['edit_privilege'] = ModelPrivilege.DENY
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -1401,8 +1401,8 @@ def test_search(self):
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
         self.rest_generic_patch_privilege(self.token1, element2.pk, self.user2.pk, {
-            'view_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW,
-            'edit_privilege': ModelPrivilege.PRIVILEGE_CHOICES_ALLOW
+            'view_privilege': ModelPrivilege.ALLOW,
+            'edit_privilege': ModelPrivilege.ALLOW
         })
 
         # modify element2 with user2

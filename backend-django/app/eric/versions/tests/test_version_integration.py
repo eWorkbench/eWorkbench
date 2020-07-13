@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import copy
+
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_204_NO_CONTENT
 from rest_framework.test import APITestCase
 
@@ -12,8 +13,8 @@ from eric.labbooks.tests.core import LabBookMixin
 from eric.model_privileges.models import ModelPrivilege
 from eric.pictures.models import Picture
 from eric.pictures.tests.core import PictureMixin
-from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TestLockMixin
 from eric.projects.models import ElementLock, Project
+from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TestLockMixin
 from eric.shared_elements.models import Task, File, Note, disable_permission_checks
 from eric.shared_elements.tests.core import ContactMixin, MeetingMixin, NoteMixin, TaskMixin, \
     ContactAttendsMeetingMixin, UserAttendsMeetingMixin, ElementLabelMixin, FileMixin
@@ -94,7 +95,7 @@ class GenericVersionIntegrationTest(VersionRestMixin, ProjectsMixin, Authenticat
     def allow_model_access(self, endpoint, model, pk, user):
         self.set_model_privilege_for_user(
             self.token_su, endpoint, model, pk, user,
-            full_access_privilege=ModelPrivilege.PRIVILEGE_CHOICES_ALLOW)
+            full_access_privilege=ModelPrivilege.ALLOW)
 
     def test_export_restore(self):
         endpoint = self.get_endpoint()

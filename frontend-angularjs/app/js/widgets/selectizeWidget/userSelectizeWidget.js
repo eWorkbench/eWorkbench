@@ -29,7 +29,11 @@
                 // optional: will be populated with the users loaded while searching
                 loadedUsers: '=?',
                 // intial user options
-                users: '='
+                users: '=',
+                // access search calendar pk (optional)
+                accessUserPk: '=?',
+                // access flag to search for editable permissions only
+                accessEditable: '=?'
             }
         }
     });
@@ -92,6 +96,13 @@
                         }
                     };
 
+                    console.log("")
+
+                    if (vm.accessUserPk) {
+                        return UserSelectizeWidgetHelperService.queryAccessOnSearch(
+                            vm, vm.accessUserPk, vm.accessEditable, query, extendedCallback);
+                    }
+
                     return UserSelectizeWidgetHelperService.queryOnSearch(vm, query, extendedCallback);
                 },
                 onInitialize: function (selectize) {
@@ -127,6 +138,14 @@
                 } else {
                     vm.selectize.unlock();
                 }
+            }
+        });
+
+        // watch vm.placeholder and update it on change using updatePlaceholder()
+        $scope.$watch("vm.placeholder", function (newValue, oldValue) {
+            if (newValue != oldValue) {
+                vm.selectize.settings.placeholder = vm.placeholder;
+                vm.selectize.updatePlaceholder();
             }
         });
 

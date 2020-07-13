@@ -17,7 +17,8 @@
         controllerAs: 'vm',
         bindings: {
             meetings: '<',
-            isLoading: '<'
+            isLoading: '<',
+            selectedUsers: '<'
         },
         bindToController: true
     });
@@ -53,6 +54,8 @@
                 },
                 slotDuration: '02:00:00'
             };
+
+            vm.selectedUsers = [];
         };
     });
 })();

@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.19 - June 2020
+- Added calendar rights management feature
+- Sync empty LDAP fields
+- Removed dropdown arrows from search input fields
+
 ## Version 1.18.2 - June 2020
 - Fixed LabBook file upload into section by using the create-new-file dialog instead of automatically opening a file picker
 - Upgraded Docker setup to Postgres 12 (requires backup and restore; data folder is incompatible)

@@ -119,5 +119,13 @@
                 }
             }
         });
+
+        // watch vm.placeholder and update it on change using updatePlaceholder()
+        $scope.$watch("vm.placeholder", function (newValue, oldValue) {
+            if (newValue != oldValue) {
+                vm.selectize.settings.placeholder = vm.placeholder;
+                vm.selectize.updatePlaceholder();
+            }
+        });
     });
 })();

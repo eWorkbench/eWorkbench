@@ -19,11 +19,6 @@ from django.utils.translation import gettext_lazy as _
 from django_auth_ldap.backend import LDAPBackend
 from django_rest_passwordreset.models import ResetPasswordToken
 from django_userforeignkey.request import get_current_user
-from eric.core.rest.viewsets import BaseGenericViewSet, BaseAuthenticatedUpdateOnlyModelViewSet
-from eric.projects.models import MyUser
-from eric.projects.rest.permissions import IsStaffOrTargetUserOrReadOnly, CanInviteExternalUsers
-from eric.projects.rest.serializers import PublicUserSerializer, MyUserSerializer, InviteUserSerializer
-from eric.site_preferences.models import options as site_preferences
 from rest_framework import viewsets, status, exceptions
 from rest_framework.decorators import action, parser_classes
 from rest_framework.exceptions import NotFound
@@ -31,6 +26,14 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
+
+from eric.core.rest.viewsets import BaseGenericViewSet, BaseAuthenticatedUpdateOnlyModelViewSet
+from eric.model_privileges.models import ModelPrivilege
+from eric.projects.models import MyUser
+from eric.projects.rest.permissions import IsStaffOrTargetUserOrReadOnly, CanInviteExternalUsers
+from eric.projects.rest.serializers import PublicUserSerializer, MyUserSerializer, InviteUserSerializer
+from eric.shared_elements.models import CalendarAccess
+from eric.site_preferences.models import options as site_preferences
 
 User = get_user_model()
 
@@ -89,6 +92,35 @@ class PublicUserViewSet(BaseGenericViewSet,
             elif user.userprofile.type == UserProfile.LDAP_USER:
                 # LDAP users can find all other LDAP users + users in shared projects
                 users = (self.get_users_with_shared_projects() | self.get_ldap_users()).distinct()
+            # this is used in user searches in the calendar and for the creation of new meetings
+            # 'access_user' has to be in the request url as a parameter
+            elif 'access_user' in self.request.query_params:
+                # filter users who gave the user view privileges for their calendar
+                # 1. get the content type of CalendarAccesss
+                calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
+                # 2. get the users who gave the request user edit or view privilege to their calendars
+                # depending on the request. If 'access_editable' is in the request url it is a search for users
+                # that have editable privileges (new meeting)
+                if 'access_editable' in self.request.query_params and self.request.query_params['access_editable']:
+                    # get the users who gave the request user the view_privilege to their calendars
+                    model_privilege_users = ModelPrivilege.objects.all().filter(
+                        content_type=calendar_access_privilege_content_type_id,
+                        user=user,
+                        edit_privilege=ModelPrivilege.ALLOW
+                    ).values('created_by')
+                # If 'access_editable' is not in the request url we search for the view privilege
+                else:
+                    # get the users who gave the request user the view_privilege to their calendars
+                    model_privilege_users = ModelPrivilege.objects.all().filter(
+                        content_type=calendar_access_privilege_content_type_id,
+                        user=user,
+                        view_privilege=ModelPrivilege.ALLOW
+                    ).values('created_by')
+                # 3. now lets filter down the active users to only return the users from point 2, so
+                # we know they are active as well
+                users = self.get_all_users().filter(
+                    pk__in=model_privilege_users
+                )
             else:
                 # non-LDAP users can find users of shared projects only
                 users = self.get_users_with_shared_projects()
