@@ -2,31 +2,30 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import jwt
 import vobject
-from django.conf import settings
 from django.http import HttpResponse
 from django.utils import timezone
 from django_userforeignkey.request import get_current_user
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.serializers import Serializer
+
+from eric.jwt_auth.jwt_utils import build_jwt_url
 from eric.core.rest.viewsets import BaseGenericViewSet
 from eric.core.utils import convert_html_to_text
 from eric.shared_elements.models import Task, Meeting
 from eric.shared_elements.rest.filters import MeetingFilter, TaskFilter
 from eric.shared_elements.rest.serializers import MinimalisticTaskSerializer, MinimalisticMeetingSerializer
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
 
 
-class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
+class MyScheduleViewSet(BaseGenericViewSet):
     """
     Viewset for My Schedule
     provides only the list endpoint with tasks and meetings of the current user
     """
 
-    def get_serializer_class(self):
-        return ModelSerializer
+    # we need some serializer definition for the openAPI generation
+    serializer_class = Serializer
 
     def get_queryset(self):
         return Meeting.objects.none()
@@ -106,52 +105,15 @@ class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
         """
         Generates a link with a JWT for the ical export endpoint
         This is necessary so browsers can access the exported content without sending authorization headers
-        :param request:
-        :param pk:
-        :return:
         """
-        # get the current request path/url and replace "get_export_token" with the target url (which is "export")
-        path = request.get_full_path()
-        path = path.replace('get_export_link', 'export')
 
-        # build a relative URL for the given path
-        # absolute_url = request.build_absolute_uri(path)
-
-        absolute_url = path
-
-        # the token should contain the following information
-        payload = {
-            # store the users primary key
-            'user': request.user.pk,
-            # store the verification token, so the token can be revoked afterwards
-            'jwt_verification_token': request.user.userprofile.jwt_verification_token,
-            # store the path that this token is valid for
-            'path': path
-        }
-
-        # generate JWT with the payload and the secret key
-        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-        if "?" in absolute_url:
-            # append it via "&"
-            absolute_url = "{absolute_url}&jwt={token}".format(
-                absolute_url=absolute_url,
-                token=jwt_token.decode("utf-8")
-            )
-        else:
-            absolute_url = "{absolute_url}?jwt={token}".format(
-                absolute_url=absolute_url,
-                token=jwt_token.decode("utf-8")
-            )
+        path = request.get_full_path().replace('get_export_link', 'export')
+        jwt_url = build_jwt_url(request, path)
 
         # convert the absolute_url to a short_url
         from eric.short_url.models import ShortURL
+        short_url = ShortURL.objects.create(url=jwt_url)
 
-        short_url = ShortURL.objects.create(
-            url=absolute_url
-        )
-
-        # return the URL
         return Response({
             'url': short_url.get_short_url()
         })
@@ -166,7 +128,7 @@ class MyScheduleViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
 
         # iterate over all meetings
         for meeting in meetings:
-            event = meeting.export_as_ical(calendar)
+            meeting.export_as_ical(calendar)
 
         # iterate over all tasks
         for task in tasks:

@@ -7,29 +7,20 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.contrib.auth.models import Permission
 from django_changeset.models import RevisionModelMixin
 from rest_framework import status
 
 from eric.core.models import disable_permission_checks
-from eric.core.tests import test_utils
-from eric.labbooks.tests.core import LabbookSectionMixin
+from eric.core.tests import test_utils, HTTP_USER_AGENT, REMOTE_ADDR
+from eric.core.tests.test_utils import CommonTestMixin
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.models import Project, Role
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, ChangeSetMixin
-from eric.shared_elements.models import Task
-from eric.shared_elements.tests.core import TaskMixin, NoteMixin, ContactMixin, FileMixin
 
 User = get_user_model()
 
-# read http://www.django-rest-framework.org/api-guide/testing/ for more info about testing with django rest framework
 
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
-
-
-class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TaskMixin,
-                                          NoteMixin, ContactMixin, FileMixin, LabbookSectionMixin,
+class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin,
                                           ChangeSetMixin):
     """
     Mixin which tests several API endpoints of the given "entity"
@@ -38,26 +29,9 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
     data = None
 
     def superSetUp(self):
-        """
-        Create three users
-        :return:
-        """
-        self.student_role = self.create_student_role()
         self.observer_role = self.create_strict_observer_role()
-        self.pm_role = Role.objects.filter(default_role_on_project_create=True).first()
-
+        self.pm_role = Role.objects.get(name='Project Manager')
         self.user_group = Group.objects.get(name='User')
-
-        # get add_task and add_task_without_project permission
-        self.add_task_permission = Permission.objects.filter(
-            codename='add_task',
-            content_type=Task.get_content_type()
-        ).first()
-
-        self.add_task_without_project_permission = Permission.objects.filter(
-            codename='add_task_without_project',
-            content_type=Task.get_content_type()
-        ).first()
 
         self.user1 = User.objects.create_user(
             username='student_1', email='student_1@email.com', password='top_secret')
@@ -114,7 +88,8 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self, method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self,
+                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
         assert callable(handler), "Method " + method_name + " is not callable"
 
         # call handler
@@ -430,7 +405,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         :return:
         """
         response = self.rest_generic_create_entity(self.token1, 0)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
@@ -446,7 +421,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # try to get the changeset for this element
         response = self.rest_generic_get_changeset(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertTrue('count' in decoded_response, msg="History Response is paginated")
         self.assertTrue('results' in decoded_response, msg="History Response is paginated")
@@ -469,7 +444,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         :return:
         """
         response = self.rest_generic_create_entity(self.token1, 0)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
@@ -478,21 +453,21 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # try to get the element from REST API with user 1 (should work)
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEquals(decoded_response['pk'], str(element.pk))
 
         # try to get the element from REST API with user 2 (should not work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # try to get the element from REST API with user 3 (should not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
-        # now do the same with user2: create a new task, which only user2 should see
+        # now do the same with user2: create a new entity, which only user2 should see
         response = self.rest_generic_create_entity(self.token2, 1)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
@@ -501,34 +476,34 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # try to get the element from REST API with user 2 (should work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to get the element from REST API with user 1 (should not work)
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # try to get the element from REST API with user 3 (should not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # now get lists of those elements for each user, and verify the amount of elements visible for each user
         # User 1 should see 1 element
         response = self.rest_generic_list_entity(self.token1)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_list = json.loads(response.content.decode())
         decoded_list = test_utils.get_paginated_results(decoded_list)
         self.assertEquals(len(decoded_list), 1, msg="User 1 should see exactly one element")
 
         # User 2 should see 1 element
         response = self.rest_generic_list_entity(self.token2)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_list = json.loads(response.content.decode())
         decoded_list = test_utils.get_paginated_results(decoded_list)
         self.assertEquals(len(decoded_list), 1, msg="User 2 should see exactly one element")
 
         # User 3 should see 0 elements
         response = self.rest_generic_list_entity(self.token3)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_list = json.loads(response.content.decode())
         decoded_list = test_utils.get_paginated_results(decoded_list)
         self.assertEquals(len(decoded_list), 0, msg="User 3 should see exactly zero elements")
@@ -545,7 +520,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
 
         response = self.rest_generic_trash_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         element.refresh_from_db()
 
@@ -561,7 +536,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # modifying a trashed element should not work
         response = self.rest_generic_update_entity(self.token1, element.pk, 1)
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, status.HTTP_400_BAD_REQUEST)
         self.assertTrue("not allowed to edit an already trashed object" in response.content.decode())
 
     def test_restore_entity(self):
@@ -576,7 +551,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
 
         response = self.rest_generic_trash_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # refresh element
         element.refresh_from_db()
@@ -586,7 +561,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # now try to restore it
         response = self.rest_generic_restore_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # refresh element
         element.refresh_from_db()
@@ -607,15 +582,15 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # trash it
         response = self.rest_generic_trash_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # now try to delete the entity => must fail as normal user
         response = self.rest_generic_delete_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # delete as superuser (must work)
         response = self.rest_generic_delete_entity(self.superuser_token, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assert_response_status(response, status.HTTP_204_NO_CONTENT)
 
         # try to find the element in database
         self.assertEquals(self.entity.objects.filter(pk=element.pk).count(), 0)
@@ -633,7 +608,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # try to delete it (should not work)
         response = self.rest_generic_delete_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, status.HTTP_400_BAD_REQUEST)
         decoded_response = json.loads(response.content.decode())
         print(decoded_response)
 
@@ -653,10 +628,10 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # try to trash the element with user2 (should not work)
         response = self.rest_generic_trash_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
         # try to trash the element with user3 (should not work)
         response = self.rest_generic_trash_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # element should not be trashed
         element.refresh_from_db()
@@ -665,15 +640,15 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # give user2 the view privilege
         user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user2 and user3 should still not be able to trash the element
         # try to trash the element with user2 (should not work)
         response = self.rest_generic_trash_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
         # try to trash the element with user3 (should not work)
         response = self.rest_generic_trash_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # element should still not be trashed
         element.refresh_from_db()
@@ -682,14 +657,14 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # give user2 privilege "TRASH" for this element
         user2_privilege['trash_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to trash the element with user2 (should work now)
         response = self.rest_generic_trash_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         # try to trash the element with user3 (should not work)
         response = self.rest_generic_trash_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # element should now be trashed
         element.refresh_from_db()
@@ -704,7 +679,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # trash element with user1
         response = self.rest_generic_trash_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         element.refresh_from_db()
         # should be trashed
@@ -716,14 +691,14 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # give user2 view privilege
         user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user2 and user3 should not be able to restore the element
         response = self.rest_generic_restore_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
         # try to restore the element with user3 (should not work)
         response = self.rest_generic_restore_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         element.refresh_from_db()
         # should still be trashed
@@ -732,11 +707,11 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # give user2 the restore privilege
         user2_privilege['restore_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # now user2 should be able to restore
         response = self.rest_generic_restore_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         element.refresh_from_db()
         # should no longer be trashed
@@ -752,40 +727,40 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # give user2 view privilege
         user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # update the privilege, also give the edit privilege
         user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # assuming user2 is hostile and wants to delete the privilege of user1 (should not work, as user2 does not have
         # the full access privilege)
         response = self.rest_generic_delete_privilege(self.token2, element.pk, self.user1.pk)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # user2 is also not able to delete itself from the object (as user2 does not have the full access privilege)
         response = self.rest_generic_delete_privilege(self.token2, element.pk, self.user2.pk)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # remove the privilege of user2
         response = self.rest_generic_delete_privilege(self.token1, element.pk, self.user2.pk)
-        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assert_response_status(response, status.HTTP_204_NO_CONTENT)
 
         # get all privileges
         response = self.rest_generic_get_privileges(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         privileges = json.loads(response.content.decode())
 
         self.assertEquals(len(privileges), 1, msg="There should be exactly one privilege")
 
         # user2 should not be able to view the privileges
         response = self.rest_generic_delete_privilege(self.token2, element.pk, self.user1.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # now try to delete this last privilege (which should fail, as the last privilege can not be deleted)
         response = self.rest_generic_delete_privilege(self.token1, element.pk, self.user1.pk)
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_entity_without_permission(self):
         """
@@ -796,7 +771,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # trash element with user1
         response = self.rest_generic_trash_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         element.refresh_from_db()
         # should be trashed
@@ -805,14 +780,14 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # give user2 view privilege
         user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user2 and user3 should not be able to delete the element
         response = self.rest_generic_delete_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
         # try to delete the element with user3 (should not work)
         response = self.rest_generic_delete_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         element.refresh_from_db()
         # should still be trashed
@@ -822,12 +797,12 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
         user2_privilege['delete_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user2 should still not be able to delete (only superuser can delete)
         response = self.rest_generic_delete_entity(self.token2, element.pk)
         print(response.content.decode())
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # element should still be in database
         self.assertEquals(self.entity.objects.filter(pk=element.pk).count(), 1)
@@ -839,11 +814,11 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         :return:
         """
         response = self.rest_generic_create_entity(self.token1, 0)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertEquals(self.entity.objects.filter(pk=decoded_response['pk']).exists(), True)
+        self.assertTrue(self.entity.objects.filter(pk=decoded_response['pk']).exists())
         element = self.entity.objects.filter(pk=decoded_response['pk']).first()
 
         # verify that element does not have any projects set
@@ -851,21 +826,22 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # set parent project of entity 0 to self.project1
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk])
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # verify that element has one projects set
         self.assertEquals(element.projects.all().count(), 1)
 
         # set it again
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk, self.project1.pk])
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # verify that element still only has one projects set
         self.assertEquals(element.projects.all().count(), 1)
 
         # set it again
-        response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk, self.project1.pk, self.project1.pk])
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        response = self.rest_generic_set_project(self.token1, element.pk,
+                                                 [self.project1.pk, self.project1.pk, self.project1.pk])
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # verify that element still only has one projects set
         self.assertEquals(element.projects.all().count(), 1)
@@ -877,7 +853,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         """
         # create entity 0 with user1 (should work)
         response = self.rest_generic_create_entity(self.token1, 0)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
@@ -889,7 +865,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # set parent project of entity 0 to self.project1
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk])
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # verify that the element has projects set
         self.assertEquals(element.projects.all().count(), 1)
@@ -897,10 +873,11 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # in addition, try to set parent project of entity 0 to self.project1 and self.project2
         # this should not work, as user1 does not have access to project2
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk, self.project2.pk])
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, status.HTTP_400_BAD_REQUEST)
         decoded_response = json.loads(response.content.decode())
         self.assertTrue('projects' in decoded_response)
-        self.assertTrue('You can not add or remove projects that you do not have access to' in str(decoded_response['projects']))
+        self.assertTrue(
+            'You can not add or remove projects that you do not have access to' in str(decoded_response['projects']))
 
         # verify that no new project has been added
         self.assertEquals(element.projects.all().count(), 1)
@@ -908,24 +885,24 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # give user1 the observer role in project2
         response = self.rest_assign_user_to_project(self.token2, self.project2, self.user1, self.observer_role,
                                                     HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
 
         # now user1 can see project2, but can still not add anything to that project
         # in other words: just being able to see a project does not lead to being able to link an entity to the project
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk, self.project2.pk])
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # verify that no new project has been added
         self.assertEquals(element.projects.all().count(), 1)
 
         # now user2 tries to set the project of element (should not work, as user2 does not have access to that)
         response = self.rest_generic_set_project(self.token2, element.pk, [self.project1.pk, self.project2.pk])
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # add user2 to project1 with observer permission, so user2 can see the element
         response = self.rest_assign_user_to_project(self.token1, self.project1, self.user2, self.observer_role,
                                                     HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_assignment = json.loads(response.content.decode())
 
         # user1 needs to unlock the element
@@ -934,7 +911,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # now user2 can see the element, but should not be able to change anything of that element
         # in other words: just being able to see the element does not lead to being able to edit/update the element
         response = self.rest_generic_set_project(self.token2, element.pk, [self.project1.pk, self.project2.pk])
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # verify that there is still only one project
         self.assertEquals(element.projects.all().count(), 1)
@@ -942,14 +919,14 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # now increase the role of user2 in project1 to project manager
         response = self.rest_edit_user_project_assignment(self.token1, self.project1, decoded_assignment['pk'],
                                                           self.user2, self.pm_role, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user1 needs to unlock the element
         self.rest_generic_unlock_entity(self.token1, element.pk)
 
         # now user2 should be able to move the element from project1 to project2 aswell
         response = self.rest_generic_set_project(self.token2, element.pk, [self.project1.pk, self.project2.pk])
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # and those two projects should now be available
         self.assertEquals(element.projects.all().count(), 2)
@@ -959,13 +936,13 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # user1 can try to remove project2 again - but user1 is not a PM in project2, so it should not work
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk])
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         self.assertEquals(element.projects.all().count(), 2)
 
         # but user2 can remove it again
         response = self.rest_generic_set_project(self.token2, element.pk, [self.project1.pk])
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         self.assertEquals(element.projects.all().count(), 1)
 
@@ -975,12 +952,12 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         :return:
         """
         response = self.rest_generic_create_entity(self.token1, 0)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # retrieve entity permissions
         response = self.rest_generic_get_privileges(self.token1, decoded_response['pk'])
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_privileges = json.loads(response.content.decode())
 
         # there should be one entry in the decoded_privileges
@@ -997,7 +974,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         :return:
         """
         response = self.rest_generic_create_entity(token, entity_index)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
@@ -1009,7 +986,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
     def generic_create_entity_and_add_another_user(self, entity_index, additional_user):
         # create entity 0 with user1 (should work)
         response = self.rest_generic_create_entity(self.token1, 0)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
@@ -1018,19 +995,19 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # try to access this entry with user1 (should work)
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entity with user2 (should not work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # try to access this entity with user3 (should not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # add user2 to privileges for this element
         response = self.rest_generic_create_privilege(self.token1, element.pk, self.user2.pk)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         user2_privilege = json.loads(response.content.decode())
         # verify that all privileges for this user are set to neutral (for now)
         self.assertEquals(user2_privilege['user']['pk'], self.user2.pk)
@@ -1042,11 +1019,11 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # try to access this entity with user2 (should not work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # try to access this entity with user3 (should not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         return element, user2_privilege
 
@@ -1060,32 +1037,32 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # update privilege (should work): add view privilege
         user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user1 should still be able to see the element
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # now user2 should see the element
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entity with user3 (should still not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # now modify the privilege such that user2 is DENIED viewing the element
         user2_privilege['view_privilege'] = ModelPrivilege.DENY
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user1 should still be able to see the element
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # now user2 should not see the element
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
     def test_entity_permission_view_deny_with_project(self):
         """
@@ -1094,7 +1071,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         """
         # create entity 0 with user1 (should work)
         response = self.rest_generic_create_entity(self.token1, 0)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
@@ -1103,38 +1080,37 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
 
         # set parent project of entity 0 to self.project1
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk])
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entry with user1 (should work)
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entity with user2 (should not work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # try to access this entity with user3 (should work, as user3 is in the same project)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # now remove the view privilege from user3
         response = self.rest_generic_patch_privilege(self.token1, element.pk, self.user3.pk, {
             'view_privilege': ModelPrivilege.DENY
         })
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entity with user3 (should not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # user1 should still be able to view it
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entity with user2 (should still not work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
     def test_entity_permission_edit_deny(self):
         """
@@ -1146,58 +1122,58 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # update privilege (should work): add view privilege
         user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user1 should still be able to see the element
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # also, user1 should be able to edit the element
         response = self.rest_generic_update_entity(self.token1, element.pk, 1)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # now user2 should see the element
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # unlock the element with user1
         self.rest_generic_unlock_entity(self.token1, element.pk)
 
         # but user2 should not be able to edit the element
         response = self.rest_generic_update_entity(self.token2, element.pk, 1)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # try to access this entity with user3 (should still not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # update privilege (should work): add edit privilege
         user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user1 should still be able to see the element
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user2 should still be able to the element
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entity with user3 (should still not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # in addition, user2 should now be able to edit the element
         response = self.rest_generic_update_entity(self.token2, element.pk, 1)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # unlock the element with user2
         self.rest_generic_unlock_entity(self.token2, element.pk)
 
         # also, user1 should still be able to edit the element
         response = self.rest_generic_update_entity(self.token1, element.pk, 0)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # unlock the element with user1
         self.rest_generic_unlock_entity(self.token1, element.pk)
@@ -1205,27 +1181,27 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         # now deny the edit privilege for user2 (should work)
         user2_privilege['edit_privilege'] = ModelPrivilege.DENY
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user1 should still be able to see the element
         response = self.rest_generic_get_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user2 should still be able to see the element
         response = self.rest_generic_get_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entity with user3 (should still not work)
         response = self.rest_generic_get_entity(self.token3, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # in addition, user2 should no longer be able to edit the element
         response = self.rest_generic_update_entity(self.token2, element.pk, 1)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # also, user1 should still be able to edit the element
         response = self.rest_generic_update_entity(self.token1, element.pk, 0)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
     def test_entity_create_export_link(self):
         """
@@ -1236,7 +1212,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         element = self.generic_create_entity_and_return_from_db(self.token1, 0)
 
         response = self.rest_generic_get_export_link_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertTrue("url" in decoded_response)
 
@@ -1246,7 +1222,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
             decoded_response['url'],
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # this url should still work
         self.reset_client_credentials()
@@ -1254,7 +1230,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
             decoded_response['url'],
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
     def test_entity_export_with_invalid_link(self):
         """
@@ -1264,7 +1240,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         element = self.generic_create_entity_and_return_from_db(self.token1, 0)
 
         response = self.rest_generic_get_export_link_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertTrue("url" in decoded_response)
 
@@ -1277,17 +1253,16 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
             url,
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
-        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assert_response_status(response, status.HTTP_401_UNAUTHORIZED)
 
     def test_export_without_token(self):
         """
         Tries to access the export endpoint without an jwt token and without an access token in the header
-        :return:
         """
         element = self.generic_create_entity_and_return_from_db(self.token1, 0)
 
         response = self.rest_generic_get_export_link_entity(self.token1, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertTrue("url" in decoded_response)
 
@@ -1300,7 +1275,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
             url,
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
-        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assert_response_status(response, status.HTTP_401_UNAUTHORIZED)
 
     def test_export_without_view_permission(self):
         """
@@ -1310,7 +1285,7 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         element = self.generic_create_entity_and_return_from_db(self.token1, 0)
 
         response = self.rest_generic_get_export_link_entity(self.token2, element.pk)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
     def test_recently_modified_by_me_with_wrong_parameters(self):
         """
@@ -1319,106 +1294,107 @@ class EntityChangeRelatedProjectTestMixin(AuthenticationMixin, ProjectsMixin, Mo
         """
 
         response = self.rest_generic_recently_modified_by_me(self.token1, "abc")
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, status.HTTP_400_BAD_REQUEST)
 
         response = self.rest_generic_recently_modified_by_me(self.token1, "!")
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, status.HTTP_400_BAD_REQUEST)
 
         response = self.rest_generic_recently_modified_by_me(self.token1, "#")
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, status.HTTP_400_BAD_REQUEST)
 
 
 def test_search(self):
-        """
-        Tests the search functionality of the endpoint, such as full text search aswell as recently modified by me
-        :return:
-        """
-        # create two elements
-        element1 = self.generic_create_entity_and_return_from_db(self.token1, 0)
-        element2 = self.generic_create_entity_and_return_from_db(self.token1, 1)
+    """
+    Tests the search functionality of the endpoint, such as full text search aswell as recently modified by me
+    :return:
+    """
+    # create two elements
+    element1 = self.generic_create_entity_and_return_from_db(self.user_token, 0)
+    element2 = self.generic_create_entity_and_return_from_db(self.user_token, 1)
 
-        # call search endpoint
-        response = self.rest_generic_search_entity(self.token1, str(element1))
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
-        decoded_response = test_utils.get_paginated_results(decoded_response)
-        self.assertEquals(len(decoded_response), 1, msg="Search should return only one element")
+    # call search endpoint
+    response = self.rest_generic_search_entity(self.user_token, str(element1))
+    self.assert_response_status(response, status.HTTP_200_OK)
+    decoded_response = json.loads(response.content.decode())
+    decoded_response = test_utils.get_paginated_results(decoded_response)
+    self.assertEquals(len(decoded_response), 1, msg="Search should return only one element")
 
-        # call recently modified by me (within the last 1 days)
-        response = self.rest_generic_recently_modified_by_me(self.token1, 1)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
-        decoded_response = test_utils.get_paginated_results(decoded_response)
-        self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")
+    # call recently modified by me (within the last 1 days)
+    response = self.rest_generic_recently_modified_by_me(self.user_token, 1)
+    self.assert_response_status(response, status.HTTP_200_OK)
+    decoded_response = json.loads(response.content.decode())
+    decoded_response = test_utils.get_paginated_results(decoded_response)
+    self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")
 
-        # now try the same with user2 (should return 0 elements, as user2 did not modify anything)
-        response = self.rest_generic_recently_modified_by_me(self.token2, 1)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
-        decoded_response = test_utils.get_paginated_results(decoded_response)
-        self.assertEquals(len(decoded_response), 0, msg="Search should return no elements")
+    # now try the same with user2 (should return 0 elements, as user2 did not modify anything)
+    response = self.rest_generic_recently_modified_by_me(self.token2, 1)
+    self.assert_response_status(response, status.HTTP_200_OK)
+    decoded_response = json.loads(response.content.decode())
+    decoded_response = test_utils.get_paginated_results(decoded_response)
+    self.assertEquals(len(decoded_response), 0, msg="Search should return no elements")
 
-        # reset element1 last_modified_at and created_at to 2 days ago
-        with RevisionModelMixin.enabled(False):
-            with disable_permission_checks(self.entity):
-                # reset last modified at aswell as created at
-                element1.last_modified_at = element1.last_modified_at - timedelta(days=2)
-                element1.created_at = element1.created_at - timedelta(days=2)
-                element1.save()
-                # reset the changset date
-                cs = element1.changesets.all().first()
-                cs.date = element1.created_at
-                cs.save()
+    # reset element1 last_modified_at and created_at to 2 days ago
+    with RevisionModelMixin.enabled(False):
+        with disable_permission_checks(self.entity):
+            # reset last modified at aswell as created at
+            element1.last_modified_at = element1.last_modified_at - timedelta(days=2)
+            element1.created_at = element1.created_at - timedelta(days=2)
+            element1.save()
+            # reset the changset date
+            cs = element1.changesets.all().first()
+            cs.date = element1.created_at
+            cs.save()
 
-        # unlock the element1 with user1
-        self.rest_generic_unlock_entity(self.token1, element1.pk)
-        # unlock the element2 with user1
-        self.rest_generic_unlock_entity(self.token1, element2.pk)
+    # unlock the element1 with user1
+    self.rest_generic_unlock_entity(self.user_token, element1.pk)
+    # unlock the element2 with user1
+    self.rest_generic_unlock_entity(self.user_token, element2.pk)
 
-        # call recently modified by me (within the last 1 days)
-        response = self.rest_generic_recently_modified_by_me(self.token1, 1)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
-        decoded_response = test_utils.get_paginated_results(decoded_response)
-        self.assertEquals(len(decoded_response), 1, msg="Search should return one element; probably missing recently_modified_by_me = RecentlyModifiedByMeFilter()?")
+    # call recently modified by me (within the last 1 days)
+    response = self.rest_generic_recently_modified_by_me(self.user_token, 1)
+    self.assert_response_status(response, status.HTTP_200_OK)
+    decoded_response = json.loads(response.content.decode())
+    decoded_response = test_utils.get_paginated_results(decoded_response)
+    self.assertEquals(len(decoded_response), 1,
+                      msg="Search should return one element; probably missing recently_modified_by_me = RecentlyModifiedByMeFilter()?")
 
-        # call recently modified by me (within the last 2 days)
-        response = self.rest_generic_recently_modified_by_me(self.token1, 2)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
-        decoded_response = test_utils.get_paginated_results(decoded_response)
-        self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")
+    # call recently modified by me (within the last 2 days)
+    response = self.rest_generic_recently_modified_by_me(self.user_token, 2)
+    self.assert_response_status(response, status.HTTP_200_OK)
+    decoded_response = json.loads(response.content.decode())
+    decoded_response = test_utils.get_paginated_results(decoded_response)
+    self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")
 
-        # now try the same with user2 (should return 0 elements, as user2 did not modify anything)
-        response = self.rest_generic_recently_modified_by_me(self.token2, 1)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
-        decoded_response = test_utils.get_paginated_results(decoded_response)
-        self.assertEquals(len(decoded_response), 0, msg="Search should return no elements")
+    # now try the same with user2 (should return 0 elements, as user2 did not modify anything)
+    response = self.rest_generic_recently_modified_by_me(self.token2, 1)
+    self.assert_response_status(response, status.HTTP_200_OK)
+    decoded_response = json.loads(response.content.decode())
+    decoded_response = test_utils.get_paginated_results(decoded_response)
+    self.assertEquals(len(decoded_response), 0, msg="Search should return no elements")
 
-        # give user2 view and edit privilege for element2
-        response = self.rest_generic_create_privilege(self.token1, element2.pk, self.user2.pk)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+    # give user2 view and edit privilege for element2
+    response = self.rest_generic_create_privilege(self.user_token, element2.pk, self.user2.pk)
+    self.assert_response_status(response, status.HTTP_201_CREATED)
 
-        self.rest_generic_patch_privilege(self.token1, element2.pk, self.user2.pk, {
-            'view_privilege': ModelPrivilege.ALLOW,
-            'edit_privilege': ModelPrivilege.ALLOW
-        })
+    self.rest_generic_patch_privilege(self.user_token, element2.pk, self.user2.pk, {
+        'view_privilege': ModelPrivilege.ALLOW,
+        'edit_privilege': ModelPrivilege.ALLOW
+    })
 
-        # modify element2 with user2
-        response = self.rest_generic_update_entity(self.token2, element2.pk, 0)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+    # modify element2 with user2
+    response = self.rest_generic_update_entity(self.token2, element2.pk, 0)
+    self.assert_response_status(response, status.HTTP_200_OK)
 
-        # now user2 should see element2 in recently modified
-        response = self.rest_generic_recently_modified_by_me(self.token2, 1)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
-        decoded_response = test_utils.get_paginated_results(decoded_response)
-        self.assertEquals(len(decoded_response), 1, msg="Search should return one element")
+    # now user2 should see element2 in recently modified
+    response = self.rest_generic_recently_modified_by_me(self.token2, 1)
+    self.assert_response_status(response, status.HTTP_200_OK)
+    decoded_response = json.loads(response.content.decode())
+    decoded_response = test_utils.get_paginated_results(decoded_response)
+    self.assertEquals(len(decoded_response), 1, msg="Search should return one element")
 
-        # and user1 should also still see two elements (within 2 days)
-        response = self.rest_generic_recently_modified_by_me(self.token1, 2)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        decoded_response = json.loads(response.content.decode())
-        decoded_response = test_utils.get_paginated_results(decoded_response)
-        self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")
+    # and user1 should also still see two elements (within 2 days)
+    response = self.rest_generic_recently_modified_by_me(self.user_token, 2)
+    self.assert_response_status(response, status.HTTP_200_OK)
+    decoded_response = json.loads(response.content.decode())
+    decoded_response = test_utils.get_paginated_results(decoded_response)
+    self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")

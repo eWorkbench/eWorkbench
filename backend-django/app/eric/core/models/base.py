@@ -13,6 +13,7 @@ from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import *
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from django_userforeignkey.request import get_current_user
 
 from eric.core.models.utils import get_permission_name
@@ -410,18 +411,12 @@ class SoftDeleteQuerySetMixin(object):
     def not_deleted(self, *args, **kwargs):
         """
         Returns all not deleted objects (for soft delete)
-        :param args:
-        :param kwargs:
-        :return:
         """
         return self.filter(deleted=False)
 
     def trashed(self, *args, **kwargs):
         """
         Returns all trashed (soft-deleted) objects
-        :param args:
-        :param kwargs:
-        :return:
         """
         return self.filter(deleted=True)
 
@@ -442,9 +437,6 @@ class BaseQuerySet(models.QuerySet):
         Returns a `none` QuerySet on this implementation. Should be overridden and implemented by the inheriting
         QuerySet classes for modes that can be assigned to an user (e.g. tasks, appointments, ...).
 
-        :param args:
-        :param kwargs:
-        :return:
         :rtype: models.QuerySet
         """
         return self.none()
@@ -454,9 +446,6 @@ class BaseQuerySet(models.QuerySet):
         Returns an `all` QuerySet if current user has the 'APP.view_MODEL' permission (whereas "APP" corresponds to the
         managed models app label and "MODEL" corresponds to the managed models name). Returns a `none` QuerySet else.
 
-        :param args:
-        :param kwargs:
-        :return:
         :rtype: models.QuerySet
         """
         user = get_current_user()
@@ -470,9 +459,6 @@ class BaseQuerySet(models.QuerySet):
         the managed models app label and "MODEL" corresponds to the managed models name). Returns a `none` QuerySet
         else.
 
-        :param args:
-        :param kwargs:
-        :return:
         :rtype: models.QuerySet
         """
         user = get_current_user()
@@ -486,9 +472,6 @@ class BaseQuerySet(models.QuerySet):
         the managed models app label and "MODEL" corresponds to the managed models name). Returns a `none` QuerySet
         else.
 
-        :param args:
-        :param kwargs:
-        :return:
         :rtype: models.QuerySet
         """
         user = get_current_user()
@@ -511,3 +494,21 @@ def auto_clean_on_save(sender, instance, *args, **kwargs):
         return
 
     instance.clean()
+
+
+@deconstructible
+class UploadToPathAndRename(object):
+    """ Automatically rename the uploaded file to a random UUID.{extension} """
+
+    def __init__(self, path):
+        self.sub_path = path
+
+    def __call__(self, instance, filename):
+        from uuid import uuid4
+        import os
+        # get filename extension
+        ext = filename.split('.')[-1]
+        # set filename as random string
+        filename = '{}.{}'.format(uuid4().hex, ext)
+        # return the whole path to the file
+        return os.path.join(self.sub_path, filename)

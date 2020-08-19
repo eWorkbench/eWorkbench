@@ -2,26 +2,23 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from datetime import timedelta, datetime
-
-import jwt
 import logging
-from django.db import transaction
+
 from django.contrib.auth import get_user_model
-from django.conf import settings
+from django.db import transaction
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django_userforeignkey.request import get_current_request
-
 from rest_framework import serializers
 from rest_framework_nested.relations import NestedHyperlinkedIdentityField
 
+from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
 from eric.core.rest.serializers import BaseModelSerializer, \
     BaseModelWithCreatedByAndSoftDeleteSerializer
-from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
 from eric.kanban_boards.models import KanbanBoard, KanbanBoardColumn, KanbanBoardColumnTaskAssignment
-from eric.shared_elements.rest.serializers import TaskSerializer
+from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
 from eric.shared_elements.models import Task
+from eric.shared_elements.rest.serializers import TaskSerializer
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -81,6 +78,7 @@ class KanbanBoardColumnTaskAssignmentSerializer(BaseModelSerializer):
     """
     KanbanBoardColumnSerializer for the kanban board column task assignment
     """
+
     class Meta:
         model = KanbanBoardColumnTaskAssignment
         fields = (
@@ -153,72 +151,18 @@ class KanbanBoardSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer):
             return None
 
         request = get_current_request()
-
-        # get the current request path/url and replace "get_export_token" with the target url (which is "export")
         path = reverse('kanbanboard-background-image.png', kwargs={'pk': obj.pk})
 
-        # build an absolute URL for the given apth
-        absolute_url = request.build_absolute_uri(path)
-
-        # the token should contain the following information
-        payload = {
-            'exp': datetime.now() + timedelta(
-                hours=settings.WORKBENCH_SETTINGS['download_token_validity_in_hours']
-            ),  # expiration time
-            # store pk and object type that this object relates to
-            'pk': str(obj.pk),
-            'object_type': obj.__class__.__name__,
-            # store the users primary key
-            'user': request.user.pk,
-            # store the verification token, so the token can be revoked afterwards
-            'jwt_verification_token': request.user.userprofile.jwt_verification_token,
-            # store the path that this token is valid for
-            'path': path
-        }
-
-        # generate JWT with the payload and the secret key
-        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-        return "{absolute_url}?jwt={token}".format(
-            absolute_url=absolute_url,
-            token=jwt_token.decode("utf-8")
-        )
+        return build_expiring_jwt_url(request, path)
 
     def get_download_background_image_thumbnail(self, obj):
         if not obj.background_image_thumbnail:
             return None
 
         request = get_current_request()
-
-        # get the current request path/url and replace "get_export_token" with the target url (which is "export")
         path = reverse('kanbanboard-background-image-thumbnail.png', kwargs={'pk': obj.pk})
 
-        # build an absolute URL for the given apth
-        absolute_url = request.build_absolute_uri(path)
-
-        # the token should contain the following information
-        payload = {
-            'exp': datetime.now() + timedelta(
-                hours=settings.WORKBENCH_SETTINGS['download_token_validity_in_hours']
-            ),  # expiration time
-            # store pk and object type that this object relates to
-            'pk': str(obj.pk),
-            'object_type': obj.__class__.__name__,
-            # store the users primary key
-            'user': request.user.pk,
-            # store the verification token, so the token can be revoked afterwards
-            'jwt_verification_token': request.user.userprofile.jwt_verification_token,
-            # store the path that this token is valid for
-            'path': path
-        }
-
-        # generate JWT with the payload and the secret key
-        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-        return "{absolute_url}?jwt={token}".format(
-            absolute_url=absolute_url,
-            token=jwt_token.decode("utf-8")
-        )
+        return build_expiring_jwt_url(request, path)
 
     def create(self, validated_data):
         """

@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
-
 import os
 import tempfile
+
 from django.contrib.auth import get_user_model
 from rest_framework import status
 
@@ -26,10 +26,6 @@ def get_pk_list(pk_or_list):
 
 
 class ElementLabelMixin:
-    """
-    Mixins for Element Labels
-    """
-
     def rest_create_label(self, auth_token, label_name, label_color, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         Wrapper for ceat

@@ -273,6 +273,69 @@
                 },
                 activeMenuItem: 'task'
             }
+        ).state('plugininstance-list',
+            {
+                title: function ($queryParams, gettextCatalog) {
+                    "ngInject";
+
+                    if ($queryParams.showOnlyMyElements) {
+                        return gettextCatalog.getString("My Plugin Contents");
+                    }
+
+                    return gettextCatalog.getString("Plugin Contents");
+                },
+                icon: function ($queryParams, IconImagesService) {
+                    "ngInject";
+
+                    return IconImagesService.mainElementIcons.plugin;
+                },
+                breadcrumb: function ($queryParams, $state, gettextCatalog) {
+                    "ngInject";
+
+                    return [];
+                },
+                url: '/plugininstances?showOnlyMyElements&filterProjects&filterSearchField&filterSelectedUsers',
+                component: 'plugininstanceList',
+                needsAuth: true,
+                activeMenuItem: 'plugininstance',
+                reloadOnSearch: false
+            }
+        ).state('plugininstance-view',
+            {
+                title: function ($queryParams, gettextCatalog) {
+                    "ngInject";
+
+                    return gettextCatalog.getString("Plugin Content") + " - " + $queryParams.plugininstance.title;
+                },
+                simpleTitle: function ($queryParams, gettextCatalog) {
+                    "ngInject";
+
+                    return $queryParams.plugininstance.title;
+                },
+                icon: function ($queryParams, IconImagesService) {
+                    "ngInject";
+
+                    return IconImagesService.mainElementIcons.plugin;
+                },
+                breadcrumb: function ($queryParams, $state, gettextCatalog) {
+                    "ngInject";
+
+                    return [
+                        $state.target('plugininstance-list')
+                    ];
+                },
+                url: '/plugininstances/{plugininstance:plugininstance}',
+                component: 'plugininstanceView',
+                needsAuth: true,
+                'resolve': {
+                    plugininstance: function ($stateParams) {
+                        'ngInject';
+
+                        return $stateParams.plugininstance;
+                    }
+                },
+                activeMenuItem: 'plugininstance'
+            }
         ).state('file-list',
             {
                 title: function ($queryParams, gettextCatalog) {

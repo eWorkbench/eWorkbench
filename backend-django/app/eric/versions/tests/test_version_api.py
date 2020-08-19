@@ -11,16 +11,19 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FO
     HTTP_403_FORBIDDEN
 from rest_framework.test import APITestCase
 
+from eric.core.models.utils import pk_or_none
 from eric.dmp.models import Dmp, DmpForm
 from eric.dmp.tests.core import DmpsMixin
 from eric.labbooks.tests.core import LabBookMixin
 from eric.model_privileges.models import ModelPrivilege
 from eric.pictures.tests.core import PictureMixin
+from eric.plugins.models import Plugin
+from eric.plugins.tests.mixins import PluginInstanceMixin
 from eric.projects.models import Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TestLockMixin
 from eric.shared_elements.models import Task
 from eric.shared_elements.tests.core import ContactMixin, MeetingMixin, NoteMixin, TaskMixin, FileMixin
-from eric.versions.tests import HTTP_USER_AGENT, REMOTE_ADDRESS, VersionData, pk_or_none, http_info
+from eric.versions.tests import HTTP_USER_AGENT, REMOTE_ADDRESS, VersionData, http_info
 from eric.versions.tests.helper_mixin import HelperMixin
 from eric.versions.tests.rest_mixin import HttpInfo, VersionRestMixin
 
@@ -52,7 +55,10 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
 
     def create_model_instance_with_privileges(self, project):
         instance, response = self.create_model_instance(project)
-        self.get_asserter().assertEquals(response.status_code, HTTP_201_CREATED, "Couldn't create model instance")
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_201_CREATED,
+            "Couldn't create model instance: " + response.content.decode()
+        )
         self.set_model_privileges(self.get_endpoint(), self.get_model_name(), instance.pk)
 
         return instance
@@ -78,8 +84,8 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         instance_with_project = self.create_model_instance_with_privileges(self.project1)
 
         # unlock the model instance (creating it usually locks it)
-        response = self.unlock(self.token_author, self.get_endpoint(), instance_with_project.pk,
-                               HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_author, self.get_endpoint(), instance_with_project.pk,
+                    HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         self.perform_test_with_object(instance_with_project)
 
@@ -87,8 +93,8 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         instance_without_project = self.create_model_instance_with_privileges(None)
 
         # unlock the model instance (creating it usually locks it)
-        response = self.unlock(self.token_author, self.get_endpoint(), instance_without_project.pk,
-                               HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_author, self.get_endpoint(), instance_without_project.pk,
+                    HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         self.perform_test_with_object(instance_without_project)
 
@@ -434,3 +440,29 @@ class DmpVersionApiTest(GenericVersionApiTest, APITestCase, DmpsMixin):
             self.token_author, pk_or_none(project),
             "My DMP", Dmp.PROGRESS, dmp_form.pk,
             **http_info)
+
+
+class PluginInstanceVersionApiTest(GenericVersionApiTest, APITestCase, PluginInstanceMixin):
+    def get_endpoint(self):
+        return "plugininstances"
+
+    def get_model_name(self):
+        return "plugininstance"
+
+    def get_asserter(self):
+        return self
+
+    def create_model_instance(self, project):
+        plugin = Plugin.objects.create(
+            title='My Plugin',
+            short_description='This is a test plugin.',
+            user_availability=Plugin.GLOBAL,
+            path='test_plugin_path',
+        )
+
+        return self.create_plugininstance_orm(
+            self.token_author,
+            projects=[project.pk] if project else [],
+            title='My plugin instance',
+            plugin=plugin.pk,
+        )

@@ -2,16 +2,16 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import jwt
-import logging
 import datetime
+import logging
 import uuid
 
-from django.db import connection
-from django_changeset.models.mixins import RevisionModelMixin
-from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db import connection
 from django.utils.cache import add_never_cache_headers
+from django.utils.deprecation import MiddlewareMixin
+from django_changeset.models.mixins import RevisionModelMixin
 from django_userforeignkey.request import get_current_user
 
 User = get_user_model()
@@ -19,14 +19,12 @@ User = get_user_model()
 request_logger = logging.getLogger('django.middleware.request_time_logging')
 
 
-from django.utils.deprecation import MiddlewareMixin
-
-
 class HTTPXForwardedForMiddleware(MiddlewareMixin):
     """
     Middleware that processes the HTTP_X_FORWARDED_FOR Header
     if REMOTE_ADDR is not set or within the trusted pool
     """
+
     def process_request(self, request):
 
         from django.conf import settings
@@ -40,49 +38,6 @@ class HTTPXForwardedForMiddleware(MiddlewareMixin):
                 request.META['REMOTE_ADDR'] = request.META['HTTP_X_FORWARDED_FOR'].split(",")[0].strip()
 
 
-class JWTMiddlewareForDownloads(MiddlewareMixin):
-    """
-    Middleware which checks for a "jwt" query parameter and authorizes the user within that token to access the
-    path in the decoded payload of the token
-
-    If the token is valid, ``request.user`` will be set to the user that is encoded in the token
-
-    For the purpose of revoking a token, the 'jwt_verification_token' on the userprofile can be used
-    """
-    def process_request(self, request):
-        if request.GET and "jwt" in request.GET:
-            # get the token from the request
-            token = request.GET["jwt"]
-
-            try:
-                # decode the token using the applications secret key
-                decoded = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
-                # the decoded element should contain path, jwt_verification_token and user
-                if decoded and 'path' in decoded and 'jwt_verification_token' in decoded and 'user' in decoded:
-                    # validate the requested path/URL with decoded['path']
-
-                    full_path = request.get_full_path()
-                    # remove jwt token
-                    if "?jwt" in full_path:
-                        full_path = full_path[0:full_path.index("?jwt")]
-                    elif "&jwt" in full_path:
-                        full_path = full_path[0:full_path.index("&jwt")]
-
-                    if decoded['path'] == full_path:
-                        # get user object and verify jwt_verification_token
-                        user = User.objects.filter(pk=decoded['user']).select_related('userprofile').first()
-
-                        if user.userprofile.jwt_verification_token == decoded['jwt_verification_token']:
-                            # authenticated -> set request.user
-                            request.user = user
-            except jwt.ExpiredSignatureError:
-                # ignore expired signature error
-                pass
-            except jwt.InvalidTokenError:
-                # ignore invalid token error
-                pass
-
-
 class DisableChangeSetForReadOnlyRequestsMiddleware(MiddlewareMixin):
     """
     Middleware class for disabling the revision model (changeset) for GET/HEAD/OPTIONS calls
@@ -92,6 +47,7 @@ class DisableChangeSetForReadOnlyRequestsMiddleware(MiddlewareMixin):
     If the ChangeSet (or RevisionModel) is enabled, additional db queries are executed, also some signals are fired
     This is not needed for read only requests, such as GET/HEAD/OPTIONS
     """
+
     def process_request(self, request):
         if request.method in ["GET", "HEAD", "OPTIONS"]:
             # disable the revision model / changesets
@@ -212,6 +168,7 @@ class DisableClientSideCachingMiddleware(MiddlewareMixin):
     :param django.http.Response response: the response that his being forwarded
     :return response
     """
+
     def process_response(self, request, response):
         # avoid setting never-cache headers for GET requests without parameters -> those can be cached
         if request.method == 'GET' and len(request.GET.keys()) == 0 and response.streaming:

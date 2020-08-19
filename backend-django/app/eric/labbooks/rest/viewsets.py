@@ -67,9 +67,6 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
         return get_object_or_404(LabBook.objects.viewable(), pk=kwargs['labbook_pk'])
 
@@ -78,9 +75,6 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
     def update_all(self, *args, **kwargs):
         """
         Change positioning, width, height, and order of labbook child elements
-        :param args:
-        :param kwargs:
-        :return:
         """
         # verify that we are getting an array of data
         assert isinstance(self.request.data, list), "Expected array"
@@ -209,6 +203,9 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
         :return:
         """
 
+        if not hasattr(self, 'parent_object') or not self.parent_object:
+            return LabBookChildElement.objects.none()
+
         # check if there is a section parameter in the request, which should have the pk of the section as value
         section_request = self.request.GET.get('section', '')
 
@@ -230,17 +227,21 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
         # - file
         # - note
         # - picture
+        # - plugin instance
         # - section
         from eric.shared_elements.models import File, Note
         from eric.pictures.models import Picture
+        from eric.plugins.models import PluginInstance
 
         file_content_type_id = File.get_content_type().id
         note_content_type_id = Note.get_content_type().id
         picture_content_type_id = Picture.get_content_type().id
+        plugin_instance_content_type_id = PluginInstance.get_content_type().id
 
         file_pks = []
         note_pks = []
         picture_pks = []
+        plugin_instance_pks = []
         labbooksection_pks = []
 
         # iterate over all child elements and collect the foreign keys of the referenced child_objects
@@ -251,6 +252,8 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
                 note_pks.append(element.child_object_id)
             elif element.child_object_content_type_id == picture_content_type_id:
                 picture_pks.append(element.child_object_id)
+            elif element.child_object_content_type_id == plugin_instance_content_type_id:
+                plugin_instance_pks.append(element.child_object_id)
             elif element.is_labbook_section:
                 labbooksection_pks.append(element.child_object_id)
             else:
@@ -285,7 +288,9 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
             for picture_pk in picture_pks:
                 if str(picture_pk) in str(section_pk):
                     section_pks.append(picture_pk)
-
+            for plugin_instance_pk in plugin_instance_pks:
+                if str(plugin_instance_pk) in str(section_pk):
+                    section_pks.append(plugin_instance_pk)
         # 4. filter out the section child elements, so only top level LabBook child elements are left
         child_elements = child_elements.exclude(child_object_id__in=section_pks)
 
@@ -313,6 +318,14 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
             'projects',
         ).in_bulk()
 
+        # fetch all (viewable) plugin instances (collected form child_elements), exclude section child elements
+        plugin_instances = PluginInstance.objects.viewable().filter(pk__in=plugin_instance_pks). \
+            exclude(pk__in=section_pks). \
+            prefetch_common(). \
+            prefetch_related(
+            'projects',
+        ).in_bulk()
+
         # fetch all (viewable) sections (collected form child_elements)
         labbooksections = LabbookSection.objects.viewable().filter(pk__in=labbooksection_pks). \
             prefetch_common().in_bulk()
@@ -331,6 +344,9 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
                     ) | Q(
                         right_content_type=note_content_type_id,
                         right_object_id__in=notes
+                    ) | Q(
+                        right_content_type=plugin_instance_content_type_id,
+                        right_object_id__in=plugin_instances
                     )
                 ) & Q(
                     left_content_type=note_content_type_id
@@ -358,6 +374,9 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
                     ) | Q(
                         left_content_type=note_content_type_id,
                         left_object_id__in=notes
+                    ) | Q(
+                        right_content_type=plugin_instance_content_type_id,
+                        right_object_id__in=plugin_instances
                     )
                 ) & Q(
                     right_content_type=note_content_type_id
@@ -381,6 +400,8 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
                 element.child_object = notes.get(element.child_object_id, None)
             elif element.child_object_content_type_id == picture_content_type_id:
                 element.child_object = pictures.get(element.child_object_id, None)
+            elif element.child_object_content_type_id == plugin_instance_content_type_id:
+                element.child_object = plugin_instances.get(element.child_object_id, None)
             elif element.is_labbook_section:
                 element.child_object = labbooksections.get(element.child_object_id, None)
 
@@ -402,18 +423,14 @@ class LabBookViewSet(
     BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn, ExportableViewSetMixIn,
     LockableViewSetMixIn
 ):
-    """ REST API ViewSet for Contacts """
+    """ Handles LabBooks. """
+
     serializer_class = LabBookSerializer
     filterset_class = LabBookFilter
-
     search_fields = ()
     ordering_fields = ('title', 'created_at', 'created_by', 'last_modified_at', 'last_modified_by')
 
     def get_queryset(self):
-        """
-        returns the queryset for viewable labbooks with the first changeset (insert changeset - used to enhance
-        performance when querying created_by and created_at)
-        """
         return LabBook.objects.viewable().prefetch_common(). \
             prefetch_related(
             'projects'
@@ -422,7 +439,8 @@ class LabBookViewSet(
 
 class LabbookSectionViewSet(BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn,
                             LockableViewSetMixIn):
-    """ REST API Viewset for LabbookSections """
+    """ Handles LabBook sections. """
+
     serializer_class = LabbookSectionSerializer
     filter_class = LabbookSectionFilter
     search_fields = ()
@@ -431,9 +449,6 @@ class LabbookSectionViewSet(BaseAuthenticatedCreateUpdateWithoutProjectModelView
     pagination_class = None
 
     def get_queryset(self):
-        """
-         returns the queryset for LabbookSectionViewSet viewable objects
-         """
         return LabbookSection.objects.viewable().prefetch_common().prefetch_related(
             'child_elements',
             'projects'

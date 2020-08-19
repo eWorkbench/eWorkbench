@@ -27,11 +27,13 @@ class OrderingModelMixin(models.Model):
             some_field = models.CharField()
     """
 
+    DEFAULT_ORDERING = 0
+
     class Meta:
         abstract = True
 
     ordering = models.PositiveIntegerField(
-        default=0,
+        default=DEFAULT_ORDERING,
         db_index=True,
         verbose_name=_("Ordering"),
     )
@@ -148,9 +150,6 @@ class WorkbenchEntityMixin:
             Returns the Default REST Serializer for this model
 
             This method needs to be implemented with the exact signature as shown here
-            :param args:
-            :param kwargs:
-            :return:
             """
             raise NotImplementedError
 

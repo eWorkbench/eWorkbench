@@ -109,6 +109,7 @@
                                 entity.content_type_model];
 
                         entity.modelViewUrl = NavigationService.getModelViewUrl(entity);
+                        console.log('#entity', entity)
                         entity.typeDisplay = WorkbenchElementsTranslationsService.modelNameToTranslation[modelName];
                     }
 

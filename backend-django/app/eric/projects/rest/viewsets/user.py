@@ -149,11 +149,11 @@ class PublicUserViewSet(BaseGenericViewSet,
 
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated, CanInviteExternalUsers])
     def invite_user(self, request, *args, **kwargs):
-        """ Endpoint for inviting a new external user with their e-mail address to the workbench
-        Throws a validation error if the e-mail address already exists
-
-        Also check that the current user has the permission projects.add_projectroleuserassignment
         """
+        Endpoint for inviting a new external user with their e-mail address to the workbench.
+        Throws a validation error if the e-mail address already exists.
+        """
+
         serializer = InviteUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -176,14 +176,12 @@ class PublicUserViewSet(BaseGenericViewSet,
 
         # take the first part of this email as the username (and remove . and _)
         username = parts[0].replace('.', '').replace('_', '')
-        orig_username = username
 
         username_exists = None
-
+        orig_username = username
         min_number = 1
-
         # check that this username does not exist
-        while username_exists is not False:
+        while username_exists:
             if MyUser.objects.filter(username=username).count() == 0:
                 # does not exist --> we can create it
                 username_exists = False
@@ -192,8 +190,6 @@ class PublicUserViewSet(BaseGenericViewSet,
                 username = orig_username + str(min_number)
                 # increase min_number
                 min_number += 1
-
-        # end while
 
         # generate a random password
         password = MyUser.objects.make_random_password()
@@ -249,8 +245,13 @@ class PublicUserViewSet(BaseGenericViewSet,
 
 
 class MyUserViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
-    """ Viewset for the current user, showing some information for the current logged in user """
+    """ Handles information about the currently logged in user. """
+
     serializer_class = MyUserSerializer
+
+    def get_queryset(self):
+        current_user = get_current_user()
+        return User.objects.filter(pk=current_user.pk)
 
     def get_object(self):
         from eric.userprofile.models import UserProfile
@@ -277,12 +278,14 @@ class MyUserViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        """ override put method to allow updates on the "list" endpoint """
+        """ Updates information about the currently logged-in user. """
+
+        # override put method to allow updates on the "list" endpoint
         return self.update(request, *args, **kwargs)
 
     @action(detail=False, methods=['PUT'])
     def change_password(self, request, *args, **kwargs):
-        """ Endpoint to change the users password """
+        """ Changes the current users password. """
 
         user = self.get_object()
         if user.has_usable_password():
@@ -310,7 +313,7 @@ class MyUserViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def avatar(self, *args, **kwargs):
-        """ Endpoint to get the avatar profile picture for the specific user """
+        """ Gets the profile picture of the current user. """
 
         # get the user
         avatar = self.get_object()
@@ -329,7 +332,7 @@ class MyUserViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
     @action(detail=False, methods=['PUT'])
     @parser_classes((FormParser, MultiPartParser,))
     def update_avatar(self, request, *args, **kwargs):
-        """ Endpoint for accepting a multi part upload for the users avatar"""
+        """ Endpoint for uploading a new profile picture. """
 
         from eric.userprofile.rest.serializers import UserProfileAvatarSerializer
 

@@ -26,7 +26,8 @@ from eric.versions.rest.serializers import VersionSerializer
 
 
 class VersionViewSet(BaseAuthenticatedModelViewSet):
-    """ ViewSet for the version on a specific project related model (e.g., Task, Meeting, ...)"""
+    """ Handles generic versioning for a base model """
+
     serializer_class = VersionSerializer
     pagination_class = LimitOffsetPagination
     parent_object = None  # defined by initial()
@@ -36,9 +37,6 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
         # parse arguments and return entity and primary key
         entity, pk, content_type = parse_parameters_for_workbench_models(*args, **kwargs)
@@ -61,13 +59,8 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
         self.parent_object = self.get_parent_object_or_404(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        """
-        Create a new version
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
+        """ Creates a new version. """
+
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
         if isinstance(request.data, QueryDict):  # however, some request.data objects are normal dictionaries...
             request.data._mutable = True
@@ -202,10 +195,11 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
         return elements
 
     def get_queryset(self):
-        """
-        Returns the version for the given parent model
-        :return:
-        """
+        """ Returns all versions of the base model. """
+
+        if not hasattr(self, 'parent_object') or not self.parent_object:
+            return Version.objects.none()
+
         return Version.objects.filter(
             content_type=self.parent_object.get_content_type(),
             object_id=self.parent_object.pk

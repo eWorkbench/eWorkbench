@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
 from eric.core.tests import HTTP_INFO
-from eric.core.tests.test_utils import TestResponseMixin
+from eric.core.tests.test_utils import CommonTestMixin
 
 User = get_user_model()
 
@@ -22,7 +22,7 @@ HTTP_USER_AGENT = "APITestClient"
 REMOTE_ADDR = "127.0.0.1"
 
 
-class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponseMixin):
+class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, CommonTestMixin):
     """ Extensive testing of project endpoint """
 
     # set up users
@@ -493,7 +493,7 @@ class ProjectsTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponse
 
         # check project tree of project B
         response = self.rest_get_project(self.token1, prj_B.pk, **HTTP_INFO)
-        project_from_api = self.load_response(response)
+        project_from_api = self.parse_response(response)
         project_tree = project_from_api['project_tree']
         self.assertEqual(len(project_tree), 4)
         project_names_in_tree = set(p['name'] for p in project_tree)

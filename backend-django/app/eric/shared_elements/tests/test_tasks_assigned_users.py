@@ -3,27 +3,21 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
-from django.core.exceptions import ValidationError
-from django.contrib.auth.models import Group
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
 from django.utils.timezone import datetime, timedelta
-
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.test import APITestCase
 
-from eric.core.tests import test_utils
-from eric.projects.models import Project, ProjectRoleUserAssignment, Role
-from eric.shared_elements.models import Task
+from eric.core.tests import test_utils, HTTP_USER_AGENT, REMOTE_ADDR
+from eric.projects.models import Project, Role
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ProjectsMixin
+from eric.shared_elements.models import Task
 from eric.shared_elements.tests.core import TaskMixin
 
 User = get_user_model()
-
-# read http://www.django-rest-framework.org/api-guide/testing/ for more info about testing with django rest framework
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
 
 
 class TasksAssignedUsersTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, ProjectsMixin):

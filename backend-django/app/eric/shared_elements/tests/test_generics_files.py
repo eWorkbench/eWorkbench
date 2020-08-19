@@ -9,16 +9,13 @@ from django.contrib.auth.models import Permission
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from eric.core.tests import test_utils
+from eric.core.tests import test_utils, HTTP_USER_AGENT, REMOTE_ADDR
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.models import Project
 from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
 from eric.shared_elements.models import File
 from eric.shared_elements.tests.core import FileMixin
 from eric.versions.models import Version
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
 
 
 class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMixin):
@@ -52,11 +49,10 @@ class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMi
             content_type=File.get_content_type()
         ).first()
 
+        self.student_role = self.create_student_role()
+
     def test_download_file_with_permission(self):
         """ Tests the download file endpoint """
-        HTTP_USER_AGENT = "APITestClient"
-        REMOTE_ADDR = "127.0.0.1"
-
         project = self.create_project(self.token1, "My Own Project", "Nobody else has access to this project",
                                       Project.STARTED, HTTP_USER_AGENT, REMOTE_ADDR)
 
@@ -132,8 +128,8 @@ class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMi
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # make the user a project manager
-        response = self.rest_edit_user_project_assignment(self.token1, project, assignment['pk'], self.user2, self.pm_role,
-                                                          HTTP_USER_AGENT, REMOTE_ADDR)
+        self.rest_edit_user_project_assignment(self.token1, project, assignment['pk'], self.user2, self.pm_role,
+                                               HTTP_USER_AGENT, REMOTE_ADDR)
 
         response = self.rest_download_file(self.token2, file.file_entries.all()[0].pk,
                                            HTTP_USER_AGENT, REMOTE_ADDR)
@@ -285,7 +281,7 @@ class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMi
         """
         # create a file with 1024 bytes
         response = self.rest_create_file(self.token1, None, 'Test Title', 'Test Description',
-                                                     'somefile.txt', 1024, HTTP_USER_AGENT, REMOTE_ADDR)
+                                         'somefile.txt', 1024, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # decode response

@@ -2,14 +2,12 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import jwt
-from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.urls import reverse
-from django.utils.timezone import datetime, timedelta
 from django_userforeignkey.request import get_current_request
 from rest_framework import serializers
 
+from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
 from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer
 from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, EntityMetadataSerializer
 from eric.pictures.models import Picture
@@ -51,31 +49,8 @@ class PictureSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
             raise IntegrityError("uploaded_picture_entry is not referenced")
 
         path = reverse(reverse_url_name, kwargs={'pk': picture.uploaded_picture_entry.pk})
-        absolute_url = request.build_absolute_uri(path)
 
-        # the token should contain the following information
-        payload = {
-            'exp': datetime.now() + timedelta(
-                hours=settings.WORKBENCH_SETTINGS['download_token_validity_in_hours']
-            ),  # expiration time
-            # store pk and object type that this object relates to
-            'pk': str(picture.pk),
-            'object_type': picture.__class__.__name__,
-            # store the users primary key
-            'user': request.user.pk,
-            # store the verification token, so the token can be revoked afterwards
-            'jwt_verification_token': request.user.userprofile.jwt_verification_token,
-            # store the path that this token is valid for
-            'path': path
-        }
-
-        # generate JWT with the payload and the secret key
-        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-        return "{absolute_url}?jwt={token}".format(
-            absolute_url=absolute_url,
-            token=jwt_token.decode("utf-8")
-        )
+        return build_expiring_jwt_url(request, path)
 
     @staticmethod
     def build_download_url(picture, reverse_url_name):

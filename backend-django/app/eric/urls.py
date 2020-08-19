@@ -8,6 +8,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import TemplateView
 from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
@@ -70,6 +71,9 @@ urlpatterns = [
     # include pictures
     url(r'^api/', include('eric.pictures.urls')),
 
+    # include plugins
+    url(r'^api/', include('eric.plugins.urls')),
+
     # include kanban boards
     url(r'^api/', include('eric.kanban_boards.urls')),
 
@@ -103,18 +107,23 @@ urlpatterns = [
     # include core auth
     url(r'^api/auth/', include('django_rest_multitokenauth.urls', namespace='multitokenauth')),
     url(r'^api/auth/reset_password/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    url(r'^login/', LoginView.as_view(template_name='login.html'), name='login'),
+    url(r'^logout/', LogoutView.as_view(), name='logout'),
 
     # Anexia monitoring urls
     url(r'^', include(monitor_urls)),
 
     # ckeditor uploader urls
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+
+    url(r'^openapi/', include('eric.openapi.urls')),
 ]
 
 # print("Serving", settings.MEDIA_URL, "at", settings.MEDIA_ROOT)
 
 if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar
+
     # serve django debug toolbar
     # ToDo: log this
     urlpatterns += [

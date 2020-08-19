@@ -69,6 +69,8 @@ class ContactShareSerializer(ContactSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
+        """ Creates a copy of a contact for another user. """
+
         # take created_for field out of validated data
         receiving_user = validated_data.pop('created_for')
         sending_user = get_current_user()
@@ -82,7 +84,7 @@ class ContactShareSerializer(ContactSerializer):
             from eric.model_privileges.models import ModelPrivilege
             ModelPrivilege.objects.update_or_create(
                 user=receiving_user,
-                content_type=instance.content_type,
+                content_type=instance.get_content_type(),
                 object_id=instance.pk,
                 defaults={
                     'full_access_privilege': ModelPrivilege.ALLOW,
@@ -93,7 +95,7 @@ class ContactShareSerializer(ContactSerializer):
             initial_privilege = ModelPrivilege.objects.filter(
                 user=sending_user,
                 object_id=instance.pk,
-                content_type=instance.content_type,
+                content_type=instance.get_content_type(),
             )
             initial_privilege.delete()
 

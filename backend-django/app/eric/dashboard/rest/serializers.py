@@ -32,6 +32,7 @@ class DashboardMeetingSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = Meeting
         fields = (
@@ -43,6 +44,7 @@ class DashboardContactSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = Contact
         fields = (
@@ -59,6 +61,7 @@ class DashboardFileSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = File
         fields = (
@@ -73,6 +76,7 @@ class DashboardNoteSerializer(BaseModelWithCreatedBySerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = Note
         fields = (
@@ -87,6 +91,7 @@ class DashboardTaskSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = Task
         fields = (
@@ -102,6 +107,7 @@ class DashboardDmpSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = Dmp
         fields = (
@@ -116,6 +122,7 @@ class DashboardLabBookSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = LabBook
         fields = (
@@ -162,6 +169,7 @@ class DashboardResourceSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = Resource
         fields = (
@@ -176,6 +184,7 @@ class DashboardKanbanBoardSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = KanbanBoard
         fields = (
@@ -187,6 +196,7 @@ class DashboardDriveSerializer(serializers.ModelSerializer):
     """
     A very minimalistic (read only) serializer for the dashboard
     """
+
     class Meta:
         model = Drive
         fields = (

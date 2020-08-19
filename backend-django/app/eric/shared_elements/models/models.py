@@ -65,22 +65,6 @@ def datetime_from_iso_string(string):
     return parse_datetime(string) if string is not None and string != "" else None
 
 
-@deconstructible
-class UploadToPathAndRename(object):
-    """ Automatically rename the uploaded file to a random UUID.{extension} """
-
-    def __init__(self, path):
-        self.sub_path = path
-
-    def __call__(self, instance, filename):
-        # get filename extension
-        ext = filename.split('.')[-1]
-        # set filename as random string
-        filename = '{}.{}'.format(uuid4().hex, ext)
-        # return the whole path to the file
-        return os.path.join(self.sub_path, filename)
-
-
 def scramble_uploaded_filename(filename):
     """ scramble/uglify the filename of the uploaded file, keep the file extension """
     if "." in filename:
@@ -135,7 +119,8 @@ class Contact(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
 
     first_name = models.CharField(
         max_length=128,
-        verbose_name=_("First name of the contact")
+        verbose_name=_("First name of the contact"),
+        db_index=True
     )
 
     last_name = models.CharField(
@@ -279,7 +264,8 @@ class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
     subject = models.CharField(
         max_length=128,
-        verbose_name=_("Subject of the note")
+        verbose_name=_("Subject of the note"),
+        db_index=True
     )
 
     content = HTMLField(
@@ -498,15 +484,6 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
     metadata = MetadataRelation()
 
-    def get_history_file_by_changeset_pk(self, entry_pk):
-        """
-        Returns a historic version of the file
-        :param changeset_pk:
-        :return: File
-        """
-
-        return self.file_entries.filter(pk=entry_pk).first()
-
     @staticmethod
     def generate_file_name(cur_file_name):
         new_file_name = scramble_uploaded_filename(cur_file_name)
@@ -663,14 +640,14 @@ class TaskAssignedUser(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
     assigned_user = models.ForeignKey(
         "projects.MyUser",
-        verbose_name=_("Which user is the task is assigned to"),
+        verbose_name=_("Which user is the task assigned to"),
         on_delete=models.CASCADE
     )
 
     # reference to a task
     task = models.ForeignKey(
         'shared_elements.Task',
-        verbose_name=_("Which task is the user is assigned to"),
+        verbose_name=_("Which task is the user assigned to"),
         blank=True,
         null=True,
         on_delete=models.CASCADE
@@ -710,7 +687,7 @@ class TaskCheckList(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     task = models.ForeignKey(
         'shared_elements.Task',
         related_name="checklist_items",
-        verbose_name=_("Which task is checklist item belongs to"),
+        verbose_name=_("Which task this checklist item belongs to"),
         blank=True,
         null=True,
         on_delete=models.CASCADE
@@ -787,31 +764,36 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
     )
 
     task_id = AutoIncrementIntegerWithPrefixField(
-        verbose_name=_("Ticket Identifier")
+        verbose_name=_("Ticket Identifier"),
+        db_index=True
     )
 
     title = models.CharField(
         max_length=128,
         verbose_name=_("Title of the task")
     )
+
     start_date = models.DateTimeField(
         verbose_name=_("Task start date"),
         db_index=True,
         null=True,
         blank=True
     )
+
     due_date = models.DateTimeField(
         verbose_name=_("Task due date"),
         db_index=True,
         null=True,
         blank=True
     )
+
     priority = models.CharField(
         max_length=5,
         choices=TASK_PRIORITY_CHOICES,
         verbose_name=_("Priority of the task"),
         default=TASK_PRIORITY_NORMAL
     )
+
     state = models.CharField(
         max_length=5,
         choices=TASK_STATE_CHOICES,
@@ -899,7 +881,7 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
             "description": self.description,
             "assigned_users": [au.pk for au in self.assigned_users.all()],
             "projects": [p.pk for p in self.projects.all()],
-            "labels": [l.pk for l in self.labels.all()],
+            "labels": [label.pk for label in self.labels.all()],
             "checklist": checklist,
             "metadata": Metadata.export_all_from_entity(self),
         }
@@ -1089,11 +1071,13 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
     )
 
     date_time_start = models.DateTimeField(
-        verbose_name=_("Meeting start date time")
+        verbose_name=_("Meeting start date time"),
+        db_index=True
     )
 
     date_time_end = models.DateTimeField(
-        verbose_name=_("Meeting end date time")
+        verbose_name=_("Meeting end date time"),
+        db_index=True
     )
 
     text = HTMLField(

@@ -2,28 +2,34 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-""" contains basic admin functionality for eric workbench pictures """
+
 
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
 from eric.model_privileges.admin import ModelPrivilegeInline
 from eric.pictures.models import Picture
-from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin
+from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
 
 User = get_user_model()
 
 
 @admin.register(Picture)
 class PictureAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    """ contains basic admin functionality for eric workbench pictures """
+
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = (
         'title',
         'created_by',
         'created_at',
     )
     list_filter = (
-        ('projects', RelatedDropdownFilter),
+        ProjectsFilter,
     )
     search_fields = (
         'projects__name',
@@ -31,5 +37,6 @@ class PictureAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    filter_horizontal = ('projects',)
     inlines = (ModelPrivilegeInline,)
+    autocomplete_fields = ('projects',)
+    raw_id_fields = ('uploaded_picture_entry',)

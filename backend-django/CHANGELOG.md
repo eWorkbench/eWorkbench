@@ -1,5 +1,29 @@
 # Changelog
 
+## Version 1.20.4 - August 2020
+- fix contact share
+
+## Version 1.20.3 - August 2020
+- fix plugin download_placeholder_picture request url
+
+## Version 1.20.2 - August 2020
+- Added JWT Authentication for Labbook Plugins
+- Performance improvements for project list view
+
+## Version 1.20.1 - July 2020
+- Hotfix for plugin admin
+
+## Version 1.20 - July 2020
+- Added (LabBook) plugins feature
+- Added Swagger and Redoc API documentation
+- Upgraded jQuery to version 3.5.1
+
+## Version 1.19.1 - June 2020
+- AngularJS 1.8 upgrade
+- Deactivated LDAP logging
+- Django command for Workbench statistics
+- added api-changes.md and documented calendar access privilege api changes
+
 ## Version 1.19 - June 2020
 - Added calendar rights management feature
 - Sync empty LDAP fields

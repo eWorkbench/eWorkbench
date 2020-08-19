@@ -9,12 +9,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 
 from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedModelViewSet
+from eric.drives.models import Drive
 from eric.drives.models.models import Directory
-from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet
-
 from eric.drives.rest.filters import DriveFilter
 from eric.drives.rest.serializers import DriveSerializer, DirectorySerializer
-from eric.drives.models import Drive
+from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet
 from eric.shared_elements.models import File
 
 
@@ -87,9 +86,6 @@ class DriveSubDirectoriesViewSet(BaseAuthenticatedModelViewSet):
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
         return get_object_or_404(Drive.objects.viewable(), pk=kwargs['drive_pk'])
 
@@ -133,7 +129,12 @@ class DriveSubDirectoriesViewSet(BaseAuthenticatedModelViewSet):
         return response
 
     def get_queryset(self):
-        return Directory.objects.viewable().filter(drive=self.parent_object.pk)
+        if hasattr(self, 'parent_object') and self.parent_object:
+            drive_pk = self.parent_object.pk
+        else:
+            drive_pk = None
+
+        return Directory.objects.viewable().filter(drive=drive_pk)
 
 
 class DriveViewSet(

@@ -3,28 +3,22 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
-from django.core.exceptions import ValidationError
-from django.contrib.auth.models import Group
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
 from django.utils.timezone import datetime, timedelta
 from django.utils.translation import gettext as _
-
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.test import APITestCase
 
-from eric.projects.models import Project, ProjectRoleUserAssignment, Role
-from eric.shared_elements.models import Task
+from eric.core.tests import test_utils, HTTP_USER_AGENT, REMOTE_ADDR
+from eric.projects.models import Project, Role
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ProjectsMixin
+from eric.shared_elements.models import Task
 from eric.shared_elements.tests.core import TaskMixin
-from eric.core.tests import test_utils
 
 User = get_user_model()
-
-# read http://www.django-rest-framework.org/api-guide/testing/ for more info about testing with django rest framework
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
 
 
 class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, ProjectsMixin):
@@ -98,10 +92,10 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
 
         # try creating a task without a project and without having the proper permission
         response = self.rest_create_task(self.token3, None, "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(), datetime.now()+timedelta(days=30),
+                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
+                                         datetime.now() + timedelta(days=30),
                                          self.user3.pk,
                                          HTTP_USER_AGENT, REMOTE_ADDR)
-        decoded = json.loads(response.content.decode())
         self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
 
         # there should still be zero Tasks
@@ -110,7 +104,8 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         # however, creating a task for a project1 should work, as user1 has created project1 (and therefore should have
         # the needed permissions)
         response = self.rest_create_task(self.token3, self.project1.pk, "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(), datetime.now()+timedelta(days=30),
+                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
+                                         datetime.now() + timedelta(days=30),
                                          self.user3.pk,
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -118,7 +113,8 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         # at the same time, user2 should NOT be able to create a task for project2 (as user3 does not have access to project2)
         response = self.rest_create_task(self.token3, self.project2.pk,
                                          "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(), datetime.now()+timedelta(days=30),
+                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
+                                         datetime.now() + timedelta(days=30),
                                          self.user3.pk,
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
@@ -132,7 +128,8 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         # try creating a task without a project now, and it should work
         response = self.rest_create_task(self.token3, None,
                                          "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(), datetime.now()+timedelta(days=30),
+                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
+                                         datetime.now() + timedelta(days=30),
                                          self.user3.pk,
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -157,7 +154,8 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         # try creating a task without a project now, and it should work
         response = self.rest_create_task(self.token3, None,
                                          "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(), datetime.now()+timedelta(days=30),
+                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
+                                         datetime.now() + timedelta(days=30),
                                          self.user3.pk,
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -245,7 +243,8 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         ########
         response = self.rest_create_task(self.token1, self.project2.pk,
                                          "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(), datetime.now()+timedelta(days=30),
+                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
+                                         datetime.now() + timedelta(days=30),
                                          self.user1.pk,
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
@@ -288,7 +287,8 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         # try creating a task without a project for user1 (token1)
         response = self.rest_create_task(self.token1, None,
                                          "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(), datetime.now()+timedelta(days=30),
+                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
+                                         datetime.now() + timedelta(days=30),
                                          self.user1.pk,
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -342,7 +342,7 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         # create a task
         task, response = self.create_task_orm(self.token1, project.pk, "Test Task", "Test Description",
                                               Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH,
-                                              datetime.now(), datetime.now()+timedelta(days=30),
+                                              datetime.now(), datetime.now() + timedelta(days=30),
                                               self.user1.pk,
                                               HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -403,7 +403,7 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         # try creating a task without a project
         task, response = self.create_task_orm(self.token1, None, "Test Task", "Test Description",
                                               Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH,
-                                              datetime.now(), datetime.now()+timedelta(days=30),
+                                              datetime.now(), datetime.now() + timedelta(days=30),
                                               self.user1.pk,
                                               HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -439,7 +439,7 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         response = self.rest_create_task(
             self.token1, None,
             "Test Title", "Test Desription", Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH,
-            datetime.now(), datetime.now()-timedelta(seconds=1),
+            datetime.now(), datetime.now() - timedelta(seconds=1),
             [], HTTP_USER_AGENT, REMOTE_ADDR
         )
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -447,4 +447,3 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         self.assertTrue('due_date' in decoded_response)
         self.assertTrue('start_date' in decoded_response)
         self.assertEquals(decoded_response['start_date'][0], _("Start date must be before end date"))
-

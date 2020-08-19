@@ -4,25 +4,25 @@
 #
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 
+from eric.core.rest.viewsets import BaseGenericViewSet
 from eric.dashboard.rest.serializers import DashboardProjectSerializer, DashboardMeetingSerializer, \
     DashboardContactSerializer, DashboardFileSerializer, DashboardNoteSerializer, DashboardTaskSerializer, \
     DashboardDmpSerializer, DashboardLabBookSerializer, DashboardChangeSetSerializer, DashboardResourceSerializer, \
     DashboardKanbanBoardSerializer, DashboardDriveSerializer
+from eric.dmp.models import Dmp
+from eric.dmp.rest.viewsets import DmpViewSet
 from eric.drives.models import Drive
 from eric.drives.rest.viewsets import DriveViewSet
 from eric.kanban_boards.models import KanbanBoard
 from eric.kanban_boards.rest.viewsets import KanbanBoardViewSet
-from eric.projects.rest.viewsets import ProjectViewSet, ResourceViewSet, ChangeSetViewSet
-from eric.shared_elements.rest.viewsets import MeetingViewSet, ContactViewSet, FileViewSet, NoteViewSet, TaskViewSet
-from eric.dmp.rest.viewsets import DmpViewSet
-from eric.labbooks.rest.viewsets import LabBookViewSet
-from eric.core.rest.viewsets import BaseGenericViewSet
-
-from eric.projects.models import Project, Resource
-from eric.shared_elements.models import Task, Meeting, Contact, File, Note
-from eric.dmp.models import Dmp
 from eric.labbooks.models import LabBook
+from eric.labbooks.rest.viewsets import LabBookViewSet
+from eric.projects.models import Project, Resource
+from eric.projects.rest.viewsets import ProjectViewSet, ResourceViewSet, ChangeSetViewSet
+from eric.shared_elements.models import Task, Meeting, Contact, File, Note
+from eric.shared_elements.rest.viewsets import MeetingViewSet, ContactViewSet, FileViewSet, NoteViewSet, TaskViewSet
 
 
 class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
@@ -31,6 +31,9 @@ class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
 
     This viewset calls other viewsets, such as the ProjectViewSet, MeetingViewSet
     """
+
+    # we need some serializer definition for the openAPI generation
+    serializer_class = Serializer
 
     # define the viewsets for all entities that should be provided by the dashboard
     viewsets = {
@@ -67,8 +70,6 @@ class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
     def get_summary(self, request):
         """
         Get the counts of all non-trashed viewable items
-        :param request:
-        :return:
         """
         return {
             'projects': Project.objects.viewable().filter(deleted=False).count(),
@@ -87,10 +88,6 @@ class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
     def get_serialized_data_for(self, request, view_name, num_elements):
         """
         Returns serialized data for a given view (e.g., tasks)
-        :param request:
-        :param view_name:
-        :param num_elements:
-        :return:
         """
         assert view_name in self.viewsets
 
@@ -128,10 +125,6 @@ class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
         """
         ViewSet list endpoint
         Provides all the data that are displayed in a dashboard
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
         """
         # restrict number of elements shown for each element
         num_elements = 10

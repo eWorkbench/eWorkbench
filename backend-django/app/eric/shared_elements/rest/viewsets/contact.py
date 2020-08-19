@@ -19,26 +19,23 @@ class ContactViewSet(
     BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn, ExportableViewSetMixIn,
     LockableViewSetMixIn
 ):
-    """ REST API ViewSet for Contacts """
+    """ Handles contacts. """
+
     serializer_class = ContactSerializer
     filterset_class = ContactFilter
-
     search_fields = ()
-    ordering_fields = ('first_name', 'last_name', 'email', 'created_at', 'created_by', 'academic_title', 'phone',
-                       'company')
+    ordering_fields = (
+        'first_name', 'last_name', 'email', 'created_at', 'created_by', 'academic_title', 'phone', 'company',
+    )
 
     def get_queryset(self):
-        """
-        returns the queryset for viewable Contacts with the first changeset (insert changeset - used to enhance
-        performance when querying created_by and created_at)
-        """
         return Contact.objects.viewable().prefetch_common().prefetch_related(
             'projects'
         )
 
 
 class ContactShareViewSet(CreateModelMixin, GenericViewSet):
-    """ REST API ViewSet to share contacts """
+    """ Allows sharing own contacts to other users. """
 
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ContactShareSerializer

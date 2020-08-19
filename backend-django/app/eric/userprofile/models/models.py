@@ -12,25 +12,9 @@ from django.db import models
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 
-from eric.core.models import BaseModel
+from eric.core.models import BaseModel, UploadToPathAndRename
 
 User = get_user_model()
-
-
-@deconstructible
-class UploadToPathAndRename(object):
-    """ Automatically rename the uploaded file to a random UUID.{extension} """
-
-    def __init__(self, path):
-        self.sub_path = path
-
-    def __call__(self, instance, filename):
-        # get filename extension
-        ext = filename.split('.')[-1]
-        # set filename as random string
-        filename = '{}.{}'.format(uuid4().hex, ext)
-        # return the whole path to the file
-        return os.path.join(self.sub_path, filename)
 
 
 class UserProfile(BaseModel):

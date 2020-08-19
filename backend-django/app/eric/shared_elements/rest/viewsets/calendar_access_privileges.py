@@ -5,7 +5,6 @@ from eric.shared_elements.rest.serializers import CalendarAccessSerializer
 
 
 class CalendarAccessViewSet(BaseAuthenticatedModelViewSet):
-    """ Viewset for meetings """
     serializer_class = CalendarAccessSerializer
     filter_class = CalendarAccessFilter
     search_fields = ()

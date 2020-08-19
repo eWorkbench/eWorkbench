@@ -238,6 +238,44 @@
                     "metadata": gettextCatalog.getString("Metadata")
                 }
             },
+            'plugins.plugin': {
+                'modelName': 'plugin',
+                'translation': gettextCatalog.getString("Plugin"),
+                'translationPlural': gettextCatalog.getString("Plugins"),
+                'icon': 'fa fa-puzzle-piece',
+                'relatable': false,
+                'exportable': false,
+                'searchable': false,
+                'labels': {
+                    "url": gettextCatalog.getString("URL"),
+                    "title": gettextCatalog.getString("Title"),
+                    "long_description": gettextCatalog.getString("Long Description"),
+                    "short_description": gettextCatalog.getString("short Description"),
+                    "path": gettextCatalog.getString("Path"),
+                    "placeholder_picture": gettextCatalog.getString("Placeholder Picture"),
+                    "mime_type": gettextCatalog.getString("Placeholder Picture Mime Type"),
+                    "user_availability": gettextCatalog.getString("User Availability")
+                }
+            },
+            'plugins.plugininstance': {
+                'modelName': 'plugininstance',
+                'translation': gettextCatalog.getString("Plugin Content"),
+                'translationPlural': gettextCatalog.getString("Plugin Contents"),
+                'icon': 'fa fa-hdd-o',
+                'relatable': true,
+                'exportable': true,
+                'searchable': true,
+                'labels': {
+                    "title": gettextCatalog.getString("Title"),
+                    "url": gettextCatalog.getString("URL"),
+                    "plugininstance": gettextCatalog.getString("Plugin Content"),
+                    "rawdata": gettextCatalog.getString("Rawdata"),
+                    "rawdata_mime_type": gettextCatalog.getString("Rawdata Mime Type"),
+                    "picture": gettextCatalog.getString("Picture"),
+                    "picture_mime_type": gettextCatalog.getString("Picture Mime Type"),
+                    "metadata": gettextCatalog.getString("Metadata")
+                }
+            },
             'kanban_boards.kanbanboard': {
                 'modelName': 'kanbanboard',
                 'translation': gettextCatalog.getString("Task Board"),

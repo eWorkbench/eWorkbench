@@ -3,19 +3,19 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
-from django.utils import timezone
+
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.throttling import UserRateThrottle
+from rest_framework.views import APIView
 
-from eric.site_preferences.models import options as site_preferences
 from eric.contact_form.serializers import ContactFormSerializer
+from eric.site_preferences.models import options as site_preferences
 
 logger = logging.getLogger('eric.contact_form.views')
 
@@ -27,12 +27,14 @@ class ContactFormUserRateThrottle(UserRateThrottle):
 
 
 class SendContactForm(APIView):
-    """Custom API View for sending a contact form"""
+    """ Custom API View for sending a contact form """
 
     serializer_class = ContactFormSerializer
-    throttle_classes = (ContactFormUserRateThrottle, )
+    throttle_classes = (ContactFormUserRateThrottle,)
 
     def post(self, request, *args, **kwargs):
+        """ Posts the contact form.  """
+
         if request.user.is_authenticated:
             # check if subject and message is filled
             serializer = self.serializer_class(data=request.data)

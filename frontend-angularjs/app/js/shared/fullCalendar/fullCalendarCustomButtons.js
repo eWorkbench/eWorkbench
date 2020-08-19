@@ -385,7 +385,7 @@
     }
 
     function computeIsLeftRtlScrollbars () { // creates an offscreen test element, then removes it
-        var el = $('<div><div/></div>')
+        var el = $('<div><div></div></div>')
             .css({
                 position: 'absolute',
                 top: -1000,
@@ -2052,7 +2052,7 @@
             var _this = this;
             var options = this.options;
 
-            this.el = $('<div class="fc-popover"/>')
+            this.el = $('<div class="fc-popover"></div>')
                 .addClass(options.className || '')
                 .css({
                     // position initially to the top left to avoid creating scrollbars
@@ -3956,7 +3956,7 @@
             return '<' + this.fillSegTag +
                 (classes.length ? ' class="' + classes.join(' ') + '"' : '') +
                 (css ? ' style="' + css + '"' : '') +
-                ' />';
+                '></' + this.fillSegTag + '>';
         },
 
 
@@ -5742,7 +5742,7 @@
             var classes;
 
             if (!this.view.dayNumbersVisible) { // if there are week numbers but not day numbers
-                return '<td/>'; //  will create an empty space above events :(
+                return '<td></td>'; //  will create an empty space above events :(
             }
 
             classes = this.getDayClasses(date);
@@ -5922,7 +5922,7 @@
             // inject each new event skeleton into each associated row
             this.rowEls.each(function (row, rowNode) {
                 var rowEl = $(rowNode); // the .fc-row
-                var skeletonEl = $('<div class="fc-helper-skeleton"><table/></div>'); // will be absolutely positioned
+                var skeletonEl = $('<div class="fc-helper-skeleton"><table></table></div>'); // will be absolutely positioned
                 var skeletonTop;
 
                 // If there is an original segment, match the top position. Otherwise, put it at the row's top level
@@ -5996,13 +5996,13 @@
 
             skeletonEl = $(
                 '<div class="fc-' + className + '-skeleton">' +
-                '<table><tr/></table>' +
+                '<table><tr></tr></table>' +
                 '</div>'
             );
             trEl = skeletonEl.find('tr');
 
             if (startCol > 0) {
-                trEl.append('<td colspan="' + startCol + '"/>');
+                trEl.append('<td colspan="' + startCol + '"></td>');
             }
 
             trEl.append(
@@ -6010,7 +6010,7 @@
             );
 
             if (endCol < colCnt) {
-                trEl.append('<td colspan="' + (colCnt - endCol) + '"/>');
+                trEl.append('<td colspan="' + (colCnt - endCol) + '"></td>');
             }
 
             this.bookendCells(trEl);
@@ -6162,8 +6162,8 @@
                         : timeHtml + ' ' + titleHtml
                 )
                 + '</div>'
-                + (isResizableFromStart ? '<div class="fc-resizer fc-start-resizer" />' : '')
-                + (isResizableFromEnd ? '<div class="fc-resizer fc-end-resizer" />' : '')
+                + (isResizableFromStart ? '<div class="fc-resizer fc-start-resizer"></div>' : '')
+                + (isResizableFromEnd ? '<div class="fc-resizer fc-end-resizer"></div>' : '')
                 + '</a>';
         },
 
@@ -6175,7 +6175,7 @@
             var colCnt = this.colCnt;
             var segLevels = this.buildSegLevels(rowSegs); // group into sub-arrays of levels
             var levelCnt = Math.max(1, segLevels.length); // ensure at least one level
-            var tbody = $('<tbody/>');
+            var tbody = $('<tbody></tbody>');
             var segMatrix = []; // lookup for which segments are rendered into which level+col cells
             var cellMatrix = []; // lookup for all <td> elements of the level+col matrix
             var loneCellMatrix = []; // lookup for <td> elements that only take up a single column
@@ -6196,7 +6196,7 @@
                             parseInt(td.attr('rowspan') || 1, 10) + 1
                         );
                     } else {
-                        td = $('<td/>');
+                        td = $('<td></td>');
                         tr.append(td);
                     }
                     cellMatrix[i][col] = td;
@@ -6208,7 +6208,7 @@
             for (i = 0; i < levelCnt; i++) { // iterate through all levels
                 levelSegs = segLevels[i];
                 col = 0;
-                tr = $('<tr/>');
+                tr = $('<tr></tr>');
 
                 segMatrix.push([]);
                 cellMatrix.push([]);
@@ -6223,7 +6223,7 @@
                         emptyCellsUntil(seg.leftCol);
 
                         // create a container that occupies or more columns. append the event element.
-                        td = $('<td class="fc-event-container"/>').append(seg.el);
+                        td = $('<td class="fc-event-container"></td>').append(seg.el);
                         if (seg.leftCol != seg.rightCol) {
                             td.attr('colspan', seg.rightCol - seg.leftCol + 1);
                         } else { // a single-column segment
@@ -6439,7 +6439,7 @@
                     if (segsBelow.length) {
                         td = cellMatrix[levelLimit - 1][col];
                         moreLink = _this.renderMoreLink(row, col, segsBelow);
-                        moreWrap = $('<div/>').append(moreLink);
+                        moreWrap = $('<div></div>').append(moreLink);
                         td.append(moreWrap);
                         moreNodes.push(moreWrap[0]);
                     }
@@ -6476,14 +6476,14 @@
 
                         // make a replacement <td> for each column the segment occupies. will be one for each colspan
                         for (j = 0; j < colSegsBelow.length; j++) {
-                            moreTd = $('<td class="fc-more-cell"/>').attr('rowspan', rowspan);
+                            moreTd = $('<td class="fc-more-cell"></td>').attr('rowspan', rowspan);
                             segsBelow = colSegsBelow[j];
                             moreLink = this.renderMoreLink(
                                 row,
                                 seg.leftCol + j,
                                 [seg].concat(segsBelow) // count seg as hidden too
                             );
-                            moreWrap = $('<div/>').append(moreLink);
+                            moreWrap = $('<div></div>').append(moreLink);
                             moreTd.append(moreWrap);
                             segMoreNodes.push(moreTd[0]);
                             moreNodes.push(moreTd[0]);
@@ -6524,7 +6524,7 @@
             var _this = this;
             var view = this.view;
 
-            return $('<a class="fc-more"/>')
+            return $('<a class="fc-more"></a>')
                 .text(
                     this.getMoreLinkText(hiddenSegs.length)
                 )
@@ -6618,7 +6618,7 @@
                 '<span class="fc-title">' +
                 htmlEscape(title) +
                 '</span>' +
-                '<div class="fc-clear"/>' +
+                '<div class="fc-clear">' +
                 '</div>' +
                 '<div class="fc-body ' + view.widgetContentClass + '">' +
                 '<div class="fc-event-container"></div>' +
@@ -6632,7 +6632,6 @@
             this.popoverSegs = segs;
 
             for (i = 0; i < segs.length; i++) {
-
                 // because segments in the popover are not part of a grid coordinate system, provide a hint to any
                 // grids that want to do drag-n-drop about which cell it came from
                 this.prepareHits();
@@ -6807,7 +6806,7 @@
                     (isLabeled ? '' : ' class="fc-minor"') +
                     '>' +
                     (!isRTL ? axisHtml : '') +
-                    '<td class="' + view.widgetContentClass + '"/>' +
+                    '<td class="' + view.widgetContentClass + '"></td>' +
                     (isRTL ? axisHtml : '') +
                     "</tr>";
 
@@ -7557,15 +7556,15 @@
                         : ''
                 ) +
                 '</div>' +
-                '<div class="fc-bg"/>' +
+                '<div class="fc-bg"></div>' +
                 /* TODO: write CSS for this
                  (isResizableFromStart ?
-                 '<div class="fc-resizer fc-start-resizer" />' :
+                 '<div class="fc-resizer fc-start-resizer"></div>' :
                  ''
                  ) +
                  */
                 (isResizableFromEnd
-                        ? '<div class="fc-resizer fc-end-resizer" />'
+                        ? '<div class="fc-resizer fc-end-resizer"></div>'
                         : ''
                 ) +
                 '</a>';
@@ -9640,7 +9639,7 @@
                 element.toggleClass('fc-rtl', isRTL);
             });
 
-            content = $("<div class='fc-view-container'/>").prependTo(element);
+            content = $("<div class='fc-view-container'></div>").prependTo(element);
 
             header = t.header = new Header(t);
             renderHeader();
@@ -9710,7 +9709,7 @@
                     (viewsByType[viewType] = t.instantiateView(viewType));
 
                 currentView.setElement(
-                    $("<div class='fc-view fc-" + viewType + "-view' />").appendTo(content)
+                    $("<div class='fc-view fc-" + viewType + "-view'></div>").appendTo(content)
                 );
                 header.activateButton(viewType);
             }
@@ -10549,14 +10548,14 @@
 
             if (sections) {
                 if (!el) {
-                    el = this.el = $("<div class='fc-toolbar'/>");
+                    el = this.el = $("<div class='fc-toolbar'></div>");
                 } else {
                     el.empty();
                 }
                 el.append(renderSection('left'))
                     .append(renderSection('right'))
                     .append(renderSection('center'))
-                    .append('<div class="fc-clear"/>');
+                    .append('<div class="fc-clear"></div>');
             } else {
                 removeElement();
             }
@@ -10572,7 +10571,7 @@
 
 
         function renderSection (position) {
-            var sectionEl = $('<div class="fc-' + position + '"/>');
+            var sectionEl = $('<div class="fc-' + position + '"></div>');
             var options = calendar.options;
             var buttonStr = options.header[position];
 
@@ -10729,7 +10728,7 @@
                     }
 
                     if (groupChildren.length > 1) {
-                        groupEl = $('<div/>');
+                        groupEl = $('<div></div>');
                         if (isOnlyButtons) {
                             groupEl.addClass('fc-button-group');
                         }
@@ -10916,7 +10915,7 @@
 
                 if (
                     // is this the source's most recent fetch?
-                // if not, rely on an upcoming fetch of this source to decrement pendingSourceCnt
+                    // if not, rely on an upcoming fetch of this source to decrement pendingSourceCnt
                     fetchId === source._fetchId &&
                     // event source no longer valid?
                     source._status !== 'rejected'
@@ -12166,7 +12165,7 @@
 
             this.scroller.render();
             var dayGridContainerEl = this.scroller.el.addClass('fc-day-grid-container');
-            var dayGridEl = $('<div class="fc-day-grid" />').appendTo(dayGridContainerEl);
+            var dayGridEl = $('<div class="fc-day-grid"></div>').appendTo(dayGridContainerEl);
             this.el.find('.fc-body > tr > td').append(dayGridContainerEl);
 
             this.dayGrid.setElement(dayGridEl);
@@ -12639,7 +12638,7 @@
 
             this.scroller.render();
             var timeGridWrapEl = this.scroller.el.addClass('fc-time-grid-container');
-            var timeGridEl = $('<div class="fc-time-grid" />').appendTo(timeGridWrapEl);
+            var timeGridEl = $('<div class="fc-time-grid"></div>').appendTo(timeGridWrapEl);
             this.el.find('.fc-body > tr > td').append(timeGridWrapEl);
 
             this.timeGrid.setElement(timeGridEl);
@@ -12698,7 +12697,7 @@
                 '<tr>' +
                 '<td class="' + this.widgetContentClass + '">' +
                 (this.dayGrid ?
-                        '<div class="fc-day-grid"/>' +
+                        '<div class="fc-day-grid"></div>' +
                         '<hr class="fc-divider ' + this.widgetHeaderClass + '"/>' :
                         ''
                 ) +

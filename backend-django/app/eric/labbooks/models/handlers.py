@@ -17,8 +17,8 @@ def on_delete_labbook_element(sender, instance, *args, **kwargs):
     Followup on a delete of a model that is used in a labbook
     All labbook child elements that use this object need to be deleted too
 
-    This is to ensure that when deleting a note/file/picture within the workbench, we also delete all related labbook
-    child elements
+    This is to ensure that when deleting a note/file/picture/plugin within the workbench,
+    we also delete all related labbook child elements
     """
     # check if the current instance is relatable (sanity check)
     if hasattr(instance._meta, "is_relatable") and instance._meta.is_relatable:

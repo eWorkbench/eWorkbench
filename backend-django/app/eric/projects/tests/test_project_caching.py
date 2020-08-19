@@ -8,7 +8,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FO
 from rest_framework.test import APITestCase
 
 from eric.core.tests import HTTP_INFO
-from eric.core.tests.test_utils import TestResponseMixin
+from eric.core.tests.test_utils import CommonTestMixin
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.models import Project, ALL_PROJECTS_CACHE_KEY
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin
@@ -16,7 +16,7 @@ from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPr
 User = get_user_model()
 
 
-class ProjectCachingTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestResponseMixin, ModelPrivilegeMixin):
+class ProjectCachingTest(APITestCase, AuthenticationMixin, ProjectsMixin, CommonTestMixin, ModelPrivilegeMixin):
 
     def setUp(self):
         # create superuser (so we don't need to care about permissions, etc.)
@@ -43,7 +43,7 @@ class ProjectCachingTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestRe
             self.token, "CachedProject", "Description", Project.STARTED,
             **HTTP_INFO
         )
-        self.check_response_status(response1, HTTP_201_CREATED)
+        self.assert_response_status(response1, HTTP_201_CREATED)
 
         # request project list
         requested_projects = self.get_all_projects_from_rest(self.token, **HTTP_INFO)
@@ -65,7 +65,7 @@ class ProjectCachingTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestRe
             self.token, "Project1", "Description", Project.STARTED,
             **HTTP_INFO
         )
-        project_from_response = self.load_response(response1, HTTP_201_CREATED)
+        project_from_response = self.parse_response(response1, HTTP_201_CREATED)
         project_pk = project_from_response['pk']
 
         # modify project
@@ -77,23 +77,23 @@ class ProjectCachingTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestRe
             project_state=Project.STARTED,
             **HTTP_INFO
         )
-        self.check_response_status(response2, HTTP_200_OK)
+        self.assert_response_status(response2, HTTP_200_OK)
 
         # check that the new data is provided
         response3 = self.rest_get_project(self.token, project_pk, **HTTP_INFO)
-        project = self.load_response(response3)
+        project = self.parse_response(response3)
         self.assertEqual(project['name'], 'Project1-MOD')
         self.assertEqual(project['description'], 'HELLO MY FRIEND')
 
         # trash+delete project
         response4 = self.rest_trash_project(self.token, project_pk, **HTTP_INFO)
-        self.check_response_status(response4, HTTP_200_OK)
+        self.assert_response_status(response4, HTTP_200_OK)
         response5 = self.rest_delete_project(self.token, project_pk, **HTTP_INFO)
-        self.check_response_status(response5, HTTP_204_NO_CONTENT)
+        self.assert_response_status(response5, HTTP_204_NO_CONTENT)
 
         # check that the detail API does not provide the deleted project
         response6 = self.rest_get_project(self.token, project_pk, **HTTP_INFO)
-        self.check_response_status(response6, HTTP_404_NOT_FOUND)
+        self.assert_response_status(response6, HTTP_404_NOT_FOUND)
 
         # check that the list API does not provide the deleted project
         requested_projects = self.get_all_projects_from_rest(self.token, **HTTP_INFO)
@@ -149,7 +149,7 @@ class ProjectCachingTest(APITestCase, AuthenticationMixin, ProjectsMixin, TestRe
         # clear cache and check project_tree for different users and requests
         def check_project_tree_for_user(user_token):
             response = self.rest_get_project(user_token, prj_B.pk, **HTTP_INFO)
-            project_from_api = self.load_response(response)
+            project_from_api = self.parse_response(response)
             project_tree = project_from_api['project_tree']
             self.assertEqual(len(project_tree), 4, str(project_tree))
             project_names_in_tree = set(p['name'] for p in project_tree)

@@ -3,28 +3,27 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
-from django.contrib.auth.models import Group, Permission
-from django.contrib.auth import get_user_model
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.utils.timezone import timedelta
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from eric.core.tests import REMOTE_ADDR, HTTP_USER_AGENT
 from eric.projects.models import Role, Project
-from eric.shared_elements.models import Meeting, Contact, ContactAttendsMeeting, UserAttendsMeeting
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin
-from eric.shared_elements.tests.core import UserAttendsMeetingMixin, ContactAttendsMeetingMixin, MeetingMixin, ContactMixin
-
+from eric.shared_elements.models import Meeting, Contact
+from eric.shared_elements.tests.core import UserAttendsMeetingMixin, ContactAttendsMeetingMixin, MeetingMixin, \
+    ContactMixin
 
 User = get_user_model()
 
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
-
 
 class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, ProjectsMixin,
-                                        ContactMixin, MeetingMixin, UserAttendsMeetingMixin, ContactAttendsMeetingMixin):
+                                        ContactMixin, MeetingMixin, UserAttendsMeetingMixin,
+                                        ContactAttendsMeetingMixin):
     """ Extensive testing of api/meeting/ endpoint
     """
 
@@ -76,7 +75,8 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # meeting 2
-        response = self.rest_create_meeting(self.token1, self.project.pk, "Second meeting", "Some Text for this meeting",
+        response = self.rest_create_meeting(self.token1, self.project.pk, "Second meeting",
+                                            "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
@@ -87,14 +87,16 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # meeting 3
-        response = self.rest_create_meeting(self.token1, self.project.pk, "Third Appointment", "Some Text for this meeting",
+        response = self.rest_create_meeting(self.token1, self.project.pk, "Third Appointment",
+                                            "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.meeting3 = Meeting.objects.get(pk=decoded['pk'])
 
         # meeting 4
-        response = self.rest_create_meeting(self.token1, self.project.pk, "Fourth Appointment", "Some Text for this meeting",
+        response = self.rest_create_meeting(self.token1, self.project.pk, "Fourth Appointment",
+                                            "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
@@ -367,7 +369,8 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         Tests that the current user is always attending the meeting he/she created
         :return:
         """
-        response = self.rest_create_meeting(self.token1, self.project.pk, "Another meeting", "Some Text for this meeting",
+        response = self.rest_create_meeting(self.token1, self.project.pk, "Another meeting",
+                                            "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
@@ -402,7 +405,8 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         decoded = json.loads(response.content.decode())
 
-        self.assertEquals(Meeting.objects.filter(pk=decoded['pk']).first().attending_users.all().count(), 2, msg="There should be two attending users")
+        self.assertEquals(Meeting.objects.filter(pk=decoded['pk']).first().attending_users.all().count(), 2,
+                          msg="There should be two attending users")
 
         # now user2 can view the meeting too!
         response = self.rest_get_meeting(self.token2, decoded['pk'], HTTP_USER_AGENT, REMOTE_ADDR)
@@ -453,14 +457,14 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         response = self.rest_create_meeting(
             self.token1, None, "Test Meeting", "Test Description",
-            timezone.now(), timezone.now()+timedelta(hours=1),
+            timezone.now(), timezone.now() + timedelta(hours=1),
             HTTP_USER_AGENT, REMOTE_ADDR,
             [self.user1.pk, self.user2.pk], [self.contact1.pk, self.contact2.pk]
         )
         decoded_meeting = json.loads(response.content.decode())
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         # verify a new meeting has been created in database
-        self.assertEquals(Meeting.objects.all().count(), meeting_count+1)
+        self.assertEquals(Meeting.objects.all().count(), meeting_count + 1)
         meeting = Meeting.objects.filter(pk=decoded_meeting['pk']).first()
         self.assertEquals(meeting.attending_users.count(), 2)
         self.assertEquals(meeting.attending_contacts.count(), 2)
@@ -470,7 +474,8 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         # create a new meeting with user1 (should work)
         user_pk_list = [self.user2.pk, self.user2.pk]
 
-        response = self.update_attending_users(self.token1, self.meeting1.pk, user_pk_list, HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.update_attending_users(self.token1, self.meeting1.pk, user_pk_list, HTTP_USER_AGENT,
+                                               REMOTE_ADDR)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
@@ -492,7 +497,8 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # give user2 the view privilege for the meeting, by making user2 an attending user
-        response = self.update_attending_users(self.token1, self.meeting1.pk, [self.user1.pk, self.user2.pk], HTTP_USER_AGENT,
+        response = self.update_attending_users(self.token1, self.meeting1.pk, [self.user1.pk, self.user2.pk],
+                                               HTTP_USER_AGENT,
                                                REMOTE_ADDR)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -519,7 +525,8 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEquals(self.meeting1.attending_contacts.all().count(), 1, msg="there should be zero attending contacts")
+        self.assertEquals(self.meeting1.attending_contacts.all().count(), 1,
+                          msg="there should be zero attending contacts")
 
         # try to remove it again with user2 (token2) -> should not work, as user 2 is not allowed to view the meeting
         response = self.update_attending_contacts(self.token2, self.meeting1.pk, [], HTTP_USER_AGENT,
@@ -527,10 +534,12 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        self.assertEquals(self.meeting1.attending_contacts.all().count(), 1, msg="there should be zero attending contacts")
+        self.assertEquals(self.meeting1.attending_contacts.all().count(), 1,
+                          msg="there should be zero attending contacts")
 
         # give user2 the view, edit and trash privilege for the meeting, by making user2 an attending user
-        response = self.update_attending_users(self.token1, self.meeting1.pk, [self.user1.pk, self.user2.pk], HTTP_USER_AGENT,
+        response = self.update_attending_users(self.token1, self.meeting1.pk, [self.user1.pk, self.user2.pk],
+                                               HTTP_USER_AGENT,
                                                REMOTE_ADDR)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -546,4 +555,5 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # also verify that attending users of this meeting are still set to two
-        self.assertEquals(self.meeting1.attending_contacts.all().count(), 0, msg="there should be zero attending contacts")
+        self.assertEquals(self.meeting1.attending_contacts.all().count(), 0,
+                          msg="there should be zero attending contacts")

@@ -14,6 +14,31 @@ See also:
 This README contains information for developers only. If you are looking for installation instructions, please take a 
 look at the [docs/](docs/) folder.
 
+## API documentation
+OpenAPI/Swagger and Redoc documentation is generated automatically (by drf-yasg) and provided via the following endpoints:
+* /openapi/swagger
+* /openapi/redoc
+
+Those endpoints might be called
+* via http://0.0.0.0:8000/openapi/swagger/ in a Docker development setup
+* or via https://mydomain.com/openapi/swagger/ in a production setup
+
+You will only see those endpoints that are accessible by the currently logged-in user.
+You may log in
+* via the admin interface (if you are using a staff or superuser account)
+* or via the "Django Login" link in the Swagger UI which will redirect you to a login page specifically for the API.
+
+The "Authorize" function in the Swagger UI lets you enter your API token (e.g. "Token 987f89asdfas789df789dsf879safsd87f8sd"),
+which will be used when running requests via the interface ("Try it out" and "execute" function).
+
+The API token can be obtained by logging in in the frontend and inspecting the response of the `/api/auth/login` request.
+
+The API documentation is generated automatically and not all shown information is completely accurate.
+Some parameters (or POST data items) might be missing from the documentation, but required for a successful request.
+The API response will tell you if more data is required.
+The documentation will also show parameters that are not required (or even not expected to be sent).
+Absolutely necessary data is marked as required in the documentation and can be used as the starting point of building more complex requests.
+
 ## Generating the Sphinx documentation
 
 ```bash

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_rest_multitokenauth',
     'django_rest_passwordreset',
+    'drf_yasg',
 
     # 3rd party
     'crispy_forms',
@@ -72,8 +73,10 @@ INSTALLED_APPS = [
     'djangodav',
     'djradicale',
     'django_json_widget',
+    'admin_auto_filters',
 
     # Eric
+    'eric.jwt_auth',
     'eric.base64_image_extraction',
     'eric.cms',
     'eric.contact_form',
@@ -90,6 +93,7 @@ INSTALLED_APPS = [
     'eric.labbooks',
     'eric.kanban_boards',
     'eric.pictures',
+    'eric.plugins',
     'eric.texttemplates',
     'eric.drives',
     'eric.search',
@@ -103,6 +107,7 @@ INSTALLED_APPS = [
     'eric.third_party_customizations',
     'eric.ms_office_handling',
     'eric.integration',
+    'eric.openapi',
 
     # CKEditor needs to be at the bottom, so eric.core can overwrite the ckeditor-init.js file
     'ckeditor',
@@ -144,7 +149,6 @@ MIDDLEWARE += [
     'eric.core.middlewares.RequestTimeLoggingMiddleware',
     'eric.core.middlewares.DisableClientSideCachingMiddleware',
     'eric.core.middlewares.DisableChangeSetForReadOnlyRequestsMiddleware',
-    'eric.core.middlewares.JWTMiddlewareForDownloads',
     'django_request_cache.middleware.RequestCacheMiddleware',
 ]
 
@@ -226,6 +230,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend', ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'django_rest_multitokenauth.coreauthentication.MultiTokenAuthentication',
+        'eric.jwt_auth.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PARSER_CLASSES': (
@@ -356,6 +361,9 @@ LOGGING = {
         'django.utils.autoreload': {
             'level': 'INFO',
         },
+        'django.template': {
+            'level': 'INFO',
+        },
         'django_userforeignkey': {
             'propagate': False
         },
@@ -440,8 +448,6 @@ WORKBENCH_SETTINGS = {
     'password_reset_url': 'http://workbench.local/#/password_reset/{token}',
     'notification_url': '{workbench_url}#/notifications/{notification_pk}',
     'project_file_upload_folder': os.path.join(MEDIA_ROOT, 'projects_storage', '%(filename)s'),
-    # how long should jwt download tokens be valid
-    'download_token_validity_in_hours': 1,
     # menu entries for the horizontal menu
     'default_menu_entries': [
         {
@@ -554,7 +560,22 @@ WORKBENCH_SETTINGS = {
             'menu_entry_parameters': [],
             'visible': True
         },
+        {
+            # plugin instances
+            'route': 'plugininstance-list',
+            'ordering': 15,
+            'menu_entry_parameters': [],
+            'visible': True
+        },
     ]
+}
+
+JWT_AUTH_SETTINGS = {
+    'default_expiring_token_validity_in_hours': 1,
+}
+
+PLUGINS_SETTINGS = {
+    'plugin_api_token_validity_in_hours': 24,
 }
 
 # User groups for resource group availability
@@ -706,6 +727,20 @@ DJRADICALE_ICAL_TYPES = (
     ical.Timezone,
 )
 
+SWAGGER_SETTINGS = {
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'eric.openapi.customization.CustomAutoSchema',
+    'SECURITY_DEFINITIONS': {
+        'eWorkbench API Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        },
+    },
+}
+
 # If set to true, a resource is made available which can be used to delete all workbench models
 # Only use if you know what you are doing - data is permanently lost when called!
 # CLEAN_ALL_WORKBENCH_MODELS = False
+
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'

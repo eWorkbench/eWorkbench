@@ -18,6 +18,7 @@ from django_changeset.models import RevisionModelMixin
 
 from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin, WorkbenchEntityMixin
 from eric.core.models.base import BaseModel, LockMixin
+from eric.core.models.utils import pk_or_none
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
@@ -29,10 +30,6 @@ from eric.shared_elements.models import scramble_uploaded_filename
 
 METADATA_VERSION_KEY = "metadata_version"
 UNHANDLED_VERSION_ERROR = NotImplementedError("Unhandled metadata version")
-
-
-def pk_or_none(obj):
-    return obj.pk if obj is not None else None
 
 
 def validate_file_is_json(value):

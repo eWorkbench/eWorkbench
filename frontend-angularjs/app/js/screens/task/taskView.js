@@ -181,7 +181,6 @@
                     taskDateIsResetting = false;
                 }
             });
-
             updateAssignedUserPks(vm.task);
             updateKanbanBoardAssignments(vm.task);
             updateProjectPks(vm.task);

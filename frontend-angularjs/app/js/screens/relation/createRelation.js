@@ -256,6 +256,20 @@
                         'display': "{{ $result['created_at'] | smallDate }}"
                     }
                 ],
+                'plugininstance': [
+                    {
+                        'field': 'title',
+                        'display': "{{ $result['title'] }}"
+                    },
+                    {
+                        'field': 'created_by.username',
+                        'display': '<user-display-widget user="$result[\'created_by\']"></user-display-widget>'
+                    },
+                    {
+                        'field': 'created_at',
+                        'display': "{{ $result['created_at'] | smallDate }}"
+                    }
+                ],
                 'project': [
                     {
                         'field': 'name',
@@ -270,6 +284,15 @@
                         'display': "{{ $result['created_at'] | smallDate }}"
                     }
                 ]
+            };
+
+
+            /**
+             * List of models where "createNewEntity"-Button should not be displayed
+             * @type {}
+             */
+            vm.prohibitNewEntityButtonModelList = {
+                'plugins.plugininstance': false
             };
 
             // create titles of each of the columns for each element

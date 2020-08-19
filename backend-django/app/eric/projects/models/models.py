@@ -21,12 +21,12 @@ from django.db.models import Case, Value, When
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
-from django.utils.timezone import localtime, localdate
 from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 from django_cleanhtmlfield.fields import HTMLField
 from django_request_cache import cache_for_request
 from django_userforeignkey.request import get_current_user
+
 from eric.core.admin.is_deleteable import IsDeleteableMixin
 from eric.core.models import BaseModel, LockMixin
 from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
@@ -268,7 +268,8 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
     name = models.CharField(
         max_length=128,
         verbose_name=_("Name of the Project"),
-        blank=False
+        blank=False,
+        db_index=True
     )
     description = HTMLField(
         verbose_name=_("Description of the Project"),
@@ -279,17 +280,20 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         max_length=5,
         choices=PROJECT_STATE_CHOICES,
         verbose_name=_("State of the Project"),
-        default=INITIALIZED
+        default=INITIALIZED,
+        db_index=True
     )
     start_date = models.DateTimeField(
         verbose_name=_("Project start date"),
         blank=True,
-        null=True
+        null=True,
+        db_index=True
     )
     stop_date = models.DateTimeField(
         verbose_name=_("Project stop date"),
         blank=True,
-        null=True
+        null=True,
+        db_index=True
     )
     parent_project = models.ForeignKey(
         'self',
@@ -561,7 +565,7 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
 
         if all_projects is None:
             all_projects = list(Project.objects.all())
-            cache.set(ALL_PROJECTS_CACHE_KEY, all_projects)
+            cache.set(ALL_PROJECTS_CACHE_KEY, all_projects, timeout=None)
 
         return all_projects
 
@@ -598,7 +602,7 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
             # load project data and cache it
             sub_projects = list(Project.objects.filter(pk__in=sub_pk_list))
             cache_key = get_cache_key_for_sub_projects(pk)
-            cache.set(cache_key, sub_projects)
+            cache.set(cache_key, sub_projects, timeout=None)
 
         return sub_projects
 
@@ -1155,6 +1159,7 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
     name = models.CharField(
         max_length=256,
         verbose_name=_("Name of the resource"),
+        db_index=True
     )
 
     description = HTMLField(
@@ -1167,7 +1172,8 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         max_length=5,
         choices=TYPE_CHOICES,
         default=ROOM,
-        verbose_name=_("Type of this resource")
+        verbose_name=_("Type of this resource"),
+        db_index=True
     )
 
     responsible_unit = models.CharField(
@@ -1211,6 +1217,7 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         default=GLOBAL,
         verbose_name=_("User availability for this resource"),
         blank=False,
+        db_index=True
     )
 
     # reference to many user groups (can be 0 user groups, too)
@@ -1231,6 +1238,7 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
     study_room = models.BooleanField(
         verbose_name=_("Study Room"),
         default=False,
+        db_index=True
     )
 
     branch_library = models.CharField(
@@ -1238,6 +1246,7 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         max_length=5,
         choices=BRANCH_LIBRARY_CHOICES,
         blank=True,
+        db_index=True
     )
 
     metadata = MetadataRelation()

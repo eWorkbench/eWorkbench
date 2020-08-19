@@ -9,18 +9,15 @@ from django.utils.timezone import datetime, timedelta
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from eric.core.tests import test_utils
+from eric.core.tests import test_utils, HTTP_USER_AGENT, REMOTE_ADDR
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.models import Project
 from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
 from eric.shared_elements.models import Task, TaskCheckList
-from eric.shared_elements.tests.core import ElementLabelMixin
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
+from eric.shared_elements.tests.core import ElementLabelMixin, TaskMixin
 
 
-class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, ElementLabelMixin):
+class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, TaskMixin, ElementLabelMixin):
     entity = Task
 
     def setUp(self):
@@ -33,7 +30,7 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
             'state': Task.TASK_STATE_NEW,
             'priority': Task.TASK_PRIORITY_HIGH,
             'start_date': datetime.now(),
-            'due_date': datetime.now()+timedelta(days=1),
+            'due_date': datetime.now() + timedelta(days=1),
             'assigned_user': []
         }, {
             'title': "Another Test Task",
@@ -42,7 +39,7 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
             'state': Task.TASK_STATE_NEW,
             'priority': Task.TASK_PRIORITY_LOW,
             'start_date': datetime.now(),
-            'due_date': datetime.now()+timedelta(hours=1),
+            'due_date': datetime.now() + timedelta(hours=1),
             'assigned_user': []
         }]
 
@@ -273,8 +270,6 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
             HTTP_USER_AGENT, REMOTE_ADDR
         )
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        decoded_response = json.loads(response.content.decode())
-        task1 = Task.objects.filter(pk=decoded_response['pk']).first()
 
         # get project 1 so we can check the summary
         response = self.rest_get_project(self.token1, project1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
@@ -333,7 +328,8 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
         self.assertEquals(decoded_response['tasks_status'][Task.TASK_STATE_DONE], 1)
 
         # now add task2 to project1 (so it is in project1 and project2)
-        response = self.rest_update_task_project(self.token1, task2.pk, [project1.pk, project2.pk], HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_update_task_project(self.token1, task2.pk, [project1.pk, project2.pk], HTTP_USER_AGENT,
+                                                 REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # tasks_status of project2 should still be 0,0,1
@@ -371,7 +367,8 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, Elemen
         task = Task.objects.filter(pk=decoded_response['pk']).first()
 
         # create a new label
-        response = self.rest_create_label(self.token1, "Important Label", "rgba(50,50,50,1)", HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_create_label(self.token1, "Important Label", "rgba(50,50,50,1)", HTTP_USER_AGENT,
+                                          REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         label1 = json.loads(response.content.decode())
 

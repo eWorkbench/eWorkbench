@@ -148,10 +148,12 @@
         LabbookChildElementsRestService,
         NoteRestService,
         PictureRestService,
+        PlugininstanceRestService,
         WorkbenchElementChangesWebSocket,
         pictureCreateModalService,
         fileCreateModalService,
         newElementModalService,
+        newPluginSelectionModalService,
         PermissionService,
         WorkbenchElementsTranslationsService,
         LabbookSectionsRestService,
@@ -237,6 +239,8 @@
             };
 
             vm.noteIsRendering = false;
+
+            vm.plugininstanceIsRendering = false;
 
             vm.sectionIsRendering = false;
 
@@ -793,6 +797,67 @@
             );
         };
 
+
+        /**
+         * Add a plugin instance at the specified position
+         * This creates a plugin instance via the Plugin Instance REST API, then adds it to the lab book child elements
+         * @param position
+         */
+
+        vm.selectNewPlugininstanceModal = function () {
+            newPluginSelectionModalService.open(vm.childElements, vm.labbook).result.then(
+                function success (data) {
+                    vm.addNewPlugininstance(data.location, data.section, data.selectedPluginPk);
+                },
+                function cancel () {
+                }
+            )
+        }
+
+        vm.addNewPlugininstance = function (position, section, selectedPluginPk) {
+            vm.plugininstanceIsRendering = true;
+            var data = {
+                'title': gettextCatalog.getString("Title"),
+                'projects': vm.labbook.projects,
+                'plugin': selectedPluginPk
+            };
+
+            // 1. create a new plugin instance via REST API
+            PlugininstanceRestService.create(data).$promise.then(
+                function success (element) {
+                    // 2. determine the position where the new element should go
+                    var data = {};
+
+                    data = checkParentAndCalculatePosition(section, position, 20, 7);
+
+                    data['child_object_id'] = element.pk;
+                    data['child_object_content_type'] = element.content_type;
+
+                    addNewLabbookChildElement(data, section);
+                },
+                function error (rejection) {
+                    if (rejection && rejection.data) {
+                        // Validation error - an error message is provided by the api
+                        console.log(rejection);
+                        toaster.pop('error', gettextCatalog.getString("Error"), rejection.data.detail);
+                    } else if (rejection.status == 403) {
+                        // Permission denied -> write our own error message
+                        toaster.pop('error', gettextCatalog.getString("Permission Denied"),
+                            gettextCatalog.getString("You do not have permissions to create a new Plugin Content in this LabBook")
+                        );
+                    } else {
+                        // Unknown error -> write our own error message
+                        console.log(rejection);
+                        toaster.pop('error', gettextCatalog.getString("Error"),
+                            gettextCatalog.getString("Failed to create a new Plugin Content")
+                        );
+                    }
+                    // if there is an error we need to set this false again anyways
+                    vm.plugininstanceIsRendering = false;
+                }
+            );
+        }
+
         /**
          * Add a new section at the specified position
          * This first creates a section via the labbooksection REST API, and then adds it to the labbook child elements
@@ -864,6 +929,10 @@
                 case vm.addNewFile:
                     elementType = 'File';
                     icon = vm.mainElementIcons.file;
+                    break;
+                case vm.addNewPlugininstance:
+                    elementType = 'Plugininstance';
+                    icon = vm.mainElementIcons.plugininstance;
                     break;
                 default:
                     console.error("Unknown element type");
@@ -1009,6 +1078,14 @@
                         'rendered_image': existingWorkbenchElement.pk,
                         'background_image': existingWorkbenchElement.pk, // needs to be set as the primary key so we can copy it
                         'shapes_image': existingWorkbenchElement.pk // needs to be set as the primary key so we can copy it
+                    }).$promise;
+                    break;
+                case "plugins.plugininstance":
+                    promise = PlugininstanceRestService.create({
+                        'projects': vm.labbook.projects,
+                        'rawdata': existingWorkbenchElement.rawdata,
+                        'picture': existingWorkbenchElement.picture,
+                        'plugin_url': existingWorkbenchElement.plugin_url
                     }).$promise;
                     break;
                 case "labbooks.labbooksection":
@@ -1791,6 +1868,7 @@
                 }
             ).finally(function () {
                 vm.noteIsRendering = false;
+                vm.plugininstanceIsRendering = false;
                 vm.sectionIsRendering = false;
             });
         };

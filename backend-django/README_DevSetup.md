@@ -70,6 +70,11 @@ docker-compose run --rm python python manage.py loaddata eric/fixtures/contacts
 docker-compose run --rm python python manage.py fix_model_privileges Contact 1
 ```
 
+* Load Fixtures for Plugins 
+```bash
+docker-compose run --rm python python manage.py loaddata eric/fixtures/plugins
+```
+
 * Access the Admin Panel [http://workbench.local:8000/admin/](http://workbench.local:8000/admin/) and login with your
  superuser account.
 * On the top right of the admin panel, click on *Edit Site Settings* and select a site name, site logo and specify the
@@ -95,24 +100,21 @@ Add new Docker connection
 - TCP Socket on Windows (Also tick "Expose TCP Socket" in Docker App an see URL from there)
 
 **Settings > Project: ericworkbench > Project Interpreter > Add > Docker Compose**  
-Server: Docker
-Configuration files: `./docker-compose.yml`
-Service: django  
-Python interpreter path: `/var/lib/app/venv/bin/python`
-PyCharm helpers path: `/opt/.pycharm_helpers`
+- Server: Docker
+- Configuration files: `./docker-compose.yml`
+- Service: django  
+- Python interpreter path: `/var/lib/app/venv/bin/python`
+- PyCharm helpers path: `/opt/.pycharm_helpers`
 
 **Settings > Project: ericworkbench > Project Structure**  
-Source folders:
-- `app`
+- Source folders: `app`
+- Template Folders: `app/eric/cms/templates`
 
-Template Folders:
-- `app/eric/cms/templates`
-
-(Settings > Languages & Frameworks > Django)  
-[x] Enable Django Support  
-Django project root: path to repository, e.g. `/home/bhagmann/Projekt/ericworkbench/app/eric`  
-Settings: `settings/docker.py`  
-Manage script: path to manage.py, e.g. `/home/bhagmann/Projekt/ericworkbench/app/manage.py`
+**Settings > Languages & Frameworks > Django**
+- [✓] Enable Django Support
+- Django project root: path to repository, e.g. `/home/bhagmann/Projekt/ericworkbench/app/eric`  
+- Settings: `settings/docker.py`  
+- Manage script: path to manage.py, e.g. `/home/bhagmann/Projekt/ericworkbench/app/manage.py`
 
 
 ## LDAP

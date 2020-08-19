@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import eric.projects.models.models
-from eric.projects.models.models import UploadToPathAndRename
+from eric.core.models import UploadToPathAndRename
 
 
 class Migration(migrations.Migration):

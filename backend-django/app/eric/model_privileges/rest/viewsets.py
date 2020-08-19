@@ -35,9 +35,6 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
         # parse arguments and return entity and primary key
         entity, pk, content_type = parse_parameters_for_workbench_models(*args, **kwargs)
@@ -74,7 +71,8 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         self.parent_object = self.get_parent_object_or_404(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        """ handle create requests with object type and object_pk in kwargs """
+        """ Creates a model privilege for the base model. """
+
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
         if isinstance(request.data, QueryDict):  # however, some request.data objects are normal dictionaries...
             request.data._mutable = True
@@ -83,13 +81,12 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         entity, pk, content_type = parse_parameters_for_workbench_models(*args, **kwargs)
 
         request.data['object_id'] = pk
-        # request.data['content_type'] = content_type
         request.data['content_type_pk'] = content_type.pk
 
         # check if a privilege for this user already exists
         try:
             user_pk = int(request.data['user_pk'])
-        except:
+        except Exception:
             raise NotFound
 
         # get the existing privilege for the given object
@@ -109,13 +106,9 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         """
-        Delete/Destroy a model privilege
-
-        Special case: If a modal privilege is "inherited", it does not exist (therefore instance.pk == "").
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Deletes a model privilege.
+        Special case for inherited privileges: If instance.pk is empty, a ModelPrivilege will be created instead,
+        with all options set to DENY.
         """
         instance = self.get_object()
 
@@ -143,13 +136,8 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
 
     def update(self, request, *args, **kwargs):
         """
-        Update a model privilege
-
-        Special case: If the modal privilege is "inherited", it does not exist (therefore instance.pk == "").
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Updates a model privilege. Creates the privilege if instance.pk is empty.
+        If full_access is granted, all other privilege options are set to NEUTRAL.
         """
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -182,7 +170,6 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
     def get_object(self):
         """
         Returns a single privilege based on the kwargs user_id
-        :return:
         """
         user_pk = None
         # make sure user_pk is an integer
@@ -206,15 +193,12 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """
-        Returns a list of model privileges
-
-        The ModelViewSet list() method would also apply some filtering, which we don't want
-        Hence we had to overwrite this method
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Returns a list of model privileges.
         """
+
+        # The ModelViewSet list() method would also apply some filtering, which we don't want.
+        # Hence we had to overwrite this method.
+
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
 
@@ -223,15 +207,12 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
     @method_decorator(cache_page(30))
     def retrieve(self, request, *args, **kwargs):
         """
-        Retrieves a single model privilege
-
-        The ModelViewSet retrieve() method would also apply some filtering, which we don't want
-        Hence we had to overwrite this method
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Retrieves a single model privilege.
         """
+
+        # The ModelViewSet retrieve() method would also apply some filtering, which we don't want.
+        # Hence we had to overwrite this method.
+
         obj = self.get_object()
 
         serializer = self.get_serializer(obj, many=False)
@@ -241,7 +222,6 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
     def get_queryset(self):
         """
         Returns the queryset of model privileges for the given parent object
-        :return:
         """
         return get_model_privileges_and_project_permissions_for(
             self.parent_object.__class__, self.parent_object

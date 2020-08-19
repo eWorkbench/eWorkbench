@@ -1,0 +1,10 @@
+<validated-form-element
+        rows="20"
+        id="plugin_feedback_message"
+        input-element="html"
+        field-name="text"
+        placeholder="{{ 'Message' | translate }}"
+        ng-model="vm.feedback.message"
+        ng-readonly="vm.isReadOnly()"
+        errors="vm.errors['message']">
+</validated-form-element>

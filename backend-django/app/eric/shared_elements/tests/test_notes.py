@@ -3,28 +3,23 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
-from django.core.exceptions import ValidationError
-from django.contrib.auth.models import Group
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
-from django.utils.timezone import datetime, timedelta
-
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.test import APITestCase
 
-from eric.core.tests import test_utils
-from eric.projects.models import Project, ProjectRoleUserAssignment, Role
-from eric.shared_elements.models import Note
+from eric.core.tests import test_utils, HTTP_USER_AGENT, REMOTE_ADDR
+from eric.projects.models import Project, Role
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ProjectsMixin
+from eric.shared_elements.models import Note
 from eric.shared_elements.tests.core import NoteMixin
 
 User = get_user_model()
 
+
 # read http://www.django-rest-framework.org/api-guide/testing/ for more info about testing with django rest framework
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
-
 
 class NotesTest(APITestCase, AuthenticationMixin, UserMixin, NoteMixin, ProjectsMixin):
     """
@@ -99,7 +94,6 @@ class NotesTest(APITestCase, AuthenticationMixin, UserMixin, NoteMixin, Projects
         # try creating a note without a project and without having the proper permission
         response = self.rest_create_note(self.token3, None, "Test Note", "Test Description",
                                          HTTP_USER_AGENT, REMOTE_ADDR)
-        decoded = json.loads(response.content.decode())
         self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
 
         # there should still be zero Notes
@@ -389,4 +383,3 @@ class NotesTest(APITestCase, AuthenticationMixin, UserMixin, NoteMixin, Projects
         response = self.rest_update_note(self.token2, decoded['pk'], None, "Test Note", "Test Description",
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-

@@ -73,7 +73,8 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
 
     title = models.CharField(
         max_length=128,
-        verbose_name=_("Title of the Kanban Board")
+        verbose_name=_("Title of the Kanban Board"),
+        db_index=True
     )
 
     # reference to many projects (can be 0 projects, too)

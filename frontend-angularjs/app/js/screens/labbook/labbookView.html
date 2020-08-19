@@ -212,11 +212,11 @@
                     <b translate>Add:</b>
                 </div>
                 <a style="display: block; margin-top: 10px" ng-if="!vm.noteIsRendering" ng-click="vm.addNewElement(vm.addNewNote)" role="button"
-                   title="{{ 'Create a new Text within this LabBook' | translate }}">
+                   title="{{ 'Create a new text within this LabBook' | translate }}">
                     <span class="{{ ::vm.mainElementIcons.note }} fa-2x"></span>
                 </a>
                 <a style="display: block; margin-top: 10px; color: grey" ng-if="vm.noteIsRendering" role="button"
-                   title="{{ 'Create a new Text within this LabBook' | translate }}">
+                   title="{{ 'Create a new text within this LabBook' | translate }}">
                     <span class="{{ ::vm.mainElementIcons.note }} fa-2x"></span>
                 </a>
                 <a style="display: block; margin-top: 10px" ng-click="vm.addNewElement(vm.addNewPicture)" role="button"
@@ -227,6 +227,15 @@
                    title="{{ 'Upload a new file to this LabBook' | translate }}">
                     <span class="{{ ::vm.mainElementIcons.file }} fa-2x"></span>
                 </a>
+                <a style="display: block; margin-top: 10px" ng-click="vm.selectNewPlugininstanceModal()" role="button"
+                   title="{{ 'Add a plugin to this LabBook' | translate }}">
+                    <span class="{{ ::vm.mainElementIcons.plugin }} fa-2x"></span>
+                </a>
+                <a style="display: block; margin-top: 10px; color: grey" ng-if="vm.plugininstanceIsRendering" role="button"
+                   title="{{ 'Add a plugin content within this LabBook' | translate }}">
+                    <span class="{{ ::vm.mainElementIcons.note }} fa-2x"></span>
+                </a>
+
                 <a style="display: block; margin-top: 10px" ng-click="vm.insertCellsFromTemplate()" role="button"
                    title="{{ 'Insert cells from another LabBook' | translate }}">
                     <span class="fa fa-clone fa-2x"></span>

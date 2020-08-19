@@ -3,28 +3,24 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
-from django.core.exceptions import ValidationError
-from django.contrib.auth.models import Group
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
-from django.utils.timezone import datetime, timedelta
-
-from rest_framework.test import APITestCase
+from django.utils.timezone import datetime
 from rest_framework import status
+from rest_framework.test import APITestCase
 
-from eric.projects.models import Project, ProjectRoleUserAssignment, Role
+from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR
+from eric.projects.models import Project, Role
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ProjectsMixin, MeMixin
-from eric.shared_elements.tests.core import TaskMixin, MeetingMixin
-
 from eric.shared_elements.models import Task, Meeting
+from eric.shared_elements.tests.core import TaskMixin, MeetingMixin
 
 User = get_user_model()
 
+
 # read http://www.django-rest-framework.org/api-guide/testing/ for more info about testing with django rest framework
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
-
 
 class MyEndpointsTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, MeetingMixin, ProjectsMixin, MeMixin):
     """
@@ -186,12 +182,3 @@ class MyEndpointsTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Me
         self.assertEquals(len(decoded), 2, msg="The my meetings endpoint should return 2 entities")
         self.assertEquals(decoded[0]['content_type_model'], "shared_elements.meeting")
         self.assertEquals(decoded[1]['content_type_model'], "shared_elements.meeting")
-
-
-
-
-
-
-
-
-

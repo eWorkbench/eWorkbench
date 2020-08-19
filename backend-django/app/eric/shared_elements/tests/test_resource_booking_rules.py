@@ -13,6 +13,7 @@ from django.utils.timezone import timedelta, localtime
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from eric.core.tests import HTTP_INFO
 from eric.projects.models import Resource
 from eric.projects.models import ResourceBookingRuleMinimumDuration, ResourceBookingRuleMaximumDuration, \
     ResourceBookingRuleBookableHours, ResourceBookingRuleMinimumTimeBefore, ResourceBookingRuleMaximumTimeBefore, \
@@ -23,20 +24,13 @@ from eric.shared_elements.tests.core import ResourceBookingMixin
 
 User = get_user_model()
 
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
-
-COMMON_DATA = {
-    'HTTP_USER_AGENT': HTTP_USER_AGENT,
-    'REMOTE_ADDR': REMOTE_ADDR,
-}
-
 
 class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, ResourceBookingMixin):
     """
     Tests the /api/resourcebookings and /api/my/resourcebookings endpoints
     Tests for creating, retrieving and updating Resourcebookings
     """
+
     @staticmethod
     def get_date_for_next_weekday(current_date, next_weekday, skip_current_week=False):
         """
@@ -81,7 +75,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             description="Test Description",
             resource_type=Resource.ROOM,
             user_availability=Resource.GLOBAL,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.resource1 = Resource.objects.get(pk=json.loads(self.resource1.content.decode())["pk"])
 
@@ -204,7 +198,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start,
             date_time_end=self.date_time_end_30_minutes,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
@@ -218,7 +212,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start,
             date_time_end=self.date_time_end_1_hour,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
@@ -235,7 +229,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start,
             date_time_end=self.date_time_end_2_hours,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
@@ -249,7 +243,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start,
             date_time_end=self.date_time_end_30_minutes,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
@@ -275,7 +269,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start_next_tuesday_09,
             date_time_end=self.date_time_end_next_tuesday_14,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
@@ -289,7 +283,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start_next_wednesday_12,
             date_time_end=self.date_time_end_next_wednesday_16,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -304,7 +298,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start_next_monday_09,
             date_time_end=self.date_time_end_next_wednesday_14,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -320,7 +314,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_end_next_wednesday_14,
             date_time_end=self.date_time_end_next_friday_14,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -336,7 +330,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start_next_monday_09,
             date_time_end=self.date_time_end_next_monday_14,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
@@ -354,7 +348,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.now + timedelta(minutes=10),
             date_time_end=self.date_time_end_2_hours,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
@@ -368,7 +362,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.now + timedelta(hours=1) + timedelta(minutes=10),
             date_time_end=self.date_time_end_2_hours,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
@@ -386,7 +380,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.now + timedelta(days=14) + timedelta(hours=2),
             date_time_end=self.now + timedelta(days=14) + timedelta(hours=3),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
@@ -400,7 +394,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.now + timedelta(days=7),
             date_time_end=self.now + timedelta(days=7) + timedelta(hours=1),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
@@ -418,7 +412,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.now + timedelta(minutes=10),
             date_time_end=self.date_time_end_2_hours,
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
@@ -430,7 +424,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_end_2_hours + timedelta(hours=1),
             date_time_end=self.date_time_end_2_hours + timedelta(hours=5),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
@@ -444,7 +438,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_end_2_hours + timedelta(hours=2) + timedelta(minutes=10),
             date_time_end=self.date_time_end_2_hours + timedelta(hours=5),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 2, msg="There should be two resourcebookings")
@@ -475,119 +469,119 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             date_time_start=self.date_time_start_next_monday_08,
             date_time_end=self.date_time_start_next_monday_08 + timedelta(hours=1),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
 
-       # set another booking up for this day
+        # set another booking up for this day
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_monday_08 + timedelta(hours=3),
             date_time_end=self.date_time_start_next_monday_08 + timedelta(hours=4),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 2, msg="There should be two resourcebookings")
 
-       # a third booking for this day shouldn't be possible
+        # a third booking for this day shouldn't be possible
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_monday_08 + timedelta(hours=6),
             date_time_end=self.date_time_start_next_monday_08 + timedelta(hours=7),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
                          'You have reached the maximum amount of bookings for this resource for this day')
         self.assertEquals(Meeting.objects.all().count(), 2, msg="There should be two resourcebookings")
 
-       # set another booking up for another day within this week
+        # set another booking up for another day within this week
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_tuesday_09,
             date_time_end=self.date_time_start_next_tuesday_09 + timedelta(hours=1),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 3, msg="There should be three resourcebookings")
 
-       # another booking for this week shouldn't be possible
+        # another booking for this week shouldn't be possible
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_wednesday_09,
             date_time_end=self.date_time_start_next_wednesday_09 + timedelta(hours=1),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
                          'You have reached the maximum amount of bookings for this resource for this week')
         self.assertEquals(Meeting.objects.all().count(), 3, msg="There should be three resourcebookings")
 
-       # set a 1st booking up for another day within the month 2 months from now
+        # set a 1st booking up for another day within the month 2 months from now
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=1) + timedelta(hours=1),
             date_time_end=self.first_day_of_next_next_month + timedelta(days=1) + timedelta(hours=2),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 4, msg="There should be four resourcebookings")
 
-       # set a 2nd booking up for another day within the month 2 months from now
+        # set a 2nd booking up for another day within the month 2 months from now
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=4) + timedelta(hours=1),
             date_time_end=self.first_day_of_next_next_month + timedelta(days=4) + timedelta(hours=2),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 5, msg="There should be four resourcebookings")
 
-       # set a 3rd booking up for another day within the month 2 months from now
+        # set a 3rd booking up for another day within the month 2 months from now
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=8) + timedelta(hours=1),
             date_time_end=self.first_day_of_next_next_month + timedelta(days=8) + timedelta(hours=2),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 6, msg="There should be four resourcebookings")
 
-       # set a 4th and last booking up for another day within the month 2 months from now
+        # set a 4th and last booking up for another day within the month 2 months from now
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=14) + timedelta(hours=1),
             date_time_end=self.first_day_of_next_next_month + timedelta(days=14) + timedelta(hours=2),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 7, msg="There should be four resourcebookings")
 
-       # a 5th booking for the month 2 months from now shouldn't be possible
+        # a 5th booking for the month 2 months from now shouldn't be possible
         response = self.rest_create_resourcebooking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=20) + timedelta(hours=1),
             date_time_end=self.first_day_of_next_next_month + timedelta(days=20) + timedelta(hours=2),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],

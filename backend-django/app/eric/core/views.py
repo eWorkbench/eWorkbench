@@ -2,29 +2,25 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import logging
-
-import os
 import json
-from git import Repo
-from memoize import memoize
-import pkg_resources
+import logging
+import os
 
+import pkg_resources
+from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
-from django.conf import settings
-from rest_framework.exceptions import MethodNotAllowed, ValidationError
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.renderers import StaticHTMLRenderer
+from drf_yasg.utils import swagger_auto_schema
+from git import Repo
+from memoize import memoize
 from rest_framework import status
-from rest_framework.decorators import api_view, renderer_classes, action, authentication_classes
-from django.utils.decorators import method_decorator
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import MethodNotAllowed, ValidationError
+from rest_framework.response import Response
 
-from django.conf import settings
-
-from eric.core.models import disable_permission_checks, DisableSignals
+from eric.core.models import DisableSignals
 from eric.core.models.abstract import WorkbenchEntityMixin, get_all_workbench_models
+from eric.core.permission_classes import IsSuperuser
 from eric.metadata.models.models import Metadata
 from eric.projects.models import Project
 from eric.versions.models.models import Version
@@ -174,23 +170,27 @@ def js_error_logger_view(request):
         raise ValidationError
 
 
+@swagger_auto_schema(methods=['post'], auto_schema=None)  # disable automated API schema generation
+@permission_classes(permission_classes=(IsSuperuser,))
 @api_view(['POST'])
 def clean_workbench_models(request, *args, **kwargs):
-    """Purge data from all workbench models"""
+    """ Purges data from all workbench models. """
 
-    if hasattr(settings, 'CLEAN_ALL_WORKBENCH_MODELS') and settings.CLEAN_ALL_WORKBENCH_MODELS:
-        if request.user.is_authenticated:
-            all_workbench_models = get_all_workbench_models(WorkbenchEntityMixin)
+    if not hasattr(settings, 'CLEAN_ALL_WORKBENCH_MODELS') or not settings.CLEAN_ALL_WORKBENCH_MODELS:
+        return Response({'error': 'Operation is not enabled in settings.'}, status=status.HTTP_404_NOT_FOUND)
 
-            # disable all model-receivers (e.g. check_model_privileges, which blocked the deletion)
-            with DisableSignals():
-                for model in all_workbench_models:
-                    model.objects.all().delete()
-                for record in Project.objects.all():
-                    record.trash()
-                Version.objects.all().delete()
-                Metadata.objects.all().delete()
-            return Response({'status': 'ok'}, status=200)
+    if not request.user.is_authenticated:
+        return Response({'error': 'You need to be logged in.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        return Response({'error': 'not logged in'}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({'error': 'clean all databases is not declared in settings'}, status=status.HTTP_404_NOT_FOUND)
+    all_workbench_models = get_all_workbench_models(WorkbenchEntityMixin)
+
+    # disable all model-receivers (e.g. check_model_privileges, which may block the deletion)
+    with DisableSignals():
+        for model in all_workbench_models:
+            model.objects.all().delete()
+        for record in Project.objects.all():
+            record.trash()
+        Version.objects.all().delete()
+        Metadata.objects.all().delete()
+
+    return Response({'status': 'ok'}, status=200)

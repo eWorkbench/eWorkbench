@@ -7,7 +7,7 @@ from django.contrib import admin
 from eric.sortable_menu.models import MenuEntry, MenuEntryParameter
 
 
-class MenuEntryParameterInline(admin.StackedInline):
+class MenuEntryParameterInline(admin.TabularInline):
     model = MenuEntryParameter
     verbose_name = 'Parameter'
     verbose_name_plural = 'Parameters'
@@ -20,14 +20,12 @@ class MenuEntryAdmin(admin.ModelAdmin):
     list_display = (
         'route',
         'owner',
+        'ordering',
     )
     search_fields = (
         'owner__username',
         'owner__email',
         'route',
-    )
-    raw_id_fields = (
-        'owner',
     )
     list_select_related = (
         'owner',
@@ -35,3 +33,4 @@ class MenuEntryAdmin(admin.ModelAdmin):
     inlines = (
         MenuEntryParameterInline,
     )
+    readonly_fields = ('owner',)

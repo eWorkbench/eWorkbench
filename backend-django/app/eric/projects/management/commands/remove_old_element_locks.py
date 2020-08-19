@@ -31,7 +31,7 @@ class Command(BaseCommand):
             )
 
             if element_locks.count() > 0:
-                logger.info("{}: Deleting {}/{} ElementLocks".format(
+                logger.debug("{}: Deleting {}/{} ElementLocks".format(
                     timezone.now(),
                     element_locks.count(),
                     ElementLock.objects.all().count()

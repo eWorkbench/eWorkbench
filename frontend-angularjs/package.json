@@ -105,7 +105,7 @@
     "eonasdan-bootstrap-datetimepicker": "^4.17.47",
     "font-awesome": "~4.7",
     "google-diff-match-patch": "github:anx-ckreuzberger/google-diff-match-patch",
-    "jquery": "3.4.1",
+    "jquery": "^3.5.1",
     "jquery-match-height": "^0.7.0",
     "jquery-ui-dist": "^1.12.1",
     "literallycanvas": "^0.5.2",

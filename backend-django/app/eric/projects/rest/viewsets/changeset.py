@@ -16,7 +16,8 @@ from eric.projects.rest.serializers.changeset import ChangeSetSerializer, Simple
 
 
 class GenericChangeSetViewSet(BaseAuthenticatedReadOnlyModelViewSet):
-    """ Viewset for generic changes on a specific project related model (e.g., Task, Meeting, ...)"""
+    """ Handles generic changes for a base model. """
+
     serializer_class = SimpleChangeSetSerializer
 
     @staticmethod
@@ -51,9 +52,12 @@ class GenericChangeSetViewSet(BaseAuthenticatedReadOnlyModelViewSet):
 
     def get_queryset(self):
         """
-        Returns the changeset for the given parent model
+        Returns the changesets for the given base model.
         :return:
         """
+        if not hasattr(self, 'parent_object') or not self.parent_object:
+            return ChangeSet.objects.none()
+
         return ChangeSet.objects.filter(
             object_type=self.parent_object.get_content_type(),
             object_uuid=self.parent_object.pk

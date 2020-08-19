@@ -7,10 +7,11 @@ from django.utils.translation import gettext_lazy as _
 from django_changeset.models import ChangeSet
 from django_userforeignkey.request import get_current_user
 from rest_framework.decorators import action
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 
 from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet, BaseAuthenticatedReadOnlyModelViewSet, \
-    DeletableViewSetMixIn
+    DeletableViewSetMixIn, BaseGenericViewSet
 from eric.projects.models import Project
 from eric.projects.rest.filters import ProjectFilter
 from eric.projects.rest.serializers import PublicUserSerializer, ProjectBreadcrumbSerializer, \
@@ -51,28 +52,19 @@ class ProjectBreadcrumbViewSet(BaseAuthenticatedReadOnlyModelViewSet):
 
 
 class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
-    """ ViewSet for creating and querying projects;
-    on query, only list the projects that an authenticated user is associated to (for now) """
+    """ Handles projects. """
+
     serializer_class = ProjectSerializerExtended
     filterset_class = ProjectFilter
     search_fields = ()
     ordering_fields = ['pk', 'name', 'start_date', 'stop_date']
 
-    def perform_destroy(self, instance):
-        """
-        Overwrite the perform_destroy method
-        set the projects state to DELETED before we actually delete it
-        :param instance:
-        :return:
-        """
-        super(ProjectViewSet, self).perform_destroy(instance)
-
     @action(detail=True, methods=['POST'])
     def duplicate(self, request, format=None, *args, **kwargs):
         """
-        Duplicates the project with all it sub projects. When the original project was an sub project the
-        duplicate instance has now no parent project anymore.
+        Duplicates the project with all its sub-projects. The duplicated instance will not have a parent project.
         """
+
         project_object = Project.objects.viewable().get(pk=kwargs['pk'])
         original_project_pk = project_object.pk
 
@@ -99,9 +91,6 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
         return Response(serializer.data)
 
     def get_queryset(self):
-        """ returns the projects of the current user, or, if is_staff is true, all projects """
-        # get all viewable projects and prefetch the dmps as well
-
         return Project.objects.viewable().prefetch_common()
 
 
@@ -109,68 +98,63 @@ class ProjectChangeSetViewSet(ChangeSetViewSet):
     """ ViewSet for generic changes on all project related models"""
 
     def get_queryset(self):
-        """
-        gets a queryset with all changes to the items that the current user has access to
-        :return:
-        """
         user = get_current_user()
 
         if user.is_anonymous:
             return ChangeSet.objects.none()
 
         project_pk = self.kwargs.get('project_pk', None)
-
-        if project_pk:
-            project_ids = Project.get_all_sub_project_pks_for(project_pk)
-            project_ids.append(project_pk)
-
-            # build a conditions list, where we will add more conditions with "OR"
-            conditions = Q()
-
-            # get all relevant search models
-            workbench_models = self.get_models_based_on_request(self.request)
-
-            # iterate over search models
-            for model in workbench_models:
-                if model == Project:
-                    # special case for projects
-                    object_ids = project_ids
-                elif model == CalendarAccess:
-                    # special case for CalendarAccess:
-                    # it has no projects, so we can pass here
-                    pass
-                else:
-                    object_ids = model.objects.viewable().for_project(
-                        project_pk,
-                        prefetched_project_ids=project_ids
-                    )
-
-                # add conditions to existing conditions with OR
-                conditions = conditions | Q(
-                    object_type=model.get_content_type(),
-                    object_uuid__in=object_ids
-                )
-
-            # query changesets with above conditions
-            return ChangeSet.objects.filter(
-                conditions
-            ).order_by(
-                '-date'
-            ).select_related(
-                'user', 'user__userprofile', 'object_type'
-            ).prefetch_related(
-                'change_records'
-            )
-        else:
-            # project pk is required
+        if not project_pk:
             return ChangeSet.objects.none()
 
+        project_ids = Project.get_all_sub_project_pks_for(project_pk)
+        project_ids.append(project_pk)
 
-class ProjectTreeViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
-    """ ViewSet for querying project-trees;
-    List-view returns the root-project (project without a parent) and all descendants
-    Detail-view returns the requested project and all its descendants
+        # build a conditions list, where we will add more conditions with "OR"
+        conditions = Q()
+
+        # get all relevant search models
+        workbench_models = self.get_models_based_on_request(self.request)
+
+        # iterate over search models
+        for model in workbench_models:
+            if model == Project:
+                # special case for projects
+                object_ids = project_ids
+            elif model == CalendarAccess:
+                # special case for CalendarAccess: it has no projects, so we can pass here
+                object_ids = []
+            else:
+                object_ids = model.objects.viewable().for_project(
+                    project_pk,
+                    prefetched_project_ids=project_ids
+                )
+
+            # add conditions to existing conditions with OR
+            conditions = conditions | Q(
+                object_type=model.get_content_type(),
+                object_uuid__in=object_ids
+            )
+
+        # query changesets with above conditions
+        return ChangeSet.objects.filter(
+            conditions
+        ).order_by(
+            '-date'
+        ).select_related(
+            'user', 'user__userprofile', 'object_type'
+        ).prefetch_related(
+            'change_records'
+        )
+
+
+class ProjectTreeViewSet(RetrieveModelMixin, ListModelMixin, BaseGenericViewSet):
     """
+    ViewSet for querying project-trees.
+    List-view returns the root-project (project without a parent) and all descendants.
+    Detail-view returns the requested project and all its descendants.
+    """
+
     serializer_class = ProjectTreeSerializer
     filterset_class = ProjectFilter
     search_fields = ()

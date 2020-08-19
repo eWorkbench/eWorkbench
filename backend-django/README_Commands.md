@@ -146,3 +146,12 @@ Add the licenseheader to all files with this command
 `docker-compose run --rm python python -m licenseheaders -t ../LICENSE.txt`
 
 Be aware that this also adds headers to xml-files (Not wanted in export-templates) and removes comment-lines if they are at the very beginning of files. This makes it necessary to check the changes and adapt manually where needed.
+
+## Sync sortable menu
+
+To synchronize the menu and create menu-entries for new apps for existing users, run the following command:
+
+```bash
+docker-compose run --rm python python manage.py sync_sortable_menu
+```
+ 

@@ -2,19 +2,17 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import jwt
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from rest_framework import serializers
 from django_userforeignkey.request import get_current_request
+from rest_framework import serializers
 from rest_framework.reverse import reverse
-from django.utils.timezone import datetime, timedelta
-from django.conf import settings
 
-from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer, BaseModelWithCreatedBySerializer,\
-    PublicUserSerializer, PublicUserGroupSerializer
+from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
+from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer, \
+    BaseModelWithCreatedBySerializer, PublicUserSerializer, PublicUserGroupSerializer
 from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, EntityMetadataSerializer
 from eric.projects.models import Resource, ResourceBookingRuleMinimumDuration, \
     ResourceBookingRuleMaximumDuration, ResourceBookingRuleBookableHours, ResourceBookingRuleMinimumTimeBefore, \
@@ -100,6 +98,7 @@ class ResourceBookingRuleBookingsPerUserSerializer(serializers.ModelSerializer):
 
 class MinimalisticResourceSerializer(BaseModelWithCreatedBySerializer):
     """ Minimalistic Serializer for Resources """
+
     class Meta:
         model = Resource
         fields = (
@@ -148,42 +147,12 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
     )
 
     def get_download_terms_of_use(self, obj):
-        """
-        Builds a string for downloading the terms_of_use with a jwt token
-        :param obj:
-        :return:
-        """
-        request = get_current_request()
+        """ Builds a string for downloading the terms_of_use with a jwt token """
 
-        # get the current request path/url
+        request = get_current_request()
         path = reverse('resource-terms-of-use-download', kwargs={'pk': obj.pk})
 
-        # build an absolute URL for the given apth
-        absolute_url = request.build_absolute_uri(path)
-
-        # the token should contain the following information
-        payload = {
-            'exp': datetime.now() + timedelta(
-                hours=settings.WORKBENCH_SETTINGS['download_token_validity_in_hours']
-            ),  # expiration time
-            # store pk and object type that this object relates to
-            'pk': str(obj.pk),
-            'object_type': obj.__class__.__name__,
-            # store the users primary key
-            'user': request.user.pk,
-            # store the verification token, so the token can be revoked afterwards
-            'jwt_verification_token': request.user.userprofile.jwt_verification_token,
-            # store the path that this token is valid for
-            'path': path
-        }
-
-        # generate JWT with the payload and the secret key
-        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-        return "{absolute_url}?jwt={token}".format(
-            absolute_url=absolute_url,
-            token=jwt_token.decode("utf-8")
-        )
+        return build_expiring_jwt_url(request, path)
 
     booking_rule_minimum_duration = ResourceBookingRuleMinimumDurationSerializer(required=False, allow_null=True)
     booking_rule_maximum_duration = ResourceBookingRuleMaximumDurationSerializer(required=False, allow_null=True)

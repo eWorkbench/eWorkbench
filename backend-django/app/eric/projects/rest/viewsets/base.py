@@ -2,11 +2,10 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
-from django.db import transaction
-from django.core.exceptions import ValidationError
-
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -36,6 +35,7 @@ class BaseAuthenticatedNestedProjectModelViewSet(BaseAuthenticatedModelViewSet):
                 return Note.objects.viewable().select_related('project')
 
     """
+
     def create(self, request, *args, **kwargs):
         """ handle create requests with project_pk in kwargs """
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
@@ -67,6 +67,7 @@ class BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet(BaseAuthenticatedM
     """
     Special Base Viewset for checking that users have the add_$model_without_project permission
     """
+
     def check_create_without_project(self, request, *args, **kwargs):
         """
         On create/update without projects, verify that the current user is allowed to do that
@@ -108,10 +109,9 @@ class BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet(BaseAuthenticatedM
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
-        """
-        If an object is deleted, we need to be able to delete ModelPrivileges too
-        """
-        # need to disable permission checks for model privilege when deleting something
+        """ Deletes the element. """
+
+        # If an object is deleted, we need to be able to delete ModelPrivileges too => need to disable permission checks
         with disable_permission_checks(ModelPrivilege):
             # call destroy of super class
             return super(BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, self).destroy(
@@ -123,10 +123,12 @@ class LockableViewSetMixIn(object):
     """
     ViewSet Mixin providing lock functionality
     """
+
     @action(detail=True, methods=['POST'])
     def lock(self, request, pk=None):
-        obj = self.get_object()
+        """ Locks the element for other users. """
 
+        obj = self.get_object()
         element_lock = obj.lock()
 
         return Response(
@@ -135,16 +137,18 @@ class LockableViewSetMixIn(object):
 
     @action(detail=True, methods=['POST'])
     def unlock(self, request, pk=None):
-        obj = self.get_object()
+        """ Releases the element, if it was locked by the current user. """
 
+        obj = self.get_object()
         obj.unlock()
 
         return Response({})
 
     @action(detail=True, methods=['GET'])
     def lock_status(self, request, pk=None):
-        obj = self.get_object()
+        """ Gets the current lock status. """
 
+        obj = self.get_object()
         element_lock = obj.get_lock_element()
 
         if element_lock.exists():

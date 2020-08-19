@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django_userforeignkey.request import get_current_user
-from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
@@ -14,7 +13,6 @@ from eric.notifications.models import NotificationConfiguration, Notification, S
 from eric.notifications.rest.filters import NotificationFilter, ScheduledNotificationFilter
 from eric.notifications.rest.serializers import NotificationConfigurationSerializer, NotificationSerializer, \
     ScheduledNotificationSerializer
-from eric.projects.rest.viewsets import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet
 
 
 class NotificationConfigurationViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
@@ -25,6 +23,9 @@ class NotificationConfigurationViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
 
     # disable pagination for this endpoint
     pagination_class = None
+
+    def get_queryset(self):
+        return NotificationConfiguration.objects.filter(user=get_current_user())
 
     def get_object(self):
         return NotificationConfiguration.objects.filter(user=get_current_user()).first()
@@ -38,21 +39,17 @@ class NotificationConfigurationViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
 
 
 class NotificationViewSet(BaseAuthenticatedReadOnlyModelViewSet):
-    """REST API Viewset for notifications"""
+    """ REST API ViewSet for notifications """
 
     serializer_class = NotificationSerializer
     search_fields = ()
     filterset_class = NotificationFilter
-
     pagination_class = LimitOffsetPagination
 
     @action(detail=True, methods=['put'])
     def read(self, request, pk=None):
         """
-        Mark a notification of the current user as read
-        :param request:
-        :param pk:
-        :return:
+        Marks the specified notification as read.
         """
         obj = self.get_object()
 
@@ -64,9 +61,7 @@ class NotificationViewSet(BaseAuthenticatedReadOnlyModelViewSet):
     @action(detail=False, methods=['post'])
     def read_all(self, request):
         """
-        Mark all notifications of the current user as read
-        :param request:
-        :return:
+        Marks all notifications of the current user as read.
         """
         for notification in self.get_queryset().filter(read=False):
             notification.read = True
@@ -76,8 +71,7 @@ class NotificationViewSet(BaseAuthenticatedReadOnlyModelViewSet):
 
     def get_queryset(self):
         """
-        get all viewable notifications for the current user, and also prefetch several things
-        :return:
+        Gets all viewable notifications for the current user.
         """
         return Notification.objects.viewable().filter(
             user=get_current_user()
@@ -88,8 +82,8 @@ class NotificationViewSet(BaseAuthenticatedReadOnlyModelViewSet):
         )
 
 
-class ScheduledNotificationViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn,):
-    """REST API Viewset for notifications"""
+class ScheduledNotificationViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn, ):
+    """REST API Viewset for scheduled notifications"""
 
     serializer_class = ScheduledNotificationSerializer
     filter_class = ScheduledNotificationFilter

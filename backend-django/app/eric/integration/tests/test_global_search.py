@@ -10,6 +10,7 @@ from eric.drives.models import Drive
 from eric.kanban_boards.models import KanbanBoard
 from eric.labbooks.models import LabBook, LabbookSection
 from eric.pictures.models import Picture
+from eric.plugins.models import PluginInstance
 from eric.projects.models import Project, Resource
 from eric.projects.tests.core import AuthenticationMixin
 from eric.search.models.abstract import FTSMixin
@@ -39,6 +40,7 @@ class GlobalFTSSearchTest(APITestCase, AuthenticationMixin, FTSDataMixin):
             Meeting,
             Note,
             Picture,
+            PluginInstance,
             Project,
             Resource,
             Task,

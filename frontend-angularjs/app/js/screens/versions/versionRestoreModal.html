@@ -38,22 +38,48 @@
             <div class="readOnlyPreview">
                 <div ng-if="vm.loading" translate>Loading, please wait...</div>
                 <div ng-if="!vm.loading && !vm.previewError" ng-switch="vm.modelName">
-                    <small-task-view task="vm.previewModel" read-only="true" ng-switch-when="task">
+                    <small-task-view
+                            task="vm.previewModel"
+                            read-only="true"
+                            ng-switch-when="task">
                     </small-task-view>
-                    <small-meeting-view meeting="vm.previewModel" read-only="true" ng-switch-when="meeting">
+                    <small-meeting-view
+                            meeting="vm.previewModel"
+                            read-only="true"
+                            ng-switch-when="meeting">
                     </small-meeting-view>
-                    <small-contact-view contact="vm.previewModel" read-only="true" ng-switch-when="contact">
+                    <small-contact-view
+                            contact="vm.previewModel"
+                            read-only="true"
+                            ng-switch-when="contact">
                     </small-contact-view>
-                    <small-note-view note="vm.previewModel" read-only="true" ng-switch-when="note">
+                    <small-note-view
+                            note="vm.previewModel"
+                            read-only="true"
+                            ng-switch-when="note">
                     </small-note-view>
-                    <small-picture-view picture="vm.previewModel" read-only="true" ng-switch-when="picture">
+                    <small-picture-view
+                            picture="vm.previewModel"
+                            read-only="true"
+                            ng-switch-when="picture">
                     </small-picture-view>
-                    <small-file-view file="vm.previewModel" read-only="true" ng-switch-when="file">
+                    <small-file-view
+                            file="vm.previewModel"
+                            read-only="true"
+                            ng-switch-when="file">
                     </small-file-view>
                     <small-labbook-view labbook="vm.previewModel" read-only="true" ng-switch-when="labbook">
                     </small-labbook-view>
-                    <small-dmp-view dmp="vm.previewModel" read-only="true" ng-switch-when="dmp">
+                    <small-dmp-view
+                            dmp="vm.previewModel"
+                            read-only="true"
+                            ng-switch-when="dmp">
                     </small-dmp-view>
+                    <small-plugininstance-view
+                            plugininstance="vm.previewModel"
+                            read-only="true"
+                            ng-switch-when="plugininstance">
+                    </small-plugininstance-view>
                     <div ng-switch-default translate>No preview possible</div>
                 </div>
             </div>

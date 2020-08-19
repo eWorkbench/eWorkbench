@@ -138,7 +138,7 @@ def rename_file_increase_number(filename):
         new_filename = filename
 
     # check if filename contains brackets ( ) with a number at the end
-    regex = re.compile("\((\d+)\)$")
+    regex = re.compile(r'\((\d+)\)$')
 
     matches = regex.findall(new_filename)
 

@@ -4,9 +4,12 @@
 #
 from uuid import UUID
 
+HTTP_USER_AGENT = "APITestClient"
+REMOTE_ADDR = "127.0.0.1"
+
 HTTP_INFO = {
-    'HTTP_USER_AGENT': "APITestClient",
-    'REMOTE_ADDR': "127.0.0.1",
+    'HTTP_USER_AGENT': HTTP_USER_AGENT,
+    'REMOTE_ADDR': REMOTE_ADDR,
 }
 
 

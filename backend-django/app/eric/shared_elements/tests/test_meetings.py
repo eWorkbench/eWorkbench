@@ -9,16 +9,12 @@ from django.contrib.auth import get_user_model
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.test import APITestCase
 
+from eric.core.tests import HTTP_INFO
 from eric.projects.tests.core import AuthenticationMixin
 from eric.shared_elements.models import Meeting
 from eric.shared_elements.tests.core import MeetingMixin
 
 User = get_user_model()
-
-COMMON_DATA = {
-    'HTTP_USER_AGENT': 'APITestClient',
-    'REMOTE_ADDR': '127.0.0.1'
-}
 
 
 class MeetingTest(APITestCase, AuthenticationMixin, MeetingMixin):
@@ -75,7 +71,7 @@ class MeetingTest(APITestCase, AuthenticationMixin, MeetingMixin):
             auth_token=self.token1, project_pks=[], title='MyMeeting', description='Description',
             start_date=start_date,
             end_date=end_date,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, HTTP_201_CREATED)
         pk = json.loads(response.content.decode())['pk']

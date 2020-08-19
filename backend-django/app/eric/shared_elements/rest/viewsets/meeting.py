@@ -2,9 +2,7 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import jwt
 import vobject
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -16,6 +14,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from weasyprint import HTML
 
+from eric.jwt_auth.jwt_utils import build_jwt_url
 from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedModelViewSet
 from eric.core.utils import convert_html_to_text
 from eric.model_privileges.models import ModelPrivilege
@@ -30,11 +29,9 @@ class MeetingViewSet(
     BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn, ExportableViewSetMixIn,
     LockableViewSetMixIn
 ):
-    """ Viewset for meetings """
     serializer_class = MeetingSerializer
     filterset_class = MeetingFilter
     search_fields = ()
-
     ordering_fields = ('date_time_start', 'date_time_end', 'title', 'location', 'created_at', 'created_by',
                        'last_modified_at', 'last_modified_by')
 
@@ -44,12 +41,9 @@ class MeetingViewSet(
         a meeting for another user through calendar access privileges
 
         We need to do this here (rather than in a pre_save/post_save handler)
-        :param serializer:
-        :return:
         """
         instance = serializer.save()
 
-        #
         if instance.create_for:
             User = get_user_model()
             create_for_user = User.objects.filter(pk=instance.create_for).first()
@@ -85,45 +79,12 @@ class MeetingViewSet(
         """
         Generates a link with a JWT for the ical export endpoint
         This is necessary so browsers can access the exported content without sending authorization headers
-        :param request:
-        :param pk:
-        :return:
         """
-        # get the current request path/url and replace "get_export_token" with the target url (which is "export")
-        path = request.get_full_path()
-        path = path.replace('get_export_link', 'export')
 
-        # build an absolute URL for the given apth
-        absolute_url = request.build_absolute_uri(path)
+        path = request.get_full_path().replace('get_export_link', 'export')
 
-        # the token should contain the following information
-        payload = {
-            # store the users primary key
-            'user': request.user.pk,
-            # store the verification token, so the token can be revoked afterwards
-            'jwt_verification_token': request.user.userprofile.jwt_verification_token,
-            # store the path that this token is valid for
-            'path': path
-        }
-
-        # generate JWT with the payload and the secret key
-        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-        if "?" in absolute_url:
-            # append it via "&"
-            absolute_url = "{absolute_url}&jwt={token}".format(
-                absolute_url=absolute_url,
-                token=jwt_token.decode("utf-8")
-            )
-        else:
-            absolute_url = "{absolute_url}?jwt={token}".format(
-                absolute_url=absolute_url,
-                token=jwt_token.decode("utf-8")
-            )
-
-        # return the URL
         return Response({
-            'url': absolute_url
+            'url': build_jwt_url(request, path)
         })
 
     @action(detail=False, methods=['GET'], url_path="export")
@@ -167,7 +128,6 @@ class MeetingViewSet(
 
 
 class MyMeetingViewSet(viewsets.ReadOnlyModelViewSet):
-    """ Viewset for meetings """
     serializer_class = MeetingSerializer
     filterset_class = MeetingFilter
     search_fields = ()
@@ -180,11 +140,9 @@ class MyMeetingViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetMixIn):
-    """ Viewset for meetings """
     serializer_class = MeetingSerializer
     filter_class = MeetingFilter
     search_fields = ()
-
     ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
                        'attending_users', 'date_time_start', 'date_time_end',
                        'text', 'created_by', 'created_at')
@@ -238,11 +196,9 @@ class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetM
 
 
 class AllResourceBookingViewSet(BaseAuthenticatedModelViewSet):
-    """ Viewset for meetings """
     serializer_class = MeetingSerializer
     filter_class = MeetingFilter
     search_fields = ()
-
     ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
                        'attending_users', 'date_time_start', 'date_time_end',
                        'text', 'created_by', 'created_at')

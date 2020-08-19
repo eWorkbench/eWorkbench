@@ -39,7 +39,7 @@ AUTHENTICATION_BACKENDS = \
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'redis:6379',
+        'LOCATION': 'redis://redis:6379/0',
     },
 }
 

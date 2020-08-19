@@ -2,17 +2,19 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from eric.labbooks.models import LabBook, LabbookSection
-from eric.model_privileges.models import ModelPrivilege
 from eric.model_privileges.utils import BasePrivilege, UserPermission, register_privilege, \
     get_model_privileges_and_project_permissions_for
-from eric.pictures.models import Picture
 from eric.shared_elements.models import File, Note
+from eric.pictures.models import Picture
+from eric.plugins.models import Plugin
+from eric.labbooks.models import LabBook, LabbookSection
+from eric.model_privileges.models import ModelPrivilege
 
 
 @register_privilege(Picture, execution_order=999)
 @register_privilege(File, execution_order=999)
 @register_privilege(Note, execution_order=999)
+@register_privilege(Plugin, execution_order=999)
 @register_privilege(LabbookSection, execution_order=999)
 class LabBookCellPrivilege(BasePrivilege):
     """
@@ -23,7 +25,7 @@ class LabBookCellPrivilege(BasePrivilege):
     def get_privileges(obj, permissions_by_user=None):
         permission_by_user = permissions_by_user or dict()
 
-        # get all LabBooks that contain the picture
+        # get all LabBooks that contain the child element
         lab_books = LabBook.objects.viewable().filter(
             child_elements__child_object_content_type=obj.get_content_type(),
             child_elements__child_object_id=obj.pk

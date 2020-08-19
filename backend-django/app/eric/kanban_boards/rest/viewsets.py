@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
-
 import os
+
 from django.conf import settings
 from django.db.models import F, Max, Q, Count, FloatField
 from django.http import QueryDict, FileResponse, HttpResponse
@@ -52,14 +52,14 @@ class TaskKanbanBoardAssignmentsViewSet(
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
 
         return get_object_or_404(Task.objects.viewable(), pk=kwargs['task_pk'])
 
     def get_queryset(self):
+        if not hasattr(self, 'parent_object') or not self.parent_object:
+            return KanbanBoardColumnTaskAssignment.objects.none()
+
         return KanbanBoardColumnTaskAssignment.objects.viewable().filter(
             task=self.parent_object
         ).prefetch_related('kanban_board_column', 'kanban_board_column__kanban_board')
@@ -69,7 +69,8 @@ class KanbanBoardViewSet(
     BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn, ExportableViewSetMixIn,
     LockableViewSetMixIn
 ):
-    """ REST API Viewset for Kanban Boards """
+    """ Handles Kanban boards (task boards). """
+
     serializer_class = KanbanBoardSerializer
     filterset_class = KanbanBoardFilter
 
@@ -109,7 +110,8 @@ class KanbanBoardViewSet(
 
     @action(detail=True, methods=['GET'], url_path='background_image.png', url_name='background-image.png')
     def download_background_image(self, request, format=None, *args, **kwargs):
-        """ Provides a detail route endpoint for downloading the background image """
+        """ Responds with the background image of the board. """
+
         # get the picture
         picture_object = self.get_object()
         # get original file name for the header
@@ -133,7 +135,8 @@ class KanbanBoardViewSet(
     @action(detail=True, methods=['GET'], url_path='background_image_thumbnail.png',
             url_name='background-image-thumbnail.png')
     def download_background_image_thumbnail(self, request, format=None, *args, **kwargs):
-        """ Provides a detail route endpoint for downloading the background image """
+        """ Respondes with a thumbnail of the background image of the board. """
+
         # get the picture
         picture_object = self.get_object()
         # get original file name for the header
@@ -155,12 +158,10 @@ class KanbanBoardViewSet(
         return response
 
 
-class KanbanBoardColumnTaskAssignmentViewSet(
-    BaseAuthenticatedModelViewSet
-):
-    """ REST API Viewset for Kanban Board Column Task Assignments """
-    serializer_class = KanbanBoardColumnTaskAssignmentSerializer
+class KanbanBoardColumnTaskAssignmentViewSet(BaseAuthenticatedModelViewSet):
+    """ Handles task assignments to boards. """
 
+    serializer_class = KanbanBoardColumnTaskAssignmentSerializer
     ordering_fields = ('ordering',)
 
     # disable pagination for this endpoint
@@ -186,21 +187,14 @@ class KanbanBoardColumnTaskAssignmentViewSet(
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
 
         return get_object_or_404(KanbanBoard.objects.viewable(), pk=kwargs['kanbanboard_pk'])
 
     @action(detail=False, methods=['POST'])
     def create_many(self, *args, **kwargs):
-        """
-        Allow creating more than object at once
-        :param args:
-        :param kwargs:
-        :return:
-        """
+        """ Assigns multiple tasks to a board. """
+
         # verify that we are getting an array of data
         assert isinstance(self.request.data, list), "Expected array"
 
@@ -263,10 +257,10 @@ class KanbanBoardColumnTaskAssignmentViewSet(
         return response
 
     def create(self, request, *args, **kwargs):
-        """
-        verify that a create request contains only columns that belong to the parent board
-        verify that a create request contains only a task id that the current user has access to
-        """
+        """ Assigns a task to a board. """
+
+        # verify that a create request contains only columns that belong to the parent board
+        # verify that a create request contains only a task id that the current user has access to
 
         # verify that the user has access to the task they are trying to add
         task = get_object_or_404(Task.objects.viewable(), pk=request.data['task_id'])
@@ -299,9 +293,12 @@ class KanbanBoardColumnTaskAssignmentViewSet(
 
     def update(self, request, *args, **kwargs):
         """
-        verify that an update request contains only columns that belong to the parent board
-        verify that an update request contains only a task id that the current user has access to
+        Updates a board assignment.
         """
+
+        # verify that an update request contains only columns that belong to the parent board
+        # verify that an update request contains only a task id that the current user has access to
+
         if 'task_id' in request.data:
             # verify that the user has access to the task they are trying to add
             task = get_object_or_404(Task.objects.viewable(), pk=request.data['task_id'])
@@ -315,13 +312,9 @@ class KanbanBoardColumnTaskAssignmentViewSet(
         return super(KanbanBoardColumnTaskAssignmentViewSet, self).update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        """
-        On destroy the ordering of the preceeding tasks in the same column needs to be decreased
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
+        """ Removes a task from a board. """
+
+        # On destroy the ordering of the preceeding tasks in the same column needs to be decreased
         obj = self.get_object()
 
         # Step 1: Decrease
@@ -344,8 +337,10 @@ class KanbanBoardColumnTaskAssignmentViewSet(
         Returns the queryset for viewable tasks of a given kanban board
         Note: We are returning all tasks, even those that are soft_deleted,
         so that the frontend can take care of this information
-        :return:
         """
+        if not hasattr(self, 'parent_object') or not self.parent_object:
+            return KanbanBoardColumnTaskAssignment.objects.none()
+
         assignments = KanbanBoardColumnTaskAssignment.objects.viewable().filter(
             kanban_board_column__kanban_board=self.parent_object.pk
         ).select_related('task', 'kanban_board_column', 'kanban_board_column__kanban_board').prefetch_related(
@@ -411,10 +406,8 @@ class KanbanBoardColumnTaskAssignmentViewSet(
         return assignments
 
     def get_object(self):
-        """
-        Returns a single task assignment
-        :return:
-        """
+        """ Gets a task-board assignment. """
+
         queryset = KanbanBoardColumnTaskAssignment.objects.viewable().filter(
             kanban_board_column__kanban_board=self.parent_object.pk
         ).select_related('task', 'kanban_board_column', 'kanban_board_column__kanban_board').prefetch_related(
@@ -427,12 +420,11 @@ class KanbanBoardColumnTaskAssignmentViewSet(
         # Perform the lookup filtering (usually not needed, but we leave it here as the original get_object also has it)
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
-        assert lookup_url_kwarg in self.kwargs, (
-            'Expected view %s to be called with a URL keyword argument '
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            'attribute on the view correctly.' %
-            (self.__class__.__name__, lookup_url_kwarg)
-        )
+        assert lookup_url_kwarg in self.kwargs, ('Expected view %s to be called with a URL keyword argument '
+                                                 'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                                                 'attribute on the view correctly.' %
+                                                 (self.__class__.__name__, lookup_url_kwarg)
+                                                 )
 
         filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
         obj = get_object_or_404(queryset, **filter_kwargs)
@@ -465,11 +457,7 @@ class KanbanBoardColumnTaskAssignmentViewSet(
 
     @action(detail=False, methods=['PUT'])
     def move_assignment(self, *args, **kwargs):
-        """
-        Moves a task from one column to another, also updates the ordering if necessary
-
-        :return:
-        """
+        """ Moves a task from one column to another, also updates the ordering if necessary. """
         from timeit import default_timer as timer
 
         start = timer()

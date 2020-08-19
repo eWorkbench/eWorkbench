@@ -10,6 +10,7 @@ from eric.core.rest.routers import get_api_router
 from eric.dmp.rest.viewsets import DmpViewSet
 from eric.labbooks.rest.viewsets import LabBookViewSet
 from eric.pictures.rest.viewsets import PictureViewSet
+from eric.plugins.rest.viewsets import PluginInstanceViewSet
 from eric.shared_elements.rest.viewsets import ContactViewSet, NoteViewSet, TaskViewSet, \
     MeetingViewSet, FileViewSet
 from eric.versions.rest.viewsets import VersionViewSet
@@ -35,6 +36,7 @@ add_sub_urls(r'pictures', PictureViewSet, 'picture')
 add_sub_urls(r'files', FileViewSet, 'file')
 add_sub_urls(r'labbooks', LabBookViewSet, 'labbook')
 add_sub_urls(r'dmps', DmpViewSet, 'dmp')
+add_sub_urls(r'plugininstances', PluginInstanceViewSet, 'plugininstance')
 
 urlpatterns = [
     url(r'^', include(urls)),

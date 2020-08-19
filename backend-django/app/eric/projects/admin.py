@@ -9,23 +9,31 @@ from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter, Drop
 from django_changeset.models import ChangeSet, ChangeRecord
 
 from eric.core.admin.is_deleteable import DeleteableModelAdmin
-
+from eric.model_privileges.admin import ModelPrivilegeInline
 from eric.projects.models import Project, Resource, Role, ProjectRoleUserAssignment, \
     UserStorageLimit, ResourceBookingRuleMinimumDuration, ResourceBookingRuleMaximumDuration, \
     ResourceBookingRuleBookableHours, ResourceBookingRuleMinimumTimeBefore, ResourceBookingRuleMaximumTimeBefore, \
     ResourceBookingRuleTimeBetween, ResourceBookingRuleBookingsPerUser
-from eric.model_privileges.admin import ModelPrivilegeInline
-from django.contrib.contenttypes.admin import GenericTabularInline
 
 User = get_user_model()
 
+from admin_auto_filters.filters import AutocompleteFilter
 
-class UserAvailabilitySelectedUserInline(GenericTabularInline):
-    model = Resource
-    verbose_name = _('UserAvailabilitySelectedUser')
-    verbose_name_plural = _('UserAvailabilitySelectedUsers')
-    raw_id_fields = ('user_availability_selected_users',)
-    extra = 1
+
+class ProjectFilter(AutocompleteFilter):
+    """ Autocomplete filter for a single project """
+
+    title = 'Project'
+    field_name = 'project'
+    field = 'project'
+
+
+class ProjectsFilter(AutocompleteFilter):
+    """ Autocomplete filter for a list of projects """
+
+    title = 'Projects'
+    field_name = 'projects'
+    field = 'projects'
 
 
 class CreatedAndModifiedByReadOnlyAdminMixin:
@@ -54,6 +62,11 @@ class CreatedAndModifiedByReadOnlyAdminMixin:
 
 @admin.register(ProjectRoleUserAssignment)
 class ProjectRoleUserAssignmentAdmin(DeleteableModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     model = ProjectRoleUserAssignment
     list_display = (
         'user',
@@ -63,10 +76,11 @@ class ProjectRoleUserAssignmentAdmin(DeleteableModelAdmin):
         'last_modified_by',
     )
     list_filter = (
-        ('project', RelatedDropdownFilter),
+        ProjectFilter,
         ('role', admin.RelatedFieldListFilter),
     )
     raw_id_fields = ('user',)
+    autocomplete_fields = ('project',)
     search_fields = (
         'user__username',
         'user__email',
@@ -113,6 +127,7 @@ class ChangeSetInline(admin.StackedInline):
 
 class ProjectInline(admin.TabularInline):
     model = Project
+    extra = 0
 
 
 class ProjectAssignedUsersInline(admin.TabularInline):
@@ -145,6 +160,7 @@ class ProjectAdmin(admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
+    autocomplete_fields = ('parent_project', )
 
 
 class ChangeRecordInline(admin.StackedInline):
@@ -296,11 +312,6 @@ class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    raw_id_fields = (
-        'projects',
-        'user_availability_selected_users',
-        'user_availability_selected_user_groups',
-    )
     inlines = (
         ResourceBookingRuleMinimumDurationInline,
         ResourceBookingRuleMaximumDurationInline,
@@ -320,6 +331,7 @@ class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         make_type_offeq,
         make_type_itres,
     ]
+    autocomplete_fields = ('projects', 'user_availability_selected_users', 'user_availability_selected_user_groups', )
 
 
 @admin.register(UserStorageLimit)

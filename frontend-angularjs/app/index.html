@@ -74,7 +74,7 @@
 
     <!-- tinymce -->
     <script src="../node_modules/tinymce/tinymce.js"></script>
-    <!-- Plugins (make sure to include all tinymce plugins that you need, and test this with a production build) -->
+    <!-- TinyMCE Plugins (make sure to include all tinymce plugins that you need, and test this with a production build) -->
     <script src="../node_modules/tinymce/themes/modern/theme.js"></script>
     <script src="../node_modules/tinymce/plugins/image/plugin.js"></script>
     <script src="../node_modules/tinymce/plugins/charmap/plugin.js"></script>
@@ -283,6 +283,7 @@
     <script src="js/shared/urlMatcherType/urlMatcherTypeMeeting.js"></script>
     <script src="js/shared/urlMatcherType/urlMatcherTypeLabbook.js"></script>
     <script src="js/shared/urlMatcherType/urlMatcherTypePicture.js"></script>
+    <script src="js/shared/urlMatcherType/urlMatcherTypePluginInstance.js"></script>
     <script src="js/shared/urlMatcherType/urlMatcherTypeKanbanboard.js"></script>
     <script src="js/shared/urlMatcherType/urlMatcherTypeDrive.js"></script>
     <script src="js/shared/urlMatcherType/urlMatcherTypeUserManualCategory.js"></script>
@@ -345,6 +346,7 @@
     <script src="js/services/rest/orderedMenuRestService.js"></script>
     <script src="js/services/rest/labbookRestService.js"></script>
     <script src="js/services/rest/pictureRestService.js"></script>
+    <script src="js/services/rest/pluginRestService.js"></script>
     <script src="js/services/rest/kanbanboardRestService.js"></script>
     <script src="js/services/rest/trashedItemsRestService.js"></script>
     <script src="js/services/rest/contactFormRestService.js"></script>
@@ -500,6 +502,16 @@
     <script src="js/screens/picture/pictureForm.shapes.js"></script>
     <script src="js/screens/picture/pictureViewModal.js"></script>
 
+    <!-- Plugin Screens -->
+    <script src="js/screens/plugin/plugininstanceList.js"></script>
+    <script src="js/screens/plugin/plugininstanceTableView.js"></script>
+    <script src="js/screens/plugin/plugininstanceCardView.js"></script>
+    <script src="js/screens/plugin/plugininstanceView.js"></script>
+    <script src="js/screens/plugin/selectPluginModal.js"></script>
+    <script src="js/screens/plugin/plugininstanceCreateModal.js"></script>
+
+    <script src="js/widgets/pluginDropDownMenuWidget/pluginDropDownMenuWidget.js"></script>
+
     <!-- Kanban Board Screens -->
     <script src="js/screens/kanbanboard/kanbanboardList.js"></script>
     <script src="js/screens/kanbanboard/kanbanboardCardView.js"></script>
@@ -575,6 +587,7 @@
     <script src="js/widgets/cardDisplay/permissionDeniedCard.js"></script>
     <script src="js/widgets/cardDisplay/labbookCard.js"></script>
     <script src="js/widgets/cardDisplay/pictureCard.js"></script>
+    <script src="js/widgets/cardDisplay/plugininstanceCard.js"></script>
     <script src="js/widgets/cardDisplay/kanbanboardCard.js"></script>
     <script src="js/widgets/cardDisplay/driveCard.js"></script>
     <script src="js/widgets/cardDisplay/resourceBookingCard.js"></script>
@@ -637,6 +650,7 @@
     <script src="js/widgets/link/resourceLink.js"></script>
     <script src="js/widgets/link/resourceBookingLink.js"></script>
     <script src="js/widgets/link/taskLink.js"></script>
+    <script src="js/widgets/link/plugininstanceLink.js"></script>
     <script src="js/widgets/link/kanbanboardLink.js"></script>
     <script src="js/widgets/link/driveLink.js"></script>
     <script src="js/widgets/link/directoryLink.js"></script>
@@ -673,7 +687,6 @@
     <script src="js/widgets/historyTypeWidget/historyTypeWidget.js"></script>
     <script src="js/widgets/resourceBookWidget/resourceBookWidget.js"></script>
     <script src="js/widgets/resourceBookingRulesWidget/resourceBookingRulesWidget.js"></script>
-
     <!-- history, changeset, diff, ... -->
     <script src="js/widgets/history/historyEntry.js"></script>
     <script src="js/widgets/history/historyShortWidget.js"></script>
@@ -748,6 +761,7 @@
     <script src="js/widgets/selectizeWidget/scheduleResourceSelectizeWidget.js"></script>
     <script src="js/widgets/selectizeWidget/scheduleResourceSelectizeWidget.js"></script>
     <script src="js/widgets/selectizeWidget/branchLibrarySelectizeWidget.js"></script>
+    <script src="js/widgets/selectizeWidget/pluginSelectizeWidget.js"></script>
 
     <script src="js/widgets/errorDisplay/errorDisplay.js"></script>
     <script src="js/widgets/projectSelectionWidget/singleProjectSelection.js"></script>

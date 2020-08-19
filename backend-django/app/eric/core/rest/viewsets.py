@@ -3,14 +3,13 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import jwt
 import os.path as path
-from django.conf import settings
+
 from django.db import transaction
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
-from django.utils.timezone import datetime, timedelta
+from django.utils.timezone import datetime
 from django_changeset.models import RevisionModelMixin
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters, permissions, status
@@ -19,6 +18,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from weasyprint import HTML
 
+from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
 from eric.search.rest.filters import FTSSearchFilter
 
 
@@ -54,13 +54,13 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     """
 
     def create(self, request, force_request_data=None, *args, **kwargs):
-        """ Saves the posted data.
+        """ Creates a new element. """
 
-        force_request_data:
-            JSONField doesn't parse JSON data sent via API, therefore it can be necessary
-            to fake HTML input by passing a MultiValueDict as data to the serializer.
-            See also JSONField.get_value (.../rest_framework/fields.py)
-        """
+        # force_request_data:
+        #   JSONField doesn't parse JSON data sent via API, therefore it can be necessary
+        #   to fake HTML input by passing a MultiValueDict as data to the serializer.
+        #   See also JSONField.get_value (.../rest_framework/fields.py)
+
         request_data = request.data if force_request_data is None else force_request_data
 
         # the following code is from ModelViewSet.create
@@ -77,13 +77,13 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         return response
 
     def update(self, request, force_request_data=None, *args, **kwargs):
-        """ Saves the posted data.
+        """ Updates an existing element. """
 
-        force_request_data:
-            JSONField doesn't parse JSON data sent via API, therefore it can be necessary
-            to fake HTML input by passing a MultiValueDict as data to the serializer.
-            See also JSONField.get_value (.../rest_framework/fields.py)
-        """
+        # force_request_data:
+        #   JSONField doesn't parse JSON data sent via API, therefore it can be necessary
+        #   to fake HTML input by passing a MultiValueDict as data to the serializer.
+        #   See also JSONField.get_value (.../rest_framework/fields.py)
+
         request_data = request.data if force_request_data is None else force_request_data
 
         # the following code is from MOdelViewSet.update
@@ -116,8 +116,7 @@ class BaseAuthenticatedModelViewSet(BaseViewSetMixin, BaseModelViewSet):
         """
         Hacky method for ensuring that get_object call (detail/get) does not apply the filter_queryset method
         see https://github.com/encode/django-rest-framework/issues/5412 for more details why this is necessary
-        :param qs:
-        :return: QuerySet
+        :rtype: QuerySet
         """
         # only apply filters for the action "list"
         if self.action == 'list':
@@ -128,8 +127,6 @@ class BaseAuthenticatedModelViewSet(BaseViewSetMixin, BaseModelViewSet):
     def perform_destroy(self, instance):
         """
         Performs Destroy in an atomic transaction
-        :param instance:
-        :return:
         """
         with transaction.atomic():
             instance.delete()
@@ -142,8 +139,9 @@ class DeletableViewSetMixIn(object):
 
     @action(detail=True, methods=['PATCH'])
     def soft_delete(self, request, pk=None):
-        obj = self.get_object()
+        """ Trashes the element. """
 
+        obj = self.get_object()
         obj.deleted = True
         obj.save()
 
@@ -151,8 +149,9 @@ class DeletableViewSetMixIn(object):
 
     @action(detail=True, methods=['PATCH'])
     def restore(self, request, pk=None):
-        obj = self.get_object()
+        """ Restores a trashed element. """
 
+        obj = self.get_object()
         obj.deleted = False
         obj.save()
 
@@ -167,50 +166,26 @@ class ExportableViewSetMixIn(object):
     @action(detail=True, methods=['GET'])
     def get_export_link(self, request, pk=None):
         """
-        Generates a link with a JWT for the export endpoint
-        This is necessary so browsers can access the exported content without sending authorization headers
-        :param request:
-        :param pk:
-        :return:
+        Generates a link with a JWT for the export endpoint.
+        This is necessary so browsers can access the exported content without sending authorization headers.
         """
-        obj = self.get_object()
 
-        # get the current request path/url and replace "get_export_token" with the target url (which is "export")
-        path = request.path
-        path = path.replace('get_export_link', 'export')
+        # try to get the object to force a permission check
+        self.get_object()
 
-        # build an absolute URL for the given apth
-        absolute_url = request.build_absolute_uri(path)
+        path = request.path.replace('get_export_link', 'export')
 
-        # the token should contain the following information
-        payload = {
-            'exp': datetime.now() + timedelta(
-                hours=settings.WORKBENCH_SETTINGS['download_token_validity_in_hours']
-            ),  # expiration time
-            # store pk and object type that this object relates to
-            'pk': pk,
-            'object_type': obj.__class__.__name__,
-            # store the users primary key
-            'user': request.user.pk,
-            # store the verification token, so the token can be revoked afterwards
-            'jwt_verification_token': request.user.userprofile.jwt_verification_token,
-            # store the path that this token is valid for
-            'path': path
-        }
-
-        # generate JWT with the payload and the secret key
-        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-        # return the URL with the token
         return Response({
-            'url': "{absolute_url}?jwt={token}".format(
-                absolute_url=absolute_url,
-                token=jwt_token.decode("utf-8")
-            )
+            'url': build_expiring_jwt_url(request, path)
         })
 
     @action(detail=True, methods=['GET'], url_path="export")
     def export(self, request, pk=None):
+        """ Exports the object as PDF file. """
+
+        if request.user.is_anonymous:
+            return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
+
         obj = self.get_object()
 
         # verify that the model has export_template set

@@ -36,7 +36,7 @@ class ModelPrivilegeAdmin(DeleteableModelAdmin):
         'content_type__app_label',
         'content_type__model',
     )
-    raw_id_fields = ('user',)
+    autocomplete_fields = ('user',)
     list_per_page = 20
 
 
@@ -44,8 +44,8 @@ class ModelPrivilegeInline(GenericTabularInline):
     model = ModelPrivilege
     verbose_name = _('Privilege')
     verbose_name_plural = _('Privileges')
-    raw_id_fields = ('user',)
     extra = 1
+    autocomplete_fields = ('user',)
 
 
 class ReadOnlyModelPrivilegeInline(GenericTabularInline):

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import uuid
+from typing import Iterable
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -12,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django_changeset.models import CreatedModifiedByMixIn
 
 from eric.core.models import BaseModel
+from eric.core.models.abstract import OrderingModelMixin
 from eric.metadata.models.managers import MetadataManager
 
 
@@ -123,12 +125,16 @@ class MetadataField(BaseModel, CreatedModifiedByMixIn):
             }
 
 
-class Metadata(BaseModel, CreatedModifiedByMixIn):
+class Metadata(BaseModel, CreatedModifiedByMixIn, OrderingModelMixin):
     """ A concrete metadata value with a specified type, associated to a specific workbench entity """
     objects = MetadataManager()
 
     class Meta:
-        ordering = ['created_at', ]
+        ordering = [
+            'entity_id',
+            'ordering',
+            'created_at',  # fallback for default ordering
+        ]
 
     id = models.UUIDField(
         primary_key=True,
@@ -173,6 +179,7 @@ class Metadata(BaseModel, CreatedModifiedByMixIn):
         return {
             "field": self.field.pk,
             "values": self.values,
+            "ordering": self.ordering,
         }
 
     @staticmethod
@@ -183,7 +190,7 @@ class Metadata(BaseModel, CreatedModifiedByMixIn):
         ]
 
     @staticmethod
-    def restore_all_from_entity(entity, metadata_list):
+    def restore_all_from_entity(entity, metadata_list: Iterable[dict]):
         """ Restores all the metadata values for the given entity """
         Metadata.objects.filter(entity_id=entity.pk).delete()
         if metadata_list:
@@ -194,4 +201,5 @@ class Metadata(BaseModel, CreatedModifiedByMixIn):
                         field_id=field_pk,
                         values=metadata.get("values"),
                         entity=entity,
+                        ordering=metadata.get("ordering", default=OrderingModelMixin.DEFAULT_ORDERING),
                     )

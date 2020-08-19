@@ -8,13 +8,11 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.widgets import NullBooleanSelect
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
-
-from django_filters.rest_framework import FilterSet
+from django.utils.translation import gettext_lazy as _, gettext
 from django_filters import Filter
-from django_filters.constants import EMPTY_VALUES as FILTER_EMPTY_VALUES
-from django_filters.fields import Lookup
 from django_filters import filters as django_filters
+from django_filters.constants import EMPTY_VALUES as FILTER_EMPTY_VALUES
+from django_filters.rest_framework import FilterSet
 from django_userforeignkey.request import get_current_user
 
 
@@ -25,10 +23,10 @@ class BaseFilter(FilterSet):
         - Foreign Keys
         - Choices
     """
-    NULLABLE_COMPERATORS = ('isnull', )
-    NUMBER_COMPERATORS = ('lt', 'lte', 'gt', 'gte', 'exact', )  # <, > and =
+    NULLABLE_COMPERATORS = ('isnull',)
+    NUMBER_COMPERATORS = ('lt', 'lte', 'gt', 'gte', 'exact',)  # <, > and =
     DATE_COMPERATORS = NUMBER_COMPERATORS
-    FOREIGNKEY_COMPERATORS = ('exact', )  # =
+    FOREIGNKEY_COMPERATORS = ('exact',)  # =
     FOREIGNKEY_NULLABLE_COMPERATORS = FOREIGNKEY_COMPERATORS + NULLABLE_COMPERATORS
     STRING_COMPERATORS = ('exact', 'icontains',)  # = and icontains
     CHOICE_COMPERATORS = FOREIGNKEY_COMPERATORS  # for choices
@@ -38,6 +36,7 @@ class ListFilter(Filter):
     """
     A custom filter which allows more than one value to be provided in a list
     """
+
     def filter(self, qs, value):
         if value in FILTER_EMPTY_VALUES:
             return qs
@@ -52,6 +51,7 @@ class RecursiveProjectsListFilter(Filter):
     """
     A custom filter which gets all the sub-projects of a project and adds those to the filter
     """
+
     def filter(self, qs, value):
         if value in FILTER_EMPTY_VALUES:
             return qs
@@ -69,6 +69,7 @@ class BooleanDefaultField(forms.BooleanField):
     Boolean Field with a default parameter (False)
     see https://github.com/carltongibson/django-filter/issues/322
     """
+
     def clean(self, value):
         if value is None:
             return False
@@ -89,6 +90,7 @@ class BetterBooleanSelect(NullBooleanSelect):
     This overwritten NullBooleanSelect allows that
     See https://code.djangoproject.com/ticket/22406#comment:3
     """
+
     def value_from_datadict(self, data, files, name):
         value = data.get(name)
         return {
@@ -126,7 +128,8 @@ class RecentlyModifiedByMeFilter(Filter):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs['label'] = _("Modified by me since (in days)")
+        # gettext_lazy breaks the OpenAPI generation => use gettext instead
+        kwargs['label'] = gettext("Modified by me since (in days)")
         super(RecentlyModifiedByMeFilter, self).__init__(*args, **kwargs)
 
     def filter(self, qs, value):

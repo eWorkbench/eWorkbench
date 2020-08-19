@@ -47,3 +47,6 @@ service_identity
 vobject==0.9.*
 WeasyPrint==51.*
 zipstream==1.1.*
+django-admin-autocomplete-filter==0.5.*
+pyyaml==5.3.*
+drf-yasg==1.17.*

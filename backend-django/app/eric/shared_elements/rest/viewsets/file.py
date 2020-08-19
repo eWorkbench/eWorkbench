@@ -33,11 +33,11 @@ class FileViewSet(
     BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn, ExportableViewSetMixIn,
     LockableViewSetMixIn
 ):
-    """ REST API Viewset for files with a download endpoint """
+    """ Handles file elements. """
+
     serializer_class = FileSerializer
     filterset_class = FileFilter
     search_fields = ()
-
     ordering_fields = ('title', 'name', 'file_size', 'created_at', 'created_by')
 
     def create(self, request, *args, **kwargs):
@@ -83,7 +83,7 @@ class FileViewSet(
 
     @action(detail=True, methods=['GET'], url_path='download', url_name='download')
     def download(self, request, format=None, *args, **kwargs):
-        """ Provides a detail route endpoint for the File Download """
+        """ Starts a download for the file. """
 
         file_entry = self.get_file_entry(**kwargs)
 
@@ -113,12 +113,10 @@ class FileViewSet(
 
     def destroy(self, request, *args, **kwargs):
         """
-        Overwrite the destroy method to catch OSErrors when the NAS is busy and cannot delete a file for some reason
-        :param request:
-        :param args:
-        :param kwargs:
-        :return: Response
+        Deletes the file.
         """
+
+        # Overwrite the destroy method to catch OSErrors when the NAS is busy and cannot delete a file for some reason
         try:
             return super(FileViewSet, self).destroy(self, request, *args, **kwargs)
         except OSError as error:

@@ -1,0 +1,56 @@
+<div>
+    <!-- modal header -->
+    <div class="modal-header">
+        <div class="pull-left modal-title" translate>Select plugin placement</div>
+        <div class="pull-right" translate>Step 2 of 2</div>
+    </div>
+
+    <!-- modal body -->
+    <div class="modal-body">
+        <div class="row">
+            <div class="form-horizontal" name="pluginDetailForm">
+                <div class="col-xs-12 col-md-12">
+                    <!-- Plugin Title -->
+                    <div class="form-group">
+                        <label class="col-sm-2" translate
+                            title="{{ 'mandatory field' | translate }}">
+                          Selected Plug-in
+                        </label>
+                        <div class="col-sm-1">
+                            <img ng-src="{{ vm.selectedPlugin.logo }}" width="40">
+                        </div>
+                        <div class="col-sm-9 height-6rem">
+                            <strong>{{ vm.selectedPlugin.title }}</strong> -
+                            <span ng-bind-html="vm.selectedPlugin.short_description | asHtml"></span>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+            <ng-include src="'js/screens/labbook/newElementSelectPosition.html'"></ng-include>
+        </div>
+    </div>
+
+    <!-- modal footer -->
+    <div class="modal-footer">
+        <button
+                type="button"
+                class="btn light-button pull-left"
+                ng-click="vm.currentPluginModalPage='step1'"
+                translate>
+            <span class="fa fa-chevron-left"></span>
+            Back
+        </button>
+
+        <button type="button" class="btn btn-default" ng-click="vm.dismiss()" translate>Cancel</button>
+
+        <button
+                type="button"
+                class="btn btn-warning"
+                ng-click="vm.insertPlugininstance()"
+                translate>
+            Insert plug-in
+        </button>
+
+    </div>
+</div>

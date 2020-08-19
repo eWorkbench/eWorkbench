@@ -2,11 +2,6 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from bs4 import BeautifulSoup
-from django.utils.http import urlquote
-from mimetypes import guess_extension, guess_type
-from PIL import Image
-
 import base64
 import datetime
 import imghdr
@@ -14,6 +9,11 @@ import io
 import os
 import re
 import unicodedata
+from mimetypes import guess_extension, guess_type
+
+from PIL import Image
+from bs4 import BeautifulSoup
+from django.utils.http import urlquote
 
 
 def rfc5987_content_disposition(file_name, disposition_type="attachment"):

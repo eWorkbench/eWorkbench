@@ -8,11 +8,10 @@ from django.contrib import admin
 from django.contrib.admin import TabularInline
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
 from eric.drives.models.models import Drive, Directory
 from eric.model_privileges.admin import ModelPrivilegeInline
-from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin
+from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
 
 User = get_user_model()
 
@@ -21,15 +20,19 @@ class DirectoryInline(TabularInline):
     model = Directory
     verbose_name = _("Directory")
     verbose_name_plural = _("Directories")
-    # raw_id_fields = ('child_object_id', )
     extra = 1
 
 
 @admin.register(Drive)
 class DriveAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = ('title', 'created_by', 'created_at',)
     list_filter = (
-        ('projects', RelatedDropdownFilter),
+        ProjectsFilter,
     )
     search_fields = (
         'projects__name',
@@ -37,5 +40,5 @@ class DriveAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    filter_horizontal = ('projects',)
     inlines = (ModelPrivilegeInline, DirectoryInline,)
+    autocomplete_fields = ('projects',)

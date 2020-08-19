@@ -2,6 +2,7 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -9,8 +10,18 @@ from eric.caldav.models import CaldavItem
 from eric.shared_elements.models import Meeting
 
 
+class DeletedViaCalDavByFilter(AutocompleteFilter):
+    title = 'Deleted Via CalDAV by'
+    field_name = 'deleted_via_caldav_by'
+
+
 @admin.register(CaldavItem)
 class CaldavItemAdmin(admin.ModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = (
         'id',
         'meeting_link',
@@ -23,7 +34,7 @@ class CaldavItemAdmin(admin.ModelAdmin):
         'created_at',
         'last_modified_at',
         'deleted_via_caldav_on',
-        'deleted_via_caldav_by',
+        DeletedViaCalDavByFilter,
     )
     readonly_fields = (
         'meeting',

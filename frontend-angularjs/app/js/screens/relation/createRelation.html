@@ -25,13 +25,14 @@
     </div>
     <div class="panel-footer clearfix">
         <div class="row">
-            <div class="col-xs-2 pull-left">
+            <div class="col-xs-2 pull-left"
+                 ng-hide="vm.prohibitNewEntityButtonModelList[vm.model.key]==false">
                 <button title="{{ 'Click here to create a new entity' | translate }}"
                         class="btn btn-primary" ng-click="vm.createNewEntity()">
                     <span translate>New {{ vm.model.title }}</span>
                 </button>
             </div>
-            <div class="col-xs-10 text-right">
+            <div class="col-xs-10 text-right pull-right">
                 <button class="btn btn-default" ng-click="vm.cancel()" translate>Cancel</button>
                 <button class="btn btn-warning"
                         ng-click="vm.createSelectedLinks()"

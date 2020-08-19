@@ -6,15 +6,15 @@ import logging
 import uuid
 
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
-
-from eric.core.models import BaseModel, LockMixin, disable_permission_checks
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
 from django_cleanhtmlfield.fields import HTMLField
+
+from eric.core.models import BaseModel, LockMixin
+from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
 from eric.labbooks.models.managers import LabBookManager, LabBookChildElementManager, LabbookSectionManager
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
@@ -72,7 +72,8 @@ class LabBook(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
 
     title = models.CharField(
         max_length=128,
-        verbose_name=_("Title of the labbook")
+        verbose_name=_("Title of the labbook"),
+        db_index=True
     )
 
     description = HTMLField(
@@ -331,7 +332,7 @@ class LabbookSection(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMixin, S
             ("change_project_labbooksection", "Can change the project of a LabBook section"),
             ("add_labbooksection_without_project", "Can add a LabBook section without a project")
         )
-        is_relatable = True
+        is_relatable = False
 
         def get_default_serializer(*args, **kwargs):
             from eric.labbooks.rest.serializers import LabbookSectionSerializer

@@ -12,28 +12,12 @@ from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
 from django_userforeignkey.models.fields import UserForeignKey
 
-from eric.core.models import BaseModel
+from eric.core.models import BaseModel, UploadToPathAndRename
 from eric.base64_image_extraction.models.managers import ExtractedImageManager
 
 __all__ = [
     'ExtractedImage',
 ]
-
-
-@deconstructible
-class UploadToPathAndRename(object):
-    """ Automatically rename the uploaded file to a random UUID.{extension} """
-
-    def __init__(self, path):
-        self.sub_path = path
-
-    def __call__(self, instance, filename):
-        # get filename extension
-        ext = filename.split('.')[-1]
-        # set filename as random string
-        filename = '{}.{}'.format(uuid.uuid4().hex, ext)
-        # return the whole path to the file
-        return os.path.join(self.sub_path, filename)
 
 
 class ExtractedImage(BaseModel):

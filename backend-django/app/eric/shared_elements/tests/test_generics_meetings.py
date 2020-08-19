@@ -9,14 +9,12 @@ from django.utils.timezone import timedelta
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR
 from eric.core.tests import test_utils
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
 from eric.shared_elements.models import Meeting
 from eric.shared_elements.tests.core import MeetingMixin
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
 
 
 class TestGenericMeetings(APITestCase, EntityChangeRelatedProjectTestMixin, MeetingMixin):
@@ -47,7 +45,7 @@ class TestGenericMeetings(APITestCase, EntityChangeRelatedProjectTestMixin, Meet
         """
         # create a new meeting with user1 (should work)
         response = self.rest_create_meeting(self.token1,
-                                         HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR, **self.data[0])
+                                            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR, **self.data[0])
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         decoded_response = json.loads(response.content.decode())
         meeting = Meeting.objects.filter(pk=decoded_response['pk']).first()
@@ -112,4 +110,3 @@ class TestGenericMeetings(APITestCase, EntityChangeRelatedProjectTestMixin, Meet
         decoded_response = json.loads(response.content.decode())
         self.assertTrue('date_time_start' in decoded_response)
         self.assertTrue('date_time_end' in decoded_response)
-

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
-import uuid
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -15,6 +14,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.signals import reset_password_token_created
 
+from eric.jwt_auth.jwt_utils import generate_random_jwt_verification_token
 from eric.site_preferences.models import options as site_preferences
 from eric.userprofile.models import UserProfile
 
@@ -27,10 +27,6 @@ User = get_user_model()
 def check_for_save_on_ldap_user(instance, created, *args, **kwargs):
     """
     When a user is created from LDAP, we need to do the initial sync
-    :param instance:
-    :param created:
-    :param args:
-    :param kwargs:
     :return:
     """
     if hasattr(instance, 'ldap_user'):
@@ -168,12 +164,8 @@ def assign_ldap_user_group(user, ldap_user, *args, **kwargs):
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, reset_password_token, *args, **kwargs):
     """
-    Handles password reset tokens
-    When a token is created, an e-mail needs to be sent to the user
-    :param sender:
-    :param reset_password_token:
-    :param args:
-    :param kwargs:
+    Handles password reset tokens.
+    When a token is created, an e-mail is sent to the user.
     :return:
     """
     # send an e-mail to the user
@@ -214,8 +206,11 @@ def create_user_profile_normal(sender, instance, created, *args, **kwargs):
         profiles = UserProfile.objects.filter(user=user)
 
         if len(profiles) == 0:
-            UserProfile.objects.create(user=user, jwt_verification_token=uuid.uuid4().hex)
+            UserProfile.objects.create(
+                user=user,
+                jwt_verification_token=generate_random_jwt_verification_token()
+            )
         elif profiles[0].jwt_verification_token == '':
             prof = profiles[0]
-            prof.jwt_verification_token = uuid.uuid4().hex
+            prof.jwt_verification_token = generate_random_jwt_verification_token()
             prof.save()

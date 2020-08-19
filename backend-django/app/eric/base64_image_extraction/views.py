@@ -5,11 +5,11 @@
 import mimetypes
 
 from django.http import FileResponse, Http404
-from rest_framework.views import APIView
 from rest_framework.throttling import AnonRateThrottle
+from rest_framework.views import APIView
 
-from eric.site_preferences.models import options
 from eric.base64_image_extraction.models.models import ExtractedImage
+from eric.site_preferences.models import options
 
 
 class ExtractedImageViewRateThrottle(AnonRateThrottle):
@@ -20,14 +20,15 @@ class ExtractedImageViewRateThrottle(AnonRateThrottle):
 
 class ExtractedImageView(APIView):
     """
-    A very simple view that displays the image in question
+    Handles extracted images.
     """
     authentication_classes = ()
     permission_classes = ()
-    throttle_classes = (ExtractedImageViewRateThrottle, )
+    throttle_classes = (ExtractedImageViewRateThrottle,)
 
     @staticmethod
     def get(request, *args, **kwargs):
+        """ Gets a specific image. """
         try:
             extracted_image = ExtractedImage.objects.get(
                 pk=kwargs['pk'],

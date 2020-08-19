@@ -8,6 +8,7 @@ from django.db.models import Q
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 
 from eric.pictures.models.querysets import PictureQuerySet
+from eric.plugins.models.querysets import PluginInstanceQuerySet
 from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, \
     extend_queryset
 from eric.shared_elements.models.querysets import NoteQuerySet, FileQuerySet
@@ -162,6 +163,57 @@ class ExtendedLabBookFileQuerySet:
         )
 
 
+@extend_queryset(PluginInstanceQuerySet)
+class ExtendedLabBookPluginInstanceQuerySet:
+    """
+    Extending Plugin Instance QuerySet for LabBooks
+    If a Plugin Instance is in a LabBook, users are allowed to view and/or
+    edit those Plugin Instances if they are allowed to view/edit
+    the LabBook
+    """
+
+    @staticmethod
+    def _viewable():
+        """
+        Extend LabbookQuerySet such that it allows viewing of Plugin Instance that
+        are assigned in a Labbook where the current user is allowed to view the LabBook
+        :return: django.db.models.Q
+        """
+        from eric.labbooks.models import LabBookChildElement
+        from eric.plugins.models import PluginInstance
+
+        # get all viewable LabBookChildElements that contain a embeddedapp
+        plugin_instance_pks = LabBookChildElement.objects.viewable().filter(
+            child_object_content_type=PluginInstance.get_content_type()
+        ).values_list('child_object_id')
+
+        # The following is equal to PluginInstance.filter(pk__in=note_pks)
+        return Q(
+            pk__in=plugin_instance_pks
+        )
+
+    @staticmethod
+    def _editable():
+        """
+        Extend Plugin InstanceQuerySet such that it allows editing of
+        Plugin Instance that are assigned in a Labbook where the current
+        user is allowed to edit the LabBook
+        :return: django.db.models.Q
+        """
+        from eric.labbooks.models import LabBookChildElement
+        from eric.plugins.models import PluginInstance
+
+        # get all viewable LabBookChildElements that contain a note
+        plugin_instance_pks = LabBookChildElement.objects.editable().filter(
+            child_object_content_type=PluginInstance.get_content_type()
+        ).values_list('child_object_id')
+
+        # The following is equal to PluginInstance.filter(pk__in=note_pks)
+        return Q(
+            pk__in=plugin_instance_pks
+        )
+
+
 class LabBookQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def prefetch_common(self, *args, **kwargs):
         """
@@ -213,6 +265,7 @@ class LabbookSectionQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuery
     """
     LabbookSection QuerySet for LabBooks
     """
+
     def related_viewable(self, *args, **kwargs):
         """
         LabBook sections are always viewable if they are related

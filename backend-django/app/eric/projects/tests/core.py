@@ -362,7 +362,8 @@ class AuthenticationMixin:
             "view_meeting",
             "view_note",
             "view_task",
-            "view_userattendsmeeting"
+            "view_userattendsmeeting",
+            "view_plugininstance",
         ]
 
         perms = Permission.objects.filter(codename__in=perm_codenames)

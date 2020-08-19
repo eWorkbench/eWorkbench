@@ -11,6 +11,7 @@ from django.contrib.postgres.search import SearchRank
 from django.db import models
 from django.db.models import Q
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 
 from eric.core.models.abstract import get_all_workbench_models, WorkbenchEntityMixin
 from eric.core.rest.viewsets import BaseGenericViewSet
@@ -28,6 +29,9 @@ class SearchViewSet(BaseGenericViewSet):
     ordering_fields = ()
     filter_backends = ()
     pagination_class = None
+
+    # we need some serializer definition for the openAPI generation
+    serializer_class = Serializer
 
     def get_queryset(self):
         return False
@@ -154,5 +158,13 @@ class SearchViewSet(BaseGenericViewSet):
         return data
 
     def list(self, request, *args, **kwargs):
+        """
+        Searches for elements.
+
+        URL parameters:
+            * search = you url-encoded search term
+            * model = task | note | contact | ... (optional)
+        """
+
         data = self.get_data(request=request)
         return Response(data)

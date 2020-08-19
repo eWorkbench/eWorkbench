@@ -295,7 +295,6 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
     def test_profile_jwt_verification_token(self):
         """
         Verifies that new users have a jwt_verification_token
-        :return:
         """
         self.assertNotEquals(self.user1.userprofile.jwt_verification_token, '')
         self.assertNotEquals(self.user2.userprofile.jwt_verification_token, '')

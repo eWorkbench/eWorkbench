@@ -2,21 +2,20 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.shortcuts import get_object_or_404
+
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import NotFound
 
-from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet
 from eric.core.models.abstract import parse_parameters_for_workbench_models
+from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet
 from eric.relations.models import Relation
 from eric.relations.rest.serializers import RelationSerializerExtended
 
 
 class RelationViewSet(BaseAuthenticatedModelViewSet):
-    """
-    Viewset for generic relations between objects
-    Provides all relations for a given object
-    """
+    """ Handles generic relations (links) between models. """
+
     serializer_class = RelationSerializerExtended
 
     # disable pagination for this endpoint
@@ -29,9 +28,6 @@ class RelationViewSet(BaseAuthenticatedModelViewSet):
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
         # parse arguments and return entity and primary key
         entity, pk, content_type = parse_parameters_for_workbench_models(*args, **kwargs)
@@ -58,19 +54,15 @@ class RelationViewSet(BaseAuthenticatedModelViewSet):
         """
         Implement get_object with our own queryset (instead of using get_queryset)
         This is for performance / prefetch reasons
-        :param args:
-        :param kwargs:
-        :return:
         """
         # Perform the lookup filtering.
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
-        assert lookup_url_kwarg in self.kwargs, (
-            'Expected view %s to be called with a URL keyword argument '
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            'attribute on the view correctly.' %
-            (self.__class__.__name__, lookup_url_kwarg)
-        )
+        assert lookup_url_kwarg in self.kwargs, ('Expected view %s to be called with a URL keyword argument '
+                                                 'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                                                 'attribute on the view correctly.' %
+                                                 (self.__class__.__name__, lookup_url_kwarg)
+                                                 )
 
         # fetch relations using our "fast" get_relations prefetch logic
         obj = self.parent.get_relations([
@@ -87,5 +79,8 @@ class RelationViewSet(BaseAuthenticatedModelViewSet):
         Return the relations QuerySet, which is a property on the respective model
         :return:
         """
-        assert hasattr(self.parent, "relations"), "The provided parent object does not have a relations property"
+
+        if not hasattr(self, 'parent') or not self.parent:
+            return Relation.objects.none()
+
         return self.parent.relations

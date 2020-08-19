@@ -1,0 +1,26 @@
+[
+{
+    "model": "plugins.plugin",
+    "pk": "e9dd0be8-3019-4bb7-850c-2623f55cef89",
+    "fields": {
+        "created_by": 1,
+        "created_at": "2020-05-15T14:26:46.007Z",
+        "last_modified_by": 1,
+        "last_modified_at": "2020-06-25T12:12:48.288Z",
+        "version_number": 1,
+        "title": "Simple SVG Editor",
+        "short_description": "A basic SVG Editor",
+        "long_description": "<p>Draws svg, saves svg, views svg in a nice image and it even shows you the source of the svg. What more could you want?</p>",
+        "notes": "",
+        "path": "/plugins/svg_editor/index.html",
+        "user_availability": "GLB",
+        "responsible_users": [
+            1
+        ],
+        "user_availability_selected_user_groups": [],
+        "user_availability_selected_users": [
+            1
+        ]
+    }
+}
+]

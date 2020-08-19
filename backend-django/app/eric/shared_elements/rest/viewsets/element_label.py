@@ -9,10 +9,9 @@ from eric.shared_elements.rest.filters import ElementLabelFilter
 from eric.shared_elements.rest.serializers import ElementLabelSerializer
 
 
-class ElementLabelViewSet(
-    BaseAuthenticatedModelViewSet
-):
-    """ REST API ViewSet for Contacts """
+class ElementLabelViewSet(BaseAuthenticatedModelViewSet):
+    """ Handles generic element labels. """
+
     serializer_class = ElementLabelSerializer
     filterset_class = ElementLabelFilter
 
@@ -23,8 +22,4 @@ class ElementLabelViewSet(
     ordering_fields = ('first_name', 'last_name',)
 
     def get_queryset(self):
-        """
-        returns the queryset for viewable Contacts with the first changeset (insert changeset - used to enhance
-        performance when querying created_by and created_at)
-        """
         return ElementLabel.objects.viewable().prefetch_common()

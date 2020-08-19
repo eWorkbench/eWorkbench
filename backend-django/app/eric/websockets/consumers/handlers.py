@@ -98,7 +98,7 @@ def propagate_workbench_element_lock_changed_via_websocket(instance, *args, **kw
 
 @receiver(post_delete, sender=ElementLock)
 def propagate_workbench_element_lock_deleted_via_websocket(instance, *args, **kwargs):
-    print("In @post_delete: An ElementLock was deleted: {}".format(instance.pk))
+    # print("In @post_delete: An ElementLock was deleted: {}".format(instance.pk))
 
     # get current channel
     channel_layer = get_channel_layer()

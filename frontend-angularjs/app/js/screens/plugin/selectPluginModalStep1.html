@@ -1,0 +1,35 @@
+<div>
+    <!-- modal header -->
+    <div class="modal-header">
+        <div class="pull-left modal-title" translate>Select from available plugins</div>
+        <div class="pull-right" translate>Step 1 of 2</div>
+    </div>
+
+    <!-- modal body -->
+    <div class="modal-body select-plugin">
+        <div class="row">
+            <!-- plugin search -->
+            <ng-include src="'js/screens/plugin/pluginSearch.html'"></ng-include>
+            <!-- plugin selection -->
+            <div class="form-horizontal">
+                <div ng-repeat="plugin in vm.plugins">
+                    <ng-include src="'js/screens/plugin/pluginSmallDetailView.html'"></ng-include>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- modal footer -->
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" ng-click="vm.dismiss()" translate>Cancel</button>
+
+        <button
+                type="button"
+                class="btn btn-primary"
+                ng-click="vm.currentPluginModalPage='step2'"
+                ng-disabled="vm.pluginIsSelected()"
+                translate>
+            Next Step
+        </button>
+    </div>
+</div>

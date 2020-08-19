@@ -14,6 +14,7 @@ from eric.drives.models import Drive
 from eric.kanban_boards.models import KanbanBoard
 from eric.labbooks.models import LabBook
 from eric.pictures.models import Picture
+from eric.plugins.models import PluginInstance
 from eric.projects.models import Project, Resource
 from eric.shared_elements.models import Task, Meeting, Contact, Note, File
 
@@ -30,6 +31,7 @@ models_only_superuser_can_delete = (
     Resource,
     KanbanBoard,  # aka TaskBoard
     Dmp,
+    PluginInstance,
 )
 
 

@@ -4,7 +4,6 @@
 #
 from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
 
 from eric.core.views import current_version_view, oss_license_json, js_error_logger_view, clean_workbench_models
 

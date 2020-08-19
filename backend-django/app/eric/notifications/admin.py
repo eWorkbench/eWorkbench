@@ -51,3 +51,4 @@ class NotificationConfigurationAdmin(admin.ModelAdmin):
         'user__username',
         "user__userprofile__last_name",
     )
+    readonly_fields = ('user', )

@@ -2,39 +2,28 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import vobject
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404
-from django_userforeignkey.request import get_current_user
-from django.http import HttpResponse, QueryDict
-
-from rest_framework import viewsets, filters
 from rest_framework.decorators import action
-from rest_framework.response import Response
 
 from eric.projects.rest.viewsets.base import BaseAuthenticatedModelViewSet
-
 from eric.sortable_menu.models import MenuEntry, MenuEntryParameter
 from eric.sortable_menu.rest.serializers import MenuEntrySerializer, MenuEntryParameterSerializer
 
 
 class MenuEntryViewSet(BaseAuthenticatedModelViewSet):
-    """
-    ViewSet for Menu Entries
-    Displays all menu entries belonging to the currently logged in user
-    Can be filtered by 'visible' entries only
-    """
+    """ Handles the customizable navigation menu. """
+
     serializer_class = MenuEntrySerializer
-
     pagination_class = None
-
-    filterset_fields = ('visible', )
+    filterset_fields = ('visible',)
 
     def get_queryset(self):
         return MenuEntry.objects.viewable().prefetch_related('menu_entry_parameters')
 
     @action(detail=False, methods=['PUT'])
     def update_ordering(self, *args, **kwargs):
-        """ Updates ordering of all menu entries for the current user """
+        """ Updates ordering of all menu entries for the current user. """
 
         for menu_entry in self.request.data:
             instance = MenuEntry.objects.viewable().get(pk=menu_entry['pk'])
@@ -68,7 +57,8 @@ class MenuEntryParameterViewSet(BaseAuthenticatedModelViewSet):
         return MenuEntryParameter.objects.viewable()
 
     def create(self, request, *args, **kwargs):
-        """ handle create requests with menu_entry_pk in kwargs """
+        """ Creates a new menu entry. """
+
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
         if isinstance(request.data, QueryDict):  # however, some request.data objects are normal dictionaries...
             request.data._mutable = True
@@ -81,7 +71,8 @@ class MenuEntryParameterViewSet(BaseAuthenticatedModelViewSet):
         return super(MenuEntryParameterViewSet, self).create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        """ handle update requests with menu_entry_pk in kwargs """
+        """ Updates a menu entry. """
+
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
         if isinstance(request.data, QueryDict):  # however, some request.data objects are normal dictionaries...
             request.data._mutable = True

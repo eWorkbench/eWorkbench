@@ -7,10 +7,9 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
 from eric.model_privileges.admin import ModelPrivilegeInline, ReadOnlyModelPrivilegeInline
-from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin
+from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
 from eric.shared_elements.models import Contact, Note, Meeting, Task, TaskAssignedUser, File, \
     UploadedFileEntry, UserAttendsMeeting, ContactAttendsMeeting, TaskCheckList, CalendarAccess
 
@@ -23,6 +22,11 @@ class ContactInline(admin.StackedInline):
 
 @admin.register(Contact)
 class ContactAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = (
         'first_name',
         'last_name',
@@ -32,7 +36,7 @@ class ContactAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         'created_at',
     )
     list_filter = (
-        ('projects', RelatedDropdownFilter),
+        ProjectsFilter,
         ('company', admin.AllValuesFieldListFilter),
     )
     search_fields = (
@@ -44,12 +48,17 @@ class ContactAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    filter_horizontal = ('projects',)
     inlines = (ModelPrivilegeInline,)
+    autocomplete_fields = ('projects',)
 
 
 @admin.register(Note)
 class NoteAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = (
         'subject',
         'created_by',
@@ -62,10 +71,10 @@ class NoteAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    filter_horizontal = ('projects',)
+    autocomplete_fields = ('projects',)
     inlines = (ModelPrivilegeInline,)
     list_filter = (
-        ('projects', RelatedDropdownFilter),
+        ProjectsFilter,
     )
 
 
@@ -99,6 +108,11 @@ class UploadedFileEntryAdmin(admin.TabularInline):
 
 @admin.register(File)
 class FileAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = (
         'title',
         'name',
@@ -117,14 +131,15 @@ class FileAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    filter_horizontal = ('projects',)
+    autocomplete_fields = ('projects',)
+    raw_id_fields = ('uploaded_file_entry',)
     list_filter = (
-        ('projects', RelatedDropdownFilter),
+        ProjectsFilter,
     )
     inlines = (UploadedFileEntryAdmin, ModelPrivilegeInline,)
 
 
-class TaskAssignedUserInline(admin.StackedInline):
+class TaskAssignedUserInline(admin.TabularInline):
     """
     Inline Admin for users that are assigned to a Task
     """
@@ -135,7 +150,7 @@ class TaskAssignedUserInline(admin.StackedInline):
     raw_id_fields = ('assigned_user',)
 
 
-class TaskCheckListInline(admin.StackedInline):
+class TaskCheckListInline(admin.TabularInline):
     """
     Inline Admin for task checlist items
     """
@@ -147,6 +162,11 @@ class TaskCheckListInline(admin.StackedInline):
 
 @admin.register(Task)
 class TaskAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = (
         'task_id',
         'title',
@@ -158,7 +178,7 @@ class TaskAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         'created_at',
     )
     list_filter = (
-        ('projects', RelatedDropdownFilter),
+        ProjectsFilter,
         ('priority', admin.ChoicesFieldListFilter),
         ('state', admin.ChoicesFieldListFilter),
     )
@@ -170,7 +190,8 @@ class TaskAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    filter_horizontal = ('projects',)
+    autocomplete_fields = ('projects',)
+    filter_horizontal = ('labels',)
     inlines = (TaskCheckListInline, TaskAssignedUserInline, ModelPrivilegeInline,)
 
 
@@ -198,6 +219,11 @@ class ContactAttendsMeetingInline(admin.StackedInline):
 
 @admin.register(Meeting)
 class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = (
         'title',
         'date_time_start',
@@ -207,7 +233,7 @@ class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         'created_at',
     )
     list_filter = (
-        ('projects', RelatedDropdownFilter),
+        ProjectsFilter,
     )
     search_fields = (
         'projects__name',
@@ -217,14 +243,12 @@ class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    filter_horizontal = (
-        'projects',
-    )
     inlines = (
         UserAttendsMeetingInline,
         ContactAttendsMeetingInline,
         ModelPrivilegeInline,
     )
+    autocomplete_fields = ('projects', 'resource',)
 
 
 @admin.register(CalendarAccess)

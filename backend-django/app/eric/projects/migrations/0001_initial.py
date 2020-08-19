@@ -12,6 +12,8 @@ import django_changeset.models.mixins
 import eric.projects.models.models
 import uuid
 
+from eric.core.models import UploadToPathAndRename
+
 
 class Migration(migrations.Migration):
 
@@ -131,7 +133,7 @@ class Migration(migrations.Migration):
                 ('skype_name', models.CharField(blank=True, max_length=100, verbose_name='Skype name of the user')),
                 ('academic_title', models.CharField(blank=True, max_length=100, verbose_name='Academic title of the user')),
                 ('website', models.URLField(blank=True, verbose_name='Website of the user')),
-                ('avatar', models.ImageField(default='unknown_user.gif', height_field='avatar_height', max_length=255, upload_to=eric.projects.models.UploadToPathAndRename('profile_pictures'), width_field='avatar_width')),
+                ('avatar', models.ImageField(default='unknown_user.gif', height_field='avatar_height', max_length=255, upload_to=UploadToPathAndRename('profile_pictures'), width_field='avatar_width')),
                 ('avatar_height', models.PositiveIntegerField(blank=True, editable=False, null=True)),
                 ('avatar_width', models.PositiveIntegerField(blank=True, editable=False, null=True)),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),

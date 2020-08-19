@@ -59,6 +59,7 @@
         noteListModalService,
         PermissionService,
         PictureRestService,
+        PlugininstanceRestService,
         objectPrivilegesModalService,
         recentChangesModalService,
         WorkbenchElementChangesWebSocket,
@@ -210,7 +211,6 @@
 
             // ignore element if content type is not set
             if (contentType) {
-
                 switch (contentType) {
                     case 'shared_elements.note':
                         vm.elementType = "note";
@@ -227,6 +227,12 @@
                         vm.elementTitleAttributeName = 'title';
                         vm.elementRestService = FileRestService;
                         break;
+                    case 'plugins.plugininstance':
+                        vm.elementType = "plugininstance";
+                        vm.elementTitleAttributeName = 'title';
+                        vm.elementRestService = PlugininstanceRestService;
+                        break;
+
                     default:
                         // content type not recognized as a valid type of labbook
                         console.error("Invalid child_object_content_type_model '" + contentType + "' for LabBook");
@@ -249,15 +255,15 @@
                     switch (contentType) {
                         case 'shared_elements.note':
                             vm.elementLink = $state.href('note-view', {note: vm.childElement});
-
                             break;
                         case 'pictures.picture':
                             vm.elementLink = $state.href('picture-view', {picture: vm.childElement});
-
                             break;
                         case 'shared_elements.file':
                             vm.elementLink = $state.href('file-view', {file: vm.childElement});
-
+                            break;
+                        case 'plugins.plugininstance':
+                            vm.elementLink = $state.href('plugininstance-view', {plugininstance: vm.childElement});
                             break;
                         default:
                             // could not find contentType - probably a dev error
@@ -482,6 +488,19 @@
         };
 
         /**
+         * set a flag to toggle between showing the picture representation of
+         * the Plugininstance-Childelement or the 3rd-party editor in an iframe
+         * (also see labbookEditChildElement.html in the App-section)
+         */
+        vm.editPlugininstanceCell = function () {
+            // do not allow editing if this element is readonly
+            if (vm.isReadonly()) {
+                return;
+            }
+            vm.childElement.plugininstanceEditMode = true;
+        };
+
+        /**
          * Asks the user if they want to remove this element from the labbook
          * The element will only be removed from the labbook, but will stay available for edit in the workbench
          */
@@ -657,6 +676,9 @@
                     break;
                 case "file":
                     data['description'] = vm.childElement.description;
+                    break;
+                case "plugininstance":
+                    data['title'] = vm.childElement.title;
                     break;
                 default:
                     console.error("Can not save " + vm.elementType);

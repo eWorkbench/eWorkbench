@@ -4,16 +4,14 @@
 #
 import json
 
-from django.utils.timezone import datetime, timedelta
+from django.utils.timezone import datetime
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR
+from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
 from eric.shared_elements.models import Contact
 from eric.shared_elements.tests.core import ContactMixin, MeetingMixin
-from eric.projects.tests.mixin_entity_generic_tests import EntityChangeRelatedProjectTestMixin
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
 
 
 class TestGenericsContacts(APITestCase, EntityChangeRelatedProjectTestMixin, MeetingMixin, ContactMixin):
@@ -51,7 +49,8 @@ class TestGenericsContacts(APITestCase, EntityChangeRelatedProjectTestMixin, Mee
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # create a meeting with user2 and contact
-        response = self.rest_create_meeting(self.token1, None, "Meeting Title", "Meeting Description", datetime.now(), datetime.now(), HTTP_USER_AGENT, REMOTE_ADDR, [self.user2.pk], [contact.pk])
+        response = self.rest_create_meeting(self.token1, None, "Meeting Title", "Meeting Description", datetime.now(),
+                                            datetime.now(), HTTP_USER_AGENT, REMOTE_ADDR, [self.user2.pk], [contact.pk])
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
         # now try to get contact with user2 (should work)
@@ -59,7 +58,8 @@ class TestGenericsContacts(APITestCase, EntityChangeRelatedProjectTestMixin, Mee
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
         # get privileges of contact
-        response = self.rest_get_privileges_for_user(self.token2, "contacts", contact.pk, self.user2.pk, HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_get_privileges_for_user(self.token2, "contacts", contact.pk, self.user2.pk,
+                                                     HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEquals(decoded_response['user_pk'], self.user2.pk)

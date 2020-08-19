@@ -34,7 +34,6 @@ class TaskViewSet(
 
 
 class MyTaskViewSet(viewsets.ReadOnlyModelViewSet):
-    """ Viewset for meetings """
     serializer_class = TaskSerializer
     filterset_class = TaskFilter
     search_fields = ()

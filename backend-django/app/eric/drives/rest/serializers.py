@@ -2,16 +2,15 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import jwt
 import re
-from django.conf import settings
+
 from django.db import transaction
-from django.utils.timezone import datetime, timedelta
 from django_userforeignkey.request import get_current_request
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_nested.relations import NestedHyperlinkedIdentityField
 
+from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
 from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer, HyperlinkedToListField
 from eric.drives.models import Drive
 from eric.drives.models.models import Directory
@@ -44,42 +43,15 @@ class DirectorySerializer(BaseModelWithCreatedByAndSoftDeleteSerializer):
     )
 
     def get_download_directory(self, obj):
-        """
-        Builds a string for downloading the directory with a jwt token
-        :param obj:
-        :return:
-        """
+        """ Builds a string for downloading the directory with a jwt token """
         request = get_current_request()
 
-        # get the current request path/url
-        path = reverse('drive-sub_directories-download', kwargs={'drive_pk': obj.drive.pk, 'pk': obj.pk})
+        path = reverse('drive-sub_directories-download', kwargs={
+            'drive_pk': obj.drive.pk,
+            'pk': obj.pk
+        })
 
-        # build an absolute URL for the given apth
-        absolute_url = request.build_absolute_uri(path)
-
-        # the token should contain the following information
-        payload = {
-            'exp': datetime.now() + timedelta(
-                hours=settings.WORKBENCH_SETTINGS['download_token_validity_in_hours']
-            ),  # expiration time
-            # store pk and object type that this object relates to
-            'pk': str(obj.pk),
-            'object_type': obj.__class__.__name__,
-            # store the users primary key
-            'user': request.user.pk,
-            # store the verification token, so the token can be revoked afterwards
-            'jwt_verification_token': request.user.userprofile.jwt_verification_token,
-            # store the path that this token is valid for
-            'path': path
-        }
-
-        # generate JWT with the payload and the secret key
-        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-        return "{absolute_url}?jwt={token}".format(
-            absolute_url=absolute_url,
-            token=jwt_token.decode("utf-8")
-        )
+        return build_expiring_jwt_url(request, path)
 
     class Meta:
         model = Directory

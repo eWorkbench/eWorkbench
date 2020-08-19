@@ -123,6 +123,7 @@
     - note
     - picture
     - file
+    - plugininstance
     -->
     <div ng-switch="vm.element.child_object_content_type_model">
         <!-- render notes (html text) -->
@@ -158,6 +159,21 @@
                  ng-click="vm.editPictureCell()">
                 <img class="img img-responsive"
                      ng-src="{{ vm.childElement.download_rendered_image }}&cacheBuster={{ vm.childElement.last_modified_at }}">
+            </div>
+        </div>
+
+        <div ng-switch-when="plugins.plugininstance"
+             style="position: absolute;  height: calc(100% - 20px); width: 100%;">
+            <div class="labbook-cell-content">
+                <img ng-src="{{  vm.childElement.picture }}"
+                     ng-click="vm.editPlugininstanceCell()"
+                     ng-if="!vm.childElement.plugininstanceEditMode && vm.childElement.picture">
+                <img ng-src="{{  vm.childElement.plugin_details.download_placeholder_picture }}"
+                     ng-click="vm.editPlugininstanceCell()"
+                     ng-if="!vm.childElement.plugininstanceEditMode && !vm.childElement.picture">
+                <iframe ng-src="{{ vm.childElement.auth_url }}"
+                        ng-if="vm.childElement.plugininstanceEditMode"
+                        width="100%" height="900px" ></iframe>
             </div>
         </div>
 

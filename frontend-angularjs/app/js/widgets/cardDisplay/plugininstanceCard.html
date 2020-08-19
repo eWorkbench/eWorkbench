@@ -1,0 +1,25 @@
+<div class="card-display">
+    <!-- card title: first name and last name -->
+    <h4 class="header">
+        <div class="ellipsis">
+            <i class="{{ vm.pluginIcon }}"></i>
+            <plugininstance-link plugininstance="vm.plugininstance"></plugininstance-link>
+        </div>
+
+        <div ng-transclude="cardFunctions" style="display: inline-block; float: right">
+
+        </div>
+    </h4>
+    <!-- more details and plugininstance -->
+    <div class="content">
+        <my-image image-src="vm.plugininstance.download_picture" style="height: 100px; max-width: 100%;">
+    </div>
+
+    <div class="card-footer" ng-transclude="cardFooter">
+        <span class="font-color" translate>Created by</span>
+        <user-display-widget user="vm.plugininstance.created_by"></user-display-widget>
+        <span class="font-color">-</span>
+
+        <span class="font-color">{{ vm.plugininstance.created_at | smallDateWithToday }}</span>
+    </div>
+</div>

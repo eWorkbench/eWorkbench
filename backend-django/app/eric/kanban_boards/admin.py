@@ -11,12 +11,12 @@ from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
 from eric.kanban_boards.models import KanbanBoard, KanbanBoardColumn
 from eric.model_privileges.admin import ModelPrivilegeInline
-from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin
+from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
 
 User = get_user_model()
 
 
-class KanbanBoardColumnInline(admin.StackedInline):
+class KanbanBoardColumnInline(admin.TabularInline):
     """
     Inline Admin for Kanban Board columns
     """
@@ -28,9 +28,14 @@ class KanbanBoardColumnInline(admin.StackedInline):
 
 @admin.register(KanbanBoard)
 class KanbanBoardAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    class Media:
+        # Media class required because of bug in django-admin-autocomplete-filter
+        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
+        pass
+
     list_display = ('title', 'created_by', 'created_at',)
     list_filter = (
-        ('projects', RelatedDropdownFilter),
+        ProjectsFilter,
     )
     search_fields = (
         'projects__name',
@@ -39,5 +44,5 @@ class KanbanBoardAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin)
         "created_by__username",
         "created_by__email",
     )
-    filter_horizontal = ('projects',)
     inlines = (ModelPrivilegeInline, KanbanBoardColumnInline,)
+    autocomplete_fields = ('projects', )

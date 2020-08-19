@@ -2,11 +2,14 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from typing import Iterable
+
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import UUIDField
 
+from eric.core.models.abstract import OrderingModelMixin
 from eric.core.rest.serializers import BaseModelWithCreatedBySerializer, BaseModelSerializer
 from eric.metadata.models.models import Metadata, MetadataField
 
@@ -85,7 +88,14 @@ class MetadataSerializer(BaseModelWithCreatedBySerializer):
 
     class Meta:
         model = Metadata
-        fields = ('field', 'values', 'field_info', 'entity_id', 'entity_content_type',)
+        fields = (
+            'field',
+            'values',
+            'field_info',
+            'entity_id',
+            'entity_content_type',
+            'ordering',
+        )
 
 
 class EntityMetadataSerializer(BaseModelSerializer):
@@ -95,7 +105,7 @@ class EntityMetadataSerializer(BaseModelSerializer):
 
     class Meta:
         model = Metadata
-        fields = ('field', 'values', 'pk',)
+        fields = ('field', 'values', 'pk', 'ordering',)
 
 
 class EntityMetadataSerializerMixin:
@@ -104,43 +114,55 @@ class EntityMetadataSerializerMixin:
         return validated_data.pop('metadata') if 'metadata' in validated_data else None
 
     @staticmethod
-    def create_metadata(metadata_list, instance):
+    def create_metadata(metadata_list: Iterable[dict], instance):
         if metadata_list is not None:
             for metadata in metadata_list:
                 Metadata.objects.create(
-                    entity=instance, field=metadata['field'], values=metadata['values']
+                    entity=instance,
+                    field=metadata['field'],
+                    values=metadata['values'],
+                    ordering=metadata.get('ordering', OrderingModelMixin.DEFAULT_ORDERING),
                 )
 
     @classmethod
-    def update_metadata(cls, metadata_list, instance):
-        if metadata_list is not None:
-            current_metadata_pks = set(instance.metadata.values_list('pk', flat=True))
-            sent_metadata_pks = {metadata['pk'] for metadata in metadata_list if 'pk' in metadata}
-            removed_metadata_pks = current_metadata_pks.difference(sent_metadata_pks)
+    def update_metadata(cls, metadata_list: Iterable[dict], instance):
+        if metadata_list is None:
+            return
 
-            # delete removed metadata
-            Metadata.objects.filter(pk__in=removed_metadata_pks).delete()
+        current_metadata_pks = set(instance.metadata.values_list('pk', flat=True))
+        sent_metadata_pks = {metadata['pk'] for metadata in metadata_list if 'pk' in metadata}
+        removed_metadata_pks = current_metadata_pks.difference(sent_metadata_pks)
 
-            # create new metadata and update existing metadata
-            for metadata_input in metadata_list:
-                pk = metadata_input['pk'] if 'pk' in metadata_input else None
-                field = metadata_input['field']
-                values = metadata_input['values']
-                is_valid = cls.has_valid_field(field)
+        # delete removed metadata
+        Metadata.objects.filter(pk__in=removed_metadata_pks).delete()
 
-                if pk and pk in current_metadata_pks:
-                    # exists already -> update
-                    metadata_model = Metadata.objects.filter(pk=pk).first()
-                    if is_valid:
-                        metadata_model.field = field
-                        metadata_model.values = values
-                        metadata_model.save()
-                    else:
-                        metadata_model.delete()
+        # create new metadata and update existing metadata
+        for metadata_input in metadata_list:
+            pk = metadata_input.get('pk', None)
+            field = metadata_input.get('field')
+            values = metadata_input.get('values')
+            ordering = metadata_input.get('ordering', OrderingModelMixin.DEFAULT_ORDERING)
+            is_valid = cls.has_valid_field(field)
+
+            if pk and pk in current_metadata_pks:
+                # exists already -> update
+                metadata_model = Metadata.objects.filter(pk=pk).first()
+                if is_valid:
+                    metadata_model.field = field
+                    metadata_model.values = values
+                    metadata_model.ordering = ordering
+                    metadata_model.save()
                 else:
-                    # new -> create
-                    if is_valid:
-                        Metadata.objects.create(entity=instance, field=field, values=values)
+                    metadata_model.delete()
+            else:
+                # new -> create
+                if is_valid:
+                    Metadata.objects.create(
+                        entity=instance,
+                        field=field,
+                        values=values,
+                        ordering=ordering,
+                    )
 
     @staticmethod
     def has_valid_field(field):

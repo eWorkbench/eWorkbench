@@ -38,7 +38,3 @@ def get_json_content(response):
 
 def get_utc_datetime(year, month, day):
     return datetime(year=year, month=month, day=day, hour=0, minute=0, second=0, tzinfo=timezone.utc)
-
-
-def pk_or_none(obj):
-    return None if obj is None else obj.pk

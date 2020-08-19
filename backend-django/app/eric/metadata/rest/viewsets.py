@@ -13,14 +13,16 @@ from django.utils.translation import gettext_lazy as _
 from django_userforeignkey.request import get_current_user
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.utils import json
+from rest_framework.viewsets import GenericViewSet
 
 from eric.core.models import site_preferences
 from eric.core.models.abstract import parse_parameters_for_workbench_models, get_all_workbench_models_with_args, \
     WorkbenchEntityMixin
-from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet, BaseModelViewSet
+from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet
 from eric.core.tests import custom_json_handler
 from eric.metadata.models.models import Metadata, MetadataField
 from eric.metadata.rest.errors import SearchParameterError, InvalidFieldInputError, InvalidOperatorError
@@ -39,9 +41,6 @@ class MetadataViewSet(BaseAuthenticatedModelViewSet):
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
         # parse arguments and return entity and primary key
         entity, pk, content_type = parse_parameters_for_workbench_models(*args, **kwargs)
@@ -161,40 +160,11 @@ class MetadataFieldViewSet(BaseAuthenticatedModelViewSet):
         msg.send()
 
 
-class MetadataSearchViewSet(BaseModelViewSet):
+class MetadataSearchViewSet(CreateModelMixin, GenericViewSet):
+    """ Handles generic searches by custom metadata fields. """
+
     queryset = Metadata.objects.all()
     serializer_class = MetadataSerializer
-
-    def search_metadata(self, search_params):
-        # search_params structure:
-        # {
-        #     content_type: task | meeting | ...
-        #     parameters: [
-        #         (and_combination) [
-        #             parameter { field: x, operator: y, keyword: z }
-        #             parameter { ... }
-        #             parameter { ... }
-        #             ...
-        #         ]
-        #         (and_combination) [ ... ]
-        #         (and_combination) [ ... ]
-        #         ...
-        #     ]
-        # }
-
-        content_type_name = search_params.get('content_type', None)
-        or_combination = search_params.get('parameters', None)
-
-        if not or_combination or not or_combination[0] or len(or_combination[0]) <= 0:
-            raise ValidationError('At least one search parameter is required')
-
-        if content_type_name:
-            self.filter_base_queryset_by_model(content_type_name)
-
-        or_queryset = self.build_queryset_for_or_combination(or_combination)
-        entities = self.extract_viewable_entities_from_queryset(or_queryset)
-
-        return self.serialize_entities(entities)
 
     def filter_base_queryset_by_model(self, content_type_name):
         content_type = ContentType.objects.filter(model=content_type_name).first()
@@ -298,9 +268,48 @@ class MetadataSearchViewSet(BaseModelViewSet):
         return serialized_entities
 
     def create(self, request, force_request_data=None, *args, **kwargs):
-        data = self.search_metadata(request.data)
-        return Response(data)
+        """
+        Starts a search by custom metadata fields.
 
-    def update(self, request, force_request_data=None, *args, **kwargs):
-        data = self.search_metadata(request.data)
+        Expected POST data structure (JSON):
+        ```
+        {
+            content_type: "task" | "meeting" | "contact" | "note" | ...
+            parameters: [
+                [<parameter>, <parameter>, ...],
+                [<parameter>, <parameter>, ...],
+                ...
+            ]
+        }
+        ```
+
+        The outer array will be interpreted as an OR-combination of AND-combinations,
+        while the inner arrays are interpreted as AND-combinations of parameters.
+
+        Parameter structure:
+        ```
+        {
+            field: <metadata-field-pk>,
+            operator: < | <= | = | => | > (depends on metadata field base type),
+            values: <metadata values object> (depending on metadata field base type),
+            parameter_index: <parameter index for error reporting>
+        }
+        ```
+        """
+
+        search_params = request.data
+        content_type_name = search_params.get('content_type', None)
+        or_combination = search_params.get('parameters', None)
+
+        if not or_combination or not or_combination[0] or len(or_combination[0]) <= 0:
+            raise ValidationError('At least one search parameter is required')
+
+        if content_type_name:
+            self.filter_base_queryset_by_model(content_type_name)
+
+        or_queryset = self.build_queryset_for_or_combination(or_combination)
+        entities = self.extract_viewable_entities_from_queryset(or_queryset)
+
+        data = self.serialize_entities(entities)
+
         return Response(data)

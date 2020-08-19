@@ -123,4 +123,6 @@ def custom_exception_handler(exc, context):
         logger.error("Unhandled exception of type {exception_type}".format(exception_type=type(exc)))
         logger.error(str(exc))
 
+    logger.exception(exc)
+
     return response

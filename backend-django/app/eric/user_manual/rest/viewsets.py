@@ -2,30 +2,23 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import re
-
-import os
-
 import errno
-import zipstream
+import os
+import re
 import zipfile
 
+import zipstream
 from django.conf import settings
 from django.core import serializers
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedReadOnlyModelViewSet
-from eric.projects.rest.viewsets.base import BaseAuthenticatedModelViewSet
+from eric.core.rest.viewsets import BaseAuthenticatedReadOnlyModelViewSet
 from eric.user_manual import HELP_TEXT_CACHE_KEY
-
 from eric.user_manual.models import UserManualCategory, UserManualHelpText, UserManualPlaceholder
 from eric.user_manual.rest.filters import UserManualHelpTextFilter
 from eric.user_manual.rest.serializers import UserManualHelpTextSerializer, UserManualCategorySerializer
@@ -34,10 +27,7 @@ from eric.user_manual.rest.serializers import UserManualHelpTextSerializer, User
 class UserManualHelper:
     @staticmethod
     def get_serialized_categories():
-        """
-        Returns a serialized string of categories
-        :return:
-        """
+        """ Returns a serialized string of categories """
         categories = UserManualCategory.objects.all()
 
         return serializers.serialize("xml", categories, fields=(
@@ -90,13 +80,12 @@ class UserManualHelper:
         return serialized_manual_texts
 
 
-class UserManualHelpTextViewset(
-    BaseAuthenticatedReadOnlyModelViewSet
-):
+class UserManualHelpTextViewset(BaseAuthenticatedReadOnlyModelViewSet):
     """ REST API Viewset for User Manual Help Texts """
+
     serializer_class = UserManualHelpTextSerializer
     filterset_class = UserManualHelpTextFilter
-    search_fields = ('title', )
+    search_fields = ('title',)
 
     # disable pagination for this endpoint
     pagination_class = None
@@ -115,20 +104,12 @@ class UserManualHelpTextViewset(
         """
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
-        :param args:
-        :param kwargs:
-        :return:
         """
         return get_object_or_404(UserManualCategory.objects.all(), pk=kwargs['usermanualcategory_pk'])
 
     def list(self, request, *args, **kwargs):
-        """
-        Cached list response
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
+        """ Cached list response """
+
         cache_key = HELP_TEXT_CACHE_KEY % self.parent_object.pk
 
         # verify if we have a cached copy of the help texts
@@ -147,15 +128,16 @@ class UserManualHelpTextViewset(
         return Response(serializer_data)
 
     def get_queryset(self):
+        if not hasattr(self, 'parent_object') or not self.parent_object:
+            return UserManualHelpText.objects.none()
+
         return UserManualHelpText.objects.filter(category=self.parent_object).prefetch_related(
             'category',
             'created_by', 'last_modified_by'
         )
 
 
-class UserManualCategoriesViewset(
-    BaseAuthenticatedReadOnlyModelViewSet
-):
+class UserManualCategoriesViewset(BaseAuthenticatedReadOnlyModelViewSet):
     """ REST API Viewset for User Manual Category """
 
     serializer_class = UserManualCategorySerializer
@@ -168,10 +150,8 @@ class UserManualCategoriesViewset(
 
     @action(detail=False, methods=['GET'])
     def export_user_manual(self, request, *args, **kwargs):
-        """
-        Exports the user manual as a zip file
-        :return:
-        """
+        """ Exports the user manual in form of a ZIP file """
+
         # verify the current user is staff
         if not request.user or not request.user.is_staff:
             raise PermissionDenied
@@ -193,7 +173,6 @@ class UserManualCategoriesViewset(
 
         for file in collected_files:
             actual_file = file.replace("${MEDIA_URL}", settings.MEDIA_ROOT)
-
             zf.write(actual_file, arcname=file)
 
         response = StreamingHttpResponse(zf, content_type='application/zip')
@@ -205,10 +184,8 @@ class UserManualCategoriesViewset(
 
     @action(detail=False, methods=['POST'])
     def import_user_manual(self, request, *args, **kwargs):
-        """
-        Imports the user manual as a zip file
-        :return:
-        """
+        """ Imports a user manual in form of a ZIP file """
+
         # verify the current user is staff
         if not request.user or not request.user.is_staff:
             raise PermissionDenied
@@ -241,7 +218,6 @@ class UserManualCategoriesViewset(
         with zf.open("categories.xml") as categories_file:
             for category in serializers.deserialize("xml", categories_file):
                 print(category)
-                # set last modified and created by
                 category.object.last_modified_by = category.object.created_by = request.user
                 category.save()
 
@@ -249,24 +225,16 @@ class UserManualCategoriesViewset(
         with zf.open("placeholders.xml") as placeholders_file:
             for placeholder in serializers.deserialize("xml", placeholders_file):
                 print(placeholder)
-                # set last modified and created by
                 placeholder.object.last_modified_by = placeholder.object.created_by = request.user
-
-                # replace ${MEDIA_URL}
                 placeholder.object.content = placeholder.object.content.replace("${MEDIA_URL}", settings.MEDIA_URL)
-
                 placeholder.save()
 
         # process help texts
         with zf.open("help_texts.xml") as help_texts_file:
             for help_text in serializers.deserialize("xml", help_texts_file):
                 print(help_text)
-                # set last modified and created by
                 help_text.object.last_modified_by = help_text.object.created_by = request.user
-
-                # replace ${MEDIA_URL}
                 help_text.object.text = help_text.object.text.replace("${MEDIA_URL}", settings.MEDIA_URL)
-
                 help_text.save()
 
         # process media/static files
@@ -276,7 +244,6 @@ class UserManualCategoriesViewset(
                 continue
 
             external_filename = filename.replace("${MEDIA_URL}", settings.MEDIA_ROOT)
-
             data = zf.read(filename)
 
             # check if directory exists
@@ -288,8 +255,8 @@ class UserManualCategoriesViewset(
                         raise
 
             # write file
-            with open(external_filename, "wb") as newfile:
-                newfile.write(data)
+            with open(external_filename, "wb") as new_file:
+                new_file.write(data)
 
         zf.close()
 
