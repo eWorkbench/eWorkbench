@@ -1,8 +1,7 @@
 <div class="panel panel-default element-panel">
     <div class="panel-body">
-
         <!-- Branch Library -->
-        <div class="form-group">
+        <div class="row form-group" style="margin-bottom: 5px">
             <label class="col-sm-4 control-label" translate>
                 Branch Library *
             </label>
@@ -22,7 +21,7 @@
         </div>
 
         <!-- Study Room -->
-        <div class="form-group" ng-show="vm.resourcesLoaded">
+        <div class="row form-group" ng-show="vm.resourcesLoaded">
             <label class="col-sm-4 control-label" translate>
                 Study Room *
             </label>
@@ -42,9 +41,9 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+
 <div class="row" style="text-align: right;">
     <p>
         <span translate style="color: darkgrey; padding: 10px">
@@ -89,21 +88,6 @@
     </div>
 </div>
 
-<div class="panel panel-default element-panel" ng-if="vm.resource && vm.defaultBookingRules.length > 0">
-    <div class="panel-heading" translate>
-        Booking Rules
-    </div>
-    <div class="panel-body">
-        <div class="booking-rules-entries">
-            <div class="row" ng-repeat="bookingRule in vm.defaultBookingRules">
-                <div class="col-xs-6">
-                    {{ vm.bookingRules[bookingRule.criterion] }}
-                </div>
-                <div class="col-xs-6">
-                    <span>{{ 'Day(s)' | translate }}</span> {{ bookingRule.days }}<br />
-                    <span>{{ 'Hours' | translate }}</span> {{ bookingRule.hours }} : {{ bookingRule.minutes }}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<resource-booking-rules-widget resource="vm.resource"
+                               ng-if="vm.resource && vm.defaultBookingRules && vm.defaultBookingRules.length > 0">
+</resource-booking-rules-widget>

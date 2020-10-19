@@ -5,6 +5,7 @@
 from contextlib import contextmanager
 
 from django.core.cache.backends.dummy import DummyCache
+from django.db import transaction
 
 
 @contextmanager
@@ -23,3 +24,17 @@ def disable_django_caching(backend):
     finally:
         # enable old cache
         backend.cache = old_cache
+
+
+def on_transaction_commit(func):
+    """
+    Executes a function when a transaction is committed.
+    Can be used in post_save signals to delay the handler until M2M fields are updated.
+    Advisory: May conflict with tests, since usually there is nothing committed.
+    Source: https://stackoverflow.com/questions/23795811/django-accessing-manytomany-fields-from-post-save-signal
+    """
+
+    def inner(*args, **kwargs):
+        transaction.on_commit(lambda: func(*args, **kwargs))
+
+    return inner

@@ -10,7 +10,6 @@ from django_changeset.models.queryset import ChangeSetQuerySetMixin
 from django_userforeignkey.request import get_current_user
 
 from eric.core.models.abstract import get_all_workbench_models, WorkbenchEntityMixin
-from eric.notifications.models.querysets import ScheduledNotificationQuerySet
 from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, extend_queryset
 
 logger = logging.getLogger(__name__)
@@ -288,23 +287,23 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         return self.prefetch_related('attending_contacts')
 
-    # resourcebookings/my
-    def resourcebookings_my_viewable(self):
+    def my_bookings(self):
+        """ Own bookings for an accessible resource """
         from eric.projects.models.models import Resource
-        user = get_current_user()
 
-        resource_viewable = Q(resource__in=Resource.objects.viewable())
-        created_by_user = Q(created_by=user)
-        return self.filter(resource_viewable, created_by_user)
+        return self.viewable().filter(
+            resource__in=Resource.objects.viewable(),
+            created_by=get_current_user(),
+        )
 
-    # resourcebookings/all
-    def resourcebookings_all_viewable(self):
+    def fully_viewable(self):
+        """ Bookings where all information can be provided. """
         from eric.projects.models.models import Resource
-        from eric.shared_elements.models.models import Meeting
 
-        resource_viewable = Q(resource__in=Resource.objects.viewable())
-        viewable_for_user = Q(pk__in=Meeting.objects.viewable())
-        return self.filter(resource_viewable | viewable_for_user)
+        is_resource_editor = Q(resource__in=Resource.objects.editable())
+        booking_where_user_is_resource_editor = self.filter(is_resource_editor)
+
+        return self.viewable().union(booking_where_user_is_resource_editor)
 
 
 class BaseMeetingPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
@@ -515,9 +514,10 @@ class MeetingCalendarAccessQuerySet:
     """
     If a user gets a permissions for a Calendar, the user should have the same for Meetings
     """
+
     @staticmethod
     def _viewable():
-        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
         user = get_current_user()
 
@@ -540,7 +540,7 @@ class MeetingCalendarAccessQuerySet:
 
     @staticmethod
     def _editable():
-        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
         user = get_current_user()
 
@@ -563,7 +563,7 @@ class MeetingCalendarAccessQuerySet:
 
     @staticmethod
     def _trashable():
-        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
         user = get_current_user()
 
@@ -586,7 +586,7 @@ class MeetingCalendarAccessQuerySet:
 
     @staticmethod
     def _restoreable():
-        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
         user = get_current_user()
 
@@ -609,7 +609,7 @@ class MeetingCalendarAccessQuerySet:
 
     @staticmethod
     def _deletable():
-        from eric.shared_elements.models import Meeting, CalendarAccess
+        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
         user = get_current_user()
 

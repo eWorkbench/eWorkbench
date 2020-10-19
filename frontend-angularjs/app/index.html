@@ -245,7 +245,6 @@
     <script src="js/services/converters/taskConverterService.js"></script>
     <script src="js/services/converters/meetingConverterService.js"></script>
     <script src="js/services/converters/resourceConverterService.js"></script>
-    <script src="js/services/converters/resourceBookingConverterService.js"></script>
     <script src="js/services/dmp/dmpStateService.js"></script>
     <script src="js/services/relation/lockStatusService.js"></script>
     <script src="js/services/relation/relationUpdateDeleteService.js"></script>
@@ -264,6 +263,7 @@
     <script src="js/services/filterUrlStateService/filterUrlStateService.js"></script>
     <script src="js/services/user/userNameService.js"></script>
     <script src="js/services/genericModelService/genericModelService.js"></script>
+    <script src="js/services/common/debounceService.js"></script>
 
     <script src="js/services/sort/genericSortService.js"></script>
     <script src="js/services/sort/userSortService.js"></script>
@@ -475,7 +475,6 @@
     <script src="js/screens/contact/mergeContactModal/mergeContactModal.js"></script>
     <script src="js/screens/contact/mergeContactModal/mergeContactModalInputGroup.js"></script>
     <script src="js/screens/contact/mergeContactModal/contactSelectizeWidget.js"></script>
-    <script src="js/services/contact/contactMergeService.js"></script>
 
     <!-- File Screens -->
     <script src="js/screens/file/fileList.js"></script>
@@ -826,16 +825,16 @@
     <!-- Maintenance -->
     <maintenance></maintenance>
     <project-breadcrumb-widget
-            ng-if="projectSidebarExpanded == 'sidebar-expanded'"></project-breadcrumb-widget>
+        ng-if="projectSidebarExpanded == 'sidebar-expanded'"></project-breadcrumb-widget>
 
     <project-sidebar-widget
-            ng-if="projectSidebarExpanded == 'sidebar-expanded'"></project-sidebar-widget>
+        ng-if="projectSidebarExpanded == 'sidebar-expanded'"></project-sidebar-widget>
 
     <user-manual-breadcrumb-widget
-            ng-if="projectSidebarExpanded == 'usermanual-expanded'"></user-manual-breadcrumb-widget>
+        ng-if="projectSidebarExpanded == 'usermanual-expanded'"></user-manual-breadcrumb-widget>
 
     <user-manual-sidebar-widget
-            ng-if="projectSidebarExpanded == 'usermanual-expanded'"></user-manual-sidebar-widget>
+        ng-if="projectSidebarExpanded == 'usermanual-expanded'"></user-manual-sidebar-widget>
 
     <!-- ui view -->
     <div ui-view class="uiview-container"></div>

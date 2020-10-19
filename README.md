@@ -12,9 +12,10 @@ For installation instructions see the docs folder in the backend directory and t
 * [frontend-angularjs/README.md](frontend-angularjs/README.md)
 
 ## Development
-For development instructions, see the README files in the backend and frontend directories:
+For development instructions, see the README files:
 * [backend-django/README.md](backend-django/README.md)
 * [frontend-angularjs/README.md](frontend-angularjs/README.md)
+* [README_CustomPlugins.md](README_CustomPlugins.md)
 
 ## Contributors
 eWorkbench is developed by Technical University of Munich Library (TUM Library) in collaboration with ANEXIA Internetdienstleistungs GmbH.  

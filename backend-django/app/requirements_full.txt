@@ -8,12 +8,13 @@ daphne==2.5.*
 defusedxml==0.6.*
 django-admin-list-filter-dropdown==1.0.*
 django-admin-sortable2==0.7.*
+django-admin-autocomplete-filter==0.5.*
+django-admin-rangefilter==0.6.*
 django-anexia-monitoring==1.*
 django-auth-ldap==2.1.*
 django-ckeditor==5.9.*
 django-cleanhtmlfield==1.0.*
 django-cors-headers==3.2.*
-django-crispy-forms>=1.6,<2.0
 django-dbbackup==3.3.*
 django-filter==2.2.*
 django-json-widget==1.0.*
@@ -28,10 +29,8 @@ djangorestframework==3.11.*
 drf-nested-routers==0.91.*
 git+https://github.com/anx-bhagmann/djradicale
 git+https://github.com/anx-ckreuzberger/djangodav@updates
-# TODO: django-changeset==1.1.*
-git+https://github.com/anx-mpoelzl/django-changeset@master
-# TODO: django-dbsettings==1.0.*
-git+https://github.com/anx-mpoelzl/django-dbsettings@master
+django-changeset==1.0.0
+django-dbsettings==1.1.*
 gitdb==4.0.*
 GitPython==3.1.*
 html2text>=2020.1.*
@@ -47,6 +46,5 @@ service_identity
 vobject==0.9.*
 WeasyPrint==51.*
 zipstream==1.1.*
-django-admin-autocomplete-filter==0.5.*
 pyyaml==5.3.*
 drf-yasg==1.17.*

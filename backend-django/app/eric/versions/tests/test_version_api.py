@@ -285,15 +285,15 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         # author has full access automatically
 
         self.set_model_privilege_for_user(
-            self.token_author, endpoint, model, pk, self.user_full_access,
+            self.token_author, endpoint, pk, self.user_full_access,
             full_access_privilege=allow)
 
         self.set_model_privilege_for_user(
-            self.token_author, endpoint, model, pk, self.user_readonly,
+            self.token_author, endpoint, pk, self.user_readonly,
             view_privilege=allow)
 
         self.set_model_privilege_for_user(
-            self.token_author, endpoint, model, pk, self.user_no_access,
+            self.token_author, endpoint, pk, self.user_no_access,
             full_access_privilege=deny,
             view_privilege=deny,
             edit_privilege=deny,

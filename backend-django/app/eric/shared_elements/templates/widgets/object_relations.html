@@ -4,7 +4,7 @@
 {% else %}
 <ul>
     {# iterate over all relations, ordered by created_at #}
-    {% for relation in instance.relations|dictsort:"created_at" %}
+    {% for relation in instance.relations.viewable|dictsort:"created_at" %}
         <li>
             <b>
                 {% trans "Linked by" %}

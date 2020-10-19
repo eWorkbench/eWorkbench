@@ -4,11 +4,12 @@
 #
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
 from eric.core.rest.serializers import BaseModelWithCreatedBySerializer, PublicUserSerializer, \
-    BaseModelWithCreatedByAndSoftDeleteSerializer
+    BaseModelWithCreatedByAndSoftDeleteSerializer, BaseModelSerializer
 from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, EntityMetadataSerializer
 from eric.notifications.rest.serializers import ScheduledNotificationSerializer
 from eric.projects.models import Resource
@@ -31,9 +32,7 @@ class ContactPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
 
 class MinimalisticMeetingSerializer(BaseModelWithCreatedBySerializer):
     resource = MinimalisticResourceSerializer(read_only=True)
-
     attending_users = PublicUserSerializer(read_only=True, many=True)
-
     attending_contacts = MinimalisticContactSerializer(read_only=True, many=True)
 
     class Meta:
@@ -42,6 +41,38 @@ class MinimalisticMeetingSerializer(BaseModelWithCreatedBySerializer):
             'title', 'date_time_start', 'date_time_end', 'resource', 'attending_users', 'attending_contacts',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at'
         )
+
+
+class AnonymousResourceBookingSerializer(BaseModelSerializer):
+    """
+    Serializer for anonymous meetings/resource bookings (meetings the user has no access to).
+    Used to render blocked resources in the calendar.
+    """
+
+    display = SerializerMethodField()
+    title = SerializerMethodField()
+    pk = SerializerMethodField()
+
+    class Meta:
+        model = Meeting
+        fields = (
+            'title', 'display', 'pk',
+            'date_time_start', 'date_time_end',
+            'content_type', 'content_type_model',
+        )
+
+    @staticmethod
+    def get_pk(instance):
+        """ Just for compatibility """
+        return 'ANONYMOUS'
+
+    @staticmethod
+    def get_title(instance):
+        return _('Booked')
+
+    @staticmethod
+    def get_display(instance):
+        return _(f'Booked from {instance.date_time_start} to {instance.date_time_end}')
 
 
 class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin,

@@ -1,5 +1,14 @@
 # API Changelog
 
+## August 2020
+
+### EntityMetadataSerializer
+
+#### API field changes
+
+- add field_info field with all the data of the MetadataField being used
+
+
 ## Version 1.19 - June 2020
 
 ###  Calendar Access Privileges

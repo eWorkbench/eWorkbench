@@ -6,12 +6,8 @@ import urllib
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.core.exceptions import ValidationError
-
-from rest_framework import serializers
 from rest_framework import fields, serializers, relations
 
-from eric.userprofile.models import UserProfile
 from eric.userprofile.rest.serializers import PublicUserProfileSerializer
 
 User = get_user_model()
@@ -29,6 +25,7 @@ class PublicUserSerializer(serializers.ModelSerializer):
 
 class PublicUserGroupSerializer(serializers.ModelSerializer):
     """ A very minimalistic usergroup serializer, only displaying name """
+
     class Meta:
         model = Group
         fields = ('pk', 'name')
@@ -100,9 +97,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
         source='__str__',
         read_only=True,
     )
-
     content_type = serializers.SerializerMethodField()
-
     content_type_model = serializers.SerializerMethodField()
 
     def get_content_type_model(self, obj):

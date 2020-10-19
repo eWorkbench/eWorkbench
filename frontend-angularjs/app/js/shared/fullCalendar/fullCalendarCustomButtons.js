@@ -6112,7 +6112,7 @@
         },
 
 
-        // ANEXIA CUSTOMIZATION 2 // displayed on month-view
+        // ANEXIA CUSTOMIZATION 2 // displayed in month-view
         // Builds the HTML to be used for the default element for an individual segment
         fgSegHtml: function (seg, disableResizing) {
             var view = this.view;
@@ -6142,10 +6142,8 @@
             var eventTitle = null;
             if (event.title) {
                 eventTitle = event.title;
-            } else if (event.content_type_model === 'projects.resourcebooking') {
-                eventTitle = event.resource.name;
             } else {
-                eventTitle = event.pk;
+                eventTitle = 'Appointment ' + event.pk;
             }
 
             titleHtml =
@@ -7470,8 +7468,7 @@
             return segs;
         },
 
-        // ANEXIA CUSTOMIZATION 1
-        // displayed in week-view
+        // ANEXIA CUSTOMIZATION 1 // displayed in week-view
         // Renders the HTML for a single event segment's default rendering
         fgSegHtml: function (seg, disableResizing) {
             var view = this.view;
@@ -7484,17 +7481,6 @@
             var timeText;
             var fullTimeText; // more verbose time text. for the print stylesheet
             var startTimeText; // just the start time text
-            var getAttendingUserString = function (eventUsers) {
-                return eventUsers.map(function (user) {
-                    // If first_name and last_name exists in the userprofile use those ...
-                    if (user.userprofile && user.userprofile.first_name && user.userprofile.last_name) {
-                        return user.userprofile.first_name + " " + user.userprofile.last_name;
-                    } else {
-                        // ... otherwise use the username as fallback
-                        return user.username;
-                    }
-                }).join(', ');
-            };
 
             classes.unshift('fc-time-grid-event', 'fc-v-event');
 

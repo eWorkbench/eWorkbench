@@ -12,9 +12,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import logging.config
 import os
 import sys
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,11 +28,15 @@ ALLOWED_HOSTS = [
     '*',
 ]
 
-ADMIN = [
+ADMINS = [
 ]
 
 CONTACT_ADMIN = [
 ]
+
+# DEFAULT_FROM_EMAIL -- use the following instead:
+# from eric.site_preferences.models import options as site_preferences
+# sender = site_preferences.email_from
 
 MAX_FILE_SIZE_PER_USE = "50G"
 
@@ -53,7 +60,7 @@ INSTALLED_APPS = [
     'dbbackup',
     'memoize',
 
-    # anexia monitoring
+    # anexia version monitoring
     'anexia_monitoring',
 
     # Django REST Framework
@@ -64,16 +71,20 @@ INSTALLED_APPS = [
     'drf_yasg',
 
     # 3rd party
-    'crispy_forms',
     'django_filters',
-    'adminsortable2',
-    'django_admin_listfilter_dropdown',
     'django_userforeignkey',
     'django_changeset',
+
+    # Admin
+    'django_json_widget',
+    'adminsortable2',
+    'django_admin_listfilter_dropdown',
+    'admin_auto_filters',
+    'rangefilter',
+
+    # CalDav
     'djangodav',
     'djradicale',
-    'django_json_widget',
-    'admin_auto_filters',
 
     # Eric
     'eric.jwt_auth',
@@ -108,6 +119,7 @@ INSTALLED_APPS = [
     'eric.ms_office_handling',
     'eric.integration',
     'eric.openapi',
+    'eric.db_logging',
 
     # CKEditor needs to be at the bottom, so eric.core can overwrite the ckeditor-init.js file
     'ckeditor',
@@ -225,7 +237,6 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend', ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -270,6 +281,11 @@ LOGGING = {
             'format': '%(asctime)s [%(levelname)s] %(name)s: \'%(funcName)s\' in \'%(pathname)s\' line \'%(lineno)d\':'
                       ' %(message)s'
         },
+        'django.server': {
+            '()': 'django.utils.log.ServerFormatter',
+            'format': '[{server_time}] {message}',
+            'style': '{',
+        },
     },
     'filters': {
         'require_debug_true': {
@@ -277,6 +293,10 @@ LOGGING = {
         },
     },
     'handlers': {
+        'db': {
+            'level': 'ERROR',
+            'class': 'eric.db_logging.db_log_handler.DatabaseLogHandler',
+        },
         'file': {
             'class': TIMED_ROTATING_FILE_HANDLER_CLASS,
             'filename': os.path.join(BASE_DIR, 'logs', 'application.log'),
@@ -304,7 +324,9 @@ LOGGING = {
             'formatter': 'standard',
         },
         'js_errors': {
-            'class': TIMED_ROTATING_FILE_HANDLER_CLASS, 'when': 'D', 'backupCount': 7,
+            'class': TIMED_ROTATING_FILE_HANDLER_CLASS,
+            'when': 'D',
+            'backupCount': 7,
             'filename': os.path.join(BASE_DIR, 'logs', 'js_errors.log'),
             'formatter': 'standard',
         },
@@ -315,10 +337,15 @@ LOGGING = {
             'backupCount': 25,
             'formatter': 'verbose',
         },
+        'django.server': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        },
     },
     'loggers': {
         '': {
-            'handlers': ['file', 'console', ],
+            'handlers': ['file', 'console', 'db', ],
             'level': 'INFO',
             'formatter': 'standard',
         },
@@ -354,29 +381,31 @@ LOGGING = {
         # limit logging of libraries
         'django': {
             'level': 'DEBUG',
+            'handlers': ['console', 'file', ],
         },
-        'django.db.backends': {
+        'django.server': {
+            'handlers': ['django.server', ],
             'level': 'INFO',
+            'propagate': False,
         },
-        'django.utils.autoreload': {
-            'level': 'INFO',
-        },
-        'django.template': {
-            'level': 'INFO',
-        },
-        'django_userforeignkey': {
-            'propagate': False
-        },
-        'urllib3.connectionpool': {
-            'level': 'ERROR',
-        },
-        'asyncio': {
-            'level': 'WARNING',
-        },
-        'git.cmd': {
-            'level': 'WARNING',
-        },
+        'django.db.backends': {'level': 'INFO', },
+        'django.utils.autoreload': {'level': 'INFO', },
+        'django.template': {'level': 'INFO', },
+        'django_userforeignkey': {'propagate': False},
+        'urllib3.connectionpool': {'level': 'WARNING', },
+        'asyncio': {'level': 'INFO', },
+        'git.cmd': {'level': 'WARNING', },
     },
+}
+
+# completely overwrite default logging settings
+# https://docs.djangoproject.com/en/2.2/topics/logging/#disabling-logging-configuration
+logging.config.dictConfig(LOGGING)
+
+DB_LOGGING_SETTINGS = {
+    'ADMIN_LIST_PER_PAGE': 30,
+    'ENABLE_FORMATTER': False,
+    'EXCLUDED_LOGGERS': ['django.channels.server', ]
 }
 
 AUTHENTICATION_BACKENDS = (
@@ -433,11 +462,19 @@ EMAIL_PORT = 1025
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 
-EMAIL_RECIPIENT_FOR_NEW_METADATA_FIELDS = 'eRIC@ub.tum.de'
+EMAIL_RECIPIENT_FOR_NEW_METADATA_FIELDS = 'metadata-admin@workbench.local'
 
-# notification settings
-# time between notification emails sent to the user
-NOTIFICATIONS_TIME_BETWEEN_EMAILS = 5 * 60  # seconds
+NOTIFICATIONS_SETTINGS = {
+    # the user will not receive emails for new notifications until the defined time between has passed
+    'MINIMUM_TIME_BETWEEN_EMAILS': timedelta(minutes=5),
+
+    # notifications that will always be sent in a single email (no aggregation)
+    # see `eric.notifications.models.models.NotificationConfiguration` class for all available notification keys
+    'SINGLE_MAIL_NOTIFICATIONS': [
+        'MAIL_CONF_MEETING_CONFIRMATION',  # appointment confirmation mails for the creator
+        'NOTIFICATION_CONF_MEETING_USER_CHANGED',  # appointment confirmation mails for attending users
+    ],
+}
 
 # Timespan a password reset token is valid (also used for user invites)
 DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 72  # hours
@@ -648,18 +685,10 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
 
 # hide weasyprint errors

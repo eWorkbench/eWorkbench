@@ -94,8 +94,7 @@ This cron job is located within a Django Management Command in ``app/eric/notifi
  and works as follows:
 
 Get all notifications that have not been sent (``sent__isnull=True``) and not been processed (``processed=False``),
- and exclude all users that have received a notification within the last couple of seconds (defined in
- ``settings.NOTIFICATIONS_TIME_BETWEEN_EMAILS``).
+ and exclude all users that have just received a notification.
 
 In addition, we check for each user that the notification that is being processed is within the users
 ``notification_configuration``.

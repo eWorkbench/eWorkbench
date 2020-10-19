@@ -9,7 +9,7 @@ import tempfile
 from django.contrib.auth import get_user_model
 from rest_framework import status
 
-from eric.core.tests import custom_json_handler
+from eric.core.tests import custom_json_handler, HTTP_USER_AGENT, REMOTE_ADDR
 from eric.projects.tests.core import TestLockMixin
 from eric.shared_elements.models import Meeting, Note, Contact, Task, File
 
@@ -1065,8 +1065,33 @@ class MeetingMixin(TestLockMixin):
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
 
-    def rest_create_meeting(self, auth_token, project_pks, title, description, start_date, end_date,
-                            HTTP_USER_AGENT, REMOTE_ADDR, attending_users=None, attending_contacts=None):
+    def rest_create_resource_booking(
+            self, auth_token, title, date_time_start, date_time_end, resource_pk,
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR,
+            **kwargs
+    ):
+        """
+        Creates an appointment for a resource booking.
+        """
+        additional_args = {
+            'description': '',
+            'resource_pk': resource_pk,
+            'project_pks': None,
+        }
+        additional_args.update(kwargs)
+
+        return self.rest_create_meeting(
+            auth_token=auth_token, title=title, start_date=date_time_start, end_date=date_time_end,
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR,
+            **additional_args
+        )
+
+    def rest_create_meeting(
+            self, auth_token, project_pks, title, description, start_date, end_date,
+            HTTP_USER_AGENT, REMOTE_ADDR,
+            attending_users=None, attending_contacts=None,
+            **kwargs
+    ):
         """
         Wrapper for creating a meeting via REST API
         """
@@ -1078,6 +1103,7 @@ class MeetingMixin(TestLockMixin):
             'date_time_start': start_date,
             'date_time_end': end_date
         }
+        data.update(kwargs)
 
         set_projects(data, project_pks)
 
@@ -1189,7 +1215,6 @@ class MeetingMixin(TestLockMixin):
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
 
-
     def rest_update_meeting_project(self, auth_token, meeting_pk, project_pks, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         Wrapper for updating the project of a meeting
@@ -1213,180 +1238,46 @@ class MeetingMixin(TestLockMixin):
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
 
-    def create_meeting_orm(self, auth_token, project_pk,
-                           title, description, start_date, end_date,
-                           HTTP_USER_AGENT, REMOTE_ADDR,
-                           attending_users=None, attending_contacts=None):
+    def create_meeting_orm(
+            self, auth_token, project_pk,
+            title, description, start_date, end_date,
+            HTTP_USER_AGENT, REMOTE_ADDR,
+            attending_users=None, attending_contacts=None,
+            **kwargs
+    ):
         """ Wrapper for rest_create_Meeting which also returns a Task Object from Djangos ORM """
 
-        response = self.rest_create_meeting(auth_token, project_pk,
-                                            title, description, start_date, end_date,
-                                            HTTP_USER_AGENT, REMOTE_ADDR, attending_users, attending_contacts)
-        if response.status_code == status.HTTP_201_CREATED:
-            decoded = json.loads(response.content.decode())
-            return Meeting.objects.get(pk=decoded['pk']), response
-        else:
-            return None, response
-
-
-class ResourceBookingMixin(TestLockMixin):
-    """ Mixin which provides several wrapper methods for the resources (/api/resourcebookings/) endpoint """
-
-    def rest_get_resourcebooking_export_link(self, auth_token, meeting_pk, HTTP_USER_AGENT, REMOTE_ADDR):
-        """
-        Wrapper for getting the export link of a resourcebooking
-        """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
-
-        return self.client.get(
-            '/api/meetings/{}/get_export_link/'.format(meeting_pk),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-
-    def rest_search_resourcebookings(self, auth_token, search_string, HTTP_USER_AGENT, REMOTE_ADDR):
-        """
-        Wrapper for searching the resourcebooking endpoint
-        """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
-
-        return self.client.get(
-            '/api/meetings/?search={}'.format(search_string),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-
-    def rest_get_resourcebookings_recently_modified_by_me(self, auth_token, number_of_days, HTTP_USER_AGENT,
-                                                          REMOTE_ADDR):
-        """
-        Wrapper for showing only recently modified elements of the resourcebooking endpoint
-        """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
-
-        return self.client.get(
-            '/api/meetings/?recently_modified_by_me={}'.format(number_of_days),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-
-    def rest_get_resourcebooking(self, auth_token, resourcebooking_pk, HTTP_USER_AGENT, REMOTE_ADDR):
-        """
-        Wrapper for getting a resourcebooking by its pk via REST API
-        """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
-
-        return self.client.get(
-            '/api/meetings/{}/'.format(resourcebooking_pk),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-
-    def rest_get_resourcebookings(self, auth_token, HTTP_USER_AGENT, REMOTE_ADDR):
-        """
-        Wrapper for getting a list of resourcebookings that the current user has access to via REST API
-        """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
-
-        return self.client.get(
-            '/api/meetings/',
-            {}, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-
-    def rest_export_resourcebookings(self, auth_token, HTTP_USER_AGENT, REMOTE_ADDR):
-        """
-        Wrapper for exporting a resourcebooking via REST API
-        """
-        return self.client.get(
-            '/api/meetings/export/',
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-
-    def rest_create_resourcebooking(
-            self,
-            auth_token,
-            title,
-            date_time_start,
-            date_time_end,
-            resource_pk,
-            HTTP_USER_AGENT,
-            REMOTE_ADDR,
-    ):
-        """
-        Wrapper for creating a resourcebooking via REST API
-        """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
-
-        data = {
-            'title': title,
-            'date_time_start': date_time_start,
-            'date_time_end': date_time_end,
-            'resource_pk': resource_pk,
-        }
-
-        response = self.client.post(
-            '/api/meetings/',
-            json.dumps(data, default=custom_json_handler),
-            content_type='application/json',
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-        return response
-
-    def rest_delete_resourcebooking(self, auth_token, resourcebooking_pk, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Wrapper for deleting a resourcebooking via REST API """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
-
-        return self.client.delete(
-            '/api/meetings/{pk}/'.format(pk=resourcebooking_pk),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-
-    def rest_update_resourcebooking(
-            self,
-            auth_token,
-            resourcebooking_pk,
-            date_time_start,
-            date_time_end,
-            resource_pk,
-            HTTP_USER_AGENT,
-            REMOTE_ADDR,
-    ):
-        """
-        Wrapper for updating a resourcebooking via REST API
-        """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
-
-        data = {
-            'date_time_start': date_time_start,
-            'date_time_end': date_time_end,
-            'resource_pk': resource_pk,
-        }
-
-        response = self.client.put(
-            '/api/meetings/{}/'.format(resourcebooking_pk),
-            data,
-            format='multipart',
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
-        return response
-
-    def create_resourcebooking_orm(
-            self,
-            auth_token,
-            title,
-            date_time_start,
-            date_time_end,
-            resource_pk,
-            HTTP_USER_AGENT,
-            REMOTE_ADDR,
-    ):
-        """ Wrapper for rest_create_Resourcebooking"""
-        response = self.rest_create_resourcebooking(
-            auth_token,
-            title,
-            date_time_start,
-            date_time_end,
-            resource_pk,
-            HTTP_USER_AGENT,
-            REMOTE_ADDR,
+        response = self.rest_create_meeting(
+            auth_token, project_pk,
+            title, description, start_date, end_date,
+            HTTP_USER_AGENT, REMOTE_ADDR,
+            attending_users, attending_contacts,
+            **kwargs
         )
         if response.status_code == status.HTTP_201_CREATED:
             decoded = json.loads(response.content.decode())
             return Meeting.objects.get(pk=decoded['pk']), response
         else:
             return None, response
+
+
+class ResourceBookingMixin:
+    """
+    REST calls for resource bookings.
+    """
+
+    def rest_get_all_resourcebookings(self, auth_token, url_param_str=''):
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            f'/api/resourcebookings/all/{url_param_str}',
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_get_my_resourcebookings(self, auth_token, url_param_str=''):
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            f'/api/resourcebookings/my/{url_param_str}',
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )

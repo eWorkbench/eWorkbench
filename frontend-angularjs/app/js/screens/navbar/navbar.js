@@ -5,23 +5,17 @@
 (function () {
     'use strict';
 
-    var
-        module = angular.module('screens');
+    var module = angular.module('screens');
 
     module.component('navbar',
         {
             templateUrl: 'js/screens/navbar/navbar.html',
             controller: 'NavbarController',
             controllerAs: 'vm',
-            bindings: {
-            }
+            bindings: {}
         }
     );
 
-    /**
-     * Navigation Bar Controller
-     * Provides a logout function for the logout button in the menu
-     */
     module.controller('NavbarController', function (
         $rootScope,
         $scope,
@@ -68,30 +62,20 @@
                 vm.project = project;
             });
 
-            vm.currentUser = null;
-
-            /* get site preferences */
-            vm.sitePreferences = SitePreferences.preferences;
-            vm.main_site_name = vm.sitePreferences.site_name;
-
-            vm.Auth = AuthRestService;
-
-            vm.restApiUrl = restApiUrl;
-
-            vm.djangoAdminUrl = djangoAdminUrl;
-
             /**
              * The current active page for highlighting
              * @type {string}
              */
             vm.currentActivePage = "";
 
-            /**
-             * gets the correct user icon
-             */
+            vm.currentUser = null;
+            vm.sitePreferences = SitePreferences.preferences;
+            vm.main_site_name = vm.sitePreferences.site_name;
+            vm.Auth = AuthRestService;
+            vm.restApiUrl = restApiUrl;
+            vm.djangoAdminUrl = djangoAdminUrl;
             vm.userIcon = IconImagesService.mainElementIcons.user;
 
-            // get backend version
             BackendVersionService.getBackendVersion().then(function (version) {
                 vm.backendVersion = version;
             });
@@ -112,7 +96,6 @@
             AuthRestService.logout().then(
                 function (response) {
                     vm.removeCookies();
-
                     console.log('Logged out');
                     toaster.pop('success', gettextCatalog.getString("Logged out"));
                     // reload the entire page to clear javascript caches
@@ -138,10 +121,13 @@
          * Open the contact form in a modal dialog
          */
         vm.openContactForm = function () {
-            var modalInstance = contactFormWidget.open();
-
-            // react on the result of the modal dialog
-            modalInstance.result.then(
+            contactFormWidget.open().result.then(
+                function success () {
+                    // nothing to do
+                },
+                function reject () {
+                    console.log('Contact modal canceled by user');
+                }
             );
         };
 
@@ -175,11 +161,6 @@
          * changes the name of the site
          */
         $rootScope.$on("change-navbar", function (event, opt) {
-            if (opt.custom_site_name != null) {
-                vm.sitePreferences.site_name = opt.custom_site_name;
-            } else {
-                vm.sitePreferences.site_name = vm.main_site_name;
-            }
             vm.study_room_mode = opt.study_room_mode;
         });
     });

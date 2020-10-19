@@ -4,15 +4,15 @@
             <i class="{{:: vm.pluginIcon }}"></i> {{ vm.plugininstance.title }}
         </div>
         <generic-detail-view-menu-widget
-            base-model="vm.plugininstance"
-            base-url-model="plugininstances"
-            has-delete="true"
-            has-trash="true"
-            has-export="true"
-            has-restore="true"
-            has-privileges="true"
-            has-new-element="false"
-            has-duplicate="false"></generic-detail-view-menu-widget>
+                base-model="vm.plugininstance"
+                base-url-model="plugininstances"
+                has-delete="true"
+                has-trash="true"
+                has-export="true"
+                has-restore="true"
+                has-privileges="true"
+                has-new-element="false"
+                has-duplicate="false"></generic-detail-view-menu-widget>
     </div>
     <div class="panel-body">
         <generic-show-element-state-widget base-model="vm.plugininstance"
@@ -31,11 +31,11 @@
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.savePlugininstancePartial('title', ngModel)"
-                                on-save-multiple="vm.savePlugininstance()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.plugininstance.title">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.savePlugininstancePartial('title', ngModel)"
+                                    on-save-multiple="vm.savePlugininstance()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.plugininstance.title">
                                 <ng-include src="'js/screens/plugin/plugininstanceForm.title.html'"></ng-include>
                             </editable-select-list>
                         </div>
@@ -48,7 +48,7 @@
                         </label>
                         <div class="col-sm-9">
                             <a role="button" ng-click="vm.showPluginDetails()">
-                                {{  vm.plugininstance.plugin_details.title }}
+                                {{ vm.plugininstance.plugin_details.title }}
                             </a>
                         </div>
                     </div>
@@ -67,13 +67,13 @@
                     </div>
                     <!-- Metadata -->
                     <metadata-fields-widget
-                        base-model="vm.plugininstance"
-                        base-url-model="plugininstance"
-                        read-only="vm.isReadOnly()"
-                        on-save="vm.savePlugininstancePartial('metadata', vm.plugininstance.metadata)"
-                        on-save-multiple="vm.savePlugininstance()"
-                        on-abort="vm.resetErrors()"
-                        metadata="vm.plugininstance.metadata">
+                            base-model="vm.plugininstance"
+                            base-url-model="plugininstance"
+                            read-only="vm.isReadOnly()"
+                            on-save="vm.savePlugininstancePartial('metadata', vm.plugininstance.metadata)"
+                            on-save-multiple="vm.savePlugininstance()"
+                            on-abort="vm.resetErrors()"
+                            metadata="vm.plugininstance.metadata">
                     </metadata-fields-widget>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
@@ -86,12 +86,12 @@
                         </label>
                         <div class="col-sm-9">
                             <editable-select-list
-                                edit-disabled="vm.isReadOnly()"
-                                on-save="vm.savePlugininstancePartial('projects', ngModel)"
-                                on-save-multiple="vm.savePlugininstance()"
-                                on-abort="vm.resetErrors()"
-                                ng-model="vm.projectPks"
-                                compare-mode="array">
+                                    edit-disabled="vm.isReadOnly()"
+                                    on-save="vm.savePlugininstancePartial('projects', ngModel)"
+                                    on-save-multiple="vm.savePlugininstance()"
+                                    on-abort="vm.resetErrors()"
+                                    ng-model="vm.projectPks"
+                                    compare-mode="array">
                                 <ng-include src="'js/screens/plugin/plugininstanceForm.projects.html'"></ng-include>
                             </editable-select-list>
                         </div>
@@ -99,7 +99,8 @@
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
                     <!-- History -->
-                    <history-short-widget base-model="vm.plugininstance" base-url-model="plugininstance"></history-short-widget>
+                    <history-short-widget base-model="vm.plugininstance"
+                                          base-url-model="plugininstance"></history-short-widget>
                     <!-- Versions -->
                     <versions-short-widget
                             readonly="vm.isReadOnly()"
@@ -116,10 +117,13 @@
             <!-- The Plugin Instance itself -->
             <div class="form-group">
                 <div class="col-xs-12">
-                    <img ng-src="{{  vm.plugininstance.picture }}" ng-click="vm.editPlugininstance(true)"
-                         ng-if="!vm.plugininstanceEditMode && vm.plugininstance.picture">
-                    <img ng-src="{{  vm.plugininstance.plugin_details.download_placeholder_picture }}" ng-click="vm.editPlugininstance(true)"
-                         ng-if="!vm.plugininstanceEditMode && !vm.plugininstance.picture">
+                    <img ng-src="{{ vm.plugininstance.download_picture }}" ng-click="vm.editPlugininstance(true)"
+                         ng-if="!vm.plugininstanceEditMode && vm.plugininstance.download_picture">
+
+                    <img ng-src="{{ vm.plugininstance.plugin_details.download_placeholder_picture }}"
+                         ng-click="vm.editPlugininstance(true)"
+                         ng-if="!vm.plugininstanceEditMode && !vm.plugininstance.download_picture">
+
                     <iframe width="100%" height="900px" ng-src="{{ vm.plugininstance.auth_url }}"
                             ng-if="vm.plugininstanceEditMode"></iframe>
                 </div>
@@ -129,4 +133,5 @@
 </div>
 
 <!-- relations -->
-<relation-list-widget project="vm.project" base-model="vm.plugininstance" base-url-model="plugininstance"></relation-list-widget>
+<relation-list-widget project="vm.project" base-model="vm.plugininstance"
+                      base-url-model="plugininstance"></relation-list-widget>

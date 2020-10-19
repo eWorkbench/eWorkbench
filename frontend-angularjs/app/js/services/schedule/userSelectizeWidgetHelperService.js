@@ -35,7 +35,7 @@
 
             html += '<div class="col-xs-10" style="width: calc(100% - 60px)">';
             html += '<span>';
-            html += UserNameService.getFullNameOrUsername(user);
+            html += escape(UserNameService.getFullNameOrUsername(user));
             html += '</span>';
 
             html += '<br/>';
@@ -59,7 +59,7 @@
         service.renderSelectedUser = function (user, escape) {
             var html = '<span>';
 
-            html += UserNameService.getFullNameOrUsername(user);
+            html += escape(UserNameService.getFullNameOrUsername(user));
             html += '</span>';
 
             if (user.email) {

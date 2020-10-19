@@ -202,7 +202,8 @@ class Directory(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 class Drive(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn,
             ModelPrivilegeMixIn, WorkbenchEntityMixin):
     """
-    Defines a Drive, which can contain directories and files
+    Storage, previously known as Drive.
+    Container for files and directories.
     """
     objects = DriveManager()
 

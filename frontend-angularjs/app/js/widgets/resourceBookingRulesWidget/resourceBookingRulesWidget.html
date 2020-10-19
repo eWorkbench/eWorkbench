@@ -5,10 +5,10 @@
     <div class="panel-body">
         <form name="vm.selectedBookingRulesForm" class="booking-rules-entries" ng-submit="vm.saveBookingRules()">
             <div class="row" data-ng-repeat="bookingRule in vm.selectedBookingRules">
-                <div class="col-xs-3">
+                <div class="col-sm-3 col-xs-12">
                     {{ vm.bookingRules[bookingRule.criterion] }}
                 </div>
-                <div class="col-xs-8">
+                <div class="col-sm-8 col-xs-11">
                     <div ng-if="['booking_rule_minimum_duration',
                                  'booking_rule_maximum_duration',
                                  'booking_rule_minimum_time_before',
@@ -55,56 +55,56 @@
                     <div ng-if="bookingRule.criterion === 'booking_rule_bookable_hours'"
                          class="{{ bookingRule.criterion }}">
                         <div class="row" style="background: transparent">
-                            <div class="col-xs-1">
+                            <div class="col-xs-4 col-sm-2 col-lg-1">
                                 {{ 'Monday' | translate }}<br>
                                 <input type="checkbox"
                                        ng-model="bookingRule.monday"
                                        ng-disabled="vm.isReadOnly()"
                                        ng-readonly="vm.isReadOnly()">
                             </div>
-                            <div class="col-xs-1">
+                            <div class="col-xs-4 col-sm-2 col-lg-1">
                                 {{ 'Tuesday' | translate }}<br>
                                 <input type="checkbox"
                                        ng-model="bookingRule.tuesday"
                                        ng-disabled="vm.isReadOnly()"
                                        ng-readonly="vm.isReadOnly()">
                             </div>
-                            <div class="col-xs-1">
+                            <div class="col-xs-4 col-sm-2 col-lg-1">
                                 {{ 'Wednesday' | translate }}<br>
                                 <input type="checkbox"
                                        ng-model="bookingRule.wednesday"
                                        ng-disabled="vm.isReadOnly()"
                                        ng-readonly="vm.isReadOnly()">
                             </div>
-                            <div class="col-xs-1">
+                            <div class="col-xs-4 col-sm-2 col-lg-1">
                                 {{ 'Thursday' | translate }}<br>
                                 <input type="checkbox"
                                        ng-model="bookingRule.thursday"
                                        ng-disabled="vm.isReadOnly()"
                                        ng-readonly="vm.isReadOnly()">
                             </div>
-                            <div class="col-xs-1">
+                            <div class="col-xs-4 col-sm-4 col-lg-1">
                                 {{ 'Friday' | translate }}<br>
                                 <input type="checkbox"
                                        ng-model="bookingRule.friday"
                                        ng-disabled="vm.isReadOnly()"
                                        ng-readonly="vm.isReadOnly()">
                             </div>
-                            <div class="col-xs-1">
+                            <div class="col-xs-4 col-sm-2 col-lg-1">
                                 {{ 'Saturday' | translate }}<br>
                                 <input type="checkbox"
                                        ng-model="bookingRule.saturday"
                                        ng-disabled="vm.isReadOnly()"
                                        ng-readonly="vm.isReadOnly()">
                             </div>
-                            <div class="col-xs-1">
+                            <div class="col-xs-4 col-sm-2 col-lg-1">
                                 {{ 'Sunday' | translate }}<br>
                                 <input type="checkbox"
                                        ng-model="bookingRule.sunday"
                                        ng-disabled="vm.isReadOnly()"
                                        ng-readonly="vm.isReadOnly()">
                             </div>
-                            <div class="col-xs-2 col-xs-offset-1">
+                            <div class="col-xs-4 col-sm-4 col-lg-2 col-lg-offset-1">
                                 {{ 'Time Start' | translate }}
                                 <input type="text"
                                        class="form-control"
@@ -116,7 +116,7 @@
                                        ng-readonly="vm.isReadOnly()"
                                        required>
                             </div>
-                            <div class="col-xs-2">
+                            <div class="col-xs-4 col-sm-4 col-lg-2">
                                 {{ 'Time End' | translate }}
                                 <input type="text"
                                        class="form-control"
@@ -153,18 +153,20 @@
                         ></select>
                     </div>
                 </div>
-                <div class="col-xs-1 text-right" ng-if="!vm.isReadOnly()">
+                <div class="col-xs-1 col-sm1 text-right" ng-if="!vm.isReadOnly()">
                     <a ng-click="vm.deleteSelectedBookingRule(bookingRule)" class="booking-rules-trash">
                         <i class="fa fa-trash" style="cursor: pointer"></i>
                     </a>
                 </div>
             </div>
+
             <div class="alert alert-danger alert-unit-duplicates" ng-if="vm.duplicateUnitsOnBookingsPerUser">
                 <span class="{{:: vm.alertIcon }}"></span>
                 <span translate>
                     You cannot use the same interval unit for more than one booking rule for 'Bookings per user'.
                 </span>
             </div>
+
             <div class="col-sm-6 text-right pull-right booking-rules-buttons">
                 <div class="buttons" ng-if="!vm.isReadOnly()">
                     <button class="btn btn-primary"
@@ -181,6 +183,7 @@
                 </div>
             </div>
         </form>
+
         <div class="row booking-rules-footer" ng-if="!vm.isReadOnly()">
             <div class="col-sm-6">
                 <select class="form-control"

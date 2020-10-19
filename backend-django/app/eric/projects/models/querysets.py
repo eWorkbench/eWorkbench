@@ -356,7 +356,7 @@ class BaseProjectEntityPermissionQuerySet(
         """
         Prefetches metadata.
         """
-        return self.prefetch_related('metadata')
+        return self.prefetch_related('metadata').prefetch_related('metadata__field')
 
     def viewable(self, *args, **kwargs):
         """

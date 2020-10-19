@@ -30,6 +30,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     NOTIFICATION_CONF_MEETING_CHANGED = 'NOTIFICATION_CONF_MEETING_CHANGED'
     NOTIFICATION_CONF_MEETING_RELATION_CHANGED = 'NOTIFICATION_CONF_MEETING_RELATION_CHANGED'
     NOTIFICATION_CONF_MEETING_REMINDER = 'NOTIFICATION_CONF_MEETING_REMINDER'
+    MAIL_CONF_MEETING_CONFIRMATION = 'MAIL_CONF_MEETING_CONFIRMATION'
 
     # Task
     NOTIFICATION_CONF_TASK_USER_CHANGED = 'NOTIFICATION_CONF_TASK_USER_CHANGED'
@@ -45,9 +46,12 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         (NOTIFICATION_CONF_MEETING_CHANGED, _('Meeting has been changed')),
         (NOTIFICATION_CONF_MEETING_RELATION_CHANGED, _('Relation of meeting has been changed')),
         (NOTIFICATION_CONF_MEETING_REMINDER, _('Remind of meeting')),
+        (MAIL_CONF_MEETING_CONFIRMATION, _('Confirmation mail for created meetings')),
+
         (NOTIFICATION_CONF_TASK_USER_CHANGED, _('Assigned users of task has been changed')),
         (NOTIFICATION_CONF_TASK_CHANGED, _('Task has been changed')),
         (NOTIFICATION_CONF_TASK_RELATION_CHANGED, _('Relation of task has been changed')),
+
         (NOTIFICATION_CONF_PROJECT_USER_CHANGED, _('Users of project has been changed')),
         (NOTIFICATION_CONF_PROJECT_CHANGED, _('Project has been changed')),
     )
@@ -74,9 +78,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     )
 
     allowed_notifications = ArrayField(
-        models.CharField(
-            max_length=64,
-            choices=NOTIFICATION_CONF_CHOICES),
+        models.CharField(max_length=64, choices=NOTIFICATION_CONF_CHOICES),
         default=list,
         blank=True,
         null=True,

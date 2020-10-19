@@ -3,12 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib import admin
-from django.contrib.auth import get_user_model
 
 from eric.cms.models import Content
 from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin
-
-User = get_user_model()
 
 
 @admin.register(Content)
@@ -25,12 +22,14 @@ class ContentAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         )
 
     def get_readonly_fields(self, request, obj=None):
+        # Make fields readonly for existing entries only
         if obj:
-            return list(self.readonly_fields) + ['slug', 'title']
+            return list(self.readonly_fields) + ['slug', ]
 
         return self.readonly_fields
 
     def get_prepopulated_fields(self, request, obj=None):
+        # Prepopulation works for new objects only
         if not obj:
             return {"slug": ("title",)}
 

@@ -60,7 +60,7 @@
 
     <p>{% trans "Projects" %}:
     <ul>
-        {% for project in instance.projects.all %}
+        {% for project in instance.projects.viewable %}
             <li>{{ project.name }}</li>
         {% endfor %}
     </ul>

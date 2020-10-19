@@ -156,7 +156,6 @@ class MetadataFieldViewSet(BaseAuthenticatedModelViewSet):
             to=[settings.EMAIL_RECIPIENT_FOR_NEW_METADATA_FIELDS],
         )
         msg.attach_alternative(html_message, "text/html")
-
         msg.send()
 
 

@@ -14,7 +14,7 @@ from eric.core.rest.serializers import BaseModelWithCreatedBySerializer, BaseMod
 from eric.metadata.models.models import Metadata, MetadataField
 
 
-class MetadataFieldSerializer(BaseModelWithCreatedBySerializer):
+class MetadataFieldSerializer(BaseModelSerializer):
     """ REST API serializer for metadata fields """
 
     @staticmethod
@@ -77,7 +77,7 @@ class MetadataFieldSerializer(BaseModelWithCreatedBySerializer):
         fields = ('name', 'description', 'base_type', 'type_settings',)
 
 
-class MetadataSerializer(BaseModelWithCreatedBySerializer):
+class MetadataSerializer(BaseModelSerializer):
     """ REST API serializer for metadata values """
 
     # readonly field for nested metadata-field-type info
@@ -103,9 +103,15 @@ class EntityMetadataSerializer(BaseModelSerializer):
 
     pk = UUIDField(read_only=False, required=False)
 
+    # readonly field for nested metadata-field-type info
+    field_info = SerializerMethodField()
+
+    def get_field_info(self, obj):
+        return MetadataFieldSerializer().to_representation(obj.field)
+
     class Meta:
         model = Metadata
-        fields = ('field', 'values', 'pk', 'ordering',)
+        fields = ('field', 'field_info', 'values', 'pk', 'ordering',)
 
 
 class EntityMetadataSerializerMixin:

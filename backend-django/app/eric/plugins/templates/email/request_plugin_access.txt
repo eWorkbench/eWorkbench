@@ -1,0 +1,13 @@
+{% load i18n captureas %}
+
+{% blocktrans %}This e-mail has been automatically generated, please do not reply!{% endblocktrans %}
+
+{% blocktrans %}Dear {{ recipient_username }}!{% endblocktrans %}
+
+{% blocktrans %}We are sending you this automated e-mail as user {{ requesting_username }} has requested access to plugin "{{ plugin_title }}" {% endblocktrans %}.
+
+{% if message != "" %}They have attached the following message:
+{{ message | safe }}{% endif %}
+
+{% blocktrans %}To provide this user with access to {{ plugin_title }}, open this plugin in the admin-interface through the following link and add {{ requesting_username }} as "selected user":
+{{ plugin_admin_url }}{% endblocktrans %}

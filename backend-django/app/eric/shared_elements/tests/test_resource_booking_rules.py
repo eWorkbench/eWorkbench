@@ -14,18 +14,19 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from eric.core.tests import HTTP_INFO
+from eric.core.tests.test_utils import CommonTestMixin
 from eric.projects.models import Resource
 from eric.projects.models import ResourceBookingRuleMinimumDuration, ResourceBookingRuleMaximumDuration, \
     ResourceBookingRuleBookableHours, ResourceBookingRuleMinimumTimeBefore, ResourceBookingRuleMaximumTimeBefore, \
     ResourceBookingRuleTimeBetween, ResourceBookingRuleBookingsPerUser
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ResourceMixin
 from eric.shared_elements.models import Meeting
-from eric.shared_elements.tests.core import ResourceBookingMixin
+from eric.shared_elements.tests.core import MeetingMixin
 
 User = get_user_model()
 
 
-class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, ResourceBookingMixin):
+class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, UserMixin, ResourceMixin, MeetingMixin):
     """
     Tests the /api/resourcebookings and /api/my/resourcebookings endpoints
     Tests for creating, retrieving and updating Resourcebookings
@@ -192,7 +193,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             resource=self.resource1,
         )
         # test duration not long enough
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start,
@@ -206,7 +207,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
 
         # test duration ok
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start,
@@ -223,7 +224,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             resource=self.resource1,
         )
         # test duration too long
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start,
@@ -237,7 +238,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
 
         # test duration ok
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start,
@@ -263,7 +264,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         )
 
         # date outside bookable hours
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_tuesday_09,
@@ -271,13 +272,13 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
             resource_pk=self.resource1.pk,
             **HTTP_INFO
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, expected_status_code=status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.loads(response.content.decode())["resource"][0],
                          'This resource cannot be booked on this day')
         self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
 
         # time outside bookable hours
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_wednesday_12,
@@ -292,7 +293,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
 
         # day between bookable hours
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_monday_09,
@@ -308,7 +309,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
 
         # time between bookable hours
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_end_next_wednesday_14,
@@ -324,7 +325,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
 
         # test bookable hours ok
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_monday_09,
@@ -342,7 +343,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         )
 
         # not enough time before
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.now + timedelta(minutes=10),
@@ -356,7 +357,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
 
         # enough time before
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.now + timedelta(hours=1) + timedelta(minutes=10),
@@ -374,7 +375,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         )
 
         # booking too far ahead
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.now + timedelta(days=14) + timedelta(hours=2),
@@ -388,7 +389,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
 
         # booking within the timeframe
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.now + timedelta(days=7),
@@ -406,7 +407,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         )
 
         # set one booking up first
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.now + timedelta(minutes=10),
@@ -418,7 +419,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
 
         # not enough time between
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_end_2_hours + timedelta(hours=1),
@@ -432,7 +433,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
 
         # enough time between
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_end_2_hours + timedelta(hours=2) + timedelta(minutes=10),
@@ -463,7 +464,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         )
 
         # set one booking up first
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_monday_08,
@@ -475,7 +476,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
 
         # set another booking up for this day
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_monday_08 + timedelta(hours=3),
@@ -487,7 +488,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 2, msg="There should be two resourcebookings")
 
         # a third booking for this day shouldn't be possible
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_monday_08 + timedelta(hours=6),
@@ -501,7 +502,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 2, msg="There should be two resourcebookings")
 
         # set another booking up for another day within this week
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_tuesday_09,
@@ -513,7 +514,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 3, msg="There should be three resourcebookings")
 
         # another booking for this week shouldn't be possible
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.date_time_start_next_wednesday_09,
@@ -527,7 +528,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 3, msg="There should be three resourcebookings")
 
         # set a 1st booking up for another day within the month 2 months from now
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=1) + timedelta(hours=1),
@@ -539,7 +540,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 4, msg="There should be four resourcebookings")
 
         # set a 2nd booking up for another day within the month 2 months from now
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=4) + timedelta(hours=1),
@@ -551,7 +552,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 5, msg="There should be four resourcebookings")
 
         # set a 3rd booking up for another day within the month 2 months from now
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=8) + timedelta(hours=1),
@@ -563,7 +564,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 6, msg="There should be four resourcebookings")
 
         # set a 4th and last booking up for another day within the month 2 months from now
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=14) + timedelta(hours=1),
@@ -575,7 +576,7 @@ class ResourceBookingsTest(APITestCase, AuthenticationMixin, UserMixin, Resource
         self.assertEquals(Meeting.objects.all().count(), 7, msg="There should be four resourcebookings")
 
         # a 5th booking for the month 2 months from now shouldn't be possible
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=self.first_day_of_next_next_month + timedelta(days=20) + timedelta(hours=1),

@@ -1,5 +1,9 @@
 -r requirements.txt
+-r requirements_tests.txt
 -r requirements_docs.txt
 django-debug-toolbar==2.2.*
 pycodestyle==2.6.*
 licenseheaders
+
+# tblib is required to run Django tests in parallel
+tblib

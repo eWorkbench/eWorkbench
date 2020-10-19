@@ -11,7 +11,7 @@
     /**
      * Define API Endpoint for /api/resourcebookings/my using ngResource
      */
-    module.factory('MyResourceBookingsRestService', function (cachedResource, restApiUrl, ResourceBookingConverterService) {
+    module.factory('MyResourceBookingsRestService', function (cachedResource, restApiUrl, MeetingConverterService) {
         'ngInject';
 
         // create ng-resource for api endpoint /api/resourcebookings, with parameter resourcebookings id
@@ -21,12 +21,12 @@
             {
                 'get': {
                     'method': 'GET',
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray
+                    'transformResponse': MeetingConverterService.transformResponseForMeetingArray
                 },
                 'query': {
                     'method': 'GET',
                     'isArray': true,
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray,
+                    'transformResponse': MeetingConverterService.transformResponseForMeetingArray,
                     'interceptor': {
                         response: function (response) {
                             response.resource.$httpHeaders = response.headers;
@@ -41,12 +41,12 @@
                 },
                 'update': {
                     'method': 'PUT',
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBooking
+                    'transformResponse': MeetingConverterService.transformResponseForMeeting
                 },
                 // overwrite update partial method
                 'updatePartial': {
                     'method': 'PATCH',
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBooking
+                    'transformResponse': MeetingConverterService.transformResponseForMeeting
                 }
             },
             {

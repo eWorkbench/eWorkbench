@@ -1,0 +1,47 @@
+{% load i18n user_widgets date_filters %}
+
+<p>{% trans "Title" %}: {{ instance.title }}</p>
+<p>{% trans "Start Date" %}: {{ instance.start_date | date_short }}</p>
+<p>{% trans "Due Date" %}: {{ instance.due_date | date_short }}</p>
+<p>{% trans "Task State" %}: {{ instance.get_state_display }}</p>
+<p>{% trans "Priority" %}: {{ instance.get_priority_display }}</p>
+
+{% if instance.assigned_users.all.exists %}
+<p>{% trans "Assignees" %}:
+<ul>
+    {% for user in instance.assigned_users.all %}
+        <li>
+            {% display_user_widget user %}
+        </li>
+    {% endfor %}
+</ul>
+</p>
+{% endif %}
+
+{% if instance.checklist_items.all.exists %}
+<p>{% trans "Sub Tasks" %}: </p>
+<table class="sub_tasks">
+    {% for subTask in instance.checklist_items.all %}
+        <tr>
+            <td>{% if subTask.checked %} &#10003; {% endif %}</td>
+            <td>{{ subTask.title }}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% endif %}
+<br>
+{% if instance.projects.viewable.exists %}
+<p>{% trans "Projects" %}:
+<ul>
+    {% for project in instance.projects.viewable %}
+        <li>{{ project.name }}</li>
+    {% endfor %}
+</ul>
+</p>
+{% endif %}
+
+<p>{% trans "Text" %}:
+<div>
+    {{ instance.description | safe }}
+</div>
+</p>

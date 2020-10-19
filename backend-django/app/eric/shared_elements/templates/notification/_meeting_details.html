@@ -1,0 +1,45 @@
+{% load i18n captureas user_widgets simple_object_display date_filters %}
+
+{# Hint: Whitespace matters for plaintext rendering -- change with caution and test afterwards! #}
+
+<p>{% trans "Name" %}: {{ instance.title }}</p>
+<p>{% trans "From" %}: {{ instance.date_time_start | date_short }}</p>
+<p>{% trans "To" %}: {{ instance.date_time_end | date_short }}</p>
+{% if instance.location %}<p>{% trans "Location" %}: {{ instance.location }}</p>
+{% endif %}
+{% if instance.resource %}<p>{% trans "Resource" %}: {{ instance.resource.name }}</p>
+    {% if instance.resource.location %}<p>{% trans "Resource Location" %}: {{ instance.resource.location }}</p>
+    {% endif %}
+{% endif %}
+
+{% if instance.attending_users.all.exists %}
+<p>{% trans "Attending users" %}:
+<ul>{% for attending_user in instance.attending_users.all %}<li>{% display_user_widget attending_user %}</li>
+    {% endfor %}
+</ul>
+</p>
+{% endif %}
+
+{% if instance.attending_contacts.viewable.exists %}
+<p>{% trans "Attending contacts" %}:
+<ul>{% for contact in instance.attending_contacts.viewable %}<li>{% simple_object_display contact %}</li>
+    {% endfor %}
+</ul>
+</p>
+{% endif %}
+
+{% if instance.text %}
+<p>{% trans "Text" %}:
+<div>{{ instance.text | safe }}
+</div>
+</p>
+{% endif %}
+
+{% if instance.projects.viewable.exists %}
+<p>{% trans "Projects" %}:
+<ul>{% for project in instance.projects.viewable %}
+        <li>{{ project.name }}</li>
+    {% endfor %}
+</ul>
+</p>
+{% endif %}

@@ -74,7 +74,6 @@
             if ("resource" in schedule && schedule.content_type_model === 'shared_elements.meeting') {
                 for (var i = 0; i < selectedResources.length; i++) {
                     if (schedule["resource"] && schedule["resource"].pk === selectedResources[i].pk) {
-
                         return this.selectColor(i);
                     }
                 }
@@ -185,10 +184,6 @@
 
                 case 'shared_elements.task':
                     users = event.assigned_users;
-                    break;
-
-                case 'projects.resourcebooking':
-                    users = [event.created_by];
                     break;
 
                 default:

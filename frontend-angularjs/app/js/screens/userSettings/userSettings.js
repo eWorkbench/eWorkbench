@@ -24,7 +24,9 @@
         gettextCatalog,
         toaster,
         NotificationConfigurationRestService,
-        confirmDialogService
+        confirmDialogService,
+        $http,
+        restApiUrl
     ) {
         var vm = this;
 
@@ -56,6 +58,10 @@
                 },
                 'NOTIFICATION_CONF_MEETING_REMINDER': {
                     'label': gettextCatalog.getString("Remind me of upcoming meetings I attend."),
+                    'enabled': false
+                },
+                'MAIL_CONF_MEETING_CONFIRMATION': {
+                    'label': gettextCatalog.getString("Send me a confirmation mail for created appointments."),
                     'enabled': false
                 }
             };
@@ -113,6 +119,20 @@
 
             loadNotificationConfiguration();
             vm.checkAllPromptsEnabled();
+
+            vm.loadUserProfileCmsText();
+        };
+
+        vm.loadUserProfileCmsText = function () {
+            vm.show_cms_info = false;
+            $http.get(restApiUrl + "cms/json/userprofile_info/").then(
+                function success (response) {
+                    vm.cmsInfo = response.data;
+                },
+                function error (rejection) {
+                    vm.cmsInfo = null;
+                }
+            );
         };
 
         vm.checkAllPromptsEnabled = function () {
@@ -276,7 +296,6 @@
          * if an error occurs - reload old data
          */
         var updateNotificationConfiguration = function () {
-
             vm.enabledNotificationsObject.allowed_notifications = getAllEnabledConfigurations();
 
             // send updated data to api

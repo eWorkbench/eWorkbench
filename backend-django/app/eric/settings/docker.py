@@ -14,7 +14,7 @@ ANX_MONITORING_ACCESS_TOKEN = 'none'
 
 DEBUG = True
 
-NOTIFICATIONS_TIME_BETWEEN_EMAILS = 1
+NOTIFICATIONS_SETTINGS['MINIMUM_TIME_BETWEEN_EMAILS'] = timedelta(seconds=10)
 
 # CORS Configuration
 CORS_ORIGIN_REGEX_WHITELIST = (
@@ -58,10 +58,8 @@ INTERNAL_IPS = ('127.0.0.1', '10.0.28.1')
 
 # LDAP Configuration
 AUTH_LDAP_SERVER_URI = "ldap://ldap-service"
-
 AUTH_LDAP_BIND_DN = "cn=admin,dc=workbench,dc=local"
 AUTH_LDAP_BIND_PASSWORD = "admin"
-
 AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=People,dc=workbench,dc=local", ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
 
 # assign all users that have organizational name (o) set to "employee" the group "User"
@@ -99,12 +97,14 @@ WORKBENCH_SETTINGS.update({
     'password_reset_url': 'http://workbench.local:8080/app/#/password_reset/{token}',
 })
 
-ADMIN = [
-    ('Server Admin', 'admin@workbench.local'),
+ADMINS = [
+    ('First Admin', 'admin1@workbench.local'),
+    ('Second Admin', 'admin2@workbench.local'),
 ]
 
 CONTACT_ADMIN = [
-    ('Contact Admin', 'contact@workbench.local'),
+    ('First Contact Admin', 'contact1@workbench.local'),
+    ('Second Contact Admin', 'contact2@workbench.local'),
 ]
 
 # EMail Settings (maildump server)

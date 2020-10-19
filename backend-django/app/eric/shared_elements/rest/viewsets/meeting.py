@@ -9,20 +9,23 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.timezone import datetime
 from django_userforeignkey.request import get_current_user
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 from weasyprint import HTML
 
-from eric.jwt_auth.jwt_utils import build_jwt_url
-from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedModelViewSet
+from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedModelViewSet, \
+    BaseViewSetMixin
 from eric.core.utils import convert_html_to_text
+from eric.jwt_auth.jwt_utils import build_jwt_url
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, \
     LockableViewSetMixIn
 from eric.shared_elements.models import Meeting, UserAttendsMeeting
-from eric.shared_elements.rest.filters import MeetingFilter
+from eric.shared_elements.rest.filters import MeetingFilter, AnonymousMeetingFilter
 from eric.shared_elements.rest.serializers import MeetingSerializer
+from eric.shared_elements.rest.serializers.meeting import AnonymousResourceBookingSerializer
 
 
 class MeetingViewSet(
@@ -151,7 +154,7 @@ class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetM
     pagination_class = None
 
     def get_queryset(self):
-        return Meeting.objects.resourcebookings_my_viewable().prefetch_common().prefetch_related(
+        return Meeting.objects.my_bookings().prefetch_common().prefetch_related(
             'projects'
         ).filter(deleted=False).filter(resource__deleted=False)
 
@@ -195,9 +198,9 @@ class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetM
         return response
 
 
-class AllResourceBookingViewSet(BaseAuthenticatedModelViewSet):
+class AllResourceBookingViewSet(BaseViewSetMixin, mixins.ListModelMixin, GenericViewSet):
     serializer_class = MeetingSerializer
-    filter_class = MeetingFilter
+    filter_class = AnonymousMeetingFilter
     search_fields = ()
     ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
                        'attending_users', 'date_time_start', 'date_time_end',
@@ -207,6 +210,25 @@ class AllResourceBookingViewSet(BaseAuthenticatedModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        return Meeting.objects.resourcebookings_all_viewable().prefetch_common().prefetch_related(
-            'projects'
-        ).filter(deleted=False).filter(resource__deleted=False)
+        return Meeting.objects \
+            .filter(deleted=False, resource__deleted=False, resource__isnull=False) \
+            .prefetch_common() \
+            .prefetch_related('projects')
+
+    def list(self, request, *args, **kwargs):
+        # apply ViewSet filters
+        meetings_qs = self.filter_queryset(self.get_queryset())
+
+        # build query for bookings with access to all data
+        full_info_qs = meetings_qs.fully_viewable()
+        full_info_meetings = self.serializer_class(
+            full_info_qs, many=True, context={'request': self.request}
+        ).data
+
+        # build query for bookings with limited data
+        limited_info_qs = meetings_qs.difference(full_info_qs)
+        limited_info_meetings = AnonymousResourceBookingSerializer(
+            limited_info_qs, many=True, context={'request': self.request}
+        ).data
+
+        return Response(full_info_meetings + limited_info_meetings)

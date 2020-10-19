@@ -1,5 +1,4 @@
 {% load i18n captureas notifications %}
-
 {% blocktrans %}Dear {{ user }}!{% endblocktrans %}
 
 {% if notification %}

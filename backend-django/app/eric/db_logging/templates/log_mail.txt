@@ -1,0 +1,10 @@
+{% load site_preferences db_logging_extras %}There are {{ logs | length }} new logs, see {% site_url %}{{ admin_url }}
+{% for log in logs %}
+###############################################################################
+# {{ log.created_at_formatted }} | Log #{{ log.pk }} | {{ log.level | log_level_to_name }}
+# {{ log.message }}
+# {{ log.user_identification }}
+# For details see: {% site_url %}{% url 'admin:db_logging_dblog_change' log.pk %}
+###############################################################################
+{{ log.trace }}
+{% endfor %}

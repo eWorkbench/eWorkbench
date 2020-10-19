@@ -14,7 +14,9 @@
         PermissionService,
         ObjectPrivilegesRestServiceFactory
     ) {
-        var privileges = {};
+        var privileges = {},
+            ALLOW = 'AL',
+            DENY = 'DE';
 
         /**
          * Simple cache (dictionary) for privileges
@@ -28,7 +30,7 @@
                     return privileges[obj.url];
                 }
             } else {
-                console.log("Unknown object");
+                console.debug("Unknown object");
             }
 
             return null;
@@ -39,19 +41,37 @@
          * @param obj
          */
         var fetchPrivilegesFromApi = function (obj) {
-            // privileges are cached, only fetch them once
-            if (!privilegeRestServices[obj.url]) {
-                // create the privileges rest service
-                privilegeRestServices[obj.url] = ObjectPrivilegesRestServiceFactory(obj.url);
-
-                // and fetch privileges for the current user
-                privilegeRestServices[obj.url].getPrivilegesForCurrentUser().then(
-                    function success (privilege) {
-                        // done, store the privileges
-                        privileges[obj.url] = privilege;
-                    }
-                );
+            // can't query privileges without defined URL
+            if (!obj.url) {
+                return;
             }
+
+            // privileges are cached, only fetch them once
+            if (privilegeRestServices[obj.url]) {
+                return;
+            }
+
+            // create the privileges rest service
+            privilegeRestServices[obj.url] = ObjectPrivilegesRestServiceFactory(obj.url);
+
+            // and fetch privileges for the current user
+            privilegeRestServices[obj.url].getPrivilegesForCurrentUser().then(
+                function success (privilege) {
+                    // done, store the privileges
+                    privileges[obj.url] = privilege;
+                },
+                function error (rejection) {
+                    console.debug("Permission API call rejected -> assuming no permission", rejection);
+                    privileges[obj.url] = {
+                        full_access_privilege: DENY,
+                        view_privilege: DENY,
+                        edit_privilege: DENY,
+                        trash_privilege: DENY,
+                        delete_privilege: DENY,
+                        restore_privilege: DENY
+                    };
+                }
+            );
         };
 
         /**
@@ -84,7 +104,7 @@
                 }
 
                 // get privileges of the current user for the given
-                return privilege.full_access_privilege == 'AL' || privilege.edit_privilege == 'AL';
+                return privilege.full_access_privilege === ALLOW || privilege.edit_privilege === ALLOW;
             }
         ]);
 
@@ -98,7 +118,7 @@
                 }
 
                 // if this is a project, we can check the current users project permission list
-                if (obj.content_type_model == "projects.project") {
+                if (obj.content_type_model === "projects.project") {
                     return obj.current_users_project_permissions_list.indexOf("projects.trash_project") >= 0;
                 }
 
@@ -113,7 +133,7 @@
                 }
 
                 // get privileges of the current user for the given
-                return privilege.full_access_privilege == 'AL' || privilege.trash_privilege == 'AL';
+                return privilege.full_access_privilege === ALLOW || privilege.trash_privilege === ALLOW;
             }
         ]);
 
@@ -127,7 +147,7 @@
                 }
 
                 // if this is a project, we can check the current users project permission list
-                if (obj.content_type_model == "projects.project") {
+                if (obj.content_type_model === "projects.project") {
                     return obj.current_users_project_permissions_list.indexOf("projects.delete_project") >= 0;
                 }
 
@@ -142,7 +162,7 @@
                 }
 
                 // get privileges of the current user for the given
-                return privilege.full_access_privilege == 'AL' || privilege.delete_privilege == 'AL';
+                return privilege.full_access_privilege === ALLOW || privilege.delete_privilege === ALLOW;
             }
         ]);
 
@@ -153,7 +173,7 @@
                 }
 
                 // if this is a project, we can check the current users project permission list
-                if (obj.content_type_model == "projects.project") {
+                if (obj.content_type_model === "projects.project") {
                     return obj.current_users_project_permissions_list.indexOf("projects.restore_project") >= 0;
                 }
 
@@ -168,7 +188,7 @@
                 }
 
                 // get privileges of the current user for the given
-                return privilege.full_access_privilege == 'AL' || privilege.restore_privilege == 'AL';
+                return privilege.full_access_privilege === ALLOW || privilege.restore_privilege === ALLOW;
             }
         ]);
     });

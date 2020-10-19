@@ -15,8 +15,7 @@
         cachedResource,
         restApiUrl,
         TaskConverterService,
-        MeetingConverterService,
-        ResourceBookingConverterService
+        MeetingConverterService
     ) {
         'ngInject';
 
@@ -36,8 +35,6 @@
                     entry = MeetingConverterService.convertMeetingFromRestAPI(entry);
                 } else if (entry.content_type_model === "shared_elements.task") {
                     entry = TaskConverterService.convertTaskFromRestAPI(entry);
-                } else if (entry.content_type_model === "projects.resourcebooking") {
-                    entry = ResourceBookingConverterService.convertResourceBookingFromRestAPI(entry);
                 } else {
                     console.error("/api/my/schedule: Got entry with invalid content type " + entry.content_type_model);
                 }

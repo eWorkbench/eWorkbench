@@ -6,13 +6,14 @@ import django_filters
 from django.db.models.constants import LOOKUP_SEP
 
 from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter
+from eric.core.rest.filters import ListFilter, RecursiveProjectsListFilter, RecentlyModifiedByMeFilter
 from eric.drives.models import Drive
 from eric.shared_elements.models import Contact, Task, Meeting, Note, File, ElementLabel, CalendarAccess
-from eric.core.rest.filters import ListFilter, RecursiveProjectsListFilter, RecentlyModifiedByMeFilter
 
 
 class FileFilter(BaseFilter):
     """ Filter for Tasks, which allows filtering for the project (foreign key) """
+
     class Meta:
         model = File  # File -> Directory -> Drive
         fields = {
@@ -34,6 +35,7 @@ class FileFilter(BaseFilter):
 
 class TaskFilter(BaseFilter):
     """ Filter for Tasks, which allows filtering for the project (foreign key) """
+
     class Meta:
         model = Task
         fields = {
@@ -82,6 +84,7 @@ class TaskFilter(BaseFilter):
 
 class ContactFilter(BaseFilter):
     """ Filter for Contact, which allows filtering for the project (foreign key) """
+
     class Meta:
         model = Contact
         fields = {
@@ -101,6 +104,7 @@ class ContactFilter(BaseFilter):
 
 class MeetingFilter(BaseFilter):
     """ Filter for Meeting, which allows filtering by date_time and project """
+
     class Meta:
         model = Meeting
         fields = {
@@ -132,18 +136,42 @@ class MeetingFilter(BaseFilter):
         elif field_name == 'date_time_end' or field_name == 'due_date':
             field_name = 'end_date'
 
-        filter_name = LOOKUP_SEP.join([field_name, lookup_expr])
+        return super().get_filter_name(field_name, lookup_expr)
 
-        # This also works with transformed exact lookups, such as 'date__exact'
-        _exact = LOOKUP_SEP + 'exact'
-        if filter_name.endswith(_exact):
-            filter_name = filter_name[:-len(_exact)]
 
-        return filter_name
+class AnonymousMeetingFilter(BaseFilter):
+    """ Restricted filters for anonymous meetings """
+
+    class Meta:
+        model = Meeting
+        fields = {
+            # Advisory: Do not allow filtering by attending_users or any other non-anonymous data
+            # (Attackers could use many requests with those filters to deduce private information)
+            'resource': BaseFilter.FOREIGNKEY_COMPERATORS,
+            'date_time_end': BaseFilter.DATE_COMPERATORS,
+            'date_time_start': BaseFilter.DATE_COMPERATORS,
+        }
+
+    deleted = BooleanDefaultFilter()
+
+    @classmethod
+    def get_filter_name(cls, field_name, lookup_expr):
+        """
+        Combine a field name and lookup expression into a usable filter name.
+        Exact lookups are the implicit default, so "exact" is stripped from the
+        end of the filter name.
+        """
+        if field_name == 'date_time_start' or field_name == 'start_date':
+            field_name = 'start_date'
+        elif field_name == 'date_time_end' or field_name == 'due_date':
+            field_name = 'end_date'
+
+        return super().get_filter_name(field_name, lookup_expr)
 
 
 class NoteFilter(BaseFilter):
     """ Filter for Note, which allows filtering by project """
+
     class Meta:
         model = Note
         fields = {
@@ -163,6 +191,7 @@ class NoteFilter(BaseFilter):
 
 class ElementLabelFilter(BaseFilter):
     """ Filter for Element Labels """
+
     class Meta:
         model = ElementLabel
         fields = {
@@ -172,6 +201,7 @@ class ElementLabelFilter(BaseFilter):
 
 class CalendarAccessFilter(BaseFilter):
     """ Filter for Calendar Access Privileges """
+
     class Meta:
         model = CalendarAccess
         fields = {

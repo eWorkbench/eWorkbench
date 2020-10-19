@@ -16,22 +16,23 @@ class HelperMixin:
     """ Provides helper methods. """
 
     def set_model_privilege_for_user(
-        self, token, endpoint, model, pk, user,
-        full_access_privilege=ModelPrivilege.NEUTRAL,
-        view_privilege=ModelPrivilege.NEUTRAL,
-        edit_privilege=ModelPrivilege.NEUTRAL,
-        delete_privilege=ModelPrivilege.NEUTRAL,
-        trash_privilege=ModelPrivilege.NEUTRAL,
-        restore_privilege=ModelPrivilege.NEUTRAL):
+            self, token, endpoint, pk, user,
+            full_access_privilege=ModelPrivilege.NEUTRAL,
+            view_privilege=ModelPrivilege.NEUTRAL,
+            edit_privilege=ModelPrivilege.NEUTRAL,
+            delete_privilege=ModelPrivilege.NEUTRAL,
+            trash_privilege=ModelPrivilege.NEUTRAL,
+            restore_privilege=ModelPrivilege.NEUTRAL
+    ):
         response = self.rest_create_privilege(
             auth_token=token,
-            model=endpoint,
-            pk=pk,
-            user_pk=user.pk,
-            HTTP_USER_AGENT=HTTP_USER_AGENT,
-            REMOTE_ADDR=REMOTE_ADDRESS)
-        self.assertEquals(response.status_code, HTTP_201_CREATED,
-                          "Couldn't create model privilege for model %s pk %s for user %s" % (model, pk, user.username))
+            model=endpoint, pk=pk, user_pk=user.pk,
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDRESS
+        )
+        self.assertEquals(
+            response.status_code, HTTP_201_CREATED,
+            "Couldn't create model privilege for model %s pk %s for user %s" % (endpoint, pk, user.username)
+        )
 
         privilege = json.loads(response.content.decode())
 
@@ -46,14 +47,13 @@ class HelperMixin:
 
         response = self.rest_update_privilege(
             auth_token=token,
-            model=endpoint,
-            pk=pk,
-            user_pk=user.pk,
-            privilege=privilege,
-            HTTP_USER_AGENT=HTTP_USER_AGENT,
-            REMOTE_ADDR=REMOTE_ADDRESS)
-        self.assertEquals(response.status_code, HTTP_200_OK,
-                          "Couldn't set model privilege for user %s" % user.username)
+            model=endpoint, pk=pk, user_pk=user.pk, privilege=privilege,
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDRESS,
+        )
+        self.assertEquals(
+            response.status_code, HTTP_200_OK,
+            "Couldn't set model privilege for user %s" % user.username
+        )
 
     def assign_user_to_project(self, token, user, project):
         default_user_role = Role.objects.filter(default_role_on_project_user_assign=True).first()

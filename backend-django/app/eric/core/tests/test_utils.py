@@ -3,9 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
+from contextlib import AbstractContextManager
+from datetime import datetime
 
 from django.contrib.auth.models import User, Group
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from django.utils.timezone import localtime
+from django_userforeignkey.request import get_current_request, set_current_request
 from rest_framework import status
 from rest_framework.status import HTTP_200_OK
 
@@ -20,10 +24,13 @@ class CommonTestMixin:
     """
 
     def assert_response_status(self, response, expected_status_code=HTTP_200_OK):
-        try:
-            response_content = response.content.decode()
-        except UnicodeDecodeError:
-            response_content = '<could not decode response>'
+        if hasattr(response, 'content'):
+            try:
+                response_content = response.content.decode()
+            except UnicodeDecodeError:
+                response_content = '<could not decode response>'
+        else:
+            response_content = '<no content (StreamingContent?)>'
 
         self.assertEqual(
             response.status_code, expected_status_code,
@@ -82,11 +89,16 @@ class CommonTestMixin:
         return user
 
     def create_user_and_log_in(self, groups=None, **kwargs):
+        username = kwargs.get('username')
+
         if 'password' not in kwargs:
             kwargs['password'] = 'mySuperSecretPassword123'
 
+        if 'email' not in kwargs:
+            kwargs['email'] = f'{username}@test.local'
+
         user = self.create_user(groups, **kwargs)
-        token = self.login_as_user(kwargs['username'], kwargs['password'])
+        token = self.login_as_user(username, kwargs['password'])
 
         return user, token
 
@@ -151,3 +163,63 @@ class CoreUtilsTest(TestCase):
         clean_dict = remove_none_values_from_dict(test_dict)
         self.assertNotEqual(test_dict, clean_dict)
         self.assertEqual(len(clean_dict), 3)
+
+
+class FakeRequestUser(AbstractContextManager):
+    def __init__(self, user, request=None):
+        self.tmp_user = user
+
+        self.request = request
+        if self.request is None:
+            self.request = get_current_request()
+
+        self.original_user = getattr(self.request, 'user', None)
+
+    def __enter__(self):
+        self.request.user = self.tmp_user
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.request.user = self.original_user
+
+
+class FakeRequest(AbstractContextManager):
+    def __init__(self, request=None):
+        self.original_request = get_current_request()
+        self.tmp_request = request
+        if request is None:
+            self.tmp_request = RequestFactory().request(**{})
+
+    def __enter__(self):
+        set_current_request(self.tmp_request)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        set_current_request(self.original_request)
+
+
+def as_aware_dt(dt):
+    """ Transforms a naive datetime object into an aware datetime object of the current timezone. """
+
+    return localtime().replace(
+        year=dt.year, month=dt.month, day=dt.day,
+        hour=dt.hour, minute=dt.minute, second=dt.second,
+        microsecond=dt.microsecond,
+    )
+
+
+def aware_dt(year, month=1, day=1, hour=0, minute=0, second=0, microsecond=0):
+    """ Creates an aware datetime object of the current timezone. """
+
+    return as_aware_dt(
+        datetime(year, month, day, hour, minute, second, microsecond)
+    )
+
+
+def naive_dt(year, month=1, day=1, hour=0, minute=0, second=0, microsecond=0):
+    """
+    Creates a naive datetime that has no timezone information.
+    This is the expected format of the REST API.
+    """
+
+    return datetime(year, month, day, hour, minute, second, microsecond)

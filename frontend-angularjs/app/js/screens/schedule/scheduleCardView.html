@@ -26,12 +26,6 @@
                     <card-functions>
                     </card-functions>
                 </task-card-display>
-                <!-- show resourcebooking card -->
-                <resource-booking-card-display ng-if="schedule.content_type_model == 'projects.resourcebooking'"
-                                               resourcebooking="schedule">
-                    <card-functions>
-                    </card-functions>
-                </resource-booking-card-display>
                 <!-- show no data available card -->
                 <schedule-no-data-card-display ng-if="schedule.content_type_model == 'noDataAvailable'" schedule="schedule">
                 </schedule-no-data-card-display>

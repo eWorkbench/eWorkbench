@@ -33,7 +33,9 @@
         PermissionService,
         $filter,
         ResourceBookingRulesService,
-        $timeout
+        $timeout,
+        $state,
+        FilterUrlStateService
     ) {
         'ngInject';
 
@@ -41,14 +43,11 @@
 
         this.$onInit = function () {
             vm.resourceIcon = IconImagesService.mainElementIcons.resource;
-
             vm.view = 'view';
-
             vm.currentUser = AuthRestService.getCurrentUser();
-
             vm.branchLibraries = ResourceConverterService.branchLibraryTexts;
-
             vm.loadedResources = [];
+            vm.resourcesLoaded = false;
 
             /**
              * calendar configuration of the angular ui calendar
@@ -80,73 +79,87 @@
             vm.bookingRules = ResourceBookingRulesService.getBookingRules();
 
             $timeout(function () {
-                $rootScope.$broadcast("change-navbar", {
-                    custom_site_name: gettextCatalog.getString("Study Room Booking"),
-                    study_room_mode: true
-                });
-                $rootScope.$broadcast("change-menu-entries", {
-                    menu_entries: [
-                        {
-                            title: gettextCatalog.getString("Switch to Workbench"),
-                            url: "#/"
-                        }
-                    ]
-                });
-            }, 100);
-
+                $rootScope.$broadcast("change-navbar", {study_room_mode: true});
+                // vm.decodeParams();
+            });
         };
 
         this.$onDestroy = function () {
-            $rootScope.$broadcast("change-site-name", {
-                custom_site_name: null,
-                study_room_mode: false
-            });
-            $rootScope.$broadcast("change-menu-entries", {
-                menu_entries: null
-            });
+            $rootScope.$broadcast("change-navbar", {study_room_mode: false});
         };
 
-        vm.switchToView = function () {
-            vm.resource.$getCached();
-            vm.view = 'view';
+        vm.encodeParams = function () {
+            if (vm.selectedBranchLibrary) {
+                FilterUrlStateService.setFilterOption('branch_library', vm.selectedBranchLibrary);
+            }
+
+            if (vm.resourcePk) {
+                FilterUrlStateService.setFilterOption('resource', vm.resourcePk);
+            }
         };
 
-        vm.cancel = function () {
-            vm.switchToView();
+        vm.decodeParams = function () {
+            if (!$state.params) {
+                return;
+            }
+
+            if ($state.params['branch_library']) {
+                vm.selectedBranchLibrary = $state.params['branch_library'];
+            } else {
+                return;
+            }
+
+            if ($state.params['resource']) {
+                // wait until resources have been loaded
+                var disableWatcher = $scope.$watch('vm.resourcesLoaded', function (newVal, oldVal) {
+                    if (newVal) {
+                        vm.resourcePk = $state.params['resource'];
+                        disableWatcher();
+                    }
+                });
+            }
+        };
+
+        vm.loadResources = function () {
+            ResourceRestService.query({
+                'study_room': 'True',
+                'branch_library': vm.selectedBranchLibrary
+            }).$promise.then(
+                function success (response) {
+                    vm.loadedResources.length = 0;
+                    for (var t = 0; t < response.length; t++) {
+                        vm.loadedResources.push(response[t]);
+                    }
+                },
+                function error (rejection) {
+                    console.error("Could not load resources ", rejection);
+                    toaster.pop('error', gettextCatalog.getString("Could not load resources"));
+                }
+            ).finally(function () {
+                vm.resourcesLoaded = true;
+            });
         };
 
         // watch for changes in vm.selectedBranchLibrary and query resources for selected branch library
         $scope.$watch('vm.selectedBranchLibrary', function () {
+            vm.resourcePk = null;
             vm.resource = null;
+            vm.resourcesLoaded = false;
+            // vm.encodeParams();
             if (vm.selectedBranchLibrary) {
-                ResourceRestService.query({
-                    'study_room': 'True',
-                    'branch_library': vm.selectedBranchLibrary
-                }).$promise.then(
-                    function success (response) {
-                        vm.loadedResources.length = 0;
-                        for (var t = 0; t < response.length; t++) {
-                            vm.loadedResources.push(response[t]);
-                        }
-                    },
-                    function error (rejection) {
-                        console.error("Could not load resources ", rejection);
-                        toaster.pop('error', gettextCatalog.getString("Could not load resources"));
-                    }
-                ).finally(function () {
-                    vm.resourcesLoaded = true;
-                });
+                vm.loadResources();
             }
         });
 
         // watch for changes in vm.resourcePk and get the resource object from vm.loadedResources
         $scope.$watch('vm.resourcePk', function () {
             vm.resource = null;
+            // vm.encodeParams();
             if (vm.resourcePk) {
                 $timeout(function () {
-                    vm.resource = $filter('filter')(vm.loadedResources, {'pk':vm.resourcePk})[0];
-                    vm.defaultBookingRules = ResourceBookingRulesService
-                        .initializeBookingRulesConfiguration(vm.resource);
+                    vm.resource = $filter('filter')(vm.loadedResources, {'pk': vm.resourcePk})[0];
+                    vm.defaultBookingRules =
+                        ResourceBookingRulesService.initializeBookingRulesConfiguration(vm.resource);
                 });
             }
         });

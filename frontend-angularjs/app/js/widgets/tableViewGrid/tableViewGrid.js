@@ -65,7 +65,8 @@
         gettextCatalog,
         DynamicTableSettingsService,
         DefaultTableStates,
-        uiGridConstants
+        uiGridConstants,
+        DebounceService
     ) {
         "ngInject";
 
@@ -137,37 +138,10 @@
             };
         };
 
-        // TODO: Extract into service/util
-        // Returns a function, that, as long as it continues to be invoked, will not
-        // be triggered. The function will be called after it stops being called for
-        // N milliseconds. If `immediate` is passed, trigger the function on the
-        // leading edge, instead of the trailing.
-        vm.debounce = function (func, wait, immediate) {
-            var timeout = null;
-
-            return function () {
-                var context = this,
-                    args = arguments;
-                var later = function () {
-                    timeout = null;
-                    if (!immediate) {
-                        func.apply(context, args);
-                    }
-                };
-                var callNow = immediate && !timeout;
-
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) {
-                    func.apply(context, args);
-                }
-            };
-        };
-
         /**
          * Save the state of the grid, debounced for 2 seconds to not hammer the db
          */
-        vm.saveState = vm.debounce(function () {
+        vm.saveState = DebounceService.debounce(function () {
             var state = vm.gridApi.saveState.save();
 
             if (state) {

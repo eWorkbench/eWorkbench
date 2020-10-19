@@ -109,7 +109,6 @@
          */
         vm.saveUserProfile = function () {
             vm.readOnly = true;
-            //reset
             vm.errors = {};
             delete vm.user.userprofile.avatar;
 
@@ -128,7 +127,6 @@
                     toaster.pop('error', gettextCatalog.getString("Failed to update user profile"));
                     console.log(rejection);
                     vm.errors = rejection.data;
-
                     defer.reject(rejection.data);
                 }
             ).finally(function () {
@@ -155,9 +153,7 @@
 
             if (vm.croppedDataUrl) {
                 vm.uploadInProgress = true;
-
                 vm.user.userprofile.avatar = null;
-
                 vm.file = Upload.dataUrltoBlob(vm.croppedDataUrl, "image.png");
 
                 UploadAvatarImage.upload(vm.file).then(
@@ -168,15 +164,12 @@
                         vm.croppingImageActive = false;
                         vm.uploadInProgress = false;
                         toaster.pop('success', gettextCatalog.getString("Profile picture updated"));
-
-
                         vm.user.userprofile.avatar = response.userprofile.avatar;
                         vm.profileView = 'view';
                     }, function error (rejection) {
                         toaster.pop('error', gettextCatalog.getString("Failed to update profile picture"));
                         console.log(rejection);
                         vm.uploadInProgress = false;
-
                         vm.errors = rejection.data;
                     }, function status (evt) {
                         vm.progress = window.parseInt(100.0 * evt.loaded / evt.total);
@@ -218,7 +211,6 @@
          */
         vm.cancelChangesProfile = function () {
             vm.profileView = 'view';
-            //reset
             vm.errors = {};
         };
 

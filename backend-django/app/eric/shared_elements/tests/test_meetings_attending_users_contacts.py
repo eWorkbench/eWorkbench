@@ -12,6 +12,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from eric.core.tests import REMOTE_ADDR, HTTP_USER_AGENT
+from eric.core.tests.test_utils import CommonTestMixin
 from eric.projects.models import Role, Project
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin
 from eric.shared_elements.models import Meeting, Contact
@@ -23,7 +24,7 @@ User = get_user_model()
 
 class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, ProjectsMixin,
                                         ContactMixin, MeetingMixin, UserAttendsMeetingMixin,
-                                        ContactAttendsMeetingMixin):
+                                        ContactAttendsMeetingMixin, CommonTestMixin):
     """ Extensive testing of api/meeting/ endpoint
     """
 
@@ -66,31 +67,31 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         # meeting 1
         response = self.rest_create_meeting(self.token1, self.project.pk, "First meeting", "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.meeting1 = Meeting.objects.get(pk=decoded['pk'])
 
         # unlock meeting1 with user1
         response = self.unlock(self.token1, "meetings", self.meeting1.pk, REMOTE_ADDR, HTTP_USER_AGENT)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # meeting 2
         response = self.rest_create_meeting(self.token1, self.project.pk, "Second meeting",
                                             "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.meeting2 = Meeting.objects.get(pk=decoded['pk'])
 
         # unlock meeting2 with user1
         response = self.unlock(self.token1, "meetings", self.meeting2.pk, REMOTE_ADDR, HTTP_USER_AGENT)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # meeting 3
         response = self.rest_create_meeting(self.token1, self.project.pk, "Third Appointment",
                                             "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.meeting3 = Meeting.objects.get(pk=decoded['pk'])
 
@@ -98,7 +99,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.rest_create_meeting(self.token1, self.project.pk, "Fourth Appointment",
                                             "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.meeting4 = Meeting.objects.get(pk=decoded['pk'])
 
@@ -106,29 +107,29 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         # contact 1
         response = self.rest_create_contact(self.token1, self.project.pk, "", "First", "NumberOne", "first@eric.net",
                                             HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.contact1 = Contact.objects.get(pk=decoded['pk'])
 
         # unlock contact1 with user1
         response = self.unlock(self.token1, "contacts", self.contact1.pk, REMOTE_ADDR, HTTP_USER_AGENT)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # contact 2
         response = self.rest_create_contact(self.token1, self.project.pk, "", "Second", "NumberTwo", "second@eric.net",
                                             HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.contact2 = Contact.objects.get(pk=decoded['pk'])
 
         # unlock contact2 with user1
         response = self.unlock(self.token1, "contacts", self.contact2.pk, REMOTE_ADDR, HTTP_USER_AGENT)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # contact 3 (not in a project, belongs to user1)
         response = self.rest_create_contact(self.token1, None, "", "Third", "NumberThree", "third@eric.net",
                                             HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         self.contact3 = Contact.objects.get(pk=decoded['pk'])
 
@@ -143,15 +144,13 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         response = self.update_attending_users(self.token1, self.meeting1.pk, user_pk_list,
                                                HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # delete user1 and user2
         user_pk_list = [self.user3.pk]
         response = self.update_attending_users(self.token1, self.meeting1.pk, user_pk_list,
                                                HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_users']), 1, msg="Should be exactly one attending user")
         # the attending user should be user3
@@ -166,8 +165,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_users(self.token1, self.meeting1.pk,
                                                user_pk_list,
                                                HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # add user3, delete user1, no changes to user2
         user_pk_list = [self.user3.pk, self.user1.pk]
@@ -175,8 +173,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_users(self.token1, self.meeting1.pk,
                                                user_pk_list,
                                                HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_users']), 2, msg="Should be exactly two attending users")
 
@@ -190,14 +187,13 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_users(self.token1, self.meeting1.pk,
                                                user_pk_list,
                                                HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_users']), 2, msg="Should be exactly two attending users")
 
         # unlock meeting1 with user1
         response = self.unlock(self.token1, "meetings", self.meeting1.pk, REMOTE_ADDR, HTTP_USER_AGENT)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # with user 2
         # assign student 2 to the project of student 1 as project manager
@@ -212,7 +208,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
                                                user_pk_list,
                                                HTTP_USER_AGENT, REMOTE_ADDR)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_users']), 1, msg="Should be exactly one attending user")
         # the attending user should be user2
@@ -220,7 +216,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         # unlock meeting1 with user2
         response = self.unlock(self.token2, "meetings", self.meeting1.pk, REMOTE_ADDR, HTTP_USER_AGENT)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # with user 1
         # remove user2 and add user1
@@ -230,7 +226,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
                                                user_pk_list,
                                                HTTP_USER_AGENT, REMOTE_ADDR)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_users']), 1, msg="Should be exactly one attending user")
         # the attending user should be user1
@@ -243,7 +239,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_contacts(self.token1, self.meeting1.pk, contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_contacts']), 1, msg="Should be exactly one attending contact")
 
@@ -254,7 +250,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_contacts(self.token1, self.meeting1.pk, contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_contacts']), 1, msg="Should be exactly one attending contact")
 
@@ -266,15 +262,13 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         response = self.update_attending_contacts(self.token1, self.meeting1.pk, contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # delete contact1
         contact_pk_list = [str(self.contact2.pk)]
         response = self.update_attending_contacts(self.token1, self.meeting1.pk, contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_contacts']), 1, msg="Should be exactly one attending contact")
         # the attending contact should be contact2
@@ -289,8 +283,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_contacts(self.token1, self.meeting1.pk,
                                                   contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # add contact2, delete contact1 (by leaving it out)
         contact_pk_list = [str(self.contact2.pk)]
@@ -298,8 +291,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_contacts(self.token1, self.meeting1.pk,
                                                   contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_contacts']), 1, msg="Should be exactly one attending contact")
 
@@ -313,14 +305,13 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_contacts(self.token1, self.meeting1.pk,
                                                   contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_contacts']), 2, msg="Should be exactly two attending contacts")
 
         # unlock meeting with user1
         response = self.unlock(self.token1, "meetings", self.meeting1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # with user 2
         # assign student 2 to the project of student 1 as project manager
@@ -333,8 +324,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_contacts(self.token2, self.meeting1.pk,
                                                   contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_contacts']), 1, msg="Should be exactly one attending contact")
         # the attending contact should be contact1
@@ -342,7 +332,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         # unlock meeting with user2
         response = self.unlock(self.token2, "meetings", self.meeting1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # with user 1
         # remove add contact2
@@ -351,8 +341,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_contacts(self.token1, self.meeting1.pk,
                                                   contact_pk_list,
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_contacts']), 2, msg="Should be exactly two attending contacts")
 
@@ -362,7 +351,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         :return:
         """
         response = self.rest_export_meetings(self.token1, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
     def test_current_user_is_always_attending(self):
         """
@@ -372,7 +361,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.rest_create_meeting(self.token1, self.project.pk, "Another meeting",
                                             "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
         meeting = Meeting.objects.get(pk=decoded['pk'])
         self.assertEquals(meeting.attending_users.all().first().pk, self.user1.pk)
@@ -386,7 +375,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         # create a new meeting without a project
         response = self.rest_create_meeting(self.token1, None, "Another meeting", "Some Text for this meeting",
                                             timezone.now(), timezone.now(), HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())
 
         # there should only be one user assigned (the current user)
@@ -395,13 +384,13 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         # try to view the meeting with user2 (should not work)
         response = self.rest_get_meeting(self.token2, decoded['pk'], HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # add user2 as an attending user to this meeting
         response = self.update_attending_users(self.token1, self.meeting1.pk,
                                                [self.user1.pk, self.user2.pk],
                                                HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         decoded = json.loads(response.content.decode())
 
@@ -410,7 +399,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         # now user2 can view the meeting too!
         response = self.rest_get_meeting(self.token2, decoded['pk'], HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
     def test_meeting_with_invalid_attending_contact(self):
         """ Tries to set an invalid attending contact """
@@ -420,13 +409,13 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
 
         # try to retrieve contact3 with user2 (should not work)
         response = self.rest_get_contact(self.token2, self.contact3.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # user2 tries to remove contacts from meeting1 (should work)
         response = self.update_attending_contacts(self.token2, self.meeting1.pk,
                                                   [],
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # user2 tries to set contact3 as an attending contact (which should not work, because user2 has no access to contact3)
         response = self.update_attending_contacts(self.token2, self.meeting1.pk,
@@ -435,21 +424,21 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         decoded = json.loads(response.content.decode())
         # the response should contain that attending_contacts_pk
         self.assertTrue('object does not exist' in str(decoded['attending_contacts_pk']))
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assert_response_status(response, status.HTTP_400_BAD_REQUEST)
 
         # unlock meeting1 with user2
         response = self.unlock(self.token2, "meetings", self.meeting1.pk, REMOTE_ADDR, HTTP_USER_AGENT)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # however, user1 should be able to do that
         response = self.update_attending_contacts(self.token1, self.meeting1.pk,
                                                   [self.contact1.pk, self.contact2.pk, self.contact3.pk],
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to retrieve contact3 with user2 (should work now, as contact3 is part of a meeting that user2 has access to)
         response = self.rest_get_contact(self.token2, self.contact3.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
     def test_create_meeting_with_attending_users_and_contacts(self):
         """ Tries to create a meeting (POST  /api/meetings/) with attending_users and attending_contacts """
@@ -462,7 +451,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
             [self.user1.pk, self.user2.pk], [self.contact1.pk, self.contact2.pk]
         )
         decoded_meeting = json.loads(response.content.decode())
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assert_response_status(response, status.HTTP_201_CREATED)
         # verify a new meeting has been created in database
         self.assertEquals(Meeting.objects.all().count(), meeting_count + 1)
         meeting = Meeting.objects.filter(pk=decoded_meeting['pk']).first()
@@ -477,7 +466,7 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_users(self.token1, self.meeting1.pk, user_pk_list, HTTP_USER_AGENT,
                                                REMOTE_ADDR)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
         self.assertEqual(len(decoded_response['attending_users']), 1, msg="Should be exactly one attending user")
 
@@ -487,31 +476,27 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         # try with user1 (token1) -> should work
         response = self.update_attending_users(self.token1, self.meeting1.pk, [self.user1.pk], HTTP_USER_AGENT,
                                                REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to remove it again with user2 (token2) -> should not work, as user 2 is not allowed to view the meeting
         response = self.update_attending_users(self.token2, self.meeting1.pk, [], HTTP_USER_AGENT,
                                                REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # give user2 the view privilege for the meeting, by making user2 an attending user
         response = self.update_attending_users(self.token1, self.meeting1.pk, [self.user1.pk, self.user2.pk],
                                                HTTP_USER_AGENT,
                                                REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # unlock meeting1 with user1
         response = self.unlock(self.token1, "meetings", self.meeting1.pk, REMOTE_ADDR, HTTP_USER_AGENT)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # now user2 should see the meeting and is allowed to update it (remove all users from meeting)
         response = self.update_attending_users(self.token2, self.meeting1.pk, [], HTTP_USER_AGENT,
                                                REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # also verify that attending users of this meeting are still set to two
         self.assertEquals(self.meeting1.attending_users.all().count(), 0, msg="there should be zero attending users")
@@ -522,18 +507,14 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         # try with user1 (token1) -> should work
         response = self.update_attending_contacts(self.token1, self.meeting1.pk, [self.contact1.pk],
                                                   HTTP_USER_AGENT, REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
+        self.assert_response_status(response, status.HTTP_200_OK)
         self.assertEquals(self.meeting1.attending_contacts.all().count(), 1,
                           msg="there should be zero attending contacts")
 
         # try to remove it again with user2 (token2) -> should not work, as user 2 is not allowed to view the meeting
         response = self.update_attending_contacts(self.token2, self.meeting1.pk, [], HTTP_USER_AGENT,
                                                   REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
+        self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
         self.assertEquals(self.meeting1.attending_contacts.all().count(), 1,
                           msg="there should be zero attending contacts")
 
@@ -541,18 +522,16 @@ class MeetingAttendingUsersContactsTest(APITestCase, AuthenticationMixin, Projec
         response = self.update_attending_users(self.token1, self.meeting1.pk, [self.user1.pk, self.user2.pk],
                                                HTTP_USER_AGENT,
                                                REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # unlock meeting with user1
         response = self.unlock(self.token1, "meetings", self.meeting1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # now user2 should see the meeting and is allowed to update it (remove all users from meeting)
         response = self.update_attending_contacts(self.token2, self.meeting1.pk, [], HTTP_USER_AGENT,
                                                   REMOTE_ADDR)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # also verify that attending users of this meeting are still set to two
         self.assertEquals(self.meeting1.attending_contacts.all().count(), 0,

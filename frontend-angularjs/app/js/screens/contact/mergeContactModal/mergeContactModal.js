@@ -36,7 +36,6 @@
         $q,
         toaster,
         gettextCatalog,
-        ContactMergeService,
         ContactRestService
     ) {
         'ngInject';

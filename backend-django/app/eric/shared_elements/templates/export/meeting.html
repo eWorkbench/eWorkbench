@@ -25,7 +25,7 @@
 
     <p>{% trans "Projects" %}:
     <ul>
-        {% for project in instance.projects.all %}
+        {% for project in instance.projects.viewable %}
             <li>{{ project.name }}</li>
         {% endfor %}
     </ul>
@@ -41,7 +41,7 @@
 
     <p>{% trans "Attending contacts" %}:
     <ul>
-        {% for contact in instance.attending_contacts.all %}
+        {% for contact in instance.attending_contacts.viewable %}
             <li>{% simple_object_display contact %}</li>
         {% endfor %}
     </ul>

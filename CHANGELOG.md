@@ -1,10 +1,25 @@
 # Changelog
 
+## Version 1.21.2 - October 2020
+- [SITUMEWB-408] Fixed study room booking selection alignment
+- [SITUMEWB-444] Enhanced appointment confirmation mails (user salutation, resource string) 
+
+## Version 1.21.1 - September 2020
+- [SITUMEWB-444] Minor fixes and enhancements for appointment confirmation mails
+
+## Version 1.21 - September 2020
+- [SITUMEWB-403] Added database logging with aggregated error mails
+- [SITUMEWB-408] Fixed study room booking page
+- [SITUMEWB-444] Added appointment confirmation mails
+- [SITUMEWB-445] Limited resource booking (appointment) details for privacy
+- [SITUMEWB-450] Added user settings info box (e.g. mailing list info)
+- [SITUMEWB-452] Added plugin documentation to public repository
+
 ## Version 1.20.4 - August 2020
-- fix contact share
+- Fixed contact sharing
 
 ## Version 1.20.3 - August 2020
-- fix plugin download_placeholder_picture request url
+- Fixed plugin download_placeholder_picture request url
 
 ## Version 1.20.2 - August 2020
 - Added JWT Authentication for Labbook Plugins

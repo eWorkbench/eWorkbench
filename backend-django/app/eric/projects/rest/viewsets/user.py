@@ -224,17 +224,12 @@ class PublicUserViewSet(BaseGenericViewSet,
         email_plaintext_message = render_to_string('email/user_invited_to_workbench.txt', context)
 
         msg = EmailMultiAlternatives(
-            # title:
-            _("Invitation to {title}".format(title=site_preferences.site_name)),
-            # message:
-            email_plaintext_message,
-            # from:
-            site_preferences.email_from,
-            # to:
-            [email]
+            subject=_("Invitation to {title}".format(title=site_preferences.site_name)),
+            body=email_plaintext_message,
+            from_email=site_preferences.email_from,
+            to=[email]
         )
         msg.attach_alternative(email_html_message, "text/html")
-
         msg.send()
 
         # serialize the user object

@@ -1,3 +1,14 @@
+<div class="panel panel-default" ng-if="vm.cmsInfo && vm.cmsInfo.text.length > 0">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span>{{ vm.cmsInfo.title }}</span>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div ng-bind-html="vm.cmsInfo.text | asHtml"></div>
+    </div>
+</div>
+
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">

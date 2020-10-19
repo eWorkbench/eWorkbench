@@ -1,0 +1,32 @@
+{% extends "email/simple_email_template.html" %}
+{% load i18n captureas site_preferences %}
+
+{% block header_title %}
+    {% blocktrans %}{{ title }}{% endblocktrans %}
+{% endblock %}
+
+{% block preheader %}
+    {% blocktrans %}{{ title }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <p><strong>{{ title }}</strong></p>
+
+    <p>{% blocktrans %}Dear {{ user }}!{% endblocktrans %}</p>
+
+    {% if message != "" %}
+        <p>{{ message | safe }}</p>
+    {% endif %}
+
+    {% captureas workbench_title %}
+        {% site_preferences 'site_name' %}
+    {% endcaptureas %}
+    <br/><p>
+        {% blocktrans %}Please visit {{ workbench_title }} for further details:{% endblocktrans %}
+        <a href="{% site_url %}">{% site_url %}</a>
+    </p>
+{% endblock %}
+
+{% block footer %}
+    {% include 'email/_footer.html' %}
+{% endblock %}

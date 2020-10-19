@@ -7,7 +7,6 @@ import logging
 import math
 import os
 import uuid
-from uuid import uuid4
 
 import vobject
 from django.conf import settings
@@ -20,7 +19,6 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from django.utils.deconstruct import deconstructible
 from django.utils.timezone import datetime, timedelta
 from django.utils.timezone import localtime, localdate
 from django.utils.translation import gettext_lazy as _
@@ -1032,7 +1030,11 @@ def get_duration_str(duration):
 
 class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin, SoftDeleteMixin, RelationsMixIn,
               ModelPrivilegeMixIn, WorkbenchEntityMixin):
-    """ Defines a meeting, which is associated to a project """
+    """
+    Appointment, previously known as Meeting or ResourceBooking.
+    Represents an event with start date, end date and attendees.
+    Represents a resource booking, if a resource is referenced.
+    """
     objects = MeetingManager()
 
     class Meta(WorkbenchEntityMixin.Meta):

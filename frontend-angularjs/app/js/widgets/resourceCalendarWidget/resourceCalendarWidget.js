@@ -35,7 +35,8 @@
         ResourceHelperService,
         ResourceBookingCreateEditModalService,
         ResourceBookingsRestService,
-        PermissionService
+        PermissionService,
+        DebounceService
     ) {
         'ngInject';
 
@@ -64,12 +65,14 @@
          * @param view
          * @param element
          */
-        var viewRender = function (view, element) {
+        var viewRender = DebounceService.debounce(function (view, element) {
             if (view) {
                 vm.viewStartTime = view.start.local(); // .local to get local format of date
                 vm.viewEndTime = view.end.local().subtract(1, 'seconds'); // .local to get local format of date
+
+                vm.getResourceBookings();
             }
-        };
+        }, 500);
 
         /**
          * creates a new resource-booking on a select-event (Click and/or Drag on calendar)
@@ -131,15 +134,12 @@
                 }
             }
 
-            var modalService = ResourceBookingCreateEditModalService;
-
             // create a modal and wait for a result
-            var modal = modalService.openEdit(eventObj, vm.isStudyRoom);
+            var modal = ResourceBookingCreateEditModalService.openEdit(eventObj, vm.isStudyRoom);
 
             modal.result.then(function () {
                 vm.getResourceBookings();
             });
-
         };
 
         this.$onInit = function () {
@@ -214,7 +214,6 @@
                     }
                 }
             };
-            vm.getResourceBookings();
         };
 
         vm.getScheduleQueryFactory = function (hideDateFilters) {
@@ -254,43 +253,55 @@
          * get resource bookings for vm.selectedResource
          */
         vm.getResourceBookings = function () {
-            if (vm.selectedResource) {
-
-                ResourceBookingsRestService.query({resource: vm.selectedResource.pk}).$promise.then(
-                    function success (response) {
-                        var schedules = [];
-
-                        for (var j = 0; j < response.length; j++) {
-                            var meeting = response[j];
-
-                            meeting.booking = true;
-
-                            // we will actually have to do this check three times as the PermissionService sometimes
-                            // returns undefined and false first before returning the actual permission
-                            // the other two times are located in the onEventClick function
-                            meeting.editable = PermissionService.has('object.edit', meeting);
-
-                            if (meeting.created_by.pk === vm.user.pk) {
-                                meeting.borderColor = '#d2cdc8';
-                                meeting.textColor = 'black';
-                                meeting.color = ResourceHelperService.getResourceColor(meeting, vm.selectedResource.pk);
-                                meeting.doubleKlick = false;
-                            } else {
-                                meeting.doubleKlick = true;
-                                meeting.textColor = 'white';
-                                meeting.color = ResourceHelperService.selectColor(9);
-                                meeting.booking = true;
-                            }
-                            vm.schedulesDict[meeting.pk] = meeting;
-
-                            schedules.push(meeting);
-                        }
-                        vm.schedules = angular.copy(schedules);
-                    },
-                    function error (rejection) {
-                        toaster.pop('error', gettextCatalog.getString("Could not load resourcebookings"));
-                    })
+            if (!vm.selectedResource) {
+                return;
             }
+
+            var filters = {
+                resource: vm.selectedResource.pk
+            };
+
+            if (vm.viewStartTime && vm.viewEndTime) {
+                filters['end_date__gte'] = vm.viewStartTime.toISOString();
+                filters['start_date__lte'] = vm.viewEndTime.toISOString();
+            }
+
+            ResourceBookingsRestService.query(filters).$promise.then(
+                function success (response) {
+                    var schedules = [];
+
+                    for (var j = 0; j < response.length; j++) {
+                        var meeting = response[j];
+
+                        meeting.booking = true;
+
+                        // we will actually have to do this check three times as the PermissionService sometimes
+                        // returns undefined and false first before returning the actual permission
+                        // the other two times are located in the onEventClick function
+                        meeting.editable = PermissionService.has('object.edit', meeting);
+
+                        if (meeting.created_by && meeting.created_by.pk === vm.user.pk) {
+                            meeting.borderColor = '#d2cdc8';
+                            meeting.textColor = 'black';
+                            meeting.color = ResourceHelperService.getResourceColor(meeting, vm.selectedResource.pk);
+                            meeting.doubleKlick = false;
+                        } else if (!meeting.created_by) {
+                            // booked resource info (anonymous)
+                            meeting.color = '#ccc';
+                            meeting.textColor = '#555';
+                        } else {
+                            meeting.doubleKlick = true;
+                            meeting.textColor = 'white';
+                            meeting.color = ResourceHelperService.selectColor(9);
+                        }
+                        vm.schedulesDict[meeting.pk] = meeting;
+                        schedules.push(meeting);
+                    }
+                    vm.schedules = angular.copy(schedules);
+                },
+                function error (rejection) {
+                    toaster.pop('error', gettextCatalog.getString("Could not load resourcebookings"));
+                });
         };
 
         /**

@@ -5,29 +5,21 @@
 import json
 from datetime import timedelta
 
-from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth.models import Group
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from eric.shared_elements.models import Meeting, Resource
+from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR, HTTP_INFO
 from eric.projects.tests.core import AuthenticationMixin, ResourceMixin
-from eric.shared_elements.tests.core import MeetingMixin, ResourceBookingMixin
+from eric.shared_elements.models import Meeting, Resource
+from eric.shared_elements.tests.core import MeetingMixin
 
 User = get_user_model()
 
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
 
-COMMON_DATA = {
-    'HTTP_USER_AGENT': HTTP_USER_AGENT,
-    'REMOTE_ADDR': REMOTE_ADDR,
-}
-
-
-class ResourceAccessTest(APITestCase, AuthenticationMixin, MeetingMixin, ResourceMixin, ResourceBookingMixin):
+class ResourceAccessTest(APITestCase, AuthenticationMixin, MeetingMixin, ResourceMixin):
     """ Extensive testing of api/meeting/ endpoint
     """
 
@@ -77,18 +69,18 @@ class ResourceAccessTest(APITestCase, AuthenticationMixin, MeetingMixin, Resourc
             description="Test Description",
             resource_type=Resource.ROOM,
             user_availability=Resource.GLOBAL,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.resource1 = Resource.objects.get(pk=json.loads(self.resource1.content.decode())["pk"])
 
         # book resource1 with user1
-        response = self.rest_create_resourcebooking(
+        response = self.rest_create_resource_booking(
             auth_token=self.token1,
             title='Appointment',
             date_time_start=timezone.now(),
             date_time_end=timezone.now() + timedelta(hours=1),
             resource_pk=self.resource1.pk,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         decoded = json.loads(response.content.decode())

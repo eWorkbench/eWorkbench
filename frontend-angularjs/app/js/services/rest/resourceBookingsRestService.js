@@ -11,7 +11,7 @@
     /**
      * Define API Endpoint for /api/resourcebookings/all using ngResource
      */
-    module.factory('ResourceBookingsRestService', function (cachedResource, restApiUrl, ResourceBookingConverterService) {
+    module.factory('ResourceBookingsRestService', function (cachedResource, restApiUrl, MeetingConverterService) {
         'ngInject';
 
         // create ng-resource for api endpoint /api/resourcebookings, with parameter resourcebookings id
@@ -24,29 +24,29 @@
                     'method': 'GET',
                     'cancellable': true,
                     'isArray': true,
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray
+                    'transformResponse': MeetingConverterService.transformResponseForMeetingArray
                 },
                 'get': {
                     'method': 'GET',
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray
+                    'transformResponse': MeetingConverterService.transformResponseForMeetingArray
                 },
                 'query': {
                     'method': 'GET',
                     'isArray': true,
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray
+                    'transformResponse': MeetingConverterService.transformResponseForMeetingArray
                 },
                 'update': {
                     'method': 'PUT',
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBooking
+                    'transformResponse': MeetingConverterService.transformResponseForMeeting
                 },
                 // overwrite update partial method
                 'updatePartial': {
                     'method': 'PATCH',
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBooking
+                    'transformResponse': MeetingConverterService.transformResponseForMeeting
                 },
                 'create': {
                     'method': 'POST',
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBooking
+                    'transformResponse': MeetingConverterService.transformResponseForMeeting
                 },
                 'delete': {
                     'method': 'DELETE',
@@ -56,13 +56,13 @@
                     'url': restApiUrl + 'resourcebookings/all/:pk/soft_delete/',
                     'method': 'PATCH',
                     'isArray': false,
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray
+                    'transformResponse': MeetingConverterService.transformResponseForMeetingArray
                 },
                 'restore': {
                     'url': restApiUrl + 'resourcebookings/all/:pk/restore/',
                     'method': 'PATCH',
                     'isArray': false,
-                    'transformResponse': ResourceBookingConverterService.transformResponseForResourceBookingArray
+                    'transformResponse': MeetingConverterService.transformResponseForMeetingArray
                 }
             },
             {

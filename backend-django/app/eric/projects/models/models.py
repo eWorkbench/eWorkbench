@@ -89,27 +89,32 @@ class MyUser(User):
 
     class Meta:
         proxy = True
-        ordering = ('userprofile__last_name',)
+        ordering = (
+            'userprofile__last_name',
+            'userprofile__first_name',
+            'email',
+            'username',
+        )
 
     def __str__(self):
         """
         Returns the userprofile first name and last name
         If not available, just return the users email or the username
-        :return:
         """
+
         try:
             # it is possible that there is no userprofile available for the current user
-            if self.userprofile.first_name != '' and self.userprofile.last_name != '':
-                return "{} {}".format(self.userprofile.first_name, self.userprofile.last_name)
+            profile = self.userprofile
+            first_name = profile.first_name
+            last_name = profile.last_name
+
+            if first_name != '' and last_name != '':
+                return f'{first_name} {last_name}'
         except:
             # ignore (userprofile not available)
             pass
 
-        if self.email != '':
-            return self.email
-
-        # else:
-        return self.username
+        return self.email if self.email != '' else self.username
 
     def anonymize_user_data(self):
         self.username = 'anonymous-user-{}'.format(self.pk)

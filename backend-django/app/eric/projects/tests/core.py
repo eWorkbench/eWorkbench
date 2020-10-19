@@ -831,7 +831,7 @@ class ResourceMixin(TestLockMixin):
             booking_rule_minimum_time_before=None,
             booking_rule_maximum_time_before=None,
             booking_rule_time_between=None,
-            booking_rule_bookings_per_user=None
+            booking_rule_bookings_per_user=None,
     ):
         """
         Wrapper for creating a resource via REST API
@@ -1002,6 +1002,7 @@ class ResourceMixin(TestLockMixin):
             user_availability,
             HTTP_USER_AGENT,
             REMOTE_ADDR,
+            **kwargs,
     ):
         """ Wrapper for rest_create_Resource"""
 
@@ -1014,6 +1015,7 @@ class ResourceMixin(TestLockMixin):
             user_availability,
             HTTP_USER_AGENT,
             REMOTE_ADDR,
+            **kwargs,
         )
         if response.status_code == status.HTTP_201_CREATED:
             decoded = json.loads(response.content.decode())

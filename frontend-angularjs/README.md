@@ -83,12 +83,12 @@ To set up PyCharm correctly and use all of its integrations and features use the
 Source folders:
 - `app/js`
 
+Resource Folders:
+- `app`
+
 Excluded Folders:
 - `app/.tmp`
 - `public`
-
-Resource Folders:
-- `app`
 
 ## Manual Tasks
 

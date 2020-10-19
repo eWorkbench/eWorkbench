@@ -24,14 +24,14 @@
 
     <p>{% trans "Projects" %}:
     <ul>
-        {% for project in instance.projects.all %}
+        {% for project in instance.projects.viewable %}
             <li>{{ project.name }}</li>
         {% endfor %}
     </ul>
     </p>
 
-    <p>{% trans "Folders" %}:
-        {% directory_tree None instance.sub_directories.all %}
+    <p>{% trans "Folders and Files" %}:
+        {% directory_tree None instance.sub_directories.viewable %}
     </p>
 
     <h3>{% trans "Links" %}</h3>

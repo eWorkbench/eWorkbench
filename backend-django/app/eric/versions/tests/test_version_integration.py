@@ -92,10 +92,11 @@ class GenericVersionIntegrationTest(VersionRestMixin, ProjectsMixin, Authenticat
         self.project_tmp = self.create_project(
             self.token_su, "tmp project", "tmp", Project.INITIALIZED, **http_info)
 
-    def allow_model_access(self, endpoint, model, pk, user):
+    def allow_model_access(self, endpoint, pk, user):
         self.set_model_privilege_for_user(
-            self.token_su, endpoint, model, pk, user,
-            full_access_privilege=ModelPrivilege.ALLOW)
+            self.token_su, endpoint, pk, user,
+            full_access_privilege=ModelPrivilege.ALLOW
+        )
 
     def test_export_restore(self):
         endpoint = self.get_endpoint()
@@ -104,7 +105,7 @@ class GenericVersionIntegrationTest(VersionRestMixin, ProjectsMixin, Authenticat
         # create initial model instance and allow access
         model, response = self.create_initial_model_instance()
         self.get_asserter().assertEquals(HTTP_201_CREATED, response.status_code, "Couldn't create %s" % model_name)
-        self.allow_model_access(endpoint, model_name, model.pk, self.user1)
+        self.allow_model_access(endpoint, model.pk, self.user1)
 
         # create initial version
         self.create_version(endpoint, model.pk)
@@ -772,10 +773,10 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_201_CREATED)
         self.picture1_element_pk = self.add_element_to_labbook(
             lab_book, picture_content_type_id, self.picture1.pk, 0, 0)
-        self.allow_model_access("pictures", "picture", self.picture1.pk, self.user1)
+        self.allow_model_access("pictures", self.picture1.pk, self.user1)
 
         # unlock the picture
-        response = self.unlock(self.token_su, "pictures", self.picture1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "pictures", self.picture1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         self.picture2, response = self.create_picture_orm(
             self.token_su, projects, "my second picture", "demo1.png", **http_info)
@@ -783,10 +784,10 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.create_version("pictures", self.picture2.pk)
         self.picture2_element_pk = self.add_element_to_labbook(
             lab_book, picture_content_type_id, self.picture2.pk, 0, 100)
-        self.allow_model_access("pictures", "picture", self.picture2.pk, self.user1)
+        self.allow_model_access("pictures", self.picture2.pk, self.user1)
 
         # unlock the picture
-        response = self.unlock(self.token_su, "pictures", self.picture2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "pictures", self.picture2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         # --- files ---
         file_content_type_id = File.get_content_type().id
@@ -795,10 +796,10 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
             **http_info)
         self.assertEquals(response.status_code, HTTP_201_CREATED)
         self.file1_element_pk = self.add_element_to_labbook(lab_book, file_content_type_id, self.file1.pk, 0, 200)
-        self.allow_model_access("files", "file", self.file1.pk, self.user1)
+        self.allow_model_access("files", self.file1.pk, self.user1)
 
         # unlock the file
-        response = self.unlock(self.token_su, "files", self.file1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "files", self.file1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         self.file2, response = self.create_file_orm(
             self.token_su, projects, "my second file", "my second file desc", "file2.txt", 1024,
@@ -806,10 +807,10 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_201_CREATED)
         self.create_version("files", self.file2.pk)
         self.file2_element_pk = self.add_element_to_labbook(lab_book, file_content_type_id, self.file2.pk, 0, 300)
-        self.allow_model_access("files", "file", self.file2.pk, self.user1)
+        self.allow_model_access("files", self.file2.pk, self.user1)
 
         # unlock the file
-        response = self.unlock(self.token_su, "files", self.file2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "files", self.file2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         # --- notes ---
         note_content_type_id = Note.get_content_type().id
@@ -818,10 +819,10 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
             **http_info)
         self.assertEquals(response.status_code, HTTP_201_CREATED)
         self.note1_element_pk = self.add_element_to_labbook(lab_book, note_content_type_id, self.note1.pk, 0, 400)
-        self.allow_model_access("notes", "note", self.note1.pk, self.user1)
+        self.allow_model_access("notes", self.note1.pk, self.user1)
 
         # unlock the note
-        response = self.unlock(self.token_su, "notes", self.note1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "notes", self.note1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         self.note2, response = self.create_note_orm(
             self.token_su, projects, "my second note", "my second note content",
@@ -829,12 +830,12 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_201_CREATED)
         self.create_version("notes", self.note2.pk)
         self.note2_element_pk = self.add_element_to_labbook(lab_book, note_content_type_id, self.note2.pk, 0, 500)
-        self.allow_model_access("notes", "note", self.note2.pk, self.user1)
+        self.allow_model_access("notes", self.note2.pk, self.user1)
 
         self.initial_lab_book = lab_book
 
         # unlock the note
-        response = self.unlock(self.token_su, "notes", self.note2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "notes", self.note2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         return lab_book, create_response
 
@@ -875,7 +876,7 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_200_OK)
 
         # unlock the picture
-        response = self.unlock(self.token_su, "pictures", self.picture1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "pictures", self.picture1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         response = self.rest_update_picture(
             self.token_su, self.picture2.pk, projects,
@@ -884,7 +885,7 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_200_OK)
 
         # unlock the picture
-        response = self.unlock(self.token_su, "pictures", self.picture2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "pictures", self.picture2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         # --- files ---
         response = self.rest_update_file(
@@ -894,7 +895,7 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_200_OK)
 
         # unlock the file
-        response = self.unlock(self.token_su, "files", self.file1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "files", self.file1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         response = self.rest_update_file(
             self.token_su, self.file2.pk, projects,
@@ -903,7 +904,7 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_200_OK)
 
         # unlock the file
-        response = self.unlock(self.token_su, "files", self.file2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "files", self.file2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         # --- notes ---
         response = self.rest_update_note(
@@ -913,7 +914,7 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_200_OK)
 
         # unlock the note
-        response = self.unlock(self.token_su, "notes", self.note1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "notes", self.note1.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         response = self.rest_update_note(
             self.token_su, self.note2.pk, projects,
@@ -922,7 +923,7 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_200_OK)
 
         # unlock the note
-        response = self.unlock(self.token_su, "notes", self.note2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "notes", self.note2.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         # remove an element
         response = self.rest_remove_labbook_element(self.token_su, model_pk, self.picture1_element_pk, **http_info)
@@ -937,10 +938,10 @@ class LabBookVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase,
         self.assertEquals(response.status_code, HTTP_201_CREATED)
         self.note1_element_pk = self.add_element_to_labbook(
             self.initial_lab_book, note_content_type_id, self.tmp_note.pk, 42, 999)
-        self.allow_model_access("notes", "note", self.tmp_note.pk, self.user1)
+        self.allow_model_access("notes", self.tmp_note.pk, self.user1)
 
         # unlock the note
-        response = self.unlock(self.token_su, "notes", self.tmp_note.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_su, "notes", self.tmp_note.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         return update_response
 

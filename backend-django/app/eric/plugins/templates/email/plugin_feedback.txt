@@ -1,0 +1,10 @@
+{% load i18n captureas %}
+
+{% blocktrans %}This e-mail has been automatically generated, please do not reply!{% endblocktrans %}
+
+{% blocktrans %}Dear {{ recipient_username }}!{% endblocktrans %}
+
+{% blocktrans %}We are sending you this automated e-mail as user {{ requesting_username }} has sent feedback for plugin "{{ plugin_title }}": {% endblocktrans %}
+
+{{ message | safe }}
+

@@ -135,10 +135,6 @@
                     users = event.assigned_users;
                     break;
 
-                case 'projects.resourcebooking':
-                    users = [event.created_by];
-                    break;
-
                 default:
                     // default case to please linter
                     break;

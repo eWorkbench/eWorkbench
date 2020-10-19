@@ -895,7 +895,7 @@
                 breadcrumb: function () {
                     return [];
                 },
-                url: '/study-room-booking',
+                url: '/study-room-booking?branch_library&resource',
                 component: 'studyRoomView',
                 needsAuth: true
             })
