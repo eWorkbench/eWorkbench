@@ -201,5 +201,5 @@ class Metadata(BaseModel, CreatedModifiedByMixIn, OrderingModelMixin):
                         field_id=field_pk,
                         values=metadata.get("values"),
                         entity=entity,
-                        ordering=metadata.get("ordering", default=OrderingModelMixin.DEFAULT_ORDERING),
+                        ordering=metadata.get("ordering", OrderingModelMixin.DEFAULT_ORDERING),
                     )

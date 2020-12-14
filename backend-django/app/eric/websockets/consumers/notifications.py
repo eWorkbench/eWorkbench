@@ -12,7 +12,6 @@ from django.dispatch import receiver
 from eric.notifications.models import Notification
 from eric.websockets.consumers.core import AuthenticatedWorkbenchJsonWebsocketConsumer
 
-
 NOTIFICATION_CHANNEL_GROUP = "notifications_user_{user_pk}"
 
 
@@ -46,27 +45,28 @@ class NotificationConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
     If a new notification is created or an existing notification is updated, the websockets notifies the channel for
     the user.
     """
+
+    group_name = None
+
     def connect(self):
-        # we're accepting any connection, auth is handled in the `authentication_success` method in
-        # `AuthenticatedWorkbenchJsonWebsocketConsumer`
+        # we're accepting any connection, auth is handled in the superclass
         self.accept()
 
     def disconnect(self, close_code):
-        # Leave notification group with this channel
-        async_to_sync(self.channel_layer.group_discard)(
-            self.group_name,
-            self.channel_name
-        )
+        if self.group_name:
+            # Leave notification group with this channel
+            async_to_sync(self.channel_layer.group_discard)(
+                self.group_name,
+                self.channel_name
+            )
 
-    def receive_json_authenticated(self, content):
+    def receive_json_authenticated(self, content, **kwargs):
         # we do not expect the user to send anything over this channel
         pass
 
     def authentication_success(self, user):
         """
         If authentication was successful, we can subscribe to the users notification stream
-        :param user:
-        :return:
         """
         # create and store the group name for this user
         self.group_name = NOTIFICATION_CHANNEL_GROUP.format(user_pk=user.pk)
@@ -82,8 +82,6 @@ class NotificationConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         Event fired when a notification has changed
 
         Notify the current channel about this change
-        :param event:
-        :return:
         """
         message = event['message']
 

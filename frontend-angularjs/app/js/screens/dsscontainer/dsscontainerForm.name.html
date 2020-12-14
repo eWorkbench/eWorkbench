@@ -1,0 +1,10 @@
+<validated-form-element
+    id="dsscontainer_name"
+    auto-focus="vm.mode == 'create'"
+    input-element="text"
+    field-name="name"
+    placeholder="{{ 'Name' | translate }}"
+    ng-model="vm.dsscontainer.name"
+    ng-readonly="vm.isReadOnly()"
+    errors="vm.errors['name']">
+</validated-form-element>

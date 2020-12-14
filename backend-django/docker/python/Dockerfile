@@ -31,6 +31,8 @@ RUN apt-get update && \
         libsasl2-dev \
         libldap2-dev \
         libssl-dev \
+        autofs \
+        nfs-common \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -45,3 +47,10 @@ RUN pip install --no-cache-dir --upgrade pip virtualenv psycopg2-binary
 
 WORKDIR /app/app
 ENTRYPOINT [ "/usr/local/bin/docker-python-entrypoint.sh" ]
+
+## setup for rpcbind and autofs
+#RUN mkdir -p /run/sendsigs.omit.d
+#RUN mkdir -p /etc/auto.master.d
+#COPY ./docker/python/dss.autofs /etc/auto.master.d/
+#COPY ./docker/python/dss.autofs.pl /etc/auto.master.d/
+#RUN chmod a+x /etc/auto.master.d/dss.autofs.pl

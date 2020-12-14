@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models import BaseModel
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
+from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin
 from eric.metadata.models.fields import MetadataRelation
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
 
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
-class Directory(BaseModel, ChangeSetMixIn, RevisionModelMixin):
+class Directory(BaseModel, ChangeSetMixIn, RevisionModelMixin, ImportedDSSMixin):
     """
     Defines a Directory, which can contain other directories and files
     """
@@ -40,7 +40,7 @@ class Directory(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     class Meta:
         verbose_name = _("Directory")
         verbose_name_plural = _("Directories")
-        track_fields = ('name', 'directory', )
+        track_fields = ('name', 'directory',)
         ordering = ('name', )
 
     id = models.UUIDField(
@@ -200,7 +200,7 @@ class Directory(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
 
 class Drive(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn,
-            ModelPrivilegeMixIn, WorkbenchEntityMixin):
+            ModelPrivilegeMixIn, WorkbenchEntityMixin, ImportedDSSMixin):
     """
     Storage, previously known as Drive.
     Container for files and directories.
@@ -216,7 +216,7 @@ class Drive(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteM
             ("change_project_drive", "Can change the project of a drive"),
             ("add_drive_without_project", "Can add a drive without a project")
         )
-        track_fields = ('title', 'projects', 'deleted')
+        track_fields = ('title', 'projects', 'deleted',)
         track_related_many = (
             ('sub_directories', ('name', 'directory', 'drive', )),
             ('metadata', ('field', 'values',)),
@@ -239,6 +239,15 @@ class Drive(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteM
         verbose_name=_("Title of the drive")
     )
 
+    envelope = models.ForeignKey(
+        "dss.DSSEnvelope",
+        on_delete=models.CASCADE,
+        verbose_name=_("Which DSS Envelope this drive is mapped to"),
+        related_name="drives",
+        blank=True,
+        null=True
+    )
+
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
         'projects.Project',
@@ -248,6 +257,17 @@ class Drive(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteM
     )
 
     metadata = MetadataRelation()
+
+    @property
+    def is_dss_drive(self):
+        return bool(self.envelope)
+
+    @property
+    def location(self):
+        if self.envelope and self.envelope.container:
+            return "DSS: {}".format(self.envelope.container.path)
+        else:
+            return ''
 
     @cached_property
     def size(self):

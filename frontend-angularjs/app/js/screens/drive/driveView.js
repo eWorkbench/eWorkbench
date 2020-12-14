@@ -62,6 +62,9 @@
             vm.projectPks = [];
             updateProjectPks(vm.drive);
 
+            vm.selectedEnvelopePk = [];
+            updateSelectedEnvelopePk(vm.drive);
+
             /**
              * Whether or not meta data should be collapsed
              * @type {boolean}
@@ -102,6 +105,9 @@
 
             // set projects
             vm.drive.projects = vm.projectPks;
+
+            // set dss envelope
+            vm.drive.dss_envelope_id = vm.selectedEnvelopePk;
 
             // update task via rest api
             vm.drive.$update().then(
@@ -182,9 +188,13 @@
                         // Permission denied -> write our own error message
                         d.reject(gettextCatalog.getString("Permission denied"));
                         vm.errors[key] = [rejection.data.detail];
+                    } else if (rejection.status == 400 && rejection.data['envelope']) {
+                        // Permission denied -> write our own error message
+                        d.reject(gettextCatalog.getString("DSS Container Read/Write Error"));
+                        vm.errors[key] = [rejection.data['envelope']];
                     } else {
                         // Unknown error -> write our own error message
-                        toaster.pop('error', gettextCatalog.getString("Failed to update Comment"));
+                        toaster.pop('error', gettextCatalog.getString("Failed to update Storage"));
                         d.reject(gettextCatalog.getString("Unknown error"));
                         vm.errors[key] = [gettextCatalog.getString("Unknown error")];
                     }
@@ -212,5 +222,11 @@
             }
         };
 
+        var updateSelectedEnvelopePk = function (drive) {
+            vm.selectedEnvelopePk.length = 0;
+            if (drive.dss_envelope_id) {
+                vm.selectedEnvelopePk.push(drive.dss_envelope_id);
+            }
+        };
     });
 })();

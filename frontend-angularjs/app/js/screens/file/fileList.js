@@ -33,6 +33,7 @@
         FileIconService,
         IconImagesService,
         DynamicTableSettingsService,
+        DSSContainerRestService,
         toaster,
         PaginationCountHeader
     ) {
@@ -112,6 +113,12 @@
             vm.users = [];
 
             /**
+             * List of DSS Containers
+             * @type {Array}
+             */
+            vm.dssContainers = [];
+
+            /**
              * whether the file data has been loaded
              * @type {boolean}
              */
@@ -145,6 +152,21 @@
         $scope.$on('objectRestoredEvent', function () {
             vm.getFiles(vm.currentLimit, vm.currentOffset);
         });
+
+        /**
+         * Get all available DSS containers to fill the filter
+         */
+        DSSContainerRestService.query().$promise.then(
+            function success (response) {
+                // store DSS containers
+                vm.dssContainers = response;
+            },
+            function error (rejection) {
+                console.log(rejection);
+                toaster.pop('error', gettextCatalog.getString("Error"),
+                    gettextCatalog.getString("Failed to query DSS containers"));
+            }
+        );
 
         /**
          * Query Files from REST API
@@ -191,6 +213,16 @@
             // delete the filter if vm.selectedUsers is empty
             if (vm.filters['created_by'] && vm.selectedUsers.length === 0) {
                 delete vm.filters['created_by'];
+            }
+
+            // check if a dss container filter is selected
+            if (vm.selectedDSSContainer && vm.selectedDSSContainer.length > 0) {
+                vm.filters['container'] = vm.selectedDSSContainer;
+            }
+
+            // delete the filter if vm.selectedDSSContainer is empty
+            if (vm.filters['container'] && vm.selectedDSSContainer.length === 0) {
+                delete vm.filters['container'];
             }
 
             // delete the search filter if vm.searchField is empty
@@ -252,6 +284,12 @@
             vm.getFiles(vm.currentLimit, vm.currentOffset);
         });
 
+        $scope.$on("dsscontainer-removed-from-filter-selection", function () {
+            vm.selectedDSSContainer = [];
+            vm.resetPaging();
+            vm.getFiles(vm.currentLimit, vm.currentOffset);
+        });
+
         $scope.$watch("vm.selectedProjects", function () {
             vm.resetPaging();
             if (vm.selectedProjects && vm.selectedProjects.length > 0) {
@@ -262,6 +300,13 @@
         $scope.$watch("vm.selectedUsers", function () {
             vm.resetPaging();
             if (vm.selectedUsers && vm.selectedUsers.length > 0) {
+                vm.getFiles(vm.currentLimit, vm.currentOffset);
+            }
+        }, true);
+
+        $scope.$watch("vm.selectedDSSContainer", function () {
+            vm.resetPaging();
+            if (vm.selectedDSSContainer && vm.selectedDSSContainer.length > 0) {
                 vm.getFiles(vm.currentLimit, vm.currentOffset);
             }
         }, true);

@@ -5,10 +5,11 @@
 import os
 
 from django.conf import settings
-
-from rest_framework.views import APIView
+from django.contrib.contenttypes.models import ContentType
+from rest_framework import permissions
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
+from rest_framework.views import APIView
+
 from eric.site_preferences.models import options
 
 
@@ -27,7 +28,10 @@ class ListSitePreferences(APIView):
             'site_name': options.site_name,
             'site_logo': request.build_absolute_uri(os.path.join(settings.MEDIA_URL, options.site_logo)),
             'navbar_background_color': options.navbar_background_color,
-            'navbar_border_color': options.navbar_border_color
+            'navbar_border_color': options.navbar_border_color,
+            'content_types': {
+                f'{ct.app_label}.{ct.model}': ct.pk for ct in ContentType.objects.all()
+            },
         }
 
         return Response(data)

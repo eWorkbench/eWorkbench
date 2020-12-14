@@ -10,7 +10,7 @@ Within the eRIC Workbench Frontend Application (AngularJS) we are using Authoriz
 for download/save as/open in new tab functionality to work, it is necessary to allow authorization via a get parameter.
 
 We are handling this via JSON Web Tokens, which are verified and checked for validation in
-``eric.core.middlewares.JWTMiddlewareForDownloads``. Essentially, the JWT needs to be passed as a get parameter as
+``eric.jwt_auth.authentication.JWTAuthentication``. Essentially, the JWT needs to be passed as a get parameter as
 follows (example for a single task): ``http://workbench.local:8000/api/tasks/{task_pk}/export/?jwt={jwt}``
 
 The JWT must have at least the following parameters to pass verification and validation:
@@ -57,3 +57,9 @@ The meetings endpoint (``/api/meetings/``) supports an ICAL export. This export 
 
 The provided JWT is valid for ever (only for the ``/api/meetings/export/`` url), therefore enabling the url to be
 shared with 3rd-party applications, such as Outlook or Google Calendar.
+
+Public Study Room Booking Export
+--------------------------------
+The publicly available API ``/api/study-room-bookings-export/calendar/`` provides anonymous booking information
+for study rooms.
+Access restrictions can be applied via the web-server configuration (e.g. IP address restrictions).

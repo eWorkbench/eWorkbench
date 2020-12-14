@@ -101,8 +101,8 @@ class TestPluginFeedbackAndRequestAccessAPI(APITestCase, PluginMixin, CommonTest
         )
 
         # create responsible users
-        cls.responsible_user1 = cls.create_my_user(username='responsible1', email='responsible1@test.local')
-        cls.responsible_user2 = cls.create_my_user(username='responsible2', email='responsible2@test.local')
+        cls.responsible_user1 = cls.create_user(username='responsible1', email='responsible1@test.local')
+        cls.responsible_user2 = cls.create_user(username='responsible2', email='responsible2@test.local')
         cls.plugin1.responsible_users.add(cls.responsible_user1)
         cls.plugin1.responsible_users.add(cls.responsible_user2)
 

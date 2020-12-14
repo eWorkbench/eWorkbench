@@ -12,6 +12,7 @@ from rest_framework.exceptions import APIException, ValidationError, PermissionD
 from rest_framework.views import exception_handler
 
 from eric.projects.models import UserStorageLimitReachedException, MaxFileSizeReachedException
+from eric.projects.models.exceptions import ContainerReadWriteException
 
 logger = logging.getLogger('eric.core.rest.custom_exception_handler')
 
@@ -54,6 +55,24 @@ class APIUserStorageLimitReachedException(APIException):
         return "User storage limit reached"
 
 
+class APIContainerReadWriteException(APIException):
+    """
+    Custom DRF Exception for Container read/write settings (raised when a file is uploaded).
+    Converts a APIContainerReadWriteException to a valid DRF Exception (APIException)
+    """
+    status_code = 418  # I'm a teapot
+    default_detail = "The DSS container does not allow files to be added or edited"
+
+    def __init__(self, api_container_read_write_exception):
+        self.detail = {
+            'detail': "The DSS container does not allow files to be added or edited",
+            'value': api_container_read_write_exception.value
+        }
+
+    def __str__(self):
+        return "DSS container exception"
+
+
 class APIMaxFileSizeReachedException(APIException):
     """
     Custom DRF Exception for API Max File Size Reached (raised when a file or picture is uploaded and it's too large).
@@ -91,6 +110,9 @@ def custom_exception_handler(exc, context):
     # Handle UserStorageLimitReachedException
     elif type(exc) is UserStorageLimitReachedException:
         exc = APIUserStorageLimitReachedException(exc)
+    # Handle ContainerReadWriteException
+    elif type(exc) is ContainerReadWriteException:
+        exc = APIContainerReadWriteException(exc)
     # Handle Django Validation Errors (convert them into Django REST Validation Errors)
     elif type(exc) is django.core.exceptions.ValidationError:
         if hasattr(exc, "message_dict"):

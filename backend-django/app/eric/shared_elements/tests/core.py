@@ -267,6 +267,7 @@ class FileMixin(TestLockMixin):
         fp = open(tmp_file.name, 'rb')
 
         data = {
+            'pk': file_pk,
             'title': file_title,
             'name': file_name,
             'description': file_description,
@@ -391,6 +392,39 @@ class FileMixin(TestLockMixin):
             return File.objects.get(pk=decoded['pk']), response
         else:
             return None, response
+
+    def rest_create_dss_file(self, auth_token, project_pks,
+                             file_title, file_description, file_name, file_size,
+                             directory_id, imported,
+                             HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for creating a dss file via REST API """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        # create a temporary file with random content
+        tmp_file = tempfile.NamedTemporaryFile(suffix='.' + file_name)
+        tmp_file.write(os.urandom(file_size))
+        tmp_file.seek(0)
+
+        # open file and post it to the rest api
+        fp = open(tmp_file.name, 'rb')
+
+        data = {
+            'title': file_title,
+            'name': file_name,
+            'description': file_description,
+            'path': fp,
+            'directory_id': directory_id,
+            'imported': imported
+        }
+
+        set_projects(data, project_pks)
+
+        return self.client.post(
+            '/api/files/',
+            data,
+            format='multipart',  # needs to be multi part for file uploads
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
 
 
 class NoteMixin(TestLockMixin):
@@ -1241,7 +1275,7 @@ class MeetingMixin(TestLockMixin):
     def create_meeting_orm(
             self, auth_token, project_pk,
             title, description, start_date, end_date,
-            HTTP_USER_AGENT, REMOTE_ADDR,
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR,
             attending_users=None, attending_contacts=None,
             **kwargs
     ):

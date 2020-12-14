@@ -16,6 +16,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
+from django.db.models.fields.files import FieldFile
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -27,15 +28,18 @@ from django_changeset.models.mixins import CreatedModifiedByMixIn
 from django_cleanhtmlfield.fields import HTMLField
 from django_userforeignkey.request import get_current_user
 
+
 from eric.base64_image_extraction.models import ExtractedImage
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
+from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin
 from eric.core.models.fields import AutoIncrementIntegerWithPrefixField
 from eric.core.utils import convert_html_to_text
+from eric.dss.models.models import get_upload_to_path, dss_storage, DSSContainer
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
 from eric.projects.models import FileSystemStorageLimitByUser, Project, MyUser, Resource
+from eric.projects.models.exceptions import ContainerReadWriteException
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
 from eric.shared_elements.models.managers import ContactManager, NoteManager, FileManager, TaskManager, \
@@ -320,6 +324,37 @@ class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         Metadata.restore_all_from_entity(self, metadata.get("metadata"))
 
 
+class DynamicStorageFieldFile(FieldFile):
+    """
+    attr_class for DynamicStorageFileField
+    This class checks if the instance is a dss File or not and sets the storage to be used accordingly.
+    """
+    def __init__(self, instance, field, name):
+        super(DynamicStorageFieldFile, self).__init__(
+            instance, field, name
+        )
+        if instance.is_dss_file:
+            self.storage = dss_storage
+        else:
+            self.storage = FileSystemStorageLimitByUser()
+
+
+class DynamicStorageFileField(models.FileField):
+    """
+    Custom FileField to be used for the path of File and UploadedFileEntry.
+    This class checks if the instance is a dss File or not and sets the storage to be used accordingly.
+    """
+    attr_class = DynamicStorageFieldFile
+
+    def pre_save(self, model_instance, add):
+        if model_instance.is_dss_file:
+            self.storage = dss_storage
+        else:
+            self.storage = FileSystemStorageLimitByUser()
+        file = super(DynamicStorageFileField, self).pre_save(model_instance, add)
+        return file
+
+
 class UploadedFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     """
     An entry for uploaded files
@@ -344,10 +379,10 @@ class UploadedFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         related_name='file_entries'
     )
 
-    path = models.FileField(
+    path = DynamicStorageFileField(
         verbose_name=_("Path of the file"),
         max_length=4096,
-        storage=FileSystemStorageLimitByUser()
+        upload_to=get_upload_to_path,
     )
 
     mime_type = models.CharField(
@@ -366,6 +401,10 @@ class UploadedFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     )
 
     @property
+    def is_dss_file(self):
+        return self.file.is_dss_file
+
+    @property
     def download_url(self):
         return "%(url)s?version=%(version)s" % {
             'url': reverse(
@@ -380,7 +419,7 @@ class UploadedFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
 
 class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-           ModelPrivilegeMixIn, WorkbenchEntityMixin):
+           ModelPrivilegeMixIn, WorkbenchEntityMixin, ImportedDSSMixin):
     """ Defines a file, which is associated to a project """
     objects = FileManager()
 
@@ -407,6 +446,8 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import FileSerializer
             return FileSerializer
+
+    DEFAULT_MIME_TYPE = "application/octet-stream"
 
     id = models.UUIDField(
         primary_key=True,
@@ -439,16 +480,18 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         null=True
     )
 
-    path = models.FileField(
+    path = DynamicStorageFileField(
         verbose_name=_("Path of the file"),
         max_length=4096,
-        storage=FileSystemStorageLimitByUser()
+        blank=True,
+        null=True,
+        upload_to=get_upload_to_path,
     )
 
     mime_type = models.CharField(
         max_length=255,
         verbose_name=_("Mime type of the uploaded file"),
-        default="application/octet-stream"
+        default=DEFAULT_MIME_TYPE
     )
 
     file_size = models.BigIntegerField(
@@ -482,6 +525,22 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
     metadata = MetadataRelation()
 
+    @property
+    def is_dss_file(self):
+        """
+        Returns True if a File is in a directory where the storage is in a DSS envelope
+        """
+        if self.directory and self.directory.drive and self.directory.drive.envelope:
+            return True
+        return False
+
+    @property
+    def location(self):
+        if self.directory and self.directory.drive and self.directory.drive.envelope \
+                and self.directory.drive.envelope.container:
+            return "DSS: {}".format(self.directory.drive.envelope.container.path)
+        return ''
+
     @staticmethod
     def generate_file_name(cur_file_name):
         new_file_name = scramble_uploaded_filename(cur_file_name)
@@ -503,7 +562,7 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         """
         store_uploaded_file_entry = False
         # check if file has changed
-        if hasattr(self.path.file, 'content_type'):
+        if self.path and hasattr(self.path.file, 'content_type'):
             # mark True for store uploaded file entry
             store_uploaded_file_entry = True
             # store original filename
@@ -513,20 +572,21 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
             # store file size
             self.file_size = self.path.file.size
 
-            # move the file to a project folder
-            new_file_path = File.generate_file_name(self.path.name)
+            if not self.is_dss_file:
+                # move the file to a project folder
+                new_file_path = File.generate_file_name(self.path.name)
 
-            # create folder if it does not exist
-            if not os.path.exists(os.path.dirname(new_file_path)):
-                os.makedirs(os.path.dirname(new_file_path))
+                # create folder if it does not exist
+                if not os.path.exists(os.path.dirname(new_file_path)):
+                    os.makedirs(os.path.dirname(new_file_path))
 
-            # make sure the path we use is relative to the MEDIA_ROOT, we dont want to store the whole path
-            new_file_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                # make sure the path we use is relative to the MEDIA_ROOT, we dont want to store the whole path
+                new_file_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
 
-            # rename old file path to the new file path
-            # os.rename(self.path.path, new_file_path)
+                # rename old file path to the new file path
+                # os.rename(self.path.path, new_file_path)
 
-            self.path.name = new_file_path
+                self.path.name = new_file_path
 
         # when a file is uploaded from webdav, give it a title
         if self.title == "":
@@ -549,7 +609,8 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         )
 
         # make sure that the file is always closed (hasattr on self.path.file actually opens the file)
-        self.path.file.close()
+        if self.path:
+            self.path.file.close()
 
     def __str__(self):
         return self.name
@@ -1962,6 +2023,7 @@ class ElementLabel(BaseModel, RevisionModelMixin, ChangeSetMixIn):
         return self.name
 
 
+# TODO: Refactor to not use WorkbenchEntityMixin
 class CalendarAccess(BaseModel, CreatedModifiedByMixIn, ModelPrivilegeMixIn, WorkbenchEntityMixin):
     """
     We are using the created_by field coming from the CreatedModifiedByMixIn to identify the owner of the Calendar.
@@ -1970,10 +2032,12 @@ class CalendarAccess(BaseModel, CreatedModifiedByMixIn, ModelPrivilegeMixIn, Wor
 
     objects = CalendarAccessManager()
 
-    class Meta:
+    class Meta(WorkbenchEntityMixin.Meta):
         verbose_name = _("Calendar Access Privilege")
         verbose_name_plural = _("Calendar Access Privileges")
         ordering = ('created_by',)
+        is_relatable = False
+        is_favouritable = False
 
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import CalendarAccessSerializer

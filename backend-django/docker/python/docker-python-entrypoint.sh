@@ -50,6 +50,9 @@ wait-for-postgres.sh
 # done
 >&2 echo 'PostgreSQL is up - continuing...'
 
+## start AutoFS (For DSS)
+#/sbin/rpcbind -w
+#/usr/sbin/automount --pid-file /var/run/autofs.pid
 
 export HOME=/home/$PYTHON_RUN_USER
 

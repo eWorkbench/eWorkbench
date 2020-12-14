@@ -1,10 +1,8 @@
-{% load site_preferences db_logging_extras %}There are {{ logs | length }} new logs, see {% site_url %}{{ admin_url }}
-{% for log in logs %}
+{% load site_preferences db_logging_extras %}{% for log in grouped_logs %}
 ###############################################################################
-# {{ log.created_at_formatted }} | Log #{{ log.pk }} | {{ log.level | log_level_to_name }}
 # {{ log.message }}
-# {{ log.user_identification }}
-# For details see: {% site_url %}{% url 'admin:db_logging_dblog_change' log.pk %}
+# {{ log.admin_url }}{% for occurrence in log.occurrences %}
+# {{ occurrence.created_at_formatted }} | Log #{{ occurrence.pk }} | {{ occurrence.user_identification }}{% endfor %}
 ###############################################################################
 {{ log.trace }}
 {% endfor %}

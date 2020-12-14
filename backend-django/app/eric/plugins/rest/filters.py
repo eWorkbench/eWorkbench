@@ -4,7 +4,7 @@
 #
 import django_filters
 
-from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, RecursiveProjectsListFilter
+from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, RecursiveProjectsListFilter, WorkbenchElementFilter
 from eric.core.rest.filters import ListFilter, RecentlyModifiedByMeFilter
 
 from eric.plugins.models.models import Plugin, PluginInstance
@@ -21,7 +21,7 @@ class PluginFilter(BaseFilter):
     recently_modified_by_me = RecentlyModifiedByMeFilter()
 
 
-class PluginInstanceFilter(BaseFilter):
+class PluginInstanceFilter(WorkbenchElementFilter):
     """ Filter for Plugin Instances, which allows filtering for the project (foreign key) """
     class Meta:
         model = PluginInstance
@@ -31,12 +31,4 @@ class PluginInstanceFilter(BaseFilter):
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
-    deleted = BooleanDefaultFilter()
-
-    projects = ListFilter(field_name='project')
-
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
-
     plugin = django_filters.ModelChoiceFilter(field_name='plugin', queryset=Plugin.objects.all())
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()

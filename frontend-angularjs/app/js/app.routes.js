@@ -716,6 +716,69 @@
                 },
                 activeMenuItem: 'drive'
             }
+        ).state('dsscontainer-list',
+            {
+                title: function ($queryParams, gettextCatalog) {
+                    "ngInject";
+
+                    if ($queryParams.showOnlyMyElements) {
+                        return gettextCatalog.getString("My DSS Containers");
+                    }
+
+                    return gettextCatalog.getString("DSS Containers");
+                },
+                icon: function ($queryParams, IconImagesService) {
+                    "ngInject";
+
+                    return IconImagesService.mainElementIcons.drive;
+                },
+                breadcrumb: function ($queryParams, $state, gettextCatalog) {
+                    "ngInject";
+
+                    return [];
+                },
+                url: '/dsscontainers',
+                component: 'dsscontainerList',
+                needsAuth: true,
+                activeMenuItem: 'dsscontainer',
+                reloadOnSearch: false
+            }
+        ).state('dsscontainer-view',
+            {
+                title: function ($queryParams, gettextCatalog) {
+                    "ngInject";
+
+                    return gettextCatalog.getString("DSS Container") + " - " + $queryParams.dsscontainer.name;
+                },
+                simpleTitle: function ($queryParams, gettextCatalog) {
+                    "ngInject";
+
+                    return $queryParams.dsscontainer.name;
+                },
+                icon: function ($queryParams, IconImagesService) {
+                    "ngInject";
+
+                    return IconImagesService.mainElementIcons.drive;
+                },
+                breadcrumb: function ($queryParams, $state, gettextCatalog) {
+                    "ngInject";
+
+                    return [
+                        $state.target('dsscontainer-list')
+                    ];
+                },
+                url: '/dsscontainers/{dsscontainer:dsscontainer}',
+                component: 'dsscontainerView',
+                needsAuth: true,
+                'resolve': {
+                    dsscontainer: function ($stateParams) {
+                        'ngInject';
+
+                        return $stateParams.dsscontainer;
+                    }
+                },
+                activeMenuItem: 'dsscontainer'
+            }
         ).state('project-list',
             {
                 title: function ($queryParams, gettextCatalog) {

@@ -57,14 +57,14 @@
                 'USR': 'fa fa-user'
             },
             'resourceUserAvailabilityTexts': {
-                'GLB': gettextCatalog.getString('Global'),
                 'PRJ': gettextCatalog.getString('Only project members'),
-                'USR': gettextCatalog.getString('Only selected users')
+                'USR': gettextCatalog.getString('Only selected users'),
+                'GLB': gettextCatalog.getString('Global')
             },
             'resourceUserAvailabilityOrder': {
                 'GLB': 3,
-                'PRJ': 2,
-                'USR': 1
+                'USR': 2,
+                'PRJ': 1
             },
             /**
              * Adds type_as_text to the resource

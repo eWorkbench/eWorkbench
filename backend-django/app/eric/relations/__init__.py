@@ -4,5 +4,8 @@
 #
 from django.db.models import options
 
+# extend allowed meta options for models
 # used to specify which model can have a generic relation
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('is_relatable',)
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
+    'is_relatable',
+)

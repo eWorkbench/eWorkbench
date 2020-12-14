@@ -4,8 +4,13 @@
 #
 import json
 from contextlib import AbstractContextManager
+from contextlib import AbstractContextManager
 from datetime import datetime
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.test import TestCase, RequestFactory
+from django_userforeignkey.request import set_current_request, get_current_request
 from django.contrib.auth.models import User, Group
 from django.test import TestCase, RequestFactory
 from django.utils.timezone import localtime
@@ -15,6 +20,8 @@ from rest_framework.status import HTTP_200_OK
 
 from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR
 from eric.core.utils import remove_none_values_from_dict
+
+User = get_user_model()
 
 
 class CommonTestMixin:
@@ -64,25 +71,6 @@ class CommonTestMixin:
 
         # create user
         user = User.objects.create_user(**user_data)
-        if groups:
-            user.groups.add(*Group.objects.filter(name__in=groups))
-
-        return user
-
-    @staticmethod
-    def create_my_user(groups=None, **kwargs):
-        username = kwargs.get('username')
-
-        # build user data
-        user_data = {
-            'password': 'mySuperSecretPassword123',
-            'email': '{}@test.local'.format(username),
-        }
-        user_data.update(kwargs)
-
-        # create user
-        from eric.projects.models import MyUser
-        user = MyUser.objects.create_user(**user_data)
         if groups:
             user.groups.add(*Group.objects.filter(name__in=groups))
 
@@ -192,6 +180,18 @@ class FakeRequest(AbstractContextManager):
 
     def __enter__(self):
         set_current_request(self.tmp_request)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        set_current_request(self.original_request)
+
+
+class NoRequest(AbstractContextManager):
+    def __init__(self):
+        self.original_request = get_current_request()
+
+    def __enter__(self):
+        set_current_request(None)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

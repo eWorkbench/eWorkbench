@@ -1,4 +1,5 @@
-<div ng-class="{ 'has-error': vm.errors['directory_id'].length > 0 }" style="width: 100%">
+<div ng-class="{ 'has-error': (vm.errors['directory_id'].length > 0) ||
+        (vm.errors['detail'].length > 0 && vm.errors['value'].length > 0)}" style="width: 100%">
     <directory-drive-tree-selectize-widget
         ng-readonly="vm.isReadOnly()"
         selected-directory-pk="vm.file.directory_id"
@@ -7,5 +8,15 @@
     <p ng-show="vm.errors['directory_id'].length > 0"  class="help-block">
         <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
         {{ vm.errors['directory_id'].join(', ') }}
+    </p>
+
+    <p ng-show="vm.errors['detail'].length > 0 && vm.errors['value'].length > 0"  class="help-block">
+        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+        <span ng-if="vm.errors['value'] == 'RO' || vm.errors['value'] == 'RWNN'">
+            {{ "The DSS container does not allow new files to be added" }}
+        </span>
+        <span ng-if="vm.errors['value'] == 'RWON'">
+            {{ "The DSS container does not allow imported files to be edited" }}
+        </span>
     </p>
 </div>

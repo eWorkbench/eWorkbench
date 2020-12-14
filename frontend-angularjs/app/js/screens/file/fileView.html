@@ -119,6 +119,16 @@
                         </div>
                     </div>
 
+                    <!-- location -->
+                    <div ng-if="vm.file.location" class="form-group" ng-disabled="true">
+                        <label class="col-sm-2 col-md-3" for="file_location" translate>
+                            DSS Location
+                        </label>
+                        <div class="col-sm-9" style="text-align: left">
+                            <p id="file_location">{{ vm.file.location }}</p>
+                        </div>
+                    </div>
+
                     <!-- File Description -->
                     <div class="form-group">
                         <label class="col-sm-2 col-md-3" for="file_description">
@@ -168,7 +178,9 @@
                             </editable-select-list>
                         </div>
                     </div>
+
                 </div>
+
                 <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
                     <!-- History -->
                     <history-short-widget base-model="vm.file" base-url-model="file"></history-short-widget>

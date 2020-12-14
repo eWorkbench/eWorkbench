@@ -13,11 +13,15 @@ from rest_framework.exceptions import NotFound, APIException
 
 from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn
 from eric.core.utils import rfc5987_content_disposition
+from eric.dss.models import DSSContainer
+from eric.projects.models.exceptions import ContainerReadWriteException
+
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, \
     LockableViewSetMixIn
 from eric.shared_elements.models import File, UploadedFileEntry
 from eric.shared_elements.rest.filters import FileFilter
 from eric.shared_elements.rest.serializers import FileSerializer
+
 
 logger = logging.getLogger('eric.shared_elements.rest.viewsets.file')
 
@@ -72,6 +76,31 @@ class FileViewSet(
 
         return super(FileViewSet, self).create(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        """
+        in this update method we check for path changes of dss files and the corresponding read/write settings of their
+        containers.
+        The settings for new dss files are checked in eric/dss/models/handlers.py in
+        check_new_files_for_dss_container_read_write_settings()
+        """
+        # a pk and a path should be in the request data at minimum so that we have to check the container settings
+        if 'pk' in request.data and isinstance(request.data['pk'], str) and 'path' in request.data:
+            # get the existing file
+            file = File.objects.filter(pk=request.data['pk']).first()
+
+            if file.is_dss_file:
+                # lets get the container setting now
+                container_read_write_setting = file.directory.drive.envelope.container.read_write_setting
+                # and the possible settings
+                read_only = DSSContainer.READ_ONLY
+                read_write_only_new = DSSContainer.READ_WRITE_ONLY_NEW
+                if container_read_write_setting == read_only:
+                    raise ContainerReadWriteException(read_only)
+                if container_read_write_setting == read_write_only_new and file.imported:
+                    raise ContainerReadWriteException(read_write_only_new)
+
+        return super(FileViewSet, self).update(request, *args, **kwargs)
+
     def get_queryset(self):
         """
         returns the queryset for viewable Files with the first changeset (insert changeset - used to enhance
@@ -87,8 +116,9 @@ class FileViewSet(
 
         file_entry = self.get_file_entry(**kwargs)
 
-        # create a file response
         file_path = file_entry.path.path
+
+        # create a file response
         response = FileResponse(open(file_path, 'rb'))
 
         # get original file name for the header

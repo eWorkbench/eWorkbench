@@ -12,6 +12,7 @@ services:
     volumes:
       - ./:/app
       - app_data:/var/lib/app
+      - ./dss:/dss
     command: python -Wd manage.py runserver 0.0.0.0:8000
     environment:
       - DJANGO_SETTINGS_MODULE=eric.settings.docker
@@ -25,6 +26,7 @@ services:
       - maildump
       - redis
       - ldap-service
+#      - nfs
   cron_remove_old_element_locks:
     <<: *python
     ports: []
@@ -39,6 +41,29 @@ services:
       - ./:/app
       - app_data:/var/lib/app
     command: while true; do python manage.py send_notifications; sleep 60; done
+  # Celery
+  celery:
+    <<: *python
+    ports: []
+    volumes:
+      - ./:/app
+      - app_data:/var/lib/app
+      - ./dss:/dss
+    command: celery -A eric worker -B -l INFO
+    environment:
+      - DJANGO_SETTINGS_MODULE=eric.settings.docker
+    depends_on:
+      - broker
+      - python
+  # RabbitMQ Broker used by celery
+  broker:
+    image: rabbitmq:3.8
+    hostname: broker
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    ports:
+      - 5672:5672
   # Postgres configuration
   db:
     hostname: db.workbench.local
@@ -105,3 +130,25 @@ services:
      - LDAP_SERVER_HOST=ldap-service
     depends_on:
      - ldap-service
+#  nfs:
+#    hostname: nfs.workbench.local
+#    image: erichough/nfs-server
+#    ports:
+#      - 127.0.11.20:2049:2049
+#      - 127.0.11.20:2049:2049/udp
+#      - 127.0.11.20:111:111
+#      - 127.0.11.20:32767:32767
+#      - 127.0.11.20:32767:32767/udp
+#      - 127.0.11.20:32765:32765
+#      - 127.0.11.20:32765:32765/udp
+#    volumes:
+#      - ./nfs/exports.txt:/etc/exports:ro
+#      - ./nfs/nfs-export/mnt/dss:/mnt/dss
+#      - /lib/modules:/lib/modules:ro
+#    cap_add:
+#        - SYS_ADMIN
+#        - SYS_MODULE
+#    environment:
+#      NFS_LOG_LEVEL: DEBUG
+#    security_opt:
+#      - apparmor=erichough-nfs

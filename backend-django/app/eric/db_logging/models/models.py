@@ -2,6 +2,7 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+import hashlib
 import logging
 
 from django.db import models
@@ -65,18 +66,35 @@ class DBLog(models.Model):
         verbose_name=_('Processing complete'),
         default=False,
     )
+    hash = models.CharField(
+        max_length=160,  # SHA1
+        null=True,
+        blank=True,
+    )
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.hash = self.compute_hash()
+        super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):
         level = logging.getLevelName(self.level)
         return f'{self.created_at_formatted} [{level}] {self.message}'
+
+    def compute_hash(self):
+        hash_object = hashlib.sha1()
+        hash_object.update(self.message.encode('utf-8'))
+        if self.trace:
+            hash_object.update(self.trace.encode('utf-8'))
+
+        return hash_object.hexdigest()
 
     @property
     def created_at_formatted(self):
         return self.created_at.strftime('%Y-%m-%d %X')
 
     @property
-    def other_occurrences(self):
-        return DBLog.objects.filter(message=self.message, trace=self.trace).exclude(pk=self.pk)
+    def occurrences(self):
+        return DBLog.objects.filter(message=self.message, trace=self.trace)
 
     @property
     def user_identification(self):

@@ -10,7 +10,7 @@
 
 
     /**
-     * Widget for selecting one taskPrioritys
+     * Widget for selecting a task priority
      */
     module.directive('taskPrioritySelectizeWidget', function () {
         return {

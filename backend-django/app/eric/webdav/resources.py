@@ -149,6 +149,10 @@ class AuthFsDavView(RestAuthViewMixIn, DavView):
             if not drive:
                 raise Http404
 
+            # temporarily raise a 404 if the drive is a DSS drive
+            if drive.is_dss_drive:
+                raise Http404
+
             # ToDo: We need to do a permission check here, but request.user is not set here, as it gets set
             # ToDo: in the dispatch method of the super class
             # ToDo: However, collection_model_qs() should not return any directories, if they are not viewable
@@ -249,10 +253,12 @@ class MyDriveListResource(MetaEtagMixIn, BaseDBDavResource):
 
             stripped_title = re.sub(pat, ' ', child.title)
 
-            yield self.clone(
-                "/" + stripped_title + " (" + str(child.pk) + ")",
-                obj=child    # Sending ready object to reduce db requests
-            )
+            # temporarily exclude DSS drives from the list
+            if not child.is_dss_drive:
+                yield self.clone(
+                    "/" + stripped_title + " (" + str(child.pk) + ")",
+                    obj=child    # Sending ready object to reduce db requests
+                )
 
     def get_escaped_path(self):
         path = [urlquote(p) for p in self.path]

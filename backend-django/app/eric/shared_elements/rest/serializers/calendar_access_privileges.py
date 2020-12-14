@@ -1,4 +1,4 @@
-from eric.core.rest.serializers import BaseModelWithCreatedBySerializer
+from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer, BaseModelWithCreatedBySerializer
 from eric.shared_elements.models import CalendarAccess
 
 

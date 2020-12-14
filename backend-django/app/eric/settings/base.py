@@ -38,6 +38,23 @@ CONTACT_ADMIN = [
 # from eric.site_preferences.models import options as site_preferences
 # sender = site_preferences.email_from
 
+DSS_SETTINGS = {
+    'MOUNT_PATH': '/dss',
+    'METADATA_FILE_NAME': 'metadata.json',
+    'CHECK_MOUNT_STATUS': True,
+    'ERROR_EMAIL_RECEIVER_CLIENT': 'eric@ub.tum.de',
+    'ERROR_EMAIL_RECEIVER_INTERNAL': 'cus-tum.eworkbench@anx.dev',
+    'CHECK_GLOBUS_RABBITMQ_QUEUE': False,
+    'GLOBUS_RABBITMQ_HOST': '',
+    'GLOBUS_RABBITMQ_PORT': '',
+    'GLOBUS_RABBITMQ_VIRTUAL_HOST': '',
+    'GLOBUS_RABBITMQ_QUEUE': '',
+    'GLOBUS_RABBITMQ_USER': '',
+    'GLOBUS_RABBITMQ_PASSWORD': '',
+    'GLOBUS_RABBITMQ_SSL_CA_CERT': '',
+    'GLOBUS_RABBITMQ_MESSAGE_FETCH_SIZE': '',
+}
+
 MAX_FILE_SIZE_PER_USE = "50G"
 
 DEFAULT_QUOTA_PER_USER_MEGABYTE = 100
@@ -97,6 +114,7 @@ INSTALLED_APPS = [
     'eric.user_manual',
     'eric.site_preferences',
     'eric.projects',
+    'eric.favourites',
     'eric.model_privileges',
     'eric.relations',
     'eric.shared_elements',
@@ -120,6 +138,8 @@ INSTALLED_APPS = [
     'eric.integration',
     'eric.openapi',
     'eric.db_logging',
+    'eric.dss',
+    'eric.appointments',
 
     # CKEditor needs to be at the bottom, so eric.core can overwrite the ckeditor-init.js file
     'ckeditor',

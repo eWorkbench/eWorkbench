@@ -9,6 +9,14 @@
         <screen-title>
             <span translate>Storages</span>
         </screen-title>
+        <additional-filter>
+            <dss-container-selectize-widget
+                    selected-d-s-s-container-pk="vm.selectedDSSContainer"
+                    placeholder="{{ 'Filter by DSS container' | translate }}"
+                    max-items="1"
+                    dss-containers="vm.dssContainers">
+            </dss-container-selectize-widget>
+        </additional-filter>
     </screen-header-function-bar>
 </div>
 

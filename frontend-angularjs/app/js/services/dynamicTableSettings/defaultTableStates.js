@@ -1140,6 +1140,79 @@
                 "selection": [],
                 "pagination": {},
                 "scrollFocus": {}
+            },
+            "grid_state_dsscontainers": {
+                "columns": [
+                    {
+                        "name": "Name",
+                        "field": "name",
+                        "sort": {"direction": "asc"},
+                        "width": "20%",
+                        "filters": [{}],
+                        "visible": true
+                    },
+                    {
+                        "name": "Path",
+                        "field": "path",
+                        "sort": {},
+                        "width": "20%",
+                        "filters": [{}],
+                        "visible": true
+                    },
+                    {
+                        "name": "Read Write Setting",
+                        "field": "read_write_setting",
+                        "sort": {},
+                        "width": "10%",
+                        "filters": [{}],
+                        "visible": true
+                    },
+                    {
+                        "name": "Import Option",
+                        "field": "import_option",
+                        "sort": {},
+                        "width": "10%",
+                        "filters": [{}],
+                        "visible": true
+                    },
+                    {
+                        "name": "Created at",
+                        "field": "created_at",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    },
+                    {
+                        "name": "Created by",
+                        "field": "created_by",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": true
+                    },
+                    {
+                        "name": "Last updated at",
+                        "field": "last_modified_at",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": false
+                    },
+                    {
+                        "name": "Last updated by",
+                        "field": "last_modified_by",
+                        "sort": {},
+                        "width": "*",
+                        "filters": [{}],
+                        "visible": false
+                    }
+                ],
+                "grouping": {},
+                "treeView": {},
+                "selection": [],
+                "pagination": {},
+                "scrollFocus": {}
             }
         };
     });

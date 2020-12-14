@@ -7,6 +7,7 @@ from rest_framework.test import APITestCase
 from eric.core.models.abstract import get_all_workbench_models, WorkbenchEntityMixin
 from eric.dmp.models import Dmp
 from eric.drives.models import Drive
+from eric.dss.models import DSSContainer
 from eric.kanban_boards.models import KanbanBoard
 from eric.labbooks.models import LabBook, LabbookSection
 from eric.pictures.models import Picture
@@ -44,6 +45,7 @@ class GlobalFTSSearchTest(APITestCase, AuthenticationMixin, FTSDataMixin):
             Project,
             Resource,
             Task,
+            DSSContainer,
         ]
 
     def _get_searchable_models(self):

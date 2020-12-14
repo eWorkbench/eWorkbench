@@ -72,6 +72,34 @@
                             </editable-select-list>
                         </div>
                     </div>
+
+                    <!-- DSS Envelope -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="dss_envelope_id" translate>
+                            DSS Envelope
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveDrivePartial('dss_envelope_id', ngModel)"
+                                on-save-multiple="vm.saveDrive()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.selectedEnvelopePk">
+                                <div ng-include="'js/screens/drive/driveForm.envelope.html'"></div>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- DSS location -->
+                    <div ng-if="vm.drive.location" class="form-group" ng-disabled="true">
+                        <label class="col-sm-2 col-md-3" for="drive_location" translate>
+                            DSS Location
+                        </label>
+                        <div class="col-sm-9" style="text-align: left">
+                            <p id="drive_location">{{ vm.drive.location }}</p>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
                     <!-- History -->

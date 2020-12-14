@@ -6,6 +6,7 @@ from datetime import timedelta, datetime
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.forms.widgets import NullBooleanSelect
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, gettext
@@ -14,6 +15,8 @@ from django_filters import filters as django_filters
 from django_filters.constants import EMPTY_VALUES as FILTER_EMPTY_VALUES
 from django_filters.rest_framework import FilterSet
 from django_userforeignkey.request import get_current_user
+
+from eric.favourites.rest.filters import FavouriteFilter
 
 
 class BaseFilter(FilterSet):
@@ -169,3 +172,15 @@ class RecentlyModifiedByMeFilter(Filter):
             changesets__user=get_current_user(),
             changesets__date__gte=first_day
         )
+
+
+class WorkbenchElementFilter(BaseFilter):
+    """
+    Base class for workbench element filters with common definitions.
+    """
+
+    favourite = FavouriteFilter()
+    deleted = BooleanDefaultFilter()
+    projects = ListFilter(field_name='project')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
+    recently_modified_by_me = RecentlyModifiedByMeFilter()

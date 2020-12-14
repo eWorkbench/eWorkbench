@@ -62,11 +62,6 @@ class CreatedAndModifiedByReadOnlyAdminMixin:
 
 @admin.register(ProjectRoleUserAssignment)
 class ProjectRoleUserAssignmentAdmin(DeleteableModelAdmin):
-    class Media:
-        # Media class required because of bug in django-admin-autocomplete-filter
-        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
-        pass
-
     model = ProjectRoleUserAssignment
     list_display = (
         'user',

@@ -1,0 +1,19 @@
+<div ng-class="{ 'has-error': (vm.errors['dss_envelope_id'].length > 0) ||
+        (vm.errors['detail'].length > 0 && vm.errors['value'].length > 0)}" style="width: 100%">
+    <envelope-tree-selectize-widget
+        ng-readonly="vm.isReadOnly()"
+        selected-envelope-pk="vm.selectedEnvelopePk"
+        placeholder="{{ 'DSS Envelope' }}"></envelope-tree-selectize-widget>
+
+    <p ng-show="vm.errors['dss_envelope_id'].length > 0"  class="help-block">
+        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+        {{ vm.errors['dss_envelope_id'].join(', ') }}
+    </p>
+
+    <p ng-show="vm.errors['detail'].length > 0 && vm.errors['value'].length > 0"  class="help-block">
+        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+        <span ng-if="vm.errors['value'] == 'RO' || vm.errors['value'] == 'RWNN'">
+            {{ "The DSS container does not allow new storages to be added" }}
+        </span>
+    </p>
+</div>

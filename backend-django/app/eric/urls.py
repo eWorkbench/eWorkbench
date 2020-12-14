@@ -15,130 +15,76 @@ from rest_framework.schemas import get_schema_view
 
 from eric.core.rest.routers import get_api_router
 
-router = get_api_router()
+API_BASE = r'^api/'
 
-# generate schema definition for REST
+router = get_api_router()
 schema_view = get_schema_view(title='API')
 
 urlpatterns = [
-    # include dbsettings URL
     url(r'^admin/settings/', include('dbsettings.urls')),
-
     url(r'^admin/', admin.site.urls),
 
-    # schema definition for Django Rest Framework
-    url(r'^schema/$', schema_view),
-
+    url(r'^schema/$', schema_view),  # schema definition for Django Rest Framework
     url(r'^docs/', include_docs_urls(title="eRIC Workbench API")),
-
     url(r'^api/cms/', include('eric.cms.urls')),
 
-    url(r'api/', include('eric.core.urls')),
+    url(API_BASE, include('eric.core.urls')),
 
-    # include webdav
     url(r'webdav/', include('eric.webdav.urls')),
-
-    # include caldav
     url(r'caldav/', include('eric.caldav.urls')),
-
-    # short URLs
     url(r'short_url/', include('eric.short_url.urls')),
 
-    # site preferences
-    url(r'api/', include('eric.site_preferences.urls')),
+    url(API_BASE, include('eric.site_preferences.urls')),
+    url(API_BASE, include('eric.user_manual.urls')),
+    url(API_BASE, include('eric.search.urls')),  # fts search
+    url(API_BASE, include('eric.model_privileges.urls')),
+    url(r'^api/relations/', include('eric.relations.urls')),  # element links
+    url(API_BASE, include('eric.shared_elements.urls')),
+    url(API_BASE, include('eric.versions.urls')),  # workbench entity versions
+    url(API_BASE, include('eric.metadata.urls')),  # metadata fields and search
+    url(API_BASE, include('eric.dmp.urls')),
+    url(API_BASE, include('eric.dss.urls')),
+    url(API_BASE, include('eric.labbooks.urls')),
+    url(API_BASE, include('eric.pictures.urls')),
+    url(API_BASE, include('eric.plugins.urls')),
+    url(API_BASE, include('eric.kanban_boards.urls')),  # task boards
+    url(API_BASE, include('eric.drives.urls')),  # storages
+    url(API_BASE, include('eric.sortable_menu.urls')),  # sortable navigation menu
+    url(API_BASE, include('eric.dashboard.urls')),
+    url(API_BASE, include('eric.contact_form.urls')),
+    url(API_BASE, include('eric.notifications.urls')),
+    url(API_BASE, include('eric.favourites.urls')),
+    url(API_BASE, include('eric.base64_image_extraction.urls')),
+    url(API_BASE, include('eric.projects.urls')),
+    url(API_BASE, include('eric.public_user_groups.urls')),
+    url(API_BASE, include('eric.appointments.urls')),
+    url(API_BASE, include(router.urls)),  # DRF router URLs
 
-    # user manual
-    url(r'^api/', include('eric.user_manual.urls')),
-
-    # fts (search)
-    url(r'^api/', include('eric.search.urls')),
-
-    # include eric model privileges url
-    url(r'^api/', include('eric.model_privileges.urls')),
-
-    # include eric relations (links)
-    url(r'^api/relations/', include('eric.relations.urls')),
-
-    # include shared elements
-    url(r'^api/', include('eric.shared_elements.urls')),
-    url(r'^api/', include('eric.versions.urls')),  # workbench entity versions
-    url(r'^api/', include('eric.metadata.urls')),  # metadata fields and search
-    url(r'^api/', include('eric.dmp.urls')),
-
-    # include labbooks
-    url(r'^api/', include('eric.labbooks.urls')),
-
-    # include pictures
-    url(r'^api/', include('eric.pictures.urls')),
-
-    # include plugins
-    url(r'^api/', include('eric.plugins.urls')),
-
-    # include kanban boards
-    url(r'^api/', include('eric.kanban_boards.urls')),
-
-    # include drives
-    url(r'^api/', include('eric.drives.urls')),
-
-    # include eric sortable menu
-    url(r'^api/', include('eric.sortable_menu.urls')),
-
-    # dashboard
-    url(r'^api/', include('eric.dashboard.urls')),
-
-    # contact form
-    url(r'^api/', include('eric.contact_form.urls')),
-
-    # notifications
-    url(r'^api/', include('eric.notifications.urls')),
-
-    # base64 image extraction
-    url(r'^api/', include('eric.base64_image_extraction.urls')),
-
-    # include the whole API from eric workbench
-    url(r'^api/', include('eric.projects.urls')),
-
-    # public user groups
-    url(r'^api/', include('eric.public_user_groups.urls')),
-
-    # "all" REST Endpoints
-    url(r'^api/', include(router.urls)),
-
-    # include core auth
+    # core authentication
     url(r'^api/auth/', include('django_rest_multitokenauth.urls', namespace='multitokenauth')),
     url(r'^api/auth/reset_password/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     url(r'^login/', LoginView.as_view(template_name='login.html'), name='login'),
     url(r'^logout/', LogoutView.as_view(), name='logout'),
 
-    # Anexia monitoring urls
-    url(r'^', include(monitor_urls)),
-
-    # ckeditor uploader urls
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
-
     url(r'^openapi/', include('eric.openapi.urls')),
+
+    url(r'^', include(monitor_urls)),  # Anexia Version Monitoring
 ]
 
-# print("Serving", settings.MEDIA_URL, "at", settings.MEDIA_ROOT)
-
+# serve debug toolbar in debug mode
 if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar
 
-    # serve django debug toolbar
-    # ToDo: log this
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
-# serve media root for uploaded profile images
+# serve media root for uploaded profile images in debug mode
 if settings.DEBUG:
-    # ToDo: Log this
-    # print("Serving medias in {media_root} as {media_url}".format(
-    #     media_url=settings.MEDIA_URL, media_root=settings.MEDIA_ROOT)
-    # )
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# serve a "/" for webdav
+# serve a "/" for webdav in debug mode
 if settings.DEBUG:
     urlpatterns += [
         url(r'^$', TemplateView.as_view(template_name='empty.html'), name='webdav-home')

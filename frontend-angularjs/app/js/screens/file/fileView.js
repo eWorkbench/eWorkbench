@@ -187,6 +187,7 @@
                     // worked
                     vm.file = response;
                     d.resolve();
+                    vm.saveFilePartial("metadata", previousFile["metadata"]);
                 },
                 function error (rejection) {
                     /**
@@ -202,6 +203,23 @@
                         vm.errors['path'] = [rejectionMessage.validationMessage];
 
                         d.reject(rejectionMessage.toasterTitle);
+                    } else if (rejection.status == 418) {
+                        var dssRejectionMessage = GlobalErrorHandlerService.handleRestApiDSSContainerError(rejection);
+
+                        console.log(rejection);
+
+                        toaster.pop('error', dssRejectionMessage.toasterTitle, dssRejectionMessage.toasterMessage);
+                        vm.errors['path'] = [dssRejectionMessage.validationMessage];
+
+                        vm.file.path = previousFile.path;
+                        vm.file.name = previousFile.name;
+
+                        $timeout(function () {
+                            // switch back to view mode for all unsaved elements
+                            editableFormElementUnsavedChangesService.toggleVisibilityForAllUnsavedElements();
+                        });
+
+                        d.reject(dssRejectionMessage.toasterTitle);
                     } else if (rejection && rejection.data) {
                         // Validation error - an error message is provided by the api
                         d.reject(rejection.data);
@@ -215,9 +233,7 @@
                         d.reject(gettextCatalog.getString("Unknown error"));
                     }
                 }
-            ).then(function () {
-                vm.saveFilePartial("metadata", previousFile["metadata"]);
-            }).finally(function () {
+            ).finally(function () {
                 vm.readOnly = false;
             });
 

@@ -1,0 +1,170 @@
+<div class="panel panel-default element-panel">
+    <div class="panel-heading">
+        <div style="float: left">
+            <i class="{{:: vm.dsscontainerIcon }}"></i> {{ vm.dsscontainer.name }}
+        </div>
+        <generic-detail-view-menu-widget
+            base-model="vm.dsscontainer"
+            base-url-model="dsscontainers"
+            has-delete="false"
+            has-trash="false"
+            has-export="true"
+            has-restore="false"
+            has-privileges="true"
+            has-new-element="true"
+            has-duplicate="true"></generic-detail-view-menu-widget>
+    </div>
+    <div class="panel-body">
+        <generic-show-element-state-widget base-model="vm.dsscontainer"
+                                           show-trashed="true"></generic-show-element-state-widget>
+        <generic-show-element-lock-status-widget on-lock-cb="vm.onLock()" on-unlock-cb="vm.onUnlock()"
+                                                 base-model="vm.dsscontainer"
+                                                 show-locked="true"
+                                                 show-reload-message="true"></generic-show-element-lock-status-widget>
+        <div class="row">
+            <div class="form-horizontal" name="editDSSContainerForm">
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+
+                    <!-- DSS Container Name -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="dsscontainer_name" translate>
+                           Name
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveDSSContainerPartial('name', ngModel)"
+                                on-save-multiple="vm.saveDSSContainer()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.dsscontainer.name">
+                                <ng-include src="'js/screens/dsscontainer/dsscontainerForm.name.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- DSS Container Path -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="dsscontainer_path" translate>
+                          Path
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveDSSContainerPartial('path', ngModel)"
+                                on-save-multiple="vm.saveDSSContainer()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.dsscontainer.path">
+                                <ng-include src="'js/screens/dsscontainer/dsscontainerForm.path.html'"></ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- DSS Container mount status -->
+                    <ng-include src="'js/screens/dsscontainer/dsscontainerForm.mountstatus.html'"></ng-include>
+
+                    <!-- DSS Container Read Write Setting -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="dsscontainer_read_write_setting" translate>
+                           R/W-Setting
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveDSSContainerPartial('read_write_setting', ngModel)"
+                                on-save-multiple="vm.saveDSSContainer()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.dsscontainer.read_write_setting">
+                                <ng-include src="'js/screens/dsscontainer/dsscontainerForm.readwritesetting.html'">
+                                </ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- DSS Container Import Option -->
+                    <div class="form-group">
+                        <label class="col-sm-2 col-md-3" for="dsscontainer_import_option" translate>
+                           Import Option
+                        </label>
+                        <div class="col-sm-9">
+                            <editable-select-list
+                                edit-disabled="vm.isReadOnly()"
+                                on-save="vm.saveDSSContainerPartial('import_option', ngModel)"
+                                on-save-multiple="vm.saveDSSContainer()"
+                                on-abort="vm.resetErrors()"
+                                ng-model="vm.dsscontainer.import_option">
+                                <ng-include src="'js/screens/dsscontainer/dsscontainerForm.importoption.html'">
+                                </ng-include>
+                            </editable-select-list>
+                        </div>
+                    </div>
+
+                    <!-- DSS Container Import Option Add List -->
+                    <div class="form-group importfile-parse"
+                         ng-if="!vm.isReadOnly()"
+                         ng-show="vm.dsscontainer.import_option=='IL'"
+                         ngf-drop="vm.parseImportList($files[0])"
+                         ngf-multiple="false"
+                         ngf-allow-dir="false"
+                         ngf-include-dir="false"
+                         ngf-drag-over-class="{accept:'dragover', delay:100}">
+                        <label class="col-sm-2 col-md-3" translate>Select Import List</label>
+                        <div class="col-sm-9" ng-class="{ 'has-error': vm.errors['importfile'].length > 0 }">
+                            <div class="hide-on-dragover">
+                                <button class="btn btn-primary" role="button" ng-click="vm.parseImportList()"
+                                        title="{{ 'Select a json file with a list of import paths' | translate }}">
+                                    <i class="fa fa-upload" aria-hidden="true"></i>
+                                    <span translate>Upload json path list</span>
+                                </button>
+                            </div>
+                            <div class="show-on-dragover" translate>
+                                Drop import json file here to import its paths
+                            </div>
+                            <p ng-show="vm.errors['importfile'].length > 0" class="help-block pull-left">
+                                <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
+                                {{ vm.errors['importfile'].join(', ') }}
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <created-and-updated-by-widget element="vm.dsscontainer"></created-and-updated-by-widget>
+
+                    <!-- project -->
+<!--                    todo: remove container.projects everywhere if it is really not needed -->
+<!--                    <div class="form-group">-->
+<!--                        <label class="col-sm-2 col-md-3" for="dsscontainer_create_project" translate>-->
+<!--                            Project-->
+<!--                        </label>-->
+<!--                        <div class="col-sm-9">-->
+<!--                            <editable-select-list-->
+<!--                                edit-disabled="vm.isReadOnly()"-->
+<!--                                on-save="vm.saveDSSContainerPartial('projects', ngModel)"-->
+<!--                                on-save-multiple="vm.saveDSSContainer()"-->
+<!--                                on-abort="vm.resetErrors()"-->
+<!--                                ng-model="vm.projectPks"-->
+<!--                                compare-mode="array">-->
+<!--                                <ng-include src="'js/screens/dsscontainer/dsscontainerForm.projects.html'"></ng-include>-->
+<!--                            </editable-select-list>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                    <!-- History -->
+                    <history-short-widget base-model="vm.dsscontainer" base-url-model="dsscontainer"></history-short-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default" ng-if="vm.cmsDSSContainerDetailHowTo && vm.cmsDSSContainerDetailHowTo.text.length > 0">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span>{{ vm.cmsDSSContainerDetailHowTo.title }}</span>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div ng-bind-html="vm.cmsDSSContainerDetailHowTo.text | asHtml"></div>
+    </div>
+</div>

@@ -1,0 +1,3 @@
+/mnt/dss/dssfs01         172.0.0.0/8(rw,fsid=root,secure,no_root_squash,sync,no_subtree_check)
+/mnt/dss/dssfs01/pr53ve/pr53ve-dss-000         172.0.0.0/8(rw,secure,no_root_squash,sync,no_subtree_check)
+/mnt/dss/dssfs01/gu56bix/gu56bix-dss-000         172.0.0.0/8(rw,secure,no_root_squash,sync,no_subtree_check)

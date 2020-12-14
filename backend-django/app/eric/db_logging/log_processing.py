@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django_userforeignkey.request import get_current_request
 
+from eric.core.templatetags.site_preferences import absolute_site_url
 from eric.db_logging.config import LOG_MAIL_RECEIVERS
 from eric.site_preferences.models import options as site_preferences
 
@@ -43,9 +44,23 @@ class MailSender(LogProcessor):
 
     @staticmethod
     def send_aggregated_logs_mail(logs_qs):
+        # group logs by hash
+        grouped_logs = list()
+        log_hash_collection = set(logs_qs.values_list('hash', flat=True))
+        for log_hash in log_hash_collection:
+            logs_for_hash = logs_qs.filter(hash=log_hash)
+            first_log = logs_for_hash.first()
+            admin_url = absolute_site_url('admin:db_logging_dblog_changelist') + f'?hash={log_hash}'
+            grouped_logs.append({
+                'message': first_log.message,
+                'trace': first_log.trace,
+                'admin_url': admin_url,
+                'occurrences': logs_for_hash.order_by('created_at'),
+            })
+
         template_context = {
             'site_preferences': site_preferences,
-            'logs': logs_qs,
+            'grouped_logs': grouped_logs,
             'admin_url': reverse('admin:db_logging_dblog_changelist'),
         }
         plaintext_content = render_to_string('log_mail.txt', template_context)

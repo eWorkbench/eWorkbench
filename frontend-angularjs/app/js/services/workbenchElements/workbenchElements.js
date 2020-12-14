@@ -303,6 +303,21 @@
                     "sub_directories": gettextCatalog.getString("Folders"),
                     "metadata": gettextCatalog.getString("Metadata")
                 }
+            },
+            'dss.dsscontainer': {
+                'modelName': 'dsscontainer',
+                'translation': gettextCatalog.getString("DSS Container"),
+                'translationPlural': gettextCatalog.getString("DSS Containers"),
+                'icon': 'fa fa-hdd-o',
+                'relatable': true,
+                'exportable': true,
+                'searchable': true,
+                'labels': {
+                    "name": gettextCatalog.getString("Name"),
+                    "import_option": gettextCatalog.getString("Import option"),
+                    "read_write_setting": gettextCatalog.getString("Read Write Setting"),
+                    "metadata": gettextCatalog.getString("Metadata")
+                }
             }
         };
 

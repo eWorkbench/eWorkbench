@@ -100,6 +100,25 @@
             };
 
             /**
+             * for DSS: includes two elements for display, one setting "NOTIFICATION_DSS_IMPORT_FAILED"
+             * cannot be changed
+             */
+            vm.notificationConfigurationDss = {
+                'NOTIFICATION_DSS_IMPORT_IN_PROGRESS': {
+                    'label': gettextCatalog.getString("Notify me when there is a DSS import in progress for me."),
+                    'enabled': false
+                },
+                'NOTIFICATION_DSS_IMPORT_FINISHED': {
+                    'label': gettextCatalog.getString("Notify me when there is a DSS import finished for me."),
+                    'enabled': false
+                },
+                'NOTIFICATION_DSS_IMPORT_FAILED': {
+                    'label': gettextCatalog.getString("Notify me when there is a DSS import failed for me."),
+                    'enabled': false
+                }
+            };
+
+            /**
              * Whether or not all appointment notifications are selected
              * @type {boolean}
              */
@@ -116,6 +135,12 @@
              * @type {boolean}
              */
             vm.allProjectsSelected = false;
+
+            /**
+             * Whether or not all task notifications are selected
+             * @type {boolean}
+             */
+            vm.allDssSelected = false;
 
             loadNotificationConfiguration();
             vm.checkAllPromptsEnabled();
@@ -236,6 +261,20 @@
                     vm.allProjectsSelected = false;
                 }
             }
+
+            //DSS
+            var dss_keys = Object.keys(vm.notificationConfigurationDss);
+
+            vm.allDssSelected = true;
+            for (var l = 0; l < dss_keys.length; l++) {
+                if (vm.enabledNotificationsObject.allowed_notifications.indexOf(dss_keys[l]) >= 0) {
+                    vm.notificationConfigurationDss[dss_keys[l]].enabled = true;
+                } else {
+                    vm.notificationConfigurationDss[dss_keys[l]].enabled = false;
+                    // at least one DSS notification is unselected - change allDssSelected to false
+                    vm.allDssSelected = false;
+                }
+            }
         };
 
         /**
@@ -269,6 +308,15 @@
             for (i = 0; i < project_keys.length; i++) {
                 if (vm.notificationConfigurationProjects[project_keys[i]].enabled) {
                     enabledNotifications.push(project_keys[i]);
+                }
+            }
+
+            //DSS
+            var dss_keys = Object.keys(vm.notificationConfigurationDss);
+
+            for (i = 0; i < dss_keys.length; i++) {
+                if (vm.notificationConfigurationDss[dss_keys[i]].enabled) {
+                    enabledNotifications.push(dss_keys[i]);
                 }
             }
 
@@ -464,5 +512,56 @@
             // update data
             updateNotificationConfiguration();
         };
+
+        /**
+         * triggered when user toggles the 'select/unselect all DSS' checkbox
+         * selects or unselects all task notifications
+         */
+        vm.toggleAllDss = function () {
+            vm.allDssSelected = !vm.allDssSelected;
+            var dss_keys = Object.keys(vm.notificationConfigurationDss);
+
+            for (var i = 0; i < dss_keys.length; i++) {
+                vm.notificationConfigurationDss[dss_keys[i]].enabled = vm.allDssSelected;
+            }
+
+            // update data
+            updateNotificationConfiguration();
+        };
+
+        /**
+         * triggered when a DSS notification was selected/unselected
+         * change vm.allDssSelected to false when at least one notification is unselected
+         * change vm.allDssSelected to true when all notifications are selected
+         * @param notification
+         */
+        vm.toggleDssNotification = function (notification) {
+            notification.enabled = !notification.enabled;
+
+            var newValue = notification.enabled;
+
+            // notification was selected - set allDssSelected to true
+            // allDssSelected will be set to false when not all notifications are selected
+            if (newValue) {
+                vm.allDssSelected = true;
+            } else {
+                // notification was unselected - set allDssSelected to false
+                vm.allDssSelected = false;
+            }
+
+            var dss_keys = Object.keys(vm.notificationConfigurationDss);
+
+            for (var i = 0; i < dss_keys.length; i++) {
+                if (newValue && vm.notificationConfigurationDss[dss_keys[i]].enabled !== true) {
+                    // current notification was selected but at least one notification is unselected
+                    // - change allDssSelected to false
+                    vm.allDssSelected = false;
+                }
+            }
+
+            // update data
+            updateNotificationConfiguration();
+        };
+
     });
 })();

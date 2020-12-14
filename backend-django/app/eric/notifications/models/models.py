@@ -41,6 +41,11 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     NOTIFICATION_CONF_PROJECT_USER_CHANGED = 'NOTIFICATION_CONF_PROJECT_USER_CHANGED'
     NOTIFICATION_CONF_PROJECT_CHANGED = 'NOTIFICATION_CONF_PROJECT_CHANGED'
 
+    # DSS
+    NOTIFICATION_DSS_IMPORT_IN_PROGRESS = 'NOTIFICATION_DSS_IMPORT_IN_PROGRESS'
+    NOTIFICATION_DSS_IMPORT_FINISHED = 'NOTIFICATION_DSS_IMPORT_FINISHED'
+    NOTIFICATION_DSS_IMPORT_FAILED = 'NOTIFICATION_DSS_IMPORT_FAILED'
+
     NOTIFICATION_CONF_CHOICES = (
         (NOTIFICATION_CONF_MEETING_USER_CHANGED, _('Attended users of meeting has been changed')),
         (NOTIFICATION_CONF_MEETING_CHANGED, _('Meeting has been changed')),
@@ -54,6 +59,10 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
         (NOTIFICATION_CONF_PROJECT_USER_CHANGED, _('Users of project has been changed')),
         (NOTIFICATION_CONF_PROJECT_CHANGED, _('Project has been changed')),
+
+        (NOTIFICATION_DSS_IMPORT_IN_PROGRESS, _('DSS import in progress')),
+        (NOTIFICATION_DSS_IMPORT_FINISHED, _('DSS import finished')),
+        (NOTIFICATION_DSS_IMPORT_FAILED, _('DSS import failed')),
     )
 
     objects = NotificationConfigurationManager()

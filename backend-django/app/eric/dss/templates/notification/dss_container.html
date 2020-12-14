@@ -1,0 +1,33 @@
+{% load i18n captureas user_widgets simple_object_display date_filters %}
+
+{# Hint: Whitespace matters for plaintext rendering -- change with caution and test afterwards! #}
+
+<p>{% trans "DSS Container" %}:</p>
+<p>{% trans "Name" %}: {{ instance.name }}</p>
+<p>{% trans "Path" %}: {{ instance.path }}</p>
+
+{% if instance.paths_and_reasons %}
+<p>{% trans "File paths and fail reasons" %}:
+<ul>{% for path, reason in instance.paths_and_reasons %}
+        <li>Path: {{ path }} / Reason {{ reason }}</li>
+    {% endfor %}
+</ul>
+</p>
+{% endif %}
+
+{% if instance.metadata_project_fail_pk %}
+    {% if instance.metadata_project_fail_error %}
+        <p>{% trans "There was an error trying to set the project pk" %} {{ instance.metadata_project_fail_pk }} {% trans "as a project" %}: {{ instance.metadata_project_fail_error }}</p>
+    {% else %}
+        <p>{{ instance.metadata_project_fail_pk }} {% trans "is not a valid and/or editable project that can be set" %}</p>
+    {% endif %}
+{% endif %}
+
+{% if instance.projects.viewable.exists %}
+<p>{% trans "Projects" %}:
+<ul>{% for project in instance.projects.viewable %}
+        <li>{{ project.name }}</li>
+    {% endfor %}
+</ul>
+</p>
+{% endif %}

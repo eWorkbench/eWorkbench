@@ -1,0 +1,15 @@
+<div class="form-group">
+    <label class="col-sm-2 col-md-3" for="dss_container_mountstatus" translate>
+       Mount Status
+    </label>
+    <div class="col-sm-9" ng-if="vm.dsscontainer.is_mounted">
+        <span class="fa fa-circle" style="color:green"></span>
+        <span translate>mounted</span>
+    </div>
+    <div class="col-sm-9" ng-if="!vm.dsscontainer.is_mounted">
+        <span class="fa fa-circle" style="color:red"></span>
+        <span translate>Could not be mounted. Please check the path.</span>
+        <span translate>The path should look like: 'dssfs01/pr53ve/pr53ve-dss-0000'.</span>
+        <span translate>If you think the path is correct then please contact site administration.</span>
+    </div>
+</div>

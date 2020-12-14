@@ -125,6 +125,13 @@ CHANNEL_LAYERS = {
     },
 }
 
+DSS_SETTINGS['CHECK_MOUNT_STATUS'] = False
+
+# Celery and RabbitMQ Config
+RABBITMQ_URL = 'amqp://admin:mypass@broker:5672'
+CELERY_BROKER_URL = RABBITMQ_URL
+CELERY_RESULT_BACKEND = 'rpc://'
+
 # debug toolbar always enabled
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda x: DEBUG

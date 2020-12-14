@@ -14,6 +14,16 @@ class UserStorageLimitReachedException(Exception):
         self.available_storage = available_storage
 
 
+class ContainerReadWriteException(Exception):
+    """
+    Raised when the user wants to upload a file and the container read/write settings won't allow it.
+    """
+
+    def __init__(self, value, *args, **kwargs):
+        super(ContainerReadWriteException, self).__init__(*args, **kwargs)
+        self.value = value
+
+
 class MaxFileSizeReachedException(Exception):
     """
     Raised when the user wants to upload a file that is larger than the max file size defined in site preferences

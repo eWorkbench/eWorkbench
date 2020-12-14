@@ -75,6 +75,18 @@
         {{ value | bytes }}
     </span>
 
+    <span ng-switch-when="read_write_setting">
+        <dsscontainer-settings-display-widget
+            dss-container-r-w-setting="value">
+        </dsscontainer-settings-display-widget>
+    </span>
+
+    <span ng-switch-when="import_option">
+        <dsscontainer-settings-display-widget
+            dss-container-import-option="value">
+        </dsscontainer-settings-display-widget>
+    </span>
+
     <span ng-switch-default>
         '{{ value }}'
     </span>

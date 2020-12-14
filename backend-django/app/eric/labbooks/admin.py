@@ -26,11 +26,6 @@ class LabBookChildElementInline(TabularInline):
 
 @admin.register(LabBook)
 class LabbookAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    class Media:
-        # Media class required because of bug in django-admin-autocomplete-filter
-        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
-        pass
-
     list_display = ('title', 'created_by', 'created_at',)
     list_filter = (
         ProjectsFilter,

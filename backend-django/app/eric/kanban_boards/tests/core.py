@@ -196,7 +196,7 @@ class KanbanBoardMixin:
 
         if project_pks:
             if isinstance(project_pks, list):
-                data['projects'] = [project_pks]
+                data['projects'] = project_pks
             else:
                 data['projects'] = [project_pks]
 

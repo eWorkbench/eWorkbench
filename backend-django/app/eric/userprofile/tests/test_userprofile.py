@@ -5,21 +5,18 @@
 import json
 
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
-
 from django.contrib.auth.models import Group
+from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ugettext_lazy as _
-from rest_framework.test import APITestCase
 from rest_framework import status
-from eric.projects.models import Role, Project
+from rest_framework.test import APITestCase
 
+from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR
+from eric.projects.models import Role, Project
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, MeMixin
 from eric.userprofile.models import UserProfile
 
 User = get_user_model()
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
 
 
 class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):

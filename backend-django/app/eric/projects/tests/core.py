@@ -10,6 +10,7 @@ from django.contrib.auth.models import Permission
 from rest_framework import status
 from rest_framework.status import HTTP_200_OK
 
+from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR
 from eric.core.tests import custom_json_handler, HTTP_INFO
 from eric.projects.models import Project, ProjectRoleUserAssignment, Role, RolePermissionAssignment, Resource
 from eric.shared_elements.models import Contact
@@ -35,12 +36,6 @@ class ModelPrivilegeMixin:
     def rest_get_privileges(self, auth_token, model, pk, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         REST Wrapper for an api call to retrieve all privileges for a given model and pk
-        :param auth_token:
-        :param model:
-        :param pk:
-        :param HTTP_USER_AGENT:
-        :param REMOTE_ADDR:
-        :return:
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
 
@@ -52,13 +47,6 @@ class ModelPrivilegeMixin:
     def rest_get_privileges_for_user(self, auth_token, model, pk, user_pk, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         REST Wrapper for an api call to retrieve privileges for a given model and pk and user_pk
-        :param auth_token:
-        :param model:
-        :param pk:
-        :param user_pk: the primary key of the user that the privileges are returned for
-        :param HTTP_USER_AGENT:
-        :param REMOTE_ADDR:
-        :return:
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
 
@@ -70,13 +58,6 @@ class ModelPrivilegeMixin:
     def rest_delete_privilege(self, auth_token, model, pk, user_pk, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         REST Wrapper for an api call to delete a privilege for a given model, pk and user
-        :param auth_token:
-        :param model:
-        :param pk:
-        :param user_pk:
-        :param HTTP_USER_AGENT:
-        :param REMOTE_ADDR:
-        :return:
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
 
@@ -88,13 +69,6 @@ class ModelPrivilegeMixin:
     def rest_create_privilege(self, auth_token, model, pk, user_pk, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         REST Wrapper for an api call to create a new privilege for a given model, pk and user
-        :param auth_token:
-        :param model:
-        :param pk:
-        :param user_pk:
-        :param HTTP_USER_AGENT:
-        :param REMOTE_ADDR:
-        :return:
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
 
@@ -111,13 +85,6 @@ class ModelPrivilegeMixin:
     def rest_update_privilege(self, auth_token, model, pk, user_pk, privilege, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         REST Wrapper for an api call to update an existing privilege for a given model, pk and user_pk
-        :param auth_token:
-        :param model:
-        :param pk:
-        :param user_pk:
-        :param HTTP_USER_AGENT:
-        :param REMOTE_ADDR:
-        :return:
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
 
@@ -130,13 +97,6 @@ class ModelPrivilegeMixin:
     def rest_patch_privilege(self, auth_token, model, pk, user_pk, privilege, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         REST Wrapper for an api call to update an existing privilege for a given model, pk and user_pk
-        :param auth_token:
-        :param model:
-        :param pk:
-        :param user_pk:
-        :param HTTP_USER_AGENT:
-        :param REMOTE_ADDR:
-        :return:
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
 
@@ -297,7 +257,7 @@ class AuthenticationMixin:
                                     HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
 
         # check if login was successful
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content.decode())
         self.assertContains(response, "{\"token\":\"")
 
         # check if the user exists
@@ -564,10 +524,6 @@ class ProjectsMixin:
     def get_all_projects_from_rest(self, auth_token, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         Gets all projects from REST API with the specified auth token
-        :param auth_token:
-        :param HTTP_USER_AGENT:
-        :param REMOTE_ADDR:
-        :return:
         """
         response = self.rest_get_projects(auth_token, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -832,6 +788,7 @@ class ResourceMixin(TestLockMixin):
             booking_rule_maximum_time_before=None,
             booking_rule_time_between=None,
             booking_rule_bookings_per_user=None,
+            **kwargs
     ):
         """
         Wrapper for creating a resource via REST API
@@ -875,6 +832,8 @@ class ResourceMixin(TestLockMixin):
             data['booking_rule_time_between'] = booking_rule_time_between
         if booking_rule_bookings_per_user:
             data['booking_rule_bookings_per_user'] = booking_rule_bookings_per_user
+
+        data.update(kwargs)
 
         set_projects(data, project_pks)
 
@@ -972,12 +931,6 @@ class ResourceMixin(TestLockMixin):
     def rest_update_resource_project(self, auth_token, resource_pk, project_pks, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         Wrapper for updating the project of a resource
-        :param auth_token:
-        :param resource_pk:
-        :param project_pks: list
-        :param HTTP_USER_AGENT:
-        :param REMOTE_ADDR:
-        :return: response
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
 
@@ -1000,8 +953,8 @@ class ResourceMixin(TestLockMixin):
             description,
             resource_type,
             user_availability,
-            HTTP_USER_AGENT,
-            REMOTE_ADDR,
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
             **kwargs,
     ):
         """ Wrapper for rest_create_Resource"""

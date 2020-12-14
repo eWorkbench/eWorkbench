@@ -85,6 +85,11 @@
             function loggedIn () {
                 vm.currentUser = AuthRestService.getCurrentUser();
                 vm.userDisplayName = UserNameService.getFullNameMailOrUsername(vm.currentUser);
+                if (vm.currentUser && vm.currentUser.permissions) {
+                    vm.isDSSCurator = vm.currentUser.permissions.indexOf('dss.add_dsscontainer') >= 0;
+                } else {
+                    vm.isDSSCurator = false;
+                }
             }
         );
 

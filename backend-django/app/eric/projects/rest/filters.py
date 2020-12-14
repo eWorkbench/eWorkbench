@@ -2,20 +2,18 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django_filters import BooleanFilter
 from django.contrib.auth import get_user_model
-from django.db.models.constants import LOOKUP_SEP
+from django_filters import BooleanFilter
 
-from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter
-from eric.core.rest.filters import ListFilter, RecursiveProjectsListFilter, RecentlyModifiedByMeFilter
+from eric.core.rest.filters import BaseFilter, WorkbenchElementFilter, RecentlyModifiedByMeFilter, BooleanDefaultFilter
+from eric.core.rest.filters import ListFilter
+from eric.favourites.rest.filters import FavouriteFilter
 from eric.projects.models import Project, ProjectRoleUserAssignment, Resource, Role
 
 User = get_user_model()
 
 
 class ProjectRoleUserAssignmentFilter(BaseFilter):
-    """ Filter for Project, which allows filtering by project state (choice) """
-
     class Meta:
         model = ProjectRoleUserAssignment
         fields = {
@@ -30,8 +28,6 @@ class ProjectRoleUserAssignmentFilter(BaseFilter):
 
 
 class ProjectFilter(BaseFilter):
-    """ Filter for Project, which allows filtering by project state (choice) """
-
     class Meta:
         model = Project
         fields = {
@@ -39,8 +35,9 @@ class ProjectFilter(BaseFilter):
             'parent_project': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
+    favourite = FavouriteFilter()
     deleted = BooleanDefaultFilter()
-
+    recently_modified_by_me = RecentlyModifiedByMeFilter()
     project_state = ListFilter(field_name='project_state')
 
     @property
@@ -75,8 +72,6 @@ class ProjectFilter(BaseFilter):
 
 
 class UserFilter(BaseFilter):
-    """ Filter for User, which allows filtering by username, first_name and last_name """
-
     class Meta:
         model = User
         fields = {
@@ -86,9 +81,7 @@ class UserFilter(BaseFilter):
     username = ListFilter(field_name='username')
 
 
-class ResourceFilter(BaseFilter):
-    """ Filter for Resource, which allows filtering by type """
-
+class ResourceFilter(WorkbenchElementFilter):
     class Meta:
         model = Resource
         fields = {
@@ -99,16 +92,7 @@ class ResourceFilter(BaseFilter):
             'branch_library': BaseFilter.CHOICE_COMPERATORS,
         }
 
-    deleted = BooleanDefaultFilter()
-
-    projects = ListFilter(field_name='projects')
     study_room = BooleanFilter()
-
-    projects = ListFilter(field_name='projects')
-
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
 
 
 class RoleFilter(BaseFilter):

@@ -6,7 +6,7 @@ import logging
 import uuid
 
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -311,11 +311,10 @@ class LabBookChildElement(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMix
         Checks if the LabBook child element is a LabbookSection
         returns: True or False
         """
-        if self.child_object_content_type_id == LabbookSection.get_content_type().id:
-            return True
-        return False
+        return self.child_object_content_type_id == LabbookSection.get_content_type().id
 
 
+# TODO: Refactor to not use WorkbenchEntityMixin, ModelPrivilegeMixin, FTSMixin, RelationsMixIn
 class LabbookSection(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMixin, SoftDeleteMixin, RelationsMixIn,
                      WorkbenchEntityMixin, ModelPrivilegeMixIn, FTSMixin):
     """ Defines a LabbookSection, which can be a labbook child element and hold other child elements"""
@@ -333,6 +332,7 @@ class LabbookSection(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMixin, S
             ("add_labbooksection_without_project", "Can add a LabBook section without a project")
         )
         is_relatable = False
+        is_favouritable = False
 
         def get_default_serializer(*args, **kwargs):
             from eric.labbooks.rest.serializers import LabbookSectionSerializer

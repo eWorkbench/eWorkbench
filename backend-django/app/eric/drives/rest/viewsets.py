@@ -14,7 +14,7 @@ from eric.drives.models.models import Directory
 from eric.drives.rest.filters import DriveFilter
 from eric.drives.rest.serializers import DriveSerializer, DirectorySerializer
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet
-from eric.shared_elements.models import File
+from eric.shared_elements.models import File, DSSContainer, ContainerReadWriteException
 
 
 class DriveSubDirectoriesViewSet(BaseAuthenticatedModelViewSet):
@@ -42,7 +42,6 @@ class DriveSubDirectoriesViewSet(BaseAuthenticatedModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # set the lab book id as the parent objects primary key
         self.request.data['drive_id'] = self.parent_object.pk
 
         response = super(DriveSubDirectoriesViewSet, self).create(request, *args, **kwargs)
@@ -54,8 +53,17 @@ class DriveSubDirectoriesViewSet(BaseAuthenticatedModelViewSet):
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
-        # set the lab book id as the parent objects primary key
         self.request.data['drive_id'] = self.parent_object.pk
+
+        # get the existing drive
+        drive = self.parent_object
+
+        if drive.is_dss_drive:
+            # lets get the container setting now
+            container_read_write_setting = drive.envelope.container.read_write_setting
+            read_write_only_new = DSSContainer.READ_WRITE_ONLY_NEW
+            if container_read_write_setting == read_write_only_new and drive.imported:
+                raise ContainerReadWriteException(read_write_only_new)
 
         response = super(DriveSubDirectoriesViewSet, self).update(request, *args, **kwargs)
 
@@ -65,7 +73,6 @@ class DriveSubDirectoriesViewSet(BaseAuthenticatedModelViewSet):
         return response
 
     def destroy(self, request, *args, **kwargs):
-        # set the lab book id as the parent objects primary key
         self.request.data['drive_id'] = self.parent_object.pk
 
         response = super(DriveSubDirectoriesViewSet, self).destroy(request, *args, **kwargs)
@@ -142,6 +149,20 @@ class DriveViewSet(
 ):
     serializer_class = DriveSerializer
     filterset_class = DriveFilter
+
+    def update(self, request, *args, **kwargs):
+        if kwargs['pk']:
+            # get the existing drive
+            drive = Drive.objects.filter(pk=kwargs['pk']).first()
+
+            if drive.is_dss_drive:
+                # lets get the container setting now
+                container_read_write_setting = drive.envelope.container.read_write_setting
+                read_write_only_new = DSSContainer.READ_WRITE_ONLY_NEW
+                if container_read_write_setting == read_write_only_new and drive.imported:
+                    raise ContainerReadWriteException(read_write_only_new)
+
+        return super(DriveViewSet, self).update(request, *args, **kwargs)
 
     def get_queryset(self):
         """

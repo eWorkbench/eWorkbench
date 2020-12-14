@@ -64,6 +64,35 @@
             return {};
         };
 
+        service.handleRestApiDSSContainerError = function (rejection) {
+            if (rejection.data && rejection.data.detail && rejection.data.value) {
+                var validationMessage = '';
+
+                if (rejection.data.value == 'RO') {
+                    validationMessage = rejection.data.detail;
+                }
+
+                if (rejection.data.value == 'RWNN') {
+                    validationMessage = gettextCatalog.getString(
+                        "The DSS container does not allow files to be added"
+                    )
+                }
+
+                if (rejection.data.value == 'RWON') {
+                    validationMessage = gettextCatalog.getString(
+                        "The DSS container does not allow imported files to be edited"
+                    )
+                }
+
+                return {
+                    "toasterTitle": gettextCatalog.getString("DSS Read Write Error"),
+                    "validationMessage": validationMessage
+                }
+            }
+
+            return {};
+        };
+
         return service;
     });
 })();

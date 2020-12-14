@@ -2,14 +2,15 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, BetterBooleanFilter
-from eric.core.rest.filters import ListFilter, RecursiveProjectsListFilter, RecentlyModifiedByMeFilter
+from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, BetterBooleanFilter, WorkbenchElementFilter
+from eric.core.rest.filters import ListFilter
 
 from eric.labbooks.models import LabBook, LabbookSection
 
 
-class LabBookFilter(BaseFilter):
+class LabBookFilter(WorkbenchElementFilter):
     """ Filter for LabBook, which allows filtering for the project (foreign key) """
+
     class Meta:
         model = LabBook
         fields = {
@@ -20,17 +21,10 @@ class LabBookFilter(BaseFilter):
 
     is_template = BetterBooleanFilter()
 
-    deleted = BooleanDefaultFilter()
-
-    projects = ListFilter(field_name='projects')
-
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
-
 
 class LabbookSectionFilter(BaseFilter):
     """ Filter for LabBook sections """
+
     class Meta:
         model = LabbookSection
         fields = {
@@ -40,7 +34,5 @@ class LabbookSectionFilter(BaseFilter):
         }
 
     child_elements = ListFilter(field_name='child_elements')
-
     deleted = BooleanDefaultFilter()
-
     projects = ListFilter(field_name='projects')

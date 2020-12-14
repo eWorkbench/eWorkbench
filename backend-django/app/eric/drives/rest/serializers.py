@@ -14,6 +14,7 @@ from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
 from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer, HyperlinkedToListField
 from eric.drives.models import Drive
 from eric.drives.models.models import Directory
+from eric.dss.models import DSSEnvelope, DSSContainer
 from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, EntityMetadataSerializer
 from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
 
@@ -56,7 +57,7 @@ class DirectorySerializer(BaseModelWithCreatedByAndSoftDeleteSerializer):
     class Meta:
         model = Directory
         fields = (
-            'name', 'directory', 'drive_id', 'url', 'download_directory', 'is_virtual_root',
+            'name', 'directory', 'drive_id', 'url', 'download_directory', 'is_virtual_root', 'imported',
         )
         read_only_fields = (
             'is_virtual_root',
@@ -76,6 +77,29 @@ class DriveSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetad
         lookup_field_name='drive_pk'
     )
 
+    dss_envelope_id = serializers.PrimaryKeyRelatedField(
+        queryset=DSSEnvelope.objects.all(),
+        source='envelope',
+        many=False,
+        required=False,
+        allow_null=True
+    )
+
+    envelope_path = serializers.StringRelatedField(
+        source='envelope',
+        many=False,
+        required=False,
+        allow_null=True
+    )
+
+    container_id = serializers.PrimaryKeyRelatedField(
+        queryset=DSSContainer.objects.all(),
+        source='envelope.container',
+        many=False,
+        required=False,
+        allow_null=True
+    )
+
     webdav_url = serializers.SerializerMethodField()
 
     metadata = EntityMetadataSerializer(
@@ -87,9 +111,10 @@ class DriveSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetad
     class Meta:
         model = Drive
         fields = (
-            'title', 'projects', 'sub_directories', 'sub_directories_url',
+            'title', 'projects', 'sub_directories', 'sub_directories_url', 'container_id', 'location',
+            'is_dss_drive', 'envelope_path', 'dss_envelope_id',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'url', 'webdav_url', 'metadata',
+            'url', 'webdav_url', 'metadata', 'imported',
         )
 
     def get_webdav_url(self, obj):
@@ -105,11 +130,14 @@ class DriveSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetad
 
         stripped_title = re.sub(pat, ' ', obj.title)
 
-        return reverse(
-            'webdav-drive',
-            request=request,
-            kwargs={'drive': obj.pk, 'path': '/', 'drive_title': stripped_title}
-        )
+        # temporarily remove webdav_url for DSS drives
+        if not obj.is_dss_drive:
+            return reverse(
+                'webdav-drive',
+                request=request,
+                kwargs={'drive': obj.pk, 'path': '/', 'drive_title': stripped_title}
+            )
+        return None
 
     @transaction.atomic
     def create(self, validated_data):

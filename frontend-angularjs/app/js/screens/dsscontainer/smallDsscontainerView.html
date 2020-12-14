@@ -1,0 +1,60 @@
+<!-- DSS Container Name -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="dsscontainer_name" translate
+        name="{{ 'mandatory field' | translate }}">
+        Name *
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/dsscontainer/dsscontainerForm.name.html'"></ng-include>
+    </div>
+</div>
+
+<!-- DSS Container Path -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="dsscontainer_path" translate
+        path="{{ 'mandatory field' | translate }}">
+        Path *
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/dsscontainer/dsscontainerForm.path.html'"></ng-include>
+    </div>
+</div>
+
+<!-- Read Write Setting -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="dsscontainer_readwritesetting" translate>
+        Read/Write Setting *
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/dsscontainer/dsscontainerForm.readwritesetting.html'"></ng-include>
+    </div>
+</div>
+
+<!-- Import Options -->
+<div class="form-group">
+    <label class="col-sm-3 control-label" for="dsscontainer_importoption" translate>
+        Import Option *
+    </label>
+    <div class="col-sm-9">
+        <ng-include src="'js/screens/dsscontainer/dsscontainerForm.importoption.html'"></ng-include>
+    </div>
+</div>
+
+<!-- project -->
+<!-- todo: remove container.projects everywhere if it is really not needed -->
+<!--<div class="form-group">-->
+<!--    <label class="col-sm-3 control-label" for="dsscontainer_project" translate>-->
+<!--        Project-->
+<!--    </label>-->
+<!--    <div class="col-sm-9">-->
+<!--        <ng-include src="'js/screens/dsscontainer/dsscontainerForm.projects.html'"></ng-include>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!-- metadata -->
+<small-entity-view-metadata
+    metadata="vm.dsscontainer.metadata"
+    base-model="vm.dsscontainer"
+    base-url-model="dsscontainer"
+    read-only="vm.isReadOnly()">
+</small-entity-view-metadata>

@@ -1,0 +1,32 @@
+{% extends 'export/base_export.html' %}
+{% load i18n user_widgets simple_object_display date_filters metadata_widget %}
+
+{% block name %}
+    {% trans "DSS Container" %} {{ instance.name }}
+{% endblock %}
+
+{% block content %}
+    <h2 class="object_title">
+        {{ instance.name }}
+    </h2>
+    <div class="info_created_by">
+        {% trans "Created by" %} {% display_user_widget instance.created_by %}
+        {% trans "at" %} {{ instance.created_at | date_short }}
+    </div>
+
+    <p>{% trans "Path" %}: {{ instance.path }}</p>
+    <p>{% trans "Read Write Setting" %}: {{ instance.get_read_write_setting_display }}</p>
+    <p>{% trans "Import Option" %}: {{ instance.get_import_option_display }}</p>
+
+    <p>{% trans "Projects" %}:
+    <ul>
+        {% for project in instance.projects.viewable %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    <h3>{% trans "Links" %}:</h3>
+
+    {% include "widgets/object_relations.html" %}
+{% endblock %}

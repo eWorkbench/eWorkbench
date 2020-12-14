@@ -7,12 +7,14 @@ import logging
 import os
 from datetime import timedelta
 
-from django.db.models.signals import post_delete, pre_save, post_save
+from django.db import transaction
+from django.db.models.signals import post_delete, pre_save, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_rest_multitokenauth.signals import post_auth
 from django_userforeignkey.request import get_current_request
+from django.core.exceptions import ValidationError
 
 from eric.base64_image_extraction.utils import convert_text_with_base64_images_to_file_references
 from eric.core.tests import custom_json_handler
@@ -21,21 +23,17 @@ from eric.ms_office_handling.models.handlers import OFFICE_TEMP_FILE_PREFIX
 from eric.shared_elements.models import File, Meeting, Note, Task, UploadedFileEntry, CalendarAccess
 from eric.versions.models import Version
 
-logger = logging.getLogger('eric.shared_elements.models.handlers')
+logger = logging.getLogger(__name__)
 
 
 @receiver(post_auth)
+@transaction.atomic  # make sure that CalendarAccess and ModelPrivilege are both created or none of them
 def auto_create_calendar_access_privileges(sender, user, *args, **kwargs):
     """
     On post_auth, automatically create the calendar access privileges (if the user does not have any) and give
     the user full_access_privilege for his calendar.
     This is needed so new users get to have the Calendar Access Privileges. There is also a migration operation that
     does the same for existing users, but that won't work for users that come after the migration.
-    :param sender:
-    :param user:
-    :param args:
-    :param kwargs:
-    :return:
     """
 
     # set current requests user (as during auth, that user is not set yet)
@@ -43,17 +41,42 @@ def auto_create_calendar_access_privileges(sender, user, *args, **kwargs):
     if request and (not hasattr(request, 'user') or request.user.is_anonymous):
         request.user = user
 
-    if CalendarAccess.objects.viewable().count() == 0:
-        # no CalendarAccess found, so lets create one
-        new_privilege = CalendarAccess.objects.create()
-        # let's also give the user full_access privileges
-        perm = ModelPrivilege(
+    # make sure the user has a calendar access object
+    own_calendar_access, created = CalendarAccess.objects.get_or_create(created_by=user)
+    if created:
+        # make sure the user has full access to his own calendar
+        ModelPrivilege.objects.get_or_create(
             user=user,
-            full_access_privilege=ModelPrivilege.ALLOW,
             content_type=CalendarAccess.get_content_type(),
-            object_id=new_privilege.pk
+            object_id=own_calendar_access.pk,
+            defaults={
+                'full_access_privilege': ModelPrivilege.ALLOW,
+            }
         )
-        perm.save()
+
+
+@receiver(pre_delete, sender=ModelPrivilege)
+@receiver(pre_save, sender=ModelPrivilege)
+def prevent_change_of_own_calendar_access_privilege(sender, instance, *args, **kwargs):
+    """
+    The user should always be able to access his own calendar
+    """
+    if not instance.content_object:
+        return
+
+    if not instance.pk:
+        return
+
+    obj = ModelPrivilege.objects.filter(pk=instance.pk).first()
+    content_type = instance.content_object.get_content_type()
+    if obj and content_type == CalendarAccess.get_content_type() and obj.created_by == obj.user:
+        raise ValidationError({
+            'non_field_errors': ValidationError(
+                _("Full access to the own calendar cannot be removed"),
+                params={'full_access_privilege': instance.full_access_privilege},
+                code='invalid'
+            )
+        })
 
 
 @receiver(post_delete)
@@ -65,7 +88,8 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     if sender != File and sender != UploadedFileEntry:
         return
 
-    if instance.path and os.path.isfile(instance.path.path):
+    # we should never delete files on dss containers
+    if instance.path and os.path.isfile(instance.path.path) and not instance.is_dss_file:
         try:
             os.remove(instance.path.path)
         except OSError as error:
@@ -138,6 +162,9 @@ def rename_original_filename_after_current_name(sender, instance, *args, **kwarg
     :param kwargs:
     :return:
     """
+    if not instance.uploaded_file_entry:
+        return
+
     try:
         # try to get the current UploadedFileEntry
         current_file_entry = UploadedFileEntry.objects.get(pk=instance.uploaded_file_entry.pk)
@@ -215,5 +242,5 @@ def create_version_on_file_path_updates(sender, instance, *args, **kwargs):
     except File.DoesNotExist:
         pass  # Object is new.
     else:
-        if not old_file.path.path == instance.path.path:
+        if instance.path and not old_file.path.path == instance.path.path:
             handle_version_on_file_path_updates(old_file)

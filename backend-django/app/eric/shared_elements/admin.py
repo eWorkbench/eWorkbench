@@ -3,11 +3,14 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ contains basic admin functionality for eric workbench elements """
-
+from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib import admin
+from django.contrib.admin import BooleanFieldListFilter, ChoicesFieldListFilter
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
+from eric.core.admin.filters import is_set_filter
+from eric.core.rest.filters import BetterBooleanFilter
 from eric.model_privileges.admin import ModelPrivilegeInline, ReadOnlyModelPrivilegeInline
 from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
 from eric.shared_elements.models import Contact, Note, Meeting, Task, TaskAssignedUser, File, \
@@ -16,17 +19,17 @@ from eric.shared_elements.models import Contact, Note, Meeting, Task, TaskAssign
 User = get_user_model()
 
 
+class MeetingResourceFilter(AutocompleteFilter):
+    title = 'Resource'
+    field_name = 'resource'
+
+
 class ContactInline(admin.StackedInline):
     model = Contact
 
 
 @admin.register(Contact)
 class ContactAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    class Media:
-        # Media class required because of bug in django-admin-autocomplete-filter
-        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
-        pass
-
     list_display = (
         'first_name',
         'last_name',
@@ -54,11 +57,6 @@ class ContactAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
 
 @admin.register(Note)
 class NoteAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    class Media:
-        # Media class required because of bug in django-admin-autocomplete-filter
-        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
-        pass
-
     list_display = (
         'subject',
         'created_by',
@@ -108,11 +106,6 @@ class UploadedFileEntryAdmin(admin.TabularInline):
 
 @admin.register(File)
 class FileAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    class Media:
-        # Media class required because of bug in django-admin-autocomplete-filter
-        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
-        pass
-
     list_display = (
         'title',
         'name',
@@ -162,11 +155,6 @@ class TaskCheckListInline(admin.TabularInline):
 
 @admin.register(Task)
 class TaskAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    class Media:
-        # Media class required because of bug in django-admin-autocomplete-filter
-        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
-        pass
-
     list_display = (
         'task_id',
         'title',
@@ -219,11 +207,6 @@ class ContactAttendsMeetingInline(admin.StackedInline):
 
 @admin.register(Meeting)
 class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    class Media:
-        # Media class required because of bug in django-admin-autocomplete-filter
-        # https://github.com/farhan0581/django-admin-autocomplete-filter/issues/10
-        pass
-
     list_display = (
         'title',
         'date_time_start',
@@ -234,6 +217,8 @@ class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     )
     list_filter = (
         ProjectsFilter,
+        MeetingResourceFilter,
+        is_set_filter('resource', 'Resource'),
     )
     search_fields = (
         'projects__name',

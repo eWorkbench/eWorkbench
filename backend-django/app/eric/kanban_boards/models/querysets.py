@@ -4,15 +4,10 @@
 #
 import logging
 
-from django.utils import timezone
 from django.db.models import Q
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
-from django_userforeignkey.request import get_current_user
 
-from eric.core.models.utils import get_permission_name_without_app_label, \
-    get_permission_name_change_related_project_without_app_label
-
-from eric.projects.models.querysets import BaseProjectPermissionQuerySet, BaseProjectEntityPermissionQuerySet, \
+from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, \
     extend_queryset
 from eric.shared_elements.models.querysets import TaskQuerySet
 

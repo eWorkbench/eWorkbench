@@ -20,10 +20,14 @@ class ExtractedImageViewRateThrottle(AnonRateThrottle):
 
 class ExtractedImageView(APIView):
     """
-    Handles extracted images.
+    Handles images that were extracted from HTML content.
     """
+
+    # make API public, to allow loading images in <img> tags without authentication
+    # access check is done via a static "secret" parameter instead
     authentication_classes = ()
     permission_classes = ()
+
     throttle_classes = (ExtractedImageViewRateThrottle,)
 
     @staticmethod

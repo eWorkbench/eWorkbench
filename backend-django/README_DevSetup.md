@@ -22,7 +22,7 @@ This repo contains the following docker services:
 To initially build and run the application, do the steps as follows:
 
 * Build the docker images: ``docker-compose build``
-* Install python dependencies: ``docker-compose run --rm python pip install -r requirements.txt``
+* Install python dependencies: ``docker-compose run --rm python pip install -r requirements_dev.txt``
 * Run the services: ``docker-compose up``
 
 
@@ -122,3 +122,106 @@ If you want to test ldap, please have a look at [ldap/README.md](). For a quick 
 ```bash
 docker-compose exec ldap-service ldapadd -x -w "admin" -D "cn=admin,dc=workbench,dc=local" -f ldap/import.ldif
 ```
+
+## NFS
+
+*This setup is now replaced with a simple volume mapping from ./dss to /dss in the python container.*
+
+##### If you need to use the NFS setup, you will have to first uncomment the commented lines in docker-compose.yml, ./docker/python/Dockerfile and ./docker/python/docker-python-entrypoint.sh and the follow the setps below.
+
+Some additional steps need to be taken to be able to run the NFS container.
+This applies to Debian-based host machines (including Ubuntu). Other systems may require different steps.
+
+1. Install NFS server
+    
+    ```bash
+    sudo apt install nfs-common nfs-kernel-server
+    ```
+
+2. Configure AppArmor
+    
+    Check if AppArmor is running with
+    ```bash
+    sudo aa-status
+    ```
+    
+    If AppArmor is running some packages need to be installed in preparation to adding a custom aa-profile.
+    ```bash
+    sudo apt install liblxc-common apparmor-utils
+    ```
+    
+    Finally, copy the AppArmor-profile for [erichough/nfs](https://github.com/ehough/docker-nfs-server/blob/develop/doc/feature/apparmor.md) to the AppArmor-profile-directory and enable it in complain-mode:
+    ```bash
+    # cd to repo directory
+    sudo cp nfs/apparmor.txt /etc/apparmor.d/erichough-nfs
+    sudo aa-complain /etc/apparmor.d/erichough-nfs
+    ```
+
+3. Extend `/etc/security/capability.conf`
+    
+    Additionally, we need to add `CAP_SYS_ADMIN` to the Linux kernel capabilities in order to allow the nfs-server to run on privileged ports.
+    
+    (The following step will not show `cap_sys_admin` in the Pycharm Terminal!)
+    
+    Run
+    ```bash
+    capsh --print
+    ```
+    
+    If the `Current`-section of the output does not include a `cap_sys_admin`-capability, it needs to be added.
+    
+    In `/etc/security/capability.conf` insert
+    ```
+    cap_sys_admin  <username>
+    cap_sys_module <username>
+    ```
+    above the line
+    ```
+    none *
+    ```
+    and replace `<username>` with the user that runs docker (your current username, if you start docker without sudo).
+    
+4. Extend `/etc/pam.d/su`
+
+    In `/etc/pam.d/su` add
+    ```
+    auth    optional    pam_cap.so
+    ```
+    above the line
+    ```
+    auth   sufficient   pam_rootok.so
+    ```
+    
+5. Restart the system to enable the capability
+
+    Then run
+    ```bash
+    capsh --print
+    ```
+    once more to check if `cap_sys_admin` is now enabled in the `Current`-section of the output.
+    Check http://manpages.ubuntu.com/manpages/xenial/man8/pam_cap.8.html for more details.
+
+6. Try running the NFS container
+    
+    ```bash
+    docker-compose up nfs
+    ```
+
+7. Stop conflicting services
+    
+    If you get an error like `listen tcp 127.0.11.20:2049: bind: address already in use`:
+    ```bash
+    # Disable services temporarily
+    sudo service nfs-server stop
+    sudo service portmap stop
+    
+    # Disable service auto-start
+    sudo systemctl disable nfs-server
+    sudo systemctl disable portmap
+    ```
+
+8. Rebuild the container to automatically mount nfs.
+    
+    ```bash
+    docker-compose build
+    ```

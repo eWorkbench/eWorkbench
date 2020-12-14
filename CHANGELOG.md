@@ -1,5 +1,30 @@
 # Changelog
 
+## Version 1.22.3 - November 2020
+- [SITUMEWB-534] DSS: add how to
+- [SITUMEWB-534] DSS: set projects in metadata.json
+- [SITUMEWB-533] calendar access fixes, dss privilege handler fixes
+- [SITUMEWB-529] change matomo url
+
+## Version 1.22.2 - November 2020
+- [SITUMEWB-446] Added CSV export for calendar
+- [SITUMEWB-498] Added printldapdata command
+- [SITUMEWB-222] DSS: Added validation for DSSFilesToImport paths
+- [SITUMEWB-473] Added content types to site_preferences API
+- [SITUMEWB-490] Fix missing group_name in WebSockets consumer
+- [SITUMEWB-490] Enhance DB logging (add hash + enhance admin)
+- [SITUMEWB-535] DSS: Added globus message queue consumer celery task
+
+## Version 1.22.1 - November 2020
+- [SITUMEWB-221] DSS: Celery beat timing adjustments
+- [SITUMEWB-221] DSS: Rename Globus import option
+
+## Version 1.22 - October 2020
+- [SITUMEWB-193] DSS initial release
+- [SITUMEWB-411] Add generic favourites
+- [SITUMEWB-490] Add manager and queryset class for userprofiles; Fix admin URLs in log mails
+- [SITUMEWB-492] set Only project members as default option for resource user availability
+
 ## Version 1.21.2 - October 2020
 - [SITUMEWB-408] Fixed study room booking selection alignment
 - [SITUMEWB-444] Enhanced appointment confirmation mails (user salutation, resource string) 

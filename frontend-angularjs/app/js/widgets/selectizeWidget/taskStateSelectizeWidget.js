@@ -10,7 +10,7 @@
 
 
     /**
-     * Widget for selecting one taskStates
+     * Widget for selecting a task state
      */
     module.directive('taskStateSelectizeWidget', function () {
         return {

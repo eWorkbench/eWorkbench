@@ -42,3 +42,13 @@ backups/*.tar
 !.idea/runConfigurations/
 
 app/eric/settings/anx_dev.py
+
+nfs/nfs-export/mnt/dss/dssfs01/gu56bix/gu56bix-dss-000/*
+!nfs/nfs-export/mnt/dss/dssfs01/gu56bix/gu56bix-dss-000/.gitkeep
+nfs/nfs-export/mnt/dss/dssfs01/pr53ve/pr53ve-dss-000/*
+!nfs/nfs-export/mnt/dss/dssfs01/pr53ve/pr53ve-dss-000/.gitkeep
+
+dss/dssfs01/*
+!dss/dssfs01/.gitkeep
+
+app/celerybeat-schedule

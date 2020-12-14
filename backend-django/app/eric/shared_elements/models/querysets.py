@@ -287,6 +287,12 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         return self.prefetch_related('attending_contacts')
 
+    def resource_bookings(self):
+        return self.filter(resource__isnull=False).select_related('resource')
+
+    def study_room_bookings(self):
+        return self.resource_bookings().filter(resource__study_room=True)
+
     def my_bookings(self):
         """ Own bookings for an accessible resource """
         from eric.projects.models.models import Resource
@@ -295,6 +301,9 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
             resource__in=Resource.objects.viewable(),
             created_by=get_current_user(),
         )
+
+    def intersecting_interval(self, dt_start, dt_end):
+        return self.filter(date_time_start__lte=dt_end, date_time_end__gte=dt_start)
 
     def fully_viewable(self):
         """ Bookings where all information can be provided. """
@@ -489,20 +498,21 @@ class CalendarAccessQuerySet(QuerySet, ChangeSetQuerySetMixin):
     QuerySet for Calendar Access Privileges
     """
 
-    def viewable(self):
-        current_user = get_current_user()
+    def for_user(self, user):
+        return self.filter(created_by=user)
 
-        return self.filter(created_by=current_user)
+    def for_current_user(self):
+        user = get_current_user()
+        return self.for_user(user)
+
+    def viewable(self):
+        return self.for_current_user()
 
     def editable(self):
-        current_user = get_current_user()
-
-        return self.filter(created_by=current_user)
+        return self.for_current_user()
 
     def deletable(self):
-        current_user = get_current_user()
-
-        return self.filter(created_by=current_user)
+        return self.for_current_user()
 
     def prefetch_common(self):
         return self.prefetch_related('created_by', 'created_by__userprofile',

@@ -6,9 +6,15 @@
             <span translate>New Folder</span>
         </button>
 
-        <!-- button for showing webdav url -->
-        <button class="btn btn-default" ng-click="vm.showWebDavInformation()"
+        <!-- button for showing webdav url, temporarily disabled for DSS drives below -->
+        <button ng-if="!vm.drive.is_dss_drive" class="btn btn-default" ng-click="vm.showWebDavInformation()"
                 title="{{ 'Open storage on your computer' | translate }}">
+            <span class="fa fa-desktop"></span>
+            <span translate>WebDav</span>
+        </button>
+        <!-- temporarily disabled button and title for DSS drives -->
+        <button ng-if="vm.drive.is_dss_drive" class="btn btn-default disabled"
+                title="{{ 'WebDav is temporarily disabled for DSS storages' | translate }}">
             <span class="fa fa-desktop"></span>
             <span translate>WebDav</span>
         </button>

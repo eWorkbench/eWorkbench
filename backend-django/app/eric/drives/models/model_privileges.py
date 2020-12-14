@@ -9,7 +9,12 @@ from eric.model_privileges.utils import BasePrivilege, UserPermission, register_
 from eric.shared_elements.models import File
 
 
-@register_privilege(File, execution_order=999)
+# We register this privilege with a lower execution_order than LabBookCellPrivilege and higher than
+# DSSContainerFilePrivilege
+# So DSSContainerFilePrivilege is executed first, then DriveFilePrivilege and then LabBookCellPrivilege
+# The later executed privileges could "overwrite" the earlier executed privileges, so we always have to use unit tests
+# to check if we get the results we intended and that nothing changes for the existing privileges
+@register_privilege(File, execution_order=998)
 class DriveFilePrivilege(BasePrivilege):
     """
     If a user can view a Drive, the user can also view the files within the drive
@@ -17,7 +22,7 @@ class DriveFilePrivilege(BasePrivilege):
 
     @staticmethod
     def get_privileges(obj, permissions_by_user=None):
-        permission_by_user = permissions_by_user or dict()
+        permissions_by_user = permissions_by_user or dict()
 
         # get all drives that contain the picture
         drives = Drive.objects.viewable().filter(

@@ -1,0 +1,10 @@
+<validated-form-element
+    id="dsscontainer_path"
+    auto-focus="vm.mode == 'create'"
+    input-element="text"
+    field-name="path"
+    placeholder="{{ 'e.g.: dssfs01/pr53ve/pr53ve-dss-0000' | translate }}"
+    ng-model="vm.dsscontainer.path"
+    ng-readonly="vm.isReadOnly()"
+    errors="vm.errors['path']">
+</validated-form-element>

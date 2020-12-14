@@ -2,23 +2,27 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import os
-from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
-from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 
 from eric.core.models import BaseModel, UploadToPathAndRename
+from eric.userprofile.models.managers import UserProfileManager
 
 User = get_user_model()
 
 
 class UserProfile(BaseModel):
     """ Profile of a user, containing additional information """
+    objects = UserProfileManager()
+
+    class Meta:
+        verbose_name = _("User Profile")
+        verbose_name_plural = _("User Profiles")
+
     REQUIRED_FIELDS = ('user',)
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

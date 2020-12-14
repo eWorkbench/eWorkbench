@@ -333,6 +333,13 @@
                                     GlobalErrorHandlerService.handleRestApiStorageError(rejection);
 
                                 toaster.pop('error', rejectionMessage.toasterTitle, rejectionMessage.validationMessage);
+                            } else if (rejection.status == 418) {
+                                // handle DSS read write error
+                                var dssRejectionMessage =
+                                    GlobalErrorHandlerService.handleRestApiDSSContainerError(rejection);
+
+                                toaster.pop('error', dssRejectionMessage.toasterTitle, dssRejectionMessage.validationMessage);
+
                             } else if (rejection.data && rejection.data.non_field_errors) {
                                 // report with errors
                                 toaster.pop('error', gettextCatalog.getString("Upload failed"),

@@ -5,15 +5,14 @@
 import django_filters
 from django.db.models.constants import LOOKUP_SEP
 
-from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter
-from eric.core.rest.filters import ListFilter, RecursiveProjectsListFilter, RecentlyModifiedByMeFilter
+from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, WorkbenchElementFilter
+from eric.core.rest.filters import ListFilter
 from eric.drives.models import Drive
 from eric.shared_elements.models import Contact, Task, Meeting, Note, File, ElementLabel, CalendarAccess
+from eric.dss.models import DSSContainer
 
 
-class FileFilter(BaseFilter):
-    """ Filter for Tasks, which allows filtering for the project (foreign key) """
-
+class FileFilter(WorkbenchElementFilter):
     class Meta:
         model = File  # File -> Directory -> Drive
         fields = {
@@ -22,20 +21,13 @@ class FileFilter(BaseFilter):
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
-    deleted = BooleanDefaultFilter()
-
-    projects = ListFilter(field_name='projects')
-
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
-
     drive = django_filters.ModelChoiceFilter(field_name='directory__drive', queryset=Drive.objects.all())
 
+    container = django_filters.ModelChoiceFilter(field_name='directory__drive__envelope__container',
+                                                 queryset=DSSContainer.objects.all())
 
-class TaskFilter(BaseFilter):
-    """ Filter for Tasks, which allows filtering for the project (foreign key) """
 
+class TaskFilter(WorkbenchElementFilter):
     class Meta:
         model = Task
         fields = {
@@ -49,16 +41,7 @@ class TaskFilter(BaseFilter):
         }
 
     id = ListFilter(field_name='id', exclude=True)
-
-    deleted = BooleanDefaultFilter()
-
-    projects = ListFilter(field_name='projects')
-
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
-
     state = ListFilter(field_name='state')
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
 
     @classmethod
     def get_filter_name(cls, field_name, lookup_expr):
@@ -82,9 +65,7 @@ class TaskFilter(BaseFilter):
         return filter_name
 
 
-class ContactFilter(BaseFilter):
-    """ Filter for Contact, which allows filtering for the project (foreign key) """
-
+class ContactFilter(WorkbenchElementFilter):
     class Meta:
         model = Contact
         fields = {
@@ -93,18 +74,8 @@ class ContactFilter(BaseFilter):
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS
         }
 
-    deleted = BooleanDefaultFilter()
 
-    projects = ListFilter(field_name='projects')
-
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
-
-
-class MeetingFilter(BaseFilter):
-    """ Filter for Meeting, which allows filtering by date_time and project """
-
+class MeetingFilter(WorkbenchElementFilter):
     class Meta:
         model = Meeting
         fields = {
@@ -115,14 +86,6 @@ class MeetingFilter(BaseFilter):
             'date_time_end': BaseFilter.DATE_COMPERATORS,
             'date_time_start': BaseFilter.DATE_COMPERATORS
         }
-
-    deleted = BooleanDefaultFilter()
-
-    projects = ListFilter(field_name='projects')
-
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
 
     @classmethod
     def get_filter_name(cls, field_name, lookup_expr):
@@ -169,9 +132,7 @@ class AnonymousMeetingFilter(BaseFilter):
         return super().get_filter_name(field_name, lookup_expr)
 
 
-class NoteFilter(BaseFilter):
-    """ Filter for Note, which allows filtering by project """
-
+class NoteFilter(WorkbenchElementFilter):
     class Meta:
         model = Note
         fields = {
@@ -180,18 +141,8 @@ class NoteFilter(BaseFilter):
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
-    deleted = BooleanDefaultFilter()
-
-    projects = ListFilter(field_name='projects')
-
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
-
-    recently_modified_by_me = RecentlyModifiedByMeFilter()
-
 
 class ElementLabelFilter(BaseFilter):
-    """ Filter for Element Labels """
-
     class Meta:
         model = ElementLabel
         fields = {

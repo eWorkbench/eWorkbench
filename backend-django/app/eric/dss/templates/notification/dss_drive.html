@@ -1,0 +1,15 @@
+{% load i18n captureas user_widgets simple_object_display date_filters %}
+
+{# Hint: Whitespace matters for plaintext rendering -- change with caution and test afterwards! #}
+
+<p>{% trans "Title" %}: {{ instance.title }}</p>
+<p>{% trans "Location" %}: {{ instance.location }}</p>
+
+{% if instance.projects.viewable.exists %}
+<p>{% trans "Projects" %}:
+<ul>{% for project in instance.projects.viewable %}
+        <li>{{ project.name }}</li>
+    {% endfor %}
+</ul>
+</p>
+{% endif %}

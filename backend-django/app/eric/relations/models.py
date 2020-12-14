@@ -20,7 +20,7 @@ from eric.core.models.abstract import get_all_workbench_models_with_args, Workbe
 from eric.relations.managers import RelationManager
 
 
-logger = logging.getLogger('eric.relations.models')
+logger = logging.getLogger(__name__)
 
 
 class Relation(BaseModel, ChangeSetMixIn, RevisionModelMixin):
@@ -70,7 +70,7 @@ class Relation(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     )
 
     def __str__(self):
-        return "Left object id " + str(self.left_object_id) + ", right object id " + str(self.right_object_id)
+        return f"Left object id {self.left_object_id}, right object id {self.right_object_id}"
 
     def check_if_relation_is_allowed(self):
         """

@@ -13,6 +13,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 from django.http import FileResponse, HttpResponseForbidden
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
@@ -104,17 +105,29 @@ class PublicUserViewSet(BaseGenericViewSet,
                 if 'access_editable' in self.request.query_params and self.request.query_params['access_editable']:
                     # get the users who gave the request user the view_privilege to their calendars
                     model_privilege_users = ModelPrivilege.objects.all().filter(
-                        content_type=calendar_access_privilege_content_type_id,
-                        user=user,
-                        edit_privilege=ModelPrivilege.ALLOW
+                        Q(
+                            content_type=calendar_access_privilege_content_type_id,
+                            user=user,
+                            full_access_privilege=ModelPrivilege.ALLOW
+                        ) | Q(
+                            content_type=calendar_access_privilege_content_type_id,
+                            user=user,
+                            edit_privilege=ModelPrivilege.ALLOW
+                        )
                     ).values('created_by')
                 # If 'access_editable' is not in the request url we search for the view privilege
                 else:
                     # get the users who gave the request user the view_privilege to their calendars
                     model_privilege_users = ModelPrivilege.objects.all().filter(
-                        content_type=calendar_access_privilege_content_type_id,
-                        user=user,
-                        view_privilege=ModelPrivilege.ALLOW
+                        Q(
+                            content_type=calendar_access_privilege_content_type_id,
+                            user=user,
+                            full_access_privilege=ModelPrivilege.ALLOW
+                        ) | Q(
+                            content_type=calendar_access_privilege_content_type_id,
+                            user=user,
+                            view_privilege=ModelPrivilege.ALLOW
+                        )
                     ).values('created_by')
                 # 3. now lets filter down the active users to only return the users from point 2, so
                 # we know they are active as well

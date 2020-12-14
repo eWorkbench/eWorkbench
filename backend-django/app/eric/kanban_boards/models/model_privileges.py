@@ -15,7 +15,8 @@ class KanbanBoardTaskPrivilege(BasePrivilege):
     If a user can view a kanban board, the user can also view all tasks that are in the columns of the kanban board
     """
     @staticmethod
-    def get_privileges(obj, permissions_by_user=dict()):
+    def get_privileges(obj, permissions_by_user=None):
+        permissions_by_user = permissions_by_user or dict()
         # get all kanban boards where the task is assigned to a column
         kanban_boards = KanbanBoard.objects.filter(
             kanban_board_columns__kanban_board_column_task_assignments__task=obj

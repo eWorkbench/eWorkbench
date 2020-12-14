@@ -23,7 +23,7 @@ class LabBookCellPrivilege(BasePrivilege):
     """
     @staticmethod
     def get_privileges(obj, permissions_by_user=None):
-        permission_by_user = permissions_by_user or dict()
+        permissions_by_user = permissions_by_user or dict()
 
         # get all LabBooks that contain the child element
         lab_books = LabBook.objects.viewable().filter(

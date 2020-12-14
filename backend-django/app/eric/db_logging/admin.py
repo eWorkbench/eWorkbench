@@ -41,16 +41,12 @@ class HasUserFilter(SimpleListFilter):
 
 @admin.register(DBLog)
 class DBLogAdmin(admin.ModelAdmin):
-    class Media:
-        # media class is required for AutocompleteFilter
-        pass
-
     list_display = (
         'created_at_formatted',
         'level',
         'message',
         'user_identification',
-        'count',
+        'hash',
     )
     list_display_links = (
         'created_at_formatted',
@@ -66,17 +62,18 @@ class DBLogAdmin(admin.ModelAdmin):
     search_fields = (
         'message',
         'trace',
+        'hash',
     )
     readonly_fields = (
         'created_at_formatted',
         'logger_name',
         'level',
         'message',
+        'hash',
+        'occurrences',
         'user_identification',
         'traceback',
         'request_info_formatted',
-        'count',
-        'other_occurrences',
     )
     fields = readonly_fields + (
         'processed',
@@ -85,6 +82,7 @@ class DBLogAdmin(admin.ModelAdmin):
     actions = [
         'make_processed',
         'make_unprocessed',
+        'delete_occurrences',
     ]
 
     def traceback(self, instance):
@@ -95,32 +93,10 @@ class DBLogAdmin(admin.ModelAdmin):
 
     request_info_formatted.short_description = 'Request Info'
 
-    def count(self, instance):
-        return 1 + instance.other_occurrences.count()
-
-    def other_occurrences(self, instance):
-        others = instance.other_occurrences
-        if not others.exists():
-            return format_html('- none -')
-
-        html = '''
-            <table>
-                <tr>
-                    <th>Created at</th>
-                    <th>User</th>
-                </tr>
-        '''
-
-        for occurrence in others:
-            link = reverse('admin:db_logging_dblog_change', kwargs={'object_id': occurrence.pk})
-            html += f'''
-                <tr>
-                    <td><a href="{link}">{occurrence.created_at_formatted}</a></td>
-                    <td>{occurrence.user_identification}</td>
-                </tr>
-            '''
-
-        html += '</table>'
+    def occurrences(self, instance):
+        list_url = reverse('admin:db_logging_dblog_changelist') + f'?hash={instance.hash}'
+        count = instance.occurrences.count()
+        html = f'<a href="{list_url}">{count} occurrence(s)</a>'
 
         return format_html(html)
 
@@ -136,3 +112,9 @@ class DBLogAdmin(admin.ModelAdmin):
         queryset.update(processed=False)
 
     make_unprocessed.short_description = 'Mark selected logs as unprocessed'
+
+    def delete_occurrences(self, request, queryset):
+        first = queryset.first()
+        first.occurrences.delete()
+
+    delete_occurrences.short_description = 'Delete all occurrences of first selected log'

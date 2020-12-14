@@ -70,6 +70,37 @@ def undo_disable_permission_checks(cls):
         logger.debug(e)
 
 
+class DisableSignal:
+    """
+    Context manager to disable a signal for a given context. Useful for unit
+    testing if you want to test behavior independently of a models signals.
+    Example:
+    ```
+    with SignalDisconnect(post_save, my_signal_method, myModel):
+        # Do work without the signal
+    `signal` is a Django Signal objects (post_save, pre_init)
+    `method` is the method connected to the signal
+    `sender` is the model that calls the connected method
+    """
+
+    def __init__(self, signal, method, sender):
+        self.signal = signal
+        self.method = method
+        self.sender = sender
+
+    def __enter__(self):
+        self.signal.disconnect(
+            self.method,
+            sender=self.sender,
+        )
+
+    def __exit__(self, *args):
+        self.signal.connect(
+            self.method,
+            sender=self.sender,
+        )
+
+
 class DisableSignals(object):
     """
     Temporarily disables all django signals

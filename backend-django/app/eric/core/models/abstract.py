@@ -120,6 +120,20 @@ class SoftDeleteMixin(models.Model):
         self.save()
 
 
+class ImportedDSSMixin(models.Model):
+    """
+    An abstract model mixin that provides a imported field, which should only be set to true by a dss import task.
+    """
+    class Meta:
+        abstract = True
+
+    imported = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name=_("Whether this entry was imported by a dss import task or not")
+    )
+
+
 class WorkbenchEntityMixin:
     """
     A mixin that marks an element as a workbench element
@@ -143,6 +157,7 @@ class WorkbenchEntityMixin:
         track_soft_delete_by = "deleted"
         aggregate_changesets_within_seconds = 60
         is_relatable = True  # Can be linked from to other elements?
+        is_favouritable = True  # Can be favourited
         can_have_special_permissions = True  # Enable model privileges?
 
         def get_default_serializer(*args, **kwargs):

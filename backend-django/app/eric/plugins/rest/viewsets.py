@@ -164,17 +164,12 @@ class PluginInstanceViewSet(
     BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn, ExportableViewSetMixIn,
     LockableViewSetMixIn
 ):
-    """ REST API Viewset for plugins """
     serializer_class = PluginInstanceSerializer
     filter_class = PluginInstanceFilter
-    permission_classes = (HasPluginAccess,)
+    permission_classes = (IsAuthenticated, HasPluginAccess,)
     search_fields = ()
 
     def get_queryset(self):
-        """
-        returns the queryset for PluginInstance viewable objects,instance-
-        filtered by project primary (optional)
-        """
         return PluginInstance.objects.viewable().prefetch_common().prefetch_related('projects')
 
     @action(detail=True,
