@@ -123,7 +123,7 @@
     "pdfjs-dist": "2.0.943",
     "selectize": "0.12.4",
     "stacktrace-js": "^2.0.2",
-    "tinymce": "^4.9.10",
+    "tinymce": "^5.6.0",
     "tinymce-formula": "^1.1.0",
     "ui-select": "^0.19.6"
   },
