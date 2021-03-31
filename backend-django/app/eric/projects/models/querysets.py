@@ -95,10 +95,6 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
     def for_project(self, project_pk, *args, **kwargs):
         """
         Adds a filter for project pk, which also loads all sub projects
-        :param project_pk:
-        :param args:
-        :param kwargs:
-        :return:
         """
         from eric.projects.models import Project
 
@@ -115,10 +111,6 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
     def viewable(self, *args, **kwargs):
         """
         Returns all elements associated to the project where the user has the view permission of the current model
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'view')
@@ -137,10 +129,6 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
     def editable(self, *args, **kwargs):
         """
         Returns all elements associated to the project where the user has the change permission of the current model
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'change')
@@ -158,10 +146,6 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         Returns an `all` QuerySet if current user has the 'APP.MODEL_change_project' permission (whereas "APP"
         corresponds to the managed models app label and "MODEL" corresponds to the managed models name).
         Returns a `none` QuerySet else.
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'change_project')
@@ -177,10 +161,6 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
     def deletable(self, *args, **kwargs):
         """
         Returns all elements associated to the project where the user has the delete permission of the current model
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
             self.model, get_permission_name_without_app_label(self.model, 'delete')
@@ -202,10 +182,6 @@ class ProjectRoleUserAssignmentQuerySet(BaseProjectPermissionQuerySet, ChangeSet
     def for_project(self, project_pk, *args, **kwargs):
         """
         Adds a filter for project pk and all sub projects
-        :param project_pk:
-        :param args:
-        :param kwargs:
-        :return:
         """
         from eric.projects.models import Project
 
@@ -331,9 +307,6 @@ class BaseProjectEntityPermissionQuerySet(
         by default, this equals to the viewable method.
         However, not all notes that are related are viewable, so
         :class:`~eric.shared_elements.models.querysets.NoteQuerySet` will override this method
-        :param args:
-        :param kwargs:
-        :return:
         """
         return self.viewable(*args, **kwargs)
 
@@ -344,10 +317,6 @@ class BaseProjectEntityPermissionQuerySet(
 
         - :class:`~eric.shared_elements.models.querysets.MeetingQuerySet` might prefetch ``resource``
         - :class:`~eric.shared_elements.models.querysets.TaskQuerySet` might prefetch ``assignees``
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         return self.prefetch_related('created_by', 'created_by__userprofile',
                                      'last_modified_by', 'last_modified_by__userprofile')
@@ -364,10 +333,6 @@ class BaseProjectEntityPermissionQuerySet(
         - the element is associated to a project and the user has the view_model permission on the project (project_pks)
         - the element has the model privilege 'view' or 'full_access' for the current user
         - the element does not have a model privilege 'deny_view' for the current user (deny_object_ids)
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         user = get_current_user()
         if user.is_anonymous:
@@ -416,10 +381,6 @@ class BaseProjectEntityPermissionQuerySet(
            (project_pks)
         - the element has the model privilege 'edit' or 'full_access' for the current user
         - the element does not have a model privilege 'deny_edit' for the current user (deny_object_ids)
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         user = get_current_user()
 
@@ -469,10 +430,6 @@ class BaseProjectEntityPermissionQuerySet(
            (project_pks)
         - the element has the model privilege 'delete' or 'full_access' for the current user
         - the element does not have a model privilege 'deny_delete' for the current user (deny_object_ids)
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         user = get_current_user()
 
@@ -522,10 +479,6 @@ class BaseProjectEntityPermissionQuerySet(
            (project_pks)
         - the element has the model privilege 'restore' or 'full_access' for the current user
         - the element does not have a model privilege 'deny_restore' for the current user (deny_object_ids)
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         user = get_current_user()
 
@@ -578,10 +531,6 @@ class BaseProjectEntityPermissionQuerySet(
            (project_pks)
         - the element has the model privilege 'trash' or 'full_access' for the current user
         - the element does not have a model privilege 'deny_trash' for the current user (deny_object_ids)
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         user = get_current_user()
 
@@ -631,10 +580,6 @@ class BaseProjectEntityPermissionQuerySet(
         Returns an `all` QuerySet if current user has the 'APP.MODEL_change_project' permission (whereas "APP"
         corresponds to the managed models app label and "MODEL" corresponds to the managed models name).
         Returns a `none` QuerySet else.
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         user = get_current_user()
 
@@ -825,9 +770,6 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
     def not_closed_or_deleted_or_canceled(self, *args, **kwargs):
         """
         Returns all projects that are not paused, finished, canceled or deleted
-        :param args:
-        :param kwargs:
-        :return:
         """
         from eric.projects.models import Project
 
@@ -838,9 +780,6 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
     def editable(self, *args, **kwargs):
         """
         Returns all projects (and sub projects) that are edit-able by the current user
-        :param args:
-        :param kwargs:
-        :return:
         """
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
@@ -870,10 +809,6 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
         - the element is associated to a project and the user has the view_model permission on the project (project_pks)
         - the element has the model privilege 'view' or 'full_access' for the current user
         - the element does not have a model privilege 'deny_edit' for the current user (deny_object_ids)
-
-        :param args:
-        :param kwargs:
-        :return:
         """
         from eric.projects.models.models import Resource
         user = get_current_user()
@@ -928,6 +863,9 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
             id__in=deny_object_ids
         ).distinct()
 
+    def study_rooms(self):
+        return self.filter(study_room_info__isnull=False)
+
 
 class UserStorageLimitQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
     """
@@ -967,9 +905,6 @@ class ElementLockQuerySet(BaseQuerySet):
         Get element locks for a specific model and primary key
         :param model_class: Class of the Model that needs to be filtered
         :param model_pk: Primary Key of the Object that needs to be filtered
-        :param args:
-        :param kwargs:
-        :return:
         """
 
         return self.filter(
@@ -985,9 +920,6 @@ class ElementLockQuerySet(BaseQuerySet):
     def deletable(self, *args, **kwargs):
         """
         Allow deleting a element lock if it has been locked by the current user or if the lock is older than 15 minutes
-        :param args:
-        :param kwargs:
-        :return:
         """
         # calculate timedelta: 15 minutes from now
         timedelta = timezone.timedelta(minutes=site_preferences.element_lock_time_in_minutes)

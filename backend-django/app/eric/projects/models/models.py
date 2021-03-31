@@ -48,8 +48,6 @@ User = get_user_model()
 def validate_file_is_pdf(value):
     """
     Validates that an uploaded file has the .pdf extension
-    :param value:
-    :return:
     """
     # get extension
     ext = os.path.splitext(value.name)[1]
@@ -1104,25 +1102,6 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         (SELECTED_USERS, "Only selected users"),
     )
 
-    # define branch library
-    CHEMISTRY = "CHEM"
-    MATH_IT = "MAIT"
-    MEDICINE = "MEDIC"
-    PHYSICS = "PHY"
-    SPORT_HEALTH_SCIENCES = "SHSCI"
-    MAIN_CAMPUS = "MCAMP"
-    WEIHENSTEPHAN = "WEIH"
-    # define branch library choices
-    BRANCH_LIBRARY_CHOICES = (
-        (CHEMISTRY, "Chemistry"),
-        (MATH_IT, "Mathematics & Informatics"),
-        (MEDICINE, "Medicine"),
-        (PHYSICS, "Physics"),
-        (SPORT_HEALTH_SCIENCES, "Sport & Health Sciences"),
-        (MAIN_CAMPUS, "Main Campus"),
-        (WEIHENSTEPHAN, "Weihenstephan"),
-    )
-
     class Meta(WorkbenchEntityMixin.Meta):
         verbose_name = _("Resource")
         verbose_name_plural = _("Resources")
@@ -1240,55 +1219,14 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         blank=True,
     )
 
-    study_room = models.BooleanField(
-        verbose_name=_("Study Room"),
-        default=False,
-        db_index=True
-    )
-
-    branch_library = models.CharField(
-        verbose_name=_("Branch Library of Study Room"),
-        max_length=5,
-        choices=BRANCH_LIBRARY_CHOICES,
-        blank=True,
-        db_index=True
-    )
-
     metadata = MetadataRelation()
 
     def __str__(self):
-        return _("Resource {}").format(self.name)
-
-    def clean(self):
-        """
-        Extra model field validations
-        """
-        if self.study_room and not self.branch_library:
-            raise ValidationError({
-                'branch_library': ValidationError(
-                    _('You have to choose a branch library if study room is selected'),
-                    code='invalid'
-                )
-            })
-
-        if self.branch_library and not self.study_room:
-            raise ValidationError({
-                'branch_library': ValidationError(
-                    _('You have to choose a study room if a branch library is selected'),
-                    code='invalid'
-                )
-            })
-
-        super(Resource, self).clean()
+        return self.name
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """
         Rename the uploaded file, make sure it is stored in the proper directory
-        :param force_insert:
-        :param force_update:
-        :param using:
-        :param update_fields:
-        :return:
         """
         # check if terms_of_use_pdf file has changed
         if self.terms_of_use_pdf and hasattr(self.terms_of_use_pdf.file, 'content_type'):
@@ -1423,6 +1361,12 @@ class ResourceBookingRuleBookableHours(models.Model):
 
     time_end = models.TimeField(
         verbose_name=_("Time end")
+    )
+
+    full_day = models.BooleanField(
+        default=True,
+        db_index=True,
+        verbose_name=_("full day")
     )
 
     resource = models.OneToOneField(

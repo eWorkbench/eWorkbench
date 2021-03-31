@@ -174,3 +174,8 @@ class UserProfile(BaseModel):
 
     def __str__(self):
         return _("User profile of %(username)s") % {'username': self.user.username}
+
+    @property
+    def first_name_and_last_name(self):
+        name = f'{self.first_name} {self.last_name}'.strip()
+        return name or '-'

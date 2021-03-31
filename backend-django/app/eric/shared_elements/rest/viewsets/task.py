@@ -22,7 +22,7 @@ class TaskViewSet(
     filterset_class = TaskFilter
 
     search_fields = ()
-    ordering_fields = ('task_id', 'title', 'priority', 'state', 'start_date', 'due_date', 'assigned_users')
+    ordering_fields = ('task_id', 'title', 'priority', 'state', 'start_date', 'due_date')
 
     def get_queryset(self):
         """

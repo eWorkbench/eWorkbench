@@ -343,6 +343,30 @@
         };
 
         /**
+         * Automatically set the appointment location to the location of chosen resource,
+         * if a room-resource is selected and no location has been entered by the user before.
+         */
+        $scope.$watch('vm.meeting.resource_pk', function (newVal, oldVal) {
+            if (!newVal) {
+                return;
+            }
+            if (vm.meeting.location === undefined || vm.meeting.location === vm.lastLocationFromResource) {
+                ResourceRestService.getCached({pk: newVal}).$promise.then(
+                    function success (resource) {
+                        if (resource.type === 'ROOM') {
+                            vm.meeting.location = resource.location;
+                            vm.lastLocationFromResource = vm.meeting.location;
+                        }
+                    },
+                    function error (rejection) {
+                        console.error('Could not load resource details');
+                        console.error(rejection);
+                    }
+                )
+            }
+        });
+
+        /**
          * Dismiss the modal dialog
          */
         vm.dismiss = function () {

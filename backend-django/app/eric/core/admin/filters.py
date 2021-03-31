@@ -5,15 +5,15 @@
 from django.contrib.admin import SimpleListFilter
 
 
-class IsSetListFilter(SimpleListFilter):
+class IsNullFilter(SimpleListFilter):
     """
     Admin list filter for related fields (there is a value / there is no value).
     """
 
     def lookups(self, request, model_admin):
         return (
-            ('0', 'Is set',),
-            ('1', 'Is not set',),
+            ('0', 'Yes'),
+            ('1', 'No'),
         )
 
     def queryset(self, request, queryset):
@@ -26,13 +26,13 @@ class IsSetListFilter(SimpleListFilter):
         return queryset
 
 
-def is_set_filter(field, title_=None):
+def is_null_filter(field, title_=None):
     """
     Shortcut to IsSetListFilter.
     """
 
-    class IsSetListFieldFilter(IsSetListFilter):
+    class IsNullFieldFilter(IsNullFilter):
         parameter_name = field
         title = title_ or parameter_name
 
-    return IsSetListFieldFilter
+    return IsNullFieldFilter

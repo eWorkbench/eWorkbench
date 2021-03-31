@@ -94,7 +94,7 @@ AUTH_LDAP_PROFILE_ATTR_MAP = {
 # defines workbench settings
 WORKBENCH_SETTINGS.update({
     'url': 'http://workbench.local:8080/app/',
-    'password_reset_url': 'http://workbench.local:8080/app/#/password_reset/{token}',
+    'password_reset_url': 'http://workbench.local:8080/app/reset-password/{token}',
 })
 
 ADMINS = [

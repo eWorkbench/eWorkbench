@@ -4,6 +4,7 @@
 #
 import unittest
 
+import time_machine
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core import mail
@@ -16,7 +17,7 @@ from eric.core.templatetags.date_filters import date_short
 from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR, HTTP_INFO
 from eric.core.tests.test_utils import CommonTestMixin, naive_dt, FakeRequest, FakeRequestUser
 from eric.model_privileges.models import ModelPrivilege
-from eric.notifications.models import Notification, NotificationConfiguration
+from eric.notifications.models import Notification, NotificationConfiguration, ScheduledNotification
 from eric.notifications.tests.core import NotificationMixIn
 from eric.projects.models import Resource
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ResourceMixin
@@ -530,3 +531,85 @@ class AppointmentConfirmationMailTest(
             # check resource location
             self.assertIn(resource.location, email.body)
             self.assertIn(resource.location, html_body)
+
+
+class ScheduledNotificationsTest(APITestCase, CommonTestMixin, AuthenticationMixin, UserMixin, MeetingMixin,
+                                 NotificationMixIn):
+    def setUp(self):
+        self.user_group = Group.objects.get(name='User')
+        self.user1, self.token1 = self.create_user_and_log_in(
+            username='user1', email='one@test.local', groups=['User']
+        )
+
+    def test_creating_scheduled_notifications_for_meeting(self):
+        """ Tests creating a scheduled notification for a new meeting """
+
+        # there should be zero scheduled notifications to begin with
+        self.assertEquals(ScheduledNotification.objects.all().count(), 0)
+
+        now_plus_15 = timezone.now() + timezone.timedelta(minutes=15)
+        now_plus_20 = timezone.now() + timezone.timedelta(minutes=20)
+        now_plus_35 = timezone.now() + timezone.timedelta(minutes=35)
+        now_plus_30 = timezone.now() + timezone.timedelta(minutes=30)
+        now_plus_60 = timezone.now() + timezone.timedelta(minutes=60)
+
+        # create an appointment 20 minutes from now with a reminder of 15 minutes before
+        meeting, response = self.create_meeting_orm(
+            auth_token=self.token1,
+            project_pk=None,
+            title='Study Session 101',
+            description='Test 😀',
+            location='E123.435-STUDY7',
+            start_date=now_plus_20,
+            end_date=now_plus_60,
+            scheduled_notification_writable={
+                "active": True,
+                "timedelta_unit": "MINUTE",
+                "timedelta_value": 10
+            },
+            **HTTP_INFO,
+        )
+        self.assert_response_status(response, expected_status_code=status.HTTP_201_CREATED)
+
+        # there should be one scheduled notification now
+        self.assertEquals(ScheduledNotification.objects.all().count(), 1)
+
+        # get the scheduled_date_time of the ScheduledNotification
+        scheduled_notification_datetime = ScheduledNotification.objects.all().first().scheduled_date_time
+
+        # travel in time 15 minutes forward
+        with time_machine.travel(now_plus_15, tick=False):
+            # edit the meeting
+            response = self.rest_update_meeting(
+                self.token1, meeting.pk, [],
+                "First meeting edited",
+                "Some other Text for this meeting",
+                now_plus_30, now_plus_60,
+                HTTP_USER_AGENT, REMOTE_ADDR
+            )
+            self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+            # again get the scheduled_date_time of the ScheduledNotification after the edit
+            new_scheduled_notification_datetime = ScheduledNotification.objects.all().first().scheduled_date_time
+
+            # the scheduled_date_time should have changed here
+            self.assertNotEquals(scheduled_notification_datetime, new_scheduled_notification_datetime)
+
+        # travel in time 30 minutes forward
+        with time_machine.travel(now_plus_35, tick=False):
+            # edit the meeting
+            response = self.rest_update_meeting(
+                self.token1, meeting.pk, [],
+                "First meeting edited",
+                "Some other Text for this meeting",
+                now_plus_30, now_plus_60,
+                HTTP_USER_AGENT, REMOTE_ADDR
+            )
+            self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+            # again get the scheduled_date_time of the ScheduledNotification after the edit
+            second_new_scheduled_notification_datetime = ScheduledNotification.objects.all().first().scheduled_date_time
+
+            # the scheduled_date_time should not have changed as the meeting.date_time_start is in the past, so
+            # no new scheduled notification should be sent
+            self.assertEquals(second_new_scheduled_notification_datetime, new_scheduled_notification_datetime)

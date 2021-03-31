@@ -81,33 +81,35 @@ class Command(BaseCommand):
         for scheduled_notification in scheduled_notifications:
             meeting = Meeting.objects.prefetch_common().get(pk=scheduled_notification.object_id)
 
-            attending_users = meeting.attending_users.all()
-            attending_contacts = meeting.attending_contacts.all()
-            title = _("Reminder: Appointment {title} starts at {date_time_start}".format(
-                title=meeting.title,
-                date_time_start=date_short(localtime(meeting.date_time_start))
-            ))
-            html_message = render_to_string('notification/meeting_reminder.html', {'instance': meeting})
+            # only send reminders for meetings that are still in the future
+            if meeting.local_date_time_start > timezone.now():
+                attending_users = meeting.attending_users.all()
+                attending_contacts = meeting.attending_contacts.all()
+                title = _("Reminder: Appointment {title} starts at {date_time_start}".format(
+                    title=meeting.title,
+                    date_time_start=date_short(meeting.local_date_time_start)
+                ))
+                html_message = render_to_string('notification/meeting_reminder.html', {'instance': meeting})
 
-            for attending_user in attending_users:
-                Notification.objects.update_or_create(
-                    user=attending_user,
-                    content_type=meeting.get_content_type(),
-                    object_id=meeting.pk,
-                    read=False,
-                    sent__isnull=True,
-                    notification_type=NotificationConfiguration.NOTIFICATION_CONF_MEETING_REMINDER,
-                    created_at__gte=timezone.now() - timedelta(seconds=60),
-                    defaults={
-                        'title': title,
-                        'message': html_message,
-                        'created_at': timezone.now()
-                    }
-                )
+                for attending_user in attending_users:
+                    Notification.objects.update_or_create(
+                        user=attending_user,
+                        content_type=meeting.get_content_type(),
+                        object_id=meeting.pk,
+                        read=False,
+                        sent__isnull=True,
+                        notification_type=NotificationConfiguration.NOTIFICATION_CONF_MEETING_REMINDER,
+                        created_at__gte=timezone.now() - timedelta(seconds=60),
+                        defaults={
+                            'title': title,
+                            'message': html_message,
+                            'created_at': timezone.now()
+                        }
+                    )
 
-            for contact in attending_contacts:
-                if contact.email:
-                    cls.send_mail_to_contact(title, contact, html_message)
+                for contact in attending_contacts:
+                    if contact.email:
+                        cls.send_mail_to_contact(title, contact, html_message)
 
         scheduled_notifications.update(processed=True)
 

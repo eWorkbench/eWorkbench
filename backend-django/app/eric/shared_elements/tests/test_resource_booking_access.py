@@ -34,10 +34,7 @@ class AllResourceBookingAccessTest(
         self.superuser, self.superuser_token = self.create_user_and_log_in(username='superuser', is_superuser=True)
 
         with FakeRequest(), FakeRequestUser(self.superuser):
-            self.resource1 = Resource.objects.create(
-                name='Test Resource 1', description='Test',
-                type=Resource.ROOM, study_room=True, branch_library='Main',
-            )
+            self.resource1 = Resource.objects.create(name='Test Resource 1', description='Test', type=Resource.ROOM)
 
     def test_full_details_of_own_booking(self):
         # user1 creates some resource bookings
@@ -236,14 +233,8 @@ class AllResourceBookingFilterTest(
 
         # superuser creates global resources
         with FakeRequest(), FakeRequestUser(self.superuser):
-            self.resource1 = Resource.objects.create(
-                name='Test Resource 1', description='Test',
-                type=Resource.ROOM, study_room=True, branch_library='Main',
-            )
-            self.resource2 = Resource.objects.create(
-                name='Test Resource 2', description='Test',
-                type=Resource.ROOM, study_room=True, branch_library='Main',
-            )
+            self.resource1 = Resource.objects.create(name='Test Resource 1', description='Test', type=Resource.ROOM)
+            self.resource2 = Resource.objects.create(name='Test Resource 2', description='Test', type=Resource.ROOM)
 
         # user1 creates meetings
         with FakeRequest(), FakeRequestUser(self.user1):
@@ -306,10 +297,7 @@ class MyResourceBookingAccessTest(
         self.superuser, self.superuser_token = self.create_user_and_log_in(username='superuser', is_superuser=True)
 
         with FakeRequest(), FakeRequestUser(self.superuser):
-            self.resource1 = Resource.objects.create(
-                name='Test Resource 1', description='Test',
-                type=Resource.ROOM, study_room=True, branch_library='Main',
-            )
+            self.resource1 = Resource.objects.create(name='Test Resource 1', description='Test', type=Resource.ROOM)
 
     def test_can_see_own_bookings(self):
         # user1 creates some resource bookings

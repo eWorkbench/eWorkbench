@@ -104,9 +104,6 @@ class FileQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def prefetch_common(self, *args, **kwargs):
         """
         Prefetch common attributes
-        :param args:
-        :param kwargs:
-        :return:
         """
         return super(FileQuerySet, self).prefetch_common() \
             .prefetch_related('file_entries',
@@ -134,9 +131,6 @@ class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def not_done(self, *args, **kwargs):
         """
         Returns all tasks that are not done
-        :param args:
-        :param kwargs:
-        :return:
         """
         from eric.shared_elements.models import Task
 
@@ -147,9 +141,6 @@ class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def assigned(self, *args, **kwargs):
         """
         Returns all tasks that are assigned to the current user.
-        :param args:
-        :param kwargs:
-        :return:
         """
         user = get_current_user()
         if user.is_anonymous:
@@ -162,9 +153,6 @@ class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def has_started(self, *args, **kwargs):
         """
         Returns all tasks that have a start_date > now
-        :param args:
-        :param kwargs:
-        :return:
         """
         now = timezone.now()
 
@@ -175,25 +163,18 @@ class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def with_assignee(self, *args, **kwargs):
         """
         selects the related assigned user and assigned user profile
-        :param args:
-        :param kwargs:
-        :return:
         """
         return self.prefetch_related('assigned_users', 'assigned_users__userprofile')
 
     def with_checklist(self, *args, **kwargs):
         """
         selects the related checklsit items
-        :param args:
-        :param kwargs:
-        :return:
         """
         return self.prefetch_related('checklist_items')
 
     def with_labels(self):
         """
         prefetches the related labels
-        :return:
         """
         return self.prefetch_related('labels')
 
@@ -252,14 +233,12 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
             .with_attending_contacts() \
             .with_attending_users() \
             .prefetch_related('resource') \
+            .select_related('resource__study_room_info') \
             .prefetch_metadata()
 
     def attending(self, *args, **kwargs):
         """
         Returns all meetings that the current user is attending.
-        :param args:
-        :param kwargs:
-        :return:
         """
         user = get_current_user()
         if user.is_anonymous:
@@ -272,18 +251,12 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
     def with_attending_users(self, *args, **kwargs):
         """
         selects the related attending user and attending user profile
-        :param args:
-        :param kwargs:
-        :return:
         """
         return self.prefetch_related('attending_users', 'attending_users__userprofile')
 
     def with_attending_contacts(self, *args, **kwargs):
         """
         selects the related attending contacts
-        :param args:
-        :param kwargs:
-        :return:
         """
         return self.prefetch_related('attending_contacts')
 
@@ -291,7 +264,7 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         return self.filter(resource__isnull=False).select_related('resource')
 
     def study_room_bookings(self):
-        return self.resource_bookings().filter(resource__study_room=True)
+        return self.resource_bookings().filter(resource__study_room_info__isnull=False)
 
     def my_bookings(self):
         """ Own bookings for an accessible resource """

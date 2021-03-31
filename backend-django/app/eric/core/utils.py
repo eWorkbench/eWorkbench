@@ -16,6 +16,13 @@ from bs4 import BeautifulSoup
 from django.utils.http import urlquote
 
 
+def get_rgb_rgba_pattern():
+    # from https://dev.to/taufik_nurrohman/match-valid-rgb-rgba-color-string-using-range-pattern-3142
+    return r"(?:rgb\(\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d" \
+           r"|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*\)|rgba\(\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]" \
+           r"\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*([01]|0?\.\d+)\s*\))"
+
+
 def rfc5987_content_disposition(file_name, disposition_type="attachment"):
     """
     Proccesses a filename that might contain unicode data, and returns it as a proper rfc 5987 compatible header

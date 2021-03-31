@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 1.23.2 - March 2021
+- [SITUMEWB-601]: various dss optimisations
+
+## Version 1.23.1 - February 2021
+- [SITUMEWB-447] DSS: handle url encoded paths in the globus message consumer
+- [SITUMEWB-447] Study room booking exports for displays: adjusted organiser field to display first_name and last_name
+- [SITUMEWB-541] full_day flags for meetings and bookable hours resource booking rule
+- [SITUMEWB-541] full day validation for bookable hours resource booking rule
+- [SITUMEWB-541] use regex pattern to match rgb and rgba colors
+
+## Version 1.23 - January 2021
+- [SITUMEWB-447] Study room booking exports for displays
+- [SITUMEWB-481] No reminders for appointments that already lie in the past
+
 ## Version 1.22.3 - November 2020
 - [SITUMEWB-534] DSS: add how to
 - [SITUMEWB-534] DSS: set projects in metadata.json

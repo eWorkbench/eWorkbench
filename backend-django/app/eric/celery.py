@@ -41,6 +41,6 @@ app.conf.beat_schedule = {
     },
     'globus_message_queue_consumer': {
         'task': 'eric.dss.tasks.globus_message_queue_consumer',
-        'schedule': 30,  # 30 seconds
+        'schedule': 60 * 7,  # 7 minutes
     },
 }

@@ -2,12 +2,14 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter, DropdownFilter, ChoiceDropdownFilter
+from django_admin_listfilter_dropdown.filters import DropdownFilter, ChoiceDropdownFilter
 from django_changeset.models import ChangeSet, ChangeRecord
 
+from eric.core.admin.filters import is_null_filter
 from eric.core.admin.is_deleteable import DeleteableModelAdmin
 from eric.model_privileges.admin import ModelPrivilegeInline
 from eric.projects.models import Project, Resource, Role, ProjectRoleUserAssignment, \
@@ -16,8 +18,6 @@ from eric.projects.models import Project, Resource, Role, ProjectRoleUserAssignm
     ResourceBookingRuleTimeBetween, ResourceBookingRuleBookingsPerUser
 
 User = get_user_model()
-
-from admin_auto_filters.filters import AutocompleteFilter
 
 
 class ProjectFilter(AutocompleteFilter):
@@ -33,7 +33,6 @@ class ProjectsFilter(AutocompleteFilter):
 
     title = 'Projects'
     field_name = 'projects'
-    field = 'projects'
 
 
 class CreatedAndModifiedByReadOnlyAdminMixin:
@@ -155,7 +154,7 @@ class ProjectAdmin(admin.ModelAdmin):
         "created_by__username",
         "created_by__email",
     )
-    autocomplete_fields = ('parent_project', )
+    autocomplete_fields = ('parent_project',)
 
 
 class ChangeRecordInline(admin.StackedInline):
@@ -297,6 +296,7 @@ class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         ('type', ChoiceDropdownFilter),
         ('user_availability', ChoiceDropdownFilter),
         ('location', DropdownFilter),
+        is_null_filter('study_room_info', 'Is Study Room'),
     )
     search_fields = (
         'name',
@@ -326,7 +326,7 @@ class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         make_type_offeq,
         make_type_itres,
     ]
-    autocomplete_fields = ('projects', 'user_availability_selected_users', 'user_availability_selected_user_groups', )
+    autocomplete_fields = ('projects', 'user_availability_selected_users', 'user_availability_selected_user_groups',)
 
 
 @admin.register(UserStorageLimit)

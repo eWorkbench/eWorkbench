@@ -36,12 +36,13 @@ class ContentAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         return {}
 
     fields = (
-        'title', 'text', 'slug',
+        'title', 'text', 'slug', 'public',
     )
     list_display = (
         'title', 'slug',
         'created_by', 'created_at',
         'last_modified_by', 'last_modified_at',
+        'public',
     )
     search_fields = (
         'title',

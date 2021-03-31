@@ -8,6 +8,8 @@ import logging
 import mimetypes
 import os
 import ssl
+from urllib.parse import unquote
+
 import pika
 from django.template.loader import render_to_string
 from pika import exceptions as pika_exceptions
@@ -331,7 +333,6 @@ class DSSFileWatch:
         try:
             self.connection = pika.BlockingConnection(connection_parameters)
             self.channel = self.connection.channel()
-            logger.info('Connected to {}'.format(self.host))
         except pika_exceptions.ConnectionClosed:
             logger.error('Error connecting to {}'.format(self.host))
 
@@ -342,9 +343,7 @@ class DSSFileWatch:
             arguments={
                 'x-queue-type': 'classic'
             })
-        count = response.method.message_count
-        logger.info('The are {} pending messages'.format(count))
-        return count
+        return response.method.message_count
 
     def get_n_messages(self, n):
         bodies = []
@@ -356,7 +355,6 @@ class DSSFileWatch:
             bodies.append(body.decode('utf-8'))
             delivery_tags.append(method.delivery_tag)
 
-        logger.info('Fetched {} messages'.format(n))
         return bodies, delivery_tags
 
     @staticmethod
@@ -366,6 +364,8 @@ class DSSFileWatch:
             message_dict = json.loads(message)
             for key, value in message_dict.items():
                 path = value.replace("~/", "")
+                # handle url encoded paths. "ab%20cd" becomes "ab cd" for example.
+                path = unquote(path)
                 fixed_message_dict = {"path": path}
                 fixed_messages.append(fixed_message_dict)
         return fixed_messages
@@ -377,12 +377,12 @@ class DSSFileWatch:
     def post_files(self):
         message_count = self.get_message_count()
         if message_count > 0:
+            logger.info('The are {} pending messages in the dssmq'.format(message_count))
             if self.message_fetch_size < message_count:
                 self.message_fetch_size = self.message_fetch_size
             else:
                 self.message_fetch_size = message_count
 
-            logger.info('Try to get {} messages'.format(self.message_fetch_size))
             messages, delivery_tags = self.get_n_messages(self.message_fetch_size)
 
             # fix for messages
@@ -392,8 +392,6 @@ class DSSFileWatch:
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-            # todo MFI: remove
-            # files_to_import = [DSSFilesToImport(**item) for item in messages]
-            # DSSFilesToImport.objects.bulk_create(files_to_import, ignore_conflicts=True)
-
             self.acknowledge_multiple_messages(delivery_tags)
+        else:
+            logger.info('The are no new messages in the dssmq')

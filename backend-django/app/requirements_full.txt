@@ -14,7 +14,7 @@ django-admin-rangefilter==0.6.*
 django-anexia-monitoring==1.*
 django-auth-ldap==2.1.*
 django-ckeditor==5.9.*
-django-cleanhtmlfield==1.0.*
+django-cleanhtmlfield==1.1.*
 django-cors-headers==3.2.*
 django-dbbackup==3.3.*
 django-filter==2.2.*
@@ -38,7 +38,7 @@ html2text>=2020.1.*
 html5lib==1.0.*
 lxml==4.5.*
 Markdown==3.2.*
-Pillow==7.1.*
+Pillow==8.1.*
 psycopg2-binary>=2.7,<3
 PyJWT==1.7.*
 python-dateutil==2.8.*

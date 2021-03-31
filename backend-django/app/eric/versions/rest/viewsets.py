@@ -187,6 +187,7 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
                 display_name = str(child_object) if child_object.is_viewable() else None
                 elements.append({
                     'type': content_type.name,
+                    'content_type': f"{content_type.app_label}.{content_type.model}",
                     'display_name': display_name,
                     'version_number': element['child_object_version_number'],
                     'viewable': child_object.is_viewable()

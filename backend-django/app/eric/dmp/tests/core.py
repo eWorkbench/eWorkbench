@@ -20,6 +20,17 @@ class DmpsMixin:
             path='/api/dmps/{}/'.format(dmp_id),
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
 
+    def rest_get_dmps(self, auth_token, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for getting a list of dmps that the current user has access to via REST API
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            '/api/dmps/',
+            {}, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
     def rest_create_dmp(self, auth_token, projects, dmp_title, dmp_status, dmp_form_id, HTTP_USER_AGENT,
                         REMOTE_ADDR):
         data = {

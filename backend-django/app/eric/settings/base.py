@@ -140,6 +140,7 @@ INSTALLED_APPS = [
     'eric.db_logging',
     'eric.dss',
     'eric.appointments',
+    'eric.resources',
 
     # CKEditor needs to be at the bottom, so eric.core can overwrite the ckeditor-init.js file
     'ckeditor',
@@ -502,8 +503,8 @@ DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 72  # hours
 # defines workbench settings
 WORKBENCH_SETTINGS = {
     'url': 'http://workbench.local/',
-    'password_reset_url': 'http://workbench.local/#/password_reset/{token}',
-    'notification_url': '{workbench_url}#/notifications/{notification_pk}',
+    'password_reset_url': 'http://workbench.local/reset-password/{token}',
+    'notification_url': '{workbench_url}notifications/{notification_pk}',
     'project_file_upload_folder': os.path.join(MEDIA_ROOT, 'projects_storage', '%(filename)s'),
     # menu entries for the horizontal menu
     'default_menu_entries': [
@@ -694,6 +695,8 @@ ACCEPTABLE_STYLES = (
 )
 
 REMOVE_WITH_CONTENT = ('script', 'object', 'embed', 'style', 'form',)
+
+PRESERVE_STYLES_WHITESPACE = True
 
 CHANNEL_LAYERS = {
     "default": {

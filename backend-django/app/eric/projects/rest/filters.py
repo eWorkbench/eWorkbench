@@ -3,12 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.auth import get_user_model
-from django_filters import BooleanFilter
+from django_filters import BooleanFilter, ChoiceFilter
 
 from eric.core.rest.filters import BaseFilter, WorkbenchElementFilter, RecentlyModifiedByMeFilter, BooleanDefaultFilter
 from eric.core.rest.filters import ListFilter
 from eric.favourites.rest.filters import FavouriteFilter
 from eric.projects.models import Project, ProjectRoleUserAssignment, Resource, Role
+from eric.resources.models import StudyRoom
 
 User = get_user_model()
 
@@ -89,10 +90,14 @@ class ResourceFilter(WorkbenchElementFilter):
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
             'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'branch_library': BaseFilter.CHOICE_COMPERATORS,
         }
 
-    study_room = BooleanFilter()
+    study_room = BooleanFilter(field_name='study_room_info', lookup_expr='isnull', exclude=True)
+    branch_library = ChoiceFilter(
+        field_name='study_room_info__branch_library',
+        choices=StudyRoom.BRANCH_LIBRARY_CHOICES
+    )
+    bookable_by_students = BooleanFilter(field_name='study_room_info__is_bookable_by_students')
 
 
 class RoleFilter(BaseFilter):

@@ -10,6 +10,8 @@ from eric.cms.rest.serializers import MinimalContentSerializer
 
 
 class GetOnlyContentViewSet(RetrieveModelMixin, GenericViewSet):
+    authentication_classes = ()
+    permission_classes = ()
     serializer_class = MinimalContentSerializer
     queryset = Content.objects.all()
     lookup_field = 'slug'

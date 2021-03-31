@@ -31,4 +31,7 @@ class FavouriteAdmin(admin.ModelAdmin):
         UserFilter,
         ('content_type', RelatedDropdownFilter),
     )
+    autocomplete_fields = (
+        'user',
+    )
     list_per_page = 20

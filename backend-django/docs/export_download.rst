@@ -60,6 +60,14 @@ shared with 3rd-party applications, such as Outlook or Google Calendar.
 
 Public Study Room Booking Export
 --------------------------------
-The publicly available API ``/api/study-room-bookings-export/calendar/`` provides anonymous booking information
-for study rooms.
+There are two publicly available API endpoints that provide booking information for study rooms.
+
+* ``/api/study-room-booking-export/calendar/``
+Intended for use with public calendars. Provides the bookings of the next 14 days.
+
+* ``/api/study-room-booking-export/display/``
+Intended for use with simple room displays and the Breece system.
+Shows a limited amount of upcoming bookings for the current day.
+The amount of bookings per room can be defined in the admin area (site preferences).
+
 Access restrictions can be applied via the web-server configuration (e.g. IP address restrictions).

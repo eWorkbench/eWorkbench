@@ -69,7 +69,7 @@ CORS_ORIGIN_REGEX_WHITELIST = (
 WORKBENCH_SETTINGS.update({
     'url': 'http://workbench.local:8080/app/',
     'project_file_upload_folder': os.path.join(MEDIA_ROOT, '%(filename)s'),
-    'password_reset_url': 'http://workbench.local:8080/app/#/password_reset/{token}',
+    'password_reset_url': 'http://workbench.local:8080/app/reset-password/{token}',
     'title': 'My Workbench',
     'email_from': SERVER_EMAIL
 })

@@ -5,7 +5,7 @@
 import django_filters
 from django.db.models.constants import LOOKUP_SEP
 
-from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, WorkbenchElementFilter
+from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, WorkbenchElementFilter, BetterBooleanFilter
 from eric.core.rest.filters import ListFilter
 from eric.drives.models import Drive
 from eric.shared_elements.models import Contact, Task, Meeting, Note, File, ElementLabel, CalendarAccess
@@ -42,6 +42,8 @@ class TaskFilter(WorkbenchElementFilter):
 
     id = ListFilter(field_name='id', exclude=True)
     state = ListFilter(field_name='state')
+
+    full_day = BetterBooleanFilter()
 
     @classmethod
     def get_filter_name(cls, field_name, lookup_expr):
@@ -86,6 +88,8 @@ class MeetingFilter(WorkbenchElementFilter):
             'date_time_end': BaseFilter.DATE_COMPERATORS,
             'date_time_start': BaseFilter.DATE_COMPERATORS
         }
+
+        full_day = BetterBooleanFilter()
 
     @classmethod
     def get_filter_name(cls, field_name, lookup_expr):

@@ -20,7 +20,7 @@ LIST_TEXT = """
 This is only used as a reference for you, so it can be any text not longer than 255 characters.</p>
 
 <p><strong>Path:</strong><br />
-<em>Must consists of 3 Parts:</em></p>
+<em>Must consist of 3 Parts:</em></p>
 
 <ol>
 	<li>The DSS Filesystem.</li>
@@ -108,7 +108,7 @@ GENERAL_TEXT = """
 <p>The <strong>tum_id</strong> should be a string containing the username of a workbench user. All files and storages that will be generated on the workbench that are within that envelope will be assigned to that user by setting the created_by attribute. The user now has access to all the files and storages within that envelope folder.</p>
 
 <p>The <strong>projects</strong> list can contain strings containing PKs of projects. The tum_id user must have editing rights within the projects, which means his role must be at least &quot;Project Member&quot;. The &quot;Observer&quot; role is not enough.<br />
-Failures in the project setting task while importing will not prevent imports. Projects that can be set, will be set. The curator will be sent failure notifications/emails on failures.</p>
+Failures in the project setting task while importing will not prevent imports. Projects that can be set, will be set. The curator will be sent failure notifications/emails on failures. PKs of projects can be found in their URLs.</p>
 
 <p>A projects list can look something like this:</p>
 
@@ -119,7 +119,7 @@ Failures in the project setting task while importing will not prevent imports. P
   <span style="color:#16a085">&quot;96a9500e-bbe8-4a4f-a946-ce61f617d609&quot;</span><span style="color:#89ca78">
 </span>],</pre>
 
-<p>The <strong>metadata_fields</strong> list can contain json objects containing the id and values of existing Metadata Fields in the workbench.</p>
+<p>The <strong>metadata_fields</strong> list can contain json objects containing the id and values of existing Metadata Fields in the workbench. For the moment, please ask eric@ub.tum.de for the id of relevant Metadata Fields.</p>
 
 <p>A full example of a metadata.json file containing examples of all types of Metadada Fields can look something like this:</p>
 

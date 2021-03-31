@@ -1123,7 +1123,7 @@ class MeetingMixin(TestLockMixin):
     def rest_create_meeting(
             self, auth_token, project_pks, title, description, start_date, end_date,
             HTTP_USER_AGENT, REMOTE_ADDR,
-            attending_users=None, attending_contacts=None,
+            attending_users=None, attending_contacts=None, scheduled_notification_writable=None,
             **kwargs
     ):
         """
@@ -1145,6 +1145,8 @@ class MeetingMixin(TestLockMixin):
             data['attending_users_pk'] = attending_users
         if attending_contacts:
             data['attending_contacts_pk'] = attending_contacts
+        if scheduled_notification_writable:
+            data['scheduled_notification_writable'] = scheduled_notification_writable
 
         response = self.client.post(
             '/api/meetings/',
@@ -1276,7 +1278,7 @@ class MeetingMixin(TestLockMixin):
             self, auth_token, project_pk,
             title, description, start_date, end_date,
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR,
-            attending_users=None, attending_contacts=None,
+            attending_users=None, attending_contacts=None, scheduled_notification_writable=None,
             **kwargs
     ):
         """ Wrapper for rest_create_Meeting which also returns a Task Object from Djangos ORM """
@@ -1285,7 +1287,7 @@ class MeetingMixin(TestLockMixin):
             auth_token, project_pk,
             title, description, start_date, end_date,
             HTTP_USER_AGENT, REMOTE_ADDR,
-            attending_users, attending_contacts,
+            attending_users, attending_contacts, scheduled_notification_writable,
             **kwargs
         )
         if response.status_code == status.HTTP_201_CREATED:

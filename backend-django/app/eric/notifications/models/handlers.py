@@ -77,6 +77,10 @@ def create_notification_based_on_meeting_changes(sender, instance, *args, **kwar
     if get_current_user().is_anonymous:
         return
 
+    # save the instance here before the refresh, so it can be used to determine the date_time_start
+    # for scheduled notifications
+    to_be_saved_instance = instance
+
     # refresh meeting from DB
     instance = Meeting.objects.prefetch_common().get(pk=instance.pk)
 
@@ -84,7 +88,8 @@ def create_notification_based_on_meeting_changes(sender, instance, *args, **kwar
     # it's deletion-status needs to be updated based on the meeting's status
     try:
         scheduled_notification = ScheduledNotification.objects.get(object_id=instance.pk)
-        if scheduled_notification:
+        # Don't send reminder notifications if the to_be_saved meeting date_time_start is already in the past
+        if scheduled_notification and to_be_saved_instance.local_date_time_start > timezone.now():
             scheduled_notification.scheduled_date_time = ScheduledNotification.calculate_scheduled_date_time(
                 scheduled_notification.timedelta_unit,
                 scheduled_notification.timedelta_value,

@@ -123,7 +123,8 @@
         vm.loadResources = function () {
             ResourceRestService.query({
                 'study_room': 'True',
-                'branch_library': vm.selectedBranchLibrary
+                'branch_library': vm.selectedBranchLibrary,
+                'bookable_by_students': true
             }).$promise.then(
                 function success (response) {
                     vm.loadedResources.length = 0;

@@ -309,7 +309,7 @@
                 'translation': gettextCatalog.getString("DSS Container"),
                 'translationPlural': gettextCatalog.getString("DSS Containers"),
                 'icon': 'fa fa-hdd-o',
-                'relatable': true,
+                'relatable': false,
                 'exportable': true,
                 'searchable': true,
                 'labels': {

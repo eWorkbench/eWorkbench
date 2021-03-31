@@ -4,8 +4,9 @@
 #
 from django.conf.urls import url
 
-from eric.appointments.views import CalendarCsvView
+from eric.appointments.views import CalendarCsvView, DisplayCsvView
 
 urlpatterns = [
-    url(r'study-room-booking-export/calendar/', CalendarCsvView.as_view(), name='study-room-booking-export-calendar')
+    url(r'study-room-booking-export/calendar/', CalendarCsvView.as_view(), name='study-room-booking-export-calendar'),
+    url(r'study-room-booking-export/display/', DisplayCsvView.as_view(), name='study-room-booking-export-display')
 ]

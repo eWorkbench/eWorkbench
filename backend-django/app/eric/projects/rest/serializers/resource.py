@@ -10,9 +10,9 @@ from django_userforeignkey.request import get_current_request
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
 from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer, \
     BaseModelWithCreatedBySerializer, PublicUserSerializer, PublicUserGroupSerializer
+from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
 from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, EntityMetadataSerializer
 from eric.projects.models import Resource, ResourceBookingRuleMinimumDuration, \
     ResourceBookingRuleMaximumDuration, ResourceBookingRuleBookableHours, ResourceBookingRuleMinimumTimeBefore, \
@@ -54,6 +54,7 @@ class ResourceBookingRuleBookableHoursSerializer(serializers.ModelSerializer):
             'sunday',
             'time_start',
             'time_end',
+            'full_day',
         )
 
 
@@ -114,56 +115,6 @@ class MinimalisticResourceSerializer(BaseModelWithCreatedBySerializer):
 
 
 class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin):
-    """ Serializer for Resources """
-    projects = ProjectPrimaryKeyRelatedField(many=True, required=False)
-
-    user_availability_selected_users = PublicUserSerializer(read_only=True, many=True)
-
-    user_availability_selected_user_pks = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        source='user_availability_selected_users',
-        many=True,
-        required=False
-    )
-
-    user_availability_selected_user_groups = PublicUserGroupSerializer(read_only=True, many=True)
-
-    user_availability_selected_user_group_pks = serializers.PrimaryKeyRelatedField(
-        queryset=Group.objects.all(),
-        source='user_availability_selected_user_groups',
-        many=True,
-        required=False
-    )
-
-    metadata = EntityMetadataSerializer(
-        read_only=False,
-        many=True,
-        required=False,
-    )
-
-    # provide a download link for the terms_of_use
-    download_terms_of_use = serializers.SerializerMethodField(
-        read_only=True
-    )
-
-    def get_download_terms_of_use(self, obj):
-        """ Builds a string for downloading the terms_of_use with a jwt token """
-
-        request = get_current_request()
-        path = reverse('resource-terms-of-use-download', kwargs={'pk': obj.pk})
-
-        return build_expiring_jwt_url(request, path)
-
-    booking_rule_minimum_duration = ResourceBookingRuleMinimumDurationSerializer(required=False, allow_null=True)
-    booking_rule_maximum_duration = ResourceBookingRuleMaximumDurationSerializer(required=False, allow_null=True)
-    booking_rule_bookable_hours = ResourceBookingRuleBookableHoursSerializer(required=False, allow_null=True)
-    booking_rule_minimum_time_before = ResourceBookingRuleMinimumTimeBeforeSerializer(required=False, allow_null=True)
-    booking_rule_maximum_time_before = ResourceBookingRuleMaximumTimeBeforeSerializer(required=False, allow_null=True)
-    booking_rule_time_between = ResourceBookingRuleTimeBetweenSerializer(required=False, allow_null=True)
-    booking_rule_bookings_per_user = ResourceBookingRuleBookingsPerUserSerializer(
-        required=False, allow_null=True, many=True
-    )
-
     class Meta:
         model = Resource
         fields = (
@@ -172,8 +123,6 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
             'name',
             'description',
             'type',
-            'study_room',
-            'branch_library',
             'responsible_unit',
             'location',
             'contact',
@@ -199,6 +148,54 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
             'booking_rule_time_between',
             'booking_rule_bookings_per_user',
         )
+
+    projects = ProjectPrimaryKeyRelatedField(many=True, required=False)
+
+    user_availability_selected_users = PublicUserSerializer(read_only=True, many=True)
+    user_availability_selected_user_pks = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='user_availability_selected_users',
+        many=True,
+        required=False
+    )
+
+    user_availability_selected_user_groups = PublicUserGroupSerializer(read_only=True, many=True)
+    user_availability_selected_user_group_pks = serializers.PrimaryKeyRelatedField(
+        queryset=Group.objects.all(),
+        source='user_availability_selected_user_groups',
+        many=True,
+        required=False
+    )
+
+    metadata = EntityMetadataSerializer(
+        read_only=False,
+        many=True,
+        required=False,
+    )
+
+    booking_rule_minimum_duration = ResourceBookingRuleMinimumDurationSerializer(required=False, allow_null=True)
+    booking_rule_maximum_duration = ResourceBookingRuleMaximumDurationSerializer(required=False, allow_null=True)
+    booking_rule_bookable_hours = ResourceBookingRuleBookableHoursSerializer(required=False, allow_null=True)
+    booking_rule_minimum_time_before = ResourceBookingRuleMinimumTimeBeforeSerializer(required=False, allow_null=True)
+    booking_rule_maximum_time_before = ResourceBookingRuleMaximumTimeBeforeSerializer(required=False, allow_null=True)
+    booking_rule_time_between = ResourceBookingRuleTimeBetweenSerializer(required=False, allow_null=True)
+    booking_rule_bookings_per_user = ResourceBookingRuleBookingsPerUserSerializer(
+        required=False, allow_null=True, many=True
+    )
+
+    # provide a download link for the terms_of_use
+    download_terms_of_use = serializers.SerializerMethodField(
+        read_only=True
+    )
+
+    @staticmethod
+    def get_download_terms_of_use(obj):
+        """ Builds a string for downloading the terms_of_use with a jwt token """
+
+        request = get_current_request()
+        path = reverse('resource-terms-of-use-download', kwargs={'pk': obj.pk})
+
+        return build_expiring_jwt_url(request, path)
 
     @transaction.atomic
     def create(self, validated_data):
@@ -327,6 +324,7 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
                 sunday=booking_rule_bookable_hours['sunday'],
                 time_start=booking_rule_bookable_hours['time_start'],
                 time_end=booking_rule_bookable_hours['time_end'],
+                full_day=booking_rule_bookable_hours['full_day'],
                 resource=instance
             )
 
@@ -416,6 +414,7 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
                 booking_rule.sunday = booking_rule_data['sunday']
                 booking_rule.time_start = booking_rule_data['time_start']
                 booking_rule.time_end = booking_rule_data['time_end']
+                booking_rule.full_day = booking_rule_data['full_day']
                 booking_rule.save()
         except ObjectDoesNotExist:
             if booking_rule_data is not None:

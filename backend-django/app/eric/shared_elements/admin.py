@@ -5,12 +5,10 @@
 """ contains basic admin functionality for eric workbench elements """
 from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib import admin
-from django.contrib.admin import BooleanFieldListFilter, ChoicesFieldListFilter
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
-from eric.core.admin.filters import is_set_filter
-from eric.core.rest.filters import BetterBooleanFilter
+from eric.core.admin.filters import is_null_filter
 from eric.model_privileges.admin import ModelPrivilegeInline, ReadOnlyModelPrivilegeInline
 from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
 from eric.shared_elements.models import Contact, Note, Meeting, Task, TaskAssignedUser, File, \
@@ -164,6 +162,7 @@ class TaskAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         'state',
         'created_by',
         'created_at',
+        'full_day',
     )
     list_filter = (
         ProjectsFilter,
@@ -218,7 +217,7 @@ class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_filter = (
         ProjectsFilter,
         MeetingResourceFilter,
-        is_set_filter('resource', 'Resource'),
+        is_null_filter('resource', 'Is Resource Booking'),
     )
     search_fields = (
         'projects__name',

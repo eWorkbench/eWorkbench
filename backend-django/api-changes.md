@@ -1,5 +1,11 @@
 # API Changelog
 
+## December 2020
+
+### Resource API
+
+- New query filter parameter for (study room) resources: `bookable_by_students`
+
 ## August 2020
 
 ### EntityMetadataSerializer

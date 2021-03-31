@@ -10,7 +10,8 @@ from collections import Counter
 from contextlib import contextmanager
 from datetime import timedelta
 from hashlib import md5
-from time import monotonic
+from subprocess import check_output
+from time import monotonic, sleep
 
 from celery import shared_task
 from django.contrib.auth import get_user_model
@@ -97,9 +98,6 @@ def import_dss_files():
         logger.debug(f'File {file_to_import.path} is already being imported by another worker')
 
 
-# todo for later: task to handle DSSFilesToImport that have been tried 3 or more times?
-
-
 def set_request_for_user(user):
     """
     Sets the request context for a given system user.
@@ -179,31 +177,32 @@ def scan_filesystem():
         with dss_task_lock(lock_id, app.oid) as acquired:
             if acquired:
                 scan_container_path_and_add_files_to_import(container_mount_path)
+                sleep(2)
         logger.debug(f'Container path {container_mount_path} is already being scanned by another worker')
 
 
-def scantree(path):
-    """Recursively yield DirEntry objects for given directory."""
-    for entry in os.scandir(path):
-        if entry.is_dir(follow_symlinks=False):
-            yield from scantree(entry.path)
-        else:
-            yield entry
+def scan_using_find(path):
+    """Use the linux find command to get all the file paths within a path"""
+    find_command = ["find", f"{path}", "-type", "f"]
+    return check_output(find_command, timeout=360).decode("utf-8").splitlines()
 
 
 def scan_container_path_and_add_files_to_import(container_path):
     """
-    Walks a single container for files and adds them to DSSFilesToImport
+    Scans a single container path for files and adds them to DSSFilesToImport
     """
     try:
-        entries = scantree(container_path)
-        for entry in entries:
-            path = entry.path
+        paths = scan_using_find(container_path)
+        for path in paths:
             file_is_metadata = os.path.basename(path) == METADATA_FILE_NAME
             file_path = os.path.relpath(path, start=DSS_MOUNT_PATH)
             file_exists = File.objects.filter(path=file_path).exists()
-            if not file_is_metadata and not file_exists:
-                file_to_import, created = DSSFilesToImport.objects.get_or_create(path=path)
+            file_to_import_exists = DSSFilesToImport.objects.filter(path=path).exists()
+            if not file_is_metadata and not file_exists and not file_to_import_exists:
+                try:
+                    DSSFilesToImport.objects.create(path=path)
+                except Exception as error:
+                    logger.error(error)
     except Exception as error:
         logger.error(error)
 
@@ -398,12 +397,12 @@ def globus_message_queue_consumer():
     if CHECK_GLOBUS_RABBITMQ_QUEUE:
         file_watch = None
         try:
-            logger.debug('Connecting to dssmq')
+            # Connecting to dssmq
             file_watch = DSSFileWatch()
             file_watch.setup_dssmq_connection()
-            logger.debug('Adding paths to DSSFilesToImport')
+            # Adding paths to DSSFilesToImport
             file_watch.post_files()
-            logger.debug('Close connection to dssmq')
+            # Close connection to dssmq
             file_watch.channel.close()
             file_watch.connection.close()
         except Exception as error:
@@ -412,7 +411,7 @@ def globus_message_queue_consumer():
             plaintext = f"{error}"
             html = f"<p>{error}</p>"
             send_mail(subject=title, message=plaintext, to_email=ERROR_EMAIL_RECEIVER_INTERNAL, html_message=html)
-            logger.debug('Close connection to dssmq if they exist')
+            # Close connection to dssmq if they exist
             if file_watch.channel:
                 file_watch.channel.close()
             if file_watch.connection:

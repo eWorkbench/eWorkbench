@@ -147,7 +147,7 @@ class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetM
     filter_class = MeetingFilter
     search_fields = ()
     ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
-                       'attending_users', 'date_time_start', 'date_time_end',
+                       'date_time_start', 'date_time_end',
                        'text', 'created_by', 'created_at')
 
     # disable pagination for this endpoint
@@ -203,7 +203,7 @@ class AllResourceBookingViewSet(BaseViewSetMixin, mixins.ListModelMixin, Generic
     filter_class = AnonymousMeetingFilter
     search_fields = ()
     ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
-                       'attending_users', 'date_time_start', 'date_time_end',
+                       'date_time_start', 'date_time_end',
                        'text', 'created_by', 'created_at')
 
     # disable pagination for this endpoint

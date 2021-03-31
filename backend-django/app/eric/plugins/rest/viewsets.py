@@ -168,6 +168,7 @@ class PluginInstanceViewSet(
     filter_class = PluginInstanceFilter
     permission_classes = (IsAuthenticated, HasPluginAccess,)
     search_fields = ()
+    ordering_fields = ('title', 'created_at', 'created_by', 'last_modified_at', 'last_modified_by')
 
     def get_queryset(self):
         return PluginInstance.objects.viewable().prefetch_common().prefetch_related('projects')

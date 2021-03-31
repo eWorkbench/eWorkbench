@@ -238,11 +238,7 @@ class BaseModel(models.Model):
         :rtype: bool
         """
         if self.pk and hasattr(self.__class__.objects, 'editable'):
-            return bool(self.__class__.objects.editable().filter(pk=self.pk).count())
-
-        logger.warning("'%(model)s' manager/queryset does not have 'editable' defined." % {
-            'model': self.model_verbose_name,
-        })
+            return self.__class__.objects.editable().filter(pk=self.pk).exists()
 
         return True
 
@@ -255,11 +251,7 @@ class BaseModel(models.Model):
         :rtype: bool
         """
         if self.pk and hasattr(self.__class__.objects, 'deletable'):
-            return bool(self.__class__.objects.deletable().filter(pk=self.pk).count())
-
-        logger.warning("'%(model)s' manager/queryset does not have 'deletable' defined." % {
-            'model': self.model_verbose_name,
-        })
+            return self.__class__.objects.deletable().filter(pk=self.pk).exists()
 
         return True
 
@@ -272,11 +264,7 @@ class BaseModel(models.Model):
         :rtype: bool
         """
         if self.pk and hasattr(self.__class__.objects, 'viewable'):
-            return bool(self.__class__.objects.viewable().filter(pk=self.pk).count())
-
-        logger.error("'%(model)s' manager/queryset does not have 'viewable' defined." % {
-            'model': self.model_verbose_name,
-        })
+            return self.__class__.objects.viewable().filter(pk=self.pk).exists()
 
         return True
 
@@ -289,11 +277,7 @@ class BaseModel(models.Model):
         :rtype: bool
         """
         if self.pk and hasattr(self.__class__.objects, 'trashable'):
-            return bool(self.__class__.objects.trashable().filter(pk=self.pk).count())
-
-        logger.error("'%(model)s' manager/queryset does not have 'trashable' defined." % {
-            'model': self.model_verbose_name,
-        })
+            return self.__class__.objects.trashable().filter(pk=self.pk).exists()
 
         return True
 
@@ -306,11 +290,7 @@ class BaseModel(models.Model):
         :rtype: bool
         """
         if self.pk and hasattr(self.__class__.objects, 'restorable'):
-            return bool(self.__class__.objects.restorable().filter(pk=self.pk).count())
-
-        logger.error("'%(model)s' manager/queryset does not have 'restorable' defined." % {
-            'model': self.model_verbose_name,
-        })
+            return self.__class__.objects.restorable().filter(pk=self.pk).exists()
 
         return True
 

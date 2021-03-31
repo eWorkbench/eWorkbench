@@ -6,7 +6,9 @@ import calendar
 import logging
 import math
 import os
+import re
 import uuid
+from datetime import time
 
 import vobject
 from django.conf import settings
@@ -33,7 +35,7 @@ from eric.base64_image_extraction.models import ExtractedImage
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
 from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin
 from eric.core.models.fields import AutoIncrementIntegerWithPrefixField
-from eric.core.utils import convert_html_to_text
+from eric.core.utils import convert_html_to_text, get_rgb_rgba_pattern
 from eric.dss.models.models import get_upload_to_path, dss_storage, DSSContainer
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
@@ -53,8 +55,9 @@ logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
+RGB_RGBA_PATTERN = get_rgb_rgba_pattern()
 rgba_color_validator = RegexValidator(
-    r"^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$",
+    RGB_RGBA_PATTERN,
     _("Not a valid RGBA color")
 )
 
@@ -846,6 +849,12 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         blank=True
     )
 
+    full_day = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name=_("full day")
+    )
+
     priority = models.CharField(
         max_length=5,
         choices=TASK_PRIORITY_CHOICES,
@@ -1141,6 +1150,12 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
     date_time_end = models.DateTimeField(
         verbose_name=_("Meeting end date time"),
         db_index=True
+    )
+
+    full_day = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name=_("full day")
     )
 
     text = HTMLField(
@@ -1521,6 +1536,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         """
         start_time = localtime(date_time_start).time()
         end_time = localtime(date_time_end).time()
+        zero_time = time(0, 0, 0)
 
         if localtime(date_time_start).isoweekday() not in bookable_days:
             raise ValidationError({
@@ -1530,13 +1546,14 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
                 ),
             })
 
-        if start_time < bookable_times.time_start or start_time > bookable_times.time_end:
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('The start time is outside the bookable times'),
-                    code='invalid'
-                ),
-            })
+        if not bookable_times.time_start == zero_time and not bookable_times.time_end == zero_time:
+            if start_time < bookable_times.time_start or start_time > bookable_times.time_end:
+                raise ValidationError({
+                    'resource': ValidationError(
+                        _('The start time is outside the bookable times'),
+                        code='invalid'
+                    ),
+                })
 
         if localtime(date_time_end).isoweekday() not in bookable_days:
             raise ValidationError({
@@ -1546,16 +1563,17 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
                 ),
             })
 
-        if end_time < bookable_times.time_start or end_time > bookable_times.time_end:
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('The end time is outside the bookable times'),
-                    code='invalid'
-                ),
-            })
+        if not bookable_times.time_start == zero_time and not bookable_times.time_end == zero_time:
+            if end_time < bookable_times.time_start or end_time > bookable_times.time_end:
+                raise ValidationError({
+                    'resource': ValidationError(
+                        _('The end time is outside the bookable times'),
+                        code='invalid'
+                    ),
+                })
 
     @staticmethod
-    def check_if_bookable_for_period(bookable_days, date_time_start, date_time_end):
+    def check_if_bookable_for_period(bookable_days, bookable_times, date_time_start, date_time_end):
         """
         Find days and times that are in between start date and end date that are not bookable
         raise ValidationError on the times
@@ -1566,6 +1584,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         end_date = localdate(date_time_end)
         start_time = localtime(date_time_start).time()
         end_time = localtime(date_time_end).time()
+        zero_time = time(0, 0, 0)
 
         # only check if the start date is different to the end date
         if start_date == end_date:
@@ -1591,14 +1610,15 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         # here we find times that are in between start date and end date that are not bookable
         # logically if start and end times exist and the days are different (the if 1 level higher) there must
         # be times that are not bookable
-        if start_time and end_time:
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('There are times between the start date and the end date that are not bookable '
-                      'for this resource'),
-                    code='invalid'
-                )
-            })
+        if not bookable_times.time_start == zero_time and not bookable_times.time_end == zero_time:
+            if start_time and end_time:
+                raise ValidationError({
+                    'resource': ValidationError(
+                        _('There are times between the start date and the end date that are not bookable '
+                          'for this resource'),
+                        code='invalid'
+                    )
+                })
 
     def validate_resource_booking_rule_bookable_hours(self):
         """
@@ -1627,7 +1647,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         self.check_bookable_weekdays_and_times(bookable_days, bookable_times, self.date_time_start, self.date_time_end)
 
         # find days and times that are in between start date and end date that are not bookable
-        self.check_if_bookable_for_period(bookable_days, self.date_time_start, self.date_time_end)
+        self.check_if_bookable_for_period(bookable_days, bookable_times, self.date_time_start, self.date_time_end)
 
     def validate_resource_booking_rule_minimum_time_before(self):
         """
@@ -2007,16 +2027,35 @@ class ElementLabel(BaseModel, RevisionModelMixin, ChangeSetMixIn):
 
     @property
     def font_color(self):
-        r, g, b, x = self.color.replace('rgba(', '').split(',')
-        brightness = math.sqrt(
-            0.299 * math.pow(int(r), 2) +
-            0.587 * math.pow(int(g), 2) +
-            0.114 * math.pow(int(b), 2)
-        )
-
-        if brightness < 128:
-            return '#FFF'
-
+        try:
+            pattern = re.compile(RGB_RGBA_PATTERN)
+            result = pattern.match(self.color)
+            # If there is no result found, then the result is None and #000 (black) is returned.
+            if result:
+                # set the color variables to the corresponding match group, group(0) would be the entire match
+                if "rgba" in result.group(0):
+                    # groups 4, 5, 6 for rgba colors
+                    red = result.group(4)
+                    green = result.group(5)
+                    blue = result.group(6)
+                else:
+                    # groups 1, 2, 3 for rgb colors
+                    red = result.group(1)
+                    green = result.group(2)
+                    blue = result.group(3)
+                # calculate the brightness using the following algorithm (https://stackoverflow.com/a/596243)
+                brightness = math.sqrt(
+                    0.299 * math.pow(int(red), 2) +
+                    0.587 * math.pow(int(green), 2) +
+                    0.114 * math.pow(int(blue), 2)
+                )
+                # return white if the brightness is below 128
+                if brightness < 128:
+                    return '#FFF'
+        # log the error, but continue
+        except Exception as error:
+            logger.error(error)
+        # return black if the brightness is above 128, or if there was an exception
         return '#000'
 
     def __str__(self):

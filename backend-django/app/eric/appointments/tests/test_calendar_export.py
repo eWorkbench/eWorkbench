@@ -10,7 +10,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from eric.appointments.tests.core import ResourceBookingCalendarExportMixin
+from eric.appointments.tests.core import StudyRoomExportMixin
 from eric.core.tests.test_utils import CommonTestMixin
 from eric.projects.models import Resource
 from eric.projects.tests.core import ResourceMixin
@@ -20,7 +20,7 @@ HEADERS_STR = 'appointment_id;resource_name;start;end'
 LINE_BREAK = '\r\n'
 
 
-class CalendarExportTest(APITestCase, CommonTestMixin, ResourceBookingCalendarExportMixin, MeetingMixin, ResourceMixin):
+class CalendarExportTest(APITestCase, CommonTestMixin, StudyRoomExportMixin, MeetingMixin, ResourceMixin):
     def setUp(self):
         # clear cache for every test case
         cache.clear()
@@ -29,25 +29,30 @@ class CalendarExportTest(APITestCase, CommonTestMixin, ResourceBookingCalendarEx
         self.superuser, self.superuser_token = self.create_user_and_log_in(username='superuser', is_superuser=True)
 
         # create some resources
-        self.resource1 = self.create_resource(name='First "Resource"', study_room=True)
-        self.resource2 = self.create_resource(name='Second, Resource', study_room=True)
-        self.resource3 = self.create_resource(name='Third; Resource', study_room=True)
+        token = self.superuser_token
+        self.resource1 = self.create_study_room(token, name='First "Resource"')
+        self.resource2 = self.create_study_room(token, name='Second, Resource')
+        self.resource3 = self.create_study_room(token, name='Third; Resource')
 
     def test_headers_only_for_no_bookings(self):
-        response = self.rest_get_resource_booking_calendar_export()
+        response = self.rest_get_study_room_calendar_export()
         self.assert_response_status(response, status.HTTP_200_OK)
         self.assertEquals(HEADERS_STR, response.content.decode().strip())
 
     def test_headers_only_for_no_bookings_within_the_next_two_weeks(self):
+        token = self.superuser_token
+
         # create bookings in the past
         now = timezone.now()
         start_of_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
         self.create_booking(
+            token,
             self.resource1,
             start=now - timedelta(days=3),
             end=now - timedelta(days=1)
         )
         self.create_booking(
+            token,
             self.resource2,
             start=now - timedelta(days=2),
             end=start_of_today - timedelta(hours=3)
@@ -55,18 +60,20 @@ class CalendarExportTest(APITestCase, CommonTestMixin, ResourceBookingCalendarEx
 
         # create bookings in the future
         self.create_booking(
+            token,
             self.resource1,
             start=now + timedelta(days=15),
             end=now + timedelta(days=16)
         )
         self.create_booking(
+            token,
             self.resource2,
             start=now + timedelta(days=14) + timedelta(hours=3),
             end=now + timedelta(days=16)
         )
 
         # check response
-        response = self.rest_get_resource_booking_calendar_export()
+        response = self.rest_get_study_room_calendar_export()
         self.assert_response_status(response, status.HTTP_200_OK)
         self.assertEquals(HEADERS_STR, response.content.decode().strip())
 
@@ -81,10 +88,12 @@ class CalendarExportTest(APITestCase, CommonTestMixin, ResourceBookingCalendarEx
         * Resource names must be escaped to allow CSV parsing
         """
 
+        token = self.superuser_token
         now = timezone.now()
 
         # booking end within next two weeks
         booking1 = self.create_booking(
+            token,
             self.resource1,
             start=now - timedelta(days=3),
             end=now + timedelta(hours=1)
@@ -92,6 +101,7 @@ class CalendarExportTest(APITestCase, CommonTestMixin, ResourceBookingCalendarEx
 
         # full booking within next two weeks
         booking2 = self.create_booking(
+            token,
             self.resource2,
             start=now,
             end=now + timedelta(days=1)
@@ -99,18 +109,20 @@ class CalendarExportTest(APITestCase, CommonTestMixin, ResourceBookingCalendarEx
 
         # start within next two weeks
         booking3 = self.create_booking(
+            token,
             self.resource2,
             start=now + timedelta(days=13),
             end=now + timedelta(days=17)
         )
         booking4 = self.create_booking(  # same time, different resource
+            token,
             self.resource3,
             start=now + timedelta(days=13),
             end=now + timedelta(days=17)
         )
 
         # check response
-        response = self.rest_get_resource_booking_calendar_export()
+        response = self.rest_get_study_room_calendar_export()
         self.assert_response_status(response, status.HTTP_200_OK)
 
         expected_content = \
@@ -129,48 +141,21 @@ class CalendarExportTest(APITestCase, CommonTestMixin, ResourceBookingCalendarEx
         self.assertEquals(expected_content, response_content)
 
     def test_only_study_room_bookings_are_exported(self):
-        microscope = self.create_resource(name="Microscope", resource_type=Resource.LAB_EQUIPMENT, study_room=False)
-        office_room = self.create_resource(name="Office Room #123", resource_type=Resource.ROOM, study_room=False)
-        notebook = self.create_resource(name="Notebook", resource_type=Resource.IT_RESOURCE, study_room=False)
-        chair = self.create_resource(name="Office Chair", resource_type=Resource.OFFICE_EQUIPMENT, study_room=False)
+        token = self.superuser_token
+
+        microscope = self.create_resource(token, name="Microscope", resource_type=Resource.LAB_EQUIPMENT)
+        office_room = self.create_resource(token, name="Office Room #123", resource_type=Resource.ROOM)
+        notebook = self.create_resource(token, name="Notebook", resource_type=Resource.IT_RESOURCE)
+        chair = self.create_resource(token, name="Office Chair", resource_type=Resource.OFFICE_EQUIPMENT)
 
         # create bookings
         now = timezone.now()
-        self.create_booking(microscope, start=now, end=now + timedelta(days=14))
-        self.create_booking(office_room, start=now, end=now + timedelta(days=14))
-        self.create_booking(notebook, start=now, end=now + timedelta(days=14))
-        self.create_booking(chair, start=now, end=now + timedelta(days=14))
+        self.create_booking(token, microscope, start=now, end=now + timedelta(days=14))
+        self.create_booking(token, office_room, start=now, end=now + timedelta(days=14))
+        self.create_booking(token, notebook, start=now, end=now + timedelta(days=14))
+        self.create_booking(token, chair, start=now, end=now + timedelta(days=14))
 
         # check that response consists only of the CSV headers
-        response = self.rest_get_resource_booking_calendar_export()
+        response = self.rest_get_study_room_calendar_export()
         self.assert_response_status(response, status.HTTP_200_OK)
         self.assertEquals(HEADERS_STR, response.content.decode().strip())
-
-    def create_booking(self, resource, start, end):
-        booking, response = self.create_meeting_orm(
-            self.superuser_token, project_pk=None,
-            title='Booking', description='Test Description',
-            start_date=start, end_date=end,
-            resource_pk=resource.pk,
-        )
-        self.assert_response_status(response, status.HTTP_201_CREATED)
-        self.assertIsNotNone(booking.resource)
-        return booking
-
-    def create_resource(self, name, resource_type=Resource.ROOM, study_room=True):
-        data = {
-            'auth_token': self.superuser_token,
-            'project_pks': None,
-            'name': name,
-            'description': 'Resource Description',
-            'resource_type': resource_type,
-            'user_availability': Resource.GLOBAL,
-            'study_room': study_room,
-        }
-
-        if data.get('study_room', False) and not data.get('branch_library', False):
-            data['branch_library'] = Resource.MAIN_CAMPUS
-
-        resource, response = self.create_resource_orm(**data)
-        self.assert_response_status(response, status.HTTP_201_CREATED)
-        return resource

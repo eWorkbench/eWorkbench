@@ -7,6 +7,7 @@ import os
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.utils.http import urlencode
 from rest_framework import status
 from rest_framework.status import HTTP_200_OK
 
@@ -735,6 +736,21 @@ class ResourceMixin(TestLockMixin):
             '/api/resources/{}/'.format(resource_pk),
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
+
+    def rest_query_resources(
+            self, auth_token,
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR,
+            **kwargs
+    ):
+        """
+        Queries resources using kwargs as query parameters.
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        params = urlencode(kwargs)
+        url = f'/api/resources/?{params}'
+
+        return self.client.get(url, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
 
     def rest_get_resources(self, auth_token, HTTP_USER_AGENT, REMOTE_ADDR):
         """

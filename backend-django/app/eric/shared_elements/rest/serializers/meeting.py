@@ -39,7 +39,7 @@ class MinimalisticMeetingSerializer(BaseModelWithCreatedBySerializer):
         model = Meeting
         fields = (
             'title', 'date_time_start', 'date_time_end', 'resource', 'attending_users', 'attending_contacts',
-            'created_by', 'created_at', 'last_modified_by', 'last_modified_at'
+            'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'full_day',
         )
 
 
@@ -130,7 +130,7 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
             'attending_users', 'attending_contacts',
             'attending_contacts_pk', 'attending_users_pk',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'metadata', 'scheduled_notification', 'scheduled_notification_writable',
+            'metadata', 'scheduled_notification', 'scheduled_notification_writable', 'full_day',
         )
 
     @transaction.atomic

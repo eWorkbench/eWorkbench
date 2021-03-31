@@ -46,6 +46,10 @@ class GenericConfiguration(dbsettings.Group):
         help_text=_('Rate limit for throttling API requests in format "requests/interval", e.g. "100/min"'),
         default='100/min'
     )
+    bookings_per_room_in_study_room_booking_display_export = dbsettings.IntegerValue(
+        help_text=_("Bookings per room in study room bookings CSV export for displays"),
+        default=6
+    )
 
 
 options = GenericConfiguration(_("Generic Site Configuration"))

@@ -3,24 +3,17 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from eric.core.tests import test_utils
+from eric.core.tests import test_utils, HTTP_INFO, HTTP_USER_AGENT, REMOTE_ADDR
 from eric.projects.models import Role, Resource, Project
 from eric.projects.tests.core import AuthenticationMixin, UserMixin, ProjectsMixin, ResourceMixin
 
 User = get_user_model()
-
-HTTP_USER_AGENT = "APITestClient"
-REMOTE_ADDR = "127.0.0.1"
-
-COMMON_DATA = {
-    'HTTP_USER_AGENT': HTTP_USER_AGENT,
-    'REMOTE_ADDR': REMOTE_ADDR,
-}
 
 
 class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, ProjectsMixin):
@@ -200,7 +193,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             user_availability=Resource.GLOBAL,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -212,7 +205,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             user_availability=Resource.GLOBAL,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -247,7 +240,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             user_availability=Resource.GLOBAL,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -258,17 +251,17 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             user_availability=Resource.GLOBAL,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # all users should be able to see 2 resources
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token1, **COMMON_DATA).content.decode()))), 2)
+            self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode()))), 2)
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token2, **COMMON_DATA).content.decode()))), 2)
+            self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode()))), 2)
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token3, **COMMON_DATA).content.decode()))), 2)
+            self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 2)
 
         ## PROJECT
         response = self.rest_create_resource(
@@ -278,7 +271,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             user_availability=Resource.PROJECT,
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         resource3 = json.loads(response.content.decode())
@@ -294,11 +287,11 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
 
         # users 1 and 3 should be able to see 3 resources now, user2 still has 2
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token1, **COMMON_DATA).content.decode()))), 3)
+            self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode()))), 3)
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token2, **COMMON_DATA).content.decode()))), 2)
+            self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode()))), 2)
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token3, **COMMON_DATA).content.decode()))), 3)
+            self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 3)
 
         # ## SELECTED_USERS
         self.user2.user_permissions.add(self.add_resource_without_project_permission)
@@ -311,15 +304,13 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             resource_type=Resource.ROOM,
             user_availability=Resource.SELECTED_USERS,
             user_availability_selected_user_pks=[self.user1.pk],
-            **COMMON_DATA
+            **HTTP_INFO
         )
         self.assertEqual(response4.status_code, status.HTTP_201_CREATED)
         # user1 should see 4, user2 should see 3 and user3 still has 3 resources
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token1, **COMMON_DATA).content.decode()))), 4)
+            self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode()))), 4)
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token2, **COMMON_DATA).content.decode()))), 3)
+            self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode()))), 3)
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token3, **COMMON_DATA).content.decode()))), 3)
-
-
+            self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 3)

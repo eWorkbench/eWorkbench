@@ -28,9 +28,7 @@ from eric.shared_elements.tests.core import MeetingMixin
 User = get_user_model()
 
 
-# TODO: Check handling around DST changing time
-# TODO: test_resourcebooking_validate_booking_rule_bookable_hours fails between 2020-10-19 and 2020-10-24
-@time_machine.travel('2020-10-25 10:00')  # fix time to avoid failing tests because of DST changes
+# @time_machine.travel('2020-10-19 10:00')  # uncomment to fix time to check around DST changes
 class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, UserMixin, ResourceMixin, MeetingMixin):
     """
     Tests the /api/resourcebookings and /api/my/resourcebookings endpoints
@@ -91,7 +89,7 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
         self.date_time_end_30_minutes = self.now + timedelta(hours=1) + timedelta(minutes=30)
         self.date_time_end_1_hour = self.now + timedelta(hours=2)
         self.date_time_end_2_hours = self.now + timedelta(hours=3)
-        self.date_time_next_monday = self.get_date_for_next_weekday(self.now + timedelta(days=7), 0)
+        self.date_time_next_monday = localtime(self.get_date_for_next_weekday(self.now + timedelta(days=7), 0))
         self.days_in_this_month = calendar.monthrange(self.now.year, self.now.month)[1]
         self.first_day_of_this_month = datetime(self.now.year, self.now.month, 1)
         self.first_day_of_next_month = self.first_day_of_this_month + timedelta(days=self.days_in_this_month)
@@ -122,7 +120,7 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
             second=00,
             microsecond=00,
         )
-        self.date_time_next_tuesday = self.get_date_for_next_weekday(self.now + timedelta(days=7), 1)
+        self.date_time_next_tuesday = localtime(self.get_date_for_next_weekday(self.now + timedelta(days=7), 1))
         self.date_time_start_next_tuesday_09 = self.date_time_next_tuesday.replace(
             hour=9,
             minute=00,
@@ -135,7 +133,7 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
             second=00,
             microsecond=00,
         )
-        self.date_time_next_wednesday = self.get_date_for_next_weekday(self.now + timedelta(days=7), 2)
+        self.date_time_next_wednesday = localtime(self.get_date_for_next_weekday(self.now + timedelta(days=7), 2))
         self.date_time_start_next_wednesday_08 = self.date_time_next_wednesday.replace(
             hour=8,
             minute=00,
@@ -166,7 +164,7 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
             second=00,
             microsecond=00,
         )
-        self.date_time_next_friday = self.get_date_for_next_weekday(self.now + timedelta(days=7), 4)
+        self.date_time_next_friday = localtime(self.get_date_for_next_weekday(self.now + timedelta(days=7), 4))
         self.date_time_start_next_friday_08 = self.date_time_next_friday.replace(
             hour=8,
             minute=00,
@@ -254,8 +252,6 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Meeting.objects.all().count(), 1, msg="There should be one resourcebooking")
 
-    # TODO: Merge with branch where this test is fixed.
-    @unittest.skip("Fixing this test is out of scope for the current ticket.")
     def test_resourcebooking_validate_booking_rule_bookable_hours(self):
         ResourceBookingRuleBookableHours.objects.create(
             monday=True,

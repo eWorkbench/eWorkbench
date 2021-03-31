@@ -4,13 +4,9 @@
 #
 import json
 from contextlib import AbstractContextManager
-from contextlib import AbstractContextManager
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
-from django.test import TestCase, RequestFactory
-from django_userforeignkey.request import set_current_request, get_current_request
 from django.contrib.auth.models import User, Group
 from django.test import TestCase, RequestFactory
 from django.utils.timezone import localtime
@@ -76,16 +72,14 @@ class CommonTestMixin:
 
         return user
 
-    def create_user_and_log_in(self, groups=None, **kwargs):
-        username = kwargs.get('username')
-
+    def create_user_and_log_in(self, username, groups=None, **kwargs):
         if 'password' not in kwargs:
             kwargs['password'] = 'mySuperSecretPassword123'
 
         if 'email' not in kwargs:
             kwargs['email'] = f'{username}@test.local'
 
-        user = self.create_user(groups, **kwargs)
+        user = self.create_user(username=username, groups=groups, **kwargs)
         token = self.login_as_user(username, kwargs['password'])
 
         return user, token
