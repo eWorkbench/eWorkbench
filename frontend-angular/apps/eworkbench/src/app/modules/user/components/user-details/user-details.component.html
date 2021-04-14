@@ -1,0 +1,32 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="user">
+    <ng-container *ngIf="user?.userprofile">
+      <ng-container *ngIf="user?.userprofile.anonymized">
+        <span class="text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+      </ng-container>
+      <ng-container *ngIf="!user?.userprofile.anonymized">
+        <ng-container
+          *ngIf="user?.userprofile?.first_name && user?.userprofile?.last_name; then userTemplate; else usernameTemplate"
+        ></ng-container>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="!user || !user?.userprofile">
+    {{ t('user.details.unknownUser') }}
+  </ng-container>
+</ng-container>
+
+<ng-template #userTemplate>
+  <a href (click)="onUserModal($event)" *ngIf="modal">{{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}</a>
+  <ng-container *ngIf="!modal">{{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}</ng-container>
+</ng-template>
+
+<ng-template #usernameTemplate>
+  <a href (click)="onUserModal($event)" *ngIf="modal">{{ user?.username }}</a>
+  <ng-container *ngIf="!modal">{{ user?.username }}</ng-container>
+</ng-template>

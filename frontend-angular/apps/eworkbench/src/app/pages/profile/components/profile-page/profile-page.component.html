@@ -1,0 +1,403 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+
+<ng-container *ngIf="initialState">
+  <ng-container *transloco="let t">
+    <main>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile">
+        <div class="mb-4">
+          <input type="file" accept="image/*" class="d-none" formControlName="avatar" (change)="onUploadAvatar($event)" #avatarFileSelect />
+
+          <div class="text-center" *ngIf="!newAvatar">
+            <img *ngIf="avatar" class="avatar" [src]="avatar" [alt]="t('profile.picture')" />
+            <div class="my-3">
+              <button type="button" class="btn ewb-button-big ewb-button-primary" [disabled]="loading" (click)="avatarFileSelect.click()">
+                {{ t('profile.changePicture.label') }}
+              </button>
+            </div>
+          </div>
+          <div class="avatar text-center" *ngIf="newAvatar">
+            <angular-cropper
+              #avatarCropper
+              [cropperOptions]="avatarCropperConfig"
+              (export)="onExportAvatar($event)"
+              [imageUrl]="newAvatar"
+            ></angular-cropper>
+            <div class="my-3">
+              <button type="button" class="btn ewb-button-big ewb-button-primary square" [disabled]="loading" (click)="onSaveAvatar()">
+                <eworkbench-icon className="wb-check"></eworkbench-icon>
+              </button>
+              <button
+                type="button"
+                class="btn ewb-button-big ewb-button-secondary square"
+                [disabled]="loading"
+                (click)="onCancelAvatarChange()"
+              >
+                <eworkbench-icon className="wb-remove"></eworkbench-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <div class="mb-4">
+            <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+              <label for="academicTitle" slot="label">
+                {{ t('profile.academicTitle') }}
+                <eworkbench-icon
+                  className="wb-locked"
+                  class="cursor-help"
+                  [tooltip]="t('profile.ldapLocked.tooltip')"
+                  container="body"
+                  containerClass="tooltip-sm"
+                  *ngIf="isLDAPUser"
+                ></eworkbench-icon>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="academicTitle"
+                formControlName="academicTitle"
+                name="academicTitle"
+                [placeholder]="t('profile.academicTitle')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
+            <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+              <label for="firstName" slot="label">
+                {{ t('profile.firstName') }}
+                <eworkbench-icon
+                  className="wb-locked"
+                  class="cursor-help"
+                  [tooltip]="t('profile.ldapLocked.tooltip')"
+                  container="body"
+                  containerClass="tooltip-sm"
+                  *ngIf="isLDAPUser"
+                ></eworkbench-icon>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="firstName"
+                formControlName="firstName"
+                name="firstName"
+                [placeholder]="t('profile.firstName')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
+            <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+              <label for="lastName" slot="label">
+                {{ t('profile.lastName') }}
+                <eworkbench-icon
+                  className="wb-locked"
+                  class="cursor-help"
+                  [tooltip]="t('profile.ldapLocked.tooltip')"
+                  container="body"
+                  containerClass="tooltip-sm"
+                  *ngIf="isLDAPUser"
+                ></eworkbench-icon>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="lastName"
+                formControlName="lastName"
+                name="lastName"
+                [placeholder]="t('profile.lastName')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
+            <label for="employee-affiliation">
+              {{ t('profile.employeeAffiliation') }}
+              <eworkbench-icon
+                className="wb-locked"
+                class="cursor-help"
+                [tooltip]="t('profile.ldapLocked.tooltip')"
+                container="body"
+                containerClass="tooltip-sm"
+                *ngIf="isLDAPUser"
+              ></eworkbench-icon>
+            </label>
+            <div id="employee-affiliation">
+              <div *ngFor="let _ of employeeAffiliation.controls; let i = index" class="mb-4">
+                <eworkbench-form-input [for]="'employeeAffiliation.' + i" [loading]="loading" [onSubmit]="refreshResetValue">
+                  <div class="d-flex justify-content-between" slot="input">
+                    <div class="flex-fill">
+                      <input
+                        type="text"
+                        class="form-control ewb-input"
+                        [formControl]="employeeAffiliation.controls[i]"
+                        [id]="'employeeAffiliation.' + i"
+                        [name]="'employeeAffiliation.' + i"
+                        [placeholder]="t('profile.employeeAffiliation')"
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      class="btn ewb-button-big ewb-button-icon square ml-2 align-self-center"
+                      [disabled]="loading"
+                      [tooltip]="t('formInput.remove.tooltip')"
+                      containerClass="tooltip-sm"
+                      (click)="onRemoveEmployeeAffiliation(i)"
+                      *ngIf="!isLDAPUser"
+                    >
+                      <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                    </button>
+                  </div>
+                </eworkbench-form-input>
+              </div>
+              <div *ngIf="!isLDAPUser">
+                <button
+                  type="button"
+                  class="btn ewb-button-big ewb-button-primary"
+                  [disabled]="loading"
+                  (click)="onAddEmployeeAffiliation()"
+                >
+                  {{ t('profile.employeeAffiliation.add') }}
+                </button>
+                <div class="ml-3 d-inline-block" *ngIf="showEmployeeAffiliationButton">
+                  <button
+                    type="submit"
+                    class="btn ewb-button-big ewb-button-primary square"
+                    [disabled]="loading"
+                    [tooltip]="t('formInput.save.tooltip')"
+                    containerClass="tooltip-sm"
+                    (click)="onSubmit()"
+                  >
+                    <eworkbench-icon className="wb-check"></eworkbench-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn ewb-button-big ewb-button-secondary square ml-1 align-self-center"
+                    [disabled]="loading"
+                    [tooltip]="t('formInput.reset.tooltip')"
+                    containerClass="tooltip-sm"
+                    (click)="onCancelEmployeeAffiliation()"
+                  >
+                    <eworkbench-icon className="wb-undo"></eworkbench-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="student-affiliation">
+              {{ t('profile.studentAffiliation') }}
+              <eworkbench-icon
+                className="wb-locked"
+                class="cursor-help"
+                [tooltip]="t('profile.ldapLocked.tooltip')"
+                container="body"
+                containerClass="tooltip-sm"
+                *ngIf="isLDAPUser"
+              ></eworkbench-icon>
+            </label>
+            <div id="student-affiliation">
+              <div *ngFor="let _ of studentAffiliation.controls; let i = index" class="mb-4">
+                <eworkbench-form-input [for]="'studentAffiliation.' + i" [loading]="loading" [onSubmit]="refreshResetValue">
+                  <div class="d-flex justify-content-between" slot="input">
+                    <div class="flex-fill">
+                      <input
+                        type="text"
+                        class="form-control ewb-input"
+                        [formControl]="studentAffiliation.controls[i]"
+                        [id]="'studentAffiliation.' + i"
+                        [name]="'studentAffiliation.' + i"
+                        [placeholder]="t('profile.studentAffiliation')"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      class="btn ewb-button-big ewb-button-icon square ml-2 align-self-center"
+                      [disabled]="loading"
+                      [tooltip]="t('formInput.remove.tooltip')"
+                      containerClass="tooltip-sm"
+                      (click)="onRemoveStudentAffiliation(i)"
+                      *ngIf="!isLDAPUser"
+                    >
+                      <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                    </button>
+                  </div>
+                </eworkbench-form-input>
+              </div>
+              <div *ngIf="!isLDAPUser">
+                <button
+                  type="button"
+                  class="btn ewb-button-big ewb-button-primary"
+                  [disabled]="loading"
+                  (click)="onAddStudentAffiliation()"
+                >
+                  {{ t('profile.studentAffiliation.add') }}
+                </button>
+                <div class="ml-3 d-inline-block" *ngIf="showStudentAffiliationButton">
+                  <button
+                    type="submit"
+                    class="btn ewb-button-big ewb-button-primary square"
+                    [disabled]="loading"
+                    [tooltip]="t('formInput.save.tooltip')"
+                    containerClass="tooltip-sm"
+                    (click)="onSubmit()"
+                  >
+                    <eworkbench-icon className="wb-check"></eworkbench-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn ewb-button-big ewb-button-secondary square ml-1 align-self-center"
+                    [disabled]="loading"
+                    [tooltip]="t('formInput.reset.tooltip')"
+                    containerClass="tooltip-sm"
+                    (click)="onCancelStudentAffiliation()"
+                  >
+                    <eworkbench-icon className="wb-undo"></eworkbench-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+              <label for="country" slot="label">
+                {{ t('profile.country') }}
+                <eworkbench-icon
+                  className="wb-locked"
+                  class="cursor-help"
+                  [tooltip]="t('profile.ldapLocked.tooltip')"
+                  container="body"
+                  containerClass="tooltip-sm"
+                  *ngIf="isLDAPUser"
+                ></eworkbench-icon>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="country"
+                formControlName="country"
+                name="country"
+                [placeholder]="t('profile.country')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
+            <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+              <label for="phone" slot="label">
+                {{ t('profile.phoneNumber') }}
+                <eworkbench-icon
+                  className="wb-locked"
+                  class="cursor-help"
+                  [tooltip]="t('profile.ldapLocked.tooltip')"
+                  container="body"
+                  containerClass="tooltip-sm"
+                  *ngIf="isLDAPUser"
+                ></eworkbench-icon>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="phone"
+                formControlName="phone"
+                name="phone"
+                [placeholder]="t('profile.phoneNumber')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
+            <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+              <label for="email" slot="label">
+                {{ t('profile.emailAddress') }}
+                <eworkbench-icon
+                  className="wb-locked"
+                  class="cursor-help"
+                  [tooltip]="t('profile.ldapLocked.tooltip')"
+                  container="body"
+                  containerClass="tooltip-sm"
+                  *ngIf="isLDAPUser"
+                ></eworkbench-icon>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="email"
+                formControlName="email"
+                name="email"
+                [placeholder]="t('profile.emailAddress')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
+            <eworkbench-form-input for="website" [label]="t('profile.website')" [loading]="loading" [onSubmit]="refreshResetValue">
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="website"
+                formControlName="website"
+                name="website"
+                [placeholder]="t('profile.website.placeholder')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
+            <eworkbench-form-input for="aboutMe" [label]="t('profile.aboutMe')" [loading]="loading" [onSubmit]="refreshResetValue">
+              <textarea
+                class="form-control ewb-textarea"
+                id="aboutMe"
+                formControlName="aboutMe"
+                name="aboutMe"
+                [placeholder]="t('profile.aboutMe.placeholder')"
+                slot="input"
+              ></textarea>
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
+            <label for="progress">{{ t('profile.usedStorage') }}</label>
+            <div id="progress" class="progress">
+              <div class="progress-bar" role="progressbar" [style.width]="usedStoragePercentage + '%'"></div>
+            </div>
+            <div class="mt-2">
+              <small>{{
+                t('profile.currentlyUsing', {
+                  usedStorage: usedStorage,
+                  availableStorage: availableStorage,
+                  usedStoragePercentage: usedStoragePercentage
+                })
+              }}</small>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="preview">
+            <div class="preview-header">{{ t('profile.preview') }}</div>
+            <div class="p-3">
+              <eworkbench-user-details-preview [user]="initialState" *ngIf="initialState"></eworkbench-user-details-preview>
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
+  </ng-container>
+</ng-container>

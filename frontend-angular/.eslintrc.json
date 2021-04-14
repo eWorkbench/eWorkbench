@@ -1,0 +1,8 @@
+{
+  "root": true,
+  "ignorePatterns": ["!**/*"],
+  "extends": ["@anexia/eslint-config-marine/prettier/node", "@anexia/eslint-config-marine/prettier/angular"],
+  "parserOptions": {
+    "project": "./tsconfig.*?.json"
+  }
+}

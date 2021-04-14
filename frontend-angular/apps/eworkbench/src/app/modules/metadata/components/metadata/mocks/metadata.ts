@@ -1,0 +1,201 @@
+/* istanbul ignore file */
+
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+import { Metadata, MetadataField } from '@eworkbench/types';
+
+interface ParametersData {
+  [id: string]: MetadataField;
+}
+
+export const mockMetadata: Metadata = {
+  content_type: 59,
+  content_type_model: 'metadata.metadata',
+  id: '8ce37733-6abd-4f08-a5e9-1fb92d554af4',
+  display: '5ea5649a-6930-4554-b972-8235da883fbb',
+  field: 'e22cf025-c10f-4097-aef7-d9ea9a802562',
+  field_info: {
+    base_type: 'selection',
+    content_type: 60,
+    content_type_model: 'metadata.metadatafield',
+    created_at: '2019-05-28T13:55:27.801603+02:00',
+    created_by: {
+      pk: 150,
+      username: 'testuser',
+      email: 'testuser@domain.com',
+      is_active: true,
+      is_staff: true,
+      last_login: '2020-07-02T15:06:38.181948+02:00',
+      userprofile: {
+        first_name: 'Test',
+        last_name: 'User',
+        anonymized: false,
+        academic_title: 'Test',
+        additional_information: 'Something about me',
+        country: 'Österreich',
+        email_others: [],
+        org_zug_mitarbeiter: [],
+        org_zug_mitarbeiter_lang: ['Aff1edit', 'Aff1', '2', '3'],
+        org_zug_student: [],
+        org_zug_student_lang: ['AffS1', 'AffS2edit', '1', '3'],
+        phone: '+43 123 45678963421',
+        salutation: '',
+        title_salutation: '',
+        title_pre: '',
+        title_post: '',
+        type: 'u',
+        avatar: '',
+        website: '',
+      },
+    },
+    description: 'test',
+    display: 'Check-text',
+    last_modified_at: '2019-06-18T09:57:24.704395+02:00',
+    last_modified_by: {
+      pk: 150,
+      username: 'testuser',
+      email: 'testuser@domain.com',
+      is_active: true,
+      is_staff: true,
+      last_login: '2020-07-02T15:06:38.181948+02:00',
+      userprofile: {
+        first_name: 'Test',
+        last_name: 'User',
+        anonymized: false,
+        academic_title: 'Test',
+        additional_information: 'Something about me',
+        country: 'Österreich',
+        email_others: [],
+        org_zug_mitarbeiter: [],
+        org_zug_mitarbeiter_lang: ['Aff1edit', 'Aff1', '2', '3'],
+        org_zug_student: [],
+        org_zug_student_lang: ['AffS1', 'AffS2edit', '1', '3'],
+        phone: '+43 123 45678963421',
+        salutation: '',
+        title_salutation: '',
+        title_pre: '',
+        title_post: '',
+        type: 'u',
+        avatar: '',
+        website: '',
+      },
+    },
+    name: 'Check-text',
+    pk: 'e22cf025-c10f-4097-aef7-d9ea9a802562',
+    type_settings: {
+      final: true,
+      answers: ['Check me'],
+      multiple_select: true,
+    },
+  },
+  ordering: 1,
+  pk: '5ea5649a-6930-4554-b972-8235da883fbb',
+  values: {
+    answers: [
+      {
+        answer: 'Check me',
+        selected: true,
+      },
+    ],
+  },
+};
+
+export const mockMetadata2: Metadata = {
+  content_type: 59,
+  content_type_model: 'metadata.metadata',
+  id: '7e1f468a-a221-407d-9eb8-bddcd707656f',
+  display: 'df916528-90cf-4e00-9353-f44123c74711',
+  field: '9d33359a-afd7-4149-bbe0-95f819d6bebd',
+  field_info: {
+    base_type: 'selection',
+    content_type: 60,
+    content_type_model: 'metadata.metadatafield',
+    created_at: '2019-05-28T13:55:27.801603+02:00',
+    created_by: {
+      pk: 150,
+      username: 'testuser',
+      email: 'testuser@domain.com',
+      is_active: true,
+      is_staff: true,
+      last_login: '2020-07-02T15:06:38.181948+02:00',
+      userprofile: {
+        first_name: 'Test',
+        last_name: 'User',
+        anonymized: false,
+        academic_title: 'Test',
+        additional_information: 'Something about me',
+        country: 'Österreich',
+        email_others: [],
+        org_zug_mitarbeiter: [],
+        org_zug_mitarbeiter_lang: ['Aff1edit', 'Aff1', '2', '3'],
+        org_zug_student: [],
+        org_zug_student_lang: ['AffS1', 'AffS2edit', '1', '3'],
+        phone: '+43 123 45678963421',
+        salutation: '',
+        title_salutation: '',
+        title_pre: '',
+        title_post: '',
+        type: 'u',
+        avatar: '',
+        website: '',
+      },
+    },
+    description: 'test',
+    display: 'Check-text',
+    last_modified_at: '2019-06-18T09:57:24.704395+02:00',
+    last_modified_by: {
+      pk: 150,
+      username: 'testuser',
+      email: 'testuser@domain.com',
+      is_active: true,
+      is_staff: true,
+      last_login: '2020-07-02T15:06:38.181948+02:00',
+      userprofile: {
+        first_name: 'Test',
+        last_name: 'User',
+        anonymized: false,
+        academic_title: 'Test',
+        additional_information: 'Something about me',
+        country: 'Österreich',
+        email_others: [],
+        org_zug_mitarbeiter: [],
+        org_zug_mitarbeiter_lang: ['Aff1edit', 'Aff1', '2', '3'],
+        org_zug_student: [],
+        org_zug_student_lang: ['AffS1', 'AffS2edit', '1', '3'],
+        phone: '+43 123 45678963421',
+        salutation: '',
+        title_salutation: '',
+        title_pre: '',
+        title_post: '',
+        type: 'u',
+        avatar: '',
+        website: '',
+      },
+    },
+    name: 'Check-text',
+    pk: '9d33359a-afd7-4149-bbe0-95f819d6bebd',
+    type_settings: {
+      final: true,
+      answers: ['Check me'],
+      multiple_select: true,
+    },
+  },
+  ordering: 1,
+  pk: 'df916528-90cf-4e00-9353-f44123c74711',
+  values: {
+    answers: [
+      {
+        answer: 'Check me',
+        selected: true,
+      },
+    ],
+  },
+};
+
+export const mockMetadataParamData: ParametersData = {
+  'e22cf025-c10f-4097-aef7-d9ea9a802562': mockMetadata,
+  '9d33359a-afd7-4149-bbe0-95f819d6bebd': mockMetadata2,
+};

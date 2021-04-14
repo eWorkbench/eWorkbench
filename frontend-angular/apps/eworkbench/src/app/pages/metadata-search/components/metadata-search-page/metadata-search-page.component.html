@@ -1,0 +1,82 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<ng-container *transloco="let t">
+  <main>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="mb-4">
+        {{ t('metadataSearch.instructions') }}
+      </div>
+      <div class="mb-4">
+        <label for="types">{{ t('metadataSearch.types.label') }}</label>
+        <div>
+          <ng-select
+            #parameterTypes
+            class="ewb-select d-inline-block"
+            formControlName="types"
+            id="types"
+            [items]="types"
+            [clearable]="false"
+            bindValue="value"
+            [placeholder]="t('metadataSearch.types.placeholder')"
+          ></ng-select>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="parameters">{{ t('metadataSearch.parameters.label') }}</label>
+        <div *ngFor="let parameter of selectedSearchParameters" class="mb-4">
+          <eworkbench-metadata-search-parameter
+            [types]="searchParametersDropdown"
+            [initialType]="parameter.pk"
+            [parameter]="parameter"
+            (remove)="onRemove($event)"
+            (changed)="onChanged($event)"
+            (changeType)="onChangeType($event)"
+          ></eworkbench-metadata-search-parameter>
+        </div>
+        <div>
+          <ng-select
+            class="ewb-select d-inline-block"
+            formControlName="parameters"
+            id="parameters"
+            [items]="searchParametersDropdown"
+            [clearable]="false"
+            bindValue="value"
+            [placeholder]="t('metadataSearch.parameters.placeholder')"
+            (change)="onAdd()"
+          ></ng-select>
+        </div>
+      </div>
+      <button type="submit" class="btn ewb-button ewb-button-big ewb-button-primary" [disabled]="loading">
+        {{ t('metadataSearch.search') }}
+      </button>
+    </form>
+
+    <div *ngIf="searchRequest" class="mt-3">
+      <h4>{{ t('metadataSearch.results') }}</h4>
+      <eworkbench-table-view [columns]="listColumns" [data]="results"></eworkbench-table-view>
+    </div>
+  </main>
+</ng-container>
+
+<ng-template #titleCellTemplate let-row>
+  <a [routerLink]="[row.content_type_model | formatContentTypeModel: 'routerBaseLink', row.pk]">{{ row.display }}</a>
+</ng-template>
+<ng-template #typeCellTemplate let-row>{{ row.content_type_model | formatContentTypeModel }}</ng-template>
+<ng-template #createdByCellTemplate let-row>
+  <ng-container *transloco="let t">
+    {{ t('metadataSearch.createdBy') }} <eworkbench-user-details class="d-inline-block" [user]="row.created_by"></eworkbench-user-details>
+    {{ t('metadataSearch.createdBy.at') }} {{ row.created_at | formatDate }}
+  </ng-container>
+</ng-template>
+<ng-template #lastModifiedByCellTemplate let-row>
+  <ng-container *transloco="let t">
+    {{ t('metadataSearch.lastModifiedBy') }}
+    <eworkbench-user-details class="d-inline-block" [user]="row.last_modified_by"></eworkbench-user-details>
+    {{ t('metadataSearch.lastModifiedBy.at') }} {{ row.last_modified_at | formatDate }}
+  </ng-container>
+</ng-template>

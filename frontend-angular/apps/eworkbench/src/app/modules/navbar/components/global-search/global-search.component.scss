@@ -1,0 +1,61 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@import 'colors';
+
+:host {
+  display: block;
+
+  #search-input {
+    min-width: 200px;
+  }
+}
+
+.search-dropdown-menu {
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 13px;
+
+  > div {
+    height: 420px;
+  }
+
+  .results-container {
+    height: 420px;
+    overflow-y: auto;
+    border-left: 1px solid $border-color;
+
+    .menu-item {
+      .result-name {
+        max-width: 15rem;
+      }
+
+      .result-icon {
+        font-size: 20px;
+      }
+
+      &:hover {
+        background-color: $focus-color;
+      }
+    }
+  }
+
+  .restrict-search-container {
+    min-width: 250px;
+  }
+
+  .metadata-search {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #4d4d4d;
+    background-color: #f4f4f4;
+    height: 30px;
+  }
+
+  .loading {
+    min-width: 300px;
+  }
+}

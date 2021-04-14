@@ -1,0 +1,243 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="detailsTitle">
+    <ng-container slot="elements" *ngIf="initialState">
+      <eworkbench-details-dropdown
+        [service]="dmpService"
+        [id]="id"
+        [redirectDestination]="['/dmps', id]"
+        [newModalComponent]="newModalComponent"
+        [initialState]="initialState"
+        [privileges]="privileges"
+        [duplicateElement]="false"
+        *ngIf="privileges"
+      ></eworkbench-details-dropdown>
+    </ng-container>
+  </eworkbench-header>
+</ng-container>
+
+<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+
+<ng-container *ngIf="initialState">
+  <ng-container *transloco="let t">
+    <main>
+      <ng-container *ngIf="initialState?.deleted">
+        <eworkbench-trash-notice></eworkbench-trash-notice>
+      </ng-container>
+      <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="dmpService"></eworkbench-lock>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+        <div class="dmp mb-4">
+          <div>
+            <div class="mb-4">
+              <eworkbench-form-input for="title" [label]="t('dmp.details.title.label')" [loading]="loading" [onSubmit]="refreshResetValue">
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="title"
+                  formControlName="title"
+                  name="title"
+                  [placeholder]="t('dmp.details.title.placeholder')"
+                  slot="input"
+                />
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <label for="template">
+                {{ t('dmp.details.dmpTemplate.placeholder') }}
+                <eworkbench-icon
+                  className="wb-info"
+                  class="cursor-help"
+                  [tooltip]="t('dmp.details.dmpTemplate.tooltip')"
+                  container="body"
+                  containerClass="tooltip-sm"
+                ></eworkbench-icon>
+              </label>
+              <div>{{ initialState?.dmp_form_title }}</div>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue" [required]="true">
+                <label for="status" slot="label">
+                  {{ t('dmp.details.status.label') }}
+                  <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                  <eworkbench-icon
+                    className="wb-info"
+                    class="ml-1 cursor-help"
+                    [tooltip]="t('dmp.details.status.tooltip')"
+                    container="body"
+                    containerClass="tooltip-sm"
+                  ></eworkbench-icon>
+                </label>
+                <ng-select
+                  class="ewb-select"
+                  formControlName="status"
+                  labelForId="status"
+                  name="status"
+                  [placeholder]="t('dmp.details.status.placeholder')"
+                  [items]="status"
+                  bindLabel="label"
+                  bindValue="value"
+                  slot="input"
+                >
+                  <ng-template ng-label-tmp let-item="item">
+                    <ng-container [ngTemplateOutlet]="typesTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    <ng-container [ngTemplateOutlet]="typesTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+                  </ng-template>
+                  <ng-template #typesTemplate let-item="item">
+                    <eworkbench-dmp-status [status]="item.value"></eworkbench-dmp-status>
+                  </ng-template>
+                </ng-select>
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <label for="metadata">{{ t('dmp.details.metadata.label') }}</label>
+              <eworkbench-metadata
+                [selectedParameters]="initialState?.metadata"
+                [editable]="privileges?.edit"
+                [loading]="loading"
+                [refresh]="refreshMetadata"
+                (changed)="onUpdateMetadata($event)"
+              ></eworkbench-metadata>
+            </div>
+          </div>
+          <div>
+            <div class="mb-4">
+              <label for="created-by">{{ t('dmp.details.createdBy.label') }}</label>
+              <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
+            </div>
+            <div class="mb-4">
+              <label for="created-at">{{ t('dmp.details.createdAt.label') }}</label>
+              <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
+            </div>
+            <div class="mb-4">
+              <label for="last-modified-by">{{ t('dmp.details.lastModifiedBy.label') }}</label>
+              <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
+            </div>
+            <div class="mb-4">
+              <label for="last-modified-at">{{ t('dmp.details.lastModifiedAt.label') }}</label>
+              <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="projects"
+                [label]="t('dmp.details.projects.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+              >
+                <ng-select
+                  class="ewb-select"
+                  formControlName="projects"
+                  labelForId="projects"
+                  name="projects"
+                  [placeholder]="t('dmp.details.projects.placeholder')"
+                  [multiple]="true"
+                  [typeahead]="projectInput$"
+                  [items]="projects"
+                  bindLabel="name"
+                  bindValue="pk"
+                  slot="input"
+                >
+                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                    {{ item.name }}
+                    <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                  </ng-template>
+                </ng-select>
+              </eworkbench-form-input>
+            </div>
+          </div>
+          <div>
+            <div class="mb-1">
+              <label for="recent-changes">{{ t('dmp.details.recentChanges.label') }}</label>
+            </div>
+            <eworkbench-recent-changes
+              id="recent-changes"
+              [service]="dmpService"
+              [changesId]="id"
+              [refresh]="refreshChanges"
+            ></eworkbench-recent-changes>
+            <div class="mb-1">
+              <label for="versions">{{ t('dmp.details.versions.label') }}</label>
+            </div>
+            <eworkbench-versions
+              id="versions"
+              contentType="dmp"
+              [service]="dmpService"
+              [versionId]="id"
+              [lastModifiedAt]="initialState?.last_modified_at"
+              [refresh]="refreshVersions"
+              [editable]="privileges?.edit"
+              (changed)="onVersionChanged()"
+            ></eworkbench-versions>
+          </div>
+        </div>
+        <ng-container *ngIf="initialState?.dmp_form_data.length">
+          <div class="dmp mb-4" *ngFor="let data of initialState?.dmp_form_data; let i = index">
+            <div class="dmp-form-data">
+              <label [for]="'formData.' + i">{{ data.name }}</label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                [formControl]="formData.controls[i]"
+                [id]="'formData.' + i"
+                [name]="'formData.' + i"
+                *ngIf="['TXF', 'NUM'].includes(data.type)"
+              />
+              <eworkbench-wysiwyg-editor
+                [id]="'formData.' + i"
+                [formControl]="formData.controls[i]"
+                *ngIf="data.type === 'TXA'"
+              ></eworkbench-wysiwyg-editor>
+            </div>
+            <div>
+              <div class="font-weight-bold">{{ t('dmp.details.formData.guidance') }}</div>
+              <div [innerHTML]="data.infotext | safeHTML"></div>
+            </div>
+          </div>
+          <div class="dmp form-data-buttons mb-4">
+            <div>
+              <button
+                type="button"
+                class="btn ewb-button-big ewb-button-secondary mr-2"
+                [disabled]="loading || form.pristine"
+                (click)="onCancelFormData()"
+              >
+                {{ t('dmp.details.formData.cancel') }}
+              </button>
+              <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.pristine">
+                {{ t('dmp.details.formData.save') }}
+              </button>
+            </div>
+            <div></div>
+          </div>
+          <div class="dmp form-data-buttons">
+            <div>
+              <div class="d-inline-block mr-2">
+                {{ t('dmp.details.formData.exportAs') }}
+              </div>
+              <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="onExport('html')">
+                {{ t('dmp.details.formData.exportAs.html') }}
+              </button>
+              <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="onExport('txt')">
+                {{ t('dmp.details.formData.exportAs.txt') }}
+              </button>
+              <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="onExport('xml')">
+                {{ t('dmp.details.formData.exportAs.xml') }}
+              </button>
+              <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onExport('pdf')">
+                {{ t('dmp.details.formData.exportAs.pdf') }}
+              </button>
+            </div>
+            <div></div>
+          </div>
+        </ng-container>
+      </form>
+
+      <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="dmpService" class="mt-3"></eworkbench-link>
+    </main>
+  </ng-container>
+</ng-container>

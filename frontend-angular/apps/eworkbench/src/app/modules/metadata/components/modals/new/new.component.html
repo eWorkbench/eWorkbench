@@ -1,0 +1,157 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('metadata.newModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <div class="mb-4" *ngIf="!canAddNewFields">
+          <alert type="info">
+            {{ t('metadata.newModal.permissionWarning') }}
+          </alert>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <div class="mb-4">
+            <label for="name-modal">
+              {{ t('metadata.newModal.name.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="name"
+              id="name-modal"
+              name="name-modal"
+              [placeholder]="t('metadata.newModal.name.placeholder')"
+            />
+          </div>
+          <div class="mb-4">
+            <label for="description-modal">
+              {{ t('metadata.newModal.description.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <eworkbench-wysiwyg-editor id="description-modal" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
+          </div>
+          <div class="mb-4">
+            <label for="baseType-modal">
+              {{ t('metadata.newModal.baseType.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <ng-select
+              class="ewb-select"
+              formControlName="baseType"
+              labelForId="baseType-modal"
+              name="baseType-modal"
+              [placeholder]="t('metadata.newModal.baseType.placeholder')"
+              [items]="baseTypes"
+              bindValue="value"
+            ></ng-select>
+          </div>
+
+          <div
+            class="mb-4"
+            *ngIf="f.baseType.value === 'decimal_number' || f.baseType.value === 'currency' || f.baseType.value === 'percentage'"
+          >
+            <label for="decimals-modal">{{ t('metadata.newModal.decimals.label') }}</label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="decimals"
+              id="decimals-modal"
+              name="decimals-modal"
+              [placeholder]="t('metadata.newModal.decimals.placeholder')"
+            />
+          </div>
+          <div class="mb-4" *ngIf="f.baseType.value === 'whole_number' || f.baseType.value === 'decimal_number'">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                formControlName="thousandsSeparator"
+                id="thousandsSeparator-modal"
+                name="thousandsSeparator-modal"
+              />
+              <label class="custom-control-label font-weight-normal" for="thousandsSeparator-modal">{{
+                t('labBook.newModal.thousandsSeparator.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="mb-4" *ngIf="f.baseType.value === 'currency'">
+            <label for="symbol-modal">{{ t('metadata.newModal.symbol.label') }}</label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="symbol"
+              id="symbol-modal"
+              name="symbol-modal"
+              [placeholder]="t('metadata.newModal.symbol.placeholder')"
+            />
+          </div>
+          <ng-container *ngIf="f.baseType.value === 'selection'">
+            <div class="mb-4">
+              <label for="answers-modal">{{ t('metadata.newModal.answers.label') }}</label>
+              <div id="answers-modal">
+                <div *ngFor="let answer of answers.controls; let i = index" class="mb-4">
+                  <div class="d-flex justify-content-between">
+                    <div class="flex-fill">
+                      <input
+                        type="text"
+                        class="form-control ewb-input"
+                        [formControl]="answers.controls[i]"
+                        [id]="'answer.' + i"
+                        [name]="'answer.' + i"
+                        [placeholder]="t('metadata.newModal.answers.placeholder')"
+                      />
+                    </div>
+                    <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onRemoveAnswer(i)">
+                      <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                    </button>
+                  </div>
+                </div>
+                <button type="button" class="btn ewb-button-big ewb-button-primary" [disabled]="loading" (click)="onAddAnswer()">
+                  {{ t('metadata.newModal.answers.add') }}
+                </button>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="custom-control custom-checkbox">
+                <input
+                  class="custom-control-input"
+                  type="checkbox"
+                  formControlName="multipleSelect"
+                  id="multipleSelect-modal"
+                  name="multipleSelect-modal"
+                />
+                <label class="custom-control-label font-weight-normal" for="multipleSelect-modal">{{
+                  t('metadata.newModal.multipleSelect.label')
+                }}</label>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" formControlName="final" id="final-modal" name="final-modal" />
+                <label class="custom-control-label font-weight-normal" for="final-modal">{{ t('metadata.newModal.final.label') }}</label>
+              </div>
+            </div>
+          </ng-container>
+
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('metadata.newModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              <ng-container *ngIf="canAddNewFields">{{ t('metadata.newModal.create') }}</ng-container>
+              <ng-container *ngIf="!canAddNewFields">{{ t('metadata.newModal.sendSuggestion') }}</ng-container>
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

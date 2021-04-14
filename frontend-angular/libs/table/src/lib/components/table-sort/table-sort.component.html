@@ -1,0 +1,20 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<button
+  type="button"
+  class="btn ewb-button-regular ewb-button-background p-0 sort-button ml-1"
+  [tooltip]="tooltip"
+  containerClass="tooltip-sm"
+  (click)="onSortChanged(column.key)"
+>
+  <div class="d-flex flex-column">
+    <eworkbench-icon
+      class="d-inline-block sort-icon"
+      [class.sort-inactive]="column.key !== sortBy || sort === sortDirection.None"
+      [className]="sortIcon"
+    ></eworkbench-icon>
+  </div>
+</button>

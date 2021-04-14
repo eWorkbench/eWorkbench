@@ -1,0 +1,14 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *ngIf="users.length">
+  <eworkbench-user-details [user]="users[0]" class="d-inline-block"></eworkbench-user-details>
+  <ng-container *ngIf="users.length > 1">
+    <ng-container *transloco="let t">
+      {{ t('usersGrouping.and') }}
+      <a [routerLink]="" (click)="onOpenMoreModal()">{{ t('usersGrouping.usersMore', { count: users.length - 1 }) }}</a>
+    </ng-container>
+  </ng-container>
+</ng-container>

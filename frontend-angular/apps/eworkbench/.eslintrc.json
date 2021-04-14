@@ -1,0 +1,7 @@
+{
+  "extends": ["../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*"],
+  "parserOptions": {
+    "project": ["apps/eworkbench/tsconfig.*?.json"]
+  }
+}

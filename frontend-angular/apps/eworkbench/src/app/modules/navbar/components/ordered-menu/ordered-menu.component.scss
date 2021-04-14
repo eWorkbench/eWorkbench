@@ -1,0 +1,93 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@import 'colors';
+@import 'variables';
+
+:host {
+  display: block;
+
+  .ewb-button-regular {
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  #overflow-menu-button {
+    display: none;
+
+    @media (min-width: $breakpoint-lg) {
+      display: inline-block;
+    }
+  }
+}
+
+li {
+  .route-button {
+    border: dashed 2px $border-color;
+  }
+
+  &.cdk-drag-disabled {
+    .route-button {
+      border-color: transparent;
+    }
+  }
+
+  &.cdk-drag-placeholder {
+    .route-button {
+      color: transparent;
+      border-color: transparent;
+    }
+  }
+
+  a {
+    @media (min-width: $breakpoint-lg) {
+      padding: 2px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+
+      &.active,
+      &:hover {
+        border-color: $primary-color;
+
+        .ewb-button-regular {
+          color: $primary-color;
+        }
+      }
+    }
+
+    &.disabled {
+      pointer-events: none;
+    }
+  }
+}
+
+.menu-item-button {
+  a {
+    border-bottom: 0px;
+  }
+
+  &.disabled {
+    background-color: transparent;
+    border-color: transparent;
+
+    a {
+      pointer-events: none;
+    }
+  }
+}
+
+.edit-menu {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #4d4d4d;
+  background-color: #f4f4f4;
+  height: 30px;
+}
+
+.cdk-drag-preview {
+  z-index: 1100 !important;
+}

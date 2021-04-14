@@ -1,0 +1,105 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div *ngIf="dropdown" class="d-inline-block h-100 navbar-nav" dropdown container="body" placement="bottom right">
+    <button
+      type="button"
+      [id]="'details-dropdown-button' + uniqueHash"
+      class="btn ewb-button-big ewb-button-background square-md"
+      aria-controls="details-dropdown-menu"
+      [disabled]="loading"
+      dropdownToggle
+    >
+      <eworkbench-icon className="wb-more-vertical"></eworkbench-icon>
+    </button>
+    <ul
+      [id]="'details-dropdown-menu' + uniqueHash"
+      *dropdownMenu
+      class="dropdown-menu dropdown-menu-right details-dropdown-menu text-nowrap"
+      role="menu"
+      [attr.aria-labelledby]="'details-dropdown-button' + uniqueHash"
+    >
+      <ng-template
+        *ngTemplateOutlet="
+          dropdownUL;
+          context: { t: t, menuClass: '', itemClass: 'btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button' }
+        "
+      ></ng-template>
+    </ul>
+  </div>
+  <div *ngIf="!dropdown" class="d-inline-block w-100 navbar-nav">
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-button-background square-md"
+      [attr.aria-expanded]="!detailsCollapsed"
+      aria-controls="collapseBasic"
+      (click)="detailsCollapsed = !detailsCollapsed"
+    >
+      <eworkbench-icon className="wb-more-vertical"></eworkbench-icon>
+    </button>
+    <div class="collapse navbar-collapse mt-1 py-2 bg-white" [collapse]="detailsCollapsed">
+      <ng-template
+        *ngTemplateOutlet="
+          dropdownUL;
+          context: { t: t, menuClass: 'menuitem', itemClass: 'btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button' }
+        "
+      ></ng-template>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #dropdownUL let-t="t" let-menuClass="menuClass" let-itemClass="itemClass">
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="onOpenPrivilegesModal()" [disabled]="loading">
+      <eworkbench-icon className="wb-unlock"></eworkbench-icon> {{ t('labbook.elementDropdown.privileges') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="onOpenMoveToSectionModal()" [disabled]="loading">
+      <eworkbench-icon className="wb-bars"></eworkbench-icon> {{ t('labbook.elementDropdown.moveToSection') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem" *ngIf="section">
+    <button type="button" [class]="itemClass" (click)="onOpenMoveBackToLabBookModal()" [disabled]="loading">
+      <eworkbench-icon className="wb-bars"></eworkbench-icon> {{ t('labbook.elementDropdown.moveBackToLabBook') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="onExport()" [disabled]="loading">
+      <eworkbench-icon className="wb-pdf-file"></eworkbench-icon> {{ t('labbook.elementDropdown.export') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem" *ngIf="privileges?.trash && !initialState?.deleted">
+    <button type="button" [class]="itemClass" (click)="onDelete()" [disabled]="loading">
+      <eworkbench-icon className="wb-trash-1"></eworkbench-icon> {{ t('labbook.elementDropdown.trashElement') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="onRemove()" [disabled]="loading">
+      <eworkbench-icon className="wb-remove"></eworkbench-icon> {{ t('labbook.elementDropdown.removeFromLabBook') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button
+      type="button"
+      [class]="itemClass"
+      [routerLink]="[this.initialState.content_type_model | formatContentTypeModel: 'routerBaseLink', initialState?.pk]"
+      [disabled]="loading"
+    >
+      <eworkbench-icon className="wb-files"></eworkbench-icon> {{ t('labbook.elementDropdown.showMetadata') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="onOpenRecentChangesModal()" [disabled]="loading">
+      <eworkbench-icon className="wb-undo"></eworkbench-icon> {{ t('labbook.elementDropdown.recentChanges') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="onOpenCommentsModal()" [disabled]="loading">
+      <eworkbench-icon className="wb-comment"></eworkbench-icon> {{ t('labbook.elementDropdown.comments') }}
+    </button>
+  </li>
+</ng-template>

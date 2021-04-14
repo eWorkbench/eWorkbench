@@ -1,0 +1,20 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal>
+    <div slot="header">
+      {{ t('recentChanges.recentChangesModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-recent-changes [service]="service" [changesId]="id"></eworkbench-recent-changes>
+    </div>
+    <div slot="footer">
+      <button type="button" class="btn ewb-button-big ewb-button-secondary" (click)="modalRef.close()">
+        {{ t('recentChanges.recentChangesModal.close') }}
+      </button>
+    </div>
+  </eworkbench-modal>
+</ng-container>

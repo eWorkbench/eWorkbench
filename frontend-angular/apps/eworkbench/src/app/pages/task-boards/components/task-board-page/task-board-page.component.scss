@@ -1,0 +1,25 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+:host {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100%;
+
+  .task-board {
+    @media (min-width: 769px) {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+
+    &-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 35px;
+    }
+  }
+}

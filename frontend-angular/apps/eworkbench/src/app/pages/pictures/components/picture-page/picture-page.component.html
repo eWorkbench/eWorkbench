@@ -1,0 +1,150 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="detailsTitle">
+    <ng-container slot="elements">
+      <eworkbench-details-dropdown
+        [service]="picturesService"
+        [id]="id"
+        [redirectDestination]="['/pictures', id]"
+        [newModalComponent]="newModalComponent"
+        [initialState]="initialState"
+        [privileges]="privileges"
+        [duplicateElement]="false"
+        *ngIf="privileges"
+      ></eworkbench-details-dropdown>
+    </ng-container>
+  </eworkbench-header>
+</ng-container>
+
+<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+
+<ng-container *ngIf="initialState">
+  <ng-container *transloco="let t">
+    <main>
+      <ng-container *ngIf="initialState?.deleted">
+        <eworkbench-trash-notice></eworkbench-trash-notice>
+      </ng-container>
+      <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="picturesService"></eworkbench-lock>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="file" errorTailor>
+        <div>
+          <div class="mb-4">
+            <eworkbench-form-input
+              for="title"
+              [label]="t('picture.details.title.label')"
+              [loading]="loading"
+              [onSubmit]="refreshResetValue"
+              [required]="true"
+            >
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="title"
+                formControlName="title"
+                name="title"
+                [placeholder]="t('picture.details.title.placeholder')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+          <div class="mb-4">
+            <label for="width">{{ t('picture.details.width.label') }}</label>
+            <div id="width">{{ initialState?.width }}px</div>
+          </div>
+          <div class="mb-4">
+            <label for="height">{{ t('picture.details.height.label') }}</label>
+            <div id="height">{{ initialState?.height }}px</div>
+          </div>
+          <div class="mb-4">
+            <label for="metadata">{{ t('picture.details.metadata.label') }}</label>
+            <eworkbench-metadata
+              [selectedParameters]="initialState?.metadata"
+              [editable]="privileges?.edit"
+              [loading]="loading"
+              [refresh]="refreshMetadata"
+              (changed)="onUpdateMetadata($event)"
+            ></eworkbench-metadata>
+          </div>
+        </div>
+        <div>
+          <div class="mb-4">
+            <label for="created-by">{{ t('picture.details.createdBy.label') }}</label>
+            <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
+          </div>
+          <div class="mb-4">
+            <label for="created-at">{{ t('picture.details.createdAt.label') }}</label>
+            <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
+          </div>
+          <div class="mb-4">
+            <label for="last-modified-by">{{ t('picture.details.lastModifiedBy.label') }}</label>
+            <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
+          </div>
+          <div class="mb-4">
+            <label for="last-modified-at">{{ t('picture.details.lastModifiedAt.label') }}</label>
+            <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
+          </div>
+          <div class="mb-4">
+            <eworkbench-form-input
+              for="projects"
+              [label]="t('picture.details.projects.label')"
+              [loading]="loading"
+              [onSubmit]="refreshResetValue"
+            >
+              <ng-select
+                class="ewb-select"
+                formControlName="projects"
+                labelForId="projects"
+                name="projects"
+                [placeholder]="t('picture.details.projects.placeholder')"
+                [multiple]="true"
+                [typeahead]="projectInput$"
+                [items]="projects"
+                bindLabel="name"
+                bindValue="pk"
+                slot="input"
+              >
+                <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                  {{ item.name }}
+                  <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                </ng-template>
+              </ng-select>
+            </eworkbench-form-input>
+          </div>
+        </div>
+        <div>
+          <div class="mb-1">
+            <label for="recent-changes">{{ t('picture.details.recentChanges.label') }}</label>
+          </div>
+          <eworkbench-recent-changes
+            id="recent-changes"
+            [service]="picturesService"
+            [changesId]="id"
+            [refresh]="refreshChanges"
+          ></eworkbench-recent-changes>
+          <div class="mb-1">
+            <label for="versions">{{ t('picture.details.versions.label') }}</label>
+          </div>
+          <eworkbench-versions
+            id="versions"
+            contentType="picture"
+            [service]="picturesService"
+            [versionId]="id"
+            [lastModifiedAt]="initialState?.last_modified_at"
+            [refresh]="refreshVersions"
+            [editable]="privileges?.edit"
+            (changed)="onVersionChanged()"
+          ></eworkbench-versions>
+        </div>
+      </form>
+
+      <div>
+        <eworkbench-picture-editor [picture]="initialState" [service]="picturesService"></eworkbench-picture-editor>
+      </div>
+
+      <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="picturesService" class="mt-3"></eworkbench-link>
+    </main>
+  </ng-container>
+</ng-container>

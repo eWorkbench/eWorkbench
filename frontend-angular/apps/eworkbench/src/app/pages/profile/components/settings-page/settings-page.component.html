@@ -1,0 +1,475 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<eworkbench-page-skeleton *ngIf="!initialStateNotifications && !initialStateUser"></eworkbench-page-skeleton>
+
+<ng-container *ngIf="initialStateNotifications && initialStateUser">
+  <ng-container *transloco="let t">
+    <main>
+      <div class="mb-4" *ngIf="userProfileInfo">
+        <alert type="info">
+          <div class="font-weight-bold">{{ userProfileInfo?.title }}</div>
+          <div [innerHTML]="userProfileInfo?.text"></div>
+        </alert>
+      </div>
+
+      <form [formGroup]="form">
+        <div class="mb-4">
+          <h4 class="h4 mb-4">{{ t('profileSettings.emailNotifications.title') }}</h4>
+
+          <p>{{ t('profileSettings.emailNotifications.description') }}</p>
+
+          <div class="mt-4 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="notificationAppointments"
+                name="notificationAppointments"
+                formControlName="notificationAppointments"
+                (change)="onToggleEmailNotificationsAppointments()"
+              />
+              <label class="custom-control-label font-weight-normal" for="notificationAppointments"
+                ><h5>{{ t('profileSettings.emailNotifications.appointments.label') }}</h5></label
+              >
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_MEETING_USER_CHANGED"
+                name="NOTIFICATION_CONF_MEETING_USER_CHANGED"
+                formControlName="NOTIFICATION_CONF_MEETING_USER_CHANGED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_MEETING_USER_CHANGED">{{
+                t('profileSettings.emailNotifications.appointments.userChanged.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_MEETING_CHANGED"
+                name="NOTIFICATION_CONF_MEETING_CHANGED"
+                formControlName="NOTIFICATION_CONF_MEETING_CHANGED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_MEETING_CHANGED">{{
+                t('profileSettings.emailNotifications.appointments.appointmentChanged.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_MEETING_RELATION_CHANGED"
+                name="NOTIFICATION_CONF_MEETING_RELATION_CHANGED"
+                formControlName="NOTIFICATION_CONF_MEETING_RELATION_CHANGED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_MEETING_RELATION_CHANGED">{{
+                t('profileSettings.emailNotifications.appointments.relationChanged.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_MEETING_REMINDER"
+                name="NOTIFICATION_CONF_MEETING_REMINDER"
+                formControlName="NOTIFICATION_CONF_MEETING_REMINDER"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_MEETING_REMINDER">{{
+                t('profileSettings.emailNotifications.appointments.appointmentReminder.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="MAIL_CONF_MEETING_CONFIRMATION"
+                name="MAIL_CONF_MEETING_CONFIRMATION"
+                formControlName="MAIL_CONF_MEETING_CONFIRMATION"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="MAIL_CONF_MEETING_CONFIRMATION">{{
+                t('profileSettings.emailNotifications.appointments.appointmentConfirmation.label')
+              }}</label>
+            </div>
+          </div>
+
+          <div class="mt-4 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="notificationTasks"
+                name="notificationTasks"
+                formControlName="notificationTasks"
+                (change)="onToggleEmailNotificationsTasks()"
+              />
+              <label class="custom-control-label font-weight-normal" for="notificationTasks"
+                ><h5>{{ t('profileSettings.emailNotifications.tasks.label') }}</h5></label
+              >
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_TASK_USER_CHANGED"
+                name="NOTIFICATION_CONF_TASK_USER_CHANGED"
+                formControlName="NOTIFICATION_CONF_TASK_USER_CHANGED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_TASK_USER_CHANGED">{{
+                t('profileSettings.emailNotifications.tasks.userChanged.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_TASK_CHANGED"
+                name="NOTIFICATION_CONF_TASK_CHANGED"
+                formControlName="NOTIFICATION_CONF_TASK_CHANGED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_TASK_CHANGED">{{
+                t('profileSettings.emailNotifications.tasks.taskChanged.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_TASK_RELATION_CHANGED"
+                name="NOTIFICATION_CONF_TASK_RELATION_CHANGED"
+                formControlName="NOTIFICATION_CONF_TASK_RELATION_CHANGED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_TASK_RELATION_CHANGED">{{
+                t('profileSettings.emailNotifications.tasks.taskRelation.label')
+              }}</label>
+            </div>
+          </div>
+
+          <div class="mt-4 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="notificationProjects"
+                name="notificationProjects"
+                formControlName="notificationProjects"
+                (change)="onToggleEmailNotificationsProjects()"
+              />
+              <label class="custom-control-label font-weight-normal" for="notificationProjects"
+                ><h5>{{ t('profileSettings.emailNotifications.projects.label') }}</h5></label
+              >
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_PROJECT_USER_CHANGED"
+                name="NOTIFICATION_CONF_PROJECT_USER_CHANGED"
+                formControlName="NOTIFICATION_CONF_PROJECT_USER_CHANGED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_PROJECT_USER_CHANGED">{{
+                t('profileSettings.emailNotifications.projects.userChanged.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_CONF_PROJECT_CHANGED"
+                name="NOTIFICATION_CONF_PROJECT_CHANGED"
+                formControlName="NOTIFICATION_CONF_PROJECT_CHANGED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_CONF_PROJECT_CHANGED">{{
+                t('profileSettings.emailNotifications.projects.projectChanged.label')
+              }}</label>
+            </div>
+          </div>
+
+          <div class="mt-4 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="notificationDSS"
+                name="notificationDSS"
+                formControlName="notificationDSS"
+                (change)="onToggleEmailNotificationsDSS()"
+              />
+              <label class="custom-control-label font-weight-normal" for="notificationDSS"
+                ><h5>{{ t('profileSettings.emailNotifications.dss.label') }}</h5></label
+              >
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_DSS_IMPORT_IN_PROGRESS"
+                name="NOTIFICATION_DSS_IMPORT_IN_PROGRESS"
+                formControlName="NOTIFICATION_DSS_IMPORT_IN_PROGRESS"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_DSS_IMPORT_IN_PROGRESS">{{
+                t('profileSettings.emailNotifications.dss.importInProgress.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_DSS_IMPORT_FINISHED"
+                name="NOTIFICATION_DSS_IMPORT_FINISHED"
+                formControlName="NOTIFICATION_DSS_IMPORT_FINISHED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_DSS_IMPORT_FINISHED">{{
+                t('profileSettings.emailNotifications.dss.importFinished.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="NOTIFICATION_DSS_IMPORT_FAILED"
+                name="NOTIFICATION_DSS_IMPORT_FAILED"
+                formControlName="NOTIFICATION_DSS_IMPORT_FAILED"
+                (change)="onSaveEmailNotifications()"
+              />
+              <label class="custom-control-label font-weight-normal" for="NOTIFICATION_DSS_IMPORT_FAILED">{{
+                t('profileSettings.emailNotifications.dss.importFailed.label')
+              }}</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h4 class="h4 mb-4">{{ t('profileSettings.dialog.title') }}</h4>
+
+          <p>{{ t('profileSettings.dialog.description') }}</p>
+
+          <div class="mt-4 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPrompts"
+                name="confirmationPrompts"
+                formControlName="confirmationPrompts"
+                (change)="onToggleDialogSettingsConfirmationPrompts()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPrompts"
+                ><h5>{{ t('profileSettings.dialog.confirmationPrompts.label') }}</h5></label
+              >
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptRemoveDirectory"
+                name="confirmationPromptRemoveDirectory"
+                formControlName="confirmationPromptRemoveDirectory"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptRemoveDirectory">{{
+                t('profileSettings.dialog.confirmationPrompts.removeDirectory.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptTrashFile"
+                name="confirmationPromptTrashFile"
+                formControlName="confirmationPromptTrashFile"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptTrashFile">{{
+                t('profileSettings.dialog.confirmationPrompts.trashFile.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptConvertTiff"
+                name="confirmationPromptConvertTiff"
+                formControlName="confirmationPromptConvertTiff"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptConvertTiff">{{
+                t('profileSettings.dialog.confirmationPrompts.convertTiff.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptLeaveProject"
+                name="confirmationPromptLeaveProject"
+                formControlName="confirmationPromptLeaveProject"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptLeaveProject">{{
+                t('profileSettings.dialog.confirmationPrompts.leaveProject.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptMoveElementOutOfSection"
+                name="confirmationPromptMoveElementOutOfSection"
+                formControlName="confirmationPromptMoveElementOutOfSection"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptMoveElementOutOfSection">{{
+                t('profileSettings.dialog.confirmationPrompts.moveElementOutOfSection.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptTrashElementFromDeleteMenu"
+                name="confirmationPromptTrashElementFromDeleteMenu"
+                formControlName="confirmationPromptTrashElementFromDeleteMenu"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptTrashElementFromDeleteMenu">{{
+                t('profileSettings.dialog.confirmationPrompts.trashElementFromDeleteMenu.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptDeleteColumn"
+                name="confirmationPromptDeleteColumn"
+                formControlName="confirmationPromptDeleteColumn"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptDeleteColumn">{{
+                t('profileSettings.dialog.confirmationPrompts.deleteColumn.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptTrashElementFromDetailView"
+                name="confirmationPromptTrashElementFromDetailView"
+                formControlName="confirmationPromptTrashElementFromDetailView"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptTrashElementFromDetailView">{{
+                t('profileSettings.dialog.confirmationPrompts.trashElementFromDetailView.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptDuplicateProject"
+                name="confirmationPromptDuplicateProject"
+                formControlName="confirmationPromptDuplicateProject"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptDuplicateProject">{{
+                t('profileSettings.dialog.confirmationPrompts.duplicateProject.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptRemoveElementFromLabbook"
+                name="confirmationPromptRemoveElementFromLabbook"
+                formControlName="confirmationPromptRemoveElementFromLabbook"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptRemoveElementFromLabbook">{{
+                t('profileSettings.dialog.confirmationPrompts.removeElementFromLabbook.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptTrashAndDeleteElementFromLabbook"
+                name="confirmationPromptTrashAndDeleteElementFromLabbook"
+                formControlName="confirmationPromptTrashAndDeleteElementFromLabbook"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-weight-normal" for="confirmationPromptTrashAndDeleteElementFromLabbook">{{
+                t('profileSettings.dialog.confirmationPrompts.trashAndDeleteElementFromLabbook.label')
+              }}</label>
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
+  </ng-container>
+</ng-container>

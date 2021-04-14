@@ -1,0 +1,73 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@import 'variables';
+
+:host {
+  display: block;
+
+  @media (max-width: 991px) {
+    .rule-label {
+      margin-bottom: 0.5rem;
+    }
+
+    .booking-rules-bookable-time-slots-full-day {
+      display: grid;
+      grid-template-rows: auto;
+      gap: 16px;
+    }
+
+    .booking-rules-bookable-time-slots-times {
+      label {
+        margin-bottom: 0.25rem;
+      }
+
+      input {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    .booking-rules-bookable-time-slots {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: 16px;
+    }
+
+    .booking-rules-bookable-time-slots-days {
+      & > div {
+        display: inline;
+        margin-right: 0.5rem;
+      }
+    }
+
+    .booking-rules-bookable-time-slots-full-day {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+
+    .booking-rules-bookable-time-slots-times {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+
+      label {
+        display: inline-block;
+        margin-right: 0.5rem;
+      }
+
+      input {
+        display: inline-block;
+        width: auto;
+      }
+    }
+
+    .remove-button {
+      text-align: right;
+    }
+  }
+}

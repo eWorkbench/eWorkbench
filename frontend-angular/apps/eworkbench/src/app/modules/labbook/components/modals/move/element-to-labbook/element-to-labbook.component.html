@@ -1,0 +1,45 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('labBook.moveElementToLabBookModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="mb-4">
+            {{ t('labBook.moveElementToLabBookModal.confirmationMessage') }}
+          </div>
+
+          <div class="modal-footer p-0 mt-5">
+            <span class="mr-3">
+              <div class="custom-control custom-checkbox">
+                <input
+                  class="custom-control-input"
+                  type="checkbox"
+                  id="doNotShowMessageAgain"
+                  name="doNotShowMessageAgain"
+                  formControlName="doNotShowMessageAgain"
+                  (change)="saveUserDialogSettings()"
+                />
+                <label class="custom-control-label font-weight-normal" for="doNotShowMessageAgain">{{
+                  t('trash.deleteModal.doNotShowMessageAgain.label')
+                }}</label>
+              </div>
+            </span>
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()">
+              {{ t('labBook.moveElementToLabBookModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary">
+              {{ t('labBook.moveElementToLabBookModal.confirm') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

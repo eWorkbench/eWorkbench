@@ -1,0 +1,90 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div
+    cdkDropList
+    [cdkDropListData]="selectedParameters"
+    [cdkDropListOrientation]="dropListOrientation"
+    (cdkDropListDropped)="onElementDrop($event)"
+    *ngIf="editable"
+  >
+    <div cdkDropListGroup>
+      <div class="mb-4" cdkDrag *ngFor="let parameter of selectedParameters">
+        <div cdkDragHandle>
+          <ng-container
+            [ngTemplateOutlet]="metadataFieldHelper"
+            [ngTemplateOutletContext]="{ parameter: parameter, editable: editable }"
+          ></ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!editable">
+    <div class="mb-4" *ngFor="let parameter of selectedParameters">
+      <ng-container
+        [ngTemplateOutlet]="metadataFieldHelper"
+        [ngTemplateOutletContext]="{ parameter: parameter, editable: editable }"
+      ></ng-container>
+    </div>
+  </div>
+
+  <div class="d-flex" *ngIf="editable">
+    <div class="flex-fill">
+      <ng-select
+        class="ewb-select"
+        labelForId="parameters"
+        [formControl]="parametersFormControl"
+        [placeholder]="t('metadata.parameters.placeholder')"
+        [items]="parameters"
+        bindValue="value"
+        (change)="onAdd()"
+      ></ng-select>
+    </div>
+    <div class="ml-1 align-self-center">
+      <button
+        type="button"
+        class="btn ewb-button-small ewb-button-background square"
+        [disabled]="loading"
+        [tooltip]="t('formInput.add.tooltip')"
+        containerClass="tooltip-sm"
+        (click)="openNewModal()"
+      >
+        <eworkbench-icon className="wb-plus"></eworkbench-icon>
+      </button>
+    </div>
+    <div class="ml-2 align-self-center" *ngIf="showButtons()">
+      <button
+        type="submit"
+        class="btn ewb-button-big ewb-button-primary square mr-1"
+        [disabled]="loading"
+        [tooltip]="t('formInput.save.tooltip')"
+        containerClass="tooltip-sm"
+      >
+        <eworkbench-icon className="wb-check"></eworkbench-icon>
+      </button>
+      <button
+        type="button"
+        class="btn ewb-button-big ewb-button-secondary square"
+        [disabled]="loading"
+        [tooltip]="t('formInput.remove.tooltip')"
+        containerClass="tooltip-sm"
+        (click)="onCancel()"
+      >
+        <eworkbench-icon className="wb-undo"></eworkbench-icon>
+      </button>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #metadataFieldHelper let-parameter="parameter">
+  <eworkbench-metadata-field-helper
+    [parameter]="parameter"
+    [loading]="loading"
+    [editable]="editable"
+    (changed)="onChanged($event)"
+    (remove)="onRemove($event)"
+  ></eworkbench-metadata-field-helper>
+</ng-template>

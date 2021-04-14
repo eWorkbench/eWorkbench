@@ -1,9 +1,0 @@
-<!-- show a link to files -->
-<a ng-if="vm.file && vm.fileUrl" ng-href="{{ vm.fileUrl }}">
-    <ng-transclude>
-        <span>
-            <i class="{{ vm.fileIcon }}"></i>
-            {{ vm.file.name }}
-        </span>
-    </ng-transclude>
-</a>

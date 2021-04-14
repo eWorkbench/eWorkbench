@@ -1,0 +1,13 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="d-inline-block label px-2" [style.background]="'#008000'" *ngIf="isAccessible">
+    {{ t('plugin.accessibilityLabel.accessible') }}
+  </div>
+  <div class="d-inline-block label px-2" [style.background]="'#ff6a5e'" *ngIf="!isAccessible">
+    {{ t('plugin.accessibilityLabel.accessDenied') }}
+  </div>
+</ng-container>

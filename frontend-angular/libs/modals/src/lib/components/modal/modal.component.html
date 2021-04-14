@@ -1,0 +1,19 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<div [className]="className">
+  <div class="modal-header">
+    <ng-content select="[slot=header]"></ng-content>
+    <button type="button" class="btn ewb-button ewb-button-regular modal-close p-0" (click)="modalRef.close()" *ngIf="closeButton">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <ng-content select="[slot=body]"></ng-content>
+  </div>
+  <div *ngIf="modalFooter" class="modal-footer">
+    <ng-content select="[slot=footer]"></ng-content>
+  </div>
+</div>

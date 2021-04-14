@@ -1,9 +1,0 @@
-<div class="input-group" ng-class="{ 'has-error': vm.errors['terms_of_use_pdf'].length > 0 }" style="width: 100%">
-    <input type="file" id="input_resource_terms_of_use_pdf"
-           ng-readonly="vm.isReadOnly()"
-           files-model="vm.resource.terms_of_use_pdf">
-    <p ng-show="vm.errors['terms_of_use_pdf'].length > 0"  class="help-block pull-left">
-        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
-        {{ vm.errors['terms_of_use_pdf'].join(', ') }}
-    </p>
-</div>

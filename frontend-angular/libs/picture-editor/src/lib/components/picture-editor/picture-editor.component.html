@@ -1,0 +1,32 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<div class="ewb-canvas" [ngStyle]="style">
+  <eworkbench-picture-editor-toolbar
+    *ngIf="!loading && canvas"
+    [picture]="picture"
+    [sketch]="sketch"
+    [backgroundImage]="backgroundImage"
+    [canvas]="canvas"
+    [service]="service"
+    (saveSketch)="saveSketch.emit($event)"
+  ></eworkbench-picture-editor-toolbar>
+
+  <div
+    class="ewb-canvas-drawboard"
+    mwlResizable
+    [validateResize]="resizeValidate"
+    (resizing)="onResize($event)"
+    (resizeEnd)="onResize($event)"
+  >
+    <div class="ewb-canvas-resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
+    <div class="ewb-canvas-resize-handle-bottom" mwlResizeHandle [resizeEdges]="{ bottom: true }"></div>
+    <div
+      #core
+      class="ewb-canvas-helper"
+      [ngStyle]="{ 'width.px': picture.width ? picture.width : 600, 'height.px': picture.height ? picture.height : 600 }"
+    ></div>
+  </div>
+</div>

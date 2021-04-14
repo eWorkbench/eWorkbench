@@ -1,0 +1,189 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@import '../../../styles/colors';
+@import '../../../styles/variables';
+
+@import '~@fullcalendar/common/main.css';
+@import '~@fullcalendar/daygrid/main.css';
+@import '~@fullcalendar/list/main.css';
+@import '~@fullcalendar/timegrid/main.css';
+
+:root {
+  --fc-neutral-text-color: #{$text-color};
+  --fc-border-color: #{$border-color};
+
+  --fc-button-text-color: #{$primary-color};
+  --fc-button-bg-color: #{$secondary-color};
+  --fc-button-border-color: transparent;
+  --fc-button-hover-bg-color: #{$border-color};
+  --fc-button-hover-border-color: transparent;
+  --fc-button-active-bg-color: #{$primary-color};
+  --fc-button-active-border-color: transparent;
+
+  --fc-event-bg-color: #{$event-background-color};
+  --fc-event-border-color: #{$event-border-color};
+  --fc-event-text-color: #{$event-text-color};
+
+  --fc-highlight-color: #{$secondary-color};
+  --fc-today-bg-color: #{$secondary-color};
+  --fc-now-indicator-color: #{$primary-color};
+
+  .fc .fc-toolbar-title {
+    font-size: $font-size-md;
+    font-weight: 600;
+  }
+
+  .fc .fc-button,
+  .fc-export-button,
+  .fc-book-button {
+    border-radius: 0;
+    padding: 0 10px;
+    height: 25px;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  .fc-timeGridWeek-button.fc-button.fc-button-primary {
+    font-weight: 500;
+
+    &.fc-button-active {
+      color: #ffffff;
+
+      &:active,
+      &:hover {
+        color: #ffffff;
+        background-color: $primary-color-hover;
+      }
+    }
+
+    &:active {
+      background-color: $border-color;
+    }
+  }
+
+  .fc-dayGridMonth-button.fc-button.fc-button-primary {
+    font-weight: 500;
+
+    &.fc-button-active {
+      color: #ffffff;
+
+      &:active,
+      &:hover {
+        color: #ffffff;
+        background-color: $primary-color-hover;
+      }
+    }
+
+    &:active {
+      background-color: $border-color;
+    }
+  }
+
+  .fc-today-button.fc-button.fc-button-primary {
+    &:active {
+      &:active {
+        background-color: $border-color;
+      }
+    }
+  }
+
+  .fc-prev-button.fc-button.fc-button-primary,
+  .fc-next-button.fc-button.fc-button-primary {
+    width: 25px;
+    padding: 0;
+
+    &:active {
+      background-color: $border-color;
+    }
+  }
+
+  .fc-export-button.fc-button.fc-button-primary,
+  .fc-book-button.fc-button.fc-button-primary {
+    color: #ffffff;
+    background-color: $additional-color;
+    border-color: transparent;
+    text-transform: unset;
+
+    &:hover,
+    &:active {
+      color: #ffffff;
+      background-color: $additional-color-hover;
+    }
+  }
+
+  .fc-prev-button.fc-button.fc-button-primary {
+    margin-right: 5px;
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 10px;
+    margin: 4px 4px 0 4px;
+    cursor: default;
+  }
+
+  .fc-daygrid-day.fc-day.fc-day-today {
+    border-bottom: 3px solid $primary-color;
+
+    .fc-daygrid-day-number {
+      color: $primary-color;
+      font-weight: 600;
+    }
+  }
+
+  .fc .fc-daygrid-week-number {
+    color: #000000;
+    font-size: $font-size;
+    font-weight: 600;
+    background-color: unset;
+    margin: 4px;
+    cursor: default;
+
+    &:hover {
+      color: $primary-color;
+    }
+  }
+
+  .fc-daygrid-day-frame.fc-scrollgrid-sync-inner {
+    min-height: 75px;
+  }
+
+  .fc-daygrid-event {
+    border-radius: 0;
+  }
+
+  .fc-timegrid-event {
+    border-radius: 0;
+  }
+
+  .fc-direction-ltr .fc-daygrid-event.fc-event-start,
+  .fc-direction-rtl .fc-daygrid-event.fc-event-end {
+    margin-left: 4px;
+  }
+
+  .fc-direction-ltr .fc-daygrid-event.fc-event-end,
+  .fc-direction-rtl .fc-daygrid-event.fc-event-start {
+    margin-right: 4px;
+  }
+
+  .fc-event-title {
+    text-overflow: ellipsis;
+  }
+
+  .fc-daygrid-more-link {
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
+  th a {
+    font-weight: 600;
+    color: #000;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}

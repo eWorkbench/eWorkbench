@@ -1,0 +1,31 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div id="labbook-draw-board" class="with-sidebar">
+    <aside>
+      <eworkbench-labbook-sidebar
+        [id]="id"
+        [projects]="projects"
+        (created)="onAddElement($event)"
+        (refresh)="onRefreshGrid($event)"
+      ></eworkbench-labbook-sidebar>
+    </aside>
+    <div class="draw-board">
+      <eworkbench-labbook-search-bar
+        class="mb-4"
+        [id]="id"
+        [projects]="projects"
+        (created)="onAddElement($event)"
+      ></eworkbench-labbook-search-bar>
+      <eworkbench-labbook-draw-board-grid
+        #drawBoardGrid
+        [id]="id"
+        [created]="created"
+        [refresh]="refresh"
+      ></eworkbench-labbook-draw-board-grid>
+    </div>
+  </div>
+</ng-container>

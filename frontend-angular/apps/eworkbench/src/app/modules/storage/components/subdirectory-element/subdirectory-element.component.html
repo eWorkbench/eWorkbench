@@ -1,0 +1,108 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <div class="pl-4">
+      <div class="mb-1">
+        <ng-container *ngFor="let file of directoryFiles">
+          <div class="file-row pl-2 border-bottom">
+            <div class="align-self-center">
+              <eworkbench-ellipsis-element [maxWidth]="300">
+                <eworkbench-icon class="mr-1" [className]="file.icon_class"></eworkbench-icon>
+                <a [routerLink]="['/files', file.pk]">{{ file.name }}</a>
+              </eworkbench-ellipsis-element>
+            </div>
+            <div class="file-actions align-self-center">
+              <button
+                type="button"
+                class="btn btn-sm bg-transparent mr-1"
+                [authDownload]="{ url: file.download, fileName: file.original_filename }"
+              >
+                <eworkbench-icon className="wb-download" class="mr-1"></eworkbench-icon>
+                <span class="btn-link">{{ t('storages.file.actions.downloadFile') }}</span>
+                ({{ file?.file_size | formatFileSize }})
+              </button>
+              <eworkbench-trash-button
+                [service]="filesService"
+                [id]="file.pk"
+                skipDialogKey="SkipDialog-TrashFile"
+                (deleted)="removeFile(file)"
+              ></eworkbench-trash-button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+      <ng-container *ngFor="let subDirectory of storage.sub_directories">
+        <eworkbench-subdirectory-collapse-element
+          [labelTemplate]="collapseLabelTemplate"
+          [element]="subDirectory"
+          [collapsed]="true"
+          *ngIf="subDirectory.directory === directory.pk"
+          ><eworkbench-subdirectory-element
+            [storage]="storage"
+            [directory]="subDirectory"
+            [files]="files"
+            [refresh]="refresh"
+            (refreshParentDirectory)="refreshDirectory()"
+          ></eworkbench-subdirectory-element
+        ></eworkbench-subdirectory-collapse-element>
+      </ng-container>
+    </div>
+  </eworkbench-loading>
+  <ng-template #collapseLabelTemplate let-directory>
+    <div class="directory-row pt-1 pb-1">
+      <div class="align-self-center">
+        <eworkbench-icon className="wb-folder" class="mr-1"></eworkbench-icon
+        ><a (click)="onOpenEditDirectoryModal(directory)">{{ directory.name }}</a>
+      </div>
+      <div class="directory-actions align-self-center">
+        <button
+          class="btn ewb-button-small square"
+          (click)="onOpenNewDirectoryModal(directory)"
+          [tooltip]="t('storages.directory.actions.addFolder')"
+          containerClass="tooltip-sm"
+        >
+          <eworkbench-icon className="wb-plus_box"></eworkbench-icon>
+        </button>
+        <button
+          class="btn ewb-button-small square"
+          (click)="onOpenDeleteDirectoryModal(directory)"
+          [tooltip]="t('storages.directory.actions.removeFolder')"
+          containerClass="tooltip-sm"
+        >
+          <eworkbench-icon className="wb-trash-1"></eworkbench-icon>
+        </button>
+        <button
+          class="btn ewb-button-small square"
+          (click)="onOpenAddFileModal(directory)"
+          [tooltip]="t('storages.directory.actions.addExistingFile')"
+          containerClass="tooltip-sm"
+        >
+          <eworkbench-icon className="wb-plus"></eworkbench-icon>
+        </button>
+        <button
+          class="btn ewb-button-small square"
+          (click)="file.click()"
+          [tooltip]="t('storages.directory.actions.uploadFile')"
+          containerClass="tooltip-sm"
+        >
+          <eworkbench-icon className="wb-upload"></eworkbench-icon>
+          <input type="file" class="text-size invisible" (change)="onUpload($event, directory)" #file />
+        </button>
+        <a
+          class="btn ewb-button-small square"
+          [href]="directory.download_directory"
+          [tooltip]="t('storages.directory.actions.downloadDirectory')"
+          containerClass="tooltip-sm"
+          download
+        >
+          <eworkbench-icon className="wb-download"></eworkbench-icon>
+        </a>
+        <span class="placeholder"></span>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>

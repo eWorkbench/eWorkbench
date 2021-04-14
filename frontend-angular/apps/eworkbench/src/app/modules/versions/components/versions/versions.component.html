@@ -1,0 +1,53 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-table-view
+  #tableView
+  class="mb-2"
+  [columns]="listColumns"
+  [data]="data"
+  [columnHeader]="false"
+  [paginationSize]="5"
+></eworkbench-table-view>
+<ng-template #numberCellTemplate let-row>v{{ row.number }}</ng-template>
+<ng-template #createdAtCellTemplate let-row>
+  <ng-container *transloco="let t">
+    <div *ngIf="row.created_at">{{ row.created_at | formatDate }}</div>
+    <div *ngIf="!row.created_at">{{ t('versions.draft') }}</div>
+  </ng-container>
+</ng-template>
+<ng-template #createdByCellTemplate let-row>
+  <ng-container *transloco="let t">
+    <div *ngIf="row.created_at">
+      {{ t('versions.createdBy') }} <eworkbench-user-details class="d-inline-block" [user]="row.created_by"></eworkbench-user-details>
+    </div>
+  </ng-container>
+</ng-template>
+<ng-template #summaryCellTemplate let-row>
+  <div *ngIf="row.created_at">{{ row.summary }}</div>
+</ng-template>
+<ng-template #restoreCellTemplate let-row>
+  <button
+    type="button"
+    class="btn ewb-button-small ewb-button-background square"
+    (click)="onPreviewModal(row, row.number)"
+    [disabled]="loading"
+    *ngIf="row.created_at && editable"
+  >
+    <eworkbench-icon className="wb-undo"></eworkbench-icon>
+  </button>
+</ng-template>
+
+<ng-container *transloco="let t">
+  <button
+    type="button"
+    class="btn ewb-button-big ewb-button-primary"
+    (click)="onFinalizeVersionModal()"
+    [disabled]="loading"
+    *ngIf="versionInProgress && editable"
+  >
+    {{ t('versions.finalizeVersion') }}
+  </button>
+</ng-container>

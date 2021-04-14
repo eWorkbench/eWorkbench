@@ -1,0 +1,73 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <table>
+      <thead>
+        <div class="d-none">
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+        </div>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let d of data; let i = index">
+          <tr>
+            <td>
+              <eworkbench-user-details [user]="d.user"></eworkbench-user-details>
+            </td>
+            <td>
+              <eworkbench-form-input [for]="'role.' + i" [loading]="loading" [margin]="false" [onSubmit]="refreshResetValue">
+                <ng-select
+                  class="ewb-select"
+                  [formControl]="fRoles.controls[i]"
+                  [labelForId]="'role.' + i"
+                  [items]="roles"
+                  bindLabel="name"
+                  bindValue="pk"
+                  [clearable]="false"
+                  [searchable]="false"
+                  slot="input"
+                  (change)="openChangeProjectMemberRoleModal(d.user)"
+                ></ng-select>
+              </eworkbench-form-input>
+            </td>
+            <td>
+              <button
+                type="button"
+                class="btn ewb-button-small"
+                [tooltip]="t('project.members.remove.tooltip')"
+                containerClass="tooltip-sm"
+                (click)="openRemoveProjectMemberModal(d.user)"
+                [disabled]="loading"
+                *ngIf="projectPrivileges.deleteRoles"
+              >
+                <eworkbench-icon className="wb-remove"></eworkbench-icon>
+              </button>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </form>
+</ng-container>
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="projectPrivileges.addRoles">
+    <div class="text-right mt-2">
+      <button
+        type="button"
+        class="btn ewb-button-big ewb-button-primary mt-1"
+        [disabled]="loading"
+        (click)="openNewProjectMemberModal(id, data)"
+      >
+        {{ t('projects.members.add') }}
+      </button>
+    </div>
+  </ng-container>
+</ng-container>

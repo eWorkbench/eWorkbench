@@ -1,0 +1,76 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <form [formGroup]="form" class="element" errorTailor>
+    <div class="header">
+      <div class="toolbar">
+        <div class="toolbar-filter">
+          <div class="d-flex align-items-center">
+            <button type="button" class="btn ewb-button-big ewb-button-none text-white cursor-default">
+              {{ t('labBook.searchBar.displaySectionsFrom') }}
+            </button>
+            <div class="search-input mr-2">
+              <input
+                type="text"
+                class="form-control ewb-input"
+                formControlName="startDate"
+                id="startDate"
+                name="startDate"
+                [placeholder]="t('labBook.searchBar.startDate')"
+                autocomplete="off"
+              />
+            </div>
+            <button type="button" class="btn ewb-button-big ewb-button-none text-white cursor-default">
+              {{ t('labBook.searchBar.to') }}
+            </button>
+            <div class="search-input mr-2">
+              <input
+                type="text"
+                class="form-control ewb-input"
+                formControlName="endDate"
+                id="endDate"
+                name="endDate"
+                [placeholder]="t('labBook.searchBar.endDate')"
+                autocomplete="off"
+              />
+            </div>
+            <div>
+              <button type="button" class="btn ewb-button-big ewb-button-none text-white" (click)="onReset()">
+                {{ t('labBook.searchBar.resetFilter') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="toolbar-actions align-self-center">
+          <button type="button" class="btn ewb-button-big ewb-button-background" (click)="onOpenNewSectionModal()">
+            {{ t('labBook.searchBar.newSection') }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="body" *ngIf="expanded">
+      <eworkbench-loading [loading]="loading">
+        <alert type="info" *ngIf="invalidDates">
+          {{ t('labBook.searchBar.invalidDates') }}
+        </alert>
+        <alert type="info" *ngIf="!invalidDates && !sections.length">
+          {{ t('labBook.searchBar.noElements') }}
+        </alert>
+        <div class="sections" *ngIf="sections.length">
+          <eworkbench-labbook-draw-board-section
+            class="section"
+            [id]="id"
+            [element]="section"
+            [readonly]="true"
+            [closeSection]="close"
+            (expand)="onExpandSection($event)"
+            *ngFor="let section of sections"
+          ></eworkbench-labbook-draw-board-section>
+        </div>
+      </eworkbench-loading>
+    </div>
+  </form>
+</ng-container>

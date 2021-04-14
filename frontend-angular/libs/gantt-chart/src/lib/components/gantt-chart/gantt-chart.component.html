@@ -1,0 +1,7 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<button [id]="'today-button-' + uuid" type="button" (click)="scrollToToday()" class="btn today-button">Today</button>
+<div [id]="'gantt-container-' + uuid" (window:resize)="buildGantt()"></div>

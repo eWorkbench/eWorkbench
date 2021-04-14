@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "interceptors",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path at which to create the interceptor file, relative to the current workspace. Default is a folder with the same name as the interceptor in the project root.",
+      "visible": false
+    },
+    "name": {
+      "type": "string",
+      "description": "Interceptor name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for this interceptor?"
+    },
+    "project": {
+      "type": "string",
+      "description": "Project to add the interceptor to"
+    },
+    "module": {
+      "type": "string",
+      "description": "The declaring NgModule.",
+      "alias": "m"
+    },
+    "type": {
+      "type": "string",
+      "description": "Adds a developer-defined type to the filename, in the format \"name.type.ts\".",
+      "default": "Interceptor"
+    }
+  },
+  "required": ["name"]
+}

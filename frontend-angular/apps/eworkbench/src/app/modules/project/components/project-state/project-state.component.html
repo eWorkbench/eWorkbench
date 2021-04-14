@@ -1,0 +1,61 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="state === 'INIT'">
+    <eworkbench-icon
+      className="wb-new"
+      [class.mr-1]="label"
+      [tooltip]="!label && t('projects.state.new')"
+      containerClass="tooltip-sm"
+    ></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('projects.state.new') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="state === 'START'">
+    <eworkbench-icon
+      className="wb-in-progress"
+      [class.mr-1]="label"
+      [tooltip]="!label && t('projects.state.inProgress')"
+      containerClass="tooltip-sm"
+    ></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('projects.state.inProgress') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="state === 'FIN'">
+    <eworkbench-icon
+      className="wb-done"
+      [class.mr-1]="label"
+      [tooltip]="!label && t('projects.state.done')"
+      containerClass="tooltip-sm"
+    ></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('projects.state.done') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="state === 'PAUSE'">
+    <eworkbench-icon
+      className="wb-paused"
+      [class.mr-1]="label"
+      [tooltip]="!label && t('projects.state.paused')"
+      containerClass="tooltip-sm"
+    ></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('projects.state.paused') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="state === 'CANCE'">
+    <eworkbench-icon
+      className="wb-x-circle"
+      [class.mr-1]="label"
+      [tooltip]="!label && t('projects.state.canceled')"
+      containerClass="tooltip-sm"
+    ></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('projects.state.canceled') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="state === 'DEL'">
+    <eworkbench-icon
+      className="wb-trash-1"
+      [class.mr-1]="label"
+      [tooltip]="!label && t('projects.state.deleted')"
+      containerClass="tooltip-sm"
+    ></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('projects.state.deleted') }}</ng-container>
+  </ng-container>
+</ng-container>

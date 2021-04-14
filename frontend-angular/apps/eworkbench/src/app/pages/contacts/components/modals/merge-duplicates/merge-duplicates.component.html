@@ -1,0 +1,177 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('contacts.mergeDuplicatesModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onMergeContacts()" *ngIf="!loading">
+          <div class="mb-4">
+            <label for="baseContact">{{ t('contacts.mergeDuplicatesModal.baseContact.label') }}</label>
+            <ng-select
+              class="ewb-select"
+              formControlName="baseContact"
+              labelForId="baseContact"
+              name="baseContact"
+              [placeholder]="t('contacts.mergeDuplicatesModal.baseContact.placeholder')"
+              [typeahead]="contactInput$"
+              [items]="contacts"
+              bindLabel="display"
+              bindValue="pk"
+              (change)="onChangeBaseContact($event)"
+            ></ng-select>
+          </div>
+
+          <div class="mb-4">
+            <div *ngFor="let _ of mergeContacts.controls; let i = index" class="mb-4">
+              <label [for]="'mergeContact.' + i">{{ t('contacts.mergeDuplicatesModal.mergeContact.label') }} #{{ i + 1 }}</label>
+              <div class="d-flex justify-content-between my-1">
+                <div class="flex-fill mr-2">
+                  <ng-select
+                    class="ewb-select"
+                    labelForId="baseContact"
+                    [labelForId]="'mergeContact.' + i"
+                    [formControl]="mergeContacts.controls[i]"
+                    [placeholder]="t('contacts.mergeDuplicatesModal.mergeContact.placeholder')"
+                    [typeahead]="contactInput$"
+                    [items]="contacts"
+                    bindLabel="display"
+                    bindValue="pk"
+                    (change)="onChangeMergeContact(i, $event)"
+                  ></ng-select>
+                </div>
+                <button
+                  *ngIf="mergeContacts.controls.length > 1"
+                  type="button"
+                  class="btn ewb-button-regular ewb-button-secondary mr-1 square align-self-center"
+                  [disabled]="loading"
+                  [tooltip]="t('formInput.remove.tooltip')"
+                  containerClass="tooltip-sm"
+                  (click)="onRemoveMergeContact(i)"
+                >
+                  <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                </button>
+                <button
+                  type="button"
+                  class="btn ewb-button-regular ewb-button-secondary align-self-center"
+                  [disabled]="loading"
+                  (click)="setContactAsBase(i)"
+                >
+                  {{ t('contacts.mergeDuplicatesModal.contacts.setAsBase') }}
+                </button>
+              </div>
+              {{ t('contacts.mergeDuplicatesModal.contacts.willBeTrashed') }}
+            </div>
+
+            <button
+              type="button"
+              class="btn ewb-button-small ewb-button-background square"
+              [disabled]="loading"
+              [tooltip]="t('contacts.mergeDuplicatesModal.addContact.tooltip')"
+              containerClass="tooltip-sm"
+              (click)="onAddMergeContact()"
+            >
+              <eworkbench-icon className="wb-plus"></eworkbench-icon>
+            </button>
+          </div>
+
+          <div class="mb-4" *ngIf="canMerge">
+            <hr />
+            <eworkbench-merge-duplicates-input-group
+              class="mb-2"
+              [label]="t('contacts.mergeDuplicatesModal.contact.academicTitle')"
+              [key]="'academic_title'"
+              [formGroup]="form"
+              [fields]="academicTitles"
+              [baseFormControlName]="'academicTitle'"
+              [refresh]="refreshFields"
+            >
+            </eworkbench-merge-duplicates-input-group>
+            <eworkbench-merge-duplicates-input-group
+              class="mb-2"
+              [label]="t('contacts.mergeDuplicatesModal.contact.firstName')"
+              [key]="'first_name'"
+              [formGroup]="form"
+              [fields]="firstNames"
+              [baseFormControlName]="'firstName'"
+              [refresh]="refreshFields"
+            >
+            </eworkbench-merge-duplicates-input-group>
+            <eworkbench-merge-duplicates-input-group
+              class="mb-2"
+              [label]="t('contacts.mergeDuplicatesModal.contact.lastName')"
+              [key]="'last_name'"
+              [formGroup]="form"
+              [fields]="lastNames"
+              [baseFormControlName]="'lastName'"
+              [refresh]="refreshFields"
+            >
+            </eworkbench-merge-duplicates-input-group>
+            <eworkbench-merge-duplicates-input-group
+              class="mb-2"
+              [label]="t('contacts.mergeDuplicatesModal.contact.email')"
+              [key]="'email'"
+              [formGroup]="form"
+              [fields]="emails"
+              [baseFormControlName]="'email'"
+              [refresh]="refreshFields"
+            >
+            </eworkbench-merge-duplicates-input-group>
+            <eworkbench-merge-duplicates-input-group
+              class="mb-2"
+              [label]="t('contacts.mergeDuplicatesModal.contact.phone')"
+              [key]="'phone'"
+              [formGroup]="form"
+              [fields]="phones"
+              [baseFormControlName]="'phone'"
+              [refresh]="refreshFields"
+            >
+            </eworkbench-merge-duplicates-input-group>
+            <eworkbench-merge-duplicates-input-group
+              class="mb-2"
+              [label]="t('contacts.mergeDuplicatesModal.contact.company')"
+              [key]="'company'"
+              [formGroup]="form"
+              [fields]="companies"
+              [baseFormControlName]="'company'"
+              [refresh]="refreshFields"
+            >
+            </eworkbench-merge-duplicates-input-group>
+            <eworkbench-merge-duplicates-input-group
+              class="mb-2"
+              [label]="t('contacts.mergeDuplicatesModal.contact.notes')"
+              [key]="'note'"
+              [formGroup]="form"
+              [fields]="notes"
+              [baseFormControlName]="'note'"
+              [refresh]="refreshFields"
+              [editor]="true"
+            ></eworkbench-merge-duplicates-input-group>
+
+            <div class="font-weight-bold mb-1">{{ t('contacts.mergeDuplicatesModal.contact.otherData.label') }}</div>
+            {{ t('contacts.mergeDuplicatesModal.contact.otherData.text') }}
+          </div>
+
+          <alert type="info" *ngIf="!canMerge">
+            <eworkbench-icon className="wb-info"></eworkbench-icon>
+            {{ t('contacts.mergeDuplicatesModal.warning') }}
+          </alert>
+
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('contacts.mergeDuplicatesModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid || !canMerge">
+              {{ t('contacts.mergeDuplicatesModal.merge') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

@@ -1,0 +1,20 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@import 'colors';
+
+:host {
+  display: block;
+}
+
+.cdk-drag-animating,
+.cdk-drop-list-dragging .cdk-drag {
+  cursor: move;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.5;
+}

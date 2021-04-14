@@ -1,9 +1,0 @@
-<div class="input-group" ng-class="{ 'has-error': vm.errors['path'].length > 0 }" style="width: 100%">
-    <input type="file" id="file_path"
-           ng-readonly="vm.isReadOnly()"
-           files-model="vm.file.path">
-    <p ng-show="vm.errors['path'].length > 0"  class="help-block pull-left">
-        <span class="{{:: vm.alertIcon }}" aria-hidden="true"></span>
-        {{ vm.errors['path'].join(', ') }}
-    </p>
-</div>

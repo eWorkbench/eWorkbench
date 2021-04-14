@@ -1,0 +1,18 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+import { SpectatorService, createHttpFactory, HttpMethod } from '@ngneat/spectator/jest';
+import { <%= classify(name) %>Interceptor } from './<%= dasherize(name) %>.interceptor';
+
+describe('<%= classify(name) %>Interceptor', () => {
+  let spectator: SpectatorService<<%= classify(name) %>Interceptor>;
+  const createService = createHttpFactory(<%= classify(name) %>Interceptor);
+
+  beforeEach(() => (spectator = createService()));
+
+  it('should be created', () => {
+    expect(spectator.service).toBeTruthy();
+  });
+});

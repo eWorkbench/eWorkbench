@@ -1,0 +1,23 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="type === 'ROOM'">
+    <eworkbench-icon className="wb-key" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('resources.type.room') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="type === 'LABEQ'">
+    <eworkbench-icon className="wb-flask" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('resources.type.labEquipment') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="type === 'OFFEQ'">
+    <eworkbench-icon className="wb-briefcase" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('resources.type.officeEquipment') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="type === 'ITRES'">
+    <eworkbench-icon className="wb-notebook" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('resources.type.ITResource') }}</ng-container>
+  </ng-container>
+</ng-container>

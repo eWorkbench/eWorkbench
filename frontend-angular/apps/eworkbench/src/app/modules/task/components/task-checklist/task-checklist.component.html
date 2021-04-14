@@ -1,0 +1,49 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngFor="let item of checkboxes.controls; let i = index; let last = last">
+    <div class="d-flex justify-content-between" [class.mb-2]="!last">
+      <div class="mr-3">
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            class="custom-control-input"
+            [id]="'checkbox.' + uniqueHash + '.' + i"
+            [name]="'checkbox.' + uniqueHash + '.' + i"
+            [formControl]="item"
+            (click)="onTriggerChange()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'checkbox.' + uniqueHash + '.' + i"></label>
+        </div>
+      </div>
+
+      <div class="flex-fill align-self-center">
+        <input
+          type="text"
+          class="form-control ewb-input"
+          [formControl]="titles.controls[i]"
+          [id]="'item.' + uniqueHash + '.' + i"
+          [name]="'item.' + uniqueHash + '.' + i"
+          (change)="onTriggerChange()"
+        />
+      </div>
+
+      <button
+        type="button"
+        class="btn ewb-button-big ewb-button-icon square ml-2 align-self-center"
+        [tooltip]="t('formInput.remove.tooltip')"
+        containerClass="tooltip-sm"
+        (click)="onRemoveItem(i)"
+        *ngIf="editable"
+      >
+        <eworkbench-icon className="wb-remove"></eworkbench-icon>
+      </button>
+    </div>
+  </ng-container>
+  <button id="checklist" type="button" class="btn ewb-button-big ewb-button-primary mt-2" (click)="onAddItem()" *ngIf="editable">
+    {{ t('task.checklist.add') }}
+  </button>
+</ng-container>

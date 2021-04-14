@@ -1,0 +1,42 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div [class.mb-4]="margin">
+    <div>
+      <label [for]="for" *ngIf="label">
+        {{ label }}
+        <eworkbench-form-asterisk *ngIf="required" class="d-inline-block"></eworkbench-form-asterisk>
+      </label>
+      <ng-content select="[slot=label]" *ngIf="!label"></ng-content>
+    </div>
+    <div class="d-flex justify-content-between">
+      <div class="flex-fill">
+        <ng-content select="[slot=input]"></ng-content>
+      </div>
+      <div class="ml-2 align-self-center text-nowrap" *ngIf="showButtons">
+        <button
+          type="submit"
+          class="btn ewb-button-big ewb-button-primary square mr-1"
+          [tooltip]="t('formInput.save.tooltip')"
+          containerClass="tooltip-sm"
+          [disabled]="loading || ngControl?.invalid"
+        >
+          <eworkbench-icon className="wb-check"></eworkbench-icon>
+        </button>
+        <button
+          type="button"
+          class="btn ewb-button-big ewb-button-secondary square"
+          [tooltip]="t('formInput.reset.tooltip')"
+          containerClass="tooltip-sm"
+          [disabled]="loading"
+          (click)="onCancel()"
+        >
+          <eworkbench-icon className="wb-undo"></eworkbench-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

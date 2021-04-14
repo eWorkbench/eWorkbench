@@ -1,0 +1,23 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="lock?.locked">
+    <alert type="lock" class="d-block mb-4">
+      <eworkbench-icon className="wb-locked" class="mr-2"></eworkbench-icon>
+      This element is currently locked by
+      <eworkbench-user-details *ngIf="!lockUser.ownUser" class="d-inline-block" [user]="lockUser.user"></eworkbench-user-details
+      ><span *ngIf="lockUser.ownUser">you</span>. The lock will be released in less than a minute or you can
+      <a href class="alert-link alert-link-lock" (click)="releaseLock($event)">release the lock</a> now.
+    </alert>
+  </ng-container>
+  <ng-container *ngIf="modified">
+    <alert type="lock" class="d-block mb-4">
+      <eworkbench-icon className="wb-refresh" class="mr-2"></eworkbench-icon>
+      This element has been modified by another user while you were reading it. Click
+      <a href class="alert-link alert-link-lock" (click)="refresh($event)">here</a> to reload the page.
+    </alert>
+  </ng-container>
+</ng-container>

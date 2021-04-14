@@ -1,0 +1,178 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      <ng-container *ngIf="step === 1">
+        {{ t('labBook.newPictureElementModal.headerStep1') }}
+      </ng-container>
+      <ng-container *ngIf="step === 2">
+        {{ t('labBook.newPictureElementModal.headerStep2') }}
+      </ng-container>
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <ng-container *ngIf="step === 1">
+            <div class="mb-4">
+              <label for="parentElement-modal">
+                {{ t('labBook.newPictureElementModal.parentElement.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <ng-select
+                class="ewb-select"
+                formControlName="parentElement"
+                labelForId="parentElement-modal"
+                name="parentElement-modal"
+                [placeholder]="t('labBook.newPictureElementModal.parentElement.placeholder')"
+                [items]="parentElement"
+                [clearable]="false"
+                bindLabel="label"
+                bindValue="value"
+              ></ng-select>
+            </div>
+            <div class="mb-4">
+              <label for="position-modal">
+                {{ t('labBook.newPictureElementModal.position.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <ng-select
+                class="ewb-select"
+                formControlName="position"
+                labelForId="position-modal"
+                name="position-modal"
+                [placeholder]="t('labBook.newPictureElementModal.position.placeholder')"
+                [items]="position"
+                [clearable]="false"
+                bindLabel="label"
+                bindValue="value"
+              ></ng-select>
+            </div>
+
+            <div class="modal-footer p-0">
+              <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+                {{ t('labBook.newPictureElementModal.cancel') }}
+              </button>
+              <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading" (click)="onChangeStep(2)">
+                {{ t('labBook.newPictureElementModal.nextStep') }}
+              </button>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="step === 2">
+            <div class="mb-4">
+              <label for="title-modal">
+                {{ t('labBook.newPictureElementModal.title.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                formControlName="title"
+                id="title-modal"
+                name="title-modal"
+                [placeholder]="t('labBook.newPictureElementModal.title.placeholder')"
+              />
+            </div>
+            <div class="mb-4">
+              <label for="picture-modal">
+                {{ t('labBook.newPictureElementModal.picture.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" (change)="onUpload($event)" id="picture-modal" name="picture-modal" />
+                <label for="picture-modal" class="custom-file-label ewb-input-file" [class.custom-file-label-filled]="this.f.file.value">{{
+                  filePlaceholder
+                }}</label>
+              </div>
+            </div>
+            <div *ngIf="displayImage" class="overflow-image mb-4">
+              <img [src]="displayImage" [style.width.px]="f.width.value" [style.height.px]="f.height.value" />
+            </div>
+            <div class="mb-4">
+              <label for="width-modal">
+                {{ t('labBook.newPictureElementModal.width.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <input
+                type="number"
+                class="form-control ewb-input"
+                formControlName="width"
+                id="width-modal"
+                name="width-modal"
+                [placeholder]="t('labBook.newPictureElementModal.width.placeholder')"
+              />
+            </div>
+            <div class="mb-4">
+              <label for="height-modal">
+                {{ t('labBook.newPictureElementModal.height.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <input
+                type="number"
+                class="form-control ewb-input"
+                formControlName="height"
+                id="height-modal"
+                name="height-modal"
+                [placeholder]="t('labBook.newPictureElementModal.height.placeholder')"
+              />
+            </div>
+            <div class="mb-4">
+              <div class="custom-control custom-checkbox">
+                <input
+                  class="custom-control-input"
+                  type="checkbox"
+                  formControlName="keepAspectRatio"
+                  id="keepAspectRatio-modal"
+                  name="keepAspectRatio-modal"
+                />
+                <label class="custom-control-label font-weight-normal" for="keepAspectRatio-modal">{{
+                  t('labBook.newPictureElementModal.keepAspectRatio.label')
+                }}</label>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label for="projects-modal">{{ t('labBook.newPictureElementModal.projects.label') }}</label>
+              <ng-select
+                class="ewb-select"
+                formControlName="projects"
+                labelForId="projects-modal"
+                name="projects-modal"
+                [placeholder]="t('labBook.newPictureElementModal.projects.placeholder')"
+                [multiple]="true"
+                [typeahead]="projectInput$"
+                [items]="projectsList"
+                bindLabel="name"
+                bindValue="pk"
+              >
+                <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                  {{ item.name }}
+                  <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                </ng-template>
+              </ng-select>
+            </div>
+
+            <div class="d-flex justify-content-between mt-5">
+              <div>
+                <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onChangeStep(1)">
+                  <eworkbench-icon className="wb-bold-chevron-left"></eworkbench-icon>
+                  {{ t('labBook.newPictureElementModal.previousStep') }}
+                </button>
+              </div>
+              <div class="modal-footer p-0">
+                <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+                  {{ t('labBook.newPictureElementModal.cancel') }}
+                </button>
+                <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+                  {{ t('labBook.newPictureElementModal.create') }}
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

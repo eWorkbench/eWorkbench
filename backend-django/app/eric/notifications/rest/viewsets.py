@@ -45,6 +45,7 @@ class NotificationViewSet(BaseAuthenticatedReadOnlyModelViewSet):
     search_fields = ()
     filterset_class = NotificationFilter
     pagination_class = LimitOffsetPagination
+    ordering_fields = ('created_at', 'last_modified_at',)
 
     @action(detail=True, methods=['put'])
     def read(self, request, pk=None):

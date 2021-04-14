@@ -1,0 +1,184 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      <ng-container *ngIf="pluginDetails">
+        {{ t('plugin.detailsModal.header') }}
+      </ng-container>
+      <ng-container *ngIf="!pluginDetails">
+        <ng-container *ngIf="step === 1">
+          {{ t('labBook.newPluginElementModal.headerStep1') }}
+        </ng-container>
+        <ng-container *ngIf="step === 2">
+          {{ t('labBook.newPluginElementModal.headerStep2') }}
+        </ng-container>
+      </ng-container>
+      <div class="float-right" *ngIf="!pluginDetails">
+        {{ t('labBook.newPluginElementModal.steps', { step: step, maxSteps: 2 }) }}
+      </div>
+    </div>
+    <div slot="body">
+      <ng-container *ngIf="!showFeedbackFormForPlugin">
+        <eworkbench-loading [loading]="loading">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+            <ng-container *ngIf="!pluginDetails">
+              <ng-container *ngIf="step === 1">
+                <div class="toolbar">
+                  <div class="mb-4">
+                    <div class="search-input">
+                      <div class="input-group search-input-group">
+                        <input
+                          type="text"
+                          class="form-control ewb-input"
+                          id="search-modal"
+                          name="search-modal"
+                          [formControl]="searchControl"
+                          [placeholder]="t('labBook.newPluginElementModal.search.placeholder')"
+                        />
+                        <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+                          <eworkbench-icon className="wb-search"></eworkbench-icon>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm bg-transparent clear-input"
+                          (click)="searchControl.patchValue(null)"
+                          *ngIf="searchControl.value"
+                        >
+                          <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-4 text-right">
+                    <div class="custom-control custom-checkbox">
+                      <input
+                        class="custom-control-input"
+                        type="checkbox"
+                        id="onlyPluginsWithAccess"
+                        name="onlyPluginsWithAccess"
+                        [formControl]="onlyPluginsWithAccess"
+                        (change)="onToogleOnlyPluginsWithAccess()"
+                      />
+                      <label class="custom-control-label font-weight-normal" for="onlyPluginsWithAccess">{{
+                        t('labBook.newPluginElementModal.onlyPluginsWithAccess.label')
+                      }}</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="plugins">
+                  <eworkbench-plugin-preview
+                    [plugin]="plugin"
+                    (showDetails)="onShowDetails($event)"
+                    (dropdownSelected)="onDropdownSelected($event)"
+                    (selected)="onSelect($event)"
+                    *ngFor="let plugin of plugins"
+                  ></eworkbench-plugin-preview>
+                </div>
+
+                <div class="modal-footer p-0 mt-5">
+                  <button
+                    type="button"
+                    class="btn ewb-button-big ewb-button-secondary mr-2"
+                    [disabled]="loading"
+                    (click)="modalRef.close()"
+                  >
+                    {{ t('labBook.newPluginElementModal.cancel') }}
+                  </button>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="step === 2">
+                <div class="mb-4">
+                  <label for="selectedPlugin-modal">{{ t('labBook.newPluginElementModal.selectedPlugin.label') }}</label>
+                  <eworkbench-plugin-small-preview [plugin]="selectedPlugin"></eworkbench-plugin-small-preview>
+                </div>
+                <div class="mb-4">
+                  <label for="parentElement-modal">
+                    {{ t('labBook.newPluginElementModal.parentElement.label') }}
+                    <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                  </label>
+                  <ng-select
+                    class="ewb-select"
+                    formControlName="parentElement"
+                    labelForId="parentElement-modal"
+                    name="parentElement-modal"
+                    [placeholder]="t('labBook.newPluginElementModal.parentElement.placeholder')"
+                    [items]="parentElement"
+                    [clearable]="false"
+                    bindLabel="label"
+                    bindValue="value"
+                  ></ng-select>
+                </div>
+                <div class="mb-4">
+                  <label for="position-modal">
+                    {{ t('labBook.newPluginElementModal.position.label') }}
+                    <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                  </label>
+                  <ng-select
+                    class="ewb-select"
+                    formControlName="position"
+                    labelForId="position-modal"
+                    name="position-modal"
+                    [placeholder]="t('labBook.newPluginElementModal.position.placeholder')"
+                    [items]="position"
+                    [clearable]="false"
+                    bindLabel="label"
+                    bindValue="value"
+                  ></ng-select>
+                </div>
+
+                <div class="d-flex justify-content-between mt-5">
+                  <div>
+                    <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onChangeStep(1)">
+                      <eworkbench-icon className="wb-bold-chevron-left"></eworkbench-icon>
+                      {{ t('labBook.newPluginElementModal.previousStep') }}
+                    </button>
+                  </div>
+                  <div class="modal-footer p-0">
+                    <button
+                      type="button"
+                      class="btn ewb-button-big ewb-button-secondary mr-2"
+                      [disabled]="loading"
+                      (click)="modalRef.close()"
+                    >
+                      {{ t('labBook.newPluginElementModal.cancel') }}
+                    </button>
+                    <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+                      {{ t('labBook.newPluginElementModal.create') }}
+                    </button>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="pluginDetails">
+              <eworkbench-plugin-details
+                [plugin]="pluginDetails"
+                (dropdownSelected)="onDropdownSelected($event)"
+              ></eworkbench-plugin-details>
+
+              <div class="d-flex justify-content-between mt-5">
+                <div>
+                  <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onCancelDetails()">
+                    <eworkbench-icon className="wb-bold-chevron-left"></eworkbench-icon>
+                    {{ t('labBook.newPluginElementModal.backToOverview') }}
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </form>
+        </eworkbench-loading>
+      </ng-container>
+
+      <eworkbench-plugin-feedback
+        [id]="showFeedbackFormForPlugin?.id"
+        [type]="showFeedbackFormForPlugin?.type"
+        (canceled)="onHideFeedbackForm()"
+        *ngIf="showFeedbackFormForPlugin"
+      ></eworkbench-plugin-feedback>
+    </div>
+  </eworkbench-modal>
+</ng-container>

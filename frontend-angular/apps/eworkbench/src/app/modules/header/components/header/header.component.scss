@@ -1,0 +1,99 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@import 'colors';
+@import 'variables';
+
+$header-padding-y: 10px;
+$header-padding-x-wide: 68px;
+$header-padding-x-narrow: 20px;
+
+:host {
+  display: block;
+  position: sticky;
+  top: 58px;
+  z-index: 100;
+  background-color: #ffffff;
+
+  @media (min-width: $breakpoint-lg) {
+    top: 60px;
+  }
+
+  header {
+    background-color: $primary-color;
+    padding: $header-padding-y $header-padding-x-narrow;
+
+    @media (min-width: $breakpoint-lg) {
+      min-height: 80px;
+    }
+
+    @media (min-width: 1092px) {
+      padding: $header-padding-y $header-padding-x-wide;
+    }
+
+    .header {
+      display: grid;
+      gap: 10px 0;
+      grid-template-areas: 'breadcrumbs breadcrumbs' 'bottom bottom';
+
+      @media (min-width: $breakpoint-lg) {
+        grid-template-areas: 'breadcrumbs breadcrumbs breadcrumbs' 'bottom bottom bottom';
+      }
+
+      .breadcrumbs {
+        grid-area: breadcrumbs;
+        font-size: 11px;
+        color: #fff;
+
+        a {
+          color: #fff;
+
+          &:hover {
+            text-decoration: none;
+          }
+        }
+      }
+
+      .bottom {
+        display: grid;
+        grid-area: bottom;
+        grid-template-areas: 'title title' 'search search' 'elements elements';
+        gap: 10px 0;
+        align-items: center;
+
+        @media (min-width: $breakpoint-lg) {
+          display: flex;
+          grid-template-areas: unset;
+          gap: unset;
+          justify-content: space-between;
+        }
+      }
+
+      .title {
+        grid-area: title;
+        height: 30px;
+
+        h1 {
+          color: #fff;
+          font-weight: 600;
+          font-size: 20px;
+          margin: 0;
+        }
+      }
+
+      .search {
+        grid-area: search;
+      }
+
+      .elements {
+        grid-area: elements;
+
+        @media (min-width: $breakpoint-lg) {
+          justify-self: end;
+        }
+      }
+    }
+  }
+}

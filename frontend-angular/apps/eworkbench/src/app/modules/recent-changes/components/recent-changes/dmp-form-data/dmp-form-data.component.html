@@ -1,0 +1,13 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div>{{ t('recentChanges.dmpFormData.dmpFormDataHaveChanged') }}</div>
+  <ng-container *ngFor="let field of changeSet">
+    <div class="font-weight-bold">{{ field.name }}</div>
+    <div class="bg-danger p-2" [innerHTML]="field.oldValue | safeHTML" *ngIf="field.oldValue"></div>
+    <div class="bg-success p-2" [innerHTML]="field.newValue | safeHTML" *ngIf="field.newValue"></div>
+  </ng-container>
+</ng-container>

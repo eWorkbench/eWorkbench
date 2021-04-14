@@ -1,0 +1,84 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="sidebar" [style.position]="sidebarPosition" [style.top.px]="offsetHeader + offsetMargin">
+    <h1>{{ t('labBook.sidebar.add.header') }}</h1>
+    <ul class="list-unstyled m-0">
+      <li>
+        <button
+          type="button"
+          class="btn ewb-button-regular text-white"
+          [tooltip]="t('labBook.sidebar.add.note.tooltip')"
+          containerClass="tooltip-sm"
+          placement="right"
+          (click)="onOpenNewNoteElementModal()"
+        >
+          <eworkbench-icon className="wb-comment"></eworkbench-icon>
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="btn ewb-button-regular text-white"
+          [tooltip]="t('labBook.sidebar.add.picture.tooltip')"
+          containerClass="tooltip-sm"
+          placement="right"
+          (click)="onOpenNewPictureElementModal()"
+        >
+          <eworkbench-icon className="wb-image"></eworkbench-icon>
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="btn ewb-button-regular text-white"
+          [tooltip]="t('labBook.sidebar.add.file.tooltip')"
+          containerClass="tooltip-sm"
+          placement="right"
+          (click)="onOpenNewFileElementModal()"
+        >
+          <eworkbench-icon className="wb-files"></eworkbench-icon>
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="btn ewb-button-regular text-white"
+          [tooltip]="t('labBook.sidebar.add.plugin.tooltip')"
+          containerClass="tooltip-sm"
+          placement="right"
+          (click)="onOpenNewPluginElementModal()"
+        >
+          <eworkbench-icon className="wb-plugin"></eworkbench-icon>
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="btn ewb-button-regular text-white"
+          [tooltip]="t('labBook.sidebar.add.import.tooltip')"
+          containerClass="tooltip-sm"
+          placement="right"
+          (click)="onOpenImportModal()"
+        >
+          <eworkbench-icon className="wb-copy"></eworkbench-icon>
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="btn ewb-button-regular text-white"
+          [tooltip]="t('labBook.sidebar.add.section.tooltip')"
+          containerClass="tooltip-sm"
+          placement="right"
+          (click)="onOpenNewSectionModal()"
+        >
+          <eworkbench-icon className="wb-bars"></eworkbench-icon>
+        </button>
+      </li>
+    </ul>
+  </div>
+</ng-container>

@@ -1,0 +1,150 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <nav class="navbar navbar-light navbar-expand-lg">
+    <a #navbarBrand class="navbar-brand" [routerLink]="['/']">
+      <img src="assets/images/logo.png" class="d-inline-block align-top" alt="TUM" />
+      Workbench<sup>{{ version }}</sup>
+    </a>
+    <button
+      class="btn ewb-button-big navbar-toggler"
+      [attr.aria-expanded]="!collapsed"
+      aria-controls="collapseBasic"
+      (click)="collapsed = !collapsed"
+      *ngIf="currentUser"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse h-100" [collapse]="collapsed" *ngIf="currentUser">
+      <div class="navbar-container w-100 h-100">
+        <eworkbench-ordered-menu
+          *ngIf="!minimalisticNavbar"
+          class="h-100 mt-lg-0"
+          [navbarBrand]="navbarBrand"
+          [navbarRightContent]="navbarRightContent"
+        ></eworkbench-ordered-menu>
+        <div #navbarRightContent class="d-flex ml-3">
+          <ul class="navbar-nav navbar-search h-100" *ngIf="!minimalisticNavbar">
+            <li class="h-100 d-flex align-items-center mr-3">
+              <eworkbench-global-search></eworkbench-global-search>
+            </li>
+          </ul>
+          <ul class="navbar-nav h-100 navbar-user" [class.ml-auto]="minimalisticNavbar">
+            <li class="h-100 d-flex align-items-center">
+              <div
+                *ngIf="dropdown"
+                class="d-inline-block h-100 dropdown-active"
+                dropdown
+                container="body"
+                placement="bottom right"
+                routerLinkActive="active"
+              >
+                <button
+                  id="navbar-dropdown-button"
+                  class="btn ewb-button-regular font-weight-normal h-100 text-nowrap"
+                  aria-controls="navbar-dropdown-menu"
+                  dropdownToggle
+                >
+                  <span class="mr-2">{{ getUserName() }}</span>
+                  <eworkbench-icon className="wb-chevron-down-1"></eworkbench-icon>
+                </button>
+                <ul
+                  id="navbar-dropdown-menu"
+                  *dropdownMenu
+                  class="dropdown-menu dropdown-menu-right details-dropdown-menu"
+                  role="menu"
+                  aria-labelledby="navbar-dropdown-button"
+                >
+                  <ng-template
+                    *ngTemplateOutlet="
+                      dropdownUL;
+                      context: {
+                        t: t,
+                        menuClass: '',
+                        itemClass: 'btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button'
+                      }
+                    "
+                  ></ng-template>
+                </ul>
+              </div>
+              <div *ngIf="!dropdown" class="w-100">
+                <button
+                  id="navbar-collapse-button"
+                  class="btn ewb-button-regular nav-button w-100 text-left"
+                  [attr.aria-expanded]="!userCollapsed"
+                  aria-controls="navbar-collapse-menu"
+                  (click)="userCollapsed = !userCollapsed"
+                >
+                  <span class="mr-2">{{ getUserName() }}</span>
+                  <eworkbench-icon className="wb-chevron-down-1"></eworkbench-icon>
+                </button>
+                <div
+                  id="navbar-collapse-menu"
+                  class="collapse navbar-collapse mt-1"
+                  role="menu"
+                  aria-labelledby="navbar-collapse-button"
+                  [collapse]="userCollapsed"
+                >
+                  <ng-template
+                    *ngTemplateOutlet="
+                      dropdownUL;
+                      context: { t: t, menuClass: 'menuitem', itemClass: 'btn ewb-button-regular font-weight-normal w-100 text-left' }
+                    "
+                  ></ng-template>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <ul class="navbar-nav h-100">
+            <li class="h-100 d-flex align-items-center ml-3 mr-5">
+              <eworkbench-global-notifications></eworkbench-global-notifications>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+</ng-container>
+
+<ng-template #dropdownUL let-t="t" let-menuClass="menuClass" let-itemClass="itemClass">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalisticNavbar && isDSSCurator">
+    <a
+      [class]="itemClass"
+      class="text-nowrap"
+      [routerLink]="['/dsscontainers']"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      >{{ t('navbar.menu.profile.dssContainerManagement') }}</a
+    >
+  </li>
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalisticNavbar">
+    <a [class]="itemClass" [routerLink]="['/profile']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{
+      t('navbar.menu.profile.profile')
+    }}</a>
+  </li>
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalisticNavbar">
+    <a [class]="itemClass" [routerLink]="['/profile', 'password']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{
+      t('navbar.menu.profile.changePassword')
+    }}</a>
+  </li>
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalisticNavbar">
+    <a [class]="itemClass" [routerLink]="['/profile', 'settings']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{
+      t('navbar.menu.profile.settings')
+    }}</a>
+  </li>
+  <li [class]="menuClass" role="menuitem" *ngIf="minimalisticNavbar">
+    <a [class]="itemClass" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{
+      t('navbar.menu.switchToWorkbench')
+    }}</a>
+  </li>
+  <hr class="line" />
+  <li [class]="menuClass" role="menuitem">
+    <a [class]="itemClass" (click)="onLogout()">
+      <eworkbench-icon className="wb-logout"></eworkbench-icon>
+      {{ t('navbar.menu.profile.logout') }}
+    </a>
+  </li>
+</ng-template>

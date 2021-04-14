@@ -1,0 +1,278 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('link.newModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading">
+          <tabset #searchContentTabs>
+            <tab
+              [heading]="
+                appointmentRelations.value.length
+                  ? t('link.newModal.tabHeading.appointmentSelected', { count: appointmentRelations.value.length })
+                  : t('link.newModal.tabHeading.appointment')
+              "
+              id="shared_elements.meeting"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showAppointmentSearch"
+                [listColumns]="appointmentListColumns"
+                [service]="appointmentsService"
+                [baseModel]="baseModel"
+                [formArray]="appointmentRelations"
+                [newContent]="refreshAppointments"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                noteRelations.value.length
+                  ? t('link.newModal.tabHeading.commentSelected', { count: noteRelations.value.length })
+                  : t('link.newModal.tabHeading.comment')
+              "
+              id="shared_elements.note"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showCommentSearch"
+                [listColumns]="commentListColumns"
+                [baseModel]="baseModel"
+                [service]="notesService"
+                [formArray]="noteRelations"
+                [newContent]="refreshComments"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                contactRelations.value.length
+                  ? t('link.newModal.tabHeading.contactSelected', { count: contactRelations.value.length })
+                  : t('link.newModal.tabHeading.contact')
+              "
+              id="shared_elements.contact"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showContactSearch"
+                [listColumns]="contactListColumns"
+                [baseModel]="baseModel"
+                [service]="contactsService"
+                [formArray]="contactRelations"
+                [newContent]="refreshContacts"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                fileRelations.value.length
+                  ? t('link.newModal.tabHeading.fileSelected', { count: fileRelations.value.length })
+                  : t('link.newModal.tabHeading.file')
+              "
+              id="shared_elements.file"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showFileSearch"
+                [listColumns]="fileListColumns"
+                [baseModel]="baseModel"
+                [service]="filesService"
+                [formArray]="fileRelations"
+                [newContent]="refreshFiles"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                labBookRelations.value.length
+                  ? t('link.newModal.tabHeading.labBookSelected', { count: labBookRelations.value.length })
+                  : t('link.newModal.tabHeading.labBook')
+              "
+              id="labbooks.labbook"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showLabbookSearch"
+                [listColumns]="labbookListColumns"
+                [baseModel]="baseModel"
+                [service]="labBooksService"
+                [formArray]="labBookRelations"
+                [newContent]="refreshLabBooks"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                pluginInstanceRelations.value.length
+                  ? t('link.newModal.tabHeading.pluginInstanceSelected', { count: pluginInstanceRelations.value.length })
+                  : t('link.newModal.tabHeading.pluginInstance')
+              "
+              id="plugins.plugininstance"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showPluginDataSearch"
+                [listColumns]="pluginDataListColumns"
+                [baseModel]="baseModel"
+                [service]="pluginInstancesService"
+                [formArray]="pluginInstanceRelations"
+                [newContent]="refreshPluginData"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                projectRelations.value.length
+                  ? t('link.newModal.tabHeading.projectSelected', { count: projectRelations.value.length })
+                  : t('link.newModal.tabHeading.project')
+              "
+              id="projects.project"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showProjectSearch"
+                [listColumns]="projectListColumns"
+                [baseModel]="baseModel"
+                [service]="projectsService"
+                [formArray]="projectRelations"
+                [newContent]="refreshProjects"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                driveRelations.value.length
+                  ? t('link.newModal.tabHeading.driveSelected', { count: driveRelations.value.length })
+                  : t('link.newModal.tabHeading.drive')
+              "
+              id="drivers.drive"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showDriveSearch"
+                [listColumns]="driveListColumns"
+                [baseModel]="baseModel"
+                [service]="drivesService"
+                [formArray]="driveRelations"
+                [newContent]="refreshDrives"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                taskRelations.value.length
+                  ? t('link.newModal.tabHeading.taskSelected', { count: taskRelations.value.length })
+                  : t('link.newModal.tabHeading.task')
+              "
+              id="shared_elements.task"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showTaskSearch"
+                [listColumns]="taskListColumns"
+                [baseModel]="baseModel"
+                [service]="tasksService"
+                [formArray]="taskRelations"
+                [newContent]="refreshTasks"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                taskBoardRelations.value.length
+                  ? t('link.newModal.tabHeading.taskBoardSelected', { count: taskBoardRelations.value.length })
+                  : t('link.newModal.tabHeading.taskBoard')
+              "
+              id="kanban_boards.kanbanboard"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showTaskBoardSearch"
+                [listColumns]="taskBoardListColumns"
+                [baseModel]="baseModel"
+                [service]="taskBoardsService"
+                [formArray]="taskBoardRelations"
+                [newContent]="refreshTaskBoards"
+              ></eworkbench-search-content
+            ></tab>
+          </tabset>
+          <div class="modal-footer p-0 mt-5">
+            <div>
+              <button
+                *ngIf="newContentModal"
+                type="button"
+                class="btn ewb-button-big ewb-button-primary float-left"
+                [disabled]="loading"
+                (click)="onOpenNewContentModal()"
+              >
+                {{ t(newContentLabel) }}
+              </button>
+            </div>
+            <div>
+              <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+                {{ t('link.newModal.cancel') }}
+              </button>
+              <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || !relations.length">
+                <span *ngIf="relationsCount < 2">{{ t('link.newModal.create.singular') }}</span>
+                <span *ngIf="relationsCount > 1">{{ t('link.newModal.create.plural', { count: relationsCount }) }}</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>
+
+<ng-template #genericCreatedByCellTemplate let-row>
+  <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
+</ng-template>
+
+<ng-template #genericCreatedAtCellTemplate let-row>
+  {{ row.created_at | formatDate }}
+</ng-template>
+
+<ng-template #appointmentTitleCellTemplate let-row>
+  {{ row.title }}
+</ng-template>
+
+<ng-template #appointmentStartDateCellTemplate let-row>
+  {{ row.date_time_start | formatDate }} - {{ row.date_time_end | formatDate }}
+</ng-template>
+
+<ng-template #commentSubjectCellTemplate let-row>
+  {{ row.subject }}
+</ng-template>
+
+<ng-template #contactFirstNameCellTemplate let-row>
+  {{ row.first_name }}
+</ng-template>
+
+<ng-template #contactLastNameCellTemplate let-row>
+  {{ row.last_name }}
+</ng-template>
+
+<ng-template #fileNameCellTemplate let-row>
+  {{ row.name }}
+</ng-template>
+
+<ng-template #labBookTitleCellTemplate let-row>
+  {{ row.title }}
+</ng-template>
+
+<ng-template #pluginInstanceTitleCellTemplate let-row>
+  {{ row.title }}
+</ng-template>
+
+<ng-template #projectNameCellTemplate let-row>
+  {{ row.name }}
+</ng-template>
+
+<ng-template #driveTitleCellTemplate let-row>
+  {{ row.title }}
+</ng-template>
+
+<ng-template #taskIdCellTemplate let-row> #{{ row.task_id }} </ng-template>
+
+<ng-template #taskTitleCellTemplate let-row>
+  {{ row.title }}
+</ng-template>
+
+<ng-template #taskPriorityCellTemplate let-row>
+  <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
+</ng-template>
+
+<ng-template #taskStateCellTemplate let-row>
+  <eworkbench-task-state [state]="row.state"></eworkbench-task-state>
+</ng-template>
+
+<ng-template #taskBoardTitleCellTemplate let-row>
+  {{ row.title }}
+</ng-template>

@@ -1,0 +1,107 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="link-container mt-4">
+    <div class="new-link">
+      <div class="link-tools">
+        <div class="d-inline-block navbar-nav" #dropdown="bs-dropdown" dropdown container="body" placement="bottom right">
+          <button
+            type="button"
+            id="link-dropdown-button"
+            class="btn ewb-button-big ewb-button-primary ewb-button-regular"
+            [class.active]="dropdown.isOpen"
+            aria-controls="link-dropdown-menu"
+            [disabled]="loading"
+            dropdownToggle
+          >
+            {{ t('link.newLink') }}
+            <eworkbench-icon [className]="dropdown.isOpen ? 'wb-chevron-up' : 'wb-chevron-down-1'"></eworkbench-icon>
+          </button>
+          <ul
+            id="link-dropdown-menu"
+            *dropdownMenu
+            class="dropdown-menu dropdown-menu-right details-dropdown-menu"
+            role="menu"
+            aria-labelledby="link-dropdown-button"
+          >
+            <ng-template
+              *ngTemplateOutlet="
+                dropdownUL;
+                context: { t: t, menuClass: '', itemClass: 'btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button' }
+              "
+            ></ng-template>
+          </ul>
+        </div>
+      </div>
+      <div class="comment-header mb-2">
+        <eworkbench-icon className="wb-comment"></eworkbench-icon>
+        {{ t('link.newComment') }}
+      </div>
+      <eworkbench-new-comment
+        [id]="baseModel.pk"
+        [contentType]="baseModel.content_type"
+        [service]="service"
+        [refresh]="refreshLinkList"
+      ></eworkbench-new-comment>
+    </div>
+    <div class="link-list">
+      <eworkbench-link-list [id]="baseModel.pk" [service]="service" [refresh]="refreshLinkList"></eworkbench-link-list>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #dropdownUL let-t="t" let-menuClass="menuClass" let-itemClass="itemClass">
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('shared_elements.meeting')" [disabled]="loading">
+      <eworkbench-icon className="wb-appointments"></eworkbench-icon> {{ t('link.dropdown.appointment') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('shared_elements.note')" [disabled]="loading">
+      <eworkbench-icon className="wb-comment"></eworkbench-icon> {{ t('link.dropdown.comment') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('shared_elements.contact')" [disabled]="loading">
+      <eworkbench-icon className="wb-contacts"></eworkbench-icon> {{ t('link.dropdown.contact') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('shared_elements.file')" [disabled]="loading">
+      <eworkbench-icon className="wb-files"></eworkbench-icon> {{ t('link.dropdown.file') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('labbooks.labbook')" [disabled]="loading">
+      <eworkbench-icon className="wb-lab-book"></eworkbench-icon> {{ t('link.dropdown.labBook') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('plugins.plugininstance')" [disabled]="loading">
+      <eworkbench-icon className="wb-storages"></eworkbench-icon> {{ t('link.dropdown.pluginContent') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('projects.project')" [disabled]="loading">
+      <eworkbench-icon className="wb-book-closed"></eworkbench-icon> {{ t('link.dropdown.project') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('drivers.drive')" [disabled]="loading">
+      <eworkbench-icon className="wb-storages"></eworkbench-icon> {{ t('link.dropdown.storage') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('shared_elements.task')" [disabled]="loading">
+      <eworkbench-icon className="wb-tasks"></eworkbench-icon> {{ t('link.dropdown.task') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('kanban_boards.kanbanboard')" [disabled]="loading">
+      <eworkbench-icon className="wb-taskboards"></eworkbench-icon> {{ t('link.dropdown.taskBoard') }}
+    </button>
+  </li>
+</ng-template>

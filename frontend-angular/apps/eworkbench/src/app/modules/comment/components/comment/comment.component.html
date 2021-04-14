@@ -1,0 +1,22 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="d-flex">
+    <div>
+      <img class="rounded-circle mr-2" width="40" [src]="user.userprofile.avatar" [alt]="t('profile.picture')" />
+    </div>
+    <div>
+      <div class="font-weight-bold">
+        {{ subject }}
+      </div>
+      <div class="text-secondary">
+        {{ t('comments.comment.createdBy') }} <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details> -
+        <span class="font-italic">{{ createdAt | formatDate }}</span>
+      </div>
+      {{ comment | stripHTML }}
+    </div>
+  </div>
+</ng-container>

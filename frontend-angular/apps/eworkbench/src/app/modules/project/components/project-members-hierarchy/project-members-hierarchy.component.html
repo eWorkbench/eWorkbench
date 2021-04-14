@@ -1,0 +1,18 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="background p-3 mt-4" *ngIf="members.length">
+    <div class="text-secondary mb-2">
+      {{ t('project.members.allMemberships') }}
+    </div>
+    <ul class="list-unstyled m-0">
+      <li class="py-2" *ngFor="let member of members">
+        <eworkbench-user-details class="d-inline-block mr-1" [user]="member.user"></eworkbench-user-details>
+        ({{ formatRoles(memberRoles[member.user_pk]) }})
+      </li>
+    </ul>
+  </div>
+</ng-container>

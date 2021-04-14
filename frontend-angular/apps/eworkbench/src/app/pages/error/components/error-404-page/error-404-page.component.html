@@ -1,0 +1,20 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<ng-container *transloco="let t">
+  <main class="text-center">
+    <eworkbench-icon className="wb-question" class="icon mb-5"></eworkbench-icon>
+    <div class="info mb-5">
+      {{ t('error404.infoText') }}
+    </div>
+    <a [routerLink]="['/']">
+      <button class="btn ewb-button-big ewb-button-secondary">
+        {{ t('error404.back') }}
+      </button>
+    </a>
+  </main>
+</ng-container>

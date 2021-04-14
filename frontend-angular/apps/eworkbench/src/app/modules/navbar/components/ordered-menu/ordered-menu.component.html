@@ -1,0 +1,101 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ul
+  #menu
+  id="menu"
+  class="navbar-nav mt-2 mt-lg-0 h-100 w-100"
+  cdkDropList
+  cdkDropListOrientation="horizontal"
+  [cdkDropListData]="menuItems"
+  cdkDropListConnectedTo="overflowMenu"
+  (cdkDropListDropped)="onMenuDrop($event)"
+  (cdkDropListExited)="onMenuExit($event)"
+  (cdkDropListEntered)="onMenuEnter()"
+  (window:resize)="calculateLimit()"
+>
+  <ng-container *ngFor="let item of menuItems">
+    <li cdkDrag class="d-flex align-items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
+      <a
+        class="h-100 w-100"
+        [routerLink]="[getMenuModel(item)?.routerLink]"
+        [class.disabled]="editMode"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <button class="btn ewb-button-regular text-uppercase route-button h-100 w-100 text-left text-nowrap">
+          {{ getMenuModel(item)?.name }}
+        </button>
+      </a>
+    </li>
+  </ng-container>
+  <li
+    *ngIf="overflowMenuItems.length"
+    #overflowMenuDropdown="bs-dropdown"
+    [insideClick]="true"
+    dropdown
+    container="body"
+    placement="bottom right"
+    class="d-flex align-items-center"
+  >
+    <button id="overflow-menu-button" aria-controls="overflow-menu" type="button" class="btn ewb-button-regular h-100 w-100" dropdownToggle>
+      <eworkbench-icon className="wb-more-horizontal"></eworkbench-icon>
+    </button>
+    <div
+      *dropdownMenu
+      id="overflow-menu"
+      class="dropdown-menu dropdown-menu-right details-dropdown-menu pb-0"
+      role="menu"
+      aria-labelledby="overflow-menu-button"
+    >
+      <ul
+        #overflowMenu
+        id="overflowMenu"
+        cdkDropList
+        [cdkDropListData]="overflowMenuItems"
+        cdkDropListConnectedTo="menu"
+        (cdkDropListDropped)="onMenuDrop($event)"
+        class="p-0 mb-0"
+      >
+        <ng-container *ngFor="let item of overflowMenuItems">
+          <div class="menu-item-button" [class.disabled]="editMode">
+            <li cdkDrag class="d-flex align-items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
+              <a
+                class="h-100 w-100"
+                [routerLink]="[getMenuModel(item)?.routerLink]"
+                [class.disabled]="editMode"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                (click)="dropdown.hide()"
+              >
+                <button class="btn ewb-button-regular text-uppercase route-button h-100 w-100 text-left text-nowrap">
+                  {{ getMenuModel(item)?.name }}
+                </button>
+              </a>
+            </li>
+          </div>
+        </ng-container>
+        <ng-container *transloco="let t">
+          <form>
+            <div class="edit-menu cursor-pointer mt-1">
+              <button *ngIf="!editMode" class="btn ewb-button-regular font-weight-normal" (click)="editMenu()">
+                <eworkbench-icon className="wb-cog"></eworkbench-icon>
+                {{ t('navbar.orderedMenu.editMenu') }}
+              </button>
+              <button *ngIf="editMode" class="btn ewb-button-regular font-weight-normal" (click)="cancelEditMenu()">
+                <eworkbench-icon className="wb-x-bold-close"></eworkbench-icon>
+                {{ t('navbar.orderedMenu.cancelEditMenu') }}
+              </button>
+              <button *ngIf="editMode" class="btn ewb-button-regular font-weight-normal" (click)="saveMenu()">
+                <eworkbench-icon className="wb-check"></eworkbench-icon>
+                {{ t('navbar.orderedMenu.saveMenu') }}
+              </button>
+            </div>
+          </form>
+        </ng-container>
+      </ul>
+    </div>
+  </li>
+</ul>

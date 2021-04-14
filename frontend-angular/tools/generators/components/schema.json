@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "components",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path at which to create the component file, relative to the current workspace. Default is a folder with the same name as the component in the project root.",
+      "visible": false
+    },
+    "name": {
+      "type": "string",
+      "description": "Component name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for this component?"
+    },
+    "project": {
+      "type": "string",
+      "description": "Project to add the component to"
+    },
+    "module": {
+      "type": "string",
+      "description": "The declaring NgModule.",
+      "alias": "m"
+    },
+    "type": {
+      "type": "string",
+      "description": "Adds a developer-defined type to the filename, in the format \"name.type.ts\".",
+      "default": "Component"
+    }
+  },
+  "required": ["name"]
+}

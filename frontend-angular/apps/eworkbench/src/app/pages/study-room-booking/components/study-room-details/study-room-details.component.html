@@ -1,0 +1,214 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-collapse-element class="mb-4" [labelText]="initialState?.display" [collapsed]="true">
+    <form [formGroup]="form" class="resource">
+      <div>
+        <div class="mb-4">
+          <label for="name">{{ t('resource.details.name.label') }}</label>
+          <input
+            type="text"
+            class="form-control ewb-input"
+            id="name"
+            formControlName="name"
+            name="name"
+            [placeholder]="t('resource.details.name.placeholder')"
+          />
+        </div>
+        <div class="mb-4">
+          <label for="type">{{ t('resource.details.type.label') }}</label>
+          <ng-select
+            class="ewb-select"
+            formControlName="type"
+            labelForId="type"
+            name="type"
+            [placeholder]="t('resource.details.type.placeholder')"
+            [items]="types"
+            bindLabel="label"
+            bindValue="value"
+          >
+            <ng-template ng-label-tmp let-item="item">
+              <ng-container [ngTemplateOutlet]="typesTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item">
+              <ng-container [ngTemplateOutlet]="typesTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+            </ng-template>
+            <ng-template #typesTemplate let-item="item">
+              <eworkbench-resource-type [type]="item.value"></eworkbench-resource-type>
+            </ng-template>
+          </ng-select>
+        </div>
+        <div class="mb-4" *ngIf="initialState?.responsible_unit">
+          <label for="responsibleUnit">{{ t('resource.details.responsibleUnit.label') }}</label>
+          <input
+            type="text"
+            class="form-control ewb-input"
+            id="responsibleUnit"
+            formControlName="responsibleUnit"
+            name="responsibleUnit"
+            [placeholder]="t('resource.details.responsibleUnit.placeholder')"
+          />
+        </div>
+        <div class="mb-4" *ngIf="initialState?.contact">
+          <label for="contact">{{ t('resource.details.contact.label') }}</label>
+          <input
+            type="text"
+            class="form-control ewb-input"
+            id="contact"
+            formControlName="contact"
+            name="contact"
+            [placeholder]="t('resource.details.contact.placeholder')"
+          />
+        </div>
+        <div class="mb-4" *ngIf="initialState?.location">
+          <label for="location">{{ t('resource.details.location.label') }}</label>
+          <input
+            type="text"
+            class="form-control ewb-input"
+            id="location"
+            formControlName="location"
+            name="location"
+            [placeholder]="t('resource.details.location.placeholder')"
+          />
+        </div>
+        <div class="mb-4">
+          <label for="userAvailability">{{ t('resource.details.userAvailability.label') }}</label>
+          <ng-select
+            class="ewb-select"
+            formControlName="userAvailability"
+            labelForId="userAvailability"
+            name="userAvailability"
+            [placeholder]="t('resource.details.userAvailability.placeholder')"
+            [items]="userAvailabilityChoices"
+            bindLabel="label"
+            bindValue="value"
+          >
+            <ng-template ng-label-tmp let-item="item">
+              <ng-container [ngTemplateOutlet]="userAvailabilityTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item">
+              <ng-container [ngTemplateOutlet]="userAvailabilityTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+            </ng-template>
+            <ng-template #userAvailabilityTemplate let-item="item">
+              <eworkbench-resource-availability [availability]="item.value"></eworkbench-resource-availability>
+            </ng-template>
+          </ng-select>
+        </div>
+        <div class="mb-4" *ngIf="f.userAvailability.value !== 'GLB'">
+          <label for="userAvailabilitySelectedUserGroups">{{ t('resource.details.userAvailabilitySelectedUserGroups.label') }}</label>
+          <ng-select
+            class="ewb-select"
+            formControlName="userAvailabilitySelectedUserGroups"
+            labelForId="userAvailabilitySelectedUserGroups"
+            name="userAvailabilitySelectedUserGroups"
+            [placeholder]="t('resource.details.userAvailabilitySelectedUserGroups.placeholder')"
+            [items]="userAvailabilitySelectedUserGroupsChoices"
+            bindLabel="label"
+            bindValue="value"
+          >
+          </ng-select>
+        </div>
+        <div class="mb-4" *ngIf="f.userAvailability.value !== 'GLB'">
+          <label for="userAvailabilitySelectedUsers">{{ t('resource.details.userAvailabilitySelectedUsers.label') }}</label>
+          <ng-select
+            #select
+            class="ewb-select"
+            formControlName="userAvailabilitySelectedUsers"
+            labelForId="userAvailabilitySelectedUsers"
+            name="userAvailabilitySelectedUsers"
+            [placeholder]="t('resource.details.userAvailabilitySelectedUsers.placeholder')"
+            [multiple]="true"
+            [items]="userAvailabilitySelectedUsers"
+            bindLabel="username"
+            bindValue="pk"
+          >
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <eworkbench-user-details class="d-inline-block mr-1" [user]="item" (click)="select.isOpen = false"></eworkbench-user-details>
+              <span class="sub-text">{{ item.email }}</span>
+              <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+              <div class="user-dropdown-option">
+                <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                <div>
+                  <ng-container *ngIf="item?.userprofile.anonymized">
+                    <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                  </ng-container>
+                  <ng-container *ngIf="!item?.userprofile.anonymized">
+                    <ng-container
+                      *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
+                    ></ng-container>
+                  </ng-container>
+
+                  <ng-template #userTemplate>
+                    <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
+                  </ng-template>
+                  <ng-template #usernameTemplate>
+                    <span [ngOptionHighlight]="search">{{ item?.username }}</span>
+                  </ng-template>
+
+                  <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+        <div class="mb-4" *ngIf="initialState?.description">
+          <label for="description">{{ t('resource.details.description.label') }}</label>
+          <div [innerHTML]="initialState.description"></div>
+        </div>
+        <div class="mb-4" *ngIf="initialState?.metadata.length">
+          <label for="metadata">{{ t('resource.details.metadata.label') }}</label>
+          <eworkbench-metadata [selectedParameters]="initialState?.metadata"></eworkbench-metadata>
+        </div>
+      </div>
+      <div>
+        <div class="mb-4" *ngIf="initialState?.created_by">
+          <label for="created-by">{{ t('resource.details.createdBy.label') }}</label>
+          <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
+        </div>
+        <div class="mb-4" *ngIf="initialState?.created_at">
+          <label for="created-at">{{ t('resource.details.createdAt.label') }}</label>
+          <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
+        </div>
+        <div class="mb-4" *ngIf="initialState?.last_modified_by">
+          <label for="last-modified-by">{{ t('resource.details.lastModifiedBy.label') }}</label>
+          <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
+        </div>
+        <div class="mb-4" *ngIf="initialState?.last_modified_at">
+          <label for="last-modified-at">{{ t('resource.details.lastModifiedAt.label') }}</label>
+          <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
+        </div>
+        <div class="mb-4" *ngIf="projects.length">
+          <label for="projects">{{ t('resource.details.projects.label') }}</label>
+          <ng-select
+            class="ewb-select"
+            formControlName="projects"
+            labelForId="projects"
+            name="projects"
+            [placeholder]="t('resource.details.projects.placeholder')"
+            [multiple]="true"
+            [items]="projects"
+            bindLabel="name"
+            bindValue="pk"
+          >
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              {{ item.name }}
+              <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+            </ng-template>
+          </ng-select>
+        </div>
+        <div class="mb-4" *ngIf="initialState?.terms_of_use_pdf">
+          <label for="termsOfUsePDF">{{ t('resource.details.termsOfUse.label') }}</label>
+          <div>
+            <a [href]="initialState?.terms_of_use_pdf" target="_blank">{{ t('resource.details.termsOfUsePDF.label') }}</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </eworkbench-collapse-element>
+</ng-container>

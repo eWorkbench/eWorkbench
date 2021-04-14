@@ -1,0 +1,67 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="d-flex justify-content-between">
+    <div class="d-inline-block w-100 pr-3">
+      <label [for]="'startDate' + uniqueHash">
+        {{ t('formDateGroup.startDate.label') }}
+        <eworkbench-form-asterisk class="d-inline-block" *ngIf="required"></eworkbench-form-asterisk>
+      </label>
+      <div class="input-group">
+        <input
+          #startDate
+          type="text"
+          class="form-control ewb-input"
+          [formControl]="f.start"
+          [id]="'startDate' + uniqueHash"
+          [name]="'startDate' + uniqueHash"
+          [placeholder]="t('formDateGroup.startDate.placeholder')"
+          autocomplete="off"
+        />
+        <div class="input-group-append cursor-pointer" (click)="startDate.click()">
+          <span class="input-group-text ewb-input">
+            <eworkbench-icon className="wb-calendar"></eworkbench-icon>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="d-inline-block w-100">
+      <label [for]="'endDate' + uniqueHash">
+        {{ t('formDateGroup.endDate.label') }}
+        <eworkbench-form-asterisk class="d-inline-block" *ngIf="required"></eworkbench-form-asterisk>
+      </label>
+      <div class="input-group">
+        <input
+          #endDate
+          type="text"
+          class="form-control ewb-input"
+          [formControl]="f.end"
+          [id]="'endDate' + uniqueHash"
+          [name]="'endDate' + uniqueHash"
+          [placeholder]="t('formDateGroup.endDate.placeholder')"
+          autocomplete="off"
+        />
+        <div class="input-group-append cursor-pointer" (click)="endDate.click()">
+          <span class="input-group-text ewb-input">
+            <eworkbench-icon className="wb-calendar"></eworkbench-icon>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="d-inline-block w-50 align text-nowrap pl-3" *ngIf="fullDayToggle">
+      <div class="custom-control custom-checkbox" slot="input">
+        <input
+          class="custom-control-input"
+          type="checkbox"
+          [formControl]="f.fullDay"
+          [id]="'fullDay' + uniqueHash"
+          [name]="'fullDay' + uniqueHash"
+        />
+        <label class="custom-control-label" [for]="'fullDay' + uniqueHash">{{ t('formDateGroup.fullDay.label') }}</label>
+      </div>
+    </div>
+  </div>
+</ng-container>

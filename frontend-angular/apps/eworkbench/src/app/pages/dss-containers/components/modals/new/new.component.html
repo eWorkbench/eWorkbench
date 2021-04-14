@@ -1,0 +1,106 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('dssContainer.newModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <div class="mb-4">
+            <label for="name-modal">
+              {{ t('dssContainer.newModal.name.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="name"
+              id="name-modal"
+              name="name-modal"
+              [placeholder]="t('dssContainer.newModal.name.placeholder')"
+            />
+          </div>
+          <div class="mb-4">
+            <label for="path-modal">
+              {{ t('dssContainer.newModal.path.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="path"
+              id="path-modal"
+              name="path-modal"
+              [placeholder]="t('dssContainer.newModal.path.placeholder')"
+            />
+          </div>
+          <div class="mb-4">
+            <label for="readWriteSetting-modal">
+              {{ t('dssContainer.newModal.readWriteSetting.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <ng-select
+              class="ewb-select"
+              formControlName="readWriteSetting"
+              labelForId="readWriteSetting-modal"
+              name="readWriteSetting-modal"
+              [items]="readWriteSettings"
+              bindValue="value"
+              [clearable]="false"
+              [searchable]="false"
+            >
+              <ng-template ng-label-tmp let-item="item">
+                <ng-container [ngTemplateOutlet]="readWriteSettingTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                <ng-container [ngTemplateOutlet]="readWriteSettingTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+              </ng-template>
+              <ng-template #readWriteSettingTemplate let-item="item">
+                <eworkbench-dss-read-write-setting [readWriteSetting]="item.value"></eworkbench-dss-read-write-setting>
+              </ng-template>
+            </ng-select>
+          </div>
+          <div class="mb-4">
+            <label for="importOption-modal">
+              {{ t('dssContainer.newModal.importOption.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <ng-select
+              class="ewb-select"
+              formControlName="importOption"
+              labelForId="importOption-modal"
+              name="importOption-modal"
+              [items]="importOptions"
+              bindValue="value"
+              [clearable]="false"
+              [searchable]="false"
+            >
+              <ng-template ng-label-tmp let-item="item">
+                <ng-container [ngTemplateOutlet]="importOptionTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                <ng-container [ngTemplateOutlet]="importOptionTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+              </ng-template>
+              <ng-template #importOptionTemplate let-item="item">
+                <eworkbench-dss-import-option [importOption]="item.value"></eworkbench-dss-import-option>
+              </ng-template>
+            </ng-select>
+          </div>
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('dssContainer.newModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              {{ t('dssContainer.newModal.create') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

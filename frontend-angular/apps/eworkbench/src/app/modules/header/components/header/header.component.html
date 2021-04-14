@@ -1,0 +1,35 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-maintenance></eworkbench-maintenance>
+
+<header id="site-header">
+  <div class="header">
+    <div class="breadcrumbs">
+      <a [routerLink]="['/']"><eworkbench-icon className="wb-home"></eworkbench-icon></a>
+      <span *ngFor="let item of breadcrumbs" class="ml-1"
+        ><a [routerLink]="item.uri"><eworkbench-icon className="wb-chevron-right-1"></eworkbench-icon> {{ item.name }}</a></span
+      >
+    </div>
+    <div class="bottom">
+      <div class="title">
+        <h1>
+          <eworkbench-ellipsis-element [maxWidth]="600">
+            {{ title }}
+          </eworkbench-ellipsis-element>
+        </h1>
+      </div>
+      <div class="search">
+        <ng-content select="[slot=search]"></ng-content>
+      </div>
+      <div class="elements">
+        <ng-content select="[slot=elements]"></ng-content>
+      </div>
+    </div>
+  </div>
+  <div class="appendix">
+    <ng-content select="[slot=appendix]"></ng-content>
+  </div>
+</header>

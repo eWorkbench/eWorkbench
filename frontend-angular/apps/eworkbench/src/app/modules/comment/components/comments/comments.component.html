@@ -1,0 +1,27 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <eworkbench-new-comment
+      class="mb-4"
+      [id]="id"
+      [contentType]="contentType"
+      [service]="service"
+      (created)="initComments()"
+    ></eworkbench-new-comment>
+
+    <ng-container *ngFor="let comment of data; let last = last">
+      <div [ngClass]="{ 'mb-4 pb-4 border-bottom': !last }">
+        <eworkbench-comment
+          [user]="comment.left_content_object.created_by"
+          [createdAt]="comment.left_content_object.created_at"
+          [subject]="comment.left_content_object.subject"
+          [comment]="comment.left_content_object.content"
+        ></eworkbench-comment>
+      </div>
+    </ng-container>
+  </eworkbench-loading>
+</ng-container>

@@ -1,0 +1,7 @@
+{
+  "extends": "../../.eslintrc.json",
+  "ignorePatterns": ["!**/*"],
+  "parserOptions": {
+    "project": ["libs/gantt-chart/tsconfig.*?.json"]
+  }
+}

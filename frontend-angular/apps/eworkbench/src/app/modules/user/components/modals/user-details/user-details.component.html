@@ -1,0 +1,20 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal>
+    <div slot="header">
+      {{ t('user.detailsModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-user-details-preview [user]="user"></eworkbench-user-details-preview>
+    </div>
+    <div slot="footer">
+      <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="modalRef.close()">
+        {{ t('user.detailsModal.close') }}
+      </button>
+    </div>
+  </eworkbench-modal>
+</ng-container>

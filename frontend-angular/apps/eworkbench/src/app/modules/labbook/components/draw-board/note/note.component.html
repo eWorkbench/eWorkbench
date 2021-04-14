@@ -1,0 +1,69 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *ngIf="initialState">
+  <ng-container *transloco="let t">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="element" errorTailor>
+      <div class="header">
+        <div class="d-flex justify-content-between">
+          <div class="flex-fill">
+            <eworkbench-form-input [for]="'subject-' + uniqueHash" [loading]="loading" [margin]="false" [onSubmit]="refreshResetValue">
+              <input
+                type="text"
+                class="form-control ewb-input"
+                [id]="'subject-' + uniqueHash"
+                formControlName="subject"
+                name="subject"
+                [placeholder]="t('labBook.drawBoardNote.details.subject.placeholder')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+          <div class="ml-2 align-self-center">
+            <button type="button" class="btn ewb-button-big square-md ewb-button-none cursor-move drag-handle mr-2">
+              <eworkbench-icon className="wb-arrow-cross"></eworkbench-icon>
+            </button>
+            <eworkbench-labbook-element-dropdown
+              [service]="notesService"
+              [id]="initialState?.pk"
+              [labBookId]="id"
+              [elementId]="element.pk"
+              [section]="section"
+              [initialState]="initialState"
+              routerBaseLink="/notes"
+              [privileges]="privileges"
+              (removed)="onRemove($event)"
+              (moved)="onMove($event)"
+            ></eworkbench-labbook-element-dropdown>
+          </div>
+        </div>
+      </div>
+      <div class="body">
+        <eworkbench-lock [id]="element.child_object_id" [lock]="lock" [lockUser]="lockUser" [service]="notesService"></eworkbench-lock>
+        <eworkbench-form-input [for]="'content-' + uniqueHash" [loading]="loading" [margin]="false" [onSubmit]="refreshResetValue">
+          <eworkbench-wysiwyg-editor [id]="'content-' + uniqueHash" formControlName="content" slot="input"></eworkbench-wysiwyg-editor>
+        </eworkbench-form-input>
+      </div>
+      <div class="footer">
+        <div>
+          {{ t('labBook.drawBoard.element.footer.lastModifiedBy') }}
+          <eworkbench-user-details [user]="element.child_object?.last_modified_by" class="last-modified-by"></eworkbench-user-details>
+          {{ t('labBook.drawBoard.element.footer.lastModifiedAt.at') }}
+          {{ element.child_object?.last_modified_at | formatDate }}
+        </div>
+        <div class="actions">
+          <a [routerLink]="['/comments', element.child_object_id]">
+            <button type="button" class="btn ewb-button-big ewb-button-background mr-2">
+              <eworkbench-icon className="wb-link"></eworkbench-icon> {{ t('labBook.drawBoard.element.footer.linkWith') }}
+            </button>
+          </a>
+          <button type="button" class="btn ewb-button-big ewb-button-background" (click)="onOpenCommentsModal()">
+            <eworkbench-icon className="wb-comment"></eworkbench-icon> {{ t('labBook.drawBoard.element.footer.createComment') }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</ng-container>

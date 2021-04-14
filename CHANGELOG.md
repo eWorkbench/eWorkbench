@@ -1,7 +1,50 @@
 # Changelog
 
+## Version 2.0.3 - April 2021
+- [SITUMEWB-620] User search: increase results to 50
+- [SITUMEWB-320] Add project gantt chart
+- [SITUMEWB-629] Fixed missing service functions for privileges for storages
+- [SITUMEWB-*] Fixed loading indicator
+- [SITUMEWB-199, SITUMEWB-200] Implemented DMP pages
+- [SITUMEWB-627] Fixed Safari bug for project members request
+- [SITUMEWB-625] Fixed datepicker
+- [SITUMEWB-*] Fixed parent project error handling
+- [SITUMEWB-*] Changed error 404 handling for details pages
+- [SITUMEWB-487] Implemented matomo tracking
+- [SITUMEWB-622] Fix frontend memory performance
+- [SITUMEWB-*] Fixed editor images
+- [SITUMEWB-*] Implemented a hook for error 404 redirect
+- [SITUMEWB-*] Fixed study room bookings
+
+## Version 2.0.2 - April 2021
+- [SITUMEWB-612] Update License
+- [SITUMEWB-612] Update Github Release Script
+- [SITUMEWB-612] Various Frontend Improvements
+
+## Version 2.0.1 - April 2021
+- [SITUMEWB-612] Backend: fix oss_licenses
+- [SITUMEWB-612] Frontend: fix/ui-settings
+- [SITUMEWB-612] Frontend: fix/project-external-user-right
+
+## Version 2.0 - April 2021
+- [SITUMEWB-612] Release of the new Angular Frontend
+
+## Version 1.23.6 - March 2021
+- [SITUMEWB-612] make cms texts public
+
+## Version 1.23.5 - March 2021
+- [SITUMEWB-272] footer cms pages migrations
+- [SITUMEWB-533] upgrade pillow - security fix
+- [SITUMEWB-612] cms public flag and remove hash from some urls
+
+## Version 1.23.4 - March 2021
+- [SITUMEWB-601] dss scanner timeout
+
+## Version 1.23.3 - March 2021
+- [SITUMEWB-601] various dss optimisations
+
 ## Version 1.23.2 - March 2021
-- [SITUMEWB-601]: various dss optimisations
+- [SITUMEWB-601] various dss optimisations
 
 ## Version 1.23.1 - February 2021
 - [SITUMEWB-447] DSS: handle url encoded paths in the globus message consumer

@@ -1,0 +1,53 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div cdkDropList [cdkDropListData]="columns" [cdkDropListOrientation]="dropListOrientation" (cdkDropListDropped)="onColumnDrop($event)">
+    <div cdkDropListGroup class="task-board">
+      <div
+        cdkDrag
+        class="list"
+        [cdkDragDisabled]="!privileges?.edit"
+        [style.backgroundColor]="column.color"
+        [attr.data-pk]="column.pk"
+        *ngFor="let column of columns"
+      >
+        <div cdkDragHandle class="d-flex align-items-center justify-content-center heading" (click)="openColumnDetailsModal(column)">
+          <h1 class="title text-center">{{ column.title }}</h1>
+        </div>
+        <div
+          [class.empty]="!column.tasks?.length"
+          cdkDropList
+          [cdkDropListData]="column.tasks"
+          (cdkDropListDropped)="onCardDrop($event)"
+          class="list-content"
+        >
+          <ng-container *ngFor="let task of column.tasks">
+            <eworkbench-task-card
+              cdkDrag
+              [cdkDragDisabled]="!privileges?.edit"
+              [cdkDragData]="task"
+              [taskBoardId]="id"
+              [labels]="labels"
+              [task]="task"
+              (removed)="onRemove($event)"
+              *ngIf="matchesFilter(task.task)"
+            ></eworkbench-task-card>
+          </ng-container>
+        </div>
+        <div class="list-footer d-flex align-items-end justify-content-end p-1">
+          <button (click)="openNewTaskModal(column.pk)" class="btn ewb-button-regular font-weight-normal p-0 mr-2">
+            <eworkbench-icon className="wb-plus"></eworkbench-icon>
+            {{ t('taskBoard.newTask') }}
+          </button>
+          <button (click)="openBacklogModal(column.pk)" class="btn ewb-button-regular font-weight-normal p-0">
+            <eworkbench-icon className="wb-list"></eworkbench-icon>
+            {{ t('taskBoard.backlog') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

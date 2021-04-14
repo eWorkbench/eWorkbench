@@ -1,0 +1,17 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <button
+    type="button"
+    class="btn ewb-button-small"
+    [disabled]="loading"
+    [tooltip]="t('trashButton.tooltip')"
+    containerClass="tooltip-sm"
+    (click)="onDelete(id)"
+  >
+    <eworkbench-icon className="wb-trash-1"></eworkbench-icon>
+  </button>
+</ng-container>

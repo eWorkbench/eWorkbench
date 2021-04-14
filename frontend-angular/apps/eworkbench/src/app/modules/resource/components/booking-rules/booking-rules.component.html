@@ -1,0 +1,127 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <h5>{{ t('resources.bookingRules.header') }}</h5>
+
+  <div *ngIf="showNoBookingRulesNotice()">
+    {{ t('resources.bookingRules.noBookingRules') }}
+  </div>
+</ng-container>
+
+<eworkbench-resource-booking-rules-bookable-time-slots
+  [editable]="editable"
+  [rule]="bookableTimeSlots"
+  [loading]="loading"
+  [refresh]="refreshBookingRules"
+  (changed)="onChanged($event)"
+  (setChanged)="onSetChanged()"
+  (remove)="onRemove($event)"
+  *ngIf="bookableTimeSlots"
+></eworkbench-resource-booking-rules-bookable-time-slots>
+
+<eworkbench-resource-booking-rules-bookings-per-user
+  #bookingRulesBookingsPerUser
+  [editable]="editable"
+  [rule]="bookingsPerUser"
+  [loading]="loading"
+  [refreshBookingRules]="refreshBookingRules"
+  (changed)="onChanged($event)"
+  (setChanged)="onSetChanged()"
+  (remove)="onRemove($event)"
+  *ngIf="bookingsPerUser"
+></eworkbench-resource-booking-rules-bookings-per-user>
+
+<ng-container *transloco="let t">
+  <eworkbench-resource-booking-rules-duration
+    [editable]="editable"
+    [label]="t('resources.bookingRules.minimumDuration.label')"
+    ruleKey="booking_rule_minimum_duration"
+    [rule]="minimumDuration"
+    [loading]="loading"
+    [refresh]="refreshBookingRules"
+    (changed)="onChanged($event)"
+    (setChanged)="onSetChanged()"
+    (remove)="onRemove($event)"
+    *ngIf="minimumDuration"
+  ></eworkbench-resource-booking-rules-duration>
+
+  <eworkbench-resource-booking-rules-duration
+    [editable]="editable"
+    [label]="t('resources.bookingRules.maximumDuration.label')"
+    ruleKey="booking_rule_maximum_duration"
+    [rule]="maximumDuration"
+    [loading]="loading"
+    [refresh]="refreshBookingRules"
+    (changed)="onChanged($event)"
+    (setChanged)="onSetChanged()"
+    (remove)="onRemove($event)"
+    *ngIf="maximumDuration"
+  ></eworkbench-resource-booking-rules-duration>
+
+  <eworkbench-resource-booking-rules-duration
+    [editable]="editable"
+    [label]="t('resources.bookingRules.minimumTimeBefore.label')"
+    ruleKey="booking_rule_minimum_time_before"
+    [rule]="minimumTimeBefore"
+    [loading]="loading"
+    [refresh]="refreshBookingRules"
+    (changed)="onChanged($event)"
+    (setChanged)="onSetChanged()"
+    (remove)="onRemove($event)"
+    *ngIf="minimumTimeBefore"
+  ></eworkbench-resource-booking-rules-duration>
+
+  <eworkbench-resource-booking-rules-duration
+    [editable]="editable"
+    [label]="t('resources.bookingRules.maximumTimeBefore.label')"
+    ruleKey="booking_rule_maximum_time_before"
+    [rule]="maximumTimeBefore"
+    [loading]="loading"
+    [refresh]="refreshBookingRules"
+    (changed)="onChanged($event)"
+    (setChanged)="onSetChanged()"
+    (remove)="onRemove($event)"
+    *ngIf="maximumTimeBefore"
+  ></eworkbench-resource-booking-rules-duration>
+
+  <eworkbench-resource-booking-rules-duration
+    [editable]="editable"
+    [label]="t('resources.bookingRules.timeBetween.label')"
+    ruleKey="booking_rule_time_between"
+    [rule]="timeBetween"
+    [loading]="loading"
+    [refresh]="refreshBookingRules"
+    (changed)="onChanged($event)"
+    (setChanged)="onSetChanged()"
+    (remove)="onRemove($event)"
+    *ngIf="timeBetween"
+  ></eworkbench-resource-booking-rules-duration>
+
+  <div class="d-flex mt-3" *ngIf="editable">
+    <div class="flex-fill">
+      <ng-select
+        class="ewb-select"
+        labelForId="rules"
+        [formControl]="rulesFormControl"
+        [placeholder]="t('resources.bookingRules.rules.placeholder')"
+        [items]="rules"
+        bindLabel="label"
+        bindValue="value"
+        (change)="onAdd()"
+        [readonly]="loading"
+      ></ng-select>
+    </div>
+
+    <div class="ml-2 align-self-center" *ngIf="showButtons()">
+      <button type="submit" class="btn ewb-button-big ewb-button-primary square mr-2" [disabled]="loading">
+        <eworkbench-icon className="wb-check"></eworkbench-icon>
+      </button>
+      <button type="button" class="btn ewb-button-big ewb-button-secondary square" [disabled]="loading" (click)="onCancel()">
+        <eworkbench-icon className="wb-undo"></eworkbench-icon>
+      </button>
+    </div>
+  </div>
+</ng-container>

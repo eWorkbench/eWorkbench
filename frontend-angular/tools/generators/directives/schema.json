@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "directives",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path at which to create the directive file, relative to the current workspace. Default is a folder with the same name as the directive in the project root.",
+      "visible": false
+    },
+    "name": {
+      "type": "string",
+      "description": "Directive name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for this directive?"
+    },
+    "project": {
+      "type": "string",
+      "description": "Project to add the directive to"
+    },
+    "module": {
+      "type": "string",
+      "description": "The declaring NgModule.",
+      "alias": "m"
+    },
+    "type": {
+      "type": "string",
+      "description": "Adds a developer-defined type to the filename, in the format \"name.type.ts\".",
+      "default": "Directive"
+    }
+  },
+  "required": ["name"]
+}

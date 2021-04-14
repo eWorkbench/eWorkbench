@@ -1,0 +1,44 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="profile-body">
+    <div class="text-center mb-4">
+      <img class="avatar" [src]="user.userprofile.avatar" [alt]="t('user.detailsModal.picture')" />
+    </div>
+    <div class="center">
+      <div class="name-plate mb-4 mt-1">
+        <div class="semi-bold">
+          {{ user.userprofile.academic_title }} {{ user.userprofile.first_name }} {{ user.userprofile.last_name }}
+        </div>
+        <div *ngIf="user.userprofile.country">{{ user.userprofile.country }}</div>
+      </div>
+      <div *ngIf="user.userprofile.org_zug_mitarbeiter_lang" class="mb-2">{{ user.userprofile.org_zug_mitarbeiter_lang }}</div>
+      <div *ngIf="user.userprofile.org_zug_student_lang" class="mb-2">{{ user.userprofile.org_zug_student_lang }}</div>
+      <div *ngIf="user.userprofile.phone" class="mb-2">
+        <eworkbench-icon className="wb-phone"></eworkbench-icon><span class="ml-1">{{ user.userprofile.phone }}</span>
+      </div>
+      <div *ngIf="user.email" class="mb-2">
+        <eworkbench-icon className="wb-envelope"></eworkbench-icon>
+        <a href="mailto:{{ user.email }}" class="ml-1">{{ user.email }}</a>
+      </div>
+      <div *ngIf="user.userprofile.website" class="mb-4">
+        <eworkbench-icon className="wb-globe"></eworkbench-icon>
+        <a [href]="user.userprofile.website" class="ml-1">{{ user.userprofile.website }}</a>
+      </div>
+      <div *ngIf="user.userprofile.additional_information" [style.white-space]="'pre-line'">
+        {{ user.userprofile.additional_information }}
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #userTemplate>
+  {{ user.userprofile.academic_title }} {{ user.userprofile.first_name }} {{ user.userprofile.last_name }}
+</ng-template>
+
+<ng-template #usernameTemplate>
+  {{ user.username }}
+</ng-template>

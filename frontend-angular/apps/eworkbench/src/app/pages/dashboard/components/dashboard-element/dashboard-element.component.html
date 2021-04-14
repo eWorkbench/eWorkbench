@@ -1,0 +1,36 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="dashboard-element">
+    <div class="dashboard-header">
+      <div class="d-flex justify-content-between">
+        <button
+          *ngIf="collapseable"
+          type="button"
+          class="btn ewb-button-regular ewb-button-secondary close-button square"
+          [attr.aria-expanded]="!collapsed"
+          aria-controls="collapseBasic"
+          (click)="onCollapse()"
+          [disabled]="loading"
+        >
+          <eworkbench-icon *ngIf="collapsed" className="wb-plus"></eworkbench-icon>
+          <eworkbench-icon *ngIf="!collapsed" className="wb-minus"></eworkbench-icon>
+        </button>
+        <div class="flex-fill label">
+          <ng-content select="[slot=label]"></ng-content>
+        </div>
+        <div>
+          <ng-content select="[slot=header]"></ng-content>
+        </div>
+      </div>
+    </div>
+    <div class="dashboard-element-body" [collapse]="collapsed">
+      <eworkbench-loading [loading]="loading">
+        <ng-content select="[slot=body]" *ngIf="!loading"></ng-content>
+      </eworkbench-loading>
+    </div>
+  </div>
+</ng-container>

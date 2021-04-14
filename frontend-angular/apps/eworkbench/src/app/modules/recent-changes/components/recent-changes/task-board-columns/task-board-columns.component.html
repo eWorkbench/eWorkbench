@@ -1,0 +1,23 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="bg-danger p-2" *ngIf="oldStructure.length">
+    <ul class="list-unstyled m-0">
+      <li *ngFor="let column of oldStructure">
+        <div class="color-block mr-1" [style.background-color]="column?.color"></div>
+        {{ column?.title }}
+      </li>
+    </ul>
+  </div>
+  <div class="bg-success p-2" *ngIf="newStructure.length">
+    <ul class="list-unstyled m-0">
+      <li *ngFor="let column of newStructure">
+        <div class="color-block mr-1" [style.background-color]="column?.color"></div>
+        {{ column?.title }}
+      </li>
+    </ul>
+  </div>
+</ng-container>

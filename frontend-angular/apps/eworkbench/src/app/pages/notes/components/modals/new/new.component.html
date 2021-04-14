@@ -1,0 +1,69 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('note.newModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <div class="mb-4">
+            <label for="subject-modal">
+              {{ t('note.newModal.subject.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="subject"
+              id="subject-modal"
+              name="subject-modal"
+              [placeholder]="t('note.newModal.subject.placeholder')"
+            />
+          </div>
+          <div class="mb-4">
+            <label for="content-modal">
+              {{ t('note.newModal.content.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <eworkbench-wysiwyg-editor id="content-modal" formControlName="content"></eworkbench-wysiwyg-editor>
+          </div>
+          <div class="mb-4">
+            <label for="projects-modal">{{ t('note.newModal.projects.label') }}</label>
+            <ng-select
+              class="ewb-select"
+              formControlName="projects"
+              labelForId="projects-modal"
+              name="projects-modal"
+              [placeholder]="t('note.newModal.projects.placeholder')"
+              [multiple]="true"
+              [typeahead]="projectInput$"
+              [items]="projects"
+              bindLabel="name"
+              bindValue="pk"
+              dropdownPosition="top"
+            >
+              <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                {{ item.name }}
+                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+              </ng-template>
+            </ng-select>
+          </div>
+
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('note.newModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              {{ t('note.newModal.create') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

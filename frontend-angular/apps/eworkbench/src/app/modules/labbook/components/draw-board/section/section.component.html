@@ -1,0 +1,66 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <form [formGroup]="form" class="element" (ngSubmit)="onSubmit()" errorTailor>
+    <div class="header">
+      <div class="d-flex justify-content-between">
+        <div class="mr-2 align-self-center">
+          <button type="button" class="btn ewb-button-big ewb-button-none text-white" (click)="onExpandSection()" *ngIf="!expanded">
+            <eworkbench-icon className="wb-bold-chevron-right"></eworkbench-icon>
+          </button>
+          <button type="button" class="btn ewb-button-big ewb-button-none text-white" (click)="onCollapseSection()" *ngIf="expanded">
+            <eworkbench-icon className="wb-bold-chevron-down"></eworkbench-icon>
+          </button>
+        </div>
+        <div class="section-date mr-2">
+          <eworkbench-form-input [for]="'date-' + uniqueHash" [loading]="loading" [margin]="false" [onSubmit]="refreshResetValue">
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="date"
+              [id]="'date-' + uniqueHash"
+              [name]="'date-' + uniqueHash"
+              [placeholder]="t('labBook.drawBoardSection.details.date.placeholder')"
+              autocomplete="off"
+              slot="input"
+            />
+          </eworkbench-form-input>
+        </div>
+        <div class="flex-fill">
+          <eworkbench-form-input [for]="'title-' + uniqueHash" [loading]="loading" [margin]="false" [onSubmit]="refreshResetValue">
+            <input
+              type="text"
+              class="form-control ewb-input"
+              [id]="'title-' + uniqueHash"
+              formControlName="title"
+              [name]="'title-' + uniqueHash"
+              [placeholder]="t('labBook.drawBoardSection.details.title.placeholder')"
+              slot="input"
+            />
+          </eworkbench-form-input>
+        </div>
+        <div class="ml-2 align-self-center" *ngIf="!readonly">
+          <button
+            type="button"
+            class="btn ewb-button-big square-md ewb-button-none text-danger cursor-move drag-handle mr-2"
+            *ngIf="lock?.locked"
+          >
+            <eworkbench-icon className="wb-locked"></eworkbench-icon>
+          </button>
+          <button type="button" class="btn ewb-button-big square-md ewb-button-none text-white cursor-move drag-handle mr-2">
+            <eworkbench-icon className="wb-arrow-cross"></eworkbench-icon>
+          </button>
+          <button type="button" class="btn ewb-button-big square-md ewb-button-none text-white" (click)="onDelete()" [disabled]="loading">
+            <eworkbench-icon className="wb-trash-1"></eworkbench-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="body" *ngIf="expanded">
+      <eworkbench-labbook-draw-board-grid [id]="id" [section]="element.child_object_id"></eworkbench-labbook-draw-board-grid>
+    </div>
+  </form>
+</ng-container>

@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 class UserSearchListModelMixin(object):
     """
-    Lists the User Search Queryset, and restricts it to 25 results
+    Lists the User Search Queryset, and restricts it to 50 results
     """
 
     def list(self, request, *args, **kwargs):
@@ -54,7 +54,7 @@ class UserSearchListModelMixin(object):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset[:25], many=True)
+        serializer = self.get_serializer(queryset[:50], many=True)
         return Response(serializer.data)
 
 

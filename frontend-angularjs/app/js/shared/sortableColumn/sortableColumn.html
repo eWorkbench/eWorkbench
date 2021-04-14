@@ -1,9 +1,0 @@
-<div ng-click="vm.toggleSearch()" role="button">
-    <span ng-transclude></span>
-    <!-- need to inherit the line height for proper alignment -->
-    <i style="line-height: inherit" class="pull-left fa"
-       ng-class="{
-       'fa-sort': vm.sortableColumn !== vm.sortBy,
-       'fa-sort-asc' : vm.sortableColumn === vm.sortBy && !vm.sortReverse,
-       'fa-sort-desc' : vm.sortableColumn===vm.sortBy && vm.sortReverse}"></i>
-</div>

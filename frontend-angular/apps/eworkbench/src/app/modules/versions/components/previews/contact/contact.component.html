@@ -1,0 +1,129 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <ng-container *ngIf="contact">
+      <div class="mb-4">
+        <label for="academic-title-modal">{{ t('contact.details.academicTitle.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="academicTitle-modal"
+          [placeholder]="t('contact.details.academicTitle.placeholder')"
+          [readonly]="true"
+          [value]="contact?.academic_title"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="first-name-modal">{{ t('contact.details.firstName.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="firstName-modal"
+          [placeholder]="t('contact.details.firstName.placeholder')"
+          [readonly]="true"
+          [value]="contact?.first_name"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="last-name-modal">{{ t('contact.details.lastName.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="lastName-modal"
+          [placeholder]="t('contact.details.lastName.placeholder')"
+          [readonly]="true"
+          [value]="contact?.last_name"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="email-modal">{{ t('contact.details.email.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="email-modal"
+          [placeholder]="t('contact.details.email.placeholder')"
+          [readonly]="true"
+          [value]="contact?.email"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="phone-modal">{{ t('contact.details.phone.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="phone-modal"
+          [placeholder]="t('contact.details.phone.placeholder')"
+          [readonly]="true"
+          [value]="contact?.phone"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="company-modal">{{ t('contact.details.company.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="company-modal"
+          [placeholder]="t('contact.details.company.placeholder')"
+          [readonly]="true"
+          [value]="contact?.company"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="notes-modal">{{ t('contact.details.notes.label') }}</label>
+        <eworkbench-wysiwyg-editor id="notes-modal" [formControl]="notesFormControl"></eworkbench-wysiwyg-editor>
+      </div>
+      <div class="mb-4">
+        <label for="projects-modal">{{ t('contact.details.projects.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="projects-modal"
+          [formControl]="projectsFormControl"
+          [placeholder]="t('contact.details.projects.placeholder')"
+          [multiple]="true"
+          [items]="projects"
+          bindLabel="name"
+          bindValue="pk"
+        >
+          <ng-template ng-label-tmp let-item="item" let-clear="clear">
+            {{ item.name }}
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="mb-4" *ngIf="contact?.metadata.length">
+        <label for="metadata-modal">{{ t('contact.details.metadata.label') }}</label>
+        <ng-container *ngFor="let field of contact?.metadata">
+          <div class="mb-2">
+            <div class="mb-1">{{ field.field_info?.display }}</div>
+            <eworkbench-metadata-field
+              [uuid]="field.pk"
+              [id]="field.pk"
+              [baseType]="field.field_info?.base_type"
+              [typeSettings]="field.field_info?.type_settings"
+              [values]="field.values"
+              [editable]="false"
+            ></eworkbench-metadata-field>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+          {{ t('versions.previewModal.close') }}
+        </button>
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="onRestoreVersion()" [disabled]="loading">
+          {{ t('versions.previewModal.restoreVersion') }}
+        </button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !contact">
+      <alert type="danger">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('versions.previewModal.notice.failedToLoad') }}
+      </alert>
+    </ng-container>
+  </eworkbench-loading>
+</ng-container>

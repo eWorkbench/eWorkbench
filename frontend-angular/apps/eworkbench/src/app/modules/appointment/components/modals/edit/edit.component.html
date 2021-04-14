@@ -1,0 +1,216 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('appointments.editModal.appointment') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <eworkbench-lock
+            [id]="id"
+            [lock]="lock"
+            [lockUser]="lockUser"
+            [modified]="modified"
+            [service]="appointmentsService"
+          ></eworkbench-lock>
+          <div class="mb-4">
+            <label for="title-modal">
+              {{ t('appointments.editModal.title.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="title"
+              id="title-modal"
+              name="title-modal"
+              [placeholder]="t('appointments.editModal.title.placeholder')"
+            />
+          </div>
+          <div class="mb-4">
+            <eworkbench-form-date-group formControlName="dateGroup" [required]="true"></eworkbench-form-date-group>
+          </div>
+          <div class="mb-4">
+            <label for="resource-modal">{{ t('appointments.editModal.resource.label') }}</label>
+            <ng-select
+              class="ewb-select"
+              formControlName="resource"
+              labelForId="resource"
+              name="resource"
+              [placeholder]="t('appointments.editModal.resource.placeholder')"
+              [items]="resources"
+              bindLabel="display"
+              bindValue="pk"
+            ></ng-select>
+          </div>
+          <hr class="mb-4" />
+          <div class="mb-4">
+            <label for="location-modal">{{ t('appointments.editModal.location.label') }}</label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="location"
+              id="location-modal"
+              name="location-modal"
+              [placeholder]="t('appointments.editModal.location.placeholder')"
+            />
+          </div>
+          <div class="mb-4">
+            <label for="attendingUsers-modal">{{ t('appointments.editModal.attendingUsers.label') }}</label>
+            <ng-select
+              #select
+              class="ewb-select"
+              formControlName="attendingUsers"
+              labelForId="attendingUsers-modal"
+              name="attendingUsers-modal"
+              [placeholder]="t('appointments.editModal.attendingUsers.placeholder')"
+              [multiple]="true"
+              [typeahead]="assigneesInput$"
+              [items]="assignees"
+              bindLabel="username"
+              bindValue="pk"
+              (change)="changeAssignees($event)"
+            >
+              <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                <eworkbench-user-details
+                  class="d-inline-block mr-1"
+                  [user]="item"
+                  (click)="select.isOpen = false"
+                ></eworkbench-user-details>
+                <span class="sub-text">{{ item.email }}</span>
+                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+              </ng-template>
+
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                <div class="user-dropdown-option">
+                  <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                  <div>
+                    <ng-container *ngIf="item?.userprofile.anonymized">
+                      <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="!item?.userprofile.anonymized">
+                      <ng-container
+                        *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
+                      ></ng-container>
+                    </ng-container>
+
+                    <ng-template #userTemplate>
+                      <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
+                    </ng-template>
+                    <ng-template #usernameTemplate>
+                      <span [ngOptionHighlight]="search">{{ item?.username }}</span>
+                    </ng-template>
+
+                    <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
+                  </div>
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
+          <div class="mb-4">
+            <label for="attendingContacts-modal">{{ t('appointments.editModal.attendingContacts.placeholder') }}</label>
+            <ng-select
+              class="ewb-select"
+              formControlName="attendingContacts"
+              labelForId="attendingContacts-modal"
+              name="attendingContacts-modal"
+              [placeholder]="t('appointments.editModal.attendingContacts.placeholder')"
+              [multiple]="true"
+              [typeahead]="contactsInput$"
+              [items]="contacts"
+              bindLabel="display"
+              bindValue="pk"
+            >
+              <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                {{ item.display }}
+                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+              </ng-template>
+            </ng-select>
+          </div>
+          <div class="mb-4">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                formControlName="scheduledNotificationActive"
+                id="remindAttending-modal"
+                name="remindAttending-modal"
+              />
+              <label class="custom-control-label font-weight-normal" for="remindAttending-modal">{{
+                t('appointments.editModal.remindAttending.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="mb-4" *ngIf="f.scheduledNotificationActive.value">
+            <div class="d-flex">
+              <div class="flex-fill mr-3">
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  formControlName="scheduledNotificationTimedeltaValue"
+                  id="reminderValue-modal"
+                  name="reminderValue-modal"
+                />
+              </div>
+              <div class="flex-fill mr-3">
+                <ng-select
+                  class="ewb-select"
+                  formControlName="scheduledNotificationTimedeltaUnit"
+                  labelForId="reminderUnit-modal"
+                  name="reminderUnit-modal"
+                  [items]="remindAttendingUnits"
+                  bindLabel="label"
+                  bindValue="value"
+                  dropdownPosition="top"
+                ></ng-select>
+              </div>
+              <div class="flex-fill">{{ t('appointments.editModal.remindAttending.prior') }}</div>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label for="description-modal">{{ t('appointments.editModal.description.label') }}</label>
+            <eworkbench-wysiwyg-editor id="description-modal" formControlName="description"></eworkbench-wysiwyg-editor>
+          </div>
+          <div class="mb-4">
+            <label for="projects-modal">{{ t('appointments.editModal.projects.label') }}</label>
+            <ng-select
+              class="ewb-select"
+              formControlName="projects"
+              labelForId="projects-modal"
+              name="projects-modal"
+              [placeholder]="t('appointments.editModal.projects.placeholder')"
+              [multiple]="true"
+              [typeahead]="projectInput$"
+              [items]="projects"
+              bindLabel="name"
+              bindValue="pk"
+              dropdownPosition="top"
+            >
+              <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                {{ item.name }}
+                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+              </ng-template>
+            </ng-select>
+          </div>
+
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('appointments.editModal.cancel') }}
+            </button>
+            <button type="button" class="btn ewb-button-big ewb-button-primary mr-2" [disabled]="loading" (click)="onDelete()">
+              {{ t('appointments.editModal.delete') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              {{ t('appointments.editModal.confirm') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

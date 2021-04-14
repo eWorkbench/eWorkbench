@@ -1,0 +1,19 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="importOption === 'ION'">
+    <eworkbench-icon className="wb-plus" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('dssContainers.importOption.importOnlyNew') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="importOption === 'IL'">
+    <eworkbench-icon className="wb-list" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('dssContainers.importOption.importList') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="importOption === 'IA'">
+    <eworkbench-icon className="wb-globe" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('dssContainers.importOption.importAll') }}</ng-container>
+  </ng-container>
+</ng-container>

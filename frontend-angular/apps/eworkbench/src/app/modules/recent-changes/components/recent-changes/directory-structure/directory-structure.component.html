@@ -1,0 +1,17 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="bg-danger p-2" *ngIf="oldStructure.length">
+    <ul class="list-unstyled m-0">
+      <li *ngFor="let folder of oldStructure">{{ t('recentChanges.directoryStructure.folderRemoved', { name: folder.name }) }}</li>
+    </ul>
+  </div>
+  <div class="bg-success p-2" *ngIf="newStructure.length">
+    <ul class="list-unstyled m-0">
+      <li *ngFor="let folder of newStructure">{{ t('recentChanges.directoryStructure.folderCreated', { name: folder.name }) }}</li>
+    </ul>
+  </div>
+</ng-container>

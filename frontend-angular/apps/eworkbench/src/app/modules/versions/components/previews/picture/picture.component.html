@@ -1,0 +1,95 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <ng-container *ngIf="picture">
+      <div class="mb-4">
+        <label for="title-modal">{{ t('picture.details.title.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="title-modal"
+          [placeholder]="t('picture.details.title.placeholder')"
+          [readonly]="true"
+          [value]="picture?.title"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="width-modal">{{ t('picture.details.width.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="width-modal"
+          [placeholder]="t('picture.details.width.placeholder')"
+          [readonly]="true"
+          [value]="picture?.width + 'px'"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="height-modal">{{ t('picture.details.height.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="height-modal"
+          [placeholder]="t('picture.details.height.placeholder')"
+          [readonly]="true"
+          [value]="picture?.height + 'px'"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="projects-modal">{{ t('picture.details.projects.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="projects-modal"
+          [formControl]="projectsFormControl"
+          [placeholder]="t('picture.details.projects.placeholder')"
+          [multiple]="true"
+          [items]="projects"
+          bindLabel="name"
+          bindValue="pk"
+        >
+          <ng-template ng-label-tmp let-item="item" let-clear="clear">
+            {{ item.name }}
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="mb-4" *ngIf="picture?.metadata.length">
+        <label for="metadata-modal">{{ t('picture.details.metadata.label') }}</label>
+        <ng-container *ngFor="let field of picture?.metadata">
+          <div class="mb-2">
+            <div class="mb-1">{{ field.field_info?.display }}</div>
+            <eworkbench-metadata-field
+              [uuid]="field.pk"
+              [id]="field.pk"
+              [baseType]="field.field_info?.base_type"
+              [typeSettings]="field.field_info?.type_settings"
+              [values]="field.values"
+              [editable]="false"
+            ></eworkbench-metadata-field>
+          </div>
+        </ng-container>
+      </div>
+      <div class="mb-4">
+        <img [src]="picture?.download_rendered_image" class="img-fluid" [alt]="picture?.title" />
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+          {{ t('versions.previewModal.close') }}
+        </button>
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="onRestoreVersion()" [disabled]="loading">
+          {{ t('versions.previewModal.restoreVersion') }}
+        </button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !picture">
+      <alert type="danger">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('versions.previewModal.notice.failedToLoad') }}
+      </alert>
+    </ng-container>
+  </eworkbench-loading>
+</ng-container>

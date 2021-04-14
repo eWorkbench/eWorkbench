@@ -1,0 +1,7 @@
+{
+  "extends": "../../.eslintrc.json",
+  "ignorePatterns": ["!**/*"],
+  "parserOptions": {
+    "project": ["libs/wysiwyg-editor/tsconfig.*?.json"]
+  }
+}

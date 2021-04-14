@@ -1,0 +1,122 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <ng-container *ngIf="file">
+      <div class="mb-4">
+        <label for="title-modal">{{ t('file.details.title.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="title-modal"
+          [placeholder]="t('file.details.title.placeholder')"
+          [readonly]="true"
+          [value]="file?.title"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="name-modal">{{ t('file.details.name.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="name-modal"
+          [placeholder]="t('file.details.name.placeholder')"
+          [readonly]="true"
+          [value]="file?.name"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="download-modal">{{ t('file.details.download.label') }}</label>
+        <div>
+          <button
+            type="button"
+            class="btn btn-sm bg-transparent"
+            [authDownload]="{ url: file?.download, fileName: file?.original_filename }"
+          >
+            <eworkbench-icon className="wb-download" class="mr-1"></eworkbench-icon>
+            <span class="btn-link">{{ file?.name }}</span>
+            ({{ file?.file_size | formatFileSize }})
+          </button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="storage-modal">{{ t('file.details.storage.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="storage-modal"
+          [formControl]="storageFormControl"
+          [placeholder]="t('file.details.storage.placeholder')"
+          [items]="directories"
+          bindLabel="display"
+          bindValue="pk"
+        >
+          <ng-template ng-label-tmp let-item="item">
+            <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' ' }}{{ item.display }}
+          </ng-template>
+
+          <ng-template ng-option-tmp let-item="item">
+            <div [style.padding-left.px]="item.is_virtual_root ? 0 : item.level * 10">
+              <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
+              }}{{ item.display }}
+            </div>
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="mb-4">
+        <label for="description-modal">{{ t('file.details.description.label') }}</label>
+        <eworkbench-wysiwyg-editor id="description-modal" [formControl]="descriptionFormControl"></eworkbench-wysiwyg-editor>
+      </div>
+      <div class="mb-4">
+        <label for="projects-modal">{{ t('file.details.projects.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="projects-modal"
+          [formControl]="projectsFormControl"
+          [placeholder]="t('file.details.projects.placeholder')"
+          [multiple]="true"
+          [items]="projects"
+          bindLabel="name"
+          bindValue="pk"
+        >
+          <ng-template ng-label-tmp let-item="item" let-clear="clear">
+            {{ item.name }}
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="mb-4" *ngIf="file?.metadata.length">
+        <label for="metadata-modal">{{ t('file.details.metadata.label') }}</label>
+        <ng-container *ngFor="let field of file?.metadata">
+          <div class="mb-2">
+            <div class="mb-1">{{ field.field_info?.display }}</div>
+            <eworkbench-metadata-field
+              [uuid]="field.pk"
+              [id]="field.pk"
+              [baseType]="field.field_info?.base_type"
+              [typeSettings]="field.field_info?.type_settings"
+              [values]="field.values"
+              [editable]="false"
+            ></eworkbench-metadata-field>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+          {{ t('versions.previewModal.close') }}
+        </button>
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="onRestoreVersion()" [disabled]="loading">
+          {{ t('versions.previewModal.restoreVersion') }}
+        </button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !file">
+      <alert type="danger">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('versions.previewModal.notice.failedToLoad') }}
+      </alert>
+    </ng-container>
+  </eworkbench-loading>
+</ng-container>

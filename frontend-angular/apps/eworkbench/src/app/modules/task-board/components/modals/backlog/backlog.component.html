@@ -1,0 +1,102 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal>
+    <div slot="header">
+      {{ t('taskBoard.backlogModal.header') }}
+    </div>
+    <div slot="body">
+      <div class="d-flex align-items-center mb-4">
+        <div class="search-input mr-2">
+          <ng-select
+            class="ewb-select"
+            [formControl]="projectsControl"
+            labelForId="projects-header"
+            name="projects-header"
+            [placeholder]="t('taskBoard.backlogModal.filter.projects.placeholder')"
+            [typeahead]="projectsInput$"
+            [items]="projects"
+            bindLabel="name"
+            bindValue="pk"
+          ></ng-select>
+        </div>
+
+        <div class="search-input">
+          <div class="input-group search-input-group">
+            <input
+              type="text"
+              class="form-control ewb-input"
+              id="search-header"
+              name="search-header"
+              [formControl]="searchControl"
+              [placeholder]="t('taskBoard.backlogModal.filter.search.placeholder')"
+            />
+            <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+              <eworkbench-icon className="wb-search"></eworkbench-icon>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm bg-transparent clear-input"
+              (click)="searchControl.patchValue(null)"
+              *ngIf="searchControl.value"
+            >
+              <eworkbench-icon className="wb-remove"></eworkbench-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">{{ t('taskBoard.backlogModal.body') }}</div>
+
+      <eworkbench-loading [loading]="loading">
+        <eworkbench-table-view
+          #tableView
+          [columns]="listColumns"
+          [service]="tasksBacklogService"
+          [params]="params"
+          [selectable]="true"
+          [customId]="taskBoardId"
+          (dataSelected)="onSelected($event)"
+        ></eworkbench-table-view>
+      </eworkbench-loading>
+    </div>
+    <div slot="footer">
+      <button class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+        {{ t('taskBoard.backlogModal.close') }}
+      </button>
+      <!-- // TODO: translate singular and plural of tasks -->
+      <button class="btn ewb-button-big ewb-button-primary" (click)="onSubmit()" [disabled]="loading || !selected.length">
+        {{
+          t('taskBoard.backlogModal.add', {
+            num: selected.length ? (selected.length === 1 ? selected.length + ' task' : selected.length + ' tasks') : 'task'
+          })
+        }}
+      </button>
+    </div>
+  </eworkbench-modal>
+</ng-container>
+
+<ng-template #taskIdCellTemplate let-row> #{{ row.task_id }} </ng-template>
+
+<ng-template #priorityCellTemplate let-row>
+  <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
+</ng-template>
+
+<ng-template #titleCellTemplate let-row>
+  <a [routerLink]="['/tasks', row.pk]" (click)="modalRef.close()">{{ row.title }}</a>
+</ng-template>
+
+<ng-template #stateCellTemplate let-row>
+  <eworkbench-task-state [state]="row.state"></eworkbench-task-state>
+</ng-template>
+
+<ng-template #startDateCellTemplate let-row>
+  {{ row.start_date | formatDate }}
+</ng-template>
+
+<ng-template #dueDateCellTemplate let-row>
+  {{ row.due_date | formatDate }}
+</ng-template>

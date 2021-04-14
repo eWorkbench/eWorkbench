@@ -1,0 +1,42 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="d-flex mb-4">
+    <div class="flex-fill">
+      <div class="d-flex">
+        <div class="mr-2" *ngIf="plugin.logo">
+          <img [src]="plugin.logo" [alt]="plugin.title" class="img-fluid" />
+        </div>
+        <div class="flex-fill">
+          <div>
+            <label for="title-modal" class="font-weight-bold d-inline-block mr-1">{{ t('plugin.preview.title.label') }}</label>
+            {{ plugin.title }}
+          </div>
+          <div>
+            <label for="shortDescription-modal" class="font-weight-bold d-inline-block mr-1">{{
+              t('plugin.preview.shortDescription.label')
+            }}</label>
+            {{ plugin.short_description }}
+          </div>
+        </div>
+        <div class="flex-fill">
+          <div>
+            <label for="responsibleUsers-modal" class="font-weight-bold d-inline-block mr-1">{{
+              t('plugin.preview.responsibleUsers.label')
+            }}</label>
+            <eworkbench-users-grouping [users]="plugin.responsible_users" class="d-inline-block"></eworkbench-users-grouping>
+          </div>
+          <div>
+            <eworkbench-plugin-accessibility-label [isAccessible]="plugin.is_accessible"></eworkbench-plugin-accessibility-label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <eworkbench-plugin-details-dropdown [plugin]="plugin" (selected)="onDropdownSelected($event)"></eworkbench-plugin-details-dropdown>
+  </div>
+
+  <div class="mt-3" [innerHTML]="plugin.long_description"></div>
+</ng-container>

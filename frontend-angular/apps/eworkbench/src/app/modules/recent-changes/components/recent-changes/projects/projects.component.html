@@ -1,0 +1,9 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *ngFor="let project of projects; let last = last">
+  <a [routerLink]="['/projects', project.pk]">{{ project.display }}</a
+  ><span *ngIf="!last">, </span>
+</ng-container>

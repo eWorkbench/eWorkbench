@@ -1,8 +1,0 @@
-<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
-     ng-repeat="project in vm.projects | filter: {deleted:false} track by project.pk">
-    <project-card-display project="project">
-            <card-functions>
-                <generic-delete-menu-widget model-object="project"></generic-delete-menu-widget>
-            </card-functions>
-    </project-card-display>
-</div>

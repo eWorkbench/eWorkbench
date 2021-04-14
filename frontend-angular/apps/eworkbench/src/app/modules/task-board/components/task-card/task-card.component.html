@@ -1,0 +1,111 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="task-card">
+    <div class="task-card-body">
+      <ng-container *ngIf="task.task.labels.length">
+        <div
+          class="task-card-label font-weight-bold"
+          [style.backgroundColor]="labelFilter(label)?.color"
+          [style.color]="labelFilter(label)?.font_color"
+          *ngFor="let label of task.task.labels"
+        >
+          {{ labelFilter(label)?.display }}
+        </div>
+      </ng-container>
+      <div class="task-card-title">
+        <a href [routerLink]="['/tasks', task.task.pk]">{{ task.task.title }}</a>
+        <span dropdown container="body" placement="bottom right" [insideClick]="true" (isOpenChange)="onOpenChange($event)">
+          <a href dropdownToggle (click)="(false)" class="btn ewb-button-small ewb-button-background"
+            ><eworkbench-icon className="wb-more-vertical"></eworkbench-icon
+          ></a>
+          <ul *dropdownMenu class="dropdown-menu dropdown-menu-right details-dropdown-menu text-nowrap" role="menu">
+            <li>
+              <button type="button" class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button" (click)="onRemove()">
+                <span class="mr-2"><eworkbench-icon className="wb-remove"></eworkbench-icon></span
+                >{{ t('taskBoard.taskCard.removeFromBoard') }}
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button"
+                (click)="openPrivilegesModal(task.task)"
+              >
+                <span class="mr-2"><eworkbench-icon className="wb-unlock"></eworkbench-icon></span>{{ t('taskBoard.taskCard.privileges') }}
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button"
+                (click)="openRecentChangesModal(task.task_id)"
+              >
+                <span class="mr-2"><eworkbench-icon className="wb-undo"></eworkbench-icon></span>{{ t('taskBoard.taskCard.recentChanges') }}
+              </button>
+            </li>
+          </ul>
+        </span>
+      </div>
+      <div class="task-card-expanded">
+        <div *ngIf="task.task.due_date">
+          <span class="font-weight-bold">{{ t('taskBoard.taskCard.dueDate') }}: </span>{{ task.task.due_date | formatDate }}
+        </div>
+        <div @grow *ngIf="expanded">
+          <div *ngIf="task.task.start_date">
+            <span class="font-weight-bold">{{ t('taskBoard.taskCard.startDate') }}: </span>{{ task.task.start_date | formatDate }}
+          </div>
+          <div>
+            <span class="font-weight-bold">{{ t('taskBoard.taskCard.state') }}: </span
+            ><eworkbench-task-state [state]="task.task.state" class="d-inline-block"></eworkbench-task-state>
+          </div>
+          <div>
+            <span class="font-weight-bold">{{ t('taskBoard.taskCard.priority') }}: </span
+            ><eworkbench-task-priority [priority]="task.task.priority" class="d-inline-block"></eworkbench-task-priority>
+          </div>
+          <div>
+            <span class="font-weight-bold">{{ t('taskBoard.taskCard.taskId') }}: </span
+            ><a href [routerLink]="['/tasks', task.task.pk]">#{{ task.task.task_id }}</a>
+          </div>
+          <div>
+            <span class="font-weight-bold">{{ t('taskBoard.taskCard.createdBy') }}: </span
+            ><eworkbench-user-details class="d-inline-block" [user]="task.task.created_by"></eworkbench-user-details>
+          </div>
+          <div>
+            <span class="font-weight-bold">{{ t('taskBoard.taskCard.lastModifiedBy') }}: </span
+            ><eworkbench-user-details class="d-inline-block" [user]="task.task.last_modified_by"></eworkbench-user-details>
+          </div>
+          <div class="description" [innerHTML]="task.task.description" *ngIf="task.task.description"></div>
+        </div>
+      </div>
+      <div class="task-card-footer">
+        <div class="d-inline-block">
+          <button type="button" class="btn ewb-button-big ewb-button-background px-1 mr-2" (click)="openCommentsModal(task)">
+            <eworkbench-icon className="wb-comment"></eworkbench-icon> {{ task.num_related_notes }}
+          </button>
+          <span *ngIf="task.task.checklist_items.length">
+            <eworkbench-icon className="wb-check"></eworkbench-icon> {{ checklistFilter(task.task.checklist_items) }} /
+            {{ task.task.checklist_items.length }}
+          </span>
+        </div>
+        <div *ngIf="task.task.assigned_users.length" class="task-card-footer-user">
+          <ng-container *ngFor="let user of task.task.assigned_users">
+            <ng-container *ngIf="user.userprofile.avatar">
+              <span [popover]="assignedUsersFormat(user)" triggers="mouseenter:mouseleave" (click)="openUserModal(user)">
+                <img class="task-card-footer-user-avatar" [src]="user.userprofile.avatar" [alt]="t('taskBoard.taskCard.userAvatar')" />
+              </span>
+            </ng-container>
+            <ng-container *ngIf="!user.userprofile.avatar">
+              <span [popover]="assignedUsersFormat(user)" triggers="mouseenter:mouseleave" (click)="openUserModal(user)">
+                <eworkbench-icon className="wb-user"></eworkbench-icon>
+              </span>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

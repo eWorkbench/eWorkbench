@@ -1,0 +1,39 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="booking-rules-bookings-per-user mb-2" *ngIf="rule?.length">
+    <div class="rule-label">{{ t('resources.bookingRules.bookingsPerUser.label') }}</div>
+
+    <div>
+      <div class="d-block text-danger mb-2" *ngIf="unitSelectionInvalid()">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('resources.bookingRules.bookingsPerUser.notice.invalidUnitSelection') }}
+      </div>
+
+      <eworkbench-resource-booking-rules-bookings-per-user-element
+        [rule]="bookinsPerUser"
+        [loading]="loading"
+        [refresh]="refreshBookingRules"
+        [unitSelectionInvalid]="unitSelectionInvalid()"
+        [editable]="editable"
+        (changed)="pushChanges($event)"
+        (setChanged)="onSetChanged()"
+        (remove)="onRemove($event)"
+        *ngFor="let bookinsPerUser of rule; let i = index"
+      ></eworkbench-resource-booking-rules-bookings-per-user-element>
+
+      <button
+        type="button"
+        class="btn ewb-button-regular font-weight-normal ewb-button-background my-2"
+        (click)="onAdd()"
+        [disabled]="loading"
+        *ngIf="rule.length < 3 && editable"
+      >
+        <eworkbench-icon className="wb-plus"></eworkbench-icon> {{ t('resources.bookingRules.bookingsPerUser.add') }}
+      </button>
+    </div>
+  </div>
+</ng-container>

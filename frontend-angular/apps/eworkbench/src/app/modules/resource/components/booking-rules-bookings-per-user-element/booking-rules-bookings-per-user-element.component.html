@@ -1,0 +1,50 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="booking-rules-bookings-per-user-element mb-2">
+    <div>
+      <label [for]="'count.' + uuid">
+        {{ t('resources.bookingRules.bookingsPerUser.numberOfBookings.label') }}
+      </label>
+      <input
+        type="text"
+        class="form-control ewb-input"
+        [class.is-invalid]="unitSelectionInvalid"
+        [id]="'count.' + uuid"
+        [formControl]="f.count"
+        [name]="'count.' + uuid"
+        [placeholder]="t('resources.bookingRules.bookingsPerUser.numberOfBookings.placeholder')"
+        [readonly]="loading"
+        (change)="onSetChanged()"
+      />
+      <label [for]="'unit.' + uuid">/</label>
+      <ng-select
+        class="ewb-select"
+        [class.is-invalid]="unitSelectionInvalid"
+        [formControl]="f.unit"
+        [labelForId]="'unit.' + uuid"
+        [placeholder]="t('resources.bookingRules.bookingsPerUser.unit.placeholder')"
+        [items]="units"
+        [clearable]="false"
+        bindLabel="label"
+        bindValue="value"
+        [readonly]="loading"
+        (change)="onSetChanged()"
+      ></ng-select>
+    </div>
+    <div class="remove-button">
+      <button
+        type="button"
+        class="btn ewb-button-big ewb-button-secondary square"
+        (click)="onRemove()"
+        [disabled]="loading"
+        *ngIf="editable"
+      >
+        <eworkbench-icon className="wb-remove"></eworkbench-icon>
+      </button>
+    </div>
+  </div>
+</ng-container>

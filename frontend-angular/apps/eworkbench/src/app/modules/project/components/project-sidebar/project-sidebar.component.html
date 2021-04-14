@@ -1,0 +1,41 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="sidebar" cdkDropList [cdkDropListData]="elements" (cdkDropListDropped)="onSidebarDrop($event)">
+    <ul class="list-unstyled pt-3">
+      <ng-container *ngFor="let element of elements">
+        <li cdkDrag class="d-flex align-items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
+          <a [routerLink]="(append ? '.' : '..') + getSidebarModel(element)?.routerBaseLink" [class.disabled]="editMode">
+            <button
+              type="button"
+              class="btn menu-button square"
+              [class.active]="sidebarItem === getSidebarModel(element)?.modelName"
+              [tooltip]="getSidebarModel(element)?.name"
+              placement="right"
+              containerClass="projects-tooltip"
+            >
+              <eworkbench-icon [className]="getSidebarModel(element)?.icon"></eworkbench-icon>
+            </button>
+          </a>
+        </li>
+      </ng-container>
+      <li class="edit">
+        <a (click)="onToggleEditMode()">
+          <button
+            type="button"
+            class="btn menu-button square"
+            [class.active]="editMode"
+            [tooltip]="editMode ? t('projects.sidebar.save') : t('projects.sidebar.edit')"
+            placement="right"
+            containerClass="projects-tooltip"
+          >
+            <eworkbench-icon [className]="editMode ? 'wb-check' : 'wb-cog'"></eworkbench-icon>
+          </button>
+        </a>
+      </li>
+    </ul>
+  </div>
+</ng-container>

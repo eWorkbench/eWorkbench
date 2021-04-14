@@ -1,0 +1,19 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+import { async, TestBed } from '@angular/core/testing';
+import { <%= classify(name) %>Module } from './<%= dasherize(name) %>.module';
+
+describe('<%= classify(name) %>Module', () => {
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [<%= classify(name) %>Module],
+    }).compileComponents();
+  }));
+
+  it('should create', () => {
+    expect(<%= classify(name) %>Module).toBeDefined();
+  });
+});

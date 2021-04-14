@@ -1,0 +1,31 @@
+<eworkbench-collapse-element
+  [class.unread]="!notification.read"
+  [labelTemplate]="collapseLabelTemplate"
+  [element]="notification"
+  [collapsed]="collapsed"
+  [background]="notification.read"
+  [center]="false"
+>
+  <div [innerHTML]="notification.message"></div>
+</eworkbench-collapse-element>
+
+<ng-template #collapseLabelTemplate let-notification>
+  <div class="d-flex flex-column">
+    <div>
+      <eworkbench-icon [className]="notification.content_type_model | formatContentTypeModel: 'icon'" class="mr-1"></eworkbench-icon>
+      <a
+        [routerLink]="[notification.content_type_model | formatContentTypeModel: 'routerBaseLink', notification.object_id]"
+        class="font-weight-bold"
+      >
+        {{ notification.title }}
+      </a>
+      <button *ngIf="!notification.read" type="button" class="btn ewb-button-regular square ml-1" (click)="onRead(notification)">
+        <eworkbench-icon className="wb-visible"></eworkbench-icon>
+      </button>
+    </div>
+    <div>
+      <span>{{ notification.created_at | formatDate }} by </span>
+      <eworkbench-user-details class="d-inline-block" [user]="notification.created_by"></eworkbench-user-details>
+    </div>
+  </div>
+</ng-template>

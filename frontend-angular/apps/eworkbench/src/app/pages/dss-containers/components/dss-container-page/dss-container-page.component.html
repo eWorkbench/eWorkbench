@@ -1,0 +1,204 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="detailsTitle">
+    <ng-container slot="elements" *ngIf="initialState">
+      <eworkbench-details-dropdown
+        [service]="dssContainersService"
+        [id]="id"
+        [redirectDestination]="['/dsscontainers', id]"
+        [newModalComponent]="newModalComponent"
+        [initialState]="initialState"
+        [privileges]="privileges"
+        [trashElement]="false"
+        *ngIf="privileges"
+      ></eworkbench-details-dropdown>
+    </ng-container>
+  </eworkbench-header>
+</ng-container>
+
+<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+
+<ng-container *ngIf="initialState">
+  <ng-container *transloco="let t">
+    <main>
+      <ng-container *ngIf="initialState?.deleted">
+        <eworkbench-trash-notice></eworkbench-trash-notice>
+      </ng-container>
+      <eworkbench-lock
+        [id]="id"
+        [lock]="lock"
+        [lockUser]="lockUser"
+        [modified]="modified"
+        [service]="dssContainersService"
+      ></eworkbench-lock>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="dss" errorTailor>
+        <div>
+          <div class="mb-4">
+            <eworkbench-form-input
+              for="name"
+              [label]="t('dssContainer.details.name.label')"
+              [loading]="loading"
+              [onSubmit]="refreshResetValue"
+              [required]="true"
+            >
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="name"
+                formControlName="name"
+                name="name"
+                [placeholder]="t('dssContainer.details.name.placeholder')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+          <div class="mb-4">
+            <eworkbench-form-input
+              for="path"
+              [label]="t('dssContainer.details.path.label')"
+              [loading]="loading"
+              [onSubmit]="refreshResetValue"
+              [required]="true"
+            >
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="path"
+                formControlName="path"
+                name="path"
+                [placeholder]="t('dssContainer.details.path.placeholder')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+          <div class="mb-4">
+            <label for="importOption-modal">{{ t('dssContainer.details.mountStatus.label') }}</label>
+            <div *ngIf="initialState.is_mounted">
+              <eworkbench-icon className="wb-check" class="is-mounted mr-1"></eworkbench-icon>{{ t('dssContainer.details.mounted') }}
+            </div>
+            <div *ngIf="!initialState.is_mounted">
+              <eworkbench-icon className="wb-x-circle" class="is-not-mounted mr-1"></eworkbench-icon
+              >{{ t('dssContainer.details.couldNotMounted') }}
+            </div>
+          </div>
+          <div class="mb-4">
+            <eworkbench-form-input
+              for="readWriteSetting"
+              [label]="t('dssContainer.details.readWriteSetting.label')"
+              [loading]="loading"
+              [onSubmit]="refreshResetValue"
+              [required]="true"
+            >
+              <ng-select
+                class="ewb-select"
+                formControlName="readWriteSetting"
+                labelForId="readWriteSetting"
+                name="readWriteSetting"
+                [placeholder]="t('dssContainer.details.readWriteSetting.placeholder')"
+                [items]="readWriteSettings"
+                bindValue="value"
+                [clearable]="false"
+                [searchable]="false"
+                slot="input"
+              >
+                <ng-template ng-label-tmp let-item="item">
+                  <ng-container [ngTemplateOutlet]="readWriteSettingTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item">
+                  <ng-container [ngTemplateOutlet]="readWriteSettingTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+                </ng-template>
+                <ng-template #readWriteSettingTemplate let-item="item">
+                  <eworkbench-dss-read-write-setting [readWriteSetting]="item.value"></eworkbench-dss-read-write-setting>
+                </ng-template>
+              </ng-select>
+            </eworkbench-form-input>
+          </div>
+          <div class="mb-4">
+            <eworkbench-form-input
+              for="importOption"
+              [label]="t('dssContainer.details.importOption.label')"
+              [loading]="loading"
+              [onSubmit]="refreshResetValue"
+              [required]="true"
+            >
+              <ng-select
+                class="ewb-select"
+                formControlName="importOption"
+                labelForId="importOption"
+                name="importOption"
+                [placeholder]="t('dssContainer.details.importOption.placeholder')"
+                [items]="importOptions"
+                bindValue="value"
+                [clearable]="false"
+                [searchable]="false"
+                slot="input"
+              >
+                <ng-template ng-label-tmp let-item="item">
+                  <ng-container [ngTemplateOutlet]="importOptionTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item">
+                  <ng-container [ngTemplateOutlet]="importOptionTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+                </ng-template>
+                <ng-template #importOptionTemplate let-item="item">
+                  <eworkbench-dss-import-option [importOption]="item.value"></eworkbench-dss-import-option>
+                </ng-template>
+              </ng-select>
+            </eworkbench-form-input>
+          </div>
+          <div class="mb-4" *ngIf="initialState?.import_option === 'IL'">
+            <label for="importOption-modal">{{ t('dssContainer.details.selectImportList.label') }}</label>
+            <div>
+              <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="file.click()">
+                <eworkbench-icon className="wb-upload" class="mr-1"></eworkbench-icon>
+                {{ t('dssContainer.details.selectImportList.button') }}
+              </button>
+              <input type="file" class="text-size invisible" (change)="onUploadJsonPathList($event)" accept=".json" #file />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="mb-4">
+            <label for="created-by">{{ t('dssContainer.details.createdBy.label') }}</label>
+            <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
+          </div>
+          <div class="mb-4">
+            <label for="created-at">{{ t('dssContainer.details.createdAt.label') }}</label>
+            <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
+          </div>
+          <div class="mb-4">
+            <label for="last-modified-by">{{ t('dssContainer.details.lastModifiedBy.label') }}</label>
+            <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
+          </div>
+          <div class="mb-4">
+            <label for="last-modified-at">{{ t('dssContainer.details.lastModifiedAt.label') }}</label>
+            <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
+          </div>
+        </div>
+        <div>
+          <div class="mb-1">
+            <label for="recent-changes">{{ t('dssContainer.details.recentChanges.label') }}</label>
+          </div>
+          <eworkbench-recent-changes
+            id="recent-changes"
+            [service]="dssContainersService"
+            [changesId]="id"
+            [refresh]="refreshChanges"
+          ></eworkbench-recent-changes>
+        </div>
+      </form>
+      <eworkbench-collapse-element
+        *ngIf="dssContainerDetailHowTo"
+        class="mt-4"
+        [labelText]="dssContainerDetailHowTo?.title"
+        [collapsed]="true"
+      >
+        <div [innerHTML]="dssContainerDetailHowTo?.text | safeHTML"></div>
+      </eworkbench-collapse-element>
+    </main>
+  </ng-container>
+</ng-container>

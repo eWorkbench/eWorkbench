@@ -1,0 +1,74 @@
+{
+  "npmScope": "eworkbench",
+  "affected": {
+    "defaultBase": "master"
+  },
+  "implicitDependencies": {
+    "angular.json": "*",
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
+    "tsconfig.base.json": "*",
+    "tslint.json": "*",
+    ".eslintrc.json": "*",
+    "nx.json": "*"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "eworkbench": {
+      "tags": []
+    },
+    "eworkbench-e2e": {
+      "tags": [],
+      "implicitDependencies": [
+        "eworkbench"
+      ]
+    },
+    "forms": {
+      "tags": []
+    },
+    "table": {
+      "tags": []
+    },
+    "wysiwyg-editor": {
+      "tags": []
+    },
+    "gantt-chart": {
+      "tags": []
+    },
+    "calendar": {
+      "tags": []
+    },
+    "modals": {
+      "tags": []
+    },
+    "types": {
+      "tags": []
+    },
+    "mocks": {
+      "tags": []
+    },
+    "icons": {
+      "tags": []
+    },
+    "skeletons": {
+      "tags": []
+    },
+    "picture-editor": {
+      "tags": []
+    }
+  }
+}

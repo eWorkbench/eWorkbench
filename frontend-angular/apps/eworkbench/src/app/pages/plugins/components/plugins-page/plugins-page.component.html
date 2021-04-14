@@ -1,0 +1,163 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="title">
+    <ng-container slot="search">
+      <div class="d-flex align-items-center">
+        <div class="search-input mr-2">
+          <ng-select
+            class="ewb-select"
+            [formControl]="projectsControl"
+            labelForId="projects-header"
+            name="projects-header"
+            [placeholder]="t('plugins.header.projects.placeholder')"
+            [typeahead]="projectsInput$"
+            [items]="projects"
+            bindLabel="name"
+            bindValue="pk"
+          ></ng-select>
+        </div>
+
+        <div class="search-input mr-2">
+          <ng-select
+            #select
+            class="ewb-select"
+            [formControl]="usersControl"
+            labelForId="users-header"
+            name="users-modal"
+            [placeholder]="t('plugins.header.users.placeholder')"
+            [typeahead]="usersInput$"
+            [items]="users"
+            bindLabel="username"
+            bindValue="pk"
+          >
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <eworkbench-user-details class="d-inline-block mr-1" [user]="item" [active]="false"></eworkbench-user-details>
+              <span class="sub-text">{{ item.email }}</span>
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+              <div class="user-dropdown-option">
+                <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                <div>
+                  <ng-container *ngIf="item?.userprofile.anonymized">
+                    <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                  </ng-container>
+                  <ng-container *ngIf="!item?.userprofile.anonymized">
+                    <ng-container
+                      *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
+                    ></ng-container>
+                  </ng-container>
+
+                  <ng-template #userTemplate>
+                    <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
+                  </ng-template>
+                  <ng-template #usernameTemplate>
+                    <span [ngOptionHighlight]="search">{{ item?.username }}</span>
+                  </ng-template>
+
+                  <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="search-input mr-2">
+          <div class="input-group search-input-group">
+            <input
+              type="text"
+              class="form-control ewb-input"
+              id="search-header"
+              name="search-header"
+              [formControl]="searchControl"
+              [placeholder]="t('contacts.header.search.placeholder')"
+            />
+            <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+              <eworkbench-icon className="wb-search"></eworkbench-icon>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm bg-transparent clear-input"
+              (click)="searchControl.patchValue(null)"
+              *ngIf="searchControl.value"
+            >
+              <eworkbench-icon className="wb-remove"></eworkbench-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="search-input">
+          <ng-select
+            class="ewb-select"
+            [formControl]="pluginsControl"
+            labelForId="plugins-header"
+            name="plugins-header"
+            [placeholder]="t('plugins.header.plugins.placeholder')"
+            [items]="plugins"
+            bindLabel="title"
+            bindValue="pk"
+          ></ng-select>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container slot="elements">
+      <button class="btn ewb-button-big ewb-button-background" (click)="openTrashModal()">
+        <eworkbench-icon className="wb-trash-1"></eworkbench-icon> {{ t('plugins.trash') }}
+      </button>
+    </ng-container>
+  </eworkbench-header>
+</ng-container>
+
+<div [class.with-sidebar]="showSidebar">
+  <aside *ngIf="showSidebar">
+    <eworkbench-project-sidebar [append]="false"></eworkbench-project-sidebar>
+  </aside>
+  <main>
+    <eworkbench-table-manage-columns
+      class="d-flex justify-content-end mb-3"
+      [columns]="listColumns"
+      [defaultColumns]="defaultColumns"
+      (columnsChanged)="onColumnsChanged($event)"
+    ></eworkbench-table-manage-columns>
+    <eworkbench-table-view
+      #tableView
+      [columns]="listColumns"
+      [service]="pluginInstancesService"
+      [params]="params"
+      [skipInit]="showSidebar"
+      [sortBy]="sorting?.key"
+      [sort]="sorting?.direction"
+      (orderChanged)="onColumnsChanged($event)"
+      (sortChanged)="onSortChanged($event)"
+    ></eworkbench-table-view>
+    <ng-template #titleCellTemplate let-row>
+      <eworkbench-ellipsis-element [maxWidth]="300">
+        <a [routerLink]="['/plugin-data', row.pk]">{{ row.title }}</a>
+      </eworkbench-ellipsis-element>
+    </ng-template>
+    <ng-template #typeCellTemplate let-row>
+      {{ row.plugin_details.title }}
+    </ng-template>
+    <ng-template #createdAtCellTemplate let-row>
+      {{ row.created_at | formatDate }}
+    </ng-template>
+    <ng-template #createdByCellTemplate let-row>
+      <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
+    </ng-template>
+    <ng-template #lastUpdatedAtCellTemplate let-row>
+      {{ row.last_modified_at | formatDate }}
+    </ng-template>
+    <ng-template #lastUpdatedByCellTemplate let-row>
+      <eworkbench-user-details [user]="row.last_modified_by"></eworkbench-user-details>
+    </ng-template>
+    <ng-template #actionsCellTemplate let-row>
+      <div class="text-right">
+        <eworkbench-trash-button [service]="pluginInstancesService" [id]="row.pk" [tableView]="tableView"></eworkbench-trash-button>
+      </div>
+    </ng-template>
+  </main>
+</div>

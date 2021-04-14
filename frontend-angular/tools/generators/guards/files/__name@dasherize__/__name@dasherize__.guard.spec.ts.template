@@ -1,0 +1,25 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+import { SpectatorService, createHttpFactory } from '@ngneat/spectator/jest';
+import { NgZone } from '@angular/core';
+import { <%= classify(name) %>Guard } from './<%= dasherize(name) %>.guard';
+
+describe('<%= classify(name) %>Guard', () => {
+  let spectator: SpectatorService<<%= classify(name) %>Guard>;
+  const createService = createHttpFactory({
+    service: <%= classify(name) %>Guard,
+  });
+  let zone: NgZone;
+
+  beforeEach(() => {
+    spectator = createService();
+    zone = new NgZone({});
+  });
+
+  it('should be created', () => {
+    expect(spectator).toBeTruthy();
+  });
+});

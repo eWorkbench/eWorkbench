@@ -1,0 +1,15 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-table-view #tableView [columns]="listColumns" [columnHeader]="data.length" [data]="data"></eworkbench-table-view>
+<ng-template #nameCellTemplate let-row>
+  <a [routerLink]="['/tasks', row.left_content_object.pk]">{{ row.left_content_object.display }}</a>
+</ng-template>
+<ng-template #setByCellTemplate let-row>
+  <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
+</ng-template>
+<ng-template #setAtCellTemplate let-row>
+  {{ row.created_at | formatDate: 'yyyy-MM-dd' }}
+</ng-template>

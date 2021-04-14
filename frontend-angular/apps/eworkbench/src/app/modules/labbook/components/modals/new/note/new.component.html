@@ -1,0 +1,61 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('labBook.newNoteElementModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <div class="mb-4">
+            <label for="parentElement-modal">
+              {{ t('labBook.newNoteElementModal.parentElement.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <ng-select
+              class="ewb-select"
+              formControlName="parentElement"
+              labelForId="parentElement-modal"
+              name="parentElement-modal"
+              [placeholder]="t('labBook.newNoteElementModal.parentElement.placeholder')"
+              [items]="parentElement"
+              [clearable]="false"
+              bindLabel="label"
+              bindValue="value"
+            ></ng-select>
+          </div>
+          <div class="mb-4">
+            <label for="position-modal">
+              {{ t('labBook.newNoteElementModal.position.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <ng-select
+              class="ewb-select"
+              formControlName="position"
+              labelForId="position-modal"
+              name="position-modal"
+              [placeholder]="t('labBook.newNoteElementModal.position.placeholder')"
+              [items]="position"
+              [clearable]="false"
+              bindLabel="label"
+              bindValue="value"
+            ></ng-select>
+          </div>
+
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('labBook.newNoteElementModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              {{ t('labBook.newNoteElementModal.create') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

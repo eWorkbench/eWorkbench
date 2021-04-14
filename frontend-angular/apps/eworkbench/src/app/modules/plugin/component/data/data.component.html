@@ -1,0 +1,9 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<div class="plugin-data p-2">
+  <img class="img-fluid" [src]="dataPicture || pluginLogo" [alt]="pluginTitle" (click)="onActivate()" *ngIf="!active" />
+  <iframe [src]="safeAuthURL()" *ngIf="active"></iframe>
+</div>

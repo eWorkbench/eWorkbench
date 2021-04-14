@@ -1,0 +1,37 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<ng-container *transloco="let t">
+  <main>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+      <div class="mb-4">
+        <label for="subject">
+          {{ t('contactForm.subject') }}
+          <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+        </label>
+        <input
+          type="subject"
+          class="form-control ewb-input"
+          id="subject"
+          formControlName="subject"
+          name="subject"
+          [placeholder]="t('contactForm.subject')"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="message">
+          {{ t('contactForm.message') }}
+          <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+        </label>
+        <eworkbench-wysiwyg-editor id="message" formControlName="message"></eworkbench-wysiwyg-editor>
+      </div>
+      <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+        {{ t('contactForm.send') }}
+      </button>
+    </form>
+  </main>
+</ng-container>

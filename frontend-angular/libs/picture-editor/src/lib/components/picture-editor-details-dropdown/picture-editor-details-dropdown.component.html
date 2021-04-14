@@ -1,0 +1,79 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<div *ngIf="dropdown" class="d-inline-block h-100 navbar-nav" dropdown container="body" placement="bottom right" [insideClick]="true">
+  <button
+    type="button"
+    id="details-dropdown-button"
+    class="btn ewb-button-big ewb-button-background square-md"
+    aria-controls="details-dropdown-menu"
+    [disabled]="loading"
+    dropdownToggle
+  >
+    <eworkbench-icon className="wb-more-vertical"></eworkbench-icon>
+  </button>
+  <ul
+    id="details-dropdown-menu"
+    *dropdownMenu
+    class="dropdown-menu dropdown-menu-right details-dropdown-menu"
+    role="menu"
+    aria-labelledby="details-dropdown-button"
+  >
+    <ng-template
+      *ngTemplateOutlet="
+        dropdownUL;
+        context: { menuClass: '', itemClass: 'btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button' }
+      "
+    ></ng-template>
+  </ul>
+</div>
+<div *ngIf="!dropdown" class="d-inline-block w-100 navbar-nav">
+  <button
+    type="button"
+    class="btn ewb-button-big ewb-button-background square-md"
+    [attr.aria-expanded]="!detailsCollapsed"
+    aria-controls="collapseBasic"
+    (click)="detailsCollapsed = !detailsCollapsed"
+  >
+    <eworkbench-icon className="wb-more-vertical"></eworkbench-icon>
+  </button>
+  <div class="collapse navbar-collapse mt-1 py-2 bg-white" [collapse]="detailsCollapsed">
+    <ng-template
+      *ngTemplateOutlet="
+        dropdownUL;
+        context: { menuClass: 'menuitem', itemClass: 'btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button' }
+      "
+    ></ng-template>
+  </div>
+</div>
+
+<ng-template #dropdownUL let-t="t" let-menuClass="menuClass" let-itemClass="itemClass">
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="clear()" [disabled]="loading">
+      <eworkbench-icon className="wb-trash-1"></eworkbench-icon> Clear
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="toggleVisible()" [disabled]="loading">
+      <eworkbench-icon [className]="shapesBackup ? 'wb-visible' : 'wb-invisible'"></eworkbench-icon>
+      {{ shapesBackup ? 'Show drawings' : 'Hide drawings' }}
+    </button>
+  </li>
+  <li *ngIf="!sketch" [class]="menuClass" role="menuitem">
+    <input
+      #uploadInput
+      type="file"
+      class="ewb-file-button"
+      [disabled]="loading"
+      (change)="onUploadBackgroundImage($event)"
+      id="uploadFile"
+      name="uploadFile"
+    />
+    <label for="uploadFile" [class]="itemClass">
+      <eworkbench-icon className="wb-image" class="mr-1"></eworkbench-icon>
+      Upload image
+    </label>
+  </li>
+</ng-template>

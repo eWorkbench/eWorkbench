@@ -1,0 +1,96 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <ng-container *ngIf="dmp">
+      <div class="mb-4">
+        <label for="title-modal">{{ t('dmp.details.title.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="title-modal"
+          [placeholder]="t('dmp.details.title.placeholder')"
+          [readonly]="true"
+          [value]="dmp?.title"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="status-modal">{{ t('dmp.details.status.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="status-modal"
+          [formControl]="statusFormControl"
+          [placeholder]="t('dmp.details.status.placeholder')"
+          [items]="status"
+          bindLabel="label"
+          bindValue="value"
+        >
+          <ng-template ng-label-tmp let-item="item">
+            <ng-container [ngTemplateOutlet]="typesTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+          </ng-template>
+          <ng-template ng-option-tmp let-item="item">
+            <ng-container [ngTemplateOutlet]="typesTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+          </ng-template>
+          <ng-template #typesTemplate let-item="item">
+            <eworkbench-dmp-status [status]="item.value"></eworkbench-dmp-status>
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="mb-4">
+        <label for="projects-modal">{{ t('dmp.details.projects.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="projects-modal"
+          [formControl]="projectsFormControl"
+          [placeholder]="t('dmp.details.projects.placeholder')"
+          [multiple]="true"
+          [items]="projects"
+          bindLabel="name"
+          bindValue="pk"
+        >
+          <ng-template ng-label-tmp let-item="item" let-clear="clear">
+            {{ item.name }}
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="mb-4" *ngIf="dmp?.metadata.length">
+        <label for="metadata-modal">{{ t('dmp.details.metadata.label') }}</label>
+        <ng-container *ngFor="let field of dmp?.metadata">
+          <div class="mb-2">
+            <div class="mb-1">{{ field.field_info?.display }}</div>
+            <eworkbench-metadata-field
+              [uuid]="field.pk"
+              [id]="field.pk"
+              [baseType]="field.field_info?.base_type"
+              [typeSettings]="field.field_info?.type_settings"
+              [values]="field.values"
+              [editable]="false"
+            ></eworkbench-metadata-field>
+          </div>
+        </ng-container>
+      </div>
+      <div class="mb-4" *ngFor="let data of formData">
+        <label>{{ data.name }}</label>
+        <div [innerHTML]="data.value | safeHTML"></div>
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+          {{ t('versions.previewModal.close') }}
+        </button>
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="onRestoreVersion()" [disabled]="loading">
+          {{ t('versions.previewModal.restoreVersion') }}
+        </button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !dmp">
+      <alert type="danger">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('versions.previewModal.notice.failedToLoad') }}
+      </alert>
+    </ng-container>
+  </eworkbench-loading>
+</ng-container>

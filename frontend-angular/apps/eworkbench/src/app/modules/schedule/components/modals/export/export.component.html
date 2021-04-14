@@ -1,0 +1,35 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal>
+    <div slot="header">
+      {{ t('schedule.exportModal.header') }}
+    </div>
+    <div slot="body">
+      <div>
+        {{ t('schedule.exportModal.body') }}
+      </div>
+      <ul class="mx-4 my-3 p-0">
+        <li>
+          <a [href]="iCalExportUrl">{{ t('schedule.exportModal.iCal1') }}</a>
+          {{ t('schedule.exportModal.iCal2') }}
+        </li>
+        <li>{{ t('schedule.exportModal.list') }}</li>
+      </ul>
+      <div class="input-group">
+        <input class="form-control ewb-input" [value]="iCalExportUrl || ''" />
+        <div class="input-group-append">
+          <button class="btn ewb-button-big ewb-button-primary" (click)="onCopyExportUrlToClipboard()">✄</button>
+        </div>
+      </div>
+    </div>
+    <div slot="footer">
+      <button class="btn ewb-button-big ewb-button-primary" (click)="modalRef.close()">
+        {{ t('schedule.exportModal.close') }}
+      </button>
+    </div>
+  </eworkbench-modal>
+</ng-container>

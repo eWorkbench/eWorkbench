@@ -1,0 +1,23 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('picture.editorModal.header') }}
+    </div>
+    <div slot="body">
+      <div>
+        <eworkbench-picture-editor [picture]="initialState" [service]="picturesService"></eworkbench-picture-editor>
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary" (click)="modalRef.close()">
+          {{ t('picture.editorModal.close') }}
+        </button>
+      </div>
+    </div>
+  </eworkbench-modal>
+</ng-container>

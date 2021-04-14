@@ -1,6 +1,0 @@
-<!-- show a link to tasks -->
-<a ng-if="vm.task && vm.taskUrl" ng-href="{{ vm.taskUrl }}">
-    <ng-transclude>
-        #{{ vm.task.task_id }} {{vm.task.title}}
-    </ng-transclude>
-</a>

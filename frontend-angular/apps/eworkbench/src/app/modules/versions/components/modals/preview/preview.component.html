@@ -1,0 +1,110 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('versions.previewModal.header') }}
+      <ng-container *ngIf="versionNumber">{{ versionNumber }}</ng-container>
+    </div>
+    <div slot="body">
+      <div class="mb-4">
+        <label for="versionCreated">{{ t('versions.previewModal.versionCreated.label') }}</label>
+        <div id="versionCreated">
+          {{ version.created_at | formatDate }}
+          {{ t('versions.by') }}
+          <eworkbench-user-details class="d-inline-block" [user]="version.created_by"></eworkbench-user-details>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="versionSummary">{{ t('versions.previewModal.versionSummary.label') }}</label>
+        <div id="versionSummary">{{ version.summary || '-' }}</div>
+      </div>
+
+      <hr />
+
+      <eworkbench-contact-preview
+        *ngIf="contentType === 'contact'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-contact-preview>
+
+      <eworkbench-note-preview
+        *ngIf="contentType === 'note'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-note-preview>
+
+      <eworkbench-appointment-preview
+        *ngIf="contentType === 'appointment'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-appointment-preview>
+
+      <eworkbench-task-preview
+        *ngIf="contentType === 'task'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-task-preview>
+
+      <eworkbench-labbook-preview
+        *ngIf="contentType === 'labBook'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-labbook-preview>
+
+      <eworkbench-plugin-data-preview
+        *ngIf="contentType === 'pluginData'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-plugin-data-preview>
+
+      <eworkbench-file-preview
+        *ngIf="contentType === 'file'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-file-preview>
+
+      <eworkbench-picture-preview
+        *ngIf="contentType === 'picture'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-picture-preview>
+
+      <eworkbench-dmp-preview
+        *ngIf="contentType === 'dmp'"
+        [id]="version.object_id"
+        [version]="version.pk"
+        [versionInProgress]="versionInProgress"
+        [modalRef]="modalRef"
+        (closed)="onModalClose($event)"
+      ></eworkbench-dmp-preview>
+    </div>
+  </eworkbench-modal>
+</ng-container>

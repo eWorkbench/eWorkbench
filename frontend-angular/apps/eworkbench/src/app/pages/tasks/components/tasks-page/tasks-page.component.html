@@ -1,0 +1,219 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="title">
+    <ng-container slot="search">
+      <div class="d-flex align-items-center">
+        <div class="search-input mr-2">
+          <ng-select
+            class="ewb-select"
+            [formControl]="projectsControl"
+            labelForId="projects-header"
+            name="projects-header"
+            [placeholder]="t('tasks.header.projects.placeholder')"
+            [typeahead]="projectsInput$"
+            [items]="projects"
+            bindLabel="name"
+            bindValue="pk"
+          ></ng-select>
+        </div>
+
+        <div class="search-input mr-2">
+          <ng-select
+            #select
+            class="ewb-select"
+            [formControl]="usersControl"
+            labelForId="users-header"
+            name="users-modal"
+            [placeholder]="t('tasks.header.users.placeholder')"
+            [typeahead]="usersInput$"
+            [items]="users"
+            bindLabel="username"
+            bindValue="pk"
+          >
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <eworkbench-user-details class="d-inline-block mr-1" [user]="item" [active]="false"></eworkbench-user-details>
+              <span class="sub-text">{{ item.email }}</span>
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+              <div class="user-dropdown-option">
+                <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                <div>
+                  <ng-container *ngIf="item?.userprofile.anonymized">
+                    <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                  </ng-container>
+                  <ng-container *ngIf="!item?.userprofile.anonymized">
+                    <ng-container
+                      *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
+                    ></ng-container>
+                  </ng-container>
+
+                  <ng-template #userTemplate>
+                    <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
+                  </ng-template>
+                  <ng-template #usernameTemplate>
+                    <span [ngOptionHighlight]="search">{{ item?.username }}</span>
+                  </ng-template>
+
+                  <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="search-input mr-2">
+          <div class="input-group search-input-group">
+            <input
+              type="text"
+              class="form-control ewb-input"
+              id="search-header"
+              name="search-header"
+              [formControl]="searchControl"
+              [placeholder]="t('tasks.header.search.placeholder')"
+            />
+            <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+              <eworkbench-icon className="wb-search"></eworkbench-icon>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm bg-transparent clear-input"
+              (click)="searchControl.patchValue(null)"
+              *ngIf="searchControl.value"
+            >
+              <eworkbench-icon className="wb-remove"></eworkbench-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-button" dropdown container="body" placement="bottom right" [insideClick]="true">
+          <button
+            type="button"
+            id="tasks-filter-button"
+            class="btn ewb-button-big ewb-button-background"
+            aria-controls="tasks-filter-dropdown-menu"
+            dropdownToggle
+          >
+            <eworkbench-icon className="wb-filter"></eworkbench-icon>
+            {{ t('tasks.header.filterByTaskState') }}
+          </button>
+          <ul
+            id="tasks-filter-dropdown-menu"
+            *dropdownMenu
+            class="dropdown-menu dropdown-menu-right details-dropdown-menu"
+            role="menu"
+            aria-labelledby="tasks-filter-button"
+          >
+            <li class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button" role="menuitem">
+              <div class="custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  id="new-task-filter"
+                  name="new-task-filter"
+                  class="custom-control-input"
+                  [formControl]="newCheckbox"
+                />
+                <label class="custom-control-label w-100 font-weight-normal" for="new-task-filter">{{
+                  t('tasks.header.filterByTaskState.new.label')
+                }}</label>
+              </div>
+            </li>
+            <li class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button" role="menuitem">
+              <div class="custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  id="progress-task-filter"
+                  name="progress-task-filter"
+                  class="custom-control-input"
+                  [formControl]="progressCheckbox"
+                />
+                <label class="custom-control-label w-100 font-weight-normal" for="progress-task-filter">
+                  {{ t('tasks.header.filterByTaskState.inProgress.label') }}
+                </label>
+              </div>
+            </li>
+            <li class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button" role="menuitem">
+              <div class="custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  id="done-task-filter"
+                  name="done-task-filter"
+                  class="custom-control-input"
+                  [formControl]="doneCheckbox"
+                />
+                <label class="custom-control-label w-100 font-weight-normal" for="done-task-filter">
+                  {{ t('tasks.header.filterByTaskState.done.label') }}
+                </label>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container slot="elements">
+      <button class="btn ewb-button-big ewb-button-background mr-2" (click)="openTrashModal()">
+        <eworkbench-icon className="wb-trash-1"></eworkbench-icon> {{ t('tasks.trash') }}
+      </button>
+      <button class="btn ewb-button-big ewb-button-background" (click)="openNewTaskModal()">
+        <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('tasks.new') }}
+      </button>
+    </ng-container>
+  </eworkbench-header>
+</ng-container>
+
+<div [class.with-sidebar]="showSidebar">
+  <aside *ngIf="showSidebar">
+    <eworkbench-project-sidebar [append]="false" [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
+  </aside>
+  <main>
+    <eworkbench-table-manage-columns
+      class="d-flex justify-content-end mb-3"
+      [columns]="listColumns"
+      [defaultColumns]="defaultColumns"
+      (columnsChanged)="onColumnsChanged($event)"
+    ></eworkbench-table-manage-columns>
+    <eworkbench-table-view
+      #tableView
+      [columns]="listColumns"
+      [service]="tasksService"
+      [params]="params"
+      [skipInit]="showSidebar"
+      [sortBy]="sorting?.key"
+      [sort]="sorting?.direction"
+      (orderChanged)="onColumnsChanged($event)"
+      (sortChanged)="onSortChanged($event)"
+    ></eworkbench-table-view>
+    <ng-template #taskIdCellTemplate let-row>
+      <a [routerLink]="['/tasks', row.pk]">#{{ row.task_id }}</a>
+    </ng-template>
+    <ng-template #priorityCellTemplate let-row>
+      <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
+    </ng-template>
+    <ng-template #titleCellTemplate let-row>
+      <eworkbench-ellipsis-element [maxWidth]="300">
+        <a [routerLink]="['/tasks', row.pk]">{{ row.title }}</a>
+      </eworkbench-ellipsis-element>
+    </ng-template>
+    <ng-template #stateCellTemplate let-row>
+      <eworkbench-task-state [state]="row.state"></eworkbench-task-state>
+    </ng-template>
+    <ng-template #startDateCellTemplate let-row>
+      {{ row.start_date | formatDate }}
+    </ng-template>
+    <ng-template #dueDateCellTemplate let-row>
+      {{ row.due_date | formatDate }}
+    </ng-template>
+    <ng-template #assignedToCellTemplate let-row>
+      <eworkbench-users-grouping [users]="row.assigned_users"></eworkbench-users-grouping>
+    </ng-template>
+    <ng-template #actionsCellTemplate let-row>
+      <div class="text-right">
+        <eworkbench-trash-button [service]="tasksService" [id]="row.pk" [tableView]="tableView"></eworkbench-trash-button>
+      </div>
+    </ng-template>
+  </main>
+</div>

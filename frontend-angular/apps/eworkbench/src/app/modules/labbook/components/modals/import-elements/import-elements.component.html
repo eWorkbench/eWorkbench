@@ -1,0 +1,108 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false" [closeButton]="!loading">
+    <div slot="header">
+      {{ t('labBook.importModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <div class="mb-4">
+            <label for="labBook-modal">{{ t('labBook.importModal.labBook.label') }}</label>
+            <ng-select
+              class="ewb-select"
+              formControlName="labBook"
+              labelForId="labBook"
+              name="labBook"
+              [placeholder]="t('labBook.importModal.labBook.placeholder')"
+              [items]="labBooks"
+              bindLabel="label"
+              bindValue="value"
+              (change)="onChangeLabBook()"
+            ></ng-select>
+          </div>
+
+          <ng-container *ngIf="selectedLabBook">
+            <div class="mb-4">
+              <div class="custom-control custom-checkbox">
+                <input
+                  class="custom-control-input"
+                  type="checkbox"
+                  formControlName="insertAll"
+                  id="insertAll-modal"
+                  name="insertAll-modal"
+                  [checked]="selectedElements.length === totalElements"
+                  (click)="onToggleAll()"
+                />
+                <label class="custom-control-label font-weight-normal" for="insertAll-modal">{{
+                  t('labBook.importModal.insertAll.label')
+                }}</label>
+              </div>
+            </div>
+
+            <hr />
+
+            <h6>{{ t('labBook.importModal.selectedCells') }}</h6>
+            <div class="mb-4" *ngIf="!elements.length">{{ t('labBook.importModal.noCells') }}</div>
+            <ng-container *ngFor="let element of elements">
+              <div class="custom-control custom-checkbox">
+                <input
+                  class="custom-control-input"
+                  type="checkbox"
+                  [id]="'element.' + element.pk + '-modal'"
+                  [name]="'element.' + element.pk + '-modal'"
+                  [checked]="selectedElements.includes(element)"
+                  (click)="onToggleSelected(element)"
+                />
+                <label class="custom-control-label font-weight-normal" [for]="'element.' + element.pk + '-modal'">
+                  <eworkbench-icon [className]="element.child_object.content_type_model | formatContentTypeModel: 'icon'"></eworkbench-icon>
+                  {{ element.child_object.display }}
+                  ({{ element.child_object.content_type_model | formatContentTypeModel }})
+                </label>
+              </div>
+
+              <div *ngIf="element.child_object_content_type_model === 'labbooks.labbooksection'">
+                <div class="ml-4" *ngFor="let sectionElement of sectionElements[element.child_object_id]">
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      class="custom-control-input"
+                      type="checkbox"
+                      [id]="'sectionElement.' + sectionElement.pk + '-modal'"
+                      [name]="'sectionElement.' + sectionElement.pk + '-modal'"
+                      [checked]="selectedElements.includes(sectionElement)"
+                      (click)="onToggleSelected(sectionElement)"
+                    />
+                    <label class="custom-control-label font-weight-normal" [for]="'sectionElement.' + sectionElement.pk + '-modal'">
+                      <eworkbench-icon
+                        [className]="sectionElement.child_object.content_type_model | formatContentTypeModel: 'icon'"
+                      ></eworkbench-icon>
+                      {{ sectionElement.child_object.display }}
+                      ({{ sectionElement.child_object.content_type_model | formatContentTypeModel }})
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('labBook.importModal.cancel') }}
+            </button>
+            <button
+              type="submit"
+              class="btn ewb-button-big ewb-button-primary"
+              [disabled]="loading || form.invalid || !selectedElements.length"
+            >
+              {{ t('labBook.importModal.add') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

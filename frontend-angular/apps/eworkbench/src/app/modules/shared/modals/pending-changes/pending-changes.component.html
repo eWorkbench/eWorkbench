@@ -1,0 +1,26 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('shared.pendingChangesModal.header') }}
+    </div>
+    <div slot="body">
+      <div class="mb-4">
+        {{ t('shared.pendingChangesModal.confirmationMessage') }}
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close(false)">
+          {{ t('shared.pendingChangesModal.cancel') }}
+        </button>
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="modalRef.close(true)">
+          {{ t('shared.pendingChangesModal.confirm') }}
+        </button>
+      </div>
+    </div>
+  </eworkbench-modal>
+</ng-container>

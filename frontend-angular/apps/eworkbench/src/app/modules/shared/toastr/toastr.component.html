@@ -1,0 +1,24 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<div class="grid" [style.display]="state.value === 'inactive' ? 'none' : ''">
+  <div>
+    <div *ngIf="title" [class]="options.titleClass" [attr.aria-label]="title">
+      {{ title }}
+    </div>
+    <div *ngIf="message && options.enableHtml" role="alert" aria-live="polite" [class]="options.messageClass" [innerHTML]="message"></div>
+    <div *ngIf="message && !options.enableHtml" role="alert" aria-live="polite" [class]="options.messageClass" [attr.aria-label]="message">
+      {{ message }}
+    </div>
+  </div>
+  <div>
+    <button *ngIf="options.closeButton" class="btn ewb-button-big close-button" (click)="remove()">
+      <eworkbench-icon className="wb-x-bold-close"></eworkbench-icon>
+    </button>
+  </div>
+</div>
+<div *ngIf="options.progressBar">
+  <div class="toast-progress" [style.width]="width + '%'"></div>
+</div>

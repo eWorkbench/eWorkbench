@@ -1,0 +1,37 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container [formGroup]="formGroup" *transloco="let t">
+  <div class="font-weight-bold mb-2">{{ label }}</div>
+  <ng-container *ngFor="let _ of fields.controls; let i = index">
+    <div class="element-group mb-1">
+      <div class="custom-control custom-radio">
+        <input
+          type="radio"
+          class="custom-control-input"
+          [id]="'options.' + key + '.' + i"
+          [formControlName]="baseFormControlName + 'Index'"
+          [value]="i"
+          (change)="onChangeFieldIndex(i)"
+        />
+      </div>
+      <input
+        *ngIf="!editor"
+        type="text"
+        class="form-control ewb-input"
+        [id]="key + '.' + i"
+        [formControl]="fields.controls[i]"
+        [name]="baseFormControlName + '.' + i"
+      />
+      <eworkbench-wysiwyg-editor [formControl]="fields.controls[i]" *ngIf="editor"></eworkbench-wysiwyg-editor>
+      <span *ngIf="i === 0" class="text-nowrap flex-grow-1 label ml-1 pt-1">
+        {{ t('contacts.mergeDuplicatesInputGroup.baseContact.label') }}
+      </span>
+      <span *ngIf="i > 0" class="text-nowrap label ml-1 pt-1">
+        {{ t('contacts.mergeDuplicatesInputGroup.mergeContact.label') }} #{{ i }}
+      </span>
+    </div>
+  </ng-container>
+</ng-container>

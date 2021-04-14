@@ -1,0 +1,31 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <div class="m-5 text-center" *ngIf="!drawBoardElements.length && !loading">
+      {{ section ? t('labBook.drawBoardNote.noChildElementsInSection') : t('labBook.drawBoardNote.noChildElements') }}
+    </div>
+
+    <gridster #drawBoard [options]="options" *ngIf="!section || (section && drawBoardElements.length)">
+      <gridster-item
+        [item]="item"
+        [style.z-index]="getItemZIndex(item)"
+        [style.overflow]="getItemOverflow(item)"
+        *ngFor="let item of drawBoardElements"
+      >
+        <eworkbench-labbook-draw-board-element
+          [id]="id"
+          [element]="item.element"
+          [section]="section"
+          [closeSection]="closeSection"
+          (removed)="onRemove($event)"
+          (moved)="onRemove($event)"
+          (expand)="onExpandSection($event)"
+        ></eworkbench-labbook-draw-board-element>
+      </gridster-item>
+    </gridster>
+  </eworkbench-loading>
+</ng-container>

@@ -1,0 +1,99 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-collapse-element [labelTemplate]="collapseLabelTemplate" [element]="storage" [collapsed]="collapsed" [toggled]="refresh">
+    <eworkbench-loading [loading]="loading">
+      <div class="d-flex mb-3">
+        <button class="btn ewb-button-primary ewb-button-big mr-2 align-self-center" (click)="onOpenNewDirectoryModal()">
+          {{ t('storages.newFolder') }}
+        </button>
+        <button
+          class="btn ewb-button-primary ewb-button-big mr-2 align-self-center"
+          (click)="onOpenWebDavModal()"
+          [disabled]="storage.is_dss_drive"
+        >
+          <eworkbench-icon className="wb-desktop" class="mr-1"></eworkbench-icon>{{ t('storages.webDav') }}
+        </button>
+        <div class="search-input">
+          <div class="input-group search-input-group">
+            <input
+              type="text"
+              class="form-control ewb-input"
+              [formControl]="searchControl"
+              [placeholder]="t('contacts.header.search.placeholder')"
+            />
+            <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+              <eworkbench-icon className="wb-search"></eworkbench-icon>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm bg-transparent clear-input"
+              (click)="searchControl.patchValue(null)"
+              *ngIf="searchControl.value"
+            >
+              <eworkbench-icon className="wb-remove"></eworkbench-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="rootDirectory" class="root-row pl-2 border-bottom">
+        <div class="root-header align-self-center">
+          <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon>{{ storage.title }}
+        </div>
+        <div class="root-actions align-self-center" *ngIf="!collapsed && rootDirectory">
+          <button
+            class="btn ewb-button-small square"
+            (click)="onOpenNewDirectoryModal(rootDirectory)"
+            [tooltip]="t('storages.directory.actions.addFolder')"
+            containerClass="tooltip-sm"
+          >
+            <eworkbench-icon className="wb-plus_box"></eworkbench-icon>
+          </button>
+          <button
+            class="btn ewb-button-small square"
+            (click)="onOpenAddFileModal(rootDirectory)"
+            [tooltip]="t('storages.directory.actions.addExistingFile')"
+            containerClass="tooltip-sm"
+          >
+            <eworkbench-icon className="wb-plus"></eworkbench-icon>
+          </button>
+          <button
+            class="btn ewb-button-small square"
+            (click)="file.click()"
+            [tooltip]="t('storages.directory.actions.uploadFile')"
+            containerClass="tooltip-sm"
+          >
+            <eworkbench-icon className="wb-upload"></eworkbench-icon>
+            <input type="file" class="text-size invisible" (change)="onUpload($event, rootDirectory)" #file />
+          </button>
+          <a
+            class="btn ewb-button-small square"
+            [href]="rootDirectory?.download_directory"
+            [tooltip]="t('storages.directory.actions.downloadDirectory')"
+            containerClass="tooltip-sm"
+            download
+          >
+            <eworkbench-icon className="wb-download"></eworkbench-icon>
+          </a>
+        </div>
+      </div>
+      <eworkbench-subdirectory-element
+        *ngIf="rootDirectory"
+        [storage]="storage"
+        [directory]="rootDirectory"
+        [files]="files"
+        [refresh]="refreshSubdirectory"
+      ></eworkbench-subdirectory-element>
+    </eworkbench-loading>
+  </eworkbench-collapse-element>
+</ng-container>
+
+<ng-template #collapseLabelTemplate let-storage>
+  <div class="storage-title">
+    <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon
+    ><a [routerLink]="['/storages', storage.pk]" class="font-weight-bold">{{ storage.title }}</a>
+  </div>
+</ng-template>

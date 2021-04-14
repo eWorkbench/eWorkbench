@@ -1,0 +1,48 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="booking-rules-duration mb-4">
+    <div class="rule-label">{{ label }}</div>
+
+    <div class="booking-rules-duration-times">
+      <div>
+        <label [for]="'days.' + uuid">{{ t('resources.bookingRulesDuration.days.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          [formControl]="f.days"
+          [id]="'days.' + uuid"
+          [name]="'days.' + uuid"
+          [placeholder]="t('resources.bookingRulesDuration.days.placeholder')"
+          (change)="onSetChanged()"
+        />
+      </div>
+
+      <div>
+        <label [for]="'duration.' + uuid">{{ t('resources.bookingRulesDuration.duration.label') }}</label>
+        <eworkbench-form-date-input
+          [formControl]="f.duration"
+          [inputId]="'duration-' + uuid"
+          [inputName]="'duration-' + uuid"
+          [datePickerConfig]="datetimePickerConfig"
+          (change)="onSetChanged()"
+        ></eworkbench-form-date-input>
+      </div>
+
+      <div class="remove-button">
+        <button
+          type="button"
+          class="btn ewb-button-big ewb-button-secondary square"
+          (click)="onRemove()"
+          [disabled]="loading"
+          *ngIf="editable"
+        >
+          <eworkbench-icon className="wb-remove"></eworkbench-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

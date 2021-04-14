@@ -1,0 +1,118 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="title">
+    <ng-container slot="elements">
+      <button class="btn ewb-button-big ewb-button-background mr-2" (click)="openTrashModal()">
+        <eworkbench-icon className="wb-trash-1"></eworkbench-icon> {{ t('projects.trash') }}
+      </button>
+      <button class="btn ewb-button-big ewb-button-background" (click)="openNewModal()">
+        <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('projects.new') }}
+      </button>
+    </ng-container>
+  </eworkbench-header>
+
+  <main>
+    <eworkbench-table-manage-columns
+      class="d-flex justify-content-end mb-3"
+      [columns]="listColumns"
+      [defaultColumns]="defaultColumns"
+      (columnsChanged)="onColumnsChanged($event)"
+    ></eworkbench-table-manage-columns>
+    <eworkbench-tree-view #treeView [columns]="listColumns" [params]="serviceParams" [service]="projectsService"></eworkbench-tree-view>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="d-inline-block square-md legend-item-done"></div>
+        {{ t('projects.progress.done') }}
+      </div>
+      <div class="legend-item">
+        <div class="d-inline-block square-md legend-item-in-progress"></div>
+        {{ t('projects.progress.inProgress') }}
+      </div>
+      <div class="legend-item">
+        <div class="d-inline-block square-md legend-item-new"></div>
+        {{ t('projects.progress.new') }}
+      </div>
+    </div>
+  </main>
+</ng-container>
+
+<ng-template #nameCellTemplate let-row>
+  <eworkbench-ellipsis-element class="d-inline-flex" [maxWidth]="300">
+    <a [routerLink]="['/projects', row.pk]">{{ row.name }}</a>
+  </eworkbench-ellipsis-element>
+</ng-template>
+<ng-template #progressCellTemplate let-row>
+  <ng-container *transloco="let t">
+    <div class="progress" *ngIf="row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE">
+      <div
+        class="progress-bar bg-success"
+        role="progressbar"
+        [ngStyle]="{ width: progressbarValues(row)[0].label }"
+        [tooltip]="
+          t('projects.progress.done') +
+          ': ' +
+          row.tasks_status.DONE +
+          ' / ' +
+          (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)
+        "
+        containerClass="tooltip-sm"
+      >
+        {{ progressbarValues(row)[0].label }}
+      </div>
+      <div
+        class="progress-bar bg-info"
+        role="progressbar"
+        [ngStyle]="{ width: progressbarValues(row)[1].label }"
+        [tooltip]="
+          t('projects.progress.inProgress') +
+          ': ' +
+          row.tasks_status.PROG +
+          ' / ' +
+          (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)
+        "
+        containerClass="tooltip-sm"
+      >
+        {{ progressbarValues(row)[1].label }}
+      </div>
+      <div
+        class="progress-bar bg-primary"
+        role="progressbar"
+        [ngStyle]="{ width: progressbarValues(row)[2].label }"
+        [tooltip]="
+          t('projects.progress.new') +
+          ': ' +
+          row.tasks_status.NEW +
+          ' / ' +
+          (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)
+        "
+        containerClass="tooltip-sm"
+      >
+        {{ progressbarValues(row)[2].label }}
+      </div>
+    </div>
+    <span *ngIf="!(row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)">
+      {{ t('projects.noTasks') }}
+    </span>
+  </ng-container>
+</ng-template>
+<ng-template #startDateCellTemplate let-row>
+  {{ row.start_date | formatDate: 'yyyy-MM-dd' }}
+</ng-template>
+<ng-template #stopDateCellTemplate let-row>
+  {{ row.stop_date | formatDate: 'yyyy-MM-dd' }}
+</ng-template>
+<ng-template #taskStatusCellTemplate let-row>
+  {{ row.tasks_status.DONE }} / {{ row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE }}
+</ng-template>
+<ng-template #projectStateCellTemplate let-row>
+  <eworkbench-project-state [state]="row.project_state"></eworkbench-project-state>
+</ng-template>
+<ng-template #actionsCellTemplate let-row>
+  <div class="text-right">
+    <eworkbench-trash-button [service]="projectsService" [id]="row.pk" [tableView]="treeView"></eworkbench-trash-button>
+  </div>
+</ng-template>

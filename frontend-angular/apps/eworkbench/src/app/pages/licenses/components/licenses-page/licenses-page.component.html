@@ -1,0 +1,28 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<ng-container *transloco="let t">
+  <main>
+    <eworkbench-loading [loading]="loading">
+      <ng-container *ngIf="cmsText">
+        <h5>{{ t('licenses.frontend') }}</h5>
+        <div class="mb-5" [innerHTML]="cmsText?.text | safeHTML"></div>
+      </ng-container>
+
+      <ng-container *ngIf="data.length">
+        <h5>{{ t('licenses.backend') }}</h5>
+        <eworkbench-table-view [columns]="listColumns" [data]="data"></eworkbench-table-view>
+      </ng-container>
+    </eworkbench-loading>
+  </main>
+</ng-container>
+
+<ng-template #repositoryCellTemplate let-row>
+  <ng-container *transloco="let t">
+    <a [href]="row.repository" target="_blank">{{ t('licenses.link') }}</a>
+  </ng-container>
+</ng-template>

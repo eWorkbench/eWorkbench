@@ -1,0 +1,441 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@font-face {
+  font-family: 'wb-font';
+  src: url('fonts/wb-font.eot?4ma504');
+  src: url('fonts/wb-font.eot?4ma504#iefix') format('embedded-opentype'), url('fonts/wb-font.ttf?4ma504') format('truetype'),
+    url('fonts/wb-font.woff?4ma504') format('woff'), url('fonts/wb-font.svg?4ma504#wb-font') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^='icon-'],
+[class*=' icon-'] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'wb-font' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-wb-logout:before {
+  content: '\e900';
+}
+.icon-wb-priority-normal:before {
+  content: '\e901';
+}
+.icon-wb-folder-open:before {
+  content: '\e902';
+}
+.icon-wb-arrow-cross:before {
+  content: '\e903';
+}
+.icon-wb-active-sort-ascending-127:before {
+  content: '\e904';
+}
+.icon-wb-enlarge:before {
+  content: '\e905';
+}
+.icon-wb-external-link:before {
+  content: '\e906';
+}
+.icon-wb-inactive-sort:before {
+  content: '\e907';
+}
+.icon-wb-plugin:before {
+  content: '\e908';
+}
+.icon-wb-quote:before {
+  content: '\e909';
+}
+.icon-wb-active-sort-ascending-126:before {
+  content: '\e90a';
+}
+.icon-wb-home:before {
+  content: '\e90b';
+}
+.icon-wb-plus:before {
+  content: '\e90c';
+}
+.icon-wb-projects:before {
+  content: '\e90d';
+}
+.icon-wb-sort-descending:before {
+  content: '\e90e';
+}
+.icon-wb-sort-ascending:before {
+  content: '\e90f';
+}
+.icon-wb-blank:before {
+  content: '\e910';
+}
+.icon-wb-dashboard:before {
+  content: '\e911';
+}
+.icon-wb-favorite-1:before {
+  content: '\e912';
+}
+.icon-wb-favorite-2:before {
+  content: '\e913';
+}
+.icon-wb-favorite-3:before {
+  content: '\e914';
+}
+.icon-wb-minus:before {
+  content: '\e915';
+}
+.icon-wb-no-access-to-project:before {
+  content: '\e916';
+}
+.icon-wb-bold-ellipse:before {
+  content: '\e917';
+}
+.icon-wb-bold-line:before {
+  content: '\e918';
+}
+.icon-wb-bold-polygon:before {
+  content: '\e919';
+}
+.icon-wb-bold-square:before {
+  content: '\e91a';
+}
+.icon-wb-chevron-left:before {
+  content: '\e91b';
+}
+.icon-wb-color-bucket:before {
+  content: '\e91c';
+}
+.icon-wb-extra-bold-check:before {
+  content: '\e91d';
+}
+.icon-wb-font-color:before {
+  content: '\e91e';
+}
+.icon-wb-ok:before {
+  content: '\e91f';
+}
+.icon-wb-card-view:before {
+  content: '\e920';
+}
+.icon-wb-info:before {
+  content: '\e921';
+}
+.icon-wb-list-view:before {
+  content: '\e922';
+}
+.icon-wb-plus-circle:before {
+  content: '\e923';
+}
+.icon-wb-warning:before {
+  content: '\e924';
+}
+.icon-wb-x-bold-close:before {
+  content: '\e925';
+}
+.icon-wb-x-error-circle:before {
+  content: '\e926';
+}
+.icon-wb-arrow-right:before {
+  content: '\e927';
+}
+.icon-wb-check-square:before {
+  content: '\e928';
+}
+.icon-wb-eraser:before {
+  content: '\e929';
+}
+.icon-wb-font:before {
+  content: '\e92a';
+}
+.icon-wb-invisible:before {
+  content: '\e92b';
+}
+.icon-wb-more-horizontal:before {
+  content: '\e92c';
+}
+.icon-wb-mouse-pointer:before {
+  content: '\e92d';
+}
+.icon-wb-bold-chevron-left:before {
+  content: '\e92e';
+}
+.icon-wb-bold-chevron-right:before {
+  content: '\e92f';
+}
+.icon-wb-comment:before {
+  content: '\e930';
+}
+.icon-wb-desktop:before {
+  content: '\e931';
+}
+.icon-wb-direction-up-down:before {
+  content: '\e932';
+}
+.icon-wb-image:before {
+  content: '\e933';
+}
+.icon-wb-more-vertical:before {
+  content: '\e934';
+}
+.icon-wb-refresh:before {
+  content: '\e935';
+}
+.icon-wb-bars:before {
+  content: '\e936';
+}
+.icon-wb-bolt:before {
+  content: '\e937';
+}
+.icon-wb-code-fork:before {
+  content: '\e938';
+}
+.icon-wb-pause:before {
+  content: '\e939';
+}
+.icon-wb-question:before {
+  content: '\e93a';
+}
+.icon-wb-truck:before {
+  content: '\e93b';
+}
+.icon-wb-flag:before {
+  content: '\e93c';
+}
+.icon-wb-link:before {
+  content: '\e93d';
+}
+.icon-wb-safe:before {
+  content: '\e93e';
+}
+.icon-wb-search:before {
+  content: '\e93f';
+}
+.icon-wb-share:before {
+  content: '\e940';
+}
+.icon-wb-unlock:before {
+  content: '\e941';
+}
+.icon-wb-bold-chevron-down:before {
+  content: '\e942';
+}
+.icon-wb-bold-chevron-up:before {
+  content: '\e943';
+}
+.icon-wb-clock:before {
+  content: '\e944';
+}
+.icon-wb-envelope:before {
+  content: '\e945';
+}
+.icon-wb-folder:before {
+  content: '\e946';
+}
+.icon-wb-phone:before {
+  content: '\e947';
+}
+.icon-wb-plus_box:before {
+  content: '\e948';
+}
+.icon-wb-recycle:before {
+  content: '\e949';
+}
+.icon-wb-2-chevrons-up:before {
+  content: '\e94a';
+}
+.icon-wb-chevron-up:before {
+  content: '\e94b';
+}
+.icon-wb-download:before {
+  content: '\e94c';
+}
+.icon-wb-excel-file:before {
+  content: '\e94d';
+}
+.icon-wb-image-file:before {
+  content: '\e94e';
+}
+.icon-wb-pdf-file:before {
+  content: '\e94f';
+}
+.icon-wb-text-file:before {
+  content: '\e950';
+}
+.icon-wb-2-chevrons-down:before {
+  content: '\e951';
+}
+.icon-wb-briefcase:before {
+  content: '\e952';
+}
+.icon-wb-flask:before {
+  content: '\e953';
+}
+.icon-wb-globe:before {
+  content: '\e954';
+}
+.icon-wb-key:before {
+  content: '\e955';
+}
+.icon-wb-notebook:before {
+  content: '\e956';
+}
+.icon-wb-user:before {
+  content: '\e957';
+}
+.icon-wb-arrow-left:before {
+  content: '\e958';
+}
+.icon-wb-book-closed:before {
+  content: '\e959';
+}
+.icon-wb-check:before {
+  content: '\e95a';
+}
+.icon-wb-exclamation:before {
+  content: '\e95b';
+}
+.icon-wb-filter:before {
+  content: '\e95c';
+}
+.icon-wb-locked:before {
+  content: '\e95d';
+}
+.icon-wb-minus-box:before {
+  content: '\e95e';
+}
+.icon-wb-undo:before {
+  content: '\e95f';
+}
+.icon-wb-visible:before {
+  content: '\e960';
+}
+.icon-wb-copy:before {
+  content: '\e961';
+}
+.icon-wb-files:before {
+  content: '\e962';
+}
+.icon-wb-lab-book:before {
+  content: '\e963';
+}
+.icon-wb-pen:before {
+  content: '\e964';
+}
+.icon-wb-remove:before {
+  content: '\e965';
+}
+.icon-wb-trash-2:before {
+  content: '\e966';
+}
+.icon-wb-upload:before {
+  content: '\e967';
+}
+.icon-wb-asterisk:before {
+  content: '\e968';
+}
+.icon-wb-chevron-down-1:before {
+  content: '\e969';
+}
+.icon-wb-chevron-right-1:before {
+  content: '\e96a';
+}
+.icon-wb-direction-down-1:before {
+  content: '\e96b';
+}
+.icon-wb-direction-left-1:before {
+  content: '\e96c';
+}
+.icon-wb-direction-right-1:before {
+  content: '\e96d';
+}
+.icon-wb-direction-up-1:before {
+  content: '\e96e';
+}
+.icon-wb-list:before {
+  content: '\e96f';
+}
+.icon-wb-trash-1:before {
+  content: '\e970';
+}
+.icon-wb-appointments:before {
+  content: '\e971';
+}
+.icon-wb-cog:before {
+  content: '\e972';
+}
+.icon-wb-copy-link:before {
+  content: '\e973';
+}
+.icon-wb-done:before {
+  content: '\e974';
+}
+.icon-wb-help:before {
+  content: '\e975';
+}
+.icon-wb-in-progress:before {
+  content: '\e976';
+}
+.icon-wb-paused:before {
+  content: '\e977';
+}
+.icon-wb-project-manager:before {
+  content: '\e978';
+}
+.icon-wb-project-member:before {
+  content: '\e979';
+}
+.icon-wb-resources:before {
+  content: '\e97a';
+}
+.icon-wb-bell:before {
+  content: '\e97b';
+}
+.icon-wb-calendar:before {
+  content: '\e97c';
+}
+.icon-wb-contacts:before {
+  content: '\e97d';
+}
+.icon-wb-dmps:before {
+  content: '\e97e';
+}
+.icon-wb-new:before {
+  content: '\e97f';
+}
+.icon-wb-observer:before {
+  content: '\e980';
+}
+.icon-wb-storages:before {
+  content: '\e981';
+}
+.icon-wb-taskboards:before {
+  content: '\e982';
+}
+.icon-wb-tasks:before {
+  content: '\e983';
+}
+.icon-wb-x-circle:before {
+  content: '\e984';
+}
+.icon-wb-overview:before {
+  content: '\e985';
+}
+.icon-wb-recent-activities:before {
+  content: '\e986';
+}
+.icon-wb-tex:before {
+  content: '\e987';
+}
+.icon-wb-tex-bold:before {
+  content: '\e988';
+}

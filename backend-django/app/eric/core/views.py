@@ -13,6 +13,8 @@ from django.views.decorators.cache import cache_page
 from drf_yasg.utils import swagger_auto_schema
 from git import Repo
 from memoize import memoize
+from pkg_resources._vendor.packaging.requirements import InvalidRequirement
+from pkg_resources._vendor.pyparsing import ParseException
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import MethodNotAllowed, ValidationError
@@ -35,9 +37,10 @@ def get_pkg_metadata(pkgname, metadata_key="License"):
     NOTE: This function does no error checking and is for
     demonstration purposes only.
     """
-    pkgs = pkg_resources.require(pkgname)
-    pkg = pkgs[0]
     try:
+        pkgs = pkg_resources.require(pkgname)
+        pkg = pkgs[0]
+
         for line in pkg.get_metadata_lines('METADATA'):
             if ": " in line:
                 (k, v) = line.split(': ', 1)
@@ -134,10 +137,14 @@ def oss_license_json(request):
         one_license = dict()
 
         one_license["key"] = library.split("==")[0]
-        one_license["licenses"] = get_pkg_metadata(library, "License")
-        one_license["repository"] = get_pkg_metadata(library, "Home-page")
+        try:
+            one_license["licenses"] = get_pkg_metadata(library, "License")
+            one_license["repository"] = get_pkg_metadata(library, "Home-page")
 
-        license_json.append(one_license)
+            license_json.append(one_license)
+
+        except Exception:
+            pass
 
     return HttpResponse(json.dumps(license_json), content_type="application/json")
 

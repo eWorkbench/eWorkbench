@@ -1,8 +1,0 @@
-<validated-form-element
-        ng-disabled="vm.dmp.status == 'FIN' && vm.currentUser.pk != vm.dmp.created_by.pk"
-        ng-readonly="vm.isReadOnly()"
-        id="input_dmp_name"
-        input-element="text" field-name="dmp_name"
-        placeholder="{{ 'Name of the DMP' | translate }}"
-        ng-model="vm.dmp.title"  errors="vm.errors['title']">
-</validated-form-element>

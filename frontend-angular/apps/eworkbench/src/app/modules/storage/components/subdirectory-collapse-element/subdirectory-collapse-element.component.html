@@ -1,0 +1,23 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<div class="collapse-element">
+  <div class="collapse-element-header pl-2 border-bottom">
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-button-secondary text-primary close-button square mr-2"
+      [attr.aria-expanded]="!collapsed"
+      aria-controls="collapseBasic"
+      (click)="onToggleCollapse()"
+    >
+      <eworkbench-icon *ngIf="collapsed" className="wb-plus"></eworkbench-icon>
+      <eworkbench-icon *ngIf="!collapsed" className="wb-minus"></eworkbench-icon>
+    </button>
+    <ng-template *ngIf="labelTemplate" [ngTemplateOutlet]="labelTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-template>
+  </div>
+  <div [collapse]="collapsed">
+    <ng-content></ng-content>
+  </div>
+</div>

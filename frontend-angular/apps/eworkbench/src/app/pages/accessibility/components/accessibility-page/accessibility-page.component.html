@@ -1,0 +1,14 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<ng-container *transloco="let t">
+  <main>
+    <eworkbench-loading [loading]="loading">
+      <div [innerHTML]="cmsText?.text | safeHTML" *ngIf="cmsText"></div>
+    </eworkbench-loading>
+  </main>
+</ng-container>

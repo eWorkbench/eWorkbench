@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "services",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path at which to create the service file, relative to the current workspace. Default is a folder with the same name as the service in the project root.",
+      "visible": false
+    },
+    "name": {
+      "type": "string",
+      "description": "Service name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for this service?"
+    },
+    "project": {
+      "type": "string",
+      "description": "Project to add the service to"
+    },
+    "module": {
+      "type": "string",
+      "description": "The declaring NgModule.",
+      "alias": "m"
+    },
+    "type": {
+      "type": "string",
+      "description": "Adds a developer-defined type to the filename, in the format \"name.type.ts\".",
+      "default": "Service"
+    }
+  },
+  "required": ["name"]
+}

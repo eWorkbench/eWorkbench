@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "pages",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Page name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for this page component?"
+    },
+    "project": {
+      "type": "string",
+      "description": "Project to add the page to"
+    }
+  },
+  "required": ["name"]
+}

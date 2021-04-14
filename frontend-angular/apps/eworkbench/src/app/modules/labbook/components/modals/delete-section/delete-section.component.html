@@ -1,0 +1,46 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('labBook.deleteSectionModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <div>
+            <strong>{{ t('labBook.deleteSectionModal.sectionDate') }}:</strong>
+            {{ section?.date }}
+          </div>
+          <div>
+            <strong>{{ t('labBook.deleteSectionModal.sectionTitle') }}:</strong>
+            {{ section?.title }}
+          </div>
+
+          <div class="mt-3" *ngIf="section?.child_elements.length">
+            <label>
+              <input type="radio" value="remove" formControlName="childElements" />
+              {{ t('labBook.deleteSectionModal.childElements.remove') }}
+            </label>
+            <label>
+              <input type="radio" value="move" formControlName="childElements" />
+              {{ t('labBook.deleteSectionModal.childElements.move') }}
+            </label>
+          </div>
+
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('labBook.deleteSectionModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              {{ t('labBook.deleteSectionModal.delete') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

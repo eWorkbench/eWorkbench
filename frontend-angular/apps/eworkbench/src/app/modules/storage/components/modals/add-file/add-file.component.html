@@ -1,0 +1,68 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('storages.addFile.header') }}
+    </div>
+    <div slot="body">
+      <form (ngSubmit)="onSubmit()">
+        <div class="search-input w-100 my-2">
+          <div class="input-group search-input-group">
+            <input
+              type="text"
+              class="form-control ewb-input"
+              id="search-header"
+              name="search-header"
+              [formControl]="searchControl"
+              [placeholder]="t('link.searchContent.search')"
+            />
+            <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+              <eworkbench-icon className="wb-search"></eworkbench-icon>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm bg-transparent clear-input"
+              (click)="searchControl.patchValue(null)"
+              *ngIf="searchControl.value"
+            >
+              <eworkbench-icon className="wb-remove"></eworkbench-icon>
+            </button>
+          </div>
+        </div>
+
+        <eworkbench-table-view #tableView [columns]="listColumns" [service]="filesService" [params]="params"></eworkbench-table-view>
+
+        <div class="modal-footer p-0 mt-5">
+          <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+            {{ t('storages.editFolder.cancel') }}
+          </button>
+          <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || !selectedFile">
+            {{ t('storages.editFolder.save') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </eworkbench-modal>
+</ng-container>
+
+<ng-template #nameCellTemplate let-row>
+  <button
+    type="button"
+    class="file-button"
+    [class]="selectedFile && row.pk === selectedFile.pk ? 'font-weight-bold' : ''"
+    (click)="selectFile(row)"
+    [disabled]="row.directory_id"
+  >
+    {{ row.name }}
+  </button>
+</ng-template>
+<ng-template #createdAtCellTemplate let-row>
+  {{ row.created_at | formatDate }}
+</ng-template>
+<ng-template #createdByCellTemplate let-row>
+  <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
+</ng-template>

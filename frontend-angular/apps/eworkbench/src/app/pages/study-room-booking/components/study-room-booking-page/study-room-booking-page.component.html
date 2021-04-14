@@ -1,0 +1,63 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="title"></eworkbench-header>
+
+  <main>
+    <eworkbench-loading [loading]="loading">
+      <form [formGroup]="form">
+        <div class="mb-4">
+          <label for="branchLibrary">{{ t('studyRoomBooking.branchLibrary.label') }}</label>
+          <ng-select
+            class="ewb-select"
+            formControlName="branchLibrary"
+            labelForId="branchLibrary"
+            name="branchLibrary"
+            [placeholder]="t('studyRoomBooking.branchLibrary.placeholder')"
+            [items]="branchLibraryItems"
+            bindLabel="label"
+            bindValue="value"
+            (change)="onChangeBranchLibrary($event)"
+          >
+          </ng-select>
+        </div>
+        <div class="mb-4" *ngIf="studyRooms.length">
+          <label for="branchLibrary">{{ t('studyRoomBooking.studyRoom.label') }}</label>
+          <ng-select
+            class="ewb-select"
+            formControlName="studyRoom"
+            labelForId="studyRoom"
+            name="studyRoom"
+            [placeholder]="t('studyRoomBooking.studyRoom.placeholder')"
+            [items]="studyRooms"
+            bindLabel="display"
+            bindValue="pk"
+            (change)="onChangeStudyRoom($event)"
+          >
+            <ng-template ng-label-tmp let-item="item">
+              {{ item.display }}
+              <ng-container *ngIf="item.location">({{ item.location }})</ng-container>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item">
+              {{ item.display }}
+              <ng-container *ngIf="item.location">
+                <div class="study-room-location">{{ item.location }}</div>
+              </ng-container>
+            </ng-template>
+          </ng-select>
+        </div>
+      </form>
+
+      <eworkbench-study-room-details [initialState]="selectedStudyRoom" *ngIf="selectedStudyRoom"></eworkbench-study-room-details>
+
+      <eworkbench-resource-booking-calendar
+        [resource]="selectedStudyRoom"
+        [headerToolbar]="{ left: 'timeGridWeek,dayGridMonth', center: 'title', right: 'today prev,next book' }"
+        *ngIf="selectedStudyRoom"
+      ></eworkbench-resource-booking-calendar>
+    </eworkbench-loading>
+  </main>
+</ng-container>

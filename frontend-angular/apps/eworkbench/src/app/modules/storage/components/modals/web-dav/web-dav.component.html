@@ -1,0 +1,123 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('storage.webDavModal.header', { title: storage?.title }) }}
+    </div>
+    <div slot="body">
+      <div class="mb-3">
+        {{ t('storage.webDavModal.description') }}
+      </div>
+      <div class="mb-3">
+        <label for="url-modal" class="font-weight-bold">{{ t('storage.webDavModal.webDavUrl.label') }}</label>
+        <div class="input-group">
+          <input type="text" class="form-control ewb-input" [value]="storage!.webdav_url" id="url-modal" name="url-modal" />
+          <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
+            <button
+              type="button"
+              class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+              (click)="onCopyToClipboard(storage!.webdav_url)"
+            >
+              <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      <eworkbench-collapse-element [labelText]="t('storage.webDavModal.details')" [collapsed]="true">
+        <div class="mb-3">
+          <div class="protocol-host-port-container">
+            <div>
+              <label for="protocol-modal" class="font-weight-bold">{{ t('storage.webDavModal.protocol.label') }}</label>
+              <div class="input-group">
+                <input type="text" class="form-control ewb-input" [value]="details!.protocol" id="protocol-modal" name="protocol-modal" />
+                <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
+                  <button
+                    type="button"
+                    class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                    (click)="onCopyToClipboard(details!.protocol)"
+                  >
+                    <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label for="host-modal" class="font-weight-bold">{{ t('storage.webDavModal.host.label') }}</label>
+              <div class="input-group">
+                <input type="text" class="form-control ewb-input" [value]="details!.host" id="host-modal" name="host-modal" />
+                <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
+                  <button
+                    type="button"
+                    class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                    (click)="onCopyToClipboard(details!.host)"
+                  >
+                    <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label for="port-modal" class="font-weight-bold">{{ t('storage.webDavModal.port.label') }}</label>
+              <div class="input-group">
+                <input type="text" class="form-control ewb-input" [value]="details!.port" id="port-modal" name="port-modal" />
+                <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
+                  <button
+                    type="button"
+                    class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                    (click)="onCopyToClipboard(details!.port)"
+                  >
+                    <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="path-modal" class="font-weight-bold">{{ t('storage.webDavModal.path.label') }}</label>
+          <div class="input-group">
+            <input type="text" class="form-control ewb-input" [value]="details!.path" id="path-modal" name="path-modal" />
+            <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
+              <button
+                type="button"
+                class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                (click)="onCopyToClipboard(details!.path)"
+              >
+                <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="username-modal" class="font-weight-bold">{{ t('storage.webDavModal.username.label') }}</label>
+          <div class="input-group">
+            <input type="text" class="form-control ewb-input" [value]="currentUser!.username" id="username-modal" name="username-modal" />
+            <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
+              <button
+                type="button"
+                class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                (click)="onCopyToClipboard(currentUser!.username)"
+              >
+                <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="font-weight-bold">{{ t('storage.webDavModal.password.label') }}</label>
+          <div><span [tooltip]="t('storage.webDavModal.password')" containerClass="tooltip-sm">********</span></div>
+        </div>
+      </eworkbench-collapse-element>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary" (click)="modalRef.close()">
+          {{ t('storage.newModal.cancel') }}
+        </button>
+      </div>
+    </div>
+  </eworkbench-modal>
+</ng-container>

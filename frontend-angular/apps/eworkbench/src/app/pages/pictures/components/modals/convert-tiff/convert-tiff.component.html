@@ -1,0 +1,41 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('picture.convertTiffModal.header') }}
+    </div>
+    <div slot="body">
+      <div class="mb-4">
+        {{ t('picture.convertTiffModal.confirmationMessage') }}
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <span class="mr-3">
+          <div class="custom-control custom-checkbox">
+            <input
+              class="custom-control-input"
+              type="checkbox"
+              id="doNotShowMessageAgain"
+              name="doNotShowMessageAgain"
+              [formControl]="f.doNotShowMessageAgain"
+              (change)="saveUserDialogSettings()"
+            />
+            <label class="custom-control-label font-weight-normal" for="doNotShowMessageAgain">{{
+              t('picture.convertTiffModal.doNotShowMessageAgain.label')
+            }}</label>
+          </div>
+        </span>
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close(false)">
+          {{ t('picture.convertTiffModal.cancel') }}
+        </button>
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="modalRef.close(true)">
+          {{ t('picture.convertTiffModal.leave') }}
+        </button>
+      </div>
+    </div>
+  </eworkbench-modal>
+</ng-container>

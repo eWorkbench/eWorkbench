@@ -1,0 +1,81 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <ng-container *ngIf="pluginInstance">
+      <div class="mb-4">
+        <label for="title-modal">{{ t('plugin.details.title.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="title-modal"
+          [placeholder]="t('plugin.details.title.placeholder')"
+          [readonly]="true"
+          [value]="pluginInstance?.title"
+        />
+      </div>
+      <div class="mb-4">
+        <label>{{ t('plugin.details.rawData.label') }}</label>
+        <div>
+          <eworkbench-icon className="wb-download" class="mr-1"></eworkbench-icon>
+          <a [href]="pluginInstance?.download_rawdata">{{ t('plugin.details.rawData.download') }}</a>
+          <ng-container *ngIf="pluginInstance?.rawdata_size"> ({{ pluginInstance?.rawdata_size | formatFileSize }})</ng-container>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="projects-modal">{{ t('plugin.details.projects.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="projects-modal"
+          [formControl]="projectsFormControl"
+          [placeholder]="t('plugin.details.projects.placeholder')"
+          [multiple]="true"
+          [items]="projects"
+          bindLabel="name"
+          bindValue="pk"
+        >
+          <ng-template ng-label-tmp let-item="item" let-clear="clear">
+            {{ item.name }}
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="mb-4" *ngIf="pluginInstance?.metadata.length">
+        <label for="metadata-modal">{{ t('plugin.details.metadata.label') }}</label>
+        <ng-container *ngFor="let field of pluginInstance?.metadata">
+          <div class="mb-2">
+            <div class="mb-1">{{ field.field_info?.display }}</div>
+            <eworkbench-metadata-field
+              [uuid]="field.pk"
+              [id]="field.pk"
+              [baseType]="field.field_info?.base_type"
+              [typeSettings]="field.field_info?.type_settings"
+              [values]="field.values"
+              [editable]="false"
+            ></eworkbench-metadata-field>
+          </div>
+        </ng-container>
+      </div>
+      <div class="mb-4">
+        <img [src]="pluginInstance?.download_picture" class="img-fluid" [alt]="pluginInstance?.title" />
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+          {{ t('versions.previewModal.close') }}
+        </button>
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="onRestoreVersion()" [disabled]="loading">
+          {{ t('versions.previewModal.restoreVersion') }}
+        </button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !pluginInstance">
+      <alert type="danger">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('versions.previewModal.notice.failedToLoad') }}
+      </alert>
+    </ng-container>
+  </eworkbench-loading>
+</ng-container>

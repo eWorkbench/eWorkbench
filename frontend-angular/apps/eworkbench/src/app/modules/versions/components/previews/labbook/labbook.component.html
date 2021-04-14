@@ -1,0 +1,95 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <ng-container *ngIf="labBook">
+      <div class="mb-4">
+        <label for="title-modal">{{ t('labBook.details.title.label') }}</label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="title-modal"
+          [placeholder]="t('labBook.details.title.placeholder')"
+          [readonly]="true"
+          [value]="labBook?.title"
+        />
+      </div>
+      <div class="mb-4">
+        <div class="custom-control custom-checkbox" slot="input">
+          <input class="custom-control-input" type="checkbox" id="isTemplate-modal" [formControl]="isTemplateFormControl" />
+          <label class="custom-control-label" for="isTemplate-modal">{{ t('labBook.details.isTemplate.label') }}</label>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="description-modal">{{ t('labBook.details.description.label') }}</label>
+        <eworkbench-wysiwyg-editor id="description-modal" [formControl]="descriptionFormControl"></eworkbench-wysiwyg-editor>
+      </div>
+      <div class="mb-4">
+        <label for="projects-modal">{{ t('labBook.details.projects.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="projects-modal"
+          [formControl]="projectsFormControl"
+          [placeholder]="t('labBook.details.projects.placeholder')"
+          [multiple]="true"
+          [items]="projects"
+          bindLabel="name"
+          bindValue="pk"
+        >
+          <ng-template ng-label-tmp let-item="item" let-clear="clear">
+            {{ item.name }}
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="mb-4" *ngIf="labBook?.metadata.length">
+        <label for="metadata-modal">{{ t('labBook.details.metadata.label') }}</label>
+        <ng-container *ngFor="let field of labBook?.metadata">
+          <div class="mb-2">
+            <div class="mb-1">{{ field.field_info?.display }}</div>
+            <eworkbench-metadata-field
+              [uuid]="field.pk"
+              [id]="field.pk"
+              [baseType]="field.field_info?.base_type"
+              [typeSettings]="field.field_info?.type_settings"
+              [values]="field.values"
+              [editable]="false"
+            ></eworkbench-metadata-field>
+          </div>
+        </ng-container>
+      </div>
+      <div class="mb-4" *ngIf="labBook?.child_elements">
+        <label>{{ t('labBook.details.elements.label') }}</label>
+        <div class="d-flex mb-1" *ngFor="let element of labBook!.child_elements!">
+          <div class="flex-fill">
+            <eworkbench-icon [className]="element.content_type | formatContentTypeModel: 'icon'"></eworkbench-icon>
+            <ng-container *ngIf="element.viewable">
+              {{ element.display_name }}
+            </ng-container>
+            <ng-container *ngIf="!element.viewable">
+              {{ t('labBook.element.noAccess', { element: element.content_type | formatContentTypeModel }) }}
+            </ng-container>
+          </div>
+          <div class="text-right">v{{ element.version_number }}</div>
+        </div>
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+          {{ t('versions.previewModal.close') }}
+        </button>
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="onRestoreVersion()" [disabled]="loading">
+          {{ t('versions.previewModal.restoreVersion') }}
+        </button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !labBook">
+      <alert type="danger">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('versions.previewModal.notice.failedToLoad') }}
+      </alert>
+    </ng-container>
+  </eworkbench-loading>
+</ng-container>

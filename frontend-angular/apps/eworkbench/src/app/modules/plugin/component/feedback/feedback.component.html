@@ -1,0 +1,47 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+      <div class="mb-4">
+        <ng-container *ngIf="type === 'request_access'; else subjectField">
+          <label for="subject-modal">{{ t('plugin.feedback.subject.label') }}</label>
+          <div>{{ t('plugin.feedback.subject.requestAccess') }}</div>
+        </ng-container>
+        <ng-template #subjectField>
+          <label for="subject-modal">
+            {{ t('plugin.feedback.subject.label') }}
+            <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+          </label>
+          <input
+            type="text"
+            class="form-control ewb-input"
+            formControlName="subject"
+            id="subject-modal"
+            name="subject-modal"
+            [placeholder]="t('plugin.feedback.subject.placeholder')"
+          />
+        </ng-template>
+      </div>
+      <div class="mb-4">
+        <label for="message-modal">
+          {{ t('plugin.feedback.message.label') }}
+          <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+        </label>
+        <eworkbench-wysiwyg-editor id="message-modal" formControlName="message"></eworkbench-wysiwyg-editor>
+      </div>
+
+      <div class="mt-5 text-right">
+        <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="onCancel()">
+          {{ t('plugin.feedback.cancel') }}
+        </button>
+        <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+          {{ t('plugin.feedback.send') }}
+        </button>
+      </div>
+    </form>
+  </eworkbench-loading>
+</ng-container>

@@ -1,0 +1,43 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "strict": true,
+    "alwaysStrict": true,
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["esnext", "esnext.array", "esnext.bigint", "esnext.intl", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@assets/*": ["apps/eworkbench/src/assets/*"],
+      "@app/*": ["apps/eworkbench/src/app/*"],
+      "@environments/*": ["apps/eworkbench/src/environments/*"],
+      "@eworkbench/forms": ["libs/forms/src/index.ts"],
+      "@eworkbench/table": ["libs/table/src/index.ts"],
+      "@eworkbench/wysiwyg-editor": ["libs/wysiwyg-editor/src/index.ts"],
+      "@eworkbench/gantt-chart": ["libs/gantt-chart/src/index.ts"],
+      "@eworkbench/calendar": ["libs/calendar/src/index.ts"],
+      "@eworkbench/modals": ["libs/modals/src/index.ts"],
+      "@eworkbench/mocks": ["libs/mocks/src/index.ts"],
+      "@eworkbench/types": ["libs/types/src/index.ts"],
+      "@eworkbench/icons": ["libs/icons/src/index.ts"],
+      "@eworkbench/skeletons": ["libs/skeletons/src/index.ts"],
+      "@eworkbench/picture-editor": ["libs/picture-editor/src/index.ts"]
+    }
+  },
+  "angularCompilerOptions": {
+    "skipTemplateCodegen": true,
+    "enableResourceInlining": true
+  },
+  "exclude": ["node_modules", "tmp"]
+}

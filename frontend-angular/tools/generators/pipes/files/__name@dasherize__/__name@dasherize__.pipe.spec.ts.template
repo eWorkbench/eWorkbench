@@ -1,0 +1,20 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+import { SpectatorPipe, createPipeFactory } from '@ngneat/spectator/jest';
+import { <%= classify(name) %>Pipe } from './<%= dasherize(name) %>.pipe';
+
+describe('<%= classify(name) %>Pipe', () => {
+  let spectator: SpectatorPipe<<%= classify(name) %>Pipe>;
+  const createPipe = createPipeFactory({
+    pipe: <%= classify(name) %>Pipe,
+  });
+
+  beforeEach(() => (spectator = createPipe(`{{ [1, 2, 3] | <%= camelize(name) %> }}`)));
+
+  it('create an instance', () => {
+    expect(spectator).toBeTruthy();
+  });
+});

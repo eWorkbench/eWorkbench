@@ -1,0 +1,197 @@
+<div class="ewb-canvas-toolbar">
+  <div>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      [class.active]="selectedTool === tools.Select"
+      tooltip="Select"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="selectTool(tools.Select)"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-mouse-pointer"></eworkbench-icon>
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      [class.active]="selectedTool === tools.Text"
+      tooltip="Text"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="selectTool(tools.Text)"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-font"></eworkbench-icon>
+    </button>
+
+    <eworkbench-icon class="square-icon icon-size-md rotate90" className="wb-minus"></eworkbench-icon>
+
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      [class.active]="selectedTool === tools.Pen"
+      tooltip="Pencil"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="selectTool(tools.Pen)"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-pen"></eworkbench-icon>
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      [class.active]="selectedTool === tools.Eraser"
+      tooltip="Eraser"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="selectTool(tools.Eraser)"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-eraser"></eworkbench-icon>
+    </button>
+
+    <eworkbench-icon class="square-icon icon-size-md rotate90" className="wb-minus"></eworkbench-icon>
+
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      [class.active]="selectedTool === tools.Line"
+      tooltip="Line"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="selectTool(tools.Line)"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-bold-line"></eworkbench-icon>
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      [class.active]="selectedTool === tools.Ellipse"
+      tooltip="Ellipse"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="selectTool(tools.Ellipse)"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-bold-ellipse"></eworkbench-icon>
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      [class.active]="selectedTool === tools.Polygon"
+      tooltip="Polygon"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="selectTool(tools.Polygon)"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-bold-polygon"></eworkbench-icon>
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      [class.active]="selectedTool === tools.Square"
+      tooltip="Rectangle"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="selectTool(tools.Square)"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-bold-square"></eworkbench-icon>
+    </button>
+
+    <eworkbench-icon class="square-icon icon-size-md rotate90" className="wb-minus"></eworkbench-icon>
+
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      tooltip="Text and line color"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      [colorPicker]="getPrimaryColor()"
+      (colorPickerChange)="changePrimaryColor($event)"
+      (colorPickerClose)="changePrimaryColorHistory()"
+      cpOutputFormat="hex"
+      cpAlphaChannel="always"
+      cpPosition="bottom"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-font-color"></eworkbench-icon>
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-canvas-toolbar-button-tool square-md"
+      tooltip="Fill color"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      [colorPicker]="getSecondaryColor()"
+      (colorPickerChange)="changeSecondaryColor($event)"
+      (colorPickerClose)="changeSecondaryColorHistory()"
+      cpOutputFormat="hex"
+      cpAlphaChannel="always"
+      cpPosition="bottom"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-color-bucket"></eworkbench-icon>
+    </button>
+  </div>
+
+  <div>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-button-primary ewb-canvas-toolbar-button-save mr-2"
+      tooltip="Save changes"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading"
+      (click)="save()"
+    >
+      <eworkbench-icon class="icon-size-md mr-2" className="wb-check"></eworkbench-icon>
+      Save
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-button-secondary square-md mr-2"
+      tooltip="Delete shape"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading || !selectedShape"
+      *ngIf="selectedShape"
+      (click)="deleteShape()"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-trash-1"></eworkbench-icon>
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-button-secondary square-md mr-2"
+      tooltip="Undo"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading || !canUndo"
+      (click)="undo()"
+    >
+      <eworkbench-icon class="icon-size-md" className="wb-undo"></eworkbench-icon>
+    </button>
+    <button
+      type="button"
+      class="btn ewb-button-big ewb-button-secondary square-md mr-2"
+      tooltip="Redo"
+      containerClass="tooltip-sm"
+      placement="bottom"
+      [disabled]="loading || !canRedo"
+      (click)="redo()"
+    >
+      <eworkbench-icon class="icon-size-md flipH" className="wb-undo"></eworkbench-icon>
+    </button>
+    <eworkbench-picture-editor-details-dropdown
+      [picture]="picture"
+      [sketch]="sketch"
+      [backgroundImage]="backgroundImage"
+      [canvas]="canvas"
+      [service]="service"
+    ></eworkbench-picture-editor-details-dropdown>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<ng-container *transloco="let t">
+  <main>
+    <form [formGroup]="form" (ngSubmit)="onLogin()" errorTailor>
+      <div class="mb-4">
+        <label for="username">
+          {{ t('login.username.label') }}
+          <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+        </label>
+        <input
+          type="text"
+          class="form-control ewb-input"
+          id="username"
+          formControlName="username"
+          name="username"
+          [placeholder]="t('login.username.placeholder')"
+        />
+      </div>
+      <div class="mb-4">
+        <label for="password">
+          {{ t('login.password.label') }}
+          <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+        </label>
+        <input
+          type="password"
+          class="form-control ewb-input"
+          id="password"
+          formControlName="password"
+          name="password"
+          [placeholder]="t('login.password.placeholder')"
+        />
+      </div>
+      <div class="float-right">
+        <a [routerLink]="['/forgot-password']">
+          <button type="button" class="btn ewb-button-big ewb-button-none mr-2">{{ t('login.forgotPassword') }}</button>
+        </a>
+        <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+          {{ t('login.confirm') }}
+        </button>
+      </div>
+    </form>
+  </main>
+</ng-container>

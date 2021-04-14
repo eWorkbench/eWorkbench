@@ -1,0 +1,194 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="title">
+    <ng-container slot="elements" *ngIf="initialState">
+      <button type="button" class="btn ewb-button-big ewb-button-background mr-2" (click)="onOpenNewSubProjectModal()" [disabled]="loading">
+        <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('project.details.newSubproject') }}
+      </button>
+
+      <eworkbench-details-dropdown
+        [service]="projectsService"
+        [id]="id"
+        [redirectDestination]="['/projects', id]"
+        [newModalComponent]="newModalComponent"
+        [initialState]="initialState"
+        [privilegesElement]="false"
+        [privileges]="privileges"
+        [exportElement]="false"
+      ></eworkbench-details-dropdown>
+    </ng-container>
+  </eworkbench-header>
+</ng-container>
+
+<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+
+<ng-container *ngIf="initialState">
+  <ng-container *transloco="let t">
+    <div class="with-sidebar">
+      <aside>
+        <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
+      </aside>
+      <main>
+        <ng-container *ngIf="initialState?.deleted">
+          <eworkbench-trash-notice></eworkbench-trash-notice>
+        </ng-container>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="project" errorTailor>
+          <div>
+            <eworkbench-project-element elementName="details" [labelText]="t('project.details.element.details')">
+              <ng-container slot="body">
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="title"
+                    [label]="t('project.details.title.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                    [required]="true"
+                  >
+                    <input
+                      type="text"
+                      class="form-control ewb-input"
+                      id="title"
+                      formControlName="title"
+                      name="title"
+                      [placeholder]="t('project.details.title.placeholder')"
+                      slot="input"
+                    />
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+                    <eworkbench-form-date-group
+                      formControlName="dateGroup"
+                      [fullDayToggle]="false"
+                      slot="input"
+                    ></eworkbench-form-date-group>
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="state"
+                    [label]="t('project.details.state.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                  >
+                    <ng-select
+                      class="ewb-select"
+                      formControlName="state"
+                      labelForId="state"
+                      name="state"
+                      [placeholder]="t('project.details.state.placeholder')"
+                      [items]="stateItems"
+                      bindValue="value"
+                      [clearable]="false"
+                      [searchable]="false"
+                      slot="input"
+                    >
+                      <ng-template ng-label-tmp let-item="item">
+                        <ng-container [ngTemplateOutlet]="stateTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+                      </ng-template>
+                      <ng-template ng-option-tmp let-item="item">
+                        <ng-container [ngTemplateOutlet]="stateTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
+                      </ng-template>
+                      <ng-template #stateTemplate let-item="item">
+                        <eworkbench-project-state [state]="item.value"></eworkbench-project-state>
+                      </ng-template>
+                    </ng-select>
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="parentProject"
+                    [label]="t('project.details.parentProject.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                  >
+                    <ng-select
+                      class="ewb-select"
+                      formControlName="parentProject"
+                      labelForId="parentProject"
+                      name="parentProject"
+                      [placeholder]="t('project.details.parentProject.placeholder')"
+                      [typeahead]="projectInput$"
+                      [items]="parentProject"
+                      bindLabel="name"
+                      bindValue="pk"
+                      slot="input"
+                    ></ng-select>
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <div class="mb-4">
+                    <label for="created-by" class="text-right">{{ t('project.details.createdBy.label') }}</label>
+                    <div>
+                      <eworkbench-user-details
+                        id="created-by"
+                        class="d-inline-block"
+                        [user]="initialState?.created_by"
+                      ></eworkbench-user-details>
+                      |
+                      <span id="created-at">{{ initialState?.created_at | formatDate }}</span>
+                    </div>
+                  </div>
+                  <div class="mb-4">
+                    <div>
+                      <label for="last-modified-by" class="text-right">{{ t('project.details.lastModifiedBy.label') }}</label>
+                      <div>
+                        <eworkbench-user-details
+                          id="last-modified-by"
+                          class="d-inline-block"
+                          [user]="initialState?.last_modified_by"
+                        ></eworkbench-user-details>
+                        | <span id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </eworkbench-project-element>
+            <eworkbench-project-element elementName="description" [labelText]="t('project.details.element.description')">
+              <ng-container slot="body">
+                <eworkbench-form-input for="description" [loading]="loading" [onSubmit]="refreshResetValue">
+                  <eworkbench-wysiwyg-editor id="description" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
+                </eworkbench-form-input>
+              </ng-container>
+            </eworkbench-project-element>
+          </div>
+          <div>
+            <eworkbench-project-element elementName="hierarchy" [labelText]="t('project.details.element.hierarchy')">
+              <ng-container slot="actions">
+                <button type="button" class="btn ewb-button-big ewb-button-secondary square" (click)="onOpenStateTimelineModal()">
+                  <eworkbench-icon className="wb-enlarge"></eworkbench-icon>
+                </button>
+              </ng-container>
+              <ng-container slot="body">
+                <eworkbench-project-state-timeline [projectId]="id"></eworkbench-project-state-timeline>
+              </ng-container>
+            </eworkbench-project-element>
+            <!-- <eworkbench-project-element elementName="links" [labelText]="t('project.details.element.links')">
+              <ng-container slot="body">
+                <alert type="note" [dismissible]="true">{{ t('project.details.privilege.warning') }}</alert>
+                <eworkbench-project-links [id]="id"></eworkbench-project-links>
+              </ng-container>
+            </eworkbench-project-element> -->
+          </div>
+          <div>
+            <eworkbench-project-element elementName="project_members" [labelText]="t('project.details.element.projectMembers')">
+              <ng-container slot="body" *ngIf="projectPrivileges.viewRoles">
+                <eworkbench-project-members [id]="id" [projectPrivileges]="projectPrivileges"></eworkbench-project-members>
+                <eworkbench-project-members-hierarchy [id]="id"></eworkbench-project-members-hierarchy>
+              </ng-container>
+            </eworkbench-project-element>
+            <!-- <eworkbench-project-element elementName="comments" [labelText]="t('project.details.element.comments')">
+            </eworkbench-project-element> -->
+          </div>
+        </form>
+        <alert type="note" [dismissible]="true" class="d-inline-block">{{ t('project.details.privilege.warning') }}</alert>
+        <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="projectsService" class="mt-3"></eworkbench-link>
+      </main>
+    </div>
+  </ng-container>
+</ng-container>

@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FooterComponent should match snapshot 1`] = `
+<eworkbench-footer
+  __ngContext__={[Function LRootView]}
+  translocoService={[Function TranslocoService]}
+>
+  <footer
+    class="navbar navbar-expand-lg py-0"
+  >
+    <span
+      class="navbar-brand"
+    >
+      Universitätsbibliothek der Technischen Universität München
+    </span>
+    <ul
+      class="navbar-nav ml-auto h-100"
+    >
+      <li
+        class="h-100 d-flex align-items-center"
+      >
+        <a
+          class="h-100 w-100"
+        >
+          <button
+            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+          >
+            Contact
+          </button>
+        </a>
+      </li>
+      <li
+        class="h-100 d-flex align-items-center"
+      >
+        <a
+          class="h-100 w-100"
+        >
+          <button
+            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+          >
+            Privacy Policy
+          </button>
+        </a>
+      </li>
+      <li
+        class="h-100 d-flex align-items-center"
+      >
+        <a
+          class="h-100 w-100"
+        >
+          <button
+            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+          >
+            Accessibility
+          </button>
+        </a>
+      </li>
+      <li
+        class="h-100 d-flex align-items-center"
+      >
+        <a
+          class="h-100 w-100"
+        >
+          <button
+            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+          >
+            Imprint
+          </button>
+        </a>
+      </li>
+      <li
+        class="h-100 d-flex align-items-center"
+      >
+        <a
+          class="h-100 w-100"
+        >
+          <button
+            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+          >
+            OSS Licenses
+          </button>
+        </a>
+      </li>
+      <li
+        class="h-100 d-flex align-items-center"
+      >
+        <a
+          class="h-100 w-100"
+          href="https://github.com/eworkbench/"
+          target="_blank"
+        >
+          <button
+            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+          >
+            GitHub
+          </button>
+        </a>
+      </li>
+    </ul>
+  </footer>
+</eworkbench-footer>
+`;

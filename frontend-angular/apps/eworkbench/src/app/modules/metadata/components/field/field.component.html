@@ -1,0 +1,120 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="metadata-field" *ngFor="let answer of answers.controls; let i = index">
+    <div class="d-flex justify-content-between">
+      <div class="align-self-center mr-3" *ngIf="showCheckbox()">
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            class="custom-control-input"
+            [id]="'checkbox.' + uuid + '.' + i"
+            [name]="'checkbox.' + uuid + '.' + i"
+            [checked]="selectedValues.includes(baseType === 'checkbox' ? id : answers.controls[i].value)"
+            [disabled]="!editable"
+            (click)="onChanged(baseType === 'checkbox' ? id : answers.controls[i].value)"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'checkbox.' + uuid + '.' + i"></label>
+        </div>
+      </div>
+      <div class="align-self-center mr-3" *ngIf="showRadio()">
+        <div class="custom-control custom-radio">
+          <input
+            type="radio"
+            class="custom-control-input"
+            [id]="'options.' + uuid + '.' + i"
+            [name]="'options.' + uuid"
+            [value]="answers.controls[i].value"
+            [checked]="singleSelected === answers.controls[i].value"
+            [disabled]="!editable"
+            (click)="onChanged(answers.controls[i].value)"
+          />
+          <label class="custom-control-label" [for]="'options.' + uuid + '.' + i"></label>
+        </div>
+      </div>
+      <div class="flex-fill align-self-center" *ngIf="baseType !== 'checkbox'">
+        <div class="input-group" *ngIf="!datepicker">
+          <div class="input-group-prepend">
+            <ng-container *ngIf="baseType === 'gps'">
+              <span class="input-group-text ewb-input" *ngIf="i === 0">X</span>
+              <span class="input-group-text ewb-input" *ngIf="i === 1">Y</span>
+            </ng-container>
+            <ng-container *ngIf="baseType === 'currency' && typeSettings?.symbol">
+              <span class="input-group-text ewb-input">{{ typeSettings?.symbol }}</span>
+            </ng-container>
+          </div>
+          <input
+            type="text"
+            class="form-control ewb-input"
+            [formControl]="answer"
+            [id]="'answer-' + uuid + '-' + i"
+            [name]="'answer-' + uuid + '-' + i"
+            [readonly]="readonly"
+            (change)="onChanged()"
+          />
+          <div class="input-group-append" *ngIf="baseType === 'percentage'">
+            <span class="input-group-text ewb-input">%</span>
+          </div>
+        </div>
+        <eworkbench-form-date-input
+          *ngIf="datepicker"
+          [formControl]="answer"
+          [inputId]="'answer-' + uuid + '-' + i"
+          [inputName]="'answer-' + uuid + '-' + i"
+          [datePickerConfig]="datetimePickerConfig"
+          (change)="onChanged()"
+        ></eworkbench-form-date-input>
+      </div>
+    </div>
+    <div *ngIf="baseType === 'fraction' && i === 0">
+      <hr class="p-0 my-2" />
+    </div>
+  </div>
+
+  <div class="metadata-field" *ngIf="isNotFinal()">
+    <div class="d-flex justify-content-between">
+      <div class="align-self-center mr-3" *ngIf="showCheckbox()">
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            class="custom-control-input"
+            [formControl]="customInputSelectedControl"
+            [id]="'checkbox.' + uuid + '.custom'"
+            [name]="'checkbox.' + uuid"
+            [disabled]="!editable"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'checkbox.' + uuid + '.custom'"></label>
+        </div>
+      </div>
+      <div class="align-self-center mr-3" *ngIf="showRadio()">
+        <div class="custom-control custom-radio">
+          <input
+            type="radio"
+            class="custom-control-input"
+            [id]="'options.' + uuid + '.custom'"
+            [name]="'options.' + uuid"
+            [value]="customInputValue"
+            [checked]="singleSelected === customInputValue"
+            [disabled]="!editable"
+            (click)="onChanged(customInputValue)"
+          />
+          <label class="custom-control-label" [for]="'options.' + uuid + '.custom'"></label>
+        </div>
+      </div>
+      <div class="flex-fill align-self-center">
+        <input
+          type="text"
+          class="form-control ewb-input"
+          [formControl]="customInputControl"
+          [id]="'answer.' + uuid + '.custom'"
+          [name]="'answer.' + uuid + '.custom'"
+          [placeholder]="t('metadata.field.customInput')"
+          (change)="onChanged()"
+        />
+      </div>
+    </div>
+  </div>
+</ng-container>

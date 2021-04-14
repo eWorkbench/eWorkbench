@@ -1,0 +1,116 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@import 'colors';
+@import 'variables';
+
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 150;
+  background-color: #ffffff;
+
+  nav {
+    border-bottom: 1px solid $border-color;
+    margin-bottom: 10px;
+
+    @media (min-width: $breakpoint-lg) {
+      height: 50px;
+      padding: 0 20px;
+    }
+
+    .navbar {
+      &-nav {
+        @media (min-width: $breakpoint-lg) {
+          align-items: center;
+        }
+      }
+
+      &-brand {
+        color: $primary-color;
+        margin-right: 32px;
+        font-size: $font-size;
+
+        img {
+          max-height: 20px;
+          margin-right: 10px;
+        }
+      }
+
+      &-container {
+        display: block;
+
+        @media (min-width: $breakpoint-lg) {
+          display: grid;
+          grid-template-columns: 1fr auto;
+        }
+      }
+
+      &-search {
+        @media (max-width: $breakpoint-lg) {
+          display: none;
+        }
+      }
+
+      &-user {
+        @media (max-width: $breakpoint-lg) {
+          margin-top: 10px;
+        }
+      }
+    }
+
+    li {
+      a {
+        @media (min-width: $breakpoint-lg) {
+          border: 0;
+          border-bottom: 3px solid transparent;
+
+          &.active,
+          &:hover {
+            border-color: $primary-color;
+
+            .ewb-button-regular {
+              color: $primary-color;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.ewb-button-regular {
+  height: unset;
+  min-height: 25px;
+
+  &:focus {
+    box-shadow: none;
+  }
+}
+
+.dropdown-active {
+  border: 0;
+  border-bottom: 3px solid transparent;
+
+  &:hover {
+    border-color: $primary-color;
+
+    > .ewb-button-regular {
+      color: $primary-color;
+    }
+  }
+}
+
+.menu-item-button {
+  &.active {
+    border-left-color: $primary-color;
+  }
+}
+
+.line {
+  border-color: $border-color;
+  margin: 8px 0;
+}

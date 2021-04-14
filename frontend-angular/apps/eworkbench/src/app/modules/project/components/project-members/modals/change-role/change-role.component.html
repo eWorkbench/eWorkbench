@@ -1,0 +1,31 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('project.changeRoleModal.header') }}
+    </div>
+    <div slot="body">
+      <alert type="warning">
+        <strong>
+          <eworkbench-icon class="mr-1" className="wb-exclamation"></eworkbench-icon>
+          {{ t('project.changeRoleModal.warning') }}:
+        </strong>
+        {{ t('project.changeRoleModal.warningMessage') }}
+      </alert>
+
+      <div class="mt-4">
+        {{ t('project.changeRoleModal.confirmationMessage') }}
+      </div>
+
+      <div class="modal-footer p-0 mt-5">
+        <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="modalRef.close()">
+          {{ t('project.changeRoleModal.close') }}
+        </button>
+      </div>
+    </div>
+  </eworkbench-modal>
+</ng-container>

@@ -1,0 +1,194 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="booking-rules-bookable-time-slots mb-4">
+    <div class="rule-label">{{ t('resources.bookingRules.bookableTimeSlots.label') }}</div>
+
+    <div>
+      <div class="d-block text-danger mb-2" *ngIf="daySelectionInvalid()">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('resources.bookingRulesBookableTimeSlots.notice.selectDays') }}
+      </div>
+
+      <div class="booking-rules-bookable-time-slots-days mb-2">
+        <div class="custom-control custom-checkbox">
+          <input
+            class="custom-control-input"
+            [class.is-invalid]="daySelectionInvalid()"
+            type="checkbox"
+            [formControl]="f.monday"
+            [id]="'monday.' + uuid"
+            [name]="'monday.' + uuid"
+            [readonly]="loading"
+            (change)="onSetChanged()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'monday.' + uuid">{{ t('weekDays.monday') }}</label>
+        </div>
+
+        <div class="custom-control custom-checkbox">
+          <input
+            class="custom-control-input"
+            [class.is-invalid]="daySelectionInvalid()"
+            type="checkbox"
+            [formControl]="f.tuesday"
+            [id]="'tuesday.' + uuid"
+            [name]="'tuesday.' + uuid"
+            [readonly]="loading"
+            (change)="onSetChanged()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'tuesday.' + uuid">{{ t('weekDays.tuesday') }}</label>
+        </div>
+
+        <div class="custom-control custom-checkbox">
+          <input
+            class="custom-control-input"
+            [class.is-invalid]="daySelectionInvalid()"
+            type="checkbox"
+            [formControl]="f.wednesday"
+            [id]="'wednesday.' + uuid"
+            [name]="'wednesday.' + uuid"
+            [readonly]="loading"
+            (change)="onSetChanged()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'wednesday.' + uuid">{{ t('weekDays.wednesday') }}</label>
+        </div>
+
+        <div class="custom-control custom-checkbox">
+          <input
+            class="custom-control-input"
+            [class.is-invalid]="daySelectionInvalid()"
+            type="checkbox"
+            [formControl]="f.thursday"
+            [id]="'thursday.' + uuid"
+            [name]="'thursday.' + uuid"
+            [readonly]="loading"
+            (change)="onSetChanged()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'thursday.' + uuid">{{ t('weekDays.thursday') }}</label>
+        </div>
+
+        <div class="custom-control custom-checkbox">
+          <input
+            class="custom-control-input"
+            [class.is-invalid]="daySelectionInvalid()"
+            type="checkbox"
+            [formControl]="f.friday"
+            [id]="'friday.' + uuid"
+            [name]="'friday.' + uuid"
+            [readonly]="loading"
+            (change)="onSetChanged()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'friday.' + uuid">{{ t('weekDays.friday') }}</label>
+        </div>
+
+        <div class="custom-control custom-checkbox">
+          <input
+            class="custom-control-input"
+            [class.is-invalid]="daySelectionInvalid()"
+            type="checkbox"
+            [formControl]="f.saturday"
+            [id]="'saturday.' + uuid"
+            [name]="'saturday.' + uuid"
+            [readonly]="loading"
+            (change)="onSetChanged()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'saturday.' + uuid">{{ t('weekDays.saturday') }}</label>
+        </div>
+
+        <div class="custom-control custom-checkbox">
+          <input
+            class="custom-control-input"
+            [class.is-invalid]="daySelectionInvalid()"
+            type="checkbox"
+            [formControl]="f.sunday"
+            [id]="'sunday.' + uuid"
+            [name]="'sunday.' + uuid"
+            [readonly]="loading"
+            (change)="onSetChanged()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'sunday.' + uuid">{{ t('weekDays.sunday') }}</label>
+        </div>
+      </div>
+
+      <div class="booking-rules-bookable-time-slots-full-day mb-2">
+        <div class="custom-control custom-checkbox">
+          <input
+            class="custom-control-input"
+            type="checkbox"
+            [formControl]="f.fullDay"
+            [id]="'fullDay.' + uuid"
+            [name]="'fullDay.' + uuid"
+            [readonly]="loading"
+            (click)="onSetChanged()"
+          />
+          <label class="custom-control-label font-weight-normal" [for]="'fullDay.' + uuid">{{
+            t('resources.bookingRulesBookableTimeSlots.fullDay.label')
+          }}</label>
+        </div>
+        <div class="remove-button" *ngIf="f.fullDay.value">
+          <button
+            type="button"
+            class="btn ewb-button-big ewb-button-secondary square"
+            (click)="onRemove()"
+            [disabled]="loading"
+            *ngIf="editable"
+          >
+            <eworkbench-icon className="wb-remove"></eworkbench-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="d-block text-danger mb-2" *ngIf="timeSelectionInvalid()">
+        <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
+        {{ t('resources.bookingRulesBookableTimeSlots.notice.invalidTimeSelection') }}
+      </div>
+
+      <div class="booking-rules-bookable-time-slots-times" *ngIf="!f.fullDay.value">
+        <div>
+          <label [for]="'timeStart.' + uuid">
+            {{ t('resources.bookingRulesBookableTimeSlots.timeStart.label') }}
+          </label>
+          <input
+            type="text"
+            class="form-control ewb-input"
+            [class.is-invalid]="timeSelectionInvalid()"
+            [formControl]="f.timeStart"
+            [id]="'timeStart' + uuid"
+            [name]="'timeStart.' + uuid"
+            [placeholder]="t('resources.bookingRulesBookableTimeSlots.timeStart.placeholder')"
+            (change)="onSetChanged()"
+          />
+        </div>
+        <div>
+          <label [for]="'timeEnd.' + uuid">
+            {{ t('resources.bookingRulesBookableTimeSlots.timeEnd.label') }}
+          </label>
+          <input
+            type="text"
+            class="form-control ewb-input"
+            [class.is-invalid]="timeSelectionInvalid()"
+            [formControl]="f.timeEnd"
+            [id]="'timeEnd' + uuid"
+            [name]="'timeEnd.' + uuid"
+            [placeholder]="t('resources.bookingRulesBookableTimeSlots.timeEnd.placeholder')"
+            (change)="onSetChanged()"
+          />
+        </div>
+        <div class="remove-button">
+          <button
+            type="button"
+            class="btn ewb-button-big ewb-button-secondary square"
+            (click)="onRemove()"
+            [disabled]="loading"
+            *ngIf="editable"
+          >
+            <eworkbench-icon className="wb-remove"></eworkbench-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

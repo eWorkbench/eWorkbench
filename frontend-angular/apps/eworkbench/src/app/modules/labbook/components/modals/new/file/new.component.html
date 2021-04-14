@@ -1,0 +1,165 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      <ng-container *ngIf="step === 1">
+        {{ t('labBook.newFileElementModal.headerStep1') }}
+      </ng-container>
+      <ng-container *ngIf="step === 2">
+        {{ t('labBook.newFileElementModal.headerStep2') }}
+      </ng-container>
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <ng-container *ngIf="step === 1">
+            <div class="mb-4">
+              <label for="parentElement-modal">
+                {{ t('labBook.newFileElementModal.parentElement.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <ng-select
+                class="ewb-select"
+                formControlName="parentElement"
+                labelForId="parentElement-modal"
+                name="parentElement-modal"
+                [placeholder]="t('labBook.newFileElementModal.parentElement.placeholder')"
+                [items]="parentElement"
+                [clearable]="false"
+                bindLabel="label"
+                bindValue="value"
+              ></ng-select>
+            </div>
+            <div class="mb-4">
+              <label for="position-modal">
+                {{ t('labBook.newFileElementModal.position.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <ng-select
+                class="ewb-select"
+                formControlName="position"
+                labelForId="position-modal"
+                name="position-modal"
+                [placeholder]="t('labBook.newFileElementModal.position.placeholder')"
+                [items]="position"
+                [clearable]="false"
+                bindLabel="label"
+                bindValue="value"
+              ></ng-select>
+            </div>
+
+            <div class="modal-footer p-0">
+              <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+                {{ t('labBook.newFileElementModal.cancel') }}
+              </button>
+              <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading" (click)="onChangeStep(2)">
+                {{ t('labBook.newFileElementModal.nextStep') }}
+              </button>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="step === 2">
+            <div class="mb-4">
+              <label for="title-modal">
+                {{ t('labBook.newFileElementModal.title.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                formControlName="title"
+                id="title-modal"
+                name="title-modal"
+                [placeholder]="t('labBook.newFileElementModal.title.placeholder')"
+              />
+            </div>
+            <div class="mb-4">
+              <label for="file-modal">
+                {{ t('labBook.newFileElementModal.file.label') }}
+                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              </label>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" (change)="onUpload($event)" id="file-modal" name="file-modal" />
+                <label for="file-modal" class="custom-file-label ewb-input-file" [class.custom-file-label-filled]="this.f.file.value">{{
+                  filePlaceholder
+                }}</label>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label for="storage-modal">{{ t('labBook.newFileElementModal.storage.label') }}</label>
+              <ng-select
+                class="ewb-select"
+                formControlName="storage"
+                labelForId="storage-modal"
+                name="storage-modal"
+                [placeholder]="t('labBook.newFileElementModal.storage.placeholder')"
+                [items]="directories"
+                bindLabel="display"
+                bindValue="pk"
+                [clearable]="true"
+                [searchable]="true"
+                slot="input"
+              >
+                <ng-template ng-label-tmp let-item="item">
+                  <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
+                  }}{{ item.display }}
+                </ng-template>
+
+                <ng-template ng-option-tmp let-item="item">
+                  <div [style.padding-left.px]="item.is_virtual_root ? 0 : item.level * 10">
+                    <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
+                    }}{{ item.display }}
+                  </div>
+                </ng-template>
+              </ng-select>
+            </div>
+            <div class="mb-4">
+              <label for="description-modal">{{ t('labBook.newFileElementModal.description.label') }}</label>
+              <eworkbench-wysiwyg-editor id="description-modal" formControlName="description"></eworkbench-wysiwyg-editor>
+            </div>
+            <div class="mb-4">
+              <label for="projects-modal">{{ t('labBook.newFileElementModal.projects.label') }}</label>
+              <ng-select
+                class="ewb-select"
+                formControlName="projects"
+                labelForId="projects-modal"
+                name="projects-modal"
+                [placeholder]="t('labBook.newFileElementModal.projects.placeholder')"
+                [multiple]="true"
+                [typeahead]="projectInput$"
+                [items]="projectsList"
+                bindLabel="name"
+                bindValue="pk"
+              >
+                <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                  {{ item.name }}
+                  <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                </ng-template>
+              </ng-select>
+            </div>
+
+            <div class="d-flex justify-content-between mt-5">
+              <div>
+                <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onChangeStep(1)">
+                  <eworkbench-icon className="wb-bold-chevron-left"></eworkbench-icon>
+                  {{ t('labBook.newFileElementModal.previousStep') }}
+                </button>
+              </div>
+              <div class="modal-footer p-0">
+                <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+                  {{ t('labBook.newFileElementModal.cancel') }}
+                </button>
+                <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+                  {{ t('labBook.newFileElementModal.create') }}
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

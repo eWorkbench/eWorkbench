@@ -1,0 +1,19 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="state === 'NEW'">
+    <eworkbench-icon className="wb-new" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('tasks.state.new') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="state === 'PROG'">
+    <eworkbench-icon className="wb-in-progress" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('tasks.state.inProgress') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="state === 'DONE'">
+    <eworkbench-icon className="wb-done" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('tasks.state.done') }}</ng-container>
+  </ng-container>
+</ng-container>

@@ -1,9 +1,0 @@
-<div ng-if="vm.elementLabel"
-     ng-style="{'background-color': vm.elementLabel.color, 'color': vm.elementLabel.fontColor}"
-     title="{{ vm.elementLabel.name }}">
-    {{ vm.elementLabel.name || "&nbsp;" }}
-</div>
-<div ng-show="vm.elementLabel === undefined && vm.elementLabelPk === undefined || vm.elementLabelNotFound"
-     translate>
-    Unknown Label
-</div>

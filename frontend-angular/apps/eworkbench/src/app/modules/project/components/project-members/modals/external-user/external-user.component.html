@@ -1,0 +1,51 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('projects.members.externalUserModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <div class="mb-4">
+            <label for="email-modal">
+              {{ t('project.members.externalUserModal.email.label') }}
+              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="email"
+              id="email-modal"
+              name="email-modal"
+              [placeholder]="t('project.members.exetrnaluserModal.email.placeholder')"
+            />
+          </div>
+          <div class="mb-4">
+            <label for="message-label">{{ t('project.members.externalUserModal.message.label') }}</label>
+            <textarea
+              class="form-control ewb-textarea"
+              formControlName="message"
+              id="message-modal"
+              name="message-modal"
+              [placeholder]="t('project.members.externalUserModal.message.label')"
+            ></textarea>
+          </div>
+
+          <div class="modal-footer p-0 mt-5">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+              {{ t('projects.members.externalUserModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              {{ t('projects.members.externalUserModal.add') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

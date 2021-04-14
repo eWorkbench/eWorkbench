@@ -1,0 +1,23 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-header [title]="title"></eworkbench-header>
+</ng-container>
+
+<main>
+  <eworkbench-table-view
+    #tableView
+    [columns]="listColumns"
+    [service]="notificationService"
+    sortBy="created_at"
+    [sort]="1"
+    [columnHeader]="false"
+    [rowHover]="false"
+  ></eworkbench-table-view>
+  <ng-template #containerCellTemplate let-row>
+    <eworkbench-notification-element [notification]="row"></eworkbench-notification-element>
+  </ng-template>
+</main>

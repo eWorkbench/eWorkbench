@@ -1,0 +1,75 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-loading [loading]="loading">
+  <table cdk-table [dataSource]="dataSource$">
+    <ng-container *ngFor="let column of columns; first as isFirst" [cdkColumnDef]="column.key">
+      <th cdk-header-cell *cdkHeaderCellDef>
+        {{ column.name }}
+        <eworkbench-table-sort
+          [class.invisible]="!column.sortable"
+          [column]="column"
+          (sortChanged)="onSortChanged($event)"
+        ></eworkbench-table-sort>
+      </th>
+      <td cdk-cell *cdkCellDef="let element">
+        <div *ngIf="isFirst" class="d-inline-block" [style.padding-left.px]="element.level * 30"></div>
+        <button
+          type="button"
+          class="btn ewb-button-regular ewb-button-icon ewb-button-expand square mr-2"
+          *ngIf="column.key === expandKey"
+          [class.expand-hidden]="!hasRelation(element)"
+          (click)="onExpandChange(element)"
+        >
+          <eworkbench-icon [className]="element.expanded ? 'wb-chevron-down-1' : 'wb-chevron-right-1'"></eworkbench-icon>
+        </button>
+        <ng-container *ngIf="column.cellTemplate">
+          <ng-container [ngTemplateOutlet]="column.cellTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-container>
+        </ng-container>
+        <ng-container *ngIf="!column.cellTemplate">
+          {{ element[column.key] }}
+        </ng-container>
+      </td>
+    </ng-container>
+
+    <tr [class.d-none]="!columnHeader" cdk-header-row *cdkHeaderRowDef="displayedColumns$.value"></tr>
+    <tr [class.row-hover]="rowHover" cdk-row *cdkRowDef="let row; columns: displayedColumns$.value"></tr>
+  </table>
+
+  <div *ngIf="!loading && !data?.length" class="no-result">No results</div>
+
+  <div [class.d-none]="!data?.length">
+    <pagination
+      *ngIf="pagination && total > paginationSize"
+      class="ewb-pagination mt-4"
+      [customFirstTemplate]="firstTemplate"
+      [customLastTemplate]="lastTemplate"
+      [customPreviousTemplate]="previousTemplate"
+      [customNextTemplate]="nextTemplate"
+      [boundaryLinks]="true"
+      [totalItems]="total"
+      [itemsPerPage]="paginationSize"
+      [maxSize]="5"
+      [rotate]="true"
+      (pageChanged)="onPageChanged($event)"
+    ></pagination>
+  </div>
+</eworkbench-loading>
+
+<ng-template #firstTemplate>
+  <eworkbench-icon className="wb-2-chevrons-up rotate-90"></eworkbench-icon>
+</ng-template>
+
+<ng-template #lastTemplate>
+  <eworkbench-icon className="wb-2-chevrons-down rotate-90"></eworkbench-icon>
+</ng-template>
+
+<ng-template #previousTemplate>
+  <eworkbench-icon className="wb-chevron-right-1 flipH"></eworkbench-icon>
+</ng-template>
+
+<ng-template #nextTemplate>
+  <eworkbench-icon className="wb-chevron-right-1"></eworkbench-icon>
+</ng-template>

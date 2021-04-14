@@ -1,0 +1,14 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-calendar
+  #calendar
+  [headerToolbar]="headerToolbar"
+  [customButtons]="customButtons"
+  initialView="timeGridWeek"
+  (datesSet)="onDatesSet($event)"
+  (selected)="onSelect($event)"
+  (eventClicked)="onEventClicked($event)"
+></eworkbench-calendar>

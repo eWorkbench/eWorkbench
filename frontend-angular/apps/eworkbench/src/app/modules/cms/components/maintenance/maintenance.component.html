@@ -1,0 +1,22 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="notification" *ngIf="maintenance?.visible && maintenance?.text">
+    <div class="notification-content">
+      <eworkbench-icon className="wb-exclamation" class="align-self-center"></eworkbench-icon>
+      <span [innerHTML]="maintenance?.text | stripHTML"></span>
+      <a
+        href
+        class="align-self-center text-right"
+        [tooltip]="t('maintenance.hide.tooltip')"
+        container="body"
+        containerClass="tooltip-sm"
+        (click)="onHide($event)"
+        ><eworkbench-icon className="wb-x-bold-close"></eworkbench-icon
+      ></a>
+    </div>
+  </div>
+</ng-container>

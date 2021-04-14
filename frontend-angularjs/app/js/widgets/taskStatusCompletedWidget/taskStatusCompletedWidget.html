@@ -1,8 +1,0 @@
-<script type="text/ng-template" id="popover-finished-closed-tasks">
-    <span translate translate-params-task-status-new="vm.taskStatus['NEW']">New: {{ taskStatusNew }}</span><br />
-    <span translate translate-params-task-status-progress="vm.taskStatus['PROG']">In Progress: {{ taskStatusProgress }}</span><br />
-    <span translate translate-params-task-status-done="vm.taskStatus['DONE']">Done: {{ taskStatusDone }}</span>
-</script>
-<span uib-popover-template="'popover-finished-closed-tasks'" popover-trigger="'mouseenter'">
-    {{ vm.taskStatus['DONE'] }} / {{ vm.totalCount }}
-</span>

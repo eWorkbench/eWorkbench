@@ -1,0 +1,25 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="mime === 'image/jpeg'">
+    <eworkbench-icon className="wb-image-file"></eworkbench-icon>
+  </ng-container>
+  <ng-container *ngIf="mime === 'image/png'">
+    <eworkbench-icon className="wb-image-file"></eworkbench-icon>
+  </ng-container>
+  <ng-container *ngIf="mime === 'image/gif'">
+    <eworkbench-icon className="wb-image-file"></eworkbench-icon>
+  </ng-container>
+  <ng-container *ngIf="mime === 'image/tiff'">
+    <eworkbench-icon className="wb-image-file"></eworkbench-icon>
+  </ng-container>
+  <ng-container *ngIf="mime === 'application/pdf'">
+    <eworkbench-icon className="wb-pdf-file"></eworkbench-icon>
+  </ng-container>
+  <ng-container *ngIf="mime === 'application/octet-stream'">
+    <eworkbench-icon className="wb-download"></eworkbench-icon>
+  </ng-container>
+</ng-container>
