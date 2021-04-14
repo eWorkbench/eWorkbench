@@ -5,16 +5,16 @@ License: [AGPL 3](LICENSE)
 Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 ## Installation
-The eWorkbench consists of separate frontend (AngularJS) and backend (Django) applications.
+The eWorkbench consists of separate frontend (Angular) and backend (Django) applications.
 
 For installation instructions see the docs folder in the backend directory and the README file in the frontend directory:
 * [backend-django/docs/index.rst](backend-django/docs/index.rst)
-* [frontend-angularjs/README.md](frontend-angularjs/README.md)
+* [frontend-angular/README.md](frontend-angular/README.md)
 
 ## Development
 For development instructions, see the README files:
 * [backend-django/README.md](backend-django/README.md)
-* [frontend-angularjs/README.md](frontend-angularjs/README.md)
+* [frontend-angular/README.md](frontend-angular/README.md)
 * [README_CustomPlugins.md](README_CustomPlugins.md)
 
 ## Contributors
