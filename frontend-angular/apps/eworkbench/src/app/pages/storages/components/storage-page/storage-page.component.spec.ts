@@ -3,21 +3,22 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { StoragePageComponent } from './storage-page.component';
-import { getTranslocoModule } from '@app/transloco-testing.module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { mockUser } from '@eworkbench/mocks';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ToastrService } from 'ngx-toastr';
+import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { HeaderModule } from '@app/modules/header/header.module';
+import { getTranslocoModule } from '@app/transloco-testing.module';
+import { mockUser } from '@eworkbench/mocks';
 import { SkeletonsModule } from '@eworkbench/skeletons';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { ToastrService } from 'ngx-toastr';
+import { StoragePageComponent } from './storage-page.component';
 
 describe('StoragePageComponent', () => {
   let spectator: Spectator<StoragePageComponent>;
   const createComponent = createComponentFactory({
     component: StoragePageComponent,
-    imports: [getTranslocoModule(), HttpClientTestingModule, RouterTestingModule, HeaderModule, SkeletonsModule],
+    imports: [getTranslocoModule(), HttpClientTestingModule, RouterTestingModule, HeaderModule, SkeletonsModule, FavoritesModule],
     mocks: [ToastrService],
   });
 

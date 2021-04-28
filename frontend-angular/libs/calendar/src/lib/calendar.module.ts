@@ -5,14 +5,16 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import { PopoverModule } from 'ngx-bootstrap/popover';
 import { CalendarComponent } from './components/calendar/calendar.component';
+import { CalendarPopoverWrapperComponent } from './components/popover/popover.component';
 
 @NgModule({
-  declarations: [CalendarComponent],
-  imports: [CommonModule, FullCalendarModule],
-  exports: [FullCalendarModule, CalendarComponent],
+  declarations: [CalendarComponent, CalendarPopoverWrapperComponent],
+  imports: [CommonModule, FullCalendarModule, PopoverModule.forRoot()],
+  exports: [FullCalendarModule, CalendarComponent, CalendarPopoverWrapperComponent],
 })
 export class CalendarModule {}

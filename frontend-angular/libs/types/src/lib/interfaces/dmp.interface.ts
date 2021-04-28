@@ -58,4 +58,5 @@ export interface DMP {
   last_modified_by: User;
   display: string;
   dmp_form: string;
+  is_favourite: boolean;
 }

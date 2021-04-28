@@ -191,9 +191,12 @@ export class MetadataComponent implements OnInit {
     this.changed.emit(parameters);
   }
 
-  public openNewModal(): void {
+  public openNewModal(name?: string): void {
     /* istanbul ignore next */
-    this.modalRef = this.modalService.open(NewMetadataFieldComponent, { closeButton: false });
+    this.modalRef = this.modalService.open(NewMetadataFieldComponent, {
+      closeButton: false,
+      data: { name },
+    });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }

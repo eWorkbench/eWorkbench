@@ -45,6 +45,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   public columns: TaskBoardColumn[] = [];
 
   @Input()
+  public projects: string[] = [];
+
+  @Input()
   public setFilter?: EventEmitter<TaskBoardFilter>;
 
   @Output()
@@ -312,7 +315,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewTaskModalComponent, {
       closeButton: false,
-      data: { taskBoardId: this.id, column },
+      data: { taskBoardId: this.id, initialState: { projects: this.projects }, column },
     });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));

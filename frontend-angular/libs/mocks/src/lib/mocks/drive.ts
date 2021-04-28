@@ -1,3 +1,10 @@
+/* istanbul ignore file */
+
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 import { mockUser } from '@eworkbench/mocks';
 import { Drive } from '@eworkbench/types';
 import { mockDirectory } from './directory';
@@ -26,4 +33,5 @@ export const mockDrive: Drive = {
   display: 'MyStorage',
   pk: 'a95db858-e215-4d0d-a83d-857d565b53d6',
   last_modified_by: mockUser,
+  is_favourite: false,
 };

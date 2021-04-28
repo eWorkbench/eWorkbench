@@ -48,6 +48,7 @@ export const mockTask: Task = {
   url: '',
   version_number: 0,
   full_day: false,
+  is_favourite: false,
 };
 
 export const mockTasksList: DjangoAPI<Task[]> = {

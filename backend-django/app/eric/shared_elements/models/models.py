@@ -33,7 +33,8 @@ from django_userforeignkey.request import get_current_user
 
 from eric.base64_image_extraction.models import ExtractedImage
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin
+from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin, \
+    IsFavouriteMixin
 from eric.core.models.fields import AutoIncrementIntegerWithPrefixField
 from eric.core.utils import convert_html_to_text, get_rgb_rgba_pattern
 from eric.dss.models.models import get_upload_to_path, dss_storage, DSSContainer
@@ -80,7 +81,7 @@ def scramble_uploaded_filename(filename):
 
 
 class Contact(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-              ModelPrivilegeMixIn, WorkbenchEntityMixin):
+              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """ Defines a contact, which is associated to a project """
     objects = ContactManager()
 
@@ -235,7 +236,7 @@ class Contact(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
 
 
 class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-           ModelPrivilegeMixIn, WorkbenchEntityMixin):
+           ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     # """ Defines a note, which can be associated to ANYTHING (project, contact, milestone, ...) """
     """ Defines a note, which can be associated to a Project """
     objects = NoteManager()
@@ -422,7 +423,7 @@ class UploadedFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
 
 class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-           ModelPrivilegeMixIn, WorkbenchEntityMixin, ImportedDSSMixin):
+           ModelPrivilegeMixIn, WorkbenchEntityMixin, ImportedDSSMixin, IsFavouriteMixin):
     """ Defines a file, which is associated to a project """
     objects = FileManager()
 
@@ -764,7 +765,7 @@ class TaskCheckList(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
 
 class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-           ModelPrivilegeMixIn, WorkbenchEntityMixin):
+           ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """ Defines a task, which is associated to a project """
     objects = TaskManager()
 
@@ -1099,7 +1100,7 @@ def get_duration_str(duration):
 
 
 class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin, SoftDeleteMixin, RelationsMixIn,
-              ModelPrivilegeMixIn, WorkbenchEntityMixin):
+              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """
     Appointment, previously known as Meeting or ResourceBooking.
     Represents an event with start date, end date and attendees.
@@ -1467,6 +1468,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         """
         resource_booking_objects = Meeting.objects \
             .exclude(pk=self.pk) \
+            .exclude(deleted=True) \
             .filter(resource=self.resource) \
             .filter(date_time_start__lt=self.date_time_end) \
             .filter(date_time_end__gt=self.date_time_start)
@@ -1727,6 +1729,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
 
         resource_booking_objects = Meeting.objects \
             .exclude(pk=self.pk) \
+            .exclude(deleted=True) \
             .filter(resource=self.resource) \
             .filter(q_not_enough_time_between)
 
@@ -1755,6 +1758,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             # now get the objects that are relevant to the day of date_time_start
             resource_booking_objects = Meeting.objects \
                 .exclude(pk=pk) \
+                .exclude(deleted=True) \
                 .filter(resource=resource) \
                 .filter(created_by=user) \
                 .filter(date_time_start__gte=start_of_the_day) \
@@ -1769,6 +1773,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             # now get the objects that are relevant to the week of date_time_start
             resource_booking_objects = Meeting.objects \
                 .exclude(pk=pk) \
+                .exclude(deleted=True) \
                 .filter(resource=resource) \
                 .filter(created_by=user) \
                 .filter(date_time_start__gte=start_of_the_week) \
@@ -1783,6 +1788,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             # now get the objects that are relevant to the month of date_time_start
             resource_booking_objects = Meeting.objects \
                 .exclude(pk=pk) \
+                .exclude(deleted=True) \
                 .filter(resource=resource) \
                 .filter(created_by=user) \
                 .filter(date_time_start__gte=start_of_the_month) \

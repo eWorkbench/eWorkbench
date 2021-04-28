@@ -13,7 +13,8 @@ from django.core.validators import RegexValidator
 
 from django_changeset.models import RevisionModelMixin
 
-from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin, WorkbenchEntityMixin, OrderingModelMixin
+from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin, WorkbenchEntityMixin, OrderingModelMixin, \
+    IsFavouriteMixin
 from eric.core.models.base import BaseModel, LockMixin
 from eric.core.utils import get_rgb_rgba_pattern
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
@@ -31,7 +32,7 @@ rgba_color_validator = RegexValidator(
 
 
 class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-                  ModelPrivilegeMixIn, WorkbenchEntityMixin):
+                  ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """ Defines the workbench element for Kanban Boards """
     objects = KanbanBoardManager()
 

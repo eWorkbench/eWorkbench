@@ -78,6 +78,13 @@
       </div>
     </ng-container>
     <ng-container slot="elements" *ngIf="initialState">
+      <eworkbench-favorite-button
+        class="d-inline-block mr-2"
+        [id]="initialState?.pk"
+        [contentType]="initialState?.content_type"
+        [favorited]="initialState?.is_favourite"
+        btnClass="btn bg-transparent ewb-button-big square-md text-white"
+      ></eworkbench-favorite-button>
       <button class="btn ewb-button-big ewb-button-background mr-2" (click)="openBackgroundModal()">
         <eworkbench-icon className="wb-color-bucket"></eworkbench-icon>
         {{ t('taskBoard.background') }}
@@ -206,5 +213,10 @@
     </ng-container>
   </ng-container>
 
-  <eworkbench-task-board #taskBoardC [setFilter]="setFilter" (boardChange)="onBoardChange($event)"></eworkbench-task-board>
+  <eworkbench-task-board
+    #taskBoardC
+    [setFilter]="setFilter"
+    [projects]="initialState?.projects"
+    (boardChange)="onBoardChange($event)"
+  ></eworkbench-task-board>
 </main>

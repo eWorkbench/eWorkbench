@@ -33,7 +33,7 @@ class ContactSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
             'academic_title', 'first_name', 'last_name',
             'email', 'phone', 'company', 'projects', 'notes',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'url', 'metadata',
+            'url', 'metadata', 'is_favourite'
         )
 
     @transaction.atomic

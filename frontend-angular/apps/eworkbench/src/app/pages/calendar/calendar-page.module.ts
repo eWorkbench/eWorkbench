@@ -14,6 +14,7 @@ import { LoadingModule } from '@app/modules/loading/loading.module';
 import { ProjectModule } from '@app/modules/project/project.module';
 import { ScheduleModule } from '@app/modules/schedule/schedule.module';
 import { CustomControlErrorComponent } from '@app/modules/shared/control-error/control-error.component';
+import { SharedModule } from '@app/modules/shared/shared.module';
 import { UserModule } from '@app/modules/user/user.module';
 import { TranslocoRootModule } from '@app/transloco-root.module';
 import { CalendarModule } from '@eworkbench/calendar';
@@ -57,6 +58,7 @@ import { CalendarPageComponent } from './components/calendar-page/calendar-page.
     AppointmentModule,
     IconsModule,
     ScheduleModule,
+    SharedModule,
   ],
 })
 export class CalendarPageModule {}

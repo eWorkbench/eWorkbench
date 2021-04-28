@@ -14,7 +14,7 @@ from django_changeset.models import RevisionModelMixin
 from django_cleanhtmlfield.fields import HTMLField
 
 from eric.core.models import BaseModel, LockMixin
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
+from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, IsFavouriteMixin
 from eric.labbooks.models.managers import LabBookManager, LabBookChildElementManager, LabbookSectionManager
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
@@ -36,7 +36,7 @@ class EntityMissingError(Exception):
 
 
 class LabBook(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-              ModelPrivilegeMixIn, WorkbenchEntityMixin):
+              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """
     Defines a LabBook, which can contain several other workbench elements as children
     """

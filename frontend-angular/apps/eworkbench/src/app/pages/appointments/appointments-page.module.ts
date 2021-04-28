@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { AppointmentModule } from '@app/modules/appointment/appointment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
+import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LinkModule } from '@app/modules/link/link.module';
@@ -72,6 +73,7 @@ import { AppointmentsPageComponent } from './components/appointments-page/appoin
     AppointmentModule,
     SkeletonsModule,
     LinkModule,
+    FavoritesModule,
   ],
 })
 export class AppointmentsPageModule {}

@@ -72,11 +72,6 @@
       <eworkbench-icon className="wb-undo"></eworkbench-icon> {{ t('detailsDropdown.restore') }}
     </button>
   </li>
-  <li [class]="menuClass" role="menuitem" *ngIf="newModalComponent">
-    <button type="button" [class]="itemClass" (click)="onOpenNewModal()" [disabled]="loading">
-      <eworkbench-icon className="wb-plus"></eworkbench-icon> {{ t('detailsDropdown.new') }}
-    </button>
-  </li>
   <li [class]="menuClass" role="menuitem" *ngIf="newModalComponent && duplicateElement">
     <button type="button" [class]="itemClass" (click)="onOpenDuplicateModal()" [disabled]="loading">
       <eworkbench-icon className="wb-copy"></eworkbench-icon> {{ t('detailsDropdown.duplicate') }}

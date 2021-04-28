@@ -132,24 +132,4 @@ export class ProjectStateTimelineComponent implements OnInit {
       object: project,
     });
   }
-
-  public progressbarValues(row: Project): Record<string, string | number>[] {
-    return [
-      {
-        label: `${Number(
-          ((row.tasks_status.DONE / (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)) * 100).toFixed(1)
-        )}%`,
-      },
-      {
-        label: `${Number(
-          ((row.tasks_status.PROG / (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)) * 100).toFixed(1)
-        )}%`,
-      },
-      {
-        label: `${Number(
-          ((row.tasks_status.NEW / (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)) * 100).toFixed(1)
-        )}%`,
-      },
-    ];
-  }
 }

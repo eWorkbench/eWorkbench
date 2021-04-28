@@ -32,6 +32,8 @@ import { RemoveProjectMemberModalComponent } from './components/project-members/
 import { ProjectMembersComponent } from './components/project-members/project-members.component';
 import { ProjectSidebarComponent } from './components/project-sidebar/project-sidebar.component';
 import { ProjectStateComponent } from './components/project-state/project-state.component';
+import { ProjectProgressBarComponent } from './components/project-progress-bar/project-progress-bar.component';
+import { PopoverModule } from 'ngx-bootstrap/popover';
 
 @NgModule({
   declarations: [
@@ -44,6 +46,7 @@ import { ProjectStateComponent } from './components/project-state/project-state.
     ProjectStateComponent,
     ChangeProjectMemberRoleModalComponent,
     ProjectMembersHierarchyComponent,
+    ProjectProgressBarComponent,
   ],
   imports: [
     CommonModule,
@@ -71,6 +74,7 @@ import { ProjectStateComponent } from './components/project-state/project-state.
     SharedModule,
     AlertModule.forRoot(),
     IconsModule,
+    PopoverModule,
   ],
   exports: [
     ProjectSidebarComponent,
@@ -82,6 +86,7 @@ import { ProjectStateComponent } from './components/project-state/project-state.
     ProjectStateComponent,
     ChangeProjectMemberRoleModalComponent,
     ProjectMembersHierarchyComponent,
+    ProjectProgressBarComponent,
   ],
 })
 export class ProjectModule {}

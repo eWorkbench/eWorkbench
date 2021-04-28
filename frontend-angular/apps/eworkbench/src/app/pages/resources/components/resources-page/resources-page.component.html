@@ -149,6 +149,12 @@
     <ng-template #actionsCellTemplate let-row>
       <ng-container *transloco="let t">
         <div class="text-right">
+          <eworkbench-favorite-button
+            class="d-inline-block mr-2"
+            [id]="row.pk"
+            [contentType]="row.content_type"
+            [favorited]="row.is_favourite"
+          ></eworkbench-favorite-button>
           <button
             type="button"
             class="btn ewb-button-small mr-2"
@@ -159,14 +165,12 @@
           >
             <eworkbench-icon className="wb-copy"></eworkbench-icon>
           </button>
-
           <eworkbench-trash-button
             class="d-inline-block mr-2"
             [service]="resourcesService"
             [id]="row.pk"
             [tableView]="tableView"
           ></eworkbench-trash-button>
-
           <button class="btn ewb-button-regular ewb-button-additional" (click)="onOpenResourceBookingModal(row)">
             {{ t('resources.book') }}
           </button>

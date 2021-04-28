@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { DMPModule } from '@app/modules/dmp/dmp.module';
+import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LinkModule } from '@app/modules/link/link.module';
@@ -78,6 +79,7 @@ import { DMPsPageRoutingModule } from './dmps-page-routing.module';
     AlertModule,
     TooltipModule.forRoot(),
     DMPModule,
+    FavoritesModule,
   ],
 })
 export class DMPsPageModule {}

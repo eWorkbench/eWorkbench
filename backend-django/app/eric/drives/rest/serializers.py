@@ -114,7 +114,7 @@ class DriveSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetad
             'title', 'projects', 'sub_directories', 'sub_directories_url', 'container_id', 'location',
             'is_dss_drive', 'envelope_path', 'dss_envelope_id',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'url', 'webdav_url', 'metadata', 'imported',
+            'url', 'webdav_url', 'metadata', 'imported', 'is_favourite'
         )
 
     def get_webdav_url(self, obj):

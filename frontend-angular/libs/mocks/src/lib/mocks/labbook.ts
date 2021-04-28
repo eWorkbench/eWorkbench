@@ -34,6 +34,7 @@ export const mockLabBook: LabBook = {
   title: 'Neues LabBook',
   deleted: false,
   content_type: 41,
+  is_favourite: false,
 };
 
 export const mockLabBooksList: DjangoAPI<LabBook[]> = {

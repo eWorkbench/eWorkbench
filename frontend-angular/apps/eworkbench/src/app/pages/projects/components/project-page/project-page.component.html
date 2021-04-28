@@ -6,6 +6,14 @@
 <ng-container *transloco="let t">
   <eworkbench-header [title]="title">
     <ng-container slot="elements" *ngIf="initialState">
+      <eworkbench-favorite-button
+        class="d-inline-block mr-2"
+        [id]="initialState?.pk"
+        [contentType]="initialState?.content_type"
+        [favorited]="initialState?.is_favourite"
+        btnClass="btn bg-transparent ewb-button-big square-md text-white"
+      ></eworkbench-favorite-button>
+
       <button type="button" class="btn ewb-button-big ewb-button-background mr-2" (click)="onOpenNewSubProjectModal()" [disabled]="loading">
         <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('project.details.newSubproject') }}
       </button>

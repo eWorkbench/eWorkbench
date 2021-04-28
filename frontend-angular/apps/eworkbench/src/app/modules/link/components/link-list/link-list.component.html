@@ -30,13 +30,33 @@
 </ng-container>
 
 <ng-template #relationNameCellTemplate let-row>
-  <eworkbench-icon [className]="row.left_content_object.content_type_model | formatContentTypeModel: 'icon'" class="mr-2"></eworkbench-icon>
-  <a [routerLink]="[row.left_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.left_content_object.pk]">{{
-    row.left_content_object.display
-  }}</a>
+  <ng-container *ngIf="row.right_object_id === this.id">
+    <eworkbench-icon
+      [className]="row.left_content_object.content_type_model | formatContentTypeModel: 'icon'"
+      class="mr-2"
+    ></eworkbench-icon>
+    <a [routerLink]="[row.left_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.left_content_object.pk]">{{
+      row.left_content_object.display
+    }}</a>
+  </ng-container>
+  <ng-container *ngIf="row.left_object_id === this.id && row.right_object_id !== this.id">
+    <eworkbench-icon
+      [className]="row.right_content_object.content_type_model | formatContentTypeModel: 'icon'"
+      class="mr-2"
+    ></eworkbench-icon>
+    <a
+      [routerLink]="[row.right_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.right_content_object.pk]"
+      >{{ row.right_content_object.display }}</a
+    >
+  </ng-container>
 </ng-template>
 <ng-template #typeCellTemplate let-row>
-  {{ row.left_content_object.content_type_model | formatContentTypeModel }}
+  <ng-container *ngIf="row.right_object_id === this.id">
+    {{ row.left_content_object.content_type_model | formatContentTypeModel }}
+  </ng-container>
+  <ng-container *ngIf="row.left_object_id === this.id && row.right_object_id !== this.id">
+    {{ row.right_content_object.content_type_model | formatContentTypeModel }}
+  </ng-container>
 </ng-template>
 <ng-template #linkedByCellTemplate let-row>
   <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>

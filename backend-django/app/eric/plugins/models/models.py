@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models import LockMixin, BaseModel, UploadToPathAndRename
-from eric.core.models.abstract import WorkbenchEntityMixin, SoftDeleteMixin, ChangeSetMixIn
+from eric.core.models.abstract import WorkbenchEntityMixin, SoftDeleteMixin, ChangeSetMixIn, IsFavouriteMixin
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
@@ -211,7 +211,7 @@ class UploadedPluginInstanceFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMi
 
 
 class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn,
-                     LockMixin, ModelPrivilegeMixIn, WorkbenchEntityMixin):
+                     LockMixin, ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """
     Defines Plugin Instances, which are instances of Plugins used in Labbooks
     """

@@ -6,6 +6,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
+import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LinkModule } from '@app/modules/link/link.module';
@@ -60,6 +61,7 @@ describe('PluginPageComponent', () => {
       LinkModule,
       IconsModule,
       LockModule,
+      FavoritesModule,
     ],
     providers: [
       mockProvider(PluginInstancesService, {

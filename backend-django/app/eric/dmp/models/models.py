@@ -18,7 +18,8 @@ from django_userforeignkey.request import get_current_user
 
 from eric.base64_image_extraction.models import ExtractedImage
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
-from eric.core.models.abstract import OrderingModelMixin, SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
+from eric.core.models.abstract import OrderingModelMixin, SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, \
+    IsFavouriteMixin
 from eric.dmp.models.managers import DmpManager, DmpFormDataManager, DmpFormFieldManager, DmpFormManager
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
@@ -32,7 +33,7 @@ UNHANDLED_VERSION_ERROR = NotImplementedError("Unhandled metadata version")
 
 
 class Dmp(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-          ModelPrivilegeMixIn, WorkbenchEntityMixin):
+          ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """ Defines a DMP, which is associated to a project and a DMP Form """
 
     objects = DmpManager()

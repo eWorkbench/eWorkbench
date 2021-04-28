@@ -28,6 +28,7 @@ class MinimalisticTaskSerializer(BaseModelWithCreatedBySerializer):
         fields = (
             'title', 'start_date', 'due_date', 'priority', 'state', 'description', 'task_id',
             'assigned_users', 'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'full_day',
+            'is_favourite'
         )
 
 
@@ -83,7 +84,7 @@ class TaskSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetada
             'title', 'start_date', 'due_date', 'priority', 'state', 'description', 'projects', 'task_id',
             'assigned_users', 'assigned_users_pk', 'checklist_items', 'labels',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'url', 'metadata', 'full_day',
+            'url', 'metadata', 'full_day', 'is_favourite'
         )
         read_only_fields = ('assigned_users',)
 

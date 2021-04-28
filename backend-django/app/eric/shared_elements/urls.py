@@ -16,7 +16,8 @@ from eric.shared_elements.rest.viewsets import ContactViewSet, NoteViewSet, File
     CalendarAccessViewSet
 # register REST API Routers
 from eric.shared_elements.rest.viewsets.contact import ContactShareViewSet
-from eric.shared_elements.rest.viewsets.meeting import MyResourceBookingViewSet, AllResourceBookingViewSet
+from eric.shared_elements.rest.viewsets.meeting import MyResourceBookingViewSet, AllResourceBookingViewSet, \
+    EditorResourceBookingViewSet
 
 router = get_api_router()
 
@@ -114,7 +115,7 @@ Resource Bookings
 """
 router.register(r'resourcebookings/my', MyResourceBookingViewSet, basename='myresourcebooking')
 router.register(r'resourcebookings/all', AllResourceBookingViewSet, basename='allresourcebooking')
-
+router.register(r'resourcebookings/editor', EditorResourceBookingViewSet, basename='editorresourcebooking')
 
 """
 Element Labels (generic endpoint)

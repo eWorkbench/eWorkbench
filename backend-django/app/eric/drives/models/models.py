@@ -16,7 +16,8 @@ from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models import BaseModel
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin
+from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin, \
+    IsFavouriteMixin
 from eric.metadata.models.fields import MetadataRelation
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
 
@@ -200,7 +201,7 @@ class Directory(BaseModel, ChangeSetMixIn, RevisionModelMixin, ImportedDSSMixin)
 
 
 class Drive(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn,
-            ModelPrivilegeMixIn, WorkbenchEntityMixin, ImportedDSSMixin):
+            ModelPrivilegeMixIn, WorkbenchEntityMixin, ImportedDSSMixin, IsFavouriteMixin):
     """
     Storage, previously known as Drive.
     Container for files and directories.

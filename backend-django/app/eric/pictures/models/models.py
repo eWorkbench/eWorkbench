@@ -16,7 +16,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
-from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin, WorkbenchEntityMixin
+from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin, WorkbenchEntityMixin, IsFavouriteMixin
 from eric.core.models.base import BaseModel, LockMixin
 from eric.core.models.utils import pk_or_none
 from eric.metadata.models.fields import MetadataRelation
@@ -52,7 +52,7 @@ def validate_file_is_json(value):
 
 
 class Picture(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-              ModelPrivilegeMixIn, WorkbenchEntityMixin):
+              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """ Defines the workbench element Picture """
     objects = PictureManager()
 

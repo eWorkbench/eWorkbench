@@ -12,7 +12,7 @@ import { RestoreModalComponent } from '@app/modules/trash/components/modals/rest
 import { AuthService, PageTitleService, ProjectsService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TreeViewComponent } from '@eworkbench/table';
-import { ModalCallback, Project, User } from '@eworkbench/types';
+import { ModalCallback, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -188,26 +188,6 @@ export class ProjectsPageComponent implements OnInit {
       .subscribe(title => {
         this.titleService.setTitle(title);
       });
-  }
-
-  public progressbarValues(row: Project): Record<string, string | number>[] {
-    return [
-      {
-        label: `${Number(
-          ((row.tasks_status.DONE / (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)) * 100).toFixed(1)
-        )}%`,
-      },
-      {
-        label: `${Number(
-          ((row.tasks_status.PROG / (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)) * 100).toFixed(1)
-        )}%`,
-      },
-      {
-        label: `${Number(
-          ((row.tasks_status.NEW / (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)) * 100).toFixed(1)
-        )}%`,
-      },
-    ];
   }
 
   public onColumnsChanged(event: TableColumnChangedEvent): void {

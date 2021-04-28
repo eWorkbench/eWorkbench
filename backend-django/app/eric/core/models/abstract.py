@@ -134,6 +134,28 @@ class ImportedDSSMixin(models.Model):
     )
 
 
+class IsFavouriteMixin(models.Model):
+    """
+    An abstract model mixin that provides a property that checks if the Element is a favourite for the current user
+    """
+    class Meta:
+        abstract = True
+
+    @property
+    def is_favourite(self):
+        from django_userforeignkey.request import get_current_user
+        user = get_current_user()
+        # check if this is an anonymous user --> no favourites
+        if user.is_anonymous:
+            return False
+        from eric.favourites.models import Favourite
+        return Favourite.objects.filter(
+            user=user,
+            object_id=self.pk,
+            content_type=self.get_content_type(),
+        ).exists()
+
+
 class WorkbenchEntityMixin:
     """
     A mixin that marks an element as a workbench element

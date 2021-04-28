@@ -8,6 +8,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
+import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LabBookModule } from '@app/modules/labbook/labbook.module';
@@ -73,6 +74,7 @@ import { LabBooksPageRoutingModule } from './labbooks-page-routing.module';
     IconsModule,
     SkeletonsModule,
     LinkModule,
+    FavoritesModule,
   ],
 })
 export class LabBooksPageModule {}

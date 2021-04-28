@@ -10,6 +10,7 @@ import { NewAppointmentModalComponent } from '@app/modules/appointment/component
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
 import { ProjectModule } from '@app/modules/project/project.module';
+import { SharedModule } from '@app/modules/shared/shared.module';
 import { AuthService, CalendarAccessPrivilegesService, MyScheduleService, PageTitleService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { CalendarModule } from '@eworkbench/calendar';
@@ -58,6 +59,7 @@ describe('CalendarPageComponent', () => {
       ProjectModule,
       BsDropdownModule.forRoot(),
       IconsModule,
+      SharedModule,
     ],
     providers: [
       mockProvider(MyScheduleService, {

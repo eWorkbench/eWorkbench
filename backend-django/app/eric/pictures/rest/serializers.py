@@ -75,7 +75,7 @@ class PictureSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
             'title', 'shapes_image', 'background_image', 'rendered_image', 'projects', 'width', 'height',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
             'download_shapes', 'download_background_image', 'download_rendered_image',
-            'url', 'metadata',
+            'url', 'metadata', 'is_favourite'
         )
 
     @transaction.atomic

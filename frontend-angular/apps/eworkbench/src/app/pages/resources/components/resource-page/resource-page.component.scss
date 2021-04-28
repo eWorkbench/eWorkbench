@@ -11,4 +11,10 @@
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 35px;
   }
+
+  .resource-booking-calendar {
+    position: relative;
+    max-height: 800px;
+    overflow: auto;
+  }
 }

@@ -12,10 +12,10 @@ import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { NewAppointmentModalComponent } from '@app/modules/appointment/components/modals/new/new.component';
 import { RestoreModalComponent } from '@app/modules/trash/components/modals/restore/restore.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
-import { AppointmentsService, AuthService, PageTitleService, ProjectsService } from '@app/services';
+import { AppointmentsService, AuthService, PageTitleService, ProjectsService, ResourcesService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TableSortChangedEvent, TableViewComponent } from '@eworkbench/table';
-import { ModalCallback, Project, User } from '@eworkbench/types';
+import { ModalCallback, Project, Resource, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -69,6 +69,9 @@ export class AppointmentsPageComponent implements OnInit {
   @ViewChild('lastModifiedByCellTemplate', { static: true })
   public lastModifiedByCellTemplate!: TemplateRef<any>;
 
+  @ViewChild('resourceCellTemplate', { static: true })
+  public resourceCellTemplate!: TemplateRef<any>;
+
   @ViewChild('actionsCellTemplate', { static: true })
   public actionsCellTemplate!: TemplateRef<any>;
 
@@ -82,6 +85,8 @@ export class AppointmentsPageComponent implements OnInit {
 
   public searchControl = this.fb.control<string | null>(null);
 
+  public resourceControl = this.fb.control<string | null>(null);
+
   public users: User[] = [];
 
   public params = new HttpParams();
@@ -91,6 +96,10 @@ export class AppointmentsPageComponent implements OnInit {
   public projects: Project[] = [];
 
   public projectsInput$ = new Subject<string>();
+
+  public resources: Resource[] = [];
+
+  public resourceInput$ = new Subject<string>();
 
   public showSidebar = false;
 
@@ -102,6 +111,7 @@ export class AppointmentsPageComponent implements OnInit {
 
   public constructor(
     public readonly appointmentsService: AppointmentsService,
+    private readonly resourcesService: ResourcesService,
     private readonly router: Router,
     private readonly modalService: DialogService,
     private readonly translocoService: TranslocoService,
@@ -196,6 +206,13 @@ export class AppointmentsPageComponent implements OnInit {
             cellTemplate: this.lastModifiedByCellTemplate,
             name: column.lastModifiedBy,
             key: 'last_modified_by',
+            sortable: true,
+            hidden: true,
+          },
+          {
+            cellTemplate: this.resourceCellTemplate,
+            name: column.resource,
+            key: 'resource__name',
             sortable: true,
             hidden: true,
           },
@@ -308,9 +325,33 @@ export class AppointmentsPageComponent implements OnInit {
       }
     );
 
+    this.resourceControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (value) {
+          this.params = this.params.set('resource', value);
+          this.tableView.loadData(false, this.params);
+          if (!project) {
+            queryParams.set('resource', value);
+            history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+          }
+          return;
+        }
+
+        this.params = this.params.delete('resource');
+        this.tableView.loadData(false, this.params);
+        if (!project) {
+          queryParams.delete('resource');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        }
+      }
+    );
+
     this.route.queryParamMap.pipe(untilDestroyed(this), take(1)).subscribe(
       /* istanbul ignore next */ queryParams => {
         const projects = queryParams.get('projects');
+        const resource = queryParams.get('resource');
         const search = queryParams.get('search');
 
         if (projects && !project) {
@@ -328,6 +369,22 @@ export class AppointmentsPageComponent implements OnInit {
 
         if (search) {
           this.searchControl.setValue(search);
+        }
+
+        if (resource) {
+          this.resourcesService
+            .get(resource, this.currentUser!.pk!)
+            .pipe(
+              untilDestroyed(this),
+              map(/* istanbul ignore next */ resource => resource.data)
+            )
+            .subscribe(
+              /* istanbul ignore next */ resource => {
+                this.resources = [...this.resources, resource];
+                this.cdr.markForCheck();
+              }
+            );
+          this.resourceControl.setValue(resource);
         }
       }
     );
@@ -359,6 +416,21 @@ export class AppointmentsPageComponent implements OnInit {
         /* istanbul ignore next */ projects => {
           if (projects.length) {
             this.projects = [...projects];
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
+    this.resourceInput$
+      .pipe(
+        untilDestroyed(this),
+        debounceTime(500),
+        switchMap(/* istanbul ignore next */ input => (input ? this.resourcesService.search(input) : of([])))
+      )
+      .subscribe(
+        /* istanbul ignore next */ resources => {
+          if (resources.length) {
+            this.resources = [...resources];
             this.cdr.markForCheck();
           }
         }

@@ -41,29 +41,29 @@ services:
       - ./:/app
       - app_data:/var/lib/app
     command: while true; do python manage.py send_notifications; sleep 60; done
-  # Celery
-  celery:
-    <<: *python
-    ports: []
-    volumes:
-      - ./:/app
-      - app_data:/var/lib/app
-      - ./dss:/dss
-    command: celery -A eric worker -B -l INFO
-    environment:
-      - DJANGO_SETTINGS_MODULE=eric.settings.docker
-    depends_on:
-      - broker
-      - python
-  # RabbitMQ Broker used by celery
-  broker:
-    image: rabbitmq:3.8
-    hostname: broker
-    environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=mypass
-    ports:
-      - 5672:5672
+#  # Celery
+#  celery:
+#    <<: *python
+#    ports: []
+#    volumes:
+#      - ./:/app
+#      - app_data:/var/lib/app
+#      - ./dss:/dss
+#    command: celery -A eric worker -B -l INFO
+#    environment:
+#      - DJANGO_SETTINGS_MODULE=eric.settings.docker
+#    depends_on:
+#      - broker
+#      - python
+#  # RabbitMQ Broker used by celery
+#  broker:
+#    image: rabbitmq:3.8
+#    hostname: broker
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=admin
+#      - RABBITMQ_DEFAULT_PASS=mypass
+#    ports:
+#      - 5672:5672
   # Postgres configuration
   db:
     hostname: db.workbench.local

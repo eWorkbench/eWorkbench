@@ -18,10 +18,13 @@ import {
   DatesSetArg,
   EventApi,
   EventClickArg,
+  EventContentArg,
+  EventHoveringArg,
   EventInput,
   FormatterInput,
   FullCalendarComponent,
   LocaleSingularArg,
+  MountArg,
   OverlapFunc,
   PluginDef,
   ToolbarInput,
@@ -34,7 +37,7 @@ import {
   CalendarDateFormat,
   CalendarDayHeaderFormat,
   CalendarDayPopoverFormat,
-  CalendarSlotLabelInterval,
+  CalendarSlotInterval,
   CalendarTimeFormat,
 } from '../../interfaces/calendar.interfaces';
 
@@ -133,17 +136,18 @@ export class CalendarComponent implements OnInit {
   public dayHeaderFormatMonthView: CalendarDayHeaderFormat = { weekday: 'long' };
 
   @Input()
-  public slotDuration = '00:30:00';
+  public slotDuration: string | CalendarSlotInterval = '00:30:00';
 
   @Input()
-  public slotLabelInterval: string | CalendarSlotLabelInterval = '01:00';
+  public slotLabelInterval: string | CalendarSlotInterval = '01:00';
 
   @Input()
   public slotLabelFormat: CalendarDateFormat = {
     hour: 'numeric',
     minute: '2-digit',
-    omitZeroMinute: true,
-    meridiem: 'lowercase',
+    omitZeroMinute: false,
+    meridiem: false,
+    hour12: false,
   };
 
   @Input()
@@ -238,6 +242,18 @@ export class CalendarComponent implements OnInit {
   @Output()
   public eventClicked = new EventEmitter<EventClickArg>();
 
+  @Output()
+  public eventDidMount = new EventEmitter<MountArg<EventContentArg>>();
+
+  @Output()
+  public eventWillUnmount = new EventEmitter<MountArg<EventContentArg>>();
+
+  @Output()
+  public eventMouseEnter = new EventEmitter<EventHoveringArg>();
+
+  @Output()
+  public eventMouseLeave = new EventEmitter<EventHoveringArg>();
+
   public ngOnInit(): void {
     Calendar.name; // Prevent webpack from removing the reference during compilation
     this.options = {
@@ -299,6 +315,10 @@ export class CalendarComponent implements OnInit {
       select: this.onSelect.bind(this),
       datesSet: this.onDatesSet.bind(this),
       eventClick: this.onEventClick.bind(this),
+      eventDidMount: this.onEventDidMount.bind(this),
+      eventWillUnmount: this.onEventWillUnmount.bind(this),
+      eventMouseEnter: this.onEventMouseEnter.bind(this),
+      eventMouseLeave: this.onEventMouseLeave.bind(this),
     };
   }
 
@@ -312,6 +332,22 @@ export class CalendarComponent implements OnInit {
 
   public onEventClick(event: EventClickArg): void {
     this.eventClicked.emit(event);
+  }
+
+  public onEventDidMount(event: MountArg<EventContentArg>): void {
+    this.eventDidMount.emit(event);
+  }
+
+  public onEventWillUnmount(event: MountArg<EventContentArg>): void {
+    this.eventWillUnmount.emit(event);
+  }
+
+  public onEventMouseEnter(event: EventHoveringArg): void {
+    this.eventMouseEnter.emit(event);
+  }
+
+  public onEventMouseLeave(event: EventHoveringArg): void {
+    this.eventMouseLeave.emit(event);
   }
 
   public getEvents(): EventApi[] {

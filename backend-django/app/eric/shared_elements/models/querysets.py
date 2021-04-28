@@ -287,6 +287,13 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
 
         return self.viewable().union(booking_where_user_is_resource_editor)
 
+    def editor_viewable(self):
+        """ Bookings where the editors of a resource can see all bookings for that resource. """
+        from eric.projects.models.models import Resource
+
+        is_resource_editor = Q(resource__in=Resource.objects.editable())
+        return self.filter(is_resource_editor)
+
 
 class BaseMeetingPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
     """

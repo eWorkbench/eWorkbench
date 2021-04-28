@@ -79,6 +79,8 @@ export class ResourcesPageComponent implements OnInit {
 
   public searchControl = this.fb.control<string | null>(null);
 
+  public resourceControl = this.fb.control<string | null>(null);
+
   public params = new HttpParams();
 
   public users: User[] = [];
@@ -88,6 +90,10 @@ export class ResourcesPageComponent implements OnInit {
   public projects: Project[] = [];
 
   public projectsInput$ = new Subject<string>();
+
+  public resources: Resource[] = [];
+
+  public resourceInput$ = new Subject<string>();
 
   public showSidebar = false;
 

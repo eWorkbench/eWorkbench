@@ -1,0 +1,39 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="progress" *ngIf="getTotalTasks()" [popover]="progressPopover" triggers="mouseenter:mouseleave">
+    <div class="progress-bar bg-success" role="progressbar" [ngStyle]="{ width: progressbarValues.DONE }">
+      {{ progressbarValues.DONE }}
+    </div>
+    <div class="progress-bar bg-info" role="progressbar" [ngStyle]="{ width: progressbarValues.PROG }">
+      {{ progressbarValues.PROG }}
+    </div>
+    <div class="progress-bar bg-primary" role="progressbar" [ngStyle]="{ width: progressbarValues.NEW }">
+      {{ progressbarValues.NEW }}
+    </div>
+  </div>
+  <span *ngIf="!getTotalTasks()">
+    {{ t('projects.noTasks') }}
+  </span>
+</ng-container>
+<ng-template #progressPopover>
+  <ng-container *transloco="let t">
+    <div class="d-flex flex-column p-2">
+      <div class="legend-item mb-2">
+        <div class="d-inline-block square legend-item-done"></div>
+        {{ t('projects.progress.done') }}
+      </div>
+      <div class="legend-item mb-2">
+        <div class="d-inline-block square legend-item-in-progress"></div>
+        {{ t('projects.progress.inProgress') }}
+      </div>
+      <div class="legend-item">
+        <div class="d-inline-block square legend-item-new"></div>
+        {{ t('projects.progress.new') }}
+      </div>
+    </div>
+  </ng-container>
+</ng-template>

@@ -6,6 +6,13 @@
 <ng-container *transloco="let t">
   <eworkbench-header [title]="detailsTitle">
     <ng-container slot="elements" *ngIf="initialState">
+      <eworkbench-favorite-button
+        class="d-inline-block mr-2"
+        [id]="initialState?.pk"
+        [contentType]="initialState?.content_type"
+        [favorited]="initialState?.is_favourite"
+        btnClass="btn bg-transparent ewb-button-big square-md text-white"
+      ></eworkbench-favorite-button>
       <eworkbench-details-dropdown
         [service]="drivesService"
         [id]="id"
@@ -149,7 +156,7 @@
         </form>
       </eworkbench-collapse-element>
 
-      <eworkbench-storage-element [storage]="initialState" [collapsed]="false"></eworkbench-storage-element>
+      <eworkbench-storage-element [storage]="initialState" [collapsed]="false" [favoriteMarker]="false"></eworkbench-storage-element>
 
       <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="drivesService" class="mt-3"></eworkbench-link>
     </main>

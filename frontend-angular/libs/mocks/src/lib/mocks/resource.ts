@@ -55,6 +55,8 @@ export const mockResource: Resource = {
   terms_of_use_pdf: null,
   booking_rule_minimum_time_before: null,
   created_by: mockUser,
+  calendar_interval: 30,
+  is_favourite: false,
 };
 
 export const mockResourcesList: DjangoAPI<Resource[]> = {

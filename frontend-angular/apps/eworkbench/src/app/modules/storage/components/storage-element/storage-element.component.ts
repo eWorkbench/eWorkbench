@@ -35,6 +35,9 @@ export class StorageElementComponent implements OnInit {
   @Input()
   public collapsed = true;
 
+  @Input()
+  public favoriteMarker = true;
+
   public refresh = new EventEmitter<boolean>();
 
   public files: File[] = [];

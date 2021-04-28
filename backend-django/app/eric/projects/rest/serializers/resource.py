@@ -147,6 +147,8 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
             'booking_rule_maximum_time_before',
             'booking_rule_time_between',
             'booking_rule_bookings_per_user',
+            'is_favourite',
+            'calendar_interval',
         )
 
     projects = ProjectPrimaryKeyRelatedField(many=True, required=False)

@@ -35,4 +35,5 @@ export const mockFile: File = {
   display: 'ccitt_4.tif',
   pk: 'fff1d25f-f41c-42e0-93fb-bfb83c3411a5',
   last_modified_by: mockUser,
+  is_favourite: false,
 };

@@ -40,4 +40,5 @@ export interface Contact {
   email: string;
   created_by: User;
   pk: string;
+  is_favourite: boolean;
 }

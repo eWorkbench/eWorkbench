@@ -97,10 +97,10 @@ public dayHeaderFormat: CalendarDayHeaderFormat = {
 };
 
 @Input()
-public slotDuration = '00:30:00';
+public slotDuration: string | CalendarSlotInterval = '00:30:00';
 
 @Input()
-public slotLabelInterval: string | CalendarSlotLabelInterval = '01:00';
+public slotLabelInterval: string | CalendarSlotInterval = '01:00';
 
 @Input()
 public slotLabelFormat: CalendarDateFormat = {

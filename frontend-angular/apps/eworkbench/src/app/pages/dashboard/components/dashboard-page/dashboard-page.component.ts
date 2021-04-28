@@ -4,7 +4,18 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  Injector,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
@@ -18,7 +29,7 @@ import { NewResourceModalComponent } from '@app/pages/resources/components/modal
 import { AuthService, DashboardService, MyScheduleService, PageTitleService } from '@app/services';
 import { TableColumn } from '@eworkbench/table';
 import { Appointment, Dashboard, ModalCallback, Task, User } from '@eworkbench/types';
-import { DateSelectArg, DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/angular';
+import { DateSelectArg, DatesSetArg, EventClickArg, EventContentArg, EventHoveringArg, EventInput, MountArg } from '@fullcalendar/angular';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -26,6 +37,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { hierarchy, pack, scaleOrdinal, schemeCategory10, select } from 'd3';
 import { format, set } from 'date-fns';
 import { CalendarComponent } from 'libs/calendar/src/lib/components/calendar/calendar.component';
+import { CalendarPopoverWrapperComponent } from 'libs/calendar/src/lib/components/popover/popover.component';
 import { debounceTime, skip, take } from 'rxjs/operators';
 import { DeepPartial } from 'utility-types';
 
@@ -41,6 +53,9 @@ export class DashboardPageComponent implements OnInit {
 
   @ViewChild('calendar', { static: true })
   public calendar!: CalendarComponent;
+
+  @ViewChild('popoverTemplate', { static: true })
+  public popoverTemplate!: TemplateRef<any>;
 
   @ViewChild('taskTitleCellTemplate', { static: true })
   public taskTitleCellTemplate!: TemplateRef<any>;
@@ -136,6 +151,10 @@ export class DashboardPageComponent implements OnInit {
 
   public params = new HttpParams();
 
+  private readonly popoversMap = new Map<any, ComponentRef<CalendarPopoverWrapperComponent>>();
+
+  private readonly popoverFactory = this.resolver.resolveComponentFactory(CalendarPopoverWrapperComponent);
+
   public constructor(
     public readonly myScheduleService: MyScheduleService,
     private readonly router: Router,
@@ -146,7 +165,10 @@ export class DashboardPageComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
     private readonly pageTitleService: PageTitleService,
-    private readonly titleService: Title
+    private readonly titleService: Title,
+    private readonly resolver: ComponentFactoryResolver,
+    private readonly injector: Injector,
+    private readonly appRef: ApplicationRef
   ) {}
 
   public ngOnInit(): void {
@@ -426,11 +448,13 @@ export class DashboardPageComponent implements OnInit {
             event.end = (schedule as Task).due_date!;
             event.allDay = (schedule as Task).full_day;
             event.url = ['/tasks', schedule.pk].join('/');
+            event.extendedProps = { ...schedule };
           } else {
             event.start = (schedule as Appointment).date_time_start!;
             event.end = (schedule as Appointment).date_time_end!;
             event.allDay = (schedule as Appointment).full_day;
             event.url = ['/appointments', schedule.pk].join('/');
+            event.extendedProps = { ...schedule };
           }
 
           /* istanbul ignore next */
@@ -482,6 +506,9 @@ export class DashboardPageComponent implements OnInit {
           end: event.end,
           allDay: event.fullDay,
           url: event.url,
+          extendedProps: {
+            ...callback.data?.newContent,
+          },
         });
         this.cdr.markForCheck();
       }
@@ -544,6 +571,40 @@ export class DashboardPageComponent implements OnInit {
     if (event.event.url) {
       this.router.navigate([event.event.url]);
     }
+  }
+
+  public onEventDidMount(event: MountArg<EventContentArg>): void {
+    const projectableNodes = Array.from(event.el.childNodes);
+
+    const compRef = this.popoverFactory.create(this.injector, [projectableNodes], event.el);
+    compRef.instance.template = this.popoverTemplate;
+
+    this.appRef.attachView(compRef.hostView);
+    this.popoversMap.set(event.el, compRef);
+  }
+
+  public onEventWillUnmount(event: MountArg<EventContentArg>): void {
+    const popover = this.popoversMap.get(event.el);
+    if (popover) {
+      this.appRef.detachView(popover.hostView);
+      popover.destroy();
+      this.popoversMap.delete(event.el);
+    }
+  }
+
+  public onEventMouseEnter(event: EventHoveringArg): void {
+    const popover = this.popoversMap.get(event.el);
+    if (popover) {
+      popover.instance.popover.popoverTitle = event.event.title;
+      popover.instance.popover.popover = this.popoverTemplate;
+      popover.instance.popover.popoverContext = { event: event.event };
+      popover.instance.popover.show();
+    }
+  }
+
+  public onEventMouseLeave(event: EventHoveringArg): void {
+    const popover = this.popoversMap.get(event.el);
+    popover?.instance.popover.hide();
   }
 
   public onRenderCalendar(collapsed: boolean): void {

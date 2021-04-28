@@ -18,7 +18,10 @@ import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
 import { TableModule } from '@eworkbench/table';
+import { PopoverModule } from 'ngx-bootstrap/popover';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { FavoritesModule } from '../favorites/favorites.module';
+import { AllResourceBookingsComponent } from './components/all-bookings/all-bookings.component';
 import { ResourceBookingCalendarComponent } from './components/booking-calendar/booking-calendar.component';
 import { ResourceBookingRulesBookableTimeSlotsComponent } from './components/booking-rules-bookable-time-slots/booking-rules-bookable-time-slots.component';
 import { ResourceBookingRulesBookingsPerUserElementComponent } from './components/booking-rules-bookings-per-user-element/booking-rules-bookings-per-user-element.component';
@@ -42,6 +45,7 @@ import { ResourceTypeComponent } from './components/resource-type/resource-type.
     ResourceBookingCalendarComponent,
     ResourceTypeComponent,
     ResourceAvailabilityComponent,
+    AllResourceBookingsComponent,
   ],
   imports: [
     CommonModule,
@@ -57,6 +61,8 @@ import { ResourceTypeComponent } from './components/resource-type/resource-type.
     CalendarModule,
     IconsModule,
     TooltipModule.forRoot(),
+    PopoverModule.forRoot(),
+    FavoritesModule,
   ],
   exports: [
     ResourceBookingRulesComponent,
@@ -69,6 +75,7 @@ import { ResourceTypeComponent } from './components/resource-type/resource-type.
     ResourceBookingCalendarComponent,
     ResourceTypeComponent,
     ResourceAvailabilityComponent,
+    AllResourceBookingsComponent,
   ],
 })
 export class ResourceModule {}

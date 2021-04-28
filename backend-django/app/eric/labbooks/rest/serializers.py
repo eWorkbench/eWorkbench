@@ -82,7 +82,7 @@ class LabBookSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
             'title', 'description', 'is_template', 'projects',
             'url',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'metadata',
+            'metadata', 'is_favourite'
         )
 
     @transaction.atomic

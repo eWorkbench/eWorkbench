@@ -143,7 +143,7 @@ class KanbanBoardSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer):
             'background_image', 'download_background_image',
             'background_image_thumbnail', 'download_background_image_thumbnail',
             'background_color',
-            'url', 'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
+            'url', 'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number', 'is_favourite'
         )
 
     def get_download_background_image(self, obj):

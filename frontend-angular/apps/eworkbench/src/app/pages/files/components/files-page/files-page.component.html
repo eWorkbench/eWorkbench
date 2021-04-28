@@ -161,7 +161,20 @@
     </ng-template>
     <ng-template #actionsCellTemplate let-row>
       <div class="text-right">
-        <eworkbench-trash-button [service]="filesService" [id]="row.pk" [tableView]="tableView"></eworkbench-trash-button>
+        <div class="text-right">
+          <eworkbench-favorite-button
+            class="d-inline-block mr-2"
+            [id]="row.pk"
+            [contentType]="row.content_type"
+            [favorited]="row.is_favourite"
+          ></eworkbench-favorite-button>
+          <eworkbench-trash-button
+            class="d-inline-block"
+            [service]="filesService"
+            [id]="row.pk"
+            [tableView]="tableView"
+          ></eworkbench-trash-button>
+        </div>
       </div>
     </ng-template>
   </main>

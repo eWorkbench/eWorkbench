@@ -28,6 +28,7 @@ export interface ResourcePayload {
   terms_of_use_pdf?: string | null;
   projects?: string[];
   metadata?: Metadata[];
+  calendar_interval?: number;
 }
 
 export interface Resource {
@@ -67,6 +68,8 @@ export interface Resource {
   booking_rule_maximum_time_before: BookingRuleDuration | null;
   booking_rule_time_between: BookingRuleDuration | null;
   color?: string;
+  calendar_interval: number;
+  is_favourite: boolean;
 }
 
 export interface BookingRuleDuration {

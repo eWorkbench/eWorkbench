@@ -1317,3 +1317,11 @@ class ResourceBookingMixin:
             f'/api/resourcebookings/my/{url_param_str}',
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
+
+    def rest_get_editor_resourcebookings(self, auth_token, url_param_str=''):
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            f'/api/resourcebookings/editor/{url_param_str}',
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )

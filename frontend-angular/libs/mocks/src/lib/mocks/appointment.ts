@@ -54,6 +54,7 @@ export const mockAppointment: Appointment = {
   created_by: mockUser,
   last_modified_by: mockUser,
   full_day: false,
+  is_favourite: false,
 };
 
 export const mockAppointmentsList: DjangoAPI<Appointment[]> = {

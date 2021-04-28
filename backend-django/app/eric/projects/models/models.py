@@ -16,6 +16,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadhandler import MemoryFileUploadHandler
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Case, Value, When
 from django.db.models.functions import Concat
@@ -29,7 +30,7 @@ from django_userforeignkey.request import get_current_user
 
 from eric.core.admin.is_deleteable import IsDeleteableMixin
 from eric.core.models import BaseModel, LockMixin
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin
+from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, IsFavouriteMixin
 from eric.metadata.models.fields import MetadataRelation
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
 from eric.projects.models.cache import ALL_PROJECTS_CACHE_KEY, get_cache_key_for_sub_projects
@@ -221,7 +222,7 @@ class ElementLock(BaseModel):
 
 
 class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn,
-              WorkbenchEntityMixin):
+              WorkbenchEntityMixin, IsFavouriteMixin):
     """ Defines a project with a name, description, state, several dates, etc... """
     objects = ProjectManager()
 
@@ -1074,7 +1075,7 @@ class FileSystemStorageLimitByUserUploadHandler(MemoryFileUploadHandler):
 
 
 class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin, SoftDeleteMixin, RelationsMixIn,
-               ModelPrivilegeMixIn, WorkbenchEntityMixin):
+               ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
     """ A resource for meetings (Room, device, ...) """
     objects = ResourceManager()
 
@@ -1217,6 +1218,16 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         verbose_name=_("The selected users this resource is available for"),
         related_name="resources",
         blank=True,
+    )
+
+    calendar_interval = models.PositiveSmallIntegerField(
+        verbose_name=_('resource calendar interval in minutes'),
+        default=30,
+        blank=True,
+        validators=[
+            MaxValueValidator(1440),
+            MinValueValidator(1)
+        ]
     )
 
     metadata = MetadataRelation()

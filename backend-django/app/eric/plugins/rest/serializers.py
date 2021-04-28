@@ -130,6 +130,7 @@ class PluginInstanceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, En
             'pk', 'url', 'title', 'plugin', 'auth_url',
             'rawdata', 'download_rawdata', 'rawdata_mime_type', 'rawdata_size', 'picture', 'picture_mime_type',
             'picture_size', 'download_picture', 'projects', 'version_number', 'metadata', 'plugin_details',
+            'is_favourite'
         )
         read_only_fields = ('plugin_details', 'rawdata_mime_type', 'rawdata_size', 'picture_mime_type', 'picture_size',)
 

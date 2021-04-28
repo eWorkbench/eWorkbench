@@ -16,6 +16,7 @@ import { ResourceModule } from '@app/modules/resource/resource.module';
 import { CustomControlErrorComponent } from '@app/modules/shared/control-error/control-error.component';
 import { SharedModule } from '@app/modules/shared/shared.module';
 import { TaskModule } from '@app/modules/task/task.module';
+import { UserModule } from '@app/modules/user/user.module';
 import { TranslocoRootModule } from '@app/transloco-root.module';
 import { CalendarModule } from '@eworkbench/calendar';
 import { FormsModule } from '@eworkbench/forms';
@@ -65,6 +66,7 @@ import { DashboardPageRoutingModule } from './dashboard-page-routing.module';
     AppointmentModule,
     TooltipModule.forRoot(),
     CollapseModule.forRoot(),
+    UserModule,
   ],
 })
 export class DashboardPageModule {}

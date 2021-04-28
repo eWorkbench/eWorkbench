@@ -6,6 +6,13 @@
 <ng-container *transloco="let t">
   <eworkbench-header [title]="detailsTitle">
     <ng-container slot="elements" *ngIf="initialState">
+      <eworkbench-favorite-button
+        class="d-inline-block mr-2"
+        [id]="initialState?.pk"
+        [contentType]="initialState?.content_type"
+        [favorited]="initialState?.is_favourite"
+        btnClass="btn bg-transparent ewb-button-big square-md text-white"
+      ></eworkbench-favorite-button>
       <eworkbench-details-dropdown
         [service]="dmpService"
         [id]="id"
@@ -160,7 +167,7 @@
               [changesId]="id"
               [refresh]="refreshChanges"
             ></eworkbench-recent-changes>
-            <div class="mb-1">
+            <div class="mt-2 mb-1">
               <label for="versions">{{ t('dmp.details.versions.label') }}</label>
             </div>
             <eworkbench-versions
@@ -193,10 +200,7 @@
                 *ngIf="data.type === 'TXA'"
               ></eworkbench-wysiwyg-editor>
             </div>
-            <div>
-              <div class="font-weight-bold">{{ t('dmp.details.formData.guidance') }}</div>
-              <div [innerHTML]="data.infotext | safeHTML"></div>
-            </div>
+            <div [innerHTML]="data.infotext | safeHTML"></div>
           </div>
           <div class="dmp form-data-buttons mb-4">
             <div>

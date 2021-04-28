@@ -8,6 +8,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
+import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LabelModule } from '@app/modules/label/label.module';
@@ -76,6 +77,7 @@ import { TasksPageRoutingModule } from './tasks-page-routing.module';
     TaskModule,
     SkeletonsModule,
     LinkModule,
+    FavoritesModule,
   ],
 })
 export class TasksPageModule {}

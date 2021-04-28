@@ -1,3 +1,10 @@
+/* istanbul ignore file */
+
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 import { mockUser } from '@eworkbench/mocks';
 import { DssContainer } from '@eworkbench/types';
 
@@ -19,4 +26,5 @@ export const mockDssContainer: DssContainer = {
   name: 'aster-test2',
   created_at: '2021-03-03T12:57:33.630625+01:00',
   read_write_setting: 'RWA',
+  is_favourite: false,
 };

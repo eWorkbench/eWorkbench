@@ -36,7 +36,7 @@ class MeetingViewSet(
     filterset_class = MeetingFilter
     search_fields = ()
     ordering_fields = ('date_time_start', 'date_time_end', 'title', 'location', 'created_at', 'created_by',
-                       'last_modified_at', 'last_modified_by')
+                       'last_modified_at', 'last_modified_by', 'resource__name',)
 
     def perform_create(self, serializer):
         """
@@ -232,3 +232,72 @@ class AllResourceBookingViewSet(BaseViewSetMixin, mixins.ListModelMixin, Generic
         ).data
 
         return Response(full_info_meetings + limited_info_meetings)
+
+
+class EditorResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetMixIn):
+    serializer_class = MeetingSerializer
+    filter_class = MeetingFilter
+    search_fields = ()
+    ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
+                       'date_time_start', 'date_time_end',
+                       'text', 'created_by', 'created_at')
+
+    # disable pagination for this endpoint
+    pagination_class = None
+
+    def get_queryset(self):
+        return Meeting.objects \
+            .filter(deleted=False, resource__deleted=False, resource__isnull=False) \
+            .prefetch_common() \
+            .prefetch_related('projects')
+
+    def list(self, request, *args, **kwargs):
+        # apply ViewSet filters
+        meetings_qs = self.filter_queryset(self.get_queryset())
+
+        # build query for bookings with access to all data for editors of the resource
+        editor_qs = meetings_qs.editor_viewable()
+        editor_meetings = self.serializer_class(
+            editor_qs, many=True, context={'request': self.request}
+        ).data
+
+        return Response(editor_meetings)
+
+    @action(detail=True, methods=['GET'])
+    def export(self, request, format=None, *args, **kwargs):
+        """ Endpoint for the EditorResourceBooking Export """
+
+        return ExportableViewSetMixIn.export(self, request, *args, **kwargs)
+
+    @action(detail=False, methods=['GET'], url_path='export_many/(?P<pk_list>[^/.]+)')
+    def export_many(self, request, pk_list, *args, **kwargs):
+        """ Endpoint for the EditorResourceBooking Export """
+        now = datetime.now()
+
+        booking_pks = pk_list.split(',')
+
+        booking_objects = Meeting.objects.filter(pk__in=booking_pks)
+
+        filepath = 'export/meeting_many.html'
+        filename = f'appointment_resource_bookings_editor_{now}.pdf'
+
+        # provide a context for rendering
+        context = {
+            'instances': booking_objects,
+            'now': now
+        }
+
+        # render the HTML to a string
+        export = render_to_string(filepath, context)
+        # and convert it into a PDF document
+        pdf_document = HTML(string=force_text(export).encode('UTF-8')).render()
+        export = pdf_document.write_pdf()
+
+        # finally, respond with the PDF document
+        response = HttpResponse(export)
+        # inline content -> enables displaying the file in the browser
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        # Deactivate debug toolbar by setting content type != text/html
+        response['Content-Type'] = 'application/pdf;'
+
+        return response

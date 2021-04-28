@@ -6,6 +6,13 @@
 <ng-container *transloco="let t">
   <eworkbench-header [title]="detailsTitle">
     <ng-container slot="elements" *ngIf="initialState">
+      <eworkbench-favorite-button
+        class="d-inline-block mr-2"
+        [id]="initialState?.pk"
+        [contentType]="initialState?.content_type"
+        [favorited]="initialState?.is_favourite"
+        btnClass="btn bg-transparent ewb-button-big square-md text-white"
+      ></eworkbench-favorite-button>
       <eworkbench-details-dropdown
         [service]="labBooksService"
         [id]="id"
@@ -135,7 +142,7 @@
               [changesId]="id"
               [refresh]="refreshChanges"
             ></eworkbench-recent-changes>
-            <div class="mb-1">
+            <div class="mt-2 mb-1">
               <label for="versions">{{ t('labBook.details.versions.label') }}</label>
             </div>
             <eworkbench-versions

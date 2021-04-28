@@ -38,4 +38,5 @@ export interface Drive {
   url: string;
   version_number: number;
   webdav_url: string;
+  is_favourite: boolean;
 }

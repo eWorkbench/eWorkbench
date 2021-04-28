@@ -201,6 +201,7 @@ class ProjectSerializerExtended(BaseModelWithCreatedByAndSoftDeleteSerializer):
             'url',
             'resources',
             'project_tree',
+            'is_favourite'
         )
         read_only_fields = (
             'created_by', 'created_at',

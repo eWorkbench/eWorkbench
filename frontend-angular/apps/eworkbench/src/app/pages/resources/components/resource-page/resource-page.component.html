@@ -6,6 +6,13 @@
 <ng-container *transloco="let t">
   <eworkbench-header [title]="detailsTitle">
     <ng-container slot="elements" *ngIf="initialState">
+      <eworkbench-favorite-button
+        class="d-inline-block mr-2"
+        [id]="initialState?.pk"
+        [contentType]="initialState?.content_type"
+        [favorited]="initialState?.is_favourite"
+        btnClass="btn bg-transparent ewb-button-big square-md text-white"
+      ></eworkbench-favorite-button>
       <eworkbench-details-dropdown
         [service]="resourcesService"
         [id]="id"
@@ -285,6 +292,25 @@
             </div>
             <div class="mb-4">
               <eworkbench-form-input
+                for="calendar-interval"
+                [label]="t('resource.details.calendarInterval.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+                [required]="true"
+              >
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="calendar-interval"
+                  formControlName="calendarInterval"
+                  name="calendar-interval"
+                  [placeholder]="t('resource.details.calendarInterval.placeholder')"
+                  slot="input"
+                />
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
                 for="projects"
                 [label]="t('resource.details.projects.label')"
                 [loading]="loading"
@@ -385,11 +411,15 @@
       </eworkbench-collapse-element>
     </ng-container>
 
-    <eworkbench-resource-booking-calendar
-      [resource]="initialState"
-      (changed)="onResourceBooked()"
-      *ngIf="initialState"
-    ></eworkbench-resource-booking-calendar>
+    <div class="resource-booking-calendar">
+      <eworkbench-resource-booking-calendar
+        [resource]="initialState"
+        [interval]="initialState?.calendar_interval"
+        [onSubmit]="refreshInitialState"
+        (changed)="onResourceBooked()"
+        *ngIf="initialState && !updateInProgress"
+      ></eworkbench-resource-booking-calendar>
+    </div>
 
     <form (ngSubmit)="onSubmit()" class="mt-5">
       <eworkbench-resource-booking-rules
@@ -408,6 +438,14 @@
         *ngIf="initialState"
       ></eworkbench-resource-booking-rules>
     </form>
+
+    <div class="mt-5" *ngIf="privileges?.edit">
+      <eworkbench-all-resource-bookings
+        [resourceId]="initialState?.pk"
+        [refresh]="refreshMyBookings"
+        *ngIf="initialState"
+      ></eworkbench-all-resource-bookings>
+    </div>
 
     <div class="mt-5">
       <eworkbench-my-resource-bookings

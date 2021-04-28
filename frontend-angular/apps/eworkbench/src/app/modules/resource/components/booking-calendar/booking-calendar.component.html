@@ -7,8 +7,42 @@
   #calendar
   [headerToolbar]="headerToolbar"
   [customButtons]="customButtons"
+  [slotDuration]="{ minutes: interval }"
   initialView="timeGridWeek"
   (datesSet)="onDatesSet($event)"
   (selected)="onSelect($event)"
   (eventClicked)="onEventClicked($event)"
+  (eventDidMount)="onEventDidMount($event)"
+  (eventWillUnmount)="onEventWillUnmount($event)"
+  (eventMouseEnter)="onEventMouseEnter($event)"
+  (eventMouseLeave)="onEventMouseLeave($event)"
 ></eworkbench-calendar>
+
+<ng-template #popoverTemplate let-event="event">
+  <ng-container *transloco="let t">
+    <ng-container *ngIf="!event.allDay">
+      <div>
+        <strong>{{ t('appointment.details.startDate.label') }}:</strong>
+        {{ event.startStr | formatDate }}
+      </div>
+      <div>
+        <strong>{{ t('appointment.details.endDate.label') }}:</strong>
+        {{ event.endStr | formatDate }}
+      </div>
+    </ng-container>
+    <ng-container *ngIf="event.allDay">
+      <strong>{{ t('calendar.popover.date.label') }}:</strong>
+      {{ event.startStr | formatDate: 'yyyy-MM-dd' }}
+    </ng-container>
+    <div *ngIf="event.extendedProps?.attending_users?.length">
+      <strong class="mr-1">{{ t('appointment.details.attendingUsers.label') }}:</strong>
+      <ng-container *ngFor="let user of event.extendedProps.attending_users; let last = last">
+        <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details><span *ngIf="!last">, </span>
+      </ng-container>
+    </div>
+    <div *ngIf="event.extendedProps?.resource">
+      <strong>{{ t('appointment.details.resource.label') }}:</strong>
+      {{ event.extendedProps.resource.display }}
+    </div>
+  </ng-container>
+</ng-template>

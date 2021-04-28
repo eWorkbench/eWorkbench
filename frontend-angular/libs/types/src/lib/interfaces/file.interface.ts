@@ -44,4 +44,5 @@ export interface File {
   title: string;
   url: string;
   version_number: number;
+  is_favourite: boolean;
 }

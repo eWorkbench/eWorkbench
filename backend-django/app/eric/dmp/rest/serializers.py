@@ -65,7 +65,7 @@ class DmpSerializerExtended(BaseModelWithCreatedByAndSoftDeleteSerializer, Entit
         fields = (
             'url', 'title', 'status', 'dmp_form', 'dmp_form_title', 'dmp_form_data', 'projects',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'metadata',
+            'metadata', 'is_favourite'
         )
 
     def get_dmp_form_title(self, dmp):

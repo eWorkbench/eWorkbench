@@ -43,7 +43,12 @@
       <div class="body">
         <eworkbench-lock [id]="element.child_object_id" [lock]="lock" [lockUser]="lockUser" [service]="notesService"></eworkbench-lock>
         <eworkbench-form-input [for]="'content-' + uniqueHash" [loading]="loading" [margin]="false" [onSubmit]="refreshResetValue">
-          <eworkbench-wysiwyg-editor [id]="'content-' + uniqueHash" formControlName="content" slot="input"></eworkbench-wysiwyg-editor>
+          <eworkbench-wysiwyg-editor
+            [id]="'content-' + uniqueHash"
+            [maxHeight]="false"
+            formControlName="content"
+            slot="input"
+          ></eworkbench-wysiwyg-editor>
         </eworkbench-form-input>
       </div>
       <div class="footer">

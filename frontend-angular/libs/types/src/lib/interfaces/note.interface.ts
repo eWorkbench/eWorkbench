@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { User } from './user.interface';
 import { Metadata } from './metadata.interface';
+import { User } from './user.interface';
 
 export interface NotePayload {
   subject: string;
@@ -29,4 +29,5 @@ export interface Note {
   deleted: boolean;
   created_by: User;
   pk: string;
+  is_favourite: boolean;
 }

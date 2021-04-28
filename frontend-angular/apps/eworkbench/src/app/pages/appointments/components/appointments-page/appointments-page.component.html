@@ -66,7 +66,7 @@
           </ng-select>
         </div>
 
-        <div class="search-input">
+        <div class="search-input mr-2">
           <div class="input-group search-input-group">
             <input
               type="text"
@@ -88,6 +88,20 @@
               <eworkbench-icon className="wb-remove"></eworkbench-icon>
             </button>
           </div>
+        </div>
+
+        <div class="search-input">
+          <ng-select
+            class="ewb-select"
+            [formControl]="resourceControl"
+            labelForId="resource-header"
+            name="resource-header"
+            [placeholder]="t('appointments.header.resource.placeholder')"
+            [typeahead]="resourceInput$"
+            [items]="resources"
+            bindLabel="display"
+            bindValue="pk"
+          ></ng-select>
         </div>
       </div>
     </ng-container>
@@ -150,9 +164,23 @@
     <ng-template #lastModifiedByCellTemplate let-row>
       <eworkbench-user-details [user]="row.last_modified_by"></eworkbench-user-details>
     </ng-template>
+    <ng-template #resourceCellTemplate let-row>
+      <a [routerLink]="['/resources', row.resource.pk]" *ngIf="row.resource">{{ row.resource.display }}</a>
+    </ng-template>
     <ng-template #actionsCellTemplate let-row>
       <div class="text-right">
-        <eworkbench-trash-button [service]="appointmentsService" [id]="row.pk" [tableView]="tableView"></eworkbench-trash-button>
+        <eworkbench-favorite-button
+          class="d-inline-block mr-2"
+          [id]="row.pk"
+          [contentType]="row.content_type"
+          [favorited]="row.is_favourite"
+        ></eworkbench-favorite-button>
+        <eworkbench-trash-button
+          class="d-inline-block"
+          [service]="appointmentsService"
+          [id]="row.pk"
+          [tableView]="tableView"
+        ></eworkbench-trash-button>
       </div>
     </ng-template>
   </main>

@@ -21,6 +21,7 @@ export * from './lib/interfaces/dss-container.interface';
 export * from './lib/interfaces/envelope.interface';
 export * from './lib/interfaces/export-link.interface';
 export * from './lib/interfaces/export-service.interface';
+export * from './lib/interfaces/favorite.interface';
 export * from './lib/interfaces/file.interface';
 export * from './lib/interfaces/labbook-element.interface';
 export * from './lib/interfaces/labbook-section.interface';

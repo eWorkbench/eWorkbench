@@ -138,6 +138,7 @@ export const mockProject: Project = {
   project_tree: [{ pk: '415107a9-23e6-4f70-82b3-2fe5ea04eb3a', name: 'Test Projekt', parent_project: null }],
   files: 'http://workbench.local:8000/api/files/?project=415107a9-23e6-4f70-82b3-2fe5ea04eb3a',
   contacts: 'http://workbench.local:8000/api/contacts/?project=415107a9-23e6-4f70-82b3-2fe5ea04eb3a',
+  is_favourite: false,
 };
 
 export const mockProjectsList: DjangoAPI<Project[]> = {

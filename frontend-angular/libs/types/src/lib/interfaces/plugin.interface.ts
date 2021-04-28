@@ -60,6 +60,7 @@ export interface PluginInstance {
   rawdata_mime_type: string;
   rawdata_size: number;
   download_rawdata: string | null;
+  is_favourite: boolean;
 }
 
 export interface PluginFeedbackPayload {

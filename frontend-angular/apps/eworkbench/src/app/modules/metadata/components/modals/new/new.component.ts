@@ -34,6 +34,8 @@ interface FormMetadata {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewMetadataFieldComponent implements OnInit {
+  public name?: string = this.modalRef.data?.name ?? null;
+
   public baseTypes: DropdownElement[] = [];
 
   public currentUser: User | null = null;
@@ -177,6 +179,7 @@ export class NewMetadataFieldComponent implements OnInit {
   public patchFormValues(): void {
     this.form.patchValue(
       {
+        name: this.name,
         baseType: 'whole_number',
         final: true,
         multipleSelect: true,

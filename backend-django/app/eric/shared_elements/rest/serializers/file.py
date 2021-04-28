@@ -78,7 +78,7 @@ class FileSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetada
             'title', 'name', 'description', 'path', 'original_filename', 'mime_type', 'projects', 'url',
             'download', 'file_size', 'directory_id', 'envelope_id', 'container_id', 'is_dss_file', 'location',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'metadata', 'imported',
+            'metadata', 'imported', 'is_favourite'
         )
         read_only_fields = ('original_filename', 'mime_type', 'file_size', 'mime_type')
 

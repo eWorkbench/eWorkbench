@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.1.1 - April 2021
+- [SITUMEWB-647] Fixed resourcebooking validation: ignore trashed appointments
+- [SITUMEWB-411] Added favorite marking in list and detail views
+- [SITUMEWB-638] Changed resource ordering in appointments
+- [SITUMEWB-645] Changed calendar slot labels to 24h format
+- [SITUMEWB-543] Small frontend changes to DMP implementation
+
+## Version 2.1 - April 2021
+- [SITUMEWB-638] Added resource filter and column in the appointment list
+- [SITUMEWB-639] Added adjustable granularity for the resource calendar
+- [SITUMEWB-640] Added all bookings visible for editors of a resource
+- [SITUMEWB-637] Adjusted visibility of data in the resource calendar
+- [SITUMEWB-411] Added is_favourite flag for workbench elements
+
 ## Version 2.0.3 - April 2021
 - [SITUMEWB-620] User search: increase results to 50
 - [SITUMEWB-320] Add project gantt chart

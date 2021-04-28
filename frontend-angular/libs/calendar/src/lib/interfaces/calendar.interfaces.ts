@@ -12,7 +12,7 @@ export interface CalendarDayHeaderFormat {
   omitCommas?: boolean;
 }
 
-export interface CalendarSlotLabelInterval {
+export interface CalendarSlotInterval {
   hours?: number;
   minutes?: number;
 }

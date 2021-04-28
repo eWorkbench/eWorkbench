@@ -57,6 +57,7 @@ export const mockDMP: DMP = {
   last_modified_by: mockUser,
   display: 'A DMP SORTING',
   dmp_form: '802eb7fa-49f4-443a-8e2f-f17e20979ef3',
+  is_favourite: false,
 };
 
 export const mockDMPsList: DjangoAPI<DMP[]> = {

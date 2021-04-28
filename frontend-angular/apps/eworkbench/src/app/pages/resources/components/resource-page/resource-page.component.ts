@@ -55,6 +55,7 @@ interface FormResource {
   userAvailabilitySelectedUsers: number[] | null;
   projects: string[];
   termsOfUsePDF: File | string | null;
+  calendarInterval: number;
 }
 
 @UntilDestroy()
@@ -130,7 +131,10 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
     userAvailabilitySelectedUsers: [[]],
     projects: [[]],
     termsOfUsePDF: [null],
+    calendarInterval: [30],
   });
+
+  public updateInProgress = false;
 
   public constructor(
     public readonly resourcesService: ResourcesService,
@@ -191,6 +195,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       booking_rule_bookable_hours: this.bookingRules?.booking_rule_bookable_hours,
       booking_rule_bookings_per_user: this.bookingRules?.booking_rule_bookings_per_user,
       projects: this.f.projects.value,
+      calendar_interval: this.f.calendarInterval.value,
       metadata: this.metadata,
     };
   }
@@ -347,6 +352,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
                 userAvailabilitySelectedUsers: resource.user_availability_selected_user_pks,
                 projects: resource.projects,
                 termsOfUsePDF: resource.terms_of_use_pdf,
+                calendarInterval: resource.calendar_interval,
               },
               { emitEvent: false }
             );
@@ -460,6 +466,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       return;
     }
     this.loading = true;
+    this.updateInProgress = true;
 
     this.resourcesService
       .patch(this.id, this.resource)
@@ -481,6 +488,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
           this.refreshInitialState.next(this.initialState);
 
           this.loading = false;
+          this.updateInProgress = false;
           this.cdr.markForCheck();
           this.translocoService
             .selectTranslate('resource.details.toastr.success')

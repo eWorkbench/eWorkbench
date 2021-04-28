@@ -23,20 +23,6 @@
       (columnsChanged)="onColumnsChanged($event)"
     ></eworkbench-table-manage-columns>
     <eworkbench-tree-view #treeView [columns]="listColumns" [params]="serviceParams" [service]="projectsService"></eworkbench-tree-view>
-    <div class="legend">
-      <div class="legend-item">
-        <div class="d-inline-block square-md legend-item-done"></div>
-        {{ t('projects.progress.done') }}
-      </div>
-      <div class="legend-item">
-        <div class="d-inline-block square-md legend-item-in-progress"></div>
-        {{ t('projects.progress.inProgress') }}
-      </div>
-      <div class="legend-item">
-        <div class="d-inline-block square-md legend-item-new"></div>
-        {{ t('projects.progress.new') }}
-      </div>
-    </div>
   </main>
 </ng-container>
 
@@ -46,58 +32,7 @@
   </eworkbench-ellipsis-element>
 </ng-template>
 <ng-template #progressCellTemplate let-row>
-  <ng-container *transloco="let t">
-    <div class="progress" *ngIf="row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE">
-      <div
-        class="progress-bar bg-success"
-        role="progressbar"
-        [ngStyle]="{ width: progressbarValues(row)[0].label }"
-        [tooltip]="
-          t('projects.progress.done') +
-          ': ' +
-          row.tasks_status.DONE +
-          ' / ' +
-          (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)
-        "
-        containerClass="tooltip-sm"
-      >
-        {{ progressbarValues(row)[0].label }}
-      </div>
-      <div
-        class="progress-bar bg-info"
-        role="progressbar"
-        [ngStyle]="{ width: progressbarValues(row)[1].label }"
-        [tooltip]="
-          t('projects.progress.inProgress') +
-          ': ' +
-          row.tasks_status.PROG +
-          ' / ' +
-          (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)
-        "
-        containerClass="tooltip-sm"
-      >
-        {{ progressbarValues(row)[1].label }}
-      </div>
-      <div
-        class="progress-bar bg-primary"
-        role="progressbar"
-        [ngStyle]="{ width: progressbarValues(row)[2].label }"
-        [tooltip]="
-          t('projects.progress.new') +
-          ': ' +
-          row.tasks_status.NEW +
-          ' / ' +
-          (row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)
-        "
-        containerClass="tooltip-sm"
-      >
-        {{ progressbarValues(row)[2].label }}
-      </div>
-    </div>
-    <span *ngIf="!(row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE)">
-      {{ t('projects.noTasks') }}
-    </span>
-  </ng-container>
+  <eworkbench-project-progress-bar [project]="row"></eworkbench-project-progress-bar>
 </ng-template>
 <ng-template #startDateCellTemplate let-row>
   {{ row.start_date | formatDate: 'yyyy-MM-dd' }}
@@ -113,6 +48,17 @@
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
   <div class="text-right">
-    <eworkbench-trash-button [service]="projectsService" [id]="row.pk" [tableView]="treeView"></eworkbench-trash-button>
+    <eworkbench-favorite-button
+      class="d-inline-block mr-2"
+      [id]="row.pk"
+      [contentType]="row.content_type"
+      [favorited]="row.is_favourite"
+    ></eworkbench-favorite-button>
+    <eworkbench-trash-button
+      class="d-inline-block"
+      [service]="projectsService"
+      [id]="row.pk"
+      [tableView]="tableView"
+    ></eworkbench-trash-button>
   </div>
 </ng-template>

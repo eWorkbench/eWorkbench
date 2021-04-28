@@ -31,4 +31,5 @@ export interface DssContainer {
   projects: string[];
   read_write_setting: 'RO' | 'RWNN' | 'RWON' | 'RWA';
   url: string;
+  is_favourite: boolean;
 }

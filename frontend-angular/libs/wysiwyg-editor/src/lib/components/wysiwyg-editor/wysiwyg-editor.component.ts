@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { AfterViewInit, ChangeDetectorRef, Component, Input, Self, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit, Self, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { EditorComponent } from '@tinymce/tinymce-angular';
 
@@ -12,9 +12,12 @@ import { EditorComponent } from '@tinymce/tinymce-angular';
   templateUrl: './wysiwyg-editor.component.html',
   styleUrls: ['./wysiwyg-editor.component.scss'],
 })
-export class WysiwygEditorComponent implements ControlValueAccessor, AfterViewInit {
+export class WysiwygEditorComponent implements ControlValueAccessor, OnInit, AfterViewInit {
   @Input()
   public id?: string;
+
+  @Input()
+  public maxHeight: number | false = 500;
 
   public init = {
     base_url: '/tinymce',
@@ -22,7 +25,7 @@ export class WysiwygEditorComponent implements ControlValueAccessor, AfterViewIn
     menubar: false,
     statusbar: false,
     branding: false,
-    max_height: 500,
+    max_height: this.maxHeight,
     external_plugins: {
       formula: 'plugins/tinymce-formula/plugin.js',
     },
@@ -92,6 +95,10 @@ export class WysiwygEditorComponent implements ControlValueAccessor, AfterViewIn
 
   public constructor(@Self() public readonly ngControl: NgControl, private readonly cdr: ChangeDetectorRef) {
     ngControl.valueAccessor = this;
+  }
+
+  public ngOnInit(): void {
+    this.init.max_height = this.maxHeight;
   }
 
   public ngAfterViewInit(): void {

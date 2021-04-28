@@ -13,12 +13,13 @@ import {
 } from '@fullcalendar/angular';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import Chance from 'chance';
+import { PopoverModule } from 'ngx-bootstrap/popover';
 import {
   CalendarCustomButtons,
   CalendarDateFormat,
   CalendarDayHeaderFormat,
   CalendarDayPopoverFormat,
-  CalendarSlotLabelInterval,
+  CalendarSlotInterval,
   CalendarTimeFormat,
 } from '../../interfaces/calendar.interfaces';
 import { CalendarComponent } from './calendar.component';
@@ -88,7 +89,7 @@ describe('CalendarComponent', () => {
   let expectedString: string;
   const createComponent = createComponentFactory({
     component: CalendarComponent,
-    imports: [FullCalendarModule],
+    imports: [FullCalendarModule, PopoverModule.forRoot()],
   });
 
   beforeEach(() => (spectator = createComponent()));
@@ -502,8 +503,16 @@ describe('CalendarComponent', () => {
     expect(spectator.component.dayHeaderFormatMonthView).toBe(expectedValue);
   });
 
-  it('should set slot duration', () => {
+  it('should set slot duration with string configuration', () => {
     const expectedValue = '00:15:00';
+    spectator.setInput({
+      slotDuration: expectedValue,
+    });
+    expect(spectator.component.slotDuration).toBe(expectedValue);
+  });
+
+  it('should set slot duration with object configuration', () => {
+    const expectedValue: CalendarSlotInterval = { hours: 0, minutes: 15 };
     spectator.setInput({
       slotDuration: expectedValue,
     });
@@ -519,7 +528,7 @@ describe('CalendarComponent', () => {
   });
 
   it('should set slot label interval with object configuration', () => {
-    const expectedValue: CalendarSlotLabelInterval = { hours: 1, minutes: 30 };
+    const expectedValue: CalendarSlotInterval = { hours: 1, minutes: 30 };
     spectator.setInput({
       slotLabelInterval: expectedValue,
     });

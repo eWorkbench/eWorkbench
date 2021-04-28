@@ -78,6 +78,7 @@ export interface Project {
   project_tree: ProjectTree[];
   tasks_status: ProjectTaskStatus;
   parent_project: string | null;
+  is_favourite: boolean;
 }
 
 export interface ProjectMember {

@@ -41,19 +41,13 @@
         [items]="parameters"
         bindValue="value"
         (change)="onAdd()"
-      ></ng-select>
-    </div>
-    <div class="ml-1 align-self-center">
-      <button
-        type="button"
-        class="btn ewb-button-small ewb-button-background square"
-        [disabled]="loading"
-        [tooltip]="t('formInput.add.tooltip')"
-        containerClass="tooltip-sm"
-        (click)="openNewModal()"
       >
-        <eworkbench-icon className="wb-plus"></eworkbench-icon>
-      </button>
+        <ng-template ng-notfound-tmp let-item="item" let-clear="clear" let-search="searchTerm">
+          <div class="ng-option" (click)="openNewModal(search)">
+            {{ t('metadata.parameters.add', { search: search }) }}
+          </div>
+        </ng-template>
+      </ng-select>
     </div>
     <div class="ml-2 align-self-center" *ngIf="showButtons()">
       <button

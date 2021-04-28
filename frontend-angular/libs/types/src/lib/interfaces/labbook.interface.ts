@@ -40,4 +40,5 @@ export interface LabBook {
   content_type: number;
   content_type_model: string;
   child_elements?: LabBookChildElement[];
+  is_favourite: boolean;
 }

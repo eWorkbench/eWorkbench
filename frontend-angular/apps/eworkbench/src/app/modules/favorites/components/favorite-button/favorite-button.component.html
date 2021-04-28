@@ -1,0 +1,30 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <button
+    type="button"
+    [class]="btnClass"
+    [class.favorited]="favorited"
+    [disabled]="loading"
+    [tooltip]="t('favorites.remove.tooltip')"
+    containerClass="tooltip-sm"
+    (click)="onRemoveFavorite()"
+    *ngIf="favorited"
+  >
+    <eworkbench-icon className="wb-favorite-3"></eworkbench-icon>
+  </button>
+  <button
+    type="button"
+    [class]="btnClass"
+    [disabled]="loading"
+    [tooltip]="t('favorites.add.tooltip')"
+    containerClass="tooltip-sm"
+    (click)="onAddFavorite()"
+    *ngIf="!favorited"
+  >
+    <eworkbench-icon className="wb-favorite-1"></eworkbench-icon>
+  </button>
+</ng-container>

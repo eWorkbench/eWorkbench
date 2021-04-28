@@ -63,6 +63,7 @@ export const mockPluginInstance: PluginInstance = {
   rawdata_mime_type: 'application/octet-stream',
   rawdata_size: 0,
   download_rawdata: null,
+  is_favourite: false,
 };
 
 export const mockPluginInstancesList: DjangoAPI<PluginInstance[]> = {

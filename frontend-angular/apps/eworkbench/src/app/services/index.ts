@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+export * from './all-resource-bookings/all-resource-bookings.service';
 export * from './app-version/app-version.service';
 export * from './appointments/appointments.service';
 export * from './auth/auth.service';
@@ -14,6 +15,7 @@ export * from './dashboard/dashboard.service';
 export * from './dmp/dmp.service';
 export * from './drives/drives.service';
 export * from './dss-containers/dss-containers.service';
+export * from './favorites/favorites.service';
 export * from './files/files.service';
 export * from './labbook-sections/labbook-sections.service';
 export * from './labbooks/labbooks.service';

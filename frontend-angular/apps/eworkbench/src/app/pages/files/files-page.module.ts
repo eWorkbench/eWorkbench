@@ -8,6 +8,8 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
+import { FavoritesModule } from '@app/modules/favorites/favorites.module';
+import { FileModule } from '@app/modules/file/file.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LabelModule } from '@app/modules/label/label.module';
@@ -19,6 +21,7 @@ import { ProjectModule } from '@app/modules/project/project.module';
 import { RecentChangesModule } from '@app/modules/recent-changes/recent-changes.module';
 import { CustomControlErrorComponent } from '@app/modules/shared/control-error/control-error.component';
 import { SharedModule } from '@app/modules/shared/shared.module';
+import { StorageModule } from '@app/modules/storage/storage.module';
 import { TrashModule } from '@app/modules/trash/trash.module';
 import { UserModule } from '@app/modules/user/user.module';
 import { VersionsModule } from '@app/modules/versions/versions.module';
@@ -26,6 +29,7 @@ import { TranslocoRootModule } from '@app/transloco-root.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
@@ -35,9 +39,6 @@ import { FilePageComponent } from './components/file-page/file-page.component';
 import { FilesPageComponent } from './components/files-page/files-page.component';
 import { NewFileModalComponent } from './components/modals/new.component';
 import { FilesPageRoutingModule } from './files-page-routing.module';
-import { SkeletonsModule } from '@eworkbench/skeletons';
-import { StorageModule } from '@app/modules/storage/storage.module';
-import { FileModule } from '@app/modules/file/file.module';
 
 @NgModule({
   declarations: [FilesPageComponent, FilePageComponent, NewFileModalComponent],
@@ -79,6 +80,7 @@ import { FileModule } from '@app/modules/file/file.module';
     SkeletonsModule,
     StorageModule,
     FileModule,
+    FavoritesModule,
   ],
 })
 export class FilesPageModule {}

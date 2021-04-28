@@ -91,9 +91,17 @@
   </eworkbench-collapse-element>
 </ng-container>
 
-<ng-template #collapseLabelTemplate let-storage>
+<ng-template #collapseLabelTemplate let-row>
   <div class="storage-title">
-    <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon
-    ><a [routerLink]="['/storages', storage.pk]" class="font-weight-bold">{{ storage.title }}</a>
+    <div class="float-right text-right" *ngIf="favoriteMarker">
+      <eworkbench-favorite-button
+        class="d-inline-block mr-2"
+        [id]="row.pk"
+        [contentType]="row.content_type"
+        [favorited]="row.is_favourite"
+      ></eworkbench-favorite-button>
+    </div>
+    <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon>
+    <a [routerLink]="['/storages', row.pk]" class="font-weight-bold">{{ row.title }}</a>
   </div>
 </ng-template>
