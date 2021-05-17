@@ -9,8 +9,8 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
 import { PreloadAllModules, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MatomoModule } from 'ngx-matomo-v9';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { MatomoModule } from 'ngx-matomo-v9';
 import { routes } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FooterModule } from './modules/footer/footer.module';
@@ -229,6 +229,14 @@ describe('AppComponent', () => {
       spectator.inject(Router).navigate(['/contact']);
       spectator.tick();
       expect(spectator.inject(Location).path()).toBe('/login?returnUrl=%2Fcontact');
+    });
+  }));
+
+  it('should navigate to "/faq"', fakeAsync(() => {
+    spectator.fixture.ngZone?.run(() => {
+      spectator.inject(Router).navigate(['/faq']);
+      spectator.tick();
+      expect(spectator.inject(Location).path()).toBe('/faq');
     });
   }));
 

@@ -108,115 +108,127 @@
   </eworkbench-header>
 </ng-container>
 
-<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+<div *ngIf="!initialState" [class.with-sidebar]="showSidebar">
+  <aside *ngIf="showSidebar">
+    <eworkbench-sidebar-skeleton></eworkbench-sidebar-skeleton>
+  </aside>
+  <div class="skeleton-wrapper">
+    <eworkbench-task-board-skeleton></eworkbench-task-board-skeleton>
+  </div>
+</div>
 
-<main class="task-board" [ngStyle]="styles">
-  <ng-container *ngIf="initialState">
-    <ng-container *transloco="let t">
-      <ng-container *ngIf="initialState?.deleted">
-        <eworkbench-trash-notice></eworkbench-trash-notice>
-      </ng-container>
-
-      <eworkbench-collapse-element class="mb-4" [labelText]="title" [collapsed]="true">
+<div [class.with-sidebar]="showSidebar">
+  <aside *ngIf="showSidebar">
+    <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
+  </aside>
+  <main class="task-board" [ngStyle]="styles">
+    <ng-container *ngIf="initialState">
+      <ng-container *transloco="let t">
         <ng-container *ngIf="initialState?.deleted">
           <eworkbench-trash-notice></eworkbench-trash-notice>
         </ng-container>
-        <eworkbench-lock
-          [id]="id"
-          [lock]="lock"
-          [lockUser]="lockUser"
-          [modified]="modified"
-          [service]="taskBoardsService"
-        ></eworkbench-lock>
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="task-board-details" errorTailor>
-          <div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="title"
-                [label]="t('taskBoard.details.title.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-                [required]="true"
-              >
-                <input
-                  type="text"
-                  class="form-control ewb-input"
-                  id="title"
-                  formControlName="title"
-                  name="title"
-                  [placeholder]="t('taskBoard.details.title.placeholder')"
-                  slot="input"
-                />
-              </eworkbench-form-input>
-            </div>
-          </div>
-          <div>
-            <div class="mb-4">
-              <label for="created-by">{{ t('taskBoard.details.createdBy.label') }}</label>
-              <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
-            </div>
-            <div class="mb-4">
-              <label for="created-at">{{ t('taskBoard.details.createdAt.label') }}</label>
-              <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
-            </div>
-            <div class="mb-4">
-              <label for="last-modified-by">{{ t('taskBoard.details.lastModifiedBy.label') }}</label>
-              <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
-            </div>
-            <div class="mb-4">
-              <label for="last-modified-at">{{ t('taskBoard.details.lastModifiedAt.label') }}</label>
-              <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
-            </div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="projects"
-                [label]="t('taskBoard.details.projects.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-              >
-                <ng-select
-                  class="ewb-select"
-                  formControlName="projects"
-                  labelForId="projects"
-                  name="projects"
-                  [placeholder]="t('taskBoard.details.projects.placeholder')"
-                  [multiple]="true"
-                  [typeahead]="projectInput$"
-                  [items]="projects"
-                  bindLabel="name"
-                  bindValue="pk"
-                  slot="input"
+
+        <eworkbench-collapse-element class="mb-4" [labelText]="title" [collapsed]="true">
+          <ng-container *ngIf="initialState?.deleted">
+            <eworkbench-trash-notice></eworkbench-trash-notice>
+          </ng-container>
+          <eworkbench-lock
+            [id]="id"
+            [lock]="lock"
+            [lockUser]="lockUser"
+            [modified]="modified"
+            [service]="taskBoardsService"
+          ></eworkbench-lock>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="task-board-details" errorTailor>
+            <div>
+              <div class="mb-4">
+                <eworkbench-form-input
+                  for="title"
+                  [label]="t('taskBoard.details.title.label')"
+                  [loading]="loading"
+                  [onSubmit]="refreshResetValue"
+                  [required]="true"
                 >
-                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                    {{ item.name }}
-                    <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-                  </ng-template>
-                </ng-select>
-              </eworkbench-form-input>
+                  <input
+                    type="text"
+                    class="form-control ewb-input"
+                    id="title"
+                    formControlName="title"
+                    name="title"
+                    [placeholder]="t('taskBoard.details.title.placeholder')"
+                    slot="input"
+                  />
+                </eworkbench-form-input>
+              </div>
             </div>
-          </div>
-          <div>
-            <div class="mb-1">
-              <label for="recent-changes">{{ t('taskBoard.details.recentChanges.label') }}</label>
-              <eworkbench-recent-changes
-                id="recent-changes"
-                [service]="taskBoardsService"
-                [changesId]="id"
-                [refresh]="refreshChanges"
-              ></eworkbench-recent-changes>
+            <div>
+              <div class="mb-4">
+                <label for="created-by">{{ t('taskBoard.details.createdBy.label') }}</label>
+                <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
+              </div>
+              <div class="mb-4">
+                <label for="created-at">{{ t('taskBoard.details.createdAt.label') }}</label>
+                <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
+              </div>
+              <div class="mb-4">
+                <label for="last-modified-by">{{ t('taskBoard.details.lastModifiedBy.label') }}</label>
+                <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
+              </div>
+              <div class="mb-4">
+                <label for="last-modified-at">{{ t('taskBoard.details.lastModifiedAt.label') }}</label>
+                <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
+              </div>
+              <div class="mb-4">
+                <eworkbench-form-input
+                  for="projects"
+                  [label]="t('taskBoard.details.projects.label')"
+                  [loading]="loading"
+                  [onSubmit]="refreshResetValue"
+                >
+                  <ng-select
+                    class="ewb-select"
+                    formControlName="projects"
+                    labelForId="projects"
+                    name="projects"
+                    [placeholder]="t('taskBoard.details.projects.placeholder')"
+                    [multiple]="true"
+                    [typeahead]="projectInput$"
+                    [items]="projects"
+                    bindLabel="name"
+                    bindValue="pk"
+                    slot="input"
+                  >
+                    <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                      {{ item.name }}
+                      <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                    </ng-template>
+                  </ng-select>
+                </eworkbench-form-input>
+              </div>
             </div>
-          </div>
-        </form>
+            <div>
+              <div class="mb-1">
+                <label for="recent-changes">{{ t('taskBoard.details.recentChanges.label') }}</label>
+                <eworkbench-recent-changes
+                  id="recent-changes"
+                  [service]="taskBoardsService"
+                  [changesId]="id"
+                  [refresh]="refreshChanges"
+                ></eworkbench-recent-changes>
+              </div>
+            </div>
+          </form>
 
-        <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="taskBoardsService" class="mt-3"></eworkbench-link>
-      </eworkbench-collapse-element>
+          <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="taskBoardsService" class="mt-3"></eworkbench-link>
+        </eworkbench-collapse-element>
+      </ng-container>
     </ng-container>
-  </ng-container>
 
-  <eworkbench-task-board
-    #taskBoardC
-    [setFilter]="setFilter"
-    [projects]="initialState?.projects"
-    (boardChange)="onBoardChange($event)"
-  ></eworkbench-task-board>
-</main>
+    <eworkbench-task-board
+      #taskBoardC
+      [setFilter]="setFilter"
+      [projects]="initialState?.projects"
+      (boardChange)="onBoardChange($event)"
+    ></eworkbench-task-board>
+  </main>
+</div>

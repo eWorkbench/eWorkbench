@@ -141,6 +141,7 @@ INSTALLED_APPS = [
     'eric.dss',
     'eric.appointments',
     'eric.resources',
+    'eric.faq',
 
     # CKEditor needs to be at the bottom, so eric.core can overwrite the ckeditor-init.js file
     'ckeditor',

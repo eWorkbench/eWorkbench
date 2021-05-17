@@ -23,6 +23,18 @@
         <button
           type="button"
           class="btn ewb-button-regular text-white"
+          [tooltip]="t('labBook.sidebar.add.sketch.tooltip')"
+          containerClass="tooltip-sm"
+          placement="right"
+          (click)="onOpenSketchModal()"
+        >
+          <eworkbench-icon className="wb-pen"></eworkbench-icon>
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="btn ewb-button-regular text-white"
           [tooltip]="t('labBook.sidebar.add.picture.tooltip')"
           containerClass="tooltip-sm"
           placement="right"

@@ -58,6 +58,7 @@ urlpatterns = [
     url(API_BASE, include('eric.projects.urls')),
     url(API_BASE, include('eric.public_user_groups.urls')),
     url(API_BASE, include('eric.appointments.urls')),
+    url(API_BASE, include('eric.faq.urls')),
     url(API_BASE, include(router.urls)),  # DRF router URLs
 
     # core authentication

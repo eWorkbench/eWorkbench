@@ -4,7 +4,13 @@
 -->
 
 <ng-container *transloco="let t">
-  <eworkbench-collapse-element [labelTemplate]="collapseLabelTemplate" [element]="storage" [collapsed]="collapsed" [toggled]="refresh">
+  <eworkbench-collapse-element
+    [labelTemplate]="collapseLabelTemplate"
+    [element]="storage"
+    [collapsed]="collapsed"
+    [toggled]="refresh"
+    [collapsible]="!storage.deleted"
+  >
     <eworkbench-loading [loading]="loading">
       <div class="d-flex mb-3">
         <button class="btn ewb-button-primary ewb-button-big mr-2 align-self-center" (click)="onOpenNewDirectoryModal()">
@@ -43,7 +49,7 @@
         <div class="root-header align-self-center">
           <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon>{{ storage.title }}
         </div>
-        <div class="root-actions align-self-center" *ngIf="!collapsed && rootDirectory">
+        <div class="root-actions py-1 align-self-center" *ngIf="!collapsed && rootDirectory">
           <button
             class="btn ewb-button-small square"
             (click)="onOpenNewDirectoryModal(rootDirectory)"
@@ -67,17 +73,16 @@
             containerClass="tooltip-sm"
           >
             <eworkbench-icon className="wb-upload"></eworkbench-icon>
-            <input type="file" class="text-size invisible" (change)="onUpload($event, rootDirectory)" #file />
+            <input type="file" class="d-none" (change)="onUpload($event, rootDirectory)" #file />
           </button>
-          <a
+          <button
             class="btn ewb-button-small square"
-            [href]="rootDirectory?.download_directory"
+            [authDownload]="{ url: rootDirectory?.download_directory, fileName: storage.title }"
             [tooltip]="t('storages.directory.actions.downloadDirectory')"
             containerClass="tooltip-sm"
-            download
           >
             <eworkbench-icon className="wb-download"></eworkbench-icon>
-          </a>
+          </button>
         </div>
       </div>
       <eworkbench-subdirectory-element
@@ -95,13 +100,20 @@
   <div class="storage-title">
     <div class="float-right text-right" *ngIf="favoriteMarker">
       <eworkbench-favorite-button
+        *ngIf="!row.deleted"
         class="d-inline-block mr-2"
         [id]="row.pk"
         [contentType]="row.content_type"
         [favorited]="row.is_favourite"
       ></eworkbench-favorite-button>
+      <eworkbench-restore-button
+        *ngIf="row.deleted"
+        [service]="drivesService"
+        [id]="row.pk"
+        (restored)="onRestore($event)"
+      ></eworkbench-restore-button>
     </div>
     <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon>
-    <a [routerLink]="['/storages', row.pk]" class="font-weight-bold">{{ row.title }}</a>
+    <a [routerLink]="[withSidebar ? '.' : '' + '/storages', row.pk]" class="font-weight-bold">{{ row.title }}</a>
   </div>
 </ng-template>

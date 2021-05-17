@@ -57,7 +57,7 @@ export class CalendarComponent implements OnInit {
   public options: CalendarOptions = {};
 
   @Input()
-  public locale: LocaleSingularArg = 'en-US';
+  public locale: LocaleSingularArg = 'en-GB';
 
   @Input()
   public themeSystem?: string;
@@ -143,7 +143,7 @@ export class CalendarComponent implements OnInit {
 
   @Input()
   public slotLabelFormat: CalendarDateFormat = {
-    hour: 'numeric',
+    hour: '2-digit',
     minute: '2-digit',
     omitZeroMinute: false,
     meridiem: false,

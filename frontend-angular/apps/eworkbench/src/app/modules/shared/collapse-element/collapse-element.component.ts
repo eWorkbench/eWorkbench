@@ -27,6 +27,9 @@ export class CollapseElementComponent {
   public collapsed = false;
 
   @Input()
+  public collapsible = true;
+
+  @Input()
   public background = true;
 
   @Input()

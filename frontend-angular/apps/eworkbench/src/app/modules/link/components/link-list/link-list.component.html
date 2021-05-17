@@ -3,30 +3,33 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<ng-container *transloco="let t">
-  <eworkbench-loading [loading]="loading">
-    <div class="link-tools mb-2 text-right">
-      <ng-select
-        class="ewb-select d-inline-block text-left"
-        [placeholder]="t('linkList.filterLinks')"
-        [items]="contentTypes"
-        (change)="onChangeFilterContentType($event)"
-      ></ng-select>
-    </div>
-    <eworkbench-table-manage-columns
-      class="d-flex justify-content-end mb-3"
-      [columns]="listColumns"
-      [reset]="false"
-      (columnsChanged)="onColumnsChanged($event)"
-    ></eworkbench-table-manage-columns>
-    <eworkbench-table-view
-      #tableView
-      [data]="relations"
-      [columns]="listColumns"
-      [pagination]="false"
-      (sortChanged)="onSortChanged($event)"
-    ></eworkbench-table-view>
-  </eworkbench-loading>
+<eworkbench-list-skeleton *ngIf="!relations" class="skeleton" [header]="true" [lines]="3"></eworkbench-list-skeleton>
+<ng-container *ngIf="relations">
+  <ng-container *transloco="let t">
+    <eworkbench-loading [loading]="loading">
+      <div class="link-tools mb-2 text-right">
+        <ng-select
+          class="ewb-select d-inline-block text-left"
+          [placeholder]="t('linkList.filterLinks')"
+          [items]="contentTypes"
+          (change)="onChangeFilterContentType($event)"
+        ></ng-select>
+      </div>
+      <eworkbench-table-manage-columns
+        class="d-flex justify-content-end mb-3"
+        [columns]="listColumns"
+        [reset]="false"
+        (columnsChanged)="onColumnsChanged($event)"
+      ></eworkbench-table-manage-columns>
+      <eworkbench-table-view
+        #tableView
+        [data]="relations"
+        [columns]="listColumns"
+        [pagination]="false"
+        (sortChanged)="onSortChanged($event)"
+      ></eworkbench-table-view>
+    </eworkbench-loading>
+  </ng-container>
 </ng-container>
 
 <ng-template #relationNameCellTemplate let-row>

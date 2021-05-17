@@ -12,6 +12,7 @@ import { TranslocoRootModule } from '@app/transloco-root.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { AlertModule } from 'ngx-bootstrap/alert';
@@ -53,6 +54,7 @@ import { SearchContentComponent } from './components/search-content/search-conte
     TaskModule,
     AlertModule.forRoot(),
     CommentModule,
+    SkeletonsModule,
   ],
   exports: [LinkComponent],
 })

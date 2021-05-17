@@ -110,17 +110,4 @@ describe('ResourceBookingCalendarComponent', () => {
     expect(onResourceBookingModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Changed });
     expect(onResourceBookingModalCloseSpy).toHaveBeenCalledTimes(2);
   });
-
-  it('should call onEditResourceBookingModalClose()', () => {
-    const onEditResourceBookingModalCloseSpy = spyOn(spectator.component, 'onEditResourceBookingModalClose').and.callThrough();
-    spectator.component.onEditResourceBookingModalClose({ state: ModalState.Unchanged });
-    expect(onEditResourceBookingModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Unchanged });
-    expect(onEditResourceBookingModalCloseSpy).toHaveBeenCalledTimes(1);
-    spectator.component.onEditResourceBookingModalClose({ state: ModalState.Changed, data: { deleted: false } });
-    expect(onEditResourceBookingModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Changed, data: { deleted: false } });
-    expect(onEditResourceBookingModalCloseSpy).toHaveBeenCalledTimes(2);
-    spectator.component.onEditResourceBookingModalClose({ state: ModalState.Changed, data: { deleted: true } });
-    expect(onEditResourceBookingModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Changed, data: { deleted: true } });
-    expect(onEditResourceBookingModalCloseSpy).toHaveBeenCalledTimes(3);
-  });
 });

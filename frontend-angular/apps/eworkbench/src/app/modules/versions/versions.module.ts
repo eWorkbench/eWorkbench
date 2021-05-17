@@ -12,6 +12,7 @@ import { TranslocoRootModule } from '@app/transloco-root.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
@@ -79,6 +80,7 @@ import { VersionsComponent } from './components/versions/versions.component';
     TaskModule,
     LabelModule,
     DMPModule,
+    SkeletonsModule,
   ],
   exports: [
     VersionsComponent,

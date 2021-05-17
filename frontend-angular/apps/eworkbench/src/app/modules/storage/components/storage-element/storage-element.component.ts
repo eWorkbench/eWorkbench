@@ -6,7 +6,7 @@
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { FilesService } from '@app/services';
+import { DrivesService, FilesService } from '@app/services';
 import { Directory, Drive, File, FilePayload, ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
@@ -36,7 +36,13 @@ export class StorageElementComponent implements OnInit {
   public collapsed = true;
 
   @Input()
+  public withSidebar = false;
+
+  @Input()
   public favoriteMarker = true;
+
+  @Input()
+  public restored = new EventEmitter<boolean>();
 
   public refresh = new EventEmitter<boolean>();
 
@@ -55,6 +61,7 @@ export class StorageElementComponent implements OnInit {
   public modalRef?: DialogRef;
 
   public constructor(
+    public readonly drivesService: DrivesService,
     private readonly filesService: FilesService,
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
@@ -95,6 +102,12 @@ export class StorageElementComponent implements OnInit {
         this.loadFiles();
       }
     );
+  }
+
+  public onRestore(restored: boolean): void {
+    if (restored) {
+      this.restored.next(true);
+    }
   }
 
   public loadFiles(): void {

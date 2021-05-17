@@ -15,6 +15,7 @@ import { TranslocoRootModule } from '@app/transloco-root.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { DMPModule } from '../dmp/dmp.module';
 import { LabelModule } from '../label/label.module';
@@ -63,6 +64,7 @@ import { RecentChangesUsersComponent } from './components/recent-changes/users/u
     RouterModule,
     ResourceModule,
     DMPModule,
+    SkeletonsModule,
   ],
   exports: [
     RecentChangesComponent,

@@ -6,6 +6,7 @@
 <div class="collapse-element" [class.bg-white]="background">
   <div class="collapse-element-header px-2 pt-2" [class.align-items-center]="center">
     <button
+      *ngIf="collapsible"
       type="button"
       class="btn ewb-button-big ewb-button-primary close-button square mr-2"
       [attr.aria-expanded]="!collapsed"

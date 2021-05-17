@@ -325,9 +325,14 @@ ngneat-dialog {
   border: 0;
   border-left: 3px solid transparent;
 
+  &.active,
   &:hover {
     background-color: $secondary-color;
     border-left-color: $primary-color;
+
+    button {
+      color: $primary-color;
+    }
   }
 }
 
@@ -433,4 +438,16 @@ eworkbench-dashboard-page {
       color: #ffffff;
     }
   }
+}
+
+.skeleton-wrapper {
+  padding: 40px 70px;
+}
+
+.ewb-list-actions-container {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 13px;
+  margin-bottom: 20px;
+  border-bottom: 3px solid $border-color;
 }

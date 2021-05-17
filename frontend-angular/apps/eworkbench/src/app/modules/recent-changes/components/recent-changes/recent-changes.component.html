@@ -3,7 +3,16 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<eworkbench-table-view #tableView [columns]="listColumns" [data]="data" [columnHeader]="false" [paginationSize]="5"></eworkbench-table-view>
+<eworkbench-list-skeleton *ngIf="!data.length" [lines]="5"></eworkbench-list-skeleton>
+<ng-container *ngIf="data.length">
+  <eworkbench-table-view
+    #tableView
+    [columns]="listColumns"
+    [data]="data"
+    [columnHeader]="false"
+    [paginationSize]="5"
+  ></eworkbench-table-view>
+</ng-container>
 <ng-template #dateCellTemplate let-row>
   <ng-container *transloco="let t">
     <button

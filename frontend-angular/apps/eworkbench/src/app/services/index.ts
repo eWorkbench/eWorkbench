@@ -15,6 +15,7 @@ export * from './dashboard/dashboard.service';
 export * from './dmp/dmp.service';
 export * from './drives/drives.service';
 export * from './dss-containers/dss-containers.service';
+export * from './faq/faq.service';
 export * from './favorites/favorites.service';
 export * from './files/files.service';
 export * from './labbook-sections/labbook-sections.service';

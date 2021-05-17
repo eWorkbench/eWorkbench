@@ -32,7 +32,25 @@
   </eworkbench-header>
 </ng-container>
 
-<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+<div *ngIf="!initialState" class="with-sidebar">
+  <aside>
+    <eworkbench-sidebar-skeleton></eworkbench-sidebar-skeleton>
+  </aside>
+  <div class="skeleton-wrapper">
+    <div class="project mb-5">
+      <div>
+        <eworkbench-details-skeleton [fields]="6" [header]="true"></eworkbench-details-skeleton>
+        <eworkbench-wysiwyg-skeleton></eworkbench-wysiwyg-skeleton>
+      </div>
+      <eworkbench-details-skeleton [fields]="1" [header]="true"></eworkbench-details-skeleton>
+      <div>
+        <eworkbench-list-skeleton [lines]="5" [header]="true" class="mb-4"></eworkbench-list-skeleton>
+        <eworkbench-list-skeleton [lines]="5"></eworkbench-list-skeleton>
+      </div>
+    </div>
+    <eworkbench-link-skeleton></eworkbench-link-skeleton>
+  </div>
+</div>
 
 <ng-container *ngIf="initialState">
   <ng-container *transloco="let t">

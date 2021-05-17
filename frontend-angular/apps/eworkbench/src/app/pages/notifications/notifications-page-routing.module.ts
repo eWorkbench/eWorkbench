@@ -7,12 +7,17 @@
 
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { NotificationPageComponent } from './components/notification-page/notification-page.component';
 import { NotificationsPageComponent } from './components/notifications-page/notifications-page.component';
 
 const routes: Routes = [
   {
     path: '',
     component: NotificationsPageComponent,
+  },
+  {
+    path: ':id',
+    component: NotificationPageComponent,
   },
 ];
 

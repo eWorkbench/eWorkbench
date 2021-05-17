@@ -54,7 +54,7 @@ export class LinkListComponent implements OnInit {
 
   public loading = false;
 
-  public relations: Relation[] = [];
+  public relations?: Relation[];
 
   public allRelations?: Relation[];
 
@@ -228,6 +228,8 @@ export class LinkListComponent implements OnInit {
           if (relations.length) {
             this.allRelations = [...relations];
             this.filterRelations();
+          } else {
+            this.relations = [];
           }
           this.cdr.markForCheck();
         }

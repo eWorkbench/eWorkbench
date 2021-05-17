@@ -18,9 +18,10 @@ import { IconsModule } from '@eworkbench/icons';
 import { SkeletonsModule } from '@eworkbench/skeletons';
 import { NotificationsPageComponent } from './components/notifications-page/notifications-page.component';
 import { NotificationModule } from '@app/modules/notification/notification.module';
+import { NotificationPageComponent } from './components/notification-page/notification-page.component';
 
 @NgModule({
-  declarations: [NotificationsPageComponent],
+  declarations: [NotificationsPageComponent, NotificationPageComponent],
   imports: [
     CommonModule,
     NotificationsPageRoutingModule,

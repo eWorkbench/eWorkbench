@@ -21,7 +21,9 @@ import { FormatDatePipe } from './pipes/format-date/format-date.pipe';
 import { FormatFileSizePipe } from './pipes/format-file-size/format-file-size.pipe';
 import { SafeHtmlPipe } from './pipes/safe-html/safe-html.pipe';
 import { StripHTMLPipe } from './pipes/strip-html/strip-html.pipe';
+import { SecondaryCollapseElementComponent } from './secondary-collapse-element/secondary-collapse-element.component';
 import { CustomToastComponent } from './toastr/toastr.component';
+import { TrashedItemsFilterComponent } from './trashed-items-filter/trashed-items-filter.component';
 
 @NgModule({
   declarations: [
@@ -32,10 +34,12 @@ import { CustomToastComponent } from './toastr/toastr.component';
     CustomToastComponent,
     FormatFileSizePipe,
     CollapseElementComponent,
+    SecondaryCollapseElementComponent,
     EllipsisElementComponent,
     AuthDownloadDirective,
     SafeHtmlPipe,
     PendingChangesModalComponent,
+    TrashedItemsFilterComponent,
   ],
   imports: [CommonModule, getTranslocoModule(), IconsModule, CollapseModule.forRoot(), ModalsModule],
   exports: [
@@ -46,10 +50,12 @@ import { CustomToastComponent } from './toastr/toastr.component';
     CustomToastComponent,
     FormatFileSizePipe,
     CollapseElementComponent,
+    SecondaryCollapseElementComponent,
     EllipsisElementComponent,
     AuthDownloadDirective,
     SafeHtmlPipe,
     PendingChangesModalComponent,
+    TrashedItemsFilterComponent,
   ],
 })
 export class SharedModule {}

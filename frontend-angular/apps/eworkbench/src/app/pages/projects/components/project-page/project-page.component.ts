@@ -52,7 +52,7 @@ interface FormProject {
 export class ProjectPageComponent implements OnInit, OnDestroy {
   public title?: string;
 
-  public id = this.route.snapshot.paramMap.get('id')!;
+  public id = this.route.snapshot.paramMap.get('projectId')!;
 
   public sidebarItem = ProjectSidebarItem.Overview;
 

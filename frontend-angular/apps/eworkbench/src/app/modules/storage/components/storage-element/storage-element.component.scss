@@ -15,34 +15,17 @@
   }
 
   .storage-actions {
-    display: grid;
-    grid-template-columns: auto auto 1fr;
-    gap: 16px;
-
-    button,
-    a {
-      align-self: center;
-      font-size: 0.9rem;
-    }
+    display: flex;
   }
 
   .root-row {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 16px;
+    display: flex;
     width: 100%;
-    height: 30px;
+    font-size: 0.9rem;
 
     .root-actions {
       visibility: hidden;
-      display: grid;
-      grid-template-columns: auto auto auto 1fr;
-      gap: 16px;
-
-      button,
-      a {
-        font-size: 0.9rem;
-      }
+      display: flex;
     }
 
     &:hover {

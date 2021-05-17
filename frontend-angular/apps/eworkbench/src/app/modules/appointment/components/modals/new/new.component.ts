@@ -53,6 +53,8 @@ export class NewAppointmentModalComponent implements OnInit {
 
   public initialState?: Appointment = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public id?: string = this.modalRef.data?.id;
 
   public currentUser: User | null = null;
@@ -415,7 +417,11 @@ export class NewAppointmentModalComponent implements OnInit {
             fullDay: appointment.full_day,
             url: ['/appointments', appointment.pk].join('/'),
           };
-          this.modalRef.close({ state: this.state, data: { newContent: appointment, event }, navigate: ['/appointments', appointment.pk] });
+          this.modalRef.close({
+            state: this.state,
+            data: { newContent: appointment, event },
+            navigate: [`${this.withSidebar ? '..' : ''}/appointments`, appointment.pk],
+          });
           this.translocoService
             .selectTranslate('appointments.newModal.toastr.success')
             .pipe(untilDestroyed(this))

@@ -35,6 +35,8 @@ interface FormFile {
 export class NewFileModalComponent implements OnInit {
   public initialState?: File = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public loading = false;
 
   public state = ModalState.Unchanged;
@@ -193,7 +195,11 @@ export class NewFileModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ file => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: file }, navigate: ['/files', file.pk] });
+          this.modalRef.close({
+            state: this.state,
+            data: { newContent: file },
+            navigate: [`${this.withSidebar ? '..' : ''}/files`, file.pk],
+          });
           this.translocoService
             .selectTranslate('file.newModal.toastr.success')
             .pipe(untilDestroyed(this))

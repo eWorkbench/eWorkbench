@@ -6,9 +6,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'eworkbench-page-skeleton',
-  templateUrl: './page.component.html',
-  styleUrls: ['./page.component.scss'],
+  selector: 'eworkbench-link-skeleton',
+  templateUrl: './link.component.html',
+  styleUrls: ['./link.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageSkeletonComponent {}
+export class LinkSkeletonComponent {}

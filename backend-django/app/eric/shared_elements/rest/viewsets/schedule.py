@@ -84,6 +84,10 @@ class MyScheduleViewSet(BaseGenericViewSet):
             # filter all viewable meetings, that are attending to the current user
             if show_meetings_for:
                 meetings = self.get_meetings_queryset(show_meetings_for)
+            # for the ical_export we need to set the user
+            else:
+                current_user = get_current_user()
+                meetings = self.get_meetings_queryset(str(current_user.pk))
 
         return tasks, meetings
 

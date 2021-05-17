@@ -8,13 +8,15 @@ import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
+import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { BackgroundModalComponent } from '@app/modules/task-board/components/modals/background/background.component';
 import { BacklogModalComponent } from '@app/modules/task-board/components/modals/backlog/backlog.component';
 import { NewTaskBoardModalComponent } from '@app/modules/task-board/components/modals/new/new.component';
 import { TaskBoardComponent } from '@app/modules/task-board/components/task-board/task-board.component';
+import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, PageTitleService, ProjectsService, TaskBoardsService, WebSocketService } from '@app/services';
-import { UserService } from '@app/stores/user';
+import { UserService, UserStore } from '@app/stores/user';
 import {
   Lock,
   ModalCallback,
@@ -50,6 +52,8 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
 
   public id = this.route.snapshot.paramMap.get('id')!;
 
+  public sidebarItem = ProjectSidebarItem.TaskBoards;
+
   public currentUser: User | null = null;
 
   @ViewChild(TaskBoardComponent, { static: true })
@@ -62,6 +66,8 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   public lock: Lock | null = null;
 
   public modified = false;
+
+  public showSidebar = false;
 
   public modalRef?: DialogRef;
 
@@ -108,7 +114,8 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     private readonly userService: UserService,
     private readonly projectsService: ProjectsService,
     private readonly authService: AuthService,
-    private readonly websocketService: WebSocketService
+    private readonly websocketService: WebSocketService,
+    private readonly userStore: UserStore
   ) {}
 
   public get f(): FormGroup<FormTaskBoard>['controls'] {
@@ -167,6 +174,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     );
 
     this.initFormChanges();
+    this.initSidebar();
     this.initSearch();
     this.initSearchInput();
   }
@@ -211,6 +219,20 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
+  }
+
+  public initSidebar(): void {
+    this.route.params.subscribe(params => {
+      if (params.projectId) {
+        this.showSidebar = true;
+
+        this.projectsService.get(params.projectId).subscribe(
+          /* istanbul ignore next */ project => {
+            this.projects = [...this.projects, project];
+          }
+        );
+      }
+    });
   }
 
   public initSearch(): void {
@@ -334,6 +356,32 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }
       );
+  }
+
+  public canDeactivate(): Observable<boolean> {
+    if (this.showSidebar) {
+      const userStoreValue = this.userStore.getValue();
+      const userSetting = 'SkipDialog-LeaveProject';
+
+      /* istanbul ignore next */
+      const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
+
+      if (skipLeaveDialog) {
+        return of(true);
+      }
+
+      this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
+        closeButton: false,
+      });
+      /* istanbul ignore next */
+      return this.modalRef.afterClosed$.pipe(
+        untilDestroyed(this),
+        take(1),
+        map(val => Boolean(val))
+      );
+    }
+
+    return of(true);
   }
 
   public pendingChanges(): Observable<boolean> {

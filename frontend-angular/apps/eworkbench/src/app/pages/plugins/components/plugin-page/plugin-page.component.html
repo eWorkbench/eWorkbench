@@ -25,7 +25,17 @@
   </eworkbench-header>
 </ng-container>
 
-<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+<div *ngIf="!initialState" class="skeleton-wrapper">
+  <div class="plugin mb-5">
+    <eworkbench-details-skeleton [fields]="4"></eworkbench-details-skeleton>
+    <eworkbench-details-skeleton [fields]="5"></eworkbench-details-skeleton>
+    <div>
+      <eworkbench-list-skeleton [lines]="5" [header]="true" class="mb-5"></eworkbench-list-skeleton>
+      <eworkbench-list-skeleton [lines]="3" [header]="true"></eworkbench-list-skeleton>
+    </div>
+  </div>
+  <eworkbench-link-skeleton></eworkbench-link-skeleton>
+</div>
 
 <ng-container *ngIf="initialState">
   <main>

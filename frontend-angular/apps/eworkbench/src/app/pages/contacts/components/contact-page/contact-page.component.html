@@ -16,7 +16,7 @@
       <eworkbench-details-dropdown
         [service]="contactsService"
         [id]="id"
-        [redirectDestination]="['/contacts', id]"
+        [redirectDestination]="[showSidebar ? '.' : '' + '/contacts', id]"
         [newModalComponent]="newModalComponent"
         [initialState]="initialState"
         [shareElement]="true"
@@ -27,220 +27,244 @@
   </eworkbench-header>
 </ng-container>
 
-<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
+<div *ngIf="!initialState" [class.with-sidebar]="showSidebar">
+  <aside *ngIf="showSidebar">
+    <eworkbench-sidebar-skeleton></eworkbench-sidebar-skeleton>
+  </aside>
+  <div class="skeleton-wrapper">
+    <div class="contact mb-5">
+      <div>
+        <eworkbench-details-skeleton [fields]="6"></eworkbench-details-skeleton>
+        <eworkbench-wysiwyg-skeleton></eworkbench-wysiwyg-skeleton>
+        <eworkbench-details-skeleton [fields]="1"></eworkbench-details-skeleton>
+      </div>
+      <eworkbench-details-skeleton [fields]="5"></eworkbench-details-skeleton>
+      <div>
+        <eworkbench-list-skeleton [lines]="5" [header]="true" class="mb-5"></eworkbench-list-skeleton>
+        <eworkbench-list-skeleton [lines]="3" [header]="true"></eworkbench-list-skeleton>
+      </div>
+    </div>
+    <eworkbench-link-skeleton></eworkbench-link-skeleton>
+  </div>
+</div>
 
 <ng-container *ngIf="initialState">
   <ng-container *transloco="let t">
-    <main>
-      <ng-container *ngIf="initialState?.deleted">
-        <eworkbench-trash-notice></eworkbench-trash-notice>
-      </ng-container>
-      <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="contactsService"></eworkbench-lock>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="contact" errorTailor>
-        <div>
-          <div class="mb-4">
-            <eworkbench-form-input
-              for="academicTitle"
-              [label]="t('contact.details.academicTitle.label')"
-              [loading]="loading"
-              [onSubmit]="refreshResetValue"
-            >
-              <input
-                type="text"
-                class="form-control ewb-input"
-                id="academicTitle"
-                formControlName="academicTitle"
-                name="academicTitle"
-                [placeholder]="t('contact.details.academicTitle.placeholder')"
-                slot="input"
-              />
-            </eworkbench-form-input>
-          </div>
-          <div class="mb-4">
-            <eworkbench-form-input
-              for="firstName"
-              [label]="t('contact.details.firstName.label')"
-              [loading]="loading"
-              [onSubmit]="refreshResetValue"
-              [required]="true"
-            >
-              <input
-                type="text"
-                class="form-control ewb-input"
-                id="firstName"
-                formControlName="firstName"
-                name="firstName"
-                [placeholder]="t('contact.details.firstName.placeholder')"
-                slot="input"
-              />
-            </eworkbench-form-input>
-          </div>
-          <div class="mb-4">
-            <eworkbench-form-input
-              for="lastName"
-              [label]="t('contact.details.lastName.label')"
-              [loading]="loading"
-              [onSubmit]="refreshResetValue"
-              [required]="true"
-            >
-              <input
-                type="text"
-                class="form-control ewb-input"
-                id="lastName"
-                formControlName="lastName"
-                name="lastName"
-                [placeholder]="t('contact.details.lastName.placeholder')"
-                slot="input"
-              />
-            </eworkbench-form-input>
-          </div>
-          <div class="mb-4">
-            <eworkbench-form-input
-              for="email"
-              [label]="t('contact.details.email.label')"
-              [loading]="loading"
-              [onSubmit]="refreshResetValue"
-            >
-              <input
-                type="text"
-                class="form-control ewb-input"
-                id="email"
-                formControlName="email"
-                name="email"
-                [placeholder]="t('contact.details.email.placeholder')"
-                slot="input"
-              />
-            </eworkbench-form-input>
-          </div>
-          <div class="mb-4">
-            <eworkbench-form-input
-              for="phone"
-              [label]="t('contact.details.phone.label')"
-              [loading]="loading"
-              [onSubmit]="refreshResetValue"
-            >
-              <input
-                type="text"
-                class="form-control ewb-input"
-                id="phone"
-                formControlName="phone"
-                name="phone"
-                [placeholder]="t('contact.details.phone.placeholder')"
-                slot="input"
-              />
-            </eworkbench-form-input>
-          </div>
-          <div class="mb-4">
-            <eworkbench-form-input
-              for="company"
-              [label]="t('contact.details.company.label')"
-              [loading]="loading"
-              [onSubmit]="refreshResetValue"
-            >
-              <input
-                type="text"
-                class="form-control ewb-input"
-                id="company"
-                formControlName="company"
-                name="company"
-                [placeholder]="t('contact.details.company.placeholder')"
-                slot="input"
-              />
-            </eworkbench-form-input>
-          </div>
-          <div class="mb-4">
-            <eworkbench-form-input
-              for="notes"
-              [label]="t('contact.details.notes.label')"
-              [loading]="loading"
-              [onSubmit]="refreshResetValue"
-            >
-              <eworkbench-wysiwyg-editor id="notes" formControlName="notes" slot="input"></eworkbench-wysiwyg-editor>
-            </eworkbench-form-input>
-          </div>
-          <div class="mb-4">
-            <label for="metadata">{{ t('contact.details.metadata.label') }}</label>
-            <eworkbench-metadata
-              [selectedParameters]="initialState?.metadata"
-              [editable]="privileges?.edit"
-              [loading]="loading"
-              [refresh]="refreshMetadata"
-              (changed)="onUpdateMetadata($event)"
-            ></eworkbench-metadata>
-          </div>
-        </div>
-        <div>
-          <div class="mb-4">
-            <label for="created-by">{{ t('contact.details.createdBy.label') }}</label>
-            <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
-          </div>
-          <div class="mb-4">
-            <label for="created-at">{{ t('contact.details.createdAt.label') }}</label>
-            <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
-          </div>
-          <div class="mb-4">
-            <label for="last-modified-by">{{ t('contact.details.lastModifiedBy.label') }}</label>
-            <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
-          </div>
-          <div class="mb-4">
-            <label for="last-modified-at">{{ t('contact.details.lastModifiedAt.label') }}</label>
-            <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
-          </div>
-          <div class="mb-4">
-            <eworkbench-form-input
-              for="projects"
-              [label]="t('contact.details.projects.label')"
-              [loading]="loading"
-              [onSubmit]="refreshResetValue"
-            >
-              <ng-select
-                class="ewb-select"
-                formControlName="projects"
-                labelForId="projects"
-                name="projects"
-                [placeholder]="t('contact.details.projects.placeholder')"
-                [multiple]="true"
-                [typeahead]="projectInput$"
-                [items]="projects"
-                bindLabel="name"
-                bindValue="pk"
-                slot="input"
+    <div [class.with-sidebar]="showSidebar">
+      <aside *ngIf="showSidebar">
+        <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
+      </aside>
+      <main>
+        <ng-container *ngIf="initialState?.deleted">
+          <eworkbench-trash-notice></eworkbench-trash-notice>
+        </ng-container>
+        <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="contactsService"></eworkbench-lock>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="contact" errorTailor>
+          <div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="academicTitle"
+                [label]="t('contact.details.academicTitle.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
               >
-                <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                  {{ item.name }}
-                  <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-                </ng-template>
-              </ng-select>
-            </eworkbench-form-input>
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="academicTitle"
+                  formControlName="academicTitle"
+                  name="academicTitle"
+                  [placeholder]="t('contact.details.academicTitle.placeholder')"
+                  slot="input"
+                />
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="firstName"
+                [label]="t('contact.details.firstName.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+                [required]="true"
+              >
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="firstName"
+                  formControlName="firstName"
+                  name="firstName"
+                  [placeholder]="t('contact.details.firstName.placeholder')"
+                  slot="input"
+                />
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="lastName"
+                [label]="t('contact.details.lastName.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+                [required]="true"
+              >
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="lastName"
+                  formControlName="lastName"
+                  name="lastName"
+                  [placeholder]="t('contact.details.lastName.placeholder')"
+                  slot="input"
+                />
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="email"
+                [label]="t('contact.details.email.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+              >
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="email"
+                  formControlName="email"
+                  name="email"
+                  [placeholder]="t('contact.details.email.placeholder')"
+                  slot="input"
+                />
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="phone"
+                [label]="t('contact.details.phone.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+              >
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="phone"
+                  formControlName="phone"
+                  name="phone"
+                  [placeholder]="t('contact.details.phone.placeholder')"
+                  slot="input"
+                />
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="company"
+                [label]="t('contact.details.company.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+              >
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="company"
+                  formControlName="company"
+                  name="company"
+                  [placeholder]="t('contact.details.company.placeholder')"
+                  slot="input"
+                />
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="notes"
+                [label]="t('contact.details.notes.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+              >
+                <eworkbench-wysiwyg-editor id="notes" formControlName="notes" slot="input"></eworkbench-wysiwyg-editor>
+              </eworkbench-form-input>
+            </div>
+            <div class="mb-4">
+              <label for="metadata">{{ t('contact.details.metadata.label') }}</label>
+              <eworkbench-metadata
+                [selectedParameters]="initialState?.metadata"
+                [editable]="privileges?.edit"
+                [loading]="loading"
+                [refresh]="refreshMetadata"
+                (changed)="onUpdateMetadata($event)"
+              ></eworkbench-metadata>
+            </div>
           </div>
-        </div>
-        <div>
-          <div class="mb-1">
-            <label for="recent-changes">{{ t('contact.details.recentChanges.label') }}</label>
+          <div>
+            <div class="mb-4">
+              <label for="created-by">{{ t('contact.details.createdBy.label') }}</label>
+              <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
+            </div>
+            <div class="mb-4">
+              <label for="created-at">{{ t('contact.details.createdAt.label') }}</label>
+              <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
+            </div>
+            <div class="mb-4">
+              <label for="last-modified-by">{{ t('contact.details.lastModifiedBy.label') }}</label>
+              <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
+            </div>
+            <div class="mb-4">
+              <label for="last-modified-at">{{ t('contact.details.lastModifiedAt.label') }}</label>
+              <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
+            </div>
+            <div class="mb-4">
+              <eworkbench-form-input
+                for="projects"
+                [label]="t('contact.details.projects.label')"
+                [loading]="loading"
+                [onSubmit]="refreshResetValue"
+              >
+                <ng-select
+                  class="ewb-select"
+                  formControlName="projects"
+                  labelForId="projects"
+                  name="projects"
+                  [placeholder]="t('contact.details.projects.placeholder')"
+                  [multiple]="true"
+                  [typeahead]="projectInput$"
+                  [items]="projects"
+                  bindLabel="name"
+                  bindValue="pk"
+                  slot="input"
+                >
+                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                    {{ item.name }}
+                    <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                  </ng-template>
+                </ng-select>
+              </eworkbench-form-input>
+            </div>
           </div>
-          <eworkbench-recent-changes
-            id="recent-changes"
-            [service]="contactsService"
-            [changesId]="id"
-            [refresh]="refreshChanges"
-          ></eworkbench-recent-changes>
-          <div class="mt-2 mb-1">
-            <label for="versions">{{ t('contact.details.versions.label') }}</label>
+          <div>
+            <div class="mb-1">
+              <label for="recent-changes">{{ t('contact.details.recentChanges.label') }}</label>
+            </div>
+            <eworkbench-recent-changes
+              id="recent-changes"
+              [service]="contactsService"
+              [changesId]="id"
+              [refresh]="refreshChanges"
+            ></eworkbench-recent-changes>
+            <div class="mt-2 mb-1">
+              <label for="versions">{{ t('contact.details.versions.label') }}</label>
+            </div>
+            <eworkbench-versions
+              id="versions"
+              contentType="contact"
+              [service]="contactsService"
+              [versionId]="id"
+              [lastModifiedAt]="initialState?.last_modified_at"
+              [refresh]="refreshVersions"
+              [editable]="privileges?.edit"
+              (changed)="onVersionChanged()"
+            ></eworkbench-versions>
           </div>
-          <eworkbench-versions
-            id="versions"
-            contentType="contact"
-            [service]="contactsService"
-            [versionId]="id"
-            [lastModifiedAt]="initialState?.last_modified_at"
-            [refresh]="refreshVersions"
-            [editable]="privileges?.edit"
-            (changed)="onVersionChanged()"
-          ></eworkbench-versions>
-        </div>
-      </form>
+        </form>
 
-      <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="contactsService" class="mt-3"></eworkbench-link>
-    </main>
+        <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="contactsService" class="mt-3"></eworkbench-link>
+      </main>
+    </div>
   </ng-container>
 </ng-container>

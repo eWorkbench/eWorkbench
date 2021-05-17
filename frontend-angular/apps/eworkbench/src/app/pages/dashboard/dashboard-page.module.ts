@@ -22,6 +22,7 @@ import { CalendarModule } from '@eworkbench/calendar';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
@@ -67,6 +68,7 @@ import { DashboardPageRoutingModule } from './dashboard-page-routing.module';
     TooltipModule.forRoot(),
     CollapseModule.forRoot(),
     UserModule,
+    SkeletonsModule,
   ],
 })
 export class DashboardPageModule {}

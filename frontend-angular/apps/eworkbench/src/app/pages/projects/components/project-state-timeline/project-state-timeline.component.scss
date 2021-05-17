@@ -13,4 +13,12 @@
   eworkbench-gantt-chart {
     margin-top: -30px;
   }
+
+  ::ng-deep {
+    td.expand-cell {
+      white-space: nowrap;
+      max-width: 250px;
+      overflow: hidden;
+    }
+  }
 }

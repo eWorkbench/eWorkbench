@@ -31,6 +31,8 @@ interface FormTaskBoard {
 export class NewTaskBoardModalComponent implements OnInit {
   public initialState?: TaskBoardPayload = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public state = ModalState.Unchanged;
 
   public loading = false;
@@ -145,7 +147,11 @@ export class NewTaskBoardModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ taskBoard => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: taskBoard }, navigate: ['/taskboards', taskBoard.pk] });
+          this.modalRef.close({
+            state: this.state,
+            data: { newContent: taskBoard },
+            navigate: [`${this.withSidebar ? '..' : ''}/taskboards`, taskBoard.pk],
+          });
           this.translocoService
             .selectTranslate('taskBoard.newTaskBoardModal.toastr.success')
             .pipe(untilDestroyed(this))

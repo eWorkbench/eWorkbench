@@ -16,10 +16,10 @@
     display: grid;
     grid-template-rows: auto;
     gap: 16px;
-    align-items: baseline;
+    align-items: flex-start;
 
     .link-tools {
-      min-height: 70px;
+      min-height: 75px;
     }
   }
 

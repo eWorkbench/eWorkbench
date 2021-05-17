@@ -90,6 +90,11 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
   @Output()
   public rendered = new EventEmitter<boolean>();
 
+  @Input()
+  public skeletonLines = 20;
+
+  public skeletonItems: number[] = [];
+
   public displayedColumns$ = new BehaviorSubject<string[]>([]);
 
   public dataSource$ = new BehaviorSubject<any>([]);
@@ -103,6 +108,8 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
   public selected = new Map<string, any>();
 
   public loading = false;
+
+  public firstDataLoaded = false;
 
   private serviceSubscription?: Subscription;
 
@@ -137,6 +144,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public ngOnInit(): void {
+    this.skeletonItems = Array(this.skeletonLines).fill(1);
     if (this.service) {
       if (!this.skipInit) {
         this.loadData();
@@ -144,6 +152,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       const slice = this.data.slice(this.offset, this.page * this.paginationSize);
       this.total = this.data.length;
+      this.firstDataLoaded = true;
       this.dataSource$.next(slice);
     }
   }
@@ -251,6 +260,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
         this.total = event.total;
 
         this.loading = false;
+        this.firstDataLoaded = true;
         this.dataSource$.next(this.data);
         this.rendered.emit(true);
         this.cdr.markForCheck();

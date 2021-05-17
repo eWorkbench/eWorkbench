@@ -92,9 +92,6 @@
       </div>
     </ng-container>
     <ng-container slot="elements">
-      <button class="btn ewb-button-big ewb-button-background mr-2" (click)="openTrashModal()">
-        <eworkbench-icon className="wb-trash-1"></eworkbench-icon> {{ t('taskBoards.trash') }}
-      </button>
       <button class="btn ewb-button-big ewb-button-background" (click)="openNewTaskBoardModal()">
         <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('taskBoards.new') }}
       </button>
@@ -104,15 +101,18 @@
 
 <div [class.with-sidebar]="showSidebar">
   <aside *ngIf="showSidebar">
-    <eworkbench-project-sidebar [append]="false" [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
+    <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
   </aside>
   <main>
-    <eworkbench-table-manage-columns
-      class="d-flex justify-content-end mb-3"
-      [columns]="listColumns"
-      [defaultColumns]="defaultColumns"
-      (columnsChanged)="onColumnsChanged($event)"
-    ></eworkbench-table-manage-columns>
+    <div class="ewb-list-actions-container">
+      <eworkbench-trashed-items-filter (stateChanged)="onFilterItems($event)"></eworkbench-trashed-items-filter>
+      <eworkbench-table-manage-columns
+        class="d-flex justify-content-end"
+        [columns]="listColumns"
+        [defaultColumns]="defaultColumns"
+        (columnsChanged)="onColumnsChanged($event)"
+      ></eworkbench-table-manage-columns>
+    </div>
     <eworkbench-table-view
       #tableView
       [columns]="listColumns"
@@ -126,7 +126,7 @@
     ></eworkbench-table-view>
     <ng-template #titleCellTemplate let-row>
       <eworkbench-ellipsis-element [maxWidth]="300">
-        <a [routerLink]="['/taskboards', row.pk]">{{ row.title }}</a>
+        <a [routerLink]="[showSidebar ? '.' : '' + '/taskboards', row.pk]">{{ row.title }}</a>
       </eworkbench-ellipsis-element>
     </ng-template>
     <ng-template #createdAtCellTemplate let-row>
@@ -144,17 +144,26 @@
     <ng-template #actionsCellTemplate let-row>
       <div class="text-right">
         <eworkbench-favorite-button
+          *ngIf="!row.deleted"
           class="d-inline-block mr-2"
           [id]="row.pk"
           [contentType]="row.content_type"
           [favorited]="row.is_favourite"
         ></eworkbench-favorite-button>
         <eworkbench-trash-button
+          *ngIf="!row.deleted"
           class="d-inline-block"
           [service]="taskBoardsService"
           [id]="row.pk"
           [tableView]="tableView"
         ></eworkbench-trash-button>
+        <eworkbench-restore-button
+          *ngIf="row.deleted"
+          [service]="taskBoardsService"
+          [id]="row.pk"
+          [tableView]="tableView"
+          (restored)="onRestore($event)"
+        ></eworkbench-restore-button>
       </div>
     </ng-template>
   </main>

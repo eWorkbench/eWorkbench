@@ -92,9 +92,6 @@
       </div>
     </ng-container>
     <ng-container slot="elements">
-      <button class="btn ewb-button-big ewb-button-background mr-2" (click)="openTrashModal()">
-        <eworkbench-icon className="wb-trash-1"></eworkbench-icon> {{ t('resources.trash') }}
-      </button>
       <button class="btn ewb-button-big ewb-button-background" (click)="openNewModal()">
         <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('resources.new') }}
       </button>
@@ -104,15 +101,18 @@
 
 <div [class.with-sidebar]="showSidebar">
   <aside *ngIf="showSidebar">
-    <eworkbench-project-sidebar [append]="false" [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
+    <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
   </aside>
   <main>
-    <eworkbench-table-manage-columns
-      class="d-flex justify-content-end mb-3"
-      [columns]="listColumns"
-      [defaultColumns]="defaultColumns"
-      (columnsChanged)="onColumnsChanged($event)"
-    ></eworkbench-table-manage-columns>
+    <div class="ewb-list-actions-container">
+      <eworkbench-trashed-items-filter (stateChanged)="onFilterItems($event)"></eworkbench-trashed-items-filter>
+      <eworkbench-table-manage-columns
+        class="d-flex justify-content-end"
+        [columns]="listColumns"
+        [defaultColumns]="defaultColumns"
+        (columnsChanged)="onColumnsChanged($event)"
+      ></eworkbench-table-manage-columns>
+    </div>
     <eworkbench-table-view
       #tableView
       [columns]="listColumns"
@@ -126,7 +126,7 @@
     ></eworkbench-table-view>
     <ng-template #nameCellTemplate let-row>
       <eworkbench-ellipsis-element [maxWidth]="300">
-        <a [routerLink]="['/resources', row.pk]">{{ row.name }}</a>
+        <a [routerLink]="[showSidebar ? '.' : '' + '/resources', row.pk]">{{ row.name }}</a>
       </eworkbench-ellipsis-element>
     </ng-template>
     <ng-template #typeCellTemplate let-row>
@@ -150,12 +150,14 @@
       <ng-container *transloco="let t">
         <div class="text-right">
           <eworkbench-favorite-button
+            *ngIf="!row.deleted"
             class="d-inline-block mr-2"
             [id]="row.pk"
             [contentType]="row.content_type"
             [favorited]="row.is_favourite"
           ></eworkbench-favorite-button>
           <button
+            *ngIf="!row.deleted"
             type="button"
             class="btn ewb-button-small mr-2"
             (click)="onOpenDuplicateModal(row)"
@@ -166,14 +168,24 @@
             <eworkbench-icon className="wb-copy"></eworkbench-icon>
           </button>
           <eworkbench-trash-button
+            *ngIf="!row.deleted"
             class="d-inline-block mr-2"
             [service]="resourcesService"
             [id]="row.pk"
             [tableView]="tableView"
           ></eworkbench-trash-button>
-          <button class="btn ewb-button-regular ewb-button-additional" (click)="onOpenResourceBookingModal(row)">
+
+          <button *ngIf="!row.deleted" class="btn ewb-button-regular ewb-button-additional" (click)="onOpenResourceBookingModal(row)">
             {{ t('resources.book') }}
           </button>
+
+          <eworkbench-restore-button
+            *ngIf="row.deleted"
+            [service]="resourcesService"
+            [id]="row.pk"
+            [tableView]="tableView"
+            (restored)="onRestore($event)"
+          ></eworkbench-restore-button>
         </div>
       </ng-container>
     </ng-template>

@@ -9,7 +9,6 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
-import { RestoreModalComponent } from '@app/modules/trash/components/modals/restore/restore.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { DrivesService, DssContainersService, PageTitleService } from '@app/services';
 import { ProjectsService } from '@app/services/projects/projects.service';
@@ -72,7 +71,7 @@ export class StoragesPageComponent implements OnInit {
 
   public modalRef?: DialogRef;
 
-  public restoreEmitter = new EventEmitter<ModalCallback>();
+  public refresh = new EventEmitter<boolean>();
 
   public constructor(
     public readonly drivesService: DrivesService,
@@ -91,6 +90,11 @@ export class StoragesPageComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
+    /* istanbul ignore next */
+    this.refresh.pipe(untilDestroyed(this)).subscribe(showTrashedItems => {
+      this.onFilterItems(showTrashedItems);
+    });
+
     this.initTranslations();
     this.initDetails();
     this.initSidebar();
@@ -306,6 +310,21 @@ export class StoragesPageComponent implements OnInit {
       });
   }
 
+  public onFilterItems(showTrashedItems: boolean): void {
+    if (showTrashedItems) {
+      this.params = this.params.set('deleted', 'true');
+    } else {
+      this.params = this.params.delete('deleted');
+    }
+    this.tableView.loadData(false, this.params);
+  }
+
+  public onRestore(restored: boolean): void {
+    if (restored) {
+      this.tableView.loadData(false, this.params);
+    }
+  }
+
   public canDeactivate(): Observable<boolean> {
     if (this.showSidebar) {
       const userStoreValue = this.userStore.getValue();
@@ -332,23 +351,11 @@ export class StoragesPageComponent implements OnInit {
     return of(true);
   }
 
-  public openTrashModal(): void {
-    /* istanbul ignore next */
-    const subscription = this.restoreEmitter.pipe(untilDestroyed(this)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
-    /* istanbul ignore next */
-    this.modalRef = this.modalService.open(RestoreModalComponent, {
-      closeButton: false,
-      data: { service: this.drivesService, routerBaseLink: '/storages', restoreEmitter: this.restoreEmitter },
-    });
-    /* istanbul ignore next */
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe(() => subscription.unsubscribe());
-  }
-
   public openNewModal(): void {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewStorageModalComponent, {
       closeButton: false,
-      data: { initialState: { projects: this.project ? [this.project] : [] } },
+      data: { withSidebar: this.showSidebar, initialState: { projects: this.project ? [this.project] : [] } },
     });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
@@ -356,7 +363,7 @@ export class StoragesPageComponent implements OnInit {
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.navigate) {
-      this.router.navigate(callback.navigate);
+      this.router.navigate(callback.navigate, { relativeTo: this.route });
     } else if (callback?.state === ModalState.Changed) {
       this.initDetails();
     }

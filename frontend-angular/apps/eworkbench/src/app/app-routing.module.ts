@@ -147,6 +147,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, MatomoGuard],
   },
   {
+    path: 'faq',
+    loadChildren: () => import('./pages/faq/faq-page.module').then(m => m.FAQPageModule),
+    canActivate: [MatomoGuard],
+  },
+  {
     path: 'privacy-policy',
     loadChildren: () => import('./pages/privacy-policy/privacy-policy-page.module').then(m => m.PrivacyPolicyPageModule),
     canActivate: [MatomoGuard],

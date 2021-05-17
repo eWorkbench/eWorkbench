@@ -3,61 +3,70 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<eworkbench-loading [loading]="loading">
-  <table cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onColumnDrop($event)" cdk-table [dataSource]="dataSource$">
-    <ng-container cdkColumnDef="select">
-      <th cdk-header-cell *cdkHeaderCellDef>
-        <input type="checkbox" [indeterminate]="indeterminate" [checked]="allChecked" (change)="onSelectAll()" />
-      </th>
-      <td cdk-cell *cdkCellDef="let element">
-        <input type="checkbox" [checked]="selected.has(element.pk)" (change)="onSelect(element)" />
-      </td>
-    </ng-container>
+<div *ngIf="!firstDataLoaded" class="ssc">
+  <div class="ssc-head-line mb-3"></div>
+  <ng-container *ngFor="let _ of skeletonItems">
+    <div class="ssc-line mb-3"></div>
+  </ng-container>
+</div>
 
-    <ng-container *ngFor="let column of columns" [cdkColumnDef]="column.key">
-      <th cdkDrag [cdkDragDisabled]="column.key === 'actions'" cdkDragLockAxis="x" cdk-header-cell *cdkHeaderCellDef>
-        {{ column.name }}
-        <eworkbench-table-sort
-          [class.invisible]="!column.sortable"
-          [column]="column"
-          [sortBy]="sortBy"
-          [sort]="sort"
-          (sortChanged)="onSortChanged($event)"
-        ></eworkbench-table-sort>
-      </th>
-      <td cdk-cell *cdkCellDef="let element">
-        <ng-container *ngIf="column.cellTemplate">
-          <ng-container [ngTemplateOutlet]="column.cellTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-container>
-        </ng-container>
-        <ng-container *ngIf="!column.cellTemplate">
-          {{ element[column.key] }}
-        </ng-container>
-      </td>
-    </ng-container>
+<ng-container *ngIf="firstDataLoaded">
+  <eworkbench-loading [loading]="loading">
+    <table cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onColumnDrop($event)" cdk-table [dataSource]="dataSource$">
+      <ng-container cdkColumnDef="select">
+        <th cdk-header-cell *cdkHeaderCellDef>
+          <input type="checkbox" [indeterminate]="indeterminate" [checked]="allChecked" (change)="onSelectAll()" />
+        </th>
+        <td cdk-cell *cdkCellDef="let element">
+          <input type="checkbox" [checked]="selected.has(element.pk)" (change)="onSelect(element)" />
+        </td>
+      </ng-container>
 
-    <tr [class.d-none]="!columnHeader" cdk-header-row *cdkHeaderRowDef="displayedColumns$.value"></tr>
-    <tr [class.row-hover]="rowHover" cdk-row *cdkRowDef="let row; columns: displayedColumns$.value"></tr>
-  </table>
+      <ng-container *ngFor="let column of columns" [cdkColumnDef]="column.key">
+        <th cdkDrag [cdkDragDisabled]="column.key === 'actions'" cdkDragLockAxis="x" cdk-header-cell *cdkHeaderCellDef>
+          {{ column.name }}
+          <eworkbench-table-sort
+            [class.invisible]="!column.sortable"
+            [column]="column"
+            [sortBy]="sortBy"
+            [sort]="sort"
+            (sortChanged)="onSortChanged($event)"
+          ></eworkbench-table-sort>
+        </th>
+        <td cdk-cell *cdkCellDef="let element">
+          <ng-container *ngIf="column.cellTemplate">
+            <ng-container [ngTemplateOutlet]="column.cellTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-container>
+          </ng-container>
+          <ng-container *ngIf="!column.cellTemplate">
+            {{ element[column.key] }}
+          </ng-container>
+        </td>
+      </ng-container>
 
-  <div *ngIf="!loading && !data?.length" class="no-result">No results</div>
+      <tr [class.d-none]="!columnHeader" cdk-header-row *cdkHeaderRowDef="displayedColumns$.value"></tr>
+      <tr [class.row-hover]="rowHover" cdk-row *cdkRowDef="let row; columns: displayedColumns$.value"></tr>
+    </table>
 
-  <div [class.d-none]="!data?.length">
-    <pagination
-      *ngIf="pagination && total > paginationSize"
-      class="ewb-pagination mt-4"
-      [customFirstTemplate]="firstTemplate"
-      [customLastTemplate]="lastTemplate"
-      [customPreviousTemplate]="previousTemplate"
-      [customNextTemplate]="nextTemplate"
-      [boundaryLinks]="true"
-      [totalItems]="total"
-      [itemsPerPage]="paginationSize"
-      [maxSize]="5"
-      [rotate]="true"
-      (pageChanged)="onPageChanged($event)"
-    ></pagination>
-  </div>
-</eworkbench-loading>
+    <div *ngIf="!loading && !data?.length" class="no-result">No results</div>
+
+    <div [class.d-none]="!data?.length">
+      <pagination
+        *ngIf="pagination && total > paginationSize"
+        class="ewb-pagination mt-4"
+        [customFirstTemplate]="firstTemplate"
+        [customLastTemplate]="lastTemplate"
+        [customPreviousTemplate]="previousTemplate"
+        [customNextTemplate]="nextTemplate"
+        [boundaryLinks]="true"
+        [totalItems]="total"
+        [itemsPerPage]="paginationSize"
+        [maxSize]="5"
+        [rotate]="true"
+        (pageChanged)="onPageChanged($event)"
+      ></pagination>
+    </div>
+  </eworkbench-loading>
+</ng-container>
 
 <ng-template #firstTemplate>
   <eworkbench-icon className="wb-2-chevrons-up rotate-90"></eworkbench-icon>

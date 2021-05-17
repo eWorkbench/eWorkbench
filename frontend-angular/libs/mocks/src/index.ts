@@ -17,6 +17,7 @@ export * from './lib/mocks/drive';
 export * from './lib/mocks/dss-container';
 export * from './lib/mocks/export-link';
 export * from './lib/mocks/external-user';
+export * from './lib/mocks/faq';
 export * from './lib/mocks/file';
 export * from './lib/mocks/labbook';
 export * from './lib/mocks/labbook-section';

@@ -21,7 +21,7 @@
           [placeholder]="t('formDateGroup.startDate.placeholder')"
           autocomplete="off"
         />
-        <div class="input-group-append cursor-pointer" (click)="startDate.click()">
+        <div class="input-group-append cursor-pointer" (click)="startDate.click()" *ngIf="!f.start.disabled">
           <span class="input-group-text ewb-input">
             <eworkbench-icon className="wb-calendar"></eworkbench-icon>
           </span>
@@ -44,7 +44,7 @@
           [placeholder]="t('formDateGroup.endDate.placeholder')"
           autocomplete="off"
         />
-        <div class="input-group-append cursor-pointer" (click)="endDate.click()">
+        <div class="input-group-append cursor-pointer" (click)="endDate.click()" *ngIf="!f.end.disabled">
           <span class="input-group-text ewb-input">
             <eworkbench-icon className="wb-calendar"></eworkbench-icon>
           </span>

@@ -4,13 +4,10 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
-import { RestoreModalComponent } from '@app/modules/trash/components/modals/restore/restore.component';
-import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, NotesService, PageTitleService, ProjectsService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TableSortChangedEvent, TableViewComponent } from '@eworkbench/table';
@@ -20,8 +17,8 @@ import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { keyBy, merge, values } from 'lodash-es';
-import { Observable, of, Subject } from 'rxjs';
-import { debounceTime, map, skip, switchMap, take } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
+import { debounceTime, skip, switchMap, take } from 'rxjs/operators';
 import { NewNoteModalComponent } from '../modals/new/new.component';
 
 @UntilDestroy()
@@ -39,8 +36,6 @@ export class NotesPageComponent implements OnInit {
   public defaultColumns: TableColumn[] = [];
 
   public listColumns: TableColumn[] = [];
-
-  public sidebarItem = ProjectSidebarItem.Overview;
 
   @ViewChild('tableView')
   public tableView!: TableViewComponent;
@@ -77,13 +72,9 @@ export class NotesPageComponent implements OnInit {
 
   public projectsInput$ = new Subject<string>();
 
-  public showSidebar = false;
-
   public project?: string;
 
   public sorting?: TableSortChangedEvent;
-
-  public restoreEmitter = new EventEmitter<ModalCallback>();
 
   public constructor(
     public readonly notesService: NotesService,
@@ -109,8 +100,7 @@ export class NotesPageComponent implements OnInit {
     );
 
     this.initTranslations();
-    this.initSidebar();
-    this.initSearch(this.showSidebar);
+    this.initSearch();
     this.initSearchInput();
     this.initPageTitle();
     this.pageTitleService.set(this.title);
@@ -179,22 +169,6 @@ export class NotesPageComponent implements OnInit {
           this.sorting = this.currentUser.userprofile.ui_settings.tables_sort.notes;
         }
       });
-  }
-
-  public initSidebar(): void {
-    this.route.params.subscribe(params => {
-      if (params.projectId) {
-        this.showSidebar = true;
-
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project];
-            this.projectsControl.setValue(params.projectId);
-            this.project = params.projectId;
-          }
-        );
-      }
-    });
   }
 
   public initSearch(project = false): void {
@@ -323,6 +297,21 @@ export class NotesPageComponent implements OnInit {
       });
   }
 
+  public onFilterItems(showTrashedItems: boolean): void {
+    if (showTrashedItems) {
+      this.params = this.params.set('deleted', 'true');
+    } else {
+      this.params = this.params.delete('deleted');
+    }
+    this.tableView.loadData(false, this.params);
+  }
+
+  public onRestore(restored: boolean): void {
+    if (restored) {
+      this.tableView.loadData(false, this.params);
+    }
+  }
+
   public onColumnsChanged(event: TableColumnChangedEvent): void {
     const merged = merge(
       keyBy(event, 'key'),
@@ -389,32 +378,6 @@ export class NotesPageComponent implements OnInit {
       .subscribe();
   }
 
-  public canDeactivate(): Observable<boolean> {
-    if (this.showSidebar) {
-      const userStoreValue = this.userStore.getValue();
-      const userSetting = 'SkipDialog-LeaveProject';
-
-      /* istanbul ignore next */
-      const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
-
-      if (skipLeaveDialog) {
-        return of(true);
-      }
-
-      this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
-        closeButton: false,
-      });
-      /* istanbul ignore next */
-      return this.modalRef.afterClosed$.pipe(
-        untilDestroyed(this),
-        take(1),
-        map(val => Boolean(val))
-      );
-    }
-
-    return of(true);
-  }
-
   public openNewModal(): void {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewNoteModalComponent, {
@@ -423,18 +386,6 @@ export class NotesPageComponent implements OnInit {
     });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
-  }
-
-  public openTrashModal(): void {
-    /* istanbul ignore next */
-    const subscription = this.restoreEmitter.pipe(untilDestroyed(this)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
-    /* istanbul ignore next */
-    this.modalRef = this.modalService.open(RestoreModalComponent, {
-      closeButton: false,
-      data: { service: this.notesService, routerBaseLink: '/comments', restoreEmitter: this.restoreEmitter },
-    });
-    /* istanbul ignore next */
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe(() => subscription.unsubscribe());
   }
 
   public onModalClose(callback?: ModalCallback): void {

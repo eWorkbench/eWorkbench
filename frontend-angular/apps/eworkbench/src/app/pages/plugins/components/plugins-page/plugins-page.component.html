@@ -104,71 +104,72 @@
         </div>
       </div>
     </ng-container>
-    <ng-container slot="elements">
-      <button class="btn ewb-button-big ewb-button-background" (click)="openTrashModal()">
-        <eworkbench-icon className="wb-trash-1"></eworkbench-icon> {{ t('plugins.trash') }}
-      </button>
-    </ng-container>
   </eworkbench-header>
 </ng-container>
 
-<div [class.with-sidebar]="showSidebar">
-  <aside *ngIf="showSidebar">
-    <eworkbench-project-sidebar [append]="false"></eworkbench-project-sidebar>
-  </aside>
-  <main>
+<main>
+  <div class="ewb-list-actions-container">
+    <eworkbench-trashed-items-filter (stateChanged)="onFilterItems($event)"></eworkbench-trashed-items-filter>
     <eworkbench-table-manage-columns
-      class="d-flex justify-content-end mb-3"
+      class="d-flex justify-content-end"
       [columns]="listColumns"
       [defaultColumns]="defaultColumns"
       (columnsChanged)="onColumnsChanged($event)"
     ></eworkbench-table-manage-columns>
-    <eworkbench-table-view
-      #tableView
-      [columns]="listColumns"
-      [service]="pluginInstancesService"
-      [params]="params"
-      [skipInit]="showSidebar"
-      [sortBy]="sorting?.key"
-      [sort]="sorting?.direction"
-      (orderChanged)="onColumnsChanged($event)"
-      (sortChanged)="onSortChanged($event)"
-    ></eworkbench-table-view>
-    <ng-template #titleCellTemplate let-row>
-      <eworkbench-ellipsis-element [maxWidth]="300">
-        <a [routerLink]="['/plugin-data', row.pk]">{{ row.title }}</a>
-      </eworkbench-ellipsis-element>
-    </ng-template>
-    <ng-template #typeCellTemplate let-row>
-      {{ row.plugin_details.title }}
-    </ng-template>
-    <ng-template #createdAtCellTemplate let-row>
-      {{ row.created_at | formatDate }}
-    </ng-template>
-    <ng-template #createdByCellTemplate let-row>
-      <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
-    </ng-template>
-    <ng-template #lastUpdatedAtCellTemplate let-row>
-      {{ row.last_modified_at | formatDate }}
-    </ng-template>
-    <ng-template #lastUpdatedByCellTemplate let-row>
-      <eworkbench-user-details [user]="row.last_modified_by"></eworkbench-user-details>
-    </ng-template>
-    <ng-template #actionsCellTemplate let-row>
-      <div class="text-right">
-        <eworkbench-favorite-button
-          class="d-inline-block mr-2"
-          [id]="row.pk"
-          [contentType]="row.content_type"
-          [favorited]="row.is_favourite"
-        ></eworkbench-favorite-button>
-        <eworkbench-trash-button
-          class="d-inline-block"
-          [service]="pluginInstancesService"
-          [id]="row.pk"
-          [tableView]="tableView"
-        ></eworkbench-trash-button>
-      </div>
-    </ng-template>
-  </main>
-</div>
+  </div>
+  <eworkbench-table-view
+    #tableView
+    [columns]="listColumns"
+    [service]="pluginInstancesService"
+    [params]="params"
+    [sortBy]="sorting?.key"
+    [sort]="sorting?.direction"
+    (orderChanged)="onColumnsChanged($event)"
+    (sortChanged)="onSortChanged($event)"
+  ></eworkbench-table-view>
+  <ng-template #titleCellTemplate let-row>
+    <eworkbench-ellipsis-element [maxWidth]="300">
+      <a [routerLink]="['/plugin-data', row.pk]">{{ row.title }}</a>
+    </eworkbench-ellipsis-element>
+  </ng-template>
+  <ng-template #typeCellTemplate let-row>
+    {{ row.plugin_details.title }}
+  </ng-template>
+  <ng-template #createdAtCellTemplate let-row>
+    {{ row.created_at | formatDate }}
+  </ng-template>
+  <ng-template #createdByCellTemplate let-row>
+    <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
+  </ng-template>
+  <ng-template #lastUpdatedAtCellTemplate let-row>
+    {{ row.last_modified_at | formatDate }}
+  </ng-template>
+  <ng-template #lastUpdatedByCellTemplate let-row>
+    <eworkbench-user-details [user]="row.last_modified_by"></eworkbench-user-details>
+  </ng-template>
+  <ng-template #actionsCellTemplate let-row>
+    <div class="text-right">
+      <eworkbench-favorite-button
+        *ngIf="!row.deleted"
+        class="d-inline-block mr-2"
+        [id]="row.pk"
+        [contentType]="row.content_type"
+        [favorited]="row.is_favourite"
+      ></eworkbench-favorite-button>
+      <eworkbench-trash-button
+        *ngIf="!row.deleted"
+        class="d-inline-block"
+        [service]="pluginInstancesService"
+        [id]="row.pk"
+        [tableView]="tableView"
+      ></eworkbench-trash-button>
+      <eworkbench-restore-button
+        *ngIf="row.deleted"
+        [service]="pluginInstancesService"
+        [id]="row.pk"
+        [tableView]="tableView"
+        (restored)="onRestore($event)"
+      ></eworkbench-restore-button>
+    </div>
+  </ng-template>
+</main>

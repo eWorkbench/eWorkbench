@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 2.2.1 - May 2021
+- [SITUMEWB-651] Added FAQ page to the frontend
+- [SITUMEWB-664] Implemented context menu for tinymce
+- [SITUMEWB-634] Fixed text overflow in project timeline
+
+## Version 2.2 - May 2021
+- [SITUMEWB-650] added faq in the backend
+- [SITUMEWB-645] Use proper locale for browser consistency
+- [SITUMEWB-589] Added trashed elements list
+- [SITUMEWB-557] Added skeleton content loader
+- [SITUMEWB-644] Add sidebar to all detail pages that can be visited from a project
+- [SITUMEWB-649] Fix notifications redirect
+- [SITUMEWB-652] Fix latex icon being flipped on safari
+- [SITUMEWB-661] Implemented sketch functionality to LabBook
+
+## Version 2.1.2 - May 2021
+- [SITUMEWB-653] fix ical export where show_meetings_for is not set
+
 ## Version 2.1.1 - April 2021
 - [SITUMEWB-647] Fixed resourcebooking validation: ignore trashed appointments
 - [SITUMEWB-411] Added favorite marking in list and detail views

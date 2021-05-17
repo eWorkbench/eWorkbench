@@ -5,6 +5,7 @@
 
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { AuthService, ProjectsSidebarModelService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
@@ -23,10 +24,9 @@ import { switchMap, take } from 'rxjs/operators';
 })
 export class ProjectSidebarComponent implements OnInit {
   @Input()
-  public append = true;
-
-  @Input()
   public sidebarItem = ProjectSidebarItem.Overview;
+
+  public projectId = this.route.snapshot.paramMap.get('projectId')!;
 
   public elements: string[] = [];
 
@@ -38,7 +38,8 @@ export class ProjectSidebarComponent implements OnInit {
     private readonly toastrService: ToastrService,
     private readonly translocoService: TranslocoService,
     private readonly projectsSidebarModelService: ProjectsSidebarModelService,
-    private readonly userStore: UserStore
+    private readonly userStore: UserStore,
+    private readonly route: ActivatedRoute
   ) {}
 
   public ngOnInit(): void {

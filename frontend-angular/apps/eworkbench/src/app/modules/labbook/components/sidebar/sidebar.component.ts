@@ -17,6 +17,7 @@ import { NewLabBookNoteElementModalComponent } from '../modals/new/note/new.comp
 import { NewLabBookPictureElementModalComponent } from '../modals/new/picture/new.component';
 import { NewLabBookPluginElementModalComponent } from '../modals/new/plugin/new.component';
 import { NewLabBookSectionElementModalComponent } from '../modals/new/section/new.component';
+import { NewLabBookSketchModalComponent } from '../modals/new/sketch/new.component';
 
 @UntilDestroy()
 @Component({
@@ -95,6 +96,17 @@ export class LabBookSidebarComponent implements OnInit {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLabBookNoteElementModalComponent, {
       closeButton: false,
+      data: { labBookId: this.id, projects: this.projects },
+    });
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
+  }
+
+  public onOpenSketchModal(): void {
+    /* istanbul ignore next */
+    this.modalRef = this.modalService.open(NewLabBookSketchModalComponent, {
+      closeButton: false,
+      width: '652px',
       data: { labBookId: this.id, projects: this.projects },
     });
     /* istanbul ignore next */

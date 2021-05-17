@@ -31,6 +31,8 @@ interface FormStorage {
 export class NewStorageModalComponent implements OnInit {
   public initialState?: Drive = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public loading = false;
 
   public state = ModalState.Unchanged;
@@ -132,7 +134,11 @@ export class NewStorageModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ storage => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: storage }, navigate: ['/storages', storage.pk] });
+          this.modalRef.close({
+            state: this.state,
+            data: { newContent: storage },
+            navigate: [`${this.withSidebar ? '..' : ''}/storages`, storage.pk],
+          });
           this.translocoService
             .selectTranslate('storage.newModal.toastr.success')
             .pipe(untilDestroyed(this))

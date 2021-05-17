@@ -33,6 +33,8 @@ interface FormDMP {
 export class NewDMPModalComponent implements OnInit {
   public initialState?: DMP = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public loading = true;
 
   public state = ModalState.Unchanged;
@@ -159,7 +161,7 @@ export class NewDMPModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ dmp => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: dmp }, navigate: ['/dmps', dmp.pk] });
+          this.modalRef.close({ state: this.state, data: { newContent: dmp }, navigate: [`${this.withSidebar ? '..' : ''}/dmps`, dmp.pk] });
           this.translocoService
             .selectTranslate('dmp.newModal.toastr.success')
             .pipe(untilDestroyed(this))

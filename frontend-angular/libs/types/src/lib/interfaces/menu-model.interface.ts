@@ -24,4 +24,5 @@ export interface MenuModelItem {
   modelName: string;
   name: string;
   routerLink: string;
+  routerLinkExactMatch: boolean;
 }

@@ -39,7 +39,7 @@
     overflow-y: auto;
 
     .unread-item-button {
-      background-color: #f3f9ff;
+      background-color: $highlight-color;
 
       &:hover {
         background-color: #d2ecff;

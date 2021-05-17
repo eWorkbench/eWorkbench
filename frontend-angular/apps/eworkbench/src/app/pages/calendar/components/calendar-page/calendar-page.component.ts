@@ -569,20 +569,8 @@ export class CalendarPageComponent implements OnInit {
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed && callback.data) {
       /* istanbul ignore next */
-      const event = callback.data?.event;
-      if (event) {
-        this.calendar.addEvent({
-          id: event.pk,
-          title: event.title,
-          start: event.start,
-          end: event.end,
-          allDay: event.fullDay,
-          url: event.url,
-          extendedProps: {
-            ...callback.data?.newContent,
-          },
-        });
-        this.cdr.markForCheck();
+      if (callback.data?.event) {
+        this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
       }
     }
   }

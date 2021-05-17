@@ -31,12 +31,16 @@ export class WysiwygEditorComponent implements ControlValueAccessor, OnInit, Aft
     },
     plugins: [
       'advlist autolink autoresize lists link image charmap print preview anchor searchreplace visualblocks code fullscreen',
-      'insertdatetime textpattern media table paste code help hr',
+      'insertdatetime textpattern media table paste code help hr quickbars',
     ],
     toolbar_location: 'top',
     toolbar_mode: 'sliding',
     toolbar:
       'formatselect | bold italic underline strikethrough forecolor backcolor | table | removeformat | alignleft aligncenter alignright alignjustify | charmap superscript subscript | link image | numlist bullist outdent indent hr | formula',
+    quickbars_insert_toolbar: '',
+    quickbars_selection_toolbar:
+      'bold italic underline strikethrough forecolor backcolor | removeformat  | alignleft aligncenter alignright alignjustify | superscript subscript | formula',
+    contextmenu: 'inserttable | cell row column deletetable | charmap | hr',
     paste_data_images: true,
     content_css: '/assets/styles/tinymce.css',
     file_picker_types: 'image',

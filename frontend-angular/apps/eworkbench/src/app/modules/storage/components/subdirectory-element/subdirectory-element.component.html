@@ -6,14 +6,16 @@
 <ng-container *transloco="let t">
   <eworkbench-loading [loading]="loading">
     <div class="pl-4">
-      <div class="mb-1">
+      <div>
         <ng-container *ngFor="let file of directoryFiles">
           <div class="file-row pl-2 border-bottom">
             <div class="align-self-center">
-              <eworkbench-ellipsis-element [maxWidth]="300">
-                <eworkbench-icon class="mr-1" [className]="file.icon_class"></eworkbench-icon>
-                <a [routerLink]="['/files', file.pk]">{{ file.name }}</a>
-              </eworkbench-ellipsis-element>
+              <button type="button" class="btn btn-sm bg-transparent pl-0 mr-1">
+                <eworkbench-ellipsis-element class="d-inline-flex" [maxWidth]="300">
+                  <eworkbench-icon class="mr-1" [className]="file.icon_class"></eworkbench-icon>
+                  <a [routerLink]="['/files', file.pk]">{{ file.name }}</a>
+                </eworkbench-ellipsis-element>
+              </button>
             </div>
             <div class="file-actions align-self-center">
               <button
@@ -25,6 +27,15 @@
                 <span class="btn-link">{{ t('storages.file.actions.downloadFile') }}</span>
                 ({{ file?.file_size | formatFileSize }})
               </button>
+            </div>
+            <div class="file-actions align-self-center">
+              <eworkbench-favorite-button
+                *ngIf="!file.deleted"
+                class="d-inline-block mr-2"
+                [id]="file.pk"
+                [contentType]="file.content_type"
+                [favorited]="file.is_favourite"
+              ></eworkbench-favorite-button>
               <eworkbench-trash-button
                 [service]="filesService"
                 [id]="file.pk"
@@ -90,18 +101,16 @@
           containerClass="tooltip-sm"
         >
           <eworkbench-icon className="wb-upload"></eworkbench-icon>
-          <input type="file" class="text-size invisible" (change)="onUpload($event, directory)" #file />
+          <input type="file" class="d-none" (change)="onUpload($event, directory)" #file />
         </button>
-        <a
+        <button
           class="btn ewb-button-small square"
-          [href]="directory.download_directory"
+          [authDownload]="{ url: directory.download_directory, fileName: directory.name }"
           [tooltip]="t('storages.directory.actions.downloadDirectory')"
           containerClass="tooltip-sm"
-          download
         >
           <eworkbench-icon className="wb-download"></eworkbench-icon>
-        </a>
-        <span class="placeholder"></span>
+        </button>
       </div>
     </div>
   </ng-template>

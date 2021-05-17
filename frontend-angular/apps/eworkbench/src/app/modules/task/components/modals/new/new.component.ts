@@ -56,6 +56,8 @@ export class NewTaskModalComponent implements OnInit {
 
   public initialState?: Task = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public state = ModalState.Unchanged;
 
   public loading = false;
@@ -320,7 +322,11 @@ export class NewTaskModalComponent implements OnInit {
         .subscribe(
           /* istanbul ignore next */ task => {
             this.state = ModalState.Changed;
-            this.modalRef.close({ state: this.state, data: { newContent: task }, navigate: ['/tasks', task.pk] });
+            this.modalRef.close({
+              state: this.state,
+              data: { newContent: task },
+              navigate: [`${this.withSidebar ? '..' : ''}/tasks`, task.pk],
+            });
             this.translocoService
               .selectTranslate('task.newTaskModal.toastr.success')
               .pipe(untilDestroyed(this))

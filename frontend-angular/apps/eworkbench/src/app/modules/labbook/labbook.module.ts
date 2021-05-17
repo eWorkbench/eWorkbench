@@ -13,6 +13,7 @@ import { TranslocoRootModule } from '@app/transloco-root.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
+import { PictureEditorModule } from '@eworkbench/picture-editor';
 import { TableModule } from '@eworkbench/table';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
@@ -49,6 +50,7 @@ import { NewLabBookNoteElementModalComponent } from './components/modals/new/not
 import { NewLabBookPictureElementModalComponent } from './components/modals/new/picture/new.component';
 import { NewLabBookPluginElementModalComponent } from './components/modals/new/plugin/new.component';
 import { NewLabBookSectionElementModalComponent } from './components/modals/new/section/new.component';
+import { NewLabBookSketchModalComponent } from './components/modals/new/sketch/new.component';
 import { LabBookElementRemoveModalComponent } from './components/modals/remove/remove.component';
 import { LabBookSidebarComponent } from './components/sidebar/sidebar.component';
 
@@ -76,6 +78,7 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     NewLabBookFileElementModalComponent,
     NewLabBookPictureElementModalComponent,
     LabBookSearchBarComponent,
+    NewLabBookSketchModalComponent,
   ],
   imports: [
     CommonModule,
@@ -110,6 +113,7 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     AlertModule,
     PictureModule,
     CommentModule,
+    PictureEditorModule,
   ],
   exports: [
     LabBookSidebarComponent,
@@ -134,6 +138,7 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     NewLabBookFileElementModalComponent,
     NewLabBookPictureElementModalComponent,
     LabBookSearchBarComponent,
+    NewLabBookSketchModalComponent,
   ],
 })
 export class LabBookModule {}

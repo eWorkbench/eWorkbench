@@ -17,9 +17,11 @@ import {
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
+import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, PageTitleService, PicturesService, ProjectsService, WebSocketService } from '@app/services';
-import { UserService } from '@app/stores/user';
+import { UserService, UserStore } from '@app/stores/user';
 import { Lock, Metadata, Picture, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
@@ -49,6 +51,8 @@ export class PicturePageComponent implements OnInit, OnDestroy {
 
   public id = this.route.snapshot.paramMap.get('id')!;
 
+  public sidebarItem = ProjectSidebarItem.Pictures;
+
   public currentUser: User | null = null;
 
   public initialState?: Picture;
@@ -60,6 +64,8 @@ export class PicturePageComponent implements OnInit, OnDestroy {
   public lock: Lock | null = null;
 
   public modified = false;
+
+  public showSidebar = false;
 
   public loading = true;
 
@@ -110,7 +116,8 @@ export class PicturePageComponent implements OnInit, OnDestroy {
     private readonly userService: UserService,
     private readonly pageTitleService: PageTitleService,
     private readonly titleService: Title,
-    private readonly modalService: DialogService
+    private readonly modalService: DialogService,
+    private readonly userStore: UserStore
   ) {}
 
   public get f(): FormGroup<FormPicture>['controls'] {
@@ -172,6 +179,7 @@ export class PicturePageComponent implements OnInit, OnDestroy {
       }
     );
 
+    this.initSidebar();
     this.initSearchInput();
     this.initDetails();
     this.initPageTitle();
@@ -196,6 +204,20 @@ export class PicturePageComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
+  }
+
+  public initSidebar(): void {
+    this.route.params.subscribe(params => {
+      if (params.projectId) {
+        this.showSidebar = true;
+
+        this.projectsService.get(params.projectId).subscribe(
+          /* istanbul ignore next */ project => {
+            this.projects = [...this.projects, project];
+          }
+        );
+      }
+    });
   }
 
   public initSearchInput(): void {
@@ -363,6 +385,32 @@ export class PicturePageComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }
       );
+  }
+
+  public canDeactivate(): Observable<boolean> {
+    if (this.showSidebar) {
+      const userStoreValue = this.userStore.getValue();
+      const userSetting = 'SkipDialog-LeaveProject';
+
+      /* istanbul ignore next */
+      const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
+
+      if (skipLeaveDialog) {
+        return of(true);
+      }
+
+      this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
+        closeButton: false,
+      });
+      /* istanbul ignore next */
+      return this.modalRef.afterClosed$.pipe(
+        untilDestroyed(this),
+        take(1),
+        map(val => Boolean(val))
+      );
+    }
+
+    return of(true);
   }
 
   public pendingChanges(): Observable<boolean> {

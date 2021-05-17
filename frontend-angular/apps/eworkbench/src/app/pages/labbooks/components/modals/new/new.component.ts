@@ -33,6 +33,8 @@ interface FormLabBook {
 export class NewLabBookModalComponent implements OnInit {
   public initialState?: LabBook = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public loading = false;
 
   public state = ModalState.Unchanged;
@@ -141,7 +143,11 @@ export class NewLabBookModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ labBook => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: labBook }, navigate: ['/labbooks', labBook.pk] });
+          this.modalRef.close({
+            state: this.state,
+            data: { newContent: labBook },
+            navigate: [`${this.withSidebar ? '..' : ''}/labbooks`, labBook.pk],
+          });
           this.translocoService
             .selectTranslate('labBook.newModal.toastr.success')
             .pipe(untilDestroyed(this))

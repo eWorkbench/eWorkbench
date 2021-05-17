@@ -4,11 +4,10 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { RestoreModalComponent } from '@app/modules/trash/components/modals/restore/restore.component';
 import { AuthService, PageTitleService, ProjectsService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TreeViewComponent } from '@eworkbench/table';
@@ -62,11 +61,11 @@ export class ProjectsPageComponent implements OnInit {
 
   public state: Record<string, string> = {};
 
-  public serviceParams = new HttpParams().set('parent_projects_and_orphans', 'true');
+  public params = new HttpParams().set('parent_projects_and_orphans', 'true');
 
   public modalRef?: DialogRef;
 
-  public restoreEmitter = new EventEmitter<ModalCallback>();
+  public expandable = true;
 
   public constructor(
     public readonly projectsService: ProjectsService,
@@ -76,7 +75,8 @@ export class ProjectsPageComponent implements OnInit {
     private readonly pageTitleService: PageTitleService,
     private readonly titleService: Title,
     private readonly userService: UserService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   public ngOnInit(): void {
@@ -190,6 +190,26 @@ export class ProjectsPageComponent implements OnInit {
       });
   }
 
+  public onFilterItems(showTrashedItems: boolean): void {
+    if (showTrashedItems) {
+      this.params = this.params.set('deleted', 'true');
+      this.params = this.params.delete('parent_projects_and_orphans');
+      this.expandable = false;
+    } else {
+      this.params = this.params.delete('deleted');
+      this.params = this.params.set('parent_projects_and_orphans', 'true');
+      this.expandable = true;
+    }
+    this.treeView.loadData(false, this.params);
+    this.cdr.markForCheck();
+  }
+
+  public onRestore(restored: boolean): void {
+    if (restored) {
+      this.treeView.loadData(false, this.params);
+    }
+  }
+
   public onColumnsChanged(event: TableColumnChangedEvent): void {
     const merged = merge(
       keyBy(event, 'key'),
@@ -234,18 +254,6 @@ export class ProjectsPageComponent implements OnInit {
     this.modalRef = this.modalService.open(NewProjectModalComponent, { closeButton: false });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
-  }
-
-  public openTrashModal(): void {
-    /* istanbul ignore next */
-    const subscription = this.restoreEmitter.pipe(untilDestroyed(this)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
-    /* istanbul ignore next */
-    this.modalRef = this.modalService.open(RestoreModalComponent, {
-      closeButton: false,
-      data: { service: this.projectsService, routerBaseLink: '/projects', restoreEmitter: this.restoreEmitter },
-    });
-    /* istanbul ignore next */
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe(() => subscription.unsubscribe());
   }
 
   public onModalClose(callback?: ModalCallback): void {

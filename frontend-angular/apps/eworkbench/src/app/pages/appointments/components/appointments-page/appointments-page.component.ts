@@ -4,13 +4,12 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { NewAppointmentModalComponent } from '@app/modules/appointment/components/modals/new/new.component';
-import { RestoreModalComponent } from '@app/modules/trash/components/modals/restore/restore.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AppointmentsService, AuthService, PageTitleService, ProjectsService, ResourcesService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
@@ -106,8 +105,6 @@ export class AppointmentsPageComponent implements OnInit {
   public project?: string;
 
   public sorting?: TableSortChangedEvent;
-
-  public restoreEmitter = new EventEmitter<ModalCallback>();
 
   public constructor(
     public readonly appointmentsService: AppointmentsService,
@@ -446,6 +443,21 @@ export class AppointmentsPageComponent implements OnInit {
       });
   }
 
+  public onFilterItems(showTrashedItems: boolean): void {
+    if (showTrashedItems) {
+      this.params = this.params.set('deleted', 'true');
+    } else {
+      this.params = this.params.delete('deleted');
+    }
+    this.tableView.loadData(false, this.params);
+  }
+
+  public onRestore(restored: boolean): void {
+    if (restored) {
+      this.tableView.loadData(false, this.params);
+    }
+  }
+
   public onColumnsChanged(event: TableColumnChangedEvent): void {
     const merged = merge(
       keyBy(event, 'key'),
@@ -542,27 +554,15 @@ export class AppointmentsPageComponent implements OnInit {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewAppointmentModalComponent, {
       closeButton: false,
-      data: { initialState: { projects: this.project ? [this.project] : [] } },
+      data: { withSidebar: this.showSidebar, initialState: { projects: this.project ? [this.project] : [] } },
     });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
-  public openTrashModal(): void {
-    /* istanbul ignore next */
-    const subscription = this.restoreEmitter.pipe(untilDestroyed(this)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
-    /* istanbul ignore next */
-    this.modalRef = this.modalService.open(RestoreModalComponent, {
-      closeButton: false,
-      data: { service: this.appointmentsService, routerBaseLink: '/appointments', restoreEmitter: this.restoreEmitter },
-    });
-    /* istanbul ignore next */
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe(() => subscription.unsubscribe());
-  }
-
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.navigate) {
-      this.router.navigate(callback.navigate);
+      this.router.navigate(callback.navigate, { relativeTo: this.route });
     } else if (callback?.state === ModalState.Changed) {
       this.tableView.loadData();
     }

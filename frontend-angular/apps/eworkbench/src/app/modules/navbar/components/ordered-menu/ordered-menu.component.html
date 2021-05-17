@@ -23,7 +23,7 @@
         [routerLink]="[getMenuModel(item)?.routerLink]"
         [class.disabled]="editMode"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLinkActiveOptions]="{ exact: getMenuModel(item)?.routerLinkExactMatch }"
       >
         <button class="btn ewb-button-regular text-uppercase route-button h-100 w-100 text-left text-nowrap">
           {{ getMenuModel(item)?.name }}
@@ -60,16 +60,14 @@
         class="p-0 mb-0"
       >
         <ng-container *ngFor="let item of overflowMenuItems">
-          <div class="menu-item-button" [class.disabled]="editMode">
+          <div
+            class="menu-item-button"
+            [class.disabled]="editMode"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: getMenuModel(item)?.routerLinkExactMatch }"
+          >
             <li cdkDrag class="d-flex align-items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
-              <a
-                class="h-100 w-100"
-                [routerLink]="[getMenuModel(item)?.routerLink]"
-                [class.disabled]="editMode"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: true }"
-                (click)="dropdown.hide()"
-              >
+              <a class="h-100 w-100" [routerLink]="[getMenuModel(item)?.routerLink]" [class.disabled]="editMode" (click)="dropdown.hide()">
                 <button class="btn ewb-button-regular text-uppercase route-button h-100 w-100 text-left text-nowrap">
                   {{ getMenuModel(item)?.name }}
                 </button>

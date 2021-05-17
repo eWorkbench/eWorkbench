@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { PageTitleService } from '@app/services';
 import { NotificationsService } from '@app/services/notifications/notifications.service';
@@ -32,8 +32,7 @@ export class NotificationsPageComponent implements OnInit {
   public listColumns: TableColumn[] = [];
 
   public constructor(
-    public readonly notificationService: NotificationsService,
-    private readonly cdr: ChangeDetectorRef,
+    public readonly notificationsService: NotificationsService,
     private readonly translocoService: TranslocoService,
     private readonly pageTitleService: PageTitleService,
     private readonly titleService: Title

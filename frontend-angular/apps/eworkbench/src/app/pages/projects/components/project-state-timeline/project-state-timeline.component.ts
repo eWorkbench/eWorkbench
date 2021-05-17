@@ -24,10 +24,6 @@ export class ProjectStateTimelineComponent implements OnInit {
   @Input()
   public projectId!: string;
 
-  public loading = false;
-
-  public statesListColumns: TableColumn[] = [];
-
   @ViewChild('statesTreeView')
   public treeView!: TreeViewComponent;
 
@@ -36,6 +32,10 @@ export class ProjectStateTimelineComponent implements OnInit {
 
   @ViewChild('progressCellTemplate', { static: true })
   public progressCellTemplate!: TemplateRef<any>;
+
+  public loading = false;
+
+  public statesListColumns: TableColumn[] = [];
 
   public rootProject?: Project;
 

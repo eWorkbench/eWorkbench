@@ -1,0 +1,27 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<eworkbench-header [title]="title"></eworkbench-header>
+
+<ng-container *transloco="let t">
+  <main>
+    <eworkbench-loading [loading]="loading">
+      <ng-container *ngFor="let category of categories">
+        <div class="mb-5">
+          <h5 class="mb-3 pb-3">{{ category.title }}</h5>
+
+          <eworkbench-secondary-collapse-element
+            class="mb-3"
+            [labelText]="item.question"
+            [collapsed]="true"
+            *ngFor="let item of sortedFAQ[category.slug]; let i = index"
+          >
+            <div [innerHTML]="item.answer | safeHTML"></div>
+          </eworkbench-secondary-collapse-element>
+        </div>
+      </ng-container>
+    </eworkbench-loading>
+  </main>
+</ng-container>

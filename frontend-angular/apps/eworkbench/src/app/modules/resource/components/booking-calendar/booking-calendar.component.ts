@@ -99,6 +99,10 @@ export class ResourceBookingCalendarComponent implements OnInit {
 
   public readonly dateTimeFormat = "yyyy-MM-dd HH':'mm";
 
+  public activeRangeStart: Date = new Date();
+
+  public activeRangeEnd: Date = new Date();
+
   private readonly popoversMap = new Map<any, ComponentRef<CalendarPopoverWrapperComponent>>();
 
   private readonly popoverFactory = this.resolver.resolveComponentFactory(CalendarPopoverWrapperComponent);
@@ -120,13 +124,20 @@ export class ResourceBookingCalendarComponent implements OnInit {
     });
   }
 
-  public onDatesSet(event: DatesSetArg): void {
-    this.getBookings(event);
+  public refreshAppointments(rangeStart: Date, rangeEnd: Date): void {
+    this.calendar.removeAllEvents();
+    this.getBookings(rangeStart, rangeEnd);
   }
 
-  public getBookings(event: DatesSetArg): void {
-    const renderRangeStart = event.view.activeStart.toISOString();
-    const renderRangeEnd = event.view.activeEnd.toISOString();
+  public onDatesSet(event: DatesSetArg): void {
+    this.activeRangeStart = event.view.activeStart;
+    this.activeRangeEnd = event.view.activeEnd;
+    this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+  }
+
+  public getBookings(rangeStart: Date, rangeEnd: Date): void {
+    const renderRangeStart = rangeStart.toISOString();
+    const renderRangeEnd = rangeEnd.toISOString();
 
     this.calendar.removeAllEvents();
 
@@ -274,27 +285,6 @@ export class ResourceBookingCalendarComponent implements OnInit {
       });
   }
 
-  public onResourceBookingModalClose(callback?: ModalCallback): void {
-    if (callback?.state === ModalState.Changed) {
-      /* istanbul ignore next */
-      const event = callback.data?.event;
-      if (event) {
-        this.calendar.addEvent({
-          id: event.id,
-          title: event.title,
-          start: event.start,
-          end: event.end,
-          allDay: event.fullDay,
-          extendedProps: {
-            ...callback.data?.newContent,
-          },
-        });
-        this.changed.emit(callback.data);
-        this.cdr.markForCheck();
-      }
-    }
-  }
-
   public openResourceBookingDetailsModal(id: string): void {
     this.modalRef = this.modalService.open(EditAppointmentModalComponent, {
       closeButton: false,
@@ -304,31 +294,13 @@ export class ResourceBookingCalendarComponent implements OnInit {
     /* istanbul ignore next */
     this.modalRef.afterClosed$
       .pipe(untilDestroyed(this), take(1))
-      .subscribe((callback: { state: ModalState; event: any }) => this.onEditResourceBookingModalClose(callback));
+      .subscribe((callback: { state: ModalState; event: any }) => this.onResourceBookingModalClose(callback));
   }
 
-  public onEditResourceBookingModalClose(callback?: ModalCallback): void {
+  public onResourceBookingModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
-      const event = callback.data;
-      if (event) {
-        if (event.deleted === true) {
-          /* istanbul ignore next */
-          this.calendar.removeEvent({
-            id: event.id,
-          });
-        } else {
-          /* istanbul ignore next */
-          this.calendar.editEvent({
-            id: event.id,
-            title: event.title,
-            start: event.start,
-            end: event.end,
-            allDay: event.fullDay,
-          });
-        }
-        this.changed.emit(event);
-        this.cdr.markForCheck();
-      }
+      /* istanbul ignore next */
+      this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
     }
   }
 }

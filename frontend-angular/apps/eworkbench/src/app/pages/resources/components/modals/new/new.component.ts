@@ -42,6 +42,8 @@ interface FormResource {
 export class NewResourceModalComponent implements OnInit {
   public initialState?: Resource = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public userAvailabilitySelectedUsers: User[] = [];
 
   public userAvailabilitySelectedUsersInput$ = new Subject<string>();
@@ -273,7 +275,7 @@ export class NewResourceModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ resource => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, navigate: ['/resources', resource.pk] });
+          this.modalRef.close({ state: this.state, navigate: [`${this.withSidebar ? '..' : ''}/resources`, resource.pk] });
           this.translocoService
             .selectTranslate('resource.newModal.toastr.success')
             .pipe(untilDestroyed(this))

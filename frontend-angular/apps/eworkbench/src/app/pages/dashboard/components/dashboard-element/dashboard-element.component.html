@@ -28,9 +28,8 @@
       </div>
     </div>
     <div class="dashboard-element-body" [collapse]="collapsed">
-      <eworkbench-loading [loading]="loading">
-        <ng-content select="[slot=body]" *ngIf="!loading"></ng-content>
-      </eworkbench-loading>
+      <ng-content select="[slot=skeleton]" *ngIf="loading"></ng-content>
+      <ng-content select="[slot=body]" *ngIf="!loading"></ng-content>
     </div>
   </div>
 </ng-container>

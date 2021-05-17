@@ -4,11 +4,10 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { RestoreModalComponent } from '@app/modules/trash/components/modals/restore/restore.component';
 import { AuthService, PageTitleService, PluginInstancesService, PluginsService, ProjectsService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TableSortChangedEvent, TableViewComponent } from '@eworkbench/table';
@@ -83,13 +82,9 @@ export class PluginsPageComponent implements OnInit {
 
   public plugins: PluginDetails[] = [];
 
-  public showSidebar = false;
-
   public project?: string;
 
   public sorting?: TableSortChangedEvent;
-
-  public restoreEmitter = new EventEmitter<ModalCallback>();
 
   public constructor(
     public readonly pluginsService: PluginsService,
@@ -116,8 +111,7 @@ export class PluginsPageComponent implements OnInit {
 
     this.initTranslations();
     this.initDetails();
-    this.initSidebar();
-    this.initSearch(this.showSidebar);
+    this.initSearch();
     this.initSearchInput();
     this.initPageTitle();
     this.pageTitleService.set(this.title);
@@ -218,22 +212,6 @@ export class PluginsPageComponent implements OnInit {
           this.cdr.markForCheck();
         }
       );
-  }
-
-  public initSidebar(): void {
-    this.route.params.subscribe(params => {
-      if (params.projectId) {
-        this.showSidebar = true;
-
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project];
-            this.projectsControl.setValue(params.projectId);
-            this.project = params.projectId;
-          }
-        );
-      }
-    });
   }
 
   public initSearch(project = false): void {
@@ -386,6 +364,21 @@ export class PluginsPageComponent implements OnInit {
       });
   }
 
+  public onFilterItems(showTrashedItems: boolean): void {
+    if (showTrashedItems) {
+      this.params = this.params.set('deleted', 'true');
+    } else {
+      this.params = this.params.delete('deleted');
+    }
+    this.tableView.loadData(false, this.params);
+  }
+
+  public onRestore(restored: boolean): void {
+    if (restored) {
+      this.tableView.loadData(false, this.params);
+    }
+  }
+
   public onColumnsChanged(event: TableColumnChangedEvent): void {
     const merged = merge(
       keyBy(event, 'key'),
@@ -450,18 +443,6 @@ export class PluginsPageComponent implements OnInit {
         )
       )
       .subscribe();
-  }
-
-  public openTrashModal(): void {
-    /* istanbul ignore next */
-    const subscription = this.restoreEmitter.pipe(untilDestroyed(this)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
-    /* istanbul ignore next */
-    this.modalRef = this.modalService.open(RestoreModalComponent, {
-      closeButton: false,
-      data: { service: this.pluginInstancesService, routerBaseLink: '/plugin-data', restoreEmitter: this.restoreEmitter },
-    });
-    /* istanbul ignore next */
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe(() => subscription.unsubscribe());
   }
 
   public onModalClose(callback?: ModalCallback): void {

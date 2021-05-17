@@ -1,0 +1,13 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <button type="button" [class.active]="!showTrashedItems" class="btn ewb-button-big ewb-button-secondary" (click)="onChangeState()">
+    {{ t('shared.trashedItems.buttons.regularItems') }}
+  </button>
+  <button type="button" [class.active]="showTrashedItems" class="btn ewb-button-big ewb-button-secondary" (click)="onChangeState()">
+    {{ t('shared.trashedItems.buttons.trashedItems') }}
+  </button>
+</ng-container>

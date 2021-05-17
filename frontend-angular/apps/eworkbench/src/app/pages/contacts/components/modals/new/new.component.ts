@@ -38,6 +38,8 @@ interface FormContact {
 export class NewContactModalComponent implements OnInit {
   public initialState?: Contact = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public loading = false;
 
   public state = ModalState.Unchanged;
@@ -178,7 +180,11 @@ export class NewContactModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ contact => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: contact }, navigate: ['/contacts', contact.pk] });
+          this.modalRef.close({
+            state: this.state,
+            data: { newContent: contact },
+            navigate: [`${this.withSidebar ? '..' : ''}/contacts`, contact.pk],
+          });
           this.translocoService
             .selectTranslate('contact.newModal.toastr.success')
             .pipe(untilDestroyed(this))

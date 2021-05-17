@@ -6,9 +6,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
+import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, DrivesService, DssContainersService, PageTitleService, ProjectsService } from '@app/services';
+import { UserStore } from '@app/stores/user';
 import { Drive, DrivePayload, Envelope, Metadata, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
@@ -16,7 +20,7 @@ import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, of, Subject } from 'rxjs';
-import { catchError, map, mergeMap, switchMap, take } from 'rxjs/operators';
+import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/operators';
 import { NewStorageModalComponent } from '../modals/new/new.component';
 
 interface FormStorage {
@@ -37,6 +41,8 @@ export class StoragePageComponent implements OnInit {
 
   public id = this.route.snapshot.paramMap.get('id')!;
 
+  public sidebarItem = ProjectSidebarItem.Storages;
+
   public currentUser: User | null = null;
 
   public initialState?: Drive;
@@ -44,6 +50,8 @@ export class StoragePageComponent implements OnInit {
   public metadata?: Metadata[];
 
   public privileges?: Privileges;
+
+  public showSidebar = false;
 
   public loading = true;
 
@@ -78,12 +86,14 @@ export class StoragePageComponent implements OnInit {
     private readonly router: Router,
     private readonly authService: AuthService,
     private readonly projectsService: ProjectsService,
-    private readonly pageTitleService: PageTitleService,
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
     private readonly toastrService: ToastrService,
     private readonly translocoService: TranslocoService,
-    private readonly modalService: DialogService
+    private readonly pageTitleService: PageTitleService,
+    private readonly titleService: Title,
+    private readonly modalService: DialogService,
+    private readonly userStore: UserStore
   ) {}
 
   public get f(): FormGroup<FormStorage>['controls'] {
@@ -107,7 +117,50 @@ export class StoragePageComponent implements OnInit {
       this.currentUser = state.user;
     });
 
+    this.initSidebar();
+    this.initSearchInput();
     this.initDetails();
+    this.initPageTitle();
+  }
+
+  public initSidebar(): void {
+    this.route.params.subscribe(params => {
+      if (params.projectId) {
+        this.showSidebar = true;
+
+        this.projectsService.get(params.projectId).subscribe(
+          /* istanbul ignore next */ project => {
+            this.projects = [...this.projects, project];
+          }
+        );
+      }
+    });
+  }
+
+  public initSearchInput(): void {
+    this.projectInput$
+      .pipe(
+        untilDestroyed(this),
+        debounceTime(500),
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+      )
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.length) {
+            this.projects = [...projects];
+            this.cdr.markForCheck();
+          }
+        }
+      );
+  }
+
+  public initPageTitle(): void {
+    this.pageTitleService
+      .get()
+      .pipe(untilDestroyed(this))
+      .subscribe(title => {
+        this.titleService.setTitle(title);
+      });
   }
 
   public initDetails(): void {
@@ -134,7 +187,7 @@ export class StoragePageComponent implements OnInit {
             );
 
             if (!privileges.edit) {
-              this.f.title.disable({ emitEvent: false });
+              this.form.disable({ emitEvent: false });
             }
 
             return privilegesData;
@@ -190,8 +243,8 @@ export class StoragePageComponent implements OnInit {
           const storage = privilegesData.data;
           const privileges = privilegesData.privileges;
 
-          this.detailsTitle = storage.title;
-          this.pageTitleService.set(storage.title);
+          this.detailsTitle = storage.display;
+          this.pageTitleService.set(storage.display);
 
           this.initialState = { ...storage };
           this.privileges = { ...privileges };
@@ -245,6 +298,32 @@ export class StoragePageComponent implements OnInit {
           this.cdr.markForCheck();
         }
       );
+  }
+
+  public canDeactivate(): Observable<boolean> {
+    if (this.showSidebar) {
+      const userStoreValue = this.userStore.getValue();
+      const userSetting = 'SkipDialog-LeaveProject';
+
+      /* istanbul ignore next */
+      const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
+
+      if (skipLeaveDialog) {
+        return of(true);
+      }
+
+      this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
+        closeButton: false,
+      });
+      /* istanbul ignore next */
+      return this.modalRef.afterClosed$.pipe(
+        untilDestroyed(this),
+        take(1),
+        map(val => Boolean(val))
+      );
+    }
+
+    return of(true);
   }
 
   public pendingChanges(): Observable<boolean> {

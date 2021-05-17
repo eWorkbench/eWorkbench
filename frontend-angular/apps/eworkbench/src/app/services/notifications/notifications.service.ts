@@ -41,6 +41,10 @@ export class NotificationsService {
       );
   }
 
+  public get(id: string): Observable<Notification> {
+    return this.httpClient.get<Notification>(`${this.apiUrl}${id}`);
+  }
+
   public read(id: string): Observable<Notification> {
     return this.httpClient.put<Notification>(`${this.apiUrl}${id}/read/`, { pk: id });
   }

@@ -8,7 +8,14 @@
     <ul class="list-unstyled pt-3">
       <ng-container *ngFor="let element of elements">
         <li cdkDrag class="d-flex align-items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
-          <a [routerLink]="(append ? '.' : '..') + getSidebarModel(element)?.routerBaseLink" [class.disabled]="editMode">
+          <a
+            [routerLink]="
+              getSidebarModel(element)?.modelName === 'overview'
+                ? '/projects/' + projectId
+                : '/projects/' + projectId + getSidebarModel(element)?.routerBaseLink
+            "
+            [class.disabled]="editMode"
+          >
             <button
               type="button"
               class="btn menu-button square"

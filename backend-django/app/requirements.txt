@@ -1,2 +1,4 @@
-Django==2.2.*
+# Django==2.2.*
+# pinned for now as 2.2.21 breaks our file fields
+Django==2.2.20
 -r requirements_full.txt

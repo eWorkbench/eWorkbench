@@ -38,6 +38,19 @@ exports[`FooterComponent should match snapshot 1`] = `
           <button
             class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
           >
+            FAQ
+          </button>
+        </a>
+      </li>
+      <li
+        class="h-100 d-flex align-items-center"
+      >
+        <a
+          class="h-100 w-100"
+        >
+          <button
+            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+          >
             Privacy Policy
           </button>
         </a>

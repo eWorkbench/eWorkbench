@@ -4,12 +4,12 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { Component, Input, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { difference } from 'lodash-es';
-import { TableColumn } from '../../interfaces/table-column.interface';
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { TableSortDirection } from '../../enums/table-sort-direction.enum';
+import { TableColumn } from '../../interfaces/table-column.interface';
 import { TableSortChangedEvent } from '../../interfaces/table-sort-changed-event.interface';
 
 @Component({
@@ -61,6 +61,14 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   public rowHover = true;
 
+  @Input()
+  public expandable = true;
+
+  @Input()
+  public skeletonLines = 20;
+
+  public skeletonItems: number[] = [];
+
   public displayedColumns$ = new BehaviorSubject<string[]>([]);
 
   public dataSource$ = new BehaviorSubject<any>([]);
@@ -72,6 +80,8 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
   public expanded = new Set<string>();
 
   public loading = false;
+
+  public firstDataLoaded = false;
 
   private serviceSubscription?: Subscription;
 
@@ -100,6 +110,7 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public ngOnInit(): void {
+    this.skeletonItems = Array(this.skeletonLines).fill(1);
     if (this.service) {
       this.loadData();
     } else {
@@ -109,6 +120,7 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
       });
       const slice = this.data.slice(this.offset, this.page * this.paginationSize);
       this.total = this.data.length;
+      this.firstDataLoaded = true;
       this.dataSource$.next(slice);
     }
   }
@@ -232,12 +244,12 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
     return false;
   }
 
-  public loadData(append = false): void {
+  public loadData(append = false, httpParams?: HttpParams): void {
     if (this.service) {
       this.loading = true;
       this.cdr.markForCheck();
 
-      const baseParams = this.params ?? new HttpParams();
+      const baseParams = httpParams ?? this.params ?? new HttpParams();
       let params = baseParams.set(this.offsetField, this.offset.toString()).set(this.perPageField, this.paginationSize.toString());
 
       if (this.orderByDirection !== null) {
@@ -260,6 +272,7 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
         });
         this.dataSource$.next(this.data);
         this.loading = false;
+        this.firstDataLoaded = true;
         this.cdr.markForCheck();
       });
     }

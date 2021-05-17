@@ -50,6 +50,8 @@ interface FormPicture {
 export class NewPictureModalComponent implements OnInit {
   public initialState?: Picture = this.modalRef.data?.initialState;
 
+  public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
   public loading = false;
 
   public state = ModalState.Unchanged;
@@ -262,7 +264,7 @@ export class NewPictureModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ file => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, navigate: ['/pictures', file.pk] });
+          this.modalRef.close({ state: this.state, navigate: [`${this.withSidebar ? '..' : ''}/pictures`, file.pk] });
           this.translocoService
             .selectTranslate('picture.newModal.toastr.success')
             .pipe(untilDestroyed(this))

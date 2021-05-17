@@ -17,13 +17,12 @@ import { AlertModule } from 'ngx-bootstrap/alert';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { LoadingModule } from '../loading/loading.module';
 import { DeleteModalComponent } from './components/modals/delete/delete.component';
-import { RestoreModalComponent } from './components/modals/restore/restore.component';
 import { TrashNoticeComponent } from './components/notice/notice.component';
 import { RestoreButtonComponent } from './components/restore-button/restore-button.component';
 import { TrashButtonComponent } from './components/trash-button/trash-button.component';
 
 @NgModule({
-  declarations: [TrashButtonComponent, RestoreButtonComponent, DeleteModalComponent, RestoreModalComponent, TrashNoticeComponent],
+  declarations: [TrashButtonComponent, RestoreButtonComponent, DeleteModalComponent, TrashNoticeComponent],
   imports: [
     CommonModule,
     RouterModule,
@@ -36,7 +35,7 @@ import { TrashButtonComponent } from './components/trash-button/trash-button.com
     IconsModule,
     TooltipModule.forRoot(),
   ],
-  exports: [TrashButtonComponent, RestoreButtonComponent, DeleteModalComponent, RestoreModalComponent, TrashNoticeComponent],
+  exports: [TrashButtonComponent, RestoreButtonComponent, DeleteModalComponent, TrashNoticeComponent],
 })
 /* istanbul ignore next */
 export class TrashModule {}

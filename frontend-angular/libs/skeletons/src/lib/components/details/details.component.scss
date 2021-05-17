@@ -8,13 +8,16 @@
 :host {
   display: block;
 
-  .ssc {
-    padding: 40px 70px;
+  .ssc-line,
+  .ssc-head-line {
+    border-radius: unset;
   }
 
-  .ssc-wrapper {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 16px;
+  .field {
+    height: 35px;
+  }
+
+  .label {
+    height: 15px;
   }
 }

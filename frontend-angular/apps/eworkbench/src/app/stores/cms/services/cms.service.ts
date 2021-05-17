@@ -42,7 +42,10 @@ export class CMSService {
           return this.httpClient.get<CMSJsonResponse>(`${this.apiUrl}json/maintenance/`).pipe(
             map(maintenanceSettings => {
               const maintenance = { text: maintenanceSettings.text, visible: maintenanceSettings.public };
-              this.set({ ...settings, ...maintenance });
+              this.set({
+                ...settings,
+                maintenance: { ...maintenance },
+              });
               return maintenance;
             })
           );

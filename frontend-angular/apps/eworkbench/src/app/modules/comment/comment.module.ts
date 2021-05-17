@@ -11,6 +11,7 @@ import { TranslocoRootModule } from '@app/transloco-root.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { FormHelperModule } from '../form-helper/form-helper.module';
 import { LoadingModule } from '../loading/loading.module';
@@ -34,6 +35,7 @@ import { NewCommentComponent } from './components/new/new.component';
     ModalsModule,
     LoadingModule,
     IconsModule,
+    SkeletonsModule,
   ],
   exports: [CommentComponent, CommentsComponent, CommentsModalComponent, NewCommentComponent],
 })

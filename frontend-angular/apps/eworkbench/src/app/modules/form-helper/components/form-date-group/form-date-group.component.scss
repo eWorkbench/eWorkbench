@@ -14,4 +14,8 @@
   input[type='text'] {
     border-right-color: transparent;
   }
+
+  .form-control:disabled {
+    cursor: initial;
+  }
 }
