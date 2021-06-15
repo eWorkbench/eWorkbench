@@ -12,6 +12,7 @@ import { AppointmentsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { CalendarModule } from '@eworkbench/calendar';
 import { FormsModule } from '@eworkbench/forms';
+import { IconsModule } from '@eworkbench/icons';
 import { mockAppointment, mockUser } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
@@ -39,6 +40,7 @@ describe('EditAppointmentModalComponent', () => {
       MetadataModule,
       FormHelperModule,
       LockModule,
+      IconsModule,
     ],
     providers: [
       mockProvider(AppointmentsService, {

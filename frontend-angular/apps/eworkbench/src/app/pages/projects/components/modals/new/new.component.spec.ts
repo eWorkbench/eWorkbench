@@ -38,6 +38,7 @@ describe('NewProjectModalComponent', () => {
     providers: [
       mockProvider(ProjectsService, {
         add: () => of(mockProject),
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(DialogRef, {
         close: () => {},

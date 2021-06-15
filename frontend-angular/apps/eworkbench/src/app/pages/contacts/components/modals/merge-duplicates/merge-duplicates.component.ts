@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ContactsService, SearchService } from '@app/services';
@@ -52,6 +53,8 @@ export class MergeDuplicatesModalComponent implements OnInit {
 
   public contacts: Contact[] = [];
 
+  public favoriteContacts: Contact[] = [];
+
   public contactInput$ = new Subject<string>();
 
   public state = ModalState.Unchanged;
@@ -96,12 +99,25 @@ export class MergeDuplicatesModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
       )
       .subscribe(
         /* istanbul ignore next */ contacts => {
-          if (contacts.length) {
-            this.contacts = this.getUnusedContacts(contacts);
+          this.contacts = this.getUnusedContacts([...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite)));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.contactsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ contacts => {
+          if (contacts.data.length) {
+            this.favoriteContacts = [...contacts.data];
+            this.contacts = [...this.contacts, ...this.favoriteContacts]
+              .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -209,7 +225,9 @@ export class MergeDuplicatesModalComponent implements OnInit {
     const unusedContacts: Contact[] = [];
 
     contacts.map(contact => {
-      if (!this.selectedContacts.length || !this.selectedContacts.find(x => x.pk === contact.pk)) unusedContacts.push(contact);
+      if (!this.selectedContacts.length || !this.selectedContacts.find(x => x.pk === contact.pk)) {
+        unusedContacts.push(contact);
+      }
     });
 
     return unusedContacts;
@@ -217,7 +235,11 @@ export class MergeDuplicatesModalComponent implements OnInit {
 
   public get selectedContacts(): Contact[] {
     const selectedContacts = [...this.selectedMergeContacts];
-    if (this.selectedBaseContact) selectedContacts.unshift(this.selectedBaseContact);
+
+    if (this.selectedBaseContact) {
+      selectedContacts.unshift(this.selectedBaseContact);
+    }
+
     return selectedContacts;
   }
 

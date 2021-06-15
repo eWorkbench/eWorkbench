@@ -28,8 +28,10 @@ import {
   OverlapFunc,
   PluginDef,
   ToolbarInput,
+  MoreLinkAction,
+  MoreLinkContentArg,
 } from '@fullcalendar/angular';
-import dayGridPlugin, { MoreLinkAction, MoreLinkContentArg } from '@fullcalendar/daygrid';
+import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin, { NoEventsContentArg } from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -130,7 +132,12 @@ export class CalendarComponent implements OnInit {
   public dayHeaders = true;
 
   @Input()
-  public dayHeaderFormat: CalendarDayHeaderFormat = { weekday: 'short', month: 'numeric', day: 'numeric', omitCommas: false };
+  public dayHeaderFormat: CalendarDayHeaderFormat = {
+    weekday: 'short',
+    month: 'numeric',
+    day: 'numeric',
+    omitCommas: false,
+  };
 
   @Input()
   public dayHeaderFormatMonthView: CalendarDayHeaderFormat = { weekday: 'long' };

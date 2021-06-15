@@ -60,7 +60,7 @@
       </div>
     </div>
     <div class="body" *ngIf="expanded">
-      <eworkbench-labbook-draw-board-grid [id]="id" [section]="element.child_object_id"></eworkbench-labbook-draw-board-grid>
+      <eworkbench-labbook-draw-board-grid #drawBoardGrid [id]="id" [section]="element.child_object_id"></eworkbench-labbook-draw-board-grid>
     </div>
   </form>
 </ng-container>

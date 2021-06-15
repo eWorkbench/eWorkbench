@@ -109,5 +109,5 @@ class MinimalisticContactSerializer(BaseModelSerializer):
         model = Contact
         fields = (
             'academic_title', 'first_name', 'last_name', 'email', 'phone', 'company',
-            'url'
+            'url', 'is_favourite'
         )

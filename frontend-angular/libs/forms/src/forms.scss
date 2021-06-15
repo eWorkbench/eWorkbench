@@ -107,6 +107,29 @@ label {
     }
   }
 
+  &-outline {
+    color: $primary-color;
+    background-color: #fff;
+    border: 1px solid $primary-color;
+
+    &:hover,
+    &.active {
+      color: #ffffff;
+      background-color: $primary-color;
+    }
+  }
+
+  &-table {
+    color: $primary-color;
+    background-color: #f3f9ff;
+    padding: 0 30px;
+
+    &:hover {
+      color: $primary-color;
+      background-color: $focus-color;
+    }
+  }
+
   &-icon {
     color: #595959;
     background-color: transparent;
@@ -281,59 +304,6 @@ a.ewb-button-regular {
     border-width: 1.5px;
     border-color: $invalid-border-color;
     background-color: #fff0ee;
-  }
-}
-
-.pagination.ewb-pagination {
-  justify-content: center;
-  border-radius: 0;
-
-  .page-item {
-    margin-right: 5px;
-
-    .page-link {
-      color: $primary-color;
-    }
-
-    &.disabled {
-      .page-link {
-        color: unset;
-      }
-    }
-
-    &.active {
-      .page-link {
-        color: unset;
-        background-color: unset;
-        border-color: unset;
-        pointer-events: none;
-      }
-    }
-
-    &:first-child {
-      margin: 0;
-    }
-
-    &:first-child,
-    &:last-child {
-      .page-link {
-        border-radius: 0;
-      }
-    }
-  }
-
-  .page-link {
-    @include ewb-button(25px, 0 10px, 14px);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    border: 0;
-    font-weight: unset;
-    height: 25px;
-    width: 25px;
-    padding: 0;
   }
 }
 
@@ -539,6 +509,17 @@ a.ewb-button-regular {
             background-color: #ffffff;
             opacity: 0.5;
           }
+
+          .favorite-icon {
+            float: right;
+            color: #fc3;
+          }
+        }
+
+        .ng-optgroup {
+          color: #000;
+          font-weight: 600;
+          font-size: 0.8rem;
         }
       }
     }

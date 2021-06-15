@@ -30,7 +30,15 @@ import { map } from 'rxjs/operators';
           '.5s ease',
           // Can't use margin: 0 because of a bug in angular (since 6) otherwise it won't work in FireFox
           // https://github.com/angular/angular/issues/16330
-          style({ height: 0, opacity: 0, overflow: 'hidden', marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0 })
+          style({
+            height: 0,
+            opacity: 0,
+            overflow: 'hidden',
+            marginTop: 0,
+            marginBottom: 0,
+            marginLeft: 0,
+            marginRight: 0,
+          })
         ),
       ]),
     ]),
@@ -156,7 +164,10 @@ export class TaskCardComponent implements OnInit {
 
   public openRecentChangesModal(id: string): void {
     /* istanbul ignore next */
-    this.modalService.open(RecentChangesModalComponent, { closeButton: false, data: { service: this.tasksService, id } });
+    this.modalService.open(RecentChangesModalComponent, {
+      closeButton: false,
+      data: { service: this.tasksService, id },
+    });
   }
 
   public openUserModal(user: User): void {

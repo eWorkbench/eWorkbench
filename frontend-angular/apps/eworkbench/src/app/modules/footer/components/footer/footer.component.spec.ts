@@ -3,15 +3,25 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
-import { FooterComponent } from './footer.component';
+import { AuthService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
+import { mockUser } from '@eworkbench/mocks';
+import { mockProvider } from '@ngneat/spectator';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { of } from 'rxjs';
+import { FooterComponent } from './footer.component';
 
 describe('FooterComponent', () => {
   let spectator: SpectatorRouting<FooterComponent>;
   const createComponent = createRoutingFactory({
     component: FooterComponent,
     imports: [getTranslocoModule()],
+    providers: [
+      mockProvider(AuthService, {
+        user$: of(mockUser),
+        login: () => of(mockUser),
+      }),
+    ],
   });
 
   beforeEach(() => (spectator = createComponent()));

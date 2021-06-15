@@ -3,12 +3,22 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse, HttpParams } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
+import { LabBookDrawBoardComponent } from '@app/modules/labbook/components/draw-board/draw-board/draw-board.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, LabBooksService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
@@ -38,6 +48,9 @@ interface FormLabBook {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LabBookPageComponent implements OnInit, OnDestroy {
+  @ViewChildren('drawBoard')
+  public drawBoards?: QueryList<LabBookDrawBoardComponent>;
+
   public detailsTitle?: string;
 
   public id = this.route.snapshot.paramMap.get('id')!;
@@ -71,6 +84,8 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
   public newModalComponent = NewLabBookModalComponent;
 
   public projects: Project[] = [];
+
+  public favoriteProjects: Project[] = [];
 
   public projectInput$ = new Subject<string>();
 
@@ -179,7 +194,9 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
 
         this.projectsService.get(params.projectId).subscribe(
           /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project];
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
           }
         );
       }
@@ -191,12 +208,25 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -249,14 +279,20 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
               return from(privilegesData.data.projects).pipe(
                 mergeMap(id =>
                   this.projectsService.get(id).pipe(
+                    untilDestroyed(this),
                     catchError(() => {
-                      return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                      return of({
+                        pk: id,
+                        name: this.translocoService.translate('formInput.unknownProject'),
+                        is_favourite: false,
+                      } as Project);
                     })
                   )
                 ),
                 map(project => {
-                  this.projects = [...this.projects, project];
-                  this.cdr.markForCheck();
+                  this.projects = [...this.projects, project]
+                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
                 }),
                 switchMap(() => of(privilegesData))
               );
@@ -363,8 +399,18 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
     return of(true);
   }
 
+  public pendingChangesDrawBoards(): boolean {
+    for (const element of this.drawBoards ?? []) {
+      if (element.pendingChanges()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public pendingChanges(): Observable<boolean> {
-    if (this.form.dirty) {
+    if (this.form.dirty || this.pendingChangesDrawBoards()) {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });

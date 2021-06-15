@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.3 - June 2021
+- [SITUMEWB-432,SITUMEWB-464,SITUMEWB-672] Implement Lazy-Loading, Popover: Notifications, Fix 404 for drives/storages
+- [SITUMEWB-494] add existing users to projects on invites
+- [SITUMEWB-666] Fixed detection for LabBook element changes regarding PendingChangesGuard
+- [SITUMEWB-419] Implemented favorites for select elements
+- [SITUMEWB-668] Fixed contact menu entry in footer
+- [SITUMEWB-412] Added favorite icon hover effect
+- [SITUMEWB-470] Revamped project page to respect the new concept
+- [SITUMEWB-532] Changed project states according to new concept
+- [SITUMEWB-436] Changes to metadata search
+- [SITUMEWB-659] Implemented filter for storage in files list
+- [SITUMEWB-494] fix username creation and urls in the docker setup
+- [SITUMEWB-411] add is_favourite to resources attending_contacts at meeting endpoint
+- [SITUMEWB-663] unpin django version
+
 ## Version 2.2.1 - May 2021
 - [SITUMEWB-651] Added FAQ page to the frontend
 - [SITUMEWB-664] Implemented context menu for tinymce

@@ -239,7 +239,12 @@ export class AllResourceBookingsComponent implements OnInit {
     );
 
     this.listColumns = values(merged);
-    const settings = this.listColumns.map(col => ({ key: col.key, sort: col.sort, hidden: col.hidden, hideable: col.hideable }));
+    const settings = this.listColumns.map(col => ({
+      key: col.key,
+      sort: col.sort,
+      hidden: col.hidden,
+      hideable: col.hideable,
+    }));
 
     this.userService
       .get()

@@ -3,12 +3,13 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<div class="collapse-element" [class.bg-white]="background">
+<div class="collapse-element" [class.bg-white]="background" [class.no-border]="!border">
   <div class="collapse-element-header px-2 pt-2" [class.align-items-center]="center">
     <button
       *ngIf="collapsible"
       type="button"
       class="btn ewb-button-big ewb-button-primary close-button square mr-2"
+      [ngClass]="{ 'ewb-button-primary close-button': primary, 'ewb-button-secondary close-button-secondary': !primary }"
       [attr.aria-expanded]="!collapsed"
       aria-controls="collapseBasic"
       (click)="onToggleCollapse()"

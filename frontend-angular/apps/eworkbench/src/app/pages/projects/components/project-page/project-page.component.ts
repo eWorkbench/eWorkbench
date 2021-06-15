@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -79,6 +79,8 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
   public assigneesInput$ = new Subject<string>();
 
   public parentProject: Project[] = [];
+
+  public favoriteProjects: Project[] = [];
 
   public projectInput$ = new Subject<string>();
 
@@ -249,14 +251,20 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
               return this.projectsService
                 .get(project.parent_project)
                 .pipe(
+                  untilDestroyed(this),
                   catchError(() => {
-                    return of({ pk: project.parent_project, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                    return of({
+                      pk: project.parent_project,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project);
                   })
                 )
                 .pipe(
                   map(project => {
-                    this.parentProject = [project];
-                    this.cdr.markForCheck();
+                    this.parentProject = [...this.parentProject, project]
+                      .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                      .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
                   }),
                   switchMap(() => of(project))
                 );
@@ -292,12 +300,25 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.parentProject = [...projects];
+          this.parentProject = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.parentProject = [...this.parentProject, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }

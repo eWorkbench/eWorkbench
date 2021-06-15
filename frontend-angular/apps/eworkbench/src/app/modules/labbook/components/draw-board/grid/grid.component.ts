@@ -13,10 +13,13 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  QueryList,
   TemplateRef,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
 import { LabBookSectionsService, LabBooksService, WebSocketService } from '@app/services';
+import { environment } from '@environments/environment';
 import { LabBookElement, LabBookElementEvent, LabBookElementPayload } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -24,6 +27,7 @@ import { GridsterComponent, GridsterConfig, GridsterItem } from 'angular-gridste
 import { of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { gridsterConfig } from '../../../config/gridster-config';
+import { LabBookDrawBoardElementComponent } from '../element/element.component';
 
 interface ElementRemoval {
   id: string;
@@ -41,6 +45,9 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
   @ViewChild('drawBoard', { static: true })
   public drawBoard!: TemplateRef<GridsterComponent>;
 
+  @ViewChildren('elementComponent')
+  public elements?: QueryList<LabBookDrawBoardElementComponent>;
+
   @Input()
   public id!: string;
 
@@ -54,6 +61,8 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
   private readonly refresh?: EventEmitter<boolean>;
 
   public closeSection = new EventEmitter<string>();
+
+  public refreshElementRelations = new EventEmitter<{ model_name: string; model_pk: string }>();
 
   public loading = true;
 
@@ -96,7 +105,9 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
             clearTimeout(this.socketRefreshTimeout);
           }
 
-          this.socketRefreshTimeout = setTimeout(() => this.softReload(), 5000);
+          this.socketRefreshTimeout = setTimeout(() => this.softReload(), environment.labBookSocketRefreshInterval);
+        } else if (data.element_relations_changed) {
+          this.refreshElementRelations.next(data.element_relations_changed);
         }
       }
     );
@@ -477,5 +488,15 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
 
   public getNewElementHeight(contentType: string): number {
     return contentType === 'labbooks.labbooksection' ? 1 : 7;
+  }
+
+  public pendingChanges(): boolean {
+    for (const element of this.elements ?? []) {
+      if (element.pendingChanges()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

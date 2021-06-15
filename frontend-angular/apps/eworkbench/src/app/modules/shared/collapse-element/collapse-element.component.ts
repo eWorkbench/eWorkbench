@@ -36,6 +36,12 @@ export class CollapseElementComponent {
   public center = true;
 
   @Input()
+  public primary = true;
+
+  @Input()
+  public border = true;
+
+  @Input()
   public toggled = new EventEmitter<boolean>();
 
   public onToggleCollapse(): void {

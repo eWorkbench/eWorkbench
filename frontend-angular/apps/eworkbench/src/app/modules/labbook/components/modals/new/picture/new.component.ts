@@ -221,6 +221,7 @@ export class NewLabBookPictureElementModalComponent implements OnInit {
           untilDestroyed(this),
           mergeMap(id =>
             this.projectsService.get(id).pipe(
+              untilDestroyed(this),
               catchError(() => {
                 return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
               })
@@ -309,7 +310,9 @@ export class NewLabBookPictureElementModalComponent implements OnInit {
     const height = this.originalImage.naturalHeight || this.originalImage.height;
     const width = this.originalImage.naturalWidth || this.originalImage.width;
     if (this.f.width.value !== width || this.f.height.value !== height) {
-      this.form.patchValue({ file: await this.resizeImage(this.originalImage, this.f.width.value!, this.f.height.value!) });
+      this.form.patchValue({
+        file: await this.resizeImage(this.originalImage, this.f.width.value!, this.f.height.value!),
+      });
     }
 
     this.picturesService

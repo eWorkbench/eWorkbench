@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 import { TableViewComponent } from './components/table-view/table-view.component';
 import { CdkTableModule } from '@angular/cdk/table';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { IconsModule } from '@eworkbench/icons';
 import { LoadingComponent } from './components/loading/loading.component';
 import { FormsModule } from '@eworkbench/forms';
@@ -22,16 +21,7 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
 @NgModule({
   declarations: [TableViewComponent, TreeViewComponent, TableSortComponent, TableColumnComponent, LoadingComponent],
-  imports: [
-    CommonModule,
-    CdkTableModule,
-    DragDropModule,
-    PaginationModule.forRoot(),
-    IconsModule,
-    FormsModule,
-    BsDropdownModule.forRoot(),
-    TooltipModule.forRoot(),
-  ],
+  imports: [CommonModule, CdkTableModule, DragDropModule, IconsModule, FormsModule, BsDropdownModule.forRoot(), TooltipModule.forRoot()],
   exports: [TableViewComponent, TreeViewComponent, TableColumnComponent],
 })
 export class TableModule {}

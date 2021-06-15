@@ -4,6 +4,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
+import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -57,6 +58,8 @@ export class NewPictureModalComponent implements OnInit {
   public state = ModalState.Unchanged;
 
   public projects: Project[] = [];
+
+  public favoriteProjects: Project[] = [];
 
   public projectInput$ = new Subject<string>();
 
@@ -133,12 +136,25 @@ export class NewPictureModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -173,16 +189,18 @@ export class NewPictureModalComponent implements OnInit {
             untilDestroyed(this),
             mergeMap(id =>
               this.projectsService.get(id).pipe(
+                untilDestroyed(this),
                 catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
                 })
               )
             )
           )
           .subscribe(
             /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project];
-              this.cdr.markForCheck();
+              this.projects = [...this.projects, project]
+                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             }
           );
       }
@@ -255,7 +273,9 @@ export class NewPictureModalComponent implements OnInit {
     const height = this.originalImage.naturalHeight || this.originalImage.height;
     const width = this.originalImage.naturalWidth || this.originalImage.width;
     if (this.f.width.value !== width || this.f.height.value !== height) {
-      this.form.patchValue({ file: await this.resizeImage(this.originalImage, this.f.width.value!, this.f.height.value!) });
+      this.form.patchValue({
+        file: await this.resizeImage(this.originalImage, this.f.width.value!, this.f.height.value!),
+      });
     }
 
     this.picturesService

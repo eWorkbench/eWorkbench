@@ -7,10 +7,10 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
-import { NotesService } from '@app/services';
+import { NotesService, ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
-import { mockNote } from '@eworkbench/mocks';
+import { mockNote, mockProject } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef } from '@ngneat/dialog';
@@ -38,6 +38,9 @@ describe('NewNoteModalComponent', () => {
     providers: [
       mockProvider(NotesService, {
         add: () => of(mockNote),
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(DialogRef, {
         close: () => {},

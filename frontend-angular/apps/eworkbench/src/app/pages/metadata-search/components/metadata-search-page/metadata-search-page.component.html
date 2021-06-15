@@ -69,7 +69,8 @@
 <ng-template #typeCellTemplate let-row>{{ row.content_type_model | formatContentTypeModel }}</ng-template>
 <ng-template #createdByCellTemplate let-row>
   <ng-container *transloco="let t">
-    {{ t('metadataSearch.createdBy') }} <eworkbench-user-details class="d-inline-block" [user]="row.created_by"></eworkbench-user-details>
+    {{ t('metadataSearch.createdBy') }}
+    <eworkbench-user-details class="d-inline-block" [user]="row.created_by"></eworkbench-user-details>
     {{ t('metadataSearch.createdBy.at') }} {{ row.created_at | formatDate }}
   </ng-container>
 </ng-template>

@@ -176,13 +176,12 @@ class PublicUserViewSet(BaseGenericViewSet,
 
         # check if a user with this e-mail already exists (must be case insensitive)
         if MyUser.objects.filter(email__iexact=email).exists():
-            raise ValidationError({
-                'email': ValidationError(
-                    _('A user with this e-mail is already registered'),
-                    params={'email': email},
-                    code='invalid'
-                )
-            })
+            # get the user and
+            user = MyUser.objects.filter(email__iexact=email).first()
+            # serialize the user object
+            serializer = self.get_serializer(user, many=False)
+            # done! Return the current user via REST API, so the user will be added to the project at this point
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         # separate email by the @ sign
         parts = email.split('@')
@@ -190,7 +189,7 @@ class PublicUserViewSet(BaseGenericViewSet,
         # take the first part of this email as the username (and remove . and _)
         username = parts[0].replace('.', '').replace('_', '')
 
-        username_exists = None
+        username_exists = True
         orig_username = username
         min_number = 1
         # check that this username does not exist

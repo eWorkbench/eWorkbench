@@ -9,9 +9,10 @@ import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { LabBookModule } from '@app/modules/labbook/labbook.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
 import { MetadataModule } from '@app/modules/metadata/metadata.module';
-import { LabBooksService } from '@app/services';
+import { LabBooksService, ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
+import { mockProject } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef } from '@ngneat/dialog';
@@ -42,6 +43,9 @@ describe('NewLabBookModalComponent', () => {
     providers: [
       mockProvider(LabBooksService, {
         add: () => of(mockLabBook),
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(DialogRef, {
         close: () => {},

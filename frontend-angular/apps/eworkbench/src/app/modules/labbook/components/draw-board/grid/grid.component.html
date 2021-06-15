@@ -17,10 +17,12 @@
         *ngFor="let item of drawBoardElements"
       >
         <eworkbench-labbook-draw-board-element
+          #elementComponent
           [id]="id"
           [element]="item.element"
           [section]="section"
           [closeSection]="closeSection"
+          [refreshElementRelations]="refreshElementRelations"
           (removed)="onRemove($event)"
           (moved)="onRemove($event)"
           (expand)="onExpandSection($event)"

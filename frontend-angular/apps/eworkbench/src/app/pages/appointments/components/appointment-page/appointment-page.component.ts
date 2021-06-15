@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -15,6 +15,7 @@ import { LeaveProjectModalComponent } from '@app/pages/projects/components/modal
 import {
   AppointmentsService,
   AuthService,
+  ContactsService,
   PageTitleService,
   ProjectsService,
   ResourcesService,
@@ -82,13 +83,19 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
 
   public contacts: Contact[] = [];
 
+  public favoriteContacts: Contact[] = [];
+
   public contactsInput$ = new Subject<string>();
 
   public projects: Project[] = [];
 
+  public favoriteProjects: Project[] = [];
+
   public projectInput$ = new Subject<string>();
 
   public resources: Resource[] = [];
+
+  public favoriteResources: Resource[] = [];
 
   public resourceInput$ = new Subject<string>();
 
@@ -135,6 +142,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
   public constructor(
     public readonly appointmentsService: AppointmentsService,
     private readonly resourcesService: ResourcesService,
+    private readonly contactsService: ContactsService,
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
     private readonly toastrService: ToastrService,
@@ -295,7 +303,9 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
 
         this.projectsService.get(params.projectId).subscribe(
           /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project];
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
           }
         );
       }
@@ -322,14 +332,12 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
       )
       .subscribe(
         /* istanbul ignore next */ contacts => {
-          if (contacts.length) {
-            this.contacts = [...contacts];
-            this.cdr.markForCheck();
-          }
+          this.contacts = [...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
       );
 
@@ -337,14 +345,12 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
-            this.cdr.markForCheck();
-          }
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
       );
 
@@ -352,12 +358,55 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.resourcesService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.resourcesService.search(input) : of([...this.favoriteResources])))
       )
       .subscribe(
         /* istanbul ignore next */ resources => {
-          if (resources.length) {
-            this.resources = [...resources];
+          this.resources = [...resources].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.contactsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ contacts => {
+          if (contacts.data.length) {
+            this.favoriteContacts = [...contacts.data];
+            this.contacts = [...this.contacts, ...this.favoriteContacts]
+              .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
+    this.resourcesService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ resources => {
+          if (resources.data.length) {
+            this.favoriteResources = [...resources.data];
+            this.resources = [...this.resources, ...this.favoriteResources]
+              .filter((value, index, array) => array.map(resource => resource.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -398,7 +447,11 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
                 location: appointment.location,
                 description: appointment.text,
                 projects: appointment.projects,
-                dateGroup: { start: appointment.date_time_start, end: appointment.date_time_end, fullDay: appointment.full_day },
+                dateGroup: {
+                  start: appointment.date_time_start,
+                  end: appointment.date_time_end,
+                  fullDay: appointment.full_day,
+                },
                 resource: appointment.resource_pk,
                 scheduledNotificationActive: Boolean(appointment.scheduled_notification?.active),
                 scheduledNotificationTimedeltaValue: appointment.scheduled_notification?.timedelta_value,
@@ -420,13 +473,20 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
               return from(privilegesData.data.projects).pipe(
                 mergeMap(id =>
                   this.projectsService.get(id).pipe(
+                    untilDestroyed(this),
                     catchError(() => {
-                      return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                      return of({
+                        pk: id,
+                        name: this.translocoService.translate('formInput.unknownProject'),
+                        is_favourite: false,
+                      } as Project);
                     })
                   )
                 ),
                 map(project => {
-                  this.projects = [...this.projects, project];
+                  this.projects = [...this.projects, project]
+                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
                 }),
                 switchMap(() => of(privilegesData))
               );
@@ -444,9 +504,13 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
           this.initialState = { ...appointment };
           this.privileges = { ...privileges };
           this.assignees = [...appointment.attending_users];
-          this.contacts = [...appointment.attending_contacts];
+          this.contacts = [...this.contacts, ...appointment.attending_contacts]
+            .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
           if (appointment.resource) {
-            this.resources = [appointment.resource];
+            this.resources = [...this.resources, appointment.resource]
+              .filter((value, index, array) => array.map(resource => resource.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
           }
 
           this.loading = false;

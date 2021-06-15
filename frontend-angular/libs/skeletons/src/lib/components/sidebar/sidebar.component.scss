@@ -3,14 +3,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
- @import 'skeleton-screen-css';
+@import 'skeleton-screen-css';
 
- :host {
-   display: block;
- 
-   .ssc-line {
-     border-radius: unset;
-     height: 100vh;
-   }
- }
- 
+:host {
+  display: block;
+
+  .ssc-line {
+    border-radius: unset;
+    height: 100vh;
+  }
+}

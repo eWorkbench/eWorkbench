@@ -1,0 +1,32 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal>
+    <div slot="header">
+      {{ t('notifications.modal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-table-view
+        #tableView
+        [columns]="listColumns"
+        [service]="notificationsService"
+        sortBy="created_at"
+        [sort]="1"
+        [columnHeader]="false"
+        [rowHover]="false"
+      ></eworkbench-table-view>
+    </div>
+    <div slot="footer">
+      <button class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+        {{ t('notifications.modal.close') }}
+      </button>
+    </div>
+  </eworkbench-modal>
+</ng-container>
+
+<ng-template #containerCellTemplate let-row>
+  <eworkbench-notification-element [notification]="row"></eworkbench-notification-element>
+</ng-template>

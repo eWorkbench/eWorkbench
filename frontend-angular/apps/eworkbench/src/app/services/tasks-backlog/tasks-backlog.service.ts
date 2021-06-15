@@ -40,6 +40,8 @@ export class TasksBacklogService implements TableViewService {
   }
 
   public addTasks(id: string, payload: any, params?: HttpParams): Observable<KanbanTask[]> {
-    return this.httpClient.post<KanbanTask[]>(`${this.apiUrl}kanbanboards/${id}/tasks/create_many/`, payload, { params });
+    return this.httpClient.post<KanbanTask[]>(`${this.apiUrl}kanbanboards/${id}/tasks/create_many/`, payload, {
+      params,
+    });
   }
 }

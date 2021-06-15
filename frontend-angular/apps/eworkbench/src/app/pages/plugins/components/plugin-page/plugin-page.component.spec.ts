@@ -17,7 +17,7 @@ import { RecentChangesModule } from '@app/modules/recent-changes/recent-changes.
 import { SharedModule } from '@app/modules/shared/shared.module';
 import { UserModule } from '@app/modules/user/user.module';
 import { VersionsModule } from '@app/modules/versions/versions.module';
-import { AuthService, PageTitleService, PluginInstancesService } from '@app/services';
+import { AuthService, PageTitleService, PluginInstancesService, ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
@@ -28,6 +28,7 @@ import {
   mockPluginInstanceHistory,
   mockPluginInstanceVersion,
   mockPrivileges,
+  mockProject,
   mockRelationList,
   mockUser,
 } from '@eworkbench/mocks';
@@ -73,6 +74,9 @@ describe('PluginPageComponent', () => {
         unlock: () => of([]),
         getUserPrivileges: () => of(mockPrivileges),
         getRelations: () => of(mockRelationList),
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(AuthService, {
         user$: of({ state: { user: mockUser } }),

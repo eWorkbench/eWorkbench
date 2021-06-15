@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -74,6 +75,8 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   public styles: { [key: string]: string | undefined } = {};
 
   public projects: Project[] = [];
+
+  public favoriteProjects: Project[] = [];
 
   public projectInput$ = new Subject<string>();
 
@@ -189,14 +192,16 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
         .pipe(
           mergeMap(id =>
             this.projectsService.get(id).pipe(
+              untilDestroyed(this),
               catchError(() => {
-                return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
               })
             )
           ),
           map(project => {
-            this.projects = [...this.projects, project];
-            this.cdr.markForCheck();
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
           }),
           switchMap(() => of(privilegesData))
         )
@@ -228,7 +233,9 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
 
         this.projectsService.get(params.projectId).subscribe(
           /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project];
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
           }
         );
       }
@@ -269,12 +276,25 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -402,7 +422,10 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
 
   public openBackgroundModal(): void {
     /* istanbul ignore next */
-    this.modalRef = this.modalService.open(BackgroundModalComponent, { closeButton: false, data: { taskBoard: this.initialState! } });
+    this.modalRef = this.modalService.open(BackgroundModalComponent, {
+      closeButton: false,
+      data: { taskBoard: this.initialState! },
+    });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }

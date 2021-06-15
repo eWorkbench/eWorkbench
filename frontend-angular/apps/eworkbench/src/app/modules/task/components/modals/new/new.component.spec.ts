@@ -7,16 +7,17 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { LabelModule } from '@app/modules/label/label.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
 import { TaskModule } from '@app/modules/task/task.module';
+import { ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
-import { mockTask } from '@eworkbench/mocks';
+import { mockProject, mockTask } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { NewTaskModalComponent } from './new.component';
 
 describe('NewTaskModalComponent', () => {
@@ -39,6 +40,9 @@ describe('NewTaskModalComponent', () => {
         close: () => {},
         afterClosed$: new Subject(),
         data: {},
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
     ],
     mocks: [ToastrService, DialogService],

@@ -11,6 +11,7 @@ export const mockFAQCategory: FAQCategory = {
   title: 'Category 1',
   slug: 'category-1',
   public: true,
+  ordering: 1,
 };
 
 export const mockFAQ: FAQ = {
@@ -18,6 +19,7 @@ export const mockFAQ: FAQ = {
   answer: '<p>q1 entry</p>',
   public: true,
   category: mockFAQCategory,
+  ordering: 1,
 };
 
 export const mockFAQList: DjangoAPI<FAQ[]> = {

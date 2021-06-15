@@ -310,7 +310,11 @@ export class EditAppointmentModalComponent implements OnInit {
             this.form.patchValue(
               {
                 title: appointment.title,
-                dateGroup: { start: appointment.date_time_start, end: appointment.date_time_end, fullDay: appointment.full_day },
+                dateGroup: {
+                  start: appointment.date_time_start,
+                  end: appointment.date_time_end,
+                  fullDay: appointment.full_day,
+                },
                 resource: appointment.resource_pk,
                 location: appointment.location,
                 attendingUsers: appointment.attending_users_pk,
@@ -339,8 +343,12 @@ export class EditAppointmentModalComponent implements OnInit {
               return from(privilegesData.data.projects).pipe(
                 mergeMap(id =>
                   this.projectsService.get(id).pipe(
+                    untilDestroyed(this),
                     catchError(() => {
-                      return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                      return of({
+                        pk: id,
+                        name: this.translocoService.translate('formInput.unknownProject'),
+                      } as Project);
                     })
                   )
                 ),

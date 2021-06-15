@@ -71,9 +71,9 @@
           </ng-container>
         </div>
         <div class="footer mt-2">
-          <a class="ml-2" [routerLink]="['/notifications']" routerLinkActive="active">
+          <div class="ml-2 cursor-pointer" (click)="onOpenNotificationsModal()">
             {{ t('navbar.globalNotifications.showAll') }}
-          </a>
+          </div>
           <div *ngIf="notificationService.hasUnread" class="ml-2 cursor-pointer" (click)="onReadAll()">
             {{ t('navbar.globalNotifications.markAllAsRead') }}
           </div>

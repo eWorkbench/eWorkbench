@@ -14,6 +14,7 @@ import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { MockService } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
@@ -35,6 +36,7 @@ describe('VersionsComponent', () => {
       UserModule,
       WysiwygEditorModule,
       IconsModule,
+      SkeletonsModule,
     ],
     providers: [MockService],
     mocks: [ToastrService],

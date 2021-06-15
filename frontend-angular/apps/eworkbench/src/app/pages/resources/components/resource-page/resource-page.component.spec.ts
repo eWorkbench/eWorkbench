@@ -26,6 +26,7 @@ import {
   mockMetadata,
   mockPageTitle,
   mockPrivileges,
+  mockProject,
   mockRelationList,
   mockResource,
   mockResourceHistory,
@@ -79,6 +80,7 @@ describe('ResourcePageComponent', () => {
       }),
       mockProvider(ProjectsService, {
         get: () => of({}),
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(AuthService, {
         user$: of({ state: { user: mockUser } }),

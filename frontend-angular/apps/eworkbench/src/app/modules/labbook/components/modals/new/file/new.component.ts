@@ -201,6 +201,7 @@ export class NewLabBookFileElementModalComponent implements OnInit {
           untilDestroyed(this),
           mergeMap(id =>
             this.projectsService.get(id).pipe(
+              untilDestroyed(this),
               catchError(() => {
                 return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
               })

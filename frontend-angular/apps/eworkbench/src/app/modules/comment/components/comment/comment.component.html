@@ -13,7 +13,8 @@
         {{ subject }}
       </div>
       <div class="text-secondary">
-        {{ t('comments.comment.createdBy') }} <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details> -
+        {{ t('comments.comment.createdBy') }}
+        <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details> -
         <span class="font-italic">{{ createdAt | formatDate }}</span>
       </div>
       {{ comment | stripHTML }}

@@ -16,7 +16,7 @@
       <div class="flex-fill">
         <ng-content select="[slot=input]"></ng-content>
       </div>
-      <div class="ml-2 align-self-center text-nowrap" *ngIf="showButtons">
+      <div class="ml-2 text-nowrap" [class]="buttonPosition" *ngIf="showButtons">
         <button
           type="submit"
           class="btn ewb-button-big ewb-button-primary square mr-1"

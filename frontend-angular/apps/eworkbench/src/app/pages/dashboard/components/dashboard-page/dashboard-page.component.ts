@@ -387,7 +387,10 @@ export class DashboardPageComponent implements OnInit {
     const svg = select('#chart').append('svg').attr('width', width).attr('height', height);
 
     const nodes = hierarchy({
-      children: Object.entries(this.dashboard.summary!).map(([key, value]) => ({ name: this.renameBubbleKeys(key), count: value })),
+      children: Object.entries(this.dashboard.summary!).map(([key, value]) => ({
+        name: this.renameBubbleKeys(key),
+        count: value,
+      })),
     }).sum((d: any) => d.count);
 
     const node = svg

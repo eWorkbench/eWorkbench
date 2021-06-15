@@ -7,7 +7,7 @@ import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { AppointmentsService, AuthService, ProjectsService, ResourcesService, SearchService } from '@app/services';
+import { AppointmentsService, AuthService, ContactsService, ProjectsService, ResourcesService, SearchService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { CalendarEvent } from '@eworkbench/calendar';
 import { Appointment, AppointmentPayload, Contact, DateGroup, DropdownElement, Project, Resource, User } from '@eworkbench/types';
@@ -67,13 +67,19 @@ export class NewAppointmentModalComponent implements OnInit {
 
   public contacts: Contact[] = [];
 
+  public favoriteContacts: Contact[] = [];
+
   public contactsInput$ = new Subject<string>();
 
   public projects: Project[] = [];
 
+  public favoriteProjects: Project[] = [];
+
   public projectInput$ = new Subject<string>();
 
   public resources: Resource[] = [];
+
+  public favoriteResources: Resource[] = [];
 
   public resourceInput$ = new Subject<string>();
 
@@ -104,6 +110,7 @@ export class NewAppointmentModalComponent implements OnInit {
     public readonly modalRef: DialogRef,
     private readonly appointmentsService: AppointmentsService,
     private readonly resourcesService: ResourcesService,
+    private readonly contactsService: ContactsService,
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
     private readonly translocoService: TranslocoService,
@@ -210,14 +217,12 @@ export class NewAppointmentModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
       )
       .subscribe(
         /* istanbul ignore next */ contacts => {
-          if (contacts.length) {
-            this.contacts = [...contacts];
-            this.cdr.markForCheck();
-          }
+          this.contacts = [...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
       );
 
@@ -225,14 +230,12 @@ export class NewAppointmentModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
-            this.cdr.markForCheck();
-          }
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
       );
 
@@ -240,14 +243,12 @@ export class NewAppointmentModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.resourcesService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.resourcesService.search(input) : of([...this.favoriteResources])))
       )
       .subscribe(
         /* istanbul ignore next */ resources => {
-          if (resources.length) {
-            this.resources = [...resources];
-            this.cdr.markForCheck();
-          }
+          this.resources = [...resources].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
       );
 
@@ -264,6 +265,51 @@ export class NewAppointmentModalComponent implements OnInit {
         /* istanbul ignore next */ users => {
           if (users.length) {
             this.createForUsers = [...users];
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
+    this.contactsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ contacts => {
+          if (contacts.data.length) {
+            this.favoriteContacts = [...contacts.data];
+            this.contacts = [...this.contacts, ...this.favoriteContacts]
+              .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
+    this.resourcesService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ resources => {
+          if (resources.data.length) {
+            this.favoriteResources = [...resources.data];
+            this.resources = [...this.resources, ...this.favoriteResources]
+              .filter((value, index, array) => array.map(resource => resource.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -334,16 +380,18 @@ export class NewAppointmentModalComponent implements OnInit {
             untilDestroyed(this),
             mergeMap(id =>
               this.projectsService.get(id).pipe(
+                untilDestroyed(this),
                 catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
                 })
               )
             )
           )
           .subscribe(
             /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project];
-              this.cdr.markForCheck();
+              this.projects = [...this.projects, project]
+                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             }
           );
       }

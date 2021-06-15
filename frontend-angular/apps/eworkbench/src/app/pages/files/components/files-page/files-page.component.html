@@ -16,9 +16,19 @@
             [placeholder]="t('files.header.projects.placeholder')"
             [typeahead]="projectsInput$"
             [items]="projects"
+            groupBy="is_favourite"
             bindLabel="name"
             bindValue="pk"
-          ></ng-select>
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+              {{ item.name }}
+            </ng-template>
+            <ng-template ng-optgroup-tmp let-item="item">
+              <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+              <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+            </ng-template>
+          </ng-select>
         </div>
 
         <div class="search-input mr-2">
@@ -89,7 +99,7 @@
             </button>
           </div>
         </div>
-        <div class="search-input">
+        <div class="search-input mr-2">
           <ng-select
             class="ewb-select"
             [formControl]="dssContainersControl"
@@ -100,6 +110,30 @@
             bindLabel="name"
             bindValue="pk"
           ></ng-select>
+        </div>
+        <div class="search-input">
+          <ng-select
+            class="ewb-select"
+            [formControl]="storageControl"
+            labelForId="storage-header"
+            name="storage-modal"
+            [placeholder]="t('files.header.storages.placeholder')"
+            [items]="directories"
+            bindLabel="display"
+            bindValue="pk"
+            [clearable]="true"
+            [searchable]="true"
+          >
+            <ng-template ng-label-tmp let-item="item">
+              <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon>
+              {{ item.display }}
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item">
+              <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon>
+              {{ item.display }}
+            </ng-template>
+          </ng-select>
         </div>
       </div>
     </ng-container>

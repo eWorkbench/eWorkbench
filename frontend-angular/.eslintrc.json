@@ -4,5 +4,8 @@
   "extends": ["@anexia/eslint-config-marine/prettier/node", "@anexia/eslint-config-marine/prettier/angular"],
   "parserOptions": {
     "project": "./tsconfig.*?.json"
+  },
+  "rules": {
+    "prettier/prettier": [2, {}, { "usePrettierrc": true }]
   }
 }

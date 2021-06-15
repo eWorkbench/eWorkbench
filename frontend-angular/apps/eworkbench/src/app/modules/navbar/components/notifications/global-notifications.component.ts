@@ -8,6 +8,8 @@ import { NotificationsService } from '@app/services/notifications/notifications.
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Notification } from '@eworkbench/types';
 import { HttpParams } from '@angular/common/http';
+import { DialogService } from '@ngneat/dialog';
+import { NotificationsModalComponent } from '@app/modules/notification/components/modals/notifications/notifications.component';
 
 @UntilDestroy()
 @Component({
@@ -17,7 +19,11 @@ import { HttpParams } from '@angular/common/http';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GlobalNotificationsComponent implements OnInit {
-  public constructor(public readonly notificationService: NotificationsService, private readonly cdr: ChangeDetectorRef) {}
+  public constructor(
+    public readonly notificationService: NotificationsService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly modalService: DialogService
+  ) {}
 
   public unreadNotifications: Notification[] = [];
 
@@ -45,6 +51,14 @@ export class GlobalNotificationsComponent implements OnInit {
       .read(notification.pk)
       .pipe(untilDestroyed(this))
       .subscribe(() => this.initNotifications());
+  }
+
+  public onOpenNotificationsModal(): void {
+    /* istanbul ignore next */
+    this.modalService.open(NotificationsModalComponent, {
+      closeButton: false,
+      width: '1200px',
+    });
   }
 
   public onReadAll(): void {

@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { Validators } from '@angular/forms';
 import { CommentsModalComponent } from '@app/modules/comment/components/modals/comments/comments.component';
 import { PictureEditorModalComponent } from '@app/modules/picture/modals/editor.component';
-import { AuthService, PicturesService, WebSocketService } from '@app/services';
+import { AuthService, LabBooksService, PicturesService, WebSocketService } from '@app/services';
 import { LabBookElement, Lock, Picture, PicturePayload, Privileges, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
@@ -43,6 +43,9 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
   @Input()
   public section?: string;
 
+  @Input()
+  public refreshElementRelations?: EventEmitter<{ model_name: string; model_pk: string }>;
+
   @Output()
   public removed = new EventEmitter<ElementRemoval>();
 
@@ -71,6 +74,7 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
 
   public constructor(
     public readonly picturesService: PicturesService,
+    private readonly labBooksService: LabBooksService,
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
     private readonly toastrService: ToastrService,
@@ -122,6 +126,13 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
         }
       }
     );
+
+    /* istanbul ignore next */
+    this.refreshElementRelations?.subscribe((event: { model_name: string; model_pk: string }) => {
+      if (event.model_name === 'picture' && event.model_pk === this.initialState!.pk) {
+        this.refreshElementRelationsCounter();
+      }
+    });
   }
 
   public initDetails(): void {
@@ -187,6 +198,10 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
       );
   }
 
+  public pendingChanges(): boolean {
+    return this.form.dirty;
+  }
+
   public onRemove(event: ElementRemoval): void {
     this.removed.emit(event);
   }
@@ -226,6 +241,19 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
           const picture = privilegesData.data;
           this.element.child_object = { ...picture };
           this.initDetails();
+          this.cdr.markForCheck();
+        }
+      );
+  }
+
+  public refreshElementRelationsCounter(): void {
+    this.labBooksService
+      .getElement(this.id, this.element.pk)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ element => {
+          this.element.num_related_notes = element.num_related_notes;
+          this.element.num_relations = element.num_relations;
           this.cdr.markForCheck();
         }
       );

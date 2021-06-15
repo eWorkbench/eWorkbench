@@ -7,11 +7,14 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { HeaderModule } from '@app/modules/header/header.module';
+import { ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
-import { mockUser } from '@eworkbench/mocks';
+import { mockProject, mockUser } from '@eworkbench/mocks';
 import { SkeletonsModule } from '@eworkbench/skeletons';
+import { mockProvider } from '@ngneat/spectator';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ToastrService } from 'ngx-toastr';
+import { of } from 'rxjs';
 import { StoragePageComponent } from './storage-page.component';
 
 describe('StoragePageComponent', () => {
@@ -19,6 +22,11 @@ describe('StoragePageComponent', () => {
   const createComponent = createComponentFactory({
     component: StoragePageComponent,
     imports: [getTranslocoModule(), HttpClientTestingModule, RouterTestingModule, HeaderModule, SkeletonsModule, FavoritesModule],
+    providers: [
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
+      }),
+    ],
     mocks: [ToastrService],
   });
 

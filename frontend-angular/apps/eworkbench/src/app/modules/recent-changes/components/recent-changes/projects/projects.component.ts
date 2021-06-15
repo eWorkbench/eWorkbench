@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } 
 import { ProjectsService } from '@app/services';
 import { Project } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { from, of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 
@@ -40,6 +40,7 @@ export class RecentChangesProjectsComponent implements OnInit {
       .pipe(
         mergeMap(id =>
           this.projectsService.get(id).pipe(
+            untilDestroyed(this),
             catchError(() => {
               return of({ pk: id, display: this.translocoService.translate('formInput.unknownProject') } as Project);
             })

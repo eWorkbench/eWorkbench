@@ -143,7 +143,11 @@ export class NewDssContainerModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ dssContainer => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: dssContainer }, navigate: ['/dsscontainers', dssContainer.pk] });
+          this.modalRef.close({
+            state: this.state,
+            data: { newContent: dssContainer },
+            navigate: ['/dsscontainers', dssContainer.pk],
+          });
           this.toastrService.success(this.translocoService.translate('dssContainer.newModal.toastr.success'));
         },
         /* istanbul ignore next */ () => {

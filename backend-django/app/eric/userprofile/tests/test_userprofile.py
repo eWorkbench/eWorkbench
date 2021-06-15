@@ -126,12 +126,7 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
         """ Tests inviting a user via e-mail which already exists in the database """
         response = self.rest_invite_external_user(self.token1, "student_1@email.com", "Hello", HTTP_USER_AGENT,
                                                   REMOTE_ADDR)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        decoded = json.loads(response.content.decode())
-        self.assertTrue('email' in decoded, msg="Check that the response message says that the e-mail already exists")
-        self.assertTrue('already' in str(decoded['email']),
-                        msg="Check that the response message says that the e-mail already exists")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_change_password(self):
         """ Tests changing the password of an user account """

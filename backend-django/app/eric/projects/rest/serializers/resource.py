@@ -111,6 +111,7 @@ class MinimalisticResourceSerializer(BaseModelWithCreatedBySerializer):
             'contact',
             'created_by',
             'created_at',
+            'is_favourite',
         )
 
 

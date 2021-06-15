@@ -10,7 +10,33 @@
     font-size: 18px;
   }
 
+  button {
+    .hover {
+      display: none;
+    }
+
+    &:hover {
+      .default {
+        display: none;
+      }
+
+      .hover {
+        display: block;
+      }
+    }
+  }
+
   .favorited {
     color: #fc3 !important;
+
+    &:hover {
+      .default {
+        display: none;
+      }
+
+      .hover {
+        display: block;
+      }
+    }
   }
 }

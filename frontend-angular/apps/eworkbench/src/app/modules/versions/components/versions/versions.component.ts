@@ -61,6 +61,9 @@ export class VersionsComponent implements OnInit {
   @Input()
   public editable = false;
 
+  @Input()
+  public finalizeVersionAlwaysVisible = false;
+
   @Output()
   public changed = new EventEmitter<ModalCallback>();
 
@@ -124,7 +127,7 @@ export class VersionsComponent implements OnInit {
   }
 
   public updateVersionInProgress(): void {
-    if (this.data.length === 0 || this.isLastVersionModified()) {
+    if (this.data.length === 0 || this.isLastVersionModified() || this.finalizeVersionAlwaysVisible) {
       this.versionInProgress = this.getNextVersionNumber();
     } else {
       this.versionInProgress = null;

@@ -24,7 +24,8 @@
 <ng-template #createdByCellTemplate let-row>
   <ng-container *transloco="let t">
     <div *ngIf="row.created_at">
-      {{ t('versions.createdBy') }} <eworkbench-user-details class="d-inline-block" [user]="row.created_by"></eworkbench-user-details>
+      {{ t('versions.createdBy') }}
+      <eworkbench-user-details class="d-inline-block" [user]="row.created_by"></eworkbench-user-details>
     </div>
   </ng-container>
 </ng-template>

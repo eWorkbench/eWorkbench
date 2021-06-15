@@ -11,6 +11,7 @@ import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LinkModule } from '@app/modules/link/link.module';
+import { LoadingModule } from '@app/modules/loading/loading.module';
 import { LockModule } from '@app/modules/lock/lock.module';
 import { MetadataModule } from '@app/modules/metadata/metadata.module';
 import { ProjectModule } from '@app/modules/project/project.module';
@@ -57,6 +58,7 @@ import { StoragesPageRoutingModule } from './storages-page-routing.module';
     ClipboardModule,
     ProjectModule,
     FavoritesModule,
+    LoadingModule,
   ],
 })
 export class StoragesPageModule {}

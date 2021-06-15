@@ -26,7 +26,10 @@
     <div
       #core
       class="ewb-canvas-helper"
-      [ngStyle]="{ 'width.px': picture.width ? picture.width : 600, 'height.px': picture.height ? picture.height : 600 }"
+      [ngStyle]="{
+        'width.px': picture.width ? picture.width : 600,
+        'height.px': picture.height ? picture.height : 600
+      }"
     ></div>
   </div>
 </div>

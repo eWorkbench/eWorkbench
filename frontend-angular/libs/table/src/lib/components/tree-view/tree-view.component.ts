@@ -6,7 +6,6 @@
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { difference } from 'lodash-es';
-import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { TableSortDirection } from '../../enums/table-sort-direction.enum';
 import { TableColumn } from '../../interfaces/table-column.interface';
@@ -81,6 +80,8 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
 
   public loading = false;
 
+  public loadingMore = false;
+
   public firstDataLoaded = false;
 
   private serviceSubscription?: Subscription;
@@ -153,12 +154,13 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
     this.expandServiceSubscription?.unsubscribe();
   }
 
-  public onPageChanged(event: PageChangedEvent): void {
-    this.page = event.page;
+  public onLoadMore(): void {
+    this.page += 1;
     if (this.service) {
-      this.loadData();
+      this.loadingMore = true;
+      this.loadData(true);
     } else {
-      const slice = this.data.slice(this.offset, this.page * this.paginationSize);
+      const slice = this.data.slice(0, this.page * this.paginationSize);
       this.dataSource$.next(slice);
     }
   }
@@ -249,6 +251,10 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
       this.loading = true;
       this.cdr.markForCheck();
 
+      if (!append) {
+        this.page = 1;
+      }
+
       const baseParams = httpParams ?? this.params ?? new HttpParams();
       let params = baseParams.set(this.offsetField, this.offset.toString()).set(this.perPageField, this.paginationSize.toString());
 
@@ -257,7 +263,6 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       this.serviceSubscription = this.service.getList(params).subscribe((event: any) => {
-        /* istanbul ignore if */
         if (append) {
           this.data = [...this.data, ...event.data];
         } else {
@@ -270,9 +275,11 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
           d.expanded = false;
           d.level = 0;
         });
-        this.dataSource$.next(this.data);
+
         this.loading = false;
+        this.loadingMore = false;
         this.firstDataLoaded = true;
+        this.dataSource$.next(this.data);
         this.cdr.markForCheck();
       });
     }

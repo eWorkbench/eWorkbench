@@ -3,6 +3,9 @@
 exports[`FooterComponent should match snapshot 1`] = `
 <eworkbench-footer
   __ngContext__={[Function LRootView]}
+  authService={[Function Object]}
+  cdr={[Function ViewRef]}
+  currentUser="undefined"
   translocoService={[Function TranslocoService]}
 >
   <footer
@@ -16,6 +19,7 @@ exports[`FooterComponent should match snapshot 1`] = `
     <ul
       class="navbar-nav ml-auto h-100"
     >
+      
       <li
         class="h-100 d-flex align-items-center"
       >
@@ -25,7 +29,7 @@ exports[`FooterComponent should match snapshot 1`] = `
           <button
             class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
           >
-            Contact
+             FAQ 
           </button>
         </a>
       </li>
@@ -38,7 +42,7 @@ exports[`FooterComponent should match snapshot 1`] = `
           <button
             class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
           >
-            FAQ
+             Privacy Policy 
           </button>
         </a>
       </li>
@@ -51,7 +55,7 @@ exports[`FooterComponent should match snapshot 1`] = `
           <button
             class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
           >
-            Privacy Policy
+             Imprint 
           </button>
         </a>
       </li>
@@ -64,20 +68,7 @@ exports[`FooterComponent should match snapshot 1`] = `
           <button
             class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
           >
-            Imprint
-          </button>
-        </a>
-      </li>
-      <li
-        class="h-100 d-flex align-items-center"
-      >
-        <a
-          class="h-100 w-100"
-        >
-          <button
-            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
-          >
-            OSS Licenses
+             OSS Licenses 
           </button>
         </a>
       </li>
@@ -92,7 +83,7 @@ exports[`FooterComponent should match snapshot 1`] = `
           <button
             class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
           >
-            GitHub
+             GitHub 
           </button>
         </a>
       </li>

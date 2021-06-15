@@ -7,10 +7,10 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
-import { ContactsService } from '@app/services';
+import { ContactsService, ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
-import { mockContact, mockUser } from '@eworkbench/mocks';
+import { mockContact, mockProject, mockUser } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { DialogRef } from '@ngneat/dialog';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
@@ -36,6 +36,10 @@ describe('NewContactModalComponent', () => {
     providers: [
       mockProvider(ContactsService, {
         add: () => of(mockContact),
+      }),
+      mockProvider(ProjectsService, {
+        get: () => of(mockProject),
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(DialogRef, {
         close: () => {},

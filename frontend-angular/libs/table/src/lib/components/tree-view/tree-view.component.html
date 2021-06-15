@@ -11,7 +11,7 @@
 </div>
 
 <ng-container *ngIf="firstDataLoaded">
-  <eworkbench-loading [loading]="loading">
+  <eworkbench-loading [loading]="!firstDataLoaded && loading">
     <table cdk-table [dataSource]="dataSource$">
       <ng-container *ngFor="let column of columns; first as isFirst" [cdkColumnDef]="column.key">
         <th cdk-header-cell *cdkHeaderCellDef>
@@ -48,21 +48,17 @@
 
     <div *ngIf="!loading && !data?.length" class="no-result">No results</div>
 
+    <div *ngIf="loadingMore" class="d-flex justify-content-center align-items-center">
+      <div class="spinner-border mt-3" role="status"></div>
+    </div>
+
     <div [class.d-none]="!data?.length">
-      <pagination
-        *ngIf="pagination && total > paginationSize"
-        class="ewb-pagination mt-4"
-        [customFirstTemplate]="firstTemplate"
-        [customLastTemplate]="lastTemplate"
-        [customPreviousTemplate]="previousTemplate"
-        [customNextTemplate]="nextTemplate"
-        [boundaryLinks]="true"
-        [totalItems]="total"
-        [itemsPerPage]="paginationSize"
-        [maxSize]="5"
-        [rotate]="true"
-        (pageChanged)="onPageChanged($event)"
-      ></pagination>
+      <div
+        class="text-center mt-4"
+        *ngIf="pagination && total > paginationSize && (data.length < total || dataSource$.value.length < total)"
+      >
+        <button type="button" class="btn ewb-button-big ewb-button-table" (click)="onLoadMore()">show more</button>
+      </div>
     </div>
   </eworkbench-loading>
 </ng-container>

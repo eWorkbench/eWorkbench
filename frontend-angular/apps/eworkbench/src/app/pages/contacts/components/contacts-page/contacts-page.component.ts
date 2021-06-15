@@ -90,6 +90,8 @@ export class ContactsPageComponent implements OnInit {
 
   public projects: Project[] = [];
 
+  public favoriteProjects: Project[] = [];
+
   public projectsInput$ = new Subject<string>();
 
   public showSidebar = false;
@@ -231,7 +233,9 @@ export class ContactsPageComponent implements OnInit {
 
         this.projectsService.get(params.projectId).subscribe(
           /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project];
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.projectsControl.setValue(params.projectId);
             this.project = params.projectId;
           }
@@ -345,12 +349,25 @@ export class ContactsPageComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -394,7 +411,12 @@ export class ContactsPageComponent implements OnInit {
     );
 
     this.listColumns = values(merged);
-    const settings = this.listColumns.map(col => ({ key: col.key, sort: col.sort, hidden: col.hidden, hideable: col.hideable }));
+    const settings = this.listColumns.map(col => ({
+      key: col.key,
+      sort: col.sort,
+      hidden: col.hidden,
+      hideable: col.hideable,
+    }));
 
     this.userService
       .get()

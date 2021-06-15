@@ -6,11 +6,11 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LoadingModule } from '@app/modules/loading/loading.module';
-import { TaskBoardsService } from '@app/services';
+import { ProjectsService, TaskBoardsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
-import { mockKanbanTask, mockTaskBoardColumn } from '@eworkbench/mocks';
+import { mockKanbanTask, mockProject, mockTaskBoardColumn } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { TableModule } from '@eworkbench/table';
 import { DialogRef } from '@ngneat/dialog';
@@ -32,6 +32,9 @@ describe('BacklogModalComponent', () => {
         close: () => {},
         afterClosed$: new Subject(),
         data: {},
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
     ],
     mocks: [ToastrService],

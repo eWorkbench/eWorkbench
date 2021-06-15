@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { CommentsModalComponent } from '@app/modules/comment/components/modals/comments/comments.component';
-import { AuthService, PluginInstancesService, WebSocketService } from '@app/services';
+import { AuthService, LabBooksService, PluginInstancesService, WebSocketService } from '@app/services';
 import { LabBookElement, Lock, PluginInstance, PluginInstancePayload, Privileges, User } from '@eworkbench/types';
 import { DialogService } from '@ngneat/dialog';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
@@ -41,6 +41,9 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
   @Input()
   public section?: string;
 
+  @Input()
+  public refreshElementRelations?: EventEmitter<{ model_name: string; model_pk: string }>;
+
   @Output()
   public removed = new EventEmitter<ElementRemoval>();
 
@@ -67,6 +70,7 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
 
   public constructor(
     public readonly pluginInstancesService: PluginInstancesService,
+    private readonly labBooksService: LabBooksService,
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
     private readonly toastrService: ToastrService,
@@ -127,6 +131,13 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
         }
       }
     );
+
+    /* istanbul ignore next */
+    this.refreshElementRelations?.subscribe((event: { model_name: string; model_pk: string }) => {
+      if (event.model_name === 'plugininstance' && event.model_pk === this.initialState!.pk) {
+        this.refreshElementRelationsCounter();
+      }
+    });
   }
 
   public getDetails(): void {
@@ -226,6 +237,10 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
       );
   }
 
+  public pendingChanges(): boolean {
+    return this.form.dirty;
+  }
+
   public onRemove(event: ElementRemoval): void {
     this.removed.emit(event);
   }
@@ -240,5 +255,18 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
       closeButton: false,
       data: { service: this.pluginInstancesService, element: this.initialState },
     });
+  }
+
+  public refreshElementRelationsCounter(): void {
+    this.labBooksService
+      .getElement(this.id, this.element.pk)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ element => {
+          this.element.num_related_notes = element.num_related_notes;
+          this.element.num_relations = element.num_relations;
+          this.cdr.markForCheck();
+        }
+      );
   }
 }

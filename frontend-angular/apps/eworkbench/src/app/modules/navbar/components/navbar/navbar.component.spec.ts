@@ -24,6 +24,7 @@ import { GlobalSearchComponent } from '../global-search/global-search.component'
 import { GlobalNotificationsComponent } from '../notifications/global-notifications.component';
 import { OrderedMenuComponent } from '../ordered-menu/ordered-menu.component';
 import { NavbarComponent } from './navbar.component';
+import { ModalsModule } from '@eworkbench/modals';
 
 describe('NavbarComponent', () => {
   let spectator: Spectator<NavbarComponent>;
@@ -40,6 +41,7 @@ describe('NavbarComponent', () => {
       IconsModule,
       DragDropModule,
       MatomoModule,
+      ModalsModule,
     ],
     providers: [
       mockProvider(AuthService, {

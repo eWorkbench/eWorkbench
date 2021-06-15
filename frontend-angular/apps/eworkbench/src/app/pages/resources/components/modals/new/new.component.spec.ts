@@ -8,11 +8,11 @@ import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dro
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
 import { ResourceModule } from '@app/modules/resource/resource.module';
-import { ResourcesService } from '@app/services';
+import { ProjectsService, ResourcesService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
-import { mockResource } from '@eworkbench/mocks';
+import { mockProject, mockResource } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef } from '@ngneat/dialog';
@@ -43,6 +43,9 @@ describe('NewResourceModalComponent', () => {
       mockProvider(ResourcesService, {
         add: () => of(mockResource),
         changeTermsOfUsePDF: () => of(mockResource),
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(DialogRef, {
         close: () => {},

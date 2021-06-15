@@ -13,6 +13,10 @@
     border: 1px solid $border-color;
     border-bottom: none;
 
+    &.no-border {
+      border: none;
+    }
+
     &-header {
       display: flex;
 
@@ -22,6 +26,11 @@
 
       .close-button {
         color: #ffffff;
+        font-size: 12px;
+      }
+
+      .close-button-secondary {
+        color: #000000;
         font-size: 12px;
       }
 

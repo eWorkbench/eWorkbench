@@ -23,7 +23,9 @@ describe('SearchContentComponent', () => {
 
   beforeEach(
     () =>
-      (spectator = createComponent({ props: { listColumns: [], baseModel: mockContact, formArray: new FormArray<RelationPayload>([]) } }))
+      (spectator = createComponent({
+        props: { listColumns: [], baseModel: mockContact, formArray: new FormArray<RelationPayload>([]) },
+      }))
   );
 
   it('should create', () => {

@@ -12,6 +12,7 @@ import { getTranslocoModule } from '@app/transloco-testing.module';
 import { IconsModule } from '@eworkbench/icons';
 import { mockNoteHistory, MockService } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { cloneDeep } from 'lodash-es';
@@ -30,6 +31,7 @@ describe('RecentChangesComponent', () => {
       SharedModule,
       MetadataModule,
       IconsModule,
+      SkeletonsModule,
     ],
     providers: [MockService],
   });

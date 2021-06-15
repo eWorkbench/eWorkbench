@@ -10,15 +10,28 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslocoRootModule } from '@app/transloco-root.module';
 import { ModalsModule } from '@eworkbench/modals';
+import { TableModule } from '@eworkbench/table';
 import { IconsModule } from 'libs/icons/src/lib/icons.module';
 import { LoadingModule } from '../loading/loading.module';
 import { SharedModule } from '../shared/shared.module';
 import { UserModule } from '../user/user.module';
+import { NotificationsModalComponent } from './components/modals/notifications/notifications.component';
 import { NotificationElementComponent } from './components/notification-element/notification-element.component';
 
 @NgModule({
-  declarations: [NotificationElementComponent],
-  imports: [CommonModule, LoadingModule, SharedModule, IconsModule, TranslocoRootModule, RouterModule, ModalsModule, UserModule],
-  exports: [NotificationElementComponent],
+  declarations: [NotificationElementComponent, NotificationsModalComponent],
+  imports: [
+    CommonModule,
+    LoadingModule,
+    SharedModule,
+    IconsModule,
+    TranslocoRootModule,
+    RouterModule,
+    ModalsModule,
+    UserModule,
+    TableModule,
+    IconsModule,
+  ],
+  exports: [NotificationElementComponent, NotificationsModalComponent],
 })
 export class NotificationModule {}

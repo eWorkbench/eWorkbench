@@ -168,6 +168,14 @@ describe('LabBooksService', () => {
     spectator.expectOne(`${spectator.service.apiUrl}${pk}/elements/`, HttpMethod.GET);
   });
 
+  it('should get all LabBook element', () => {
+    const elementId = 'df73185c-d357-2e44-78b7-a54b4e7ccba9';
+    spectator.service.getElement(pk, elementId).subscribe(data => {
+      expect(data).toEqual(mockLabBookNoteElement);
+    });
+    spectator.expectOne(`${spectator.service.apiUrl}${pk}/elements/${elementId}/`, HttpMethod.GET);
+  });
+
   it('should add a new LabBook element', () => {
     const element: LabBookElementPayload = {
       child_object_content_type: 28,

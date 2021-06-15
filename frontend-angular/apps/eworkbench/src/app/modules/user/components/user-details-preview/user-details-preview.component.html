@@ -15,7 +15,9 @@
         </div>
         <div *ngIf="user.userprofile.country">{{ user.userprofile.country }}</div>
       </div>
-      <div *ngIf="user.userprofile.org_zug_mitarbeiter_lang" class="mb-2">{{ user.userprofile.org_zug_mitarbeiter_lang }}</div>
+      <div *ngIf="user.userprofile.org_zug_mitarbeiter_lang" class="mb-2">
+        {{ user.userprofile.org_zug_mitarbeiter_lang }}
+      </div>
       <div *ngIf="user.userprofile.org_zug_student_lang" class="mb-2">{{ user.userprofile.org_zug_student_lang }}</div>
       <div *ngIf="user.userprofile.phone" class="mb-2">
         <eworkbench-icon className="wb-phone"></eworkbench-icon><span class="ml-1">{{ user.userprofile.phone }}</span>

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
@@ -42,6 +43,8 @@ export class NewDMPModalComponent implements OnInit {
   public dmpForms: DMPForm[] = [];
 
   public projects: Project[] = [];
+
+  public favoriteProjects: Project[] = [];
 
   public projectInput$ = new Subject<string>();
 
@@ -86,12 +89,25 @@ export class NewDMPModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -133,16 +149,18 @@ export class NewDMPModalComponent implements OnInit {
             untilDestroyed(this),
             mergeMap(id =>
               this.projectsService.get(id).pipe(
+                untilDestroyed(this),
                 catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
                 })
               )
             )
           )
           .subscribe(
             /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project];
-              this.cdr.markForCheck();
+              this.projects = [...this.projects, project]
+                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             }
           );
       }
@@ -161,7 +179,11 @@ export class NewDMPModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ dmp => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: dmp }, navigate: [`${this.withSidebar ? '..' : ''}/dmps`, dmp.pk] });
+          this.modalRef.close({
+            state: this.state,
+            data: { newContent: dmp },
+            navigate: [`${this.withSidebar ? '..' : ''}/dmps`, dmp.pk],
+          });
           this.translocoService
             .selectTranslate('dmp.newModal.toastr.success')
             .pipe(untilDestroyed(this))

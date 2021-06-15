@@ -168,7 +168,12 @@ export class ResourceBookingCalendarComponent implements OnInit {
       );
   }
 
-  public getBookingColor(appointment: Appointment): { textColor: string | undefined; backgroundColor: string | undefined } {
+  public getBookingColor(
+    appointment: Appointment
+  ): {
+    textColor: string | undefined;
+    backgroundColor: string | undefined;
+  } {
     if (appointment.pk === 'ANONYMOUS') {
       return { backgroundColor: '#ccc', textColor: undefined };
     } else if (appointment.created_by.pk === this.currentUser?.pk) {

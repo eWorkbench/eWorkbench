@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -47,6 +47,8 @@ export class PluginPageComponent implements OnInit, OnDestroy {
 
   public lock: Lock | null = null;
 
+  public showSidebar = false;
+
   public loading = true;
 
   public modalRef?: DialogRef;
@@ -60,6 +62,8 @@ export class PluginPageComponent implements OnInit, OnDestroy {
   public refreshMetadata = new EventEmitter<boolean>();
 
   public projects: Project[] = [];
+
+  public favoriteProjects: Project[] = [];
 
   public projectInput$ = new Subject<string>();
 
@@ -135,6 +139,7 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       }
     );
 
+    this.initSidebar();
     this.initSearchInput();
     this.initDetails();
     this.initPageTitle();
@@ -160,17 +165,46 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  public initSidebar(): void {
+    this.route.params.subscribe(params => {
+      if (params.projectId) {
+        this.showSidebar = true;
+
+        this.projectsService.get(params.projectId).subscribe(
+          /* istanbul ignore next */ project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          }
+        );
+      }
+    });
+  }
+
   public initSearchInput(): void {
     this.projectInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -221,14 +255,20 @@ export class PluginPageComponent implements OnInit, OnDestroy {
               return from(privilegesData.data.projects).pipe(
                 mergeMap(id =>
                   this.projectsService.get(id).pipe(
+                    untilDestroyed(this),
                     catchError(() => {
-                      return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject') } as Project);
+                      return of({
+                        pk: id,
+                        name: this.translocoService.translate('formInput.unknownProject'),
+                        is_favourite: false,
+                      } as Project);
                     })
                   )
                 ),
                 map(project => {
-                  this.projects = [...this.projects, project];
-                  this.cdr.markForCheck();
+                  this.projects = [...this.projects, project]
+                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
                 }),
                 switchMap(() => of(privilegesData))
               );

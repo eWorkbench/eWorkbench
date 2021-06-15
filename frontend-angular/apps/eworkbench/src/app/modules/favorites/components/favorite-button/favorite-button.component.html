@@ -14,7 +14,8 @@
     (click)="onRemoveFavorite()"
     *ngIf="favorited"
   >
-    <eworkbench-icon className="wb-favorite-3"></eworkbench-icon>
+    <eworkbench-icon class="default" className="wb-favorite-3"></eworkbench-icon>
+    <eworkbench-icon class="hover" className="wb-favorite-1"></eworkbench-icon>
   </button>
   <button
     type="button"
@@ -25,6 +26,7 @@
     (click)="onAddFavorite()"
     *ngIf="!favorited"
   >
-    <eworkbench-icon className="wb-favorite-1"></eworkbench-icon>
+    <eworkbench-icon class="default" className="wb-favorite-1"></eworkbench-icon>
+    <eworkbench-icon class="hover" className="wb-favorite-3"></eworkbench-icon>
   </button>
 </ng-container>

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewChildren } from '@angular/core';
 import { LabBookElement } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 
@@ -19,6 +19,9 @@ interface ElementRemoval {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LabBookDrawBoardElementComponent {
+  @ViewChildren('elementComponent')
+  public elements?: any;
+
   @Input()
   public id!: string;
 
@@ -30,6 +33,9 @@ export class LabBookDrawBoardElementComponent {
 
   @Input()
   public closeSection?: EventEmitter<string>;
+
+  @Input()
+  public refreshElementRelations?: EventEmitter<{ model_name: string; model_pk: string }>;
 
   @Output()
   public removed = new EventEmitter<ElementRemoval>();
@@ -52,5 +58,15 @@ export class LabBookDrawBoardElementComponent {
 
   public onExpandSection(id: string): void {
     this.expand.emit(id);
+  }
+
+  public pendingChanges(): boolean {
+    for (const element of this.elements ?? []) {
+      if (element.pendingChanges()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

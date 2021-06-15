@@ -115,7 +115,7 @@ export class ContentTypeModelService {
       },
       'drives.drive': {
         modelName: 'drive',
-        routerBaseLink: '/drives',
+        routerBaseLink: '/storages',
         translation: this.translocoService.translate('storage.singular'),
         translationPlural: this.translocoService.translate('storage.plural'),
         icon: 'wb-storages',

@@ -1,0 +1,8 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npm run lint:fix
+npx --no-install pretty-quick --staged
+npm run affected:test
+npm run affected:e2e
+npm run build:prod

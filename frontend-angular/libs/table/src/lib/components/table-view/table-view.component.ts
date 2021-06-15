@@ -17,7 +17,6 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { TableSortDirection } from '../../enums/table-sort-direction.enum';
 import { TableColumn } from '../../interfaces/table-column.interface';
@@ -103,11 +102,11 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
 
   public page = 1;
 
-  public currentPage = 1;
-
   public selected = new Map<string, any>();
 
   public loading = false;
+
+  public loadingMore = false;
 
   public firstDataLoaded = false;
 
@@ -217,12 +216,13 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
     this.dataSelected.emit([...this.selected.values()]);
   }
 
-  public onPageChanged(event: PageChangedEvent): void {
-    this.page = event.page;
+  public onLoadMore(): void {
+    this.page += 1;
     if (this.service) {
-      this.loadData();
+      this.loadingMore = true;
+      this.loadData(true);
     } else {
-      const slice = this.data.slice(this.offset, this.page * this.paginationSize);
+      const slice = this.data.slice(0, this.page * this.paginationSize);
       this.dataSource$.next(slice);
     }
   }
@@ -243,6 +243,10 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
       this.loading = true;
       this.cdr.markForCheck();
 
+      if (!append) {
+        this.page = 1;
+      }
+
       const baseParams = httpParams ?? this.params ?? new HttpParams();
       let params = baseParams.set(this.offsetField, this.offset.toString()).set(this.perPageField, this.paginationSize.toString());
 
@@ -251,7 +255,6 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       this.serviceSubscription = this.service.getList(params, this.customId).subscribe((event: any) => {
-        /* istanbul ignore if */
         if (append) {
           this.data = [...this.data, ...event.data];
         } else {
@@ -260,6 +263,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
         this.total = event.total;
 
         this.loading = false;
+        this.loadingMore = false;
         this.firstDataLoaded = true;
         this.dataSource$.next(this.data);
         this.rendered.emit(true);

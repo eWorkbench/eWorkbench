@@ -258,7 +258,10 @@ export class LabBookElementDropdownComponent implements OnInit {
       )
       .subscribe(
         /* istanbul ignore next */ () => {
-          this.onMoveElementToLabBookModalClose({ state: ModalState.Changed, data: { id: this.elementId, gridReload: false } });
+          this.onMoveElementToLabBookModalClose({
+            state: ModalState.Changed,
+            data: { id: this.elementId, gridReload: false },
+          });
           this.loading = false;
           this.cdr.markForCheck();
           this.translocoService

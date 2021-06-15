@@ -10,10 +10,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
-import { AuthService, DssContainersService, FilesService, PageTitleService, ProjectsService } from '@app/services';
+import { AuthService, DrivesService, DssContainersService, FilesService, PageTitleService, ProjectsService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TableSortChangedEvent, TableViewComponent } from '@eworkbench/table';
-import { DssContainer, ModalCallback, Project, User } from '@eworkbench/types';
+import { Drive, DssContainer, ModalCallback, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -74,13 +74,21 @@ export class FilesPageComponent implements OnInit {
 
   public dssContainersControl = this.fb.control<string | null>(null);
 
+  public storageControl = this.fb.control<string | null>(null);
+
   public params = new HttpParams();
 
   public users: User[] = [];
 
   public usersInput$ = new Subject<string>();
 
+  public storages: User[] = [];
+
+  public storagesInput$ = new Subject<string>();
+
   public projects: Project[] = [];
+
+  public favoriteProjects: Project[] = [];
 
   public projectsInput$ = new Subject<string>();
 
@@ -92,9 +100,12 @@ export class FilesPageComponent implements OnInit {
 
   public sorting?: TableSortChangedEvent;
 
+  public directories: Drive[] = [];
+
   public constructor(
     public readonly filesService: FilesService,
     private readonly dssContainersService: DssContainersService,
+    private readonly drivesService: DrivesService,
     private readonly router: Router,
     private readonly modalService: DialogService,
     private readonly cdr: ChangeDetectorRef,
@@ -218,6 +229,13 @@ export class FilesPageComponent implements OnInit {
           this.dssContainers = result.data;
         }
       );
+
+    this.drivesService
+      .getList()
+      .pipe(untilDestroyed(this))
+      .subscribe(drives => {
+        this.directories = drives.data;
+      });
   }
 
   public initSidebar(): void {
@@ -227,7 +245,9 @@ export class FilesPageComponent implements OnInit {
 
         this.projectsService.get(params.projectId).subscribe(
           /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project];
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.projectsControl.setValue(params.projectId);
             this.project = params.projectId;
           }
@@ -311,6 +331,19 @@ export class FilesPageComponent implements OnInit {
       }
     );
 
+    this.storageControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        if (value) {
+          this.params = this.params.set('drive', value);
+          this.tableView.loadData(false, this.params);
+          return;
+        }
+
+        this.params = this.params.delete('drive');
+        this.tableView.loadData(false, this.params);
+      }
+    );
+
     this.route.queryParamMap.pipe(untilDestroyed(this), take(1)).subscribe(
       /* istanbul ignore next */ queryParams => {
         const projects = queryParams.get('projects');
@@ -356,12 +389,25 @@ export class FilesPageComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -405,7 +451,12 @@ export class FilesPageComponent implements OnInit {
     );
 
     this.listColumns = values(merged);
-    const settings = this.listColumns.map(col => ({ key: col.key, sort: col.sort, hidden: col.hidden, hideable: col.hideable }));
+    const settings = this.listColumns.map(col => ({
+      key: col.key,
+      sort: col.sort,
+      hidden: col.hidden,
+      hideable: col.hideable,
+    }));
 
     this.userService
       .get()

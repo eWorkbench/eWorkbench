@@ -11,7 +11,7 @@ import { HeaderModule } from '@app/modules/header/header.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
 import { ProjectModule } from '@app/modules/project/project.module';
 import { SharedModule } from '@app/modules/shared/shared.module';
-import { AuthService, CalendarAccessPrivilegesService, MyScheduleService, PageTitleService } from '@app/services';
+import { AuthService, CalendarAccessPrivilegesService, MyScheduleService, PageTitleService, ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { CalendarModule } from '@eworkbench/calendar';
 import { FormsModule } from '@eworkbench/forms';
@@ -24,6 +24,7 @@ import {
   mockCalendarAccessPrivileges,
   mockExportLink,
   mockPageTitle,
+  mockProject,
   mockTask,
   mockUser,
 } from '@eworkbench/mocks';
@@ -68,6 +69,9 @@ describe('CalendarPageComponent', () => {
       }),
       mockProvider(AuthService, {
         user$: of({ state: { user: mockUser } }),
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(CalendarAccessPrivilegesService, {
         getList: () => of(mockCalendarAccessPrivileges),

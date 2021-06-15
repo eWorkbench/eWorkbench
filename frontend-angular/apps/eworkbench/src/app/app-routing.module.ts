@@ -87,6 +87,10 @@ export const routes: Routes = [
     canActivate: [AuthGuard, MatomoGuard],
   },
   {
+    path: 'drives',
+    redirectTo: '/storages',
+  },
+  {
     path: 'storages',
     loadChildren: () => import('./pages/storages/storages-page.module').then(m => m.StoragesPageModule),
     canActivate: [AuthGuard, MatomoGuard],

@@ -5,38 +5,47 @@
 
 <ng-container *transloco="let t">
   <eworkbench-labbook-draw-board-note
+    #elementComponent
     [id]="id"
     [element]="element"
     [section]="section"
+    [refreshElementRelations]="refreshElementRelations"
     (removed)="onRemove($event)"
     (moved)="onMove($event)"
     *ngIf="element.child_object_content_type_model === 'shared_elements.note'"
   ></eworkbench-labbook-draw-board-note>
   <eworkbench-labbook-draw-board-file
+    #elementComponent
     [id]="id"
     [element]="element"
     [section]="section"
+    [refreshElementRelations]="refreshElementRelations"
     (removed)="onRemove($event)"
     (moved)="onMove($event)"
     *ngIf="element.child_object_content_type_model === 'shared_elements.file'"
   ></eworkbench-labbook-draw-board-file>
   <eworkbench-labbook-draw-board-picture
+    #elementComponent
     [id]="id"
     [element]="element"
     [section]="section"
+    [refreshElementRelations]="refreshElementRelations"
     (removed)="onRemove($event)"
     (moved)="onMove($event)"
     *ngIf="element.child_object_content_type_model === 'pictures.picture'"
   ></eworkbench-labbook-draw-board-picture>
   <eworkbench-labbook-draw-board-plugin-data
+    #elementComponent
     [id]="id"
     [element]="element"
     [section]="section"
+    [refreshElementRelations]="refreshElementRelations"
     (removed)="onRemove($event)"
     (moved)="onMove($event)"
     *ngIf="element.child_object_content_type_model === 'plugins.plugininstance'"
   ></eworkbench-labbook-draw-board-plugin-data>
   <eworkbench-labbook-draw-board-section
+    #elementComponent
     [id]="id"
     [element]="element"
     [closeSection]="closeSection"

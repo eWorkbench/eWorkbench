@@ -139,6 +139,10 @@ export class LabBooksService
     return this.httpClient.get<LabBookElement<any>[]>(`${this.apiUrl}${id}/elements/`);
   }
 
+  public getElement(labBookId: string, id: string): Observable<LabBookElement<any>> {
+    return this.httpClient.get<LabBookElement<any>>(`${this.apiUrl}${labBookId}/elements/${id}/`);
+  }
+
   public addElement(id: string, element: LabBookElementPayload): Observable<LabBookElement<any>> {
     return this.httpClient.post<LabBookElement<any>>(`${this.apiUrl}${id}/elements/`, element);
   }

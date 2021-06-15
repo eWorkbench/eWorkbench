@@ -3,7 +3,18 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService, LabBookSectionsService, WebSocketService } from '@app/services';
@@ -12,11 +23,12 @@ import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import flatpickr from 'flatpickr';
 import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import { DeleteLabBookSectionElementModalComponent } from '../../modals/delete-section/delete-section.component';
-import flatpickr from 'flatpickr';
+import { LabBookDrawBoardGridComponent } from '../grid/grid.component';
 
 interface FormSection {
   date: string | null;
@@ -36,6 +48,9 @@ interface ElementRemoval {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
+  @ViewChildren('drawBoardGrid')
+  public drawBoardGrids?: QueryList<LabBookDrawBoardGridComponent>;
+
   @Input()
   public id!: string;
 
@@ -206,6 +221,20 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
           this.cdr.markForCheck();
         }
       );
+  }
+
+  public pendingChanges(): boolean {
+    return this.form.dirty || this.pendingChangesDrawBoards();
+  }
+
+  public pendingChangesDrawBoards(): boolean {
+    for (const element of this.drawBoardGrids ?? []) {
+      if (element.pendingChanges()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public onDelete(): void {

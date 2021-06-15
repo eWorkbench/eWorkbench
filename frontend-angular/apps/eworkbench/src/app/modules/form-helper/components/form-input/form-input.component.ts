@@ -28,6 +28,9 @@ export class FormInputComponent implements AfterViewInit {
   public margin = true;
 
   @Input()
+  public buttonPosition = 'align-self-center';
+
+  @Input()
   public required = false;
 
   @Input()

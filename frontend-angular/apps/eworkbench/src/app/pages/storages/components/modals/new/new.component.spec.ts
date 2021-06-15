@@ -3,18 +3,20 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { NewStorageModalComponent } from './new.component';
-import { getTranslocoModule } from '@app/transloco-testing.module';
-import { mockProvider } from '@ngneat/spectator';
-import { DialogRef, DialogService } from '@ngneat/dialog';
-import { Subject } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ModalsModule } from '@eworkbench/modals';
-import { FormsModule } from '@eworkbench/forms';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
+import { ProjectsService } from '@app/services';
+import { getTranslocoModule } from '@app/transloco-testing.module';
+import { FormsModule } from '@eworkbench/forms';
+import { mockProject } from '@eworkbench/mocks';
+import { ModalsModule } from '@eworkbench/modals';
+import { DialogRef, DialogService } from '@ngneat/dialog';
+import { mockProvider } from '@ngneat/spectator';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { ToastrService } from 'ngx-toastr';
+import { of, Subject } from 'rxjs';
+import { NewStorageModalComponent } from './new.component';
 
 describe('NewStorageModalComponent', () => {
   let spectator: Spectator<NewStorageModalComponent>;
@@ -26,6 +28,9 @@ describe('NewStorageModalComponent', () => {
         close: () => {},
         afterClosed$: new Subject(),
         data: {},
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
     ],
     mocks: [ToastrService, DialogService],

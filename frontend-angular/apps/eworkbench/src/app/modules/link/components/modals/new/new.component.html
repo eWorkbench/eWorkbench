@@ -100,7 +100,9 @@
             <tab
               [heading]="
                 pluginInstanceRelations.value.length
-                  ? t('link.newModal.tabHeading.pluginInstanceSelected', { count: pluginInstanceRelations.value.length })
+                  ? t('link.newModal.tabHeading.pluginInstanceSelected', {
+                      count: pluginInstanceRelations.value.length
+                    })
                   : t('link.newModal.tabHeading.pluginInstance')
               "
               id="plugins.plugininstance"

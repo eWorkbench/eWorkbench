@@ -54,13 +54,31 @@
           {{ element.child_object?.last_modified_at | formatDate }}
         </div>
         <div class="actions">
-          <a [routerLink]="['/pictures', element.child_object_id]">
+          <a [routerLink]="['/pictures', element.child_object_id]" target="_blank">
             <button type="button" class="btn ewb-button-big ewb-button-background mr-2">
-              <eworkbench-icon className="wb-link"></eworkbench-icon> {{ t('labBook.drawBoard.element.footer.linkWith') }}
+              <eworkbench-icon className="wb-link" class="mr-1"></eworkbench-icon>
+              <ng-container *ngIf="!element.num_relations">
+                {{ t('labBook.drawBoard.element.footer.linkWith') }}
+              </ng-container>
+              <ng-container *ngIf="element.num_relations === 1">
+                {{ t('labBook.drawBoard.element.footer.link', { count: element.num_relations }) }}
+              </ng-container>
+              <ng-container *ngIf="element.num_relations > 1">
+                {{ t('labBook.drawBoard.element.footer.links', { count: element.num_relations }) }}
+              </ng-container>
             </button>
           </a>
           <button type="button" class="btn ewb-button-big ewb-button-background" (click)="onOpenCommentsModal()">
-            <eworkbench-icon className="wb-comment"></eworkbench-icon> {{ t('labBook.drawBoard.element.footer.createComment') }}
+            <eworkbench-icon className="wb-comment" class="mr-1"></eworkbench-icon>
+            <ng-container *ngIf="!element.num_related_notes">
+              {{ t('labBook.drawBoard.element.footer.createComment') }}
+            </ng-container>
+            <ng-container *ngIf="element.num_related_notes === 1">
+              {{ t('labBook.drawBoard.element.footer.comment', { count: element.num_related_notes }) }}
+            </ng-container>
+            <ng-container *ngIf="element.num_related_notes > 1">
+              {{ t('labBook.drawBoard.element.footer.comments', { count: element.num_related_notes }) }}
+            </ng-container>
           </button>
         </div>
       </div>

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, QueryList, ViewChildren } from '@angular/core';
 import { LabBookElementEvent } from '@eworkbench/types';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { LabBookDrawBoardGridComponent } from '../grid/grid.component';
@@ -18,8 +18,8 @@ import { LabBookDrawBoardGridComponent } from '../grid/grid.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LabBookDrawBoardComponent {
-  @ViewChild('drawBoardGrid', { static: true })
-  public drawBoardGrid?: LabBookDrawBoardGridComponent;
+  @ViewChildren('drawBoardGrid')
+  public drawBoardGrids?: QueryList<LabBookDrawBoardGridComponent>;
 
   @Input()
   public id!: string;
@@ -37,5 +37,15 @@ export class LabBookDrawBoardComponent {
 
   public onRefreshGrid(event: boolean): void {
     this.refresh.next(event);
+  }
+
+  public pendingChanges(): boolean {
+    for (const element of this.drawBoardGrids ?? []) {
+      if (element.pendingChanges()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

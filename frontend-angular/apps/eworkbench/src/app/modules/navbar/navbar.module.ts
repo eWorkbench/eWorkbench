@@ -21,6 +21,7 @@ import { LoadingModule } from '../loading/loading.module';
 import { OrderedMenuComponent } from './components/ordered-menu/ordered-menu.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { GlobalNotificationsComponent } from './components/notifications/global-notifications.component';
+import { ModalsModule } from '@eworkbench/modals';
 
 @NgModule({
   declarations: [NavbarComponent, GlobalSearchComponent, OrderedMenuComponent, GlobalNotificationsComponent],
@@ -36,6 +37,7 @@ import { GlobalNotificationsComponent } from './components/notifications/global-
     UserModule,
     LoadingModule,
     DragDropModule,
+    ModalsModule,
   ],
   exports: [NavbarComponent],
 })

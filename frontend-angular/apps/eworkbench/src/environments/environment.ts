@@ -10,4 +10,5 @@ export const environment = {
   tracking: false,
   matomoUrl: null,
   matomoId: null,
+  labBookSocketRefreshInterval: 5000,
 };

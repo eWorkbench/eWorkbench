@@ -70,12 +70,12 @@
                 </eworkbench-form-input>
               </div>
               <div class="mb-4">
-                <div class="custom-control custom-checkbox">
-                  <input class="custom-control-input" type="checkbox" formControlName="isTemplate" id="isTemplate" name="isTemplate" />
-                  <label class="custom-control-label font-weight-normal" for="isTemplate">{{
-                    t('labBook.details.isTemplate.label')
-                  }}</label>
-                </div>
+                <eworkbench-form-input for="isTemplate" [loading]="loading" [onSubmit]="refreshResetValue">
+                  <div class="custom-control custom-checkbox" slot="input">
+                    <input class="custom-control-input" type="checkbox" formControlName="isTemplate" id="isTemplate" name="isTemplate" />
+                    <label class="custom-control-label" for="isTemplate">{{ t('labBook.details.isTemplate.label') }}</label>
+                  </div>
+                </eworkbench-form-input>
               </div>
               <div class="mb-4">
                 <eworkbench-form-input
@@ -133,6 +133,7 @@
                     [multiple]="true"
                     [typeahead]="projectInput$"
                     [items]="projects"
+                    groupBy="is_favourite"
                     bindLabel="name"
                     bindValue="pk"
                     slot="input"
@@ -140,6 +141,14 @@
                     <ng-template ng-label-tmp let-item="item" let-clear="clear">
                       {{ item.name }}
                       <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                      <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                      {{ item.name }}
+                    </ng-template>
+                    <ng-template ng-optgroup-tmp let-item="item">
+                      <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                      <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
                     </ng-template>
                   </ng-select>
                 </eworkbench-form-input>
@@ -166,6 +175,7 @@
                 [lastModifiedAt]="initialState?.last_modified_at"
                 [refresh]="refreshVersions"
                 [editable]="privileges?.edit"
+                [finalizeVersionAlwaysVisible]="true"
                 (changed)="onVersionChanged()"
               ></eworkbench-versions>
             </div>
@@ -174,7 +184,7 @@
           <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="labBooksService" class="mt-3"></eworkbench-link>
         </eworkbench-collapse-element>
 
-        <eworkbench-labbook-draw-board [id]="id" [projects]="initialState?.projects"></eworkbench-labbook-draw-board>
+        <eworkbench-labbook-draw-board #drawBoard [id]="id" [projects]="initialState?.projects"></eworkbench-labbook-draw-board>
       </main>
     </div>
   </ng-container>

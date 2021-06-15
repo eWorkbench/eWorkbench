@@ -38,9 +38,19 @@
               [placeholder]="t('appointments.newModal.resource.placeholder')"
               [typeahead]="resourceInput$"
               [items]="resources"
+              groupBy="is_favourite"
               bindLabel="display"
               bindValue="pk"
-            ></ng-select>
+            >
+              <ng-template ng-option-tmp let-item="item">
+                <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                {{ item.display }}
+              </ng-template>
+              <ng-template ng-optgroup-tmp let-item="item">
+                <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+            </ng-select>
           </div>
           <hr class="mb-4" />
           <div class="mb-4">
@@ -117,12 +127,21 @@
               [multiple]="true"
               [typeahead]="contactsInput$"
               [items]="contacts"
+              groupBy="is_favourite"
               bindLabel="display"
               bindValue="pk"
             >
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
                 {{ item.display }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                {{ item.display }}
+              </ng-template>
+              <ng-template ng-optgroup-tmp let-item="item">
+                <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
               </ng-template>
             </ng-select>
           </div>
@@ -180,6 +199,7 @@
               [multiple]="true"
               [typeahead]="projectInput$"
               [items]="projects"
+              groupBy="is_favourite"
               bindLabel="name"
               bindValue="pk"
               dropdownPosition="top"
@@ -187,6 +207,14 @@
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                {{ item.name }}
+              </ng-template>
+              <ng-template ng-optgroup-tmp let-item="item">
+                <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
               </ng-template>
             </ng-select>
           </div>

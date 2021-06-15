@@ -10,6 +10,7 @@ import { NgModule } from '@angular/core';
 import { CustomControlErrorComponent } from '@app/modules/shared/control-error/control-error.component';
 import { TranslocoRootModule } from '@app/transloco-root.module';
 import { FormsModule } from '@eworkbench/forms';
+import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
@@ -46,6 +47,7 @@ import { NewAppointmentModalComponent } from './components/modals/new/new.compon
     WysiwygEditorModule,
     LoadingModule,
     LockModule,
+    IconsModule,
   ],
   exports: [NewAppointmentModalComponent, EditAppointmentModalComponent],
 })

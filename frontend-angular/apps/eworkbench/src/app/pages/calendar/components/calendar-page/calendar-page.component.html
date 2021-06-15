@@ -16,9 +16,19 @@
             [placeholder]="t('calendar.header.projects.placeholder')"
             [typeahead]="projectsInput$"
             [items]="projects"
+            groupBy="is_favourite"
             bindLabel="name"
             bindValue="pk"
-          ></ng-select>
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+              {{ item.name }}
+            </ng-template>
+            <ng-template ng-optgroup-tmp let-item="item">
+              <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+              <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+            </ng-template>
+          </ng-select>
         </div>
 
         <div class="search-input mr-2">
@@ -209,14 +219,20 @@
               [placeholder]="t('calendar.header.resources.placeholder')"
               [typeahead]="resourcesInput$"
               [items]="resources"
+              groupBy="is_favourite"
               bindLabel="display"
               bindValue="pk"
               (change)="onSelectResource($event)"
             >
               <ng-template ng-label-tmp let-item="item">{{ item.display }} ({{ item.location }})</ng-template>
               <ng-template ng-option-tmp let-item="item">
+                <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
                 {{ item.display }}
                 <div class="sub-text">{{ item.location }}</div>
+              </ng-template>
+              <ng-template ng-optgroup-tmp let-item="item">
+                <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
               </ng-template>
             </ng-select>
           </div>

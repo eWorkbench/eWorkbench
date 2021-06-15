@@ -26,10 +26,10 @@
     <eworkbench-icon
       className="wb-done"
       [class.mr-1]="label"
-      [tooltip]="!label && t('projects.state.done')"
+      [tooltip]="!label && t('projects.state.finished')"
       containerClass="tooltip-sm"
     ></eworkbench-icon>
-    <ng-container *ngIf="label">{{ t('projects.state.done') }}</ng-container>
+    <ng-container *ngIf="label">{{ t('projects.state.finished') }}</ng-container>
   </ng-container>
   <ng-container *ngIf="state === 'PAUSE'">
     <eworkbench-icon

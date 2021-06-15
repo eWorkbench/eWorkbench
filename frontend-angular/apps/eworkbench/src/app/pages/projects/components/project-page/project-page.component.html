@@ -140,10 +140,20 @@
                       [placeholder]="t('project.details.parentProject.placeholder')"
                       [typeahead]="projectInput$"
                       [items]="parentProject"
+                      groupBy="is_favourite"
                       bindLabel="name"
                       bindValue="pk"
                       slot="input"
-                    ></ng-select>
+                    >
+                      <ng-template ng-option-tmp let-item="item">
+                        <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                        {{ item.name }}
+                      </ng-template>
+                      <ng-template ng-optgroup-tmp let-item="item">
+                        <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                        <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                      </ng-template>
+                    </ng-select>
                   </eworkbench-form-input>
                 </div>
                 <div class="mb-4">
@@ -186,7 +196,16 @@
           <div>
             <eworkbench-project-element elementName="hierarchy" [labelText]="t('project.details.element.hierarchy')">
               <ng-container slot="actions">
-                <button type="button" class="btn ewb-button-big ewb-button-secondary square" (click)="onOpenStateTimelineModal()">
+                <button
+                  type="button"
+                  class="btn ewb-button-regular ewb-button-outline mr-2"
+                  (click)="onOpenNewSubProjectModal()"
+                  [disabled]="loading"
+                >
+                  {{ t('project.details.hierarchy.newSubproject') }}
+                </button>
+
+                <button type="button" class="btn ewb-button-regular ewb-button-secondary square" (click)="onOpenStateTimelineModal()">
                   <eworkbench-icon className="wb-enlarge"></eworkbench-icon>
                 </button>
               </ng-container>

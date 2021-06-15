@@ -5,11 +5,11 @@
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { LoadingModule } from '@app/modules/loading/loading.module';
-import { ContactsService } from '@app/services';
+import { ContactsService, ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
-import { mockContact } from '@eworkbench/mocks';
+import { mockContact, mockProject } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { DialogRef } from '@ngneat/dialog';
@@ -41,6 +41,10 @@ describe('MergeDuplicatesModalComponent', () => {
       mockProvider(ContactsService, {
         patch: () => of([]),
         delete: () => of([]),
+        getList: () => of({ total: 1, data: [mockContact] }),
+      }),
+      mockProvider(ProjectsService, {
+        getList: () => of({ total: 1, data: [mockProject] }),
       }),
       mockProvider(DialogRef, {
         close: () => {},

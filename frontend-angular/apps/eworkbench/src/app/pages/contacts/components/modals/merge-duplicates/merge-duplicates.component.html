@@ -21,10 +21,20 @@
               [placeholder]="t('contacts.mergeDuplicatesModal.baseContact.placeholder')"
               [typeahead]="contactInput$"
               [items]="contacts"
+              groupBy="is_favourite"
               bindLabel="display"
               bindValue="pk"
               (change)="onChangeBaseContact($event)"
-            ></ng-select>
+            >
+              <ng-template ng-option-tmp let-item="item">
+                <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                {{ item.display }}
+              </ng-template>
+              <ng-template ng-optgroup-tmp let-item="item">
+                <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+            </ng-select>
           </div>
 
           <div class="mb-4">
@@ -40,10 +50,20 @@
                     [placeholder]="t('contacts.mergeDuplicatesModal.mergeContact.placeholder')"
                     [typeahead]="contactInput$"
                     [items]="contacts"
+                    groupBy="is_favourite"
                     bindLabel="display"
                     bindValue="pk"
                     (change)="onChangeMergeContact(i, $event)"
-                  ></ng-select>
+                  >
+                    <ng-template ng-option-tmp let-item="item">
+                      <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                      {{ item.display }}
+                    </ng-template>
+                    <ng-template ng-optgroup-tmp let-item="item">
+                      <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                      <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                    </ng-template>
+                  </ng-select>
                 </div>
                 <button
                   *ngIf="mergeContacts.controls.length > 1"

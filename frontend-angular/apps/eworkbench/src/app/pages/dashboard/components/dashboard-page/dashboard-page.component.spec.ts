@@ -28,6 +28,7 @@ import {
   mockUser,
 } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
+import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
@@ -64,6 +65,7 @@ describe('DashboardPageComponent', () => {
       ResourceModule,
       TooltipModule.forRoot(),
       CollapseModule.forRoot(),
+      SkeletonsModule,
     ],
     providers: [
       mockProvider(MyScheduleService, {
@@ -82,7 +84,17 @@ describe('DashboardPageComponent', () => {
   beforeEach(
     () =>
       (spectator = createComponent({
-        props: { dashboard: { contacts: [], dmps: [], files: [], projects: [], resources: [], tasks: [], summary: { test: 2 } } as any },
+        props: {
+          dashboard: {
+            contacts: [],
+            dmps: [],
+            files: [],
+            projects: [],
+            resources: [],
+            tasks: [],
+            summary: { test: 2 },
+          } as any,
+        },
       }))
   );
 

@@ -3,5 +3,12 @@
   "ignorePatterns": ["!**/*"],
   "parserOptions": {
     "project": ["apps/eworkbench/tsconfig.*?.json"]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.html"],
+      "extends": ["plugin:@nrwl/nx/angular-template"],
+      "rules": {}
+    }
+  ]
 }
