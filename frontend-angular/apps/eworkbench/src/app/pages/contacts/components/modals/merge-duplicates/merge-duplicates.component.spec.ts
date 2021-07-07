@@ -13,8 +13,7 @@ import { mockContact, mockProject } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { DialogRef } from '@ngneat/dialog';
-import { mockProvider } from '@ngneat/spectator';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { mockProvider, createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { AlertModule } from 'ngx-bootstrap/alert';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ToastrService } from 'ngx-toastr';
@@ -107,7 +106,7 @@ describe('MergeDuplicatesModalComponent', () => {
     spectator.component.onChangeBaseContact(mockContact1);
     spectator.component.onAddMergeContact();
     spectator.component.onChangeMergeContact(0, mockContact2);
-    const onMergeContactsSpy = spyOn(spectator.component, 'onMergeContacts').and.callThrough();
+    const onMergeContactsSpy = jest.spyOn(spectator.component, 'onMergeContacts');
     spectator.component.onMergeContacts();
     expect(onMergeContactsSpy).toHaveBeenCalledTimes(1);
     spectator.component.onMergeContacts();
@@ -126,7 +125,7 @@ describe('MergeDuplicatesModalComponent', () => {
 
   it('should call setContactAsBase()', () => {
     spectator.setInput({ selectedMergeContacts: [mockContact1] });
-    const setContactAsBaseSpy = spyOn(spectator.component, 'setContactAsBase').and.callThrough();
+    const setContactAsBaseSpy = jest.spyOn(spectator.component, 'setContactAsBase');
     spectator.component.setContactAsBase(0);
     expect(setContactAsBaseSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({ selectedBaseContact: mockContact2 });

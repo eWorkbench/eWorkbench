@@ -167,7 +167,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
     return this.form.controls;
   }
 
-  public get lockUser(): { ownUser: boolean; user?: User | null } {
+  public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
     /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
@@ -196,16 +196,16 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
         ? [Number(this.f.userAvailabilitySelectedUserGroups.value)]
         : [],
       user_availability_selected_user_pks: this.f.userAvailabilitySelectedUsers.value,
-      booking_rule_minimum_time_before: this.bookingRules?.booking_rule_minimum_time_before,
-      booking_rule_minimum_duration: this.bookingRules?.booking_rule_minimum_duration,
-      booking_rule_maximum_time_before: this.bookingRules?.booking_rule_maximum_time_before,
-      booking_rule_maximum_duration: this.bookingRules?.booking_rule_maximum_duration,
-      booking_rule_time_between: this.bookingRules?.booking_rule_time_between,
-      booking_rule_bookable_hours: this.bookingRules?.booking_rule_bookable_hours,
-      booking_rule_bookings_per_user: this.bookingRules?.booking_rule_bookings_per_user,
+      booking_rule_minimum_time_before: this.bookingRules?.booking_rule_minimum_time_before as any,
+      booking_rule_minimum_duration: this.bookingRules?.booking_rule_minimum_duration as any,
+      booking_rule_maximum_time_before: this.bookingRules?.booking_rule_maximum_time_before as any,
+      booking_rule_maximum_duration: this.bookingRules?.booking_rule_maximum_duration as any,
+      booking_rule_time_between: this.bookingRules?.booking_rule_time_between as any,
+      booking_rule_bookable_hours: this.bookingRules?.booking_rule_bookable_hours as any,
+      booking_rule_bookings_per_user: this.bookingRules?.booking_rule_bookings_per_user as any,
       projects: this.f.projects.value,
       calendar_interval: this.f.calendarInterval.value,
-      metadata: this.metadata,
+      metadata: this.metadata!,
     };
   }
 
@@ -324,6 +324,21 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
   }
 
   public initSearchInput(): void {
+    this.userAvailabilitySelectedUsersInput$
+      .pipe(
+        untilDestroyed(this),
+        debounceTime(500),
+        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+      )
+      .subscribe(
+        /* istanbul ignore next */ users => {
+          if (users.length) {
+            this.userAvailabilitySelectedUsers = [...users];
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
     this.projectInput$
       .pipe(
         untilDestroyed(this),
@@ -333,6 +348,19 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       .subscribe(
         /* istanbul ignore next */ projects => {
           this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.userGroupsService
+      .get()
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ userGroups => {
+          this.userAvailabilitySelectedUserGroupsChoices = userGroups.map(group => ({
+            value: group.pk.toString(),
+            label: group.name,
+          }));
           this.cdr.markForCheck();
         }
       );
@@ -459,52 +487,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
 
           this.loading = false;
           this.cdr.markForCheck();
-        }
-      );
-
-    this.userGroupsService
-      .get()
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ userGroups => {
-          this.userAvailabilitySelectedUserGroupsChoices = userGroups.map(group => ({
-            value: group.pk.toString(),
-            label: group.name,
-          }));
-          this.cdr.markForCheck();
-        },
-        /* istanbul ignore next */ () => {
-          this.cdr.markForCheck();
-        }
-      );
-
-    this.userAvailabilitySelectedUsersInput$
-      .pipe(
-        untilDestroyed(this),
-        debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
-      )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.userAvailabilitySelectedUsers = [...users];
-            this.cdr.markForCheck();
-          }
-        }
-      );
-
-    this.projectInput$
-      .pipe(
-        untilDestroyed(this),
-        debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
-      )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
-            this.cdr.markForCheck();
-          }
         }
       );
   }

@@ -5,7 +5,7 @@
 
 import { DOCUMENT } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ModalState } from '@app/enums/modal-state.enum';
@@ -48,7 +48,7 @@ interface FormPicture {
   styleUrls: ['./new.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NewPictureModalComponent implements OnInit {
+export class NewPictureModalComponent implements OnInit, AfterViewInit {
   public initialState?: Picture = this.modalRef.data?.initialState;
 
   public withSidebar?: boolean = this.modalRef.data?.withSidebar;
@@ -242,7 +242,7 @@ export class NewPictureModalComponent implements OnInit {
             const blob = await this.picturesService
               .convertTiff(`${environment.apiUrl}/convert_tiff_to_png/`, { file: tiffFile })
               .toPromise();
-            files = [new File([blob], `${files[0].name as string}.png`)];
+            files = [new File([blob!], `${files[0].name as string}.png`)];
           } else {
             return this.modalRef.close();
           }

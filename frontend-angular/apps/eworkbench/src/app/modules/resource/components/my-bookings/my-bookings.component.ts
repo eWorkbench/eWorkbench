@@ -15,7 +15,7 @@ import { Appointment, ExportLink, ModalCallback, ResourceBooking, User } from '@
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { keyBy, merge, values } from 'lodash-es';
+import { keyBy, merge, values } from 'lodash';
 import { switchMap, take } from 'rxjs/operators';
 
 @UntilDestroy()
@@ -238,7 +238,7 @@ export class MyResourceBookingsComponent implements OnInit {
       )
     );
 
-    this.listColumns = values(merged);
+    this.listColumns = values<TableColumn>(merged);
     const settings = this.listColumns.map(col => ({
       key: col.key,
       sort: col.sort,
@@ -343,7 +343,7 @@ export class MyResourceBookingsComponent implements OnInit {
           const downloadLink = document.createElement('a');
           downloadLink.href = url;
           downloadLink.download = 'Export.pdf';
-          downloadLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+          downloadLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window as Window }));
 
           // Fix for FireFox
           setTimeout(() => {

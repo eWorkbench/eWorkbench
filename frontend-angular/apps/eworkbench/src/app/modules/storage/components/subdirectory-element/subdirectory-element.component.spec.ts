@@ -28,7 +28,7 @@ describe('SubdirectoryElementComponent', () => {
   });
 
   it('should call removeFile', () => {
-    const removeFileSpy = spyOn(spectator.component, 'removeFile').and.callThrough();
+    const removeFileSpy = jest.spyOn(spectator.component, 'removeFile');
 
     spectator.component.removeFile(mockFile);
     expect(removeFileSpy).toHaveBeenCalledTimes(1);

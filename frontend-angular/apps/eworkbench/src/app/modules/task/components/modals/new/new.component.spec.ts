@@ -16,6 +16,7 @@ import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
+import { TextareaAutosizeModule } from 'ngx-textarea-autosize';
 import { ToastrService } from 'ngx-toastr';
 import { of, Subject } from 'rxjs';
 import { NewTaskModalComponent } from './new.component';
@@ -34,6 +35,7 @@ describe('NewTaskModalComponent', () => {
       IconsModule,
       TaskModule,
       LoadingModule,
+      TextareaAutosizeModule,
     ],
     providers: [
       mockProvider(DialogRef, {
@@ -55,7 +57,7 @@ describe('NewTaskModalComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({
@@ -69,7 +71,7 @@ describe('NewTaskModalComponent', () => {
     spectator.setInput({
       initialState: mockTask,
     });
-    const patchFormValuesSpy = spyOn(spectator.component, 'patchFormValues').and.callThrough();
+    const patchFormValuesSpy = jest.spyOn(spectator.component, 'patchFormValues');
     spectator.component.patchFormValues();
     expect(patchFormValuesSpy).toHaveBeenCalledTimes(1);
   });

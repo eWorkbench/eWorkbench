@@ -25,13 +25,13 @@ export class CalendarAccessPrivilegesService implements PermissionsService {
 
   public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
 
-  public getList(params?: HttpParams): Observable<CalendarAccessPrivileges[]> {
+  public getList(params = new HttpParams()): Observable<CalendarAccessPrivileges[]> {
     return this.httpClient.get<CalendarAccessPrivileges[]>(this.apiUrl, { params });
   }
 
   public add(
     calendarAccessPrivilegesPayload: CalendarAccessPrivilegesPayload,
-    params?: HttpParams
+    params = new HttpParams()
   ): Observable<CalendarAccessPrivilegesPayload> {
     return this.httpClient.post<CalendarAccessPrivilegesPayload>(this.apiUrl, calendarAccessPrivilegesPayload, {
       params,

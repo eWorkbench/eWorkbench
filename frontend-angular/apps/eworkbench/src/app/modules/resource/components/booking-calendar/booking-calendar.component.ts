@@ -80,13 +80,13 @@ export class ResourceBookingCalendarComponent implements OnInit {
 
   public customButtons: CalendarCustomButtons = {
     book: {
-      text: this.translocoService.translate('resource.calendar.book'),
+      text: this.translocoService.translate('resource.calendar.book')!,
       click: () => {
         this.onOpenResourceBookingModalWithInterval();
       },
     },
     export: {
-      text: this.translocoService.translate('resource.calendar.export'),
+      text: this.translocoService.translate('resource.calendar.export')!,
       click: () => {
         this.openExportModal();
       },
@@ -156,9 +156,9 @@ export class ResourceBookingCalendarComponent implements OnInit {
               start: appointment.date_time_start!,
               end: appointment.date_time_end!,
               allDay: appointment.full_day,
-              textColor: this.getBookingColor(appointment).textColor,
-              borderColor: this.getBookingColor(appointment).backgroundColor,
-              backgroundColor: this.getBookingColor(appointment).backgroundColor,
+              textColor: this.getBookingColor(appointment).textColor!,
+              borderColor: this.getBookingColor(appointment).backgroundColor!,
+              backgroundColor: this.getBookingColor(appointment).backgroundColor!,
               extendedProps: {
                 ...appointment,
               },
@@ -168,9 +168,7 @@ export class ResourceBookingCalendarComponent implements OnInit {
       );
   }
 
-  public getBookingColor(
-    appointment: Appointment
-  ): {
+  public getBookingColor(appointment: Appointment): {
     textColor: string | undefined;
     backgroundColor: string | undefined;
   } {

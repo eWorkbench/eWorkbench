@@ -63,7 +63,7 @@ describe('NewNoteModalComponent', () => {
     spectator.component.form.controls.subject.setValue(chance.string({ alpha: true, symbols: false }));
     spectator.component.form.controls.content.setValue(chance.string({ alpha: true, symbols: false }));
 
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });
@@ -72,7 +72,7 @@ describe('NewNoteModalComponent', () => {
     spectator.setInput({
       loading: true,
     });
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });
@@ -81,7 +81,7 @@ describe('NewNoteModalComponent', () => {
     spectator.setInput({
       initialState: mockNote,
     });
-    const patchFormValuesSpy = spyOn(spectator.component, 'patchFormValues').and.callThrough();
+    const patchFormValuesSpy = jest.spyOn(spectator.component, 'patchFormValues');
     spectator.component.patchFormValues();
     expect(patchFormValuesSpy).toHaveBeenCalledTimes(1);
   });

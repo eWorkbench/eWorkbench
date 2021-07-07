@@ -23,6 +23,7 @@ interface FormAnswers {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskChecklistComponent implements AfterViewInit {
+  // eslint-disable-next-line @angular-eslint/no-input-rename
   @Input('value')
   public _value: TaskChecklist[] = [];
 
@@ -66,7 +67,7 @@ export class TaskChecklistComponent implements AfterViewInit {
 
     for (let i = 0; i < this.titles.controls.length; i++) {
       payload.push({
-        pk: this.checklistObjects[i].pk,
+        pk: this.checklistObjects[i].pk!,
         title: this.titles.controls[i].value,
         checked: this.checkboxes.controls[i].value,
       });

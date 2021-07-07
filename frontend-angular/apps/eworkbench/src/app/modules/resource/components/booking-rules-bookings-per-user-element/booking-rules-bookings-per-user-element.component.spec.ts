@@ -55,7 +55,7 @@ describe('ResourceBookingRulesBookingsPerUserElementComponent', () => {
   });
 
   it('should push changes', () => {
-    const pushChangesSpy = spyOn(spectator.component, 'pushChanges').and.callThrough();
+    const pushChangesSpy = jest.spyOn(spectator.component, 'pushChanges');
     spectator.component.pushChanges();
     expect(pushChangesSpy).toHaveBeenCalledTimes(1);
 
@@ -68,13 +68,13 @@ describe('ResourceBookingRulesBookingsPerUserElementComponent', () => {
   });
 
   it('should call onRemove()', () => {
-    const onRemoveSpy = spyOn(spectator.component, 'onRemove').and.callThrough();
+    const onRemoveSpy = jest.spyOn(spectator.component, 'onRemove');
     spectator.component.onRemove();
     expect(onRemoveSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onSetChanged()', () => {
-    const onSetChangedSpy = spyOn(spectator.component, 'onSetChanged').and.callThrough();
+    const onSetChangedSpy = jest.spyOn(spectator.component, 'onSetChanged');
     spectator.component.onSetChanged();
     expect(onSetChangedSpy).toHaveBeenCalledTimes(1);
   });

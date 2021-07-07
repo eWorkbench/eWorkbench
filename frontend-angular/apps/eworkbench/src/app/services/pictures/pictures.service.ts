@@ -36,25 +36,24 @@ import { Optional } from 'utility-types';
   providedIn: 'root',
 })
 export class PicturesService
-  implements TableViewService, RecentChangesService, VersionsService<Picture>, LockService, ExportService, PermissionsService {
+  implements TableViewService, RecentChangesService, VersionsService<Picture>, LockService, ExportService, PermissionsService
+{
   public readonly apiUrl = `${environment.apiUrl}/pictures/`;
 
   public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
 
-  public getList(params?: HttpParams): Observable<{ total: number; data: Picture[] }> {
-    return this.httpClient
-      .get<DjangoAPI<Picture[]>>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+  public getList(params = new HttpParams()): Observable<{ total: number; data: Picture[] }> {
+    return this.httpClient.get<DjangoAPI<Picture[]>>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public add(picture: PicturePayload | SketchPayload, params?: HttpParams): Observable<Picture> {
+  public add(picture: PicturePayload | SketchPayload, params = new HttpParams()): Observable<Picture> {
     const formData = new FormData();
     for (const [key, val] of Object.entries(picture)) {
       if (!val) continue;
@@ -76,23 +75,21 @@ export class PicturesService
     return this.httpClient.post<Picture>(this.apiUrl, formData, { params });
   }
 
-  public get(id: string, userId: number, params?: HttpParams): Observable<PrivilegesData<Picture>> {
-    return this.httpClient
-      .get<Picture>(`${this.apiUrl}${id}/`, { params })
-      .pipe(
-        switchMap(
-          /* istanbul ignore next */ picture =>
-            this.getUserPrivileges(id, userId, picture.deleted).pipe(
-              map(privileges => {
-                const privilegesData: PrivilegesData<Picture> = {
-                  privileges,
-                  data: picture,
-                };
-                return privilegesData;
-              })
-            )
-        )
-      );
+  public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<Picture>> {
+    return this.httpClient.get<Picture>(`${this.apiUrl}${id}/`, { params }).pipe(
+      switchMap(
+        /* istanbul ignore next */ picture =>
+          this.getUserPrivileges(id, userId, picture.deleted).pipe(
+            map(privileges => {
+              const privilegesData: PrivilegesData<Picture> = {
+                privileges,
+                data: picture,
+              };
+              return privilegesData;
+            })
+          )
+      )
+    );
   }
 
   public getPrivilegesList(id: string): Observable<PrivilegesApi[]> {
@@ -128,25 +125,25 @@ export class PicturesService
       .pipe(switchMap(/* istanbul ignore next */ () => this.getPrivilegesList(id)));
   }
 
-  public delete(id: string, params?: HttpParams): Observable<Picture> {
+  public delete(id: string, params = new HttpParams()): Observable<Picture> {
     return this.httpClient.patch<Picture>(`${this.apiUrl}${id}/soft_delete/`, { pk: id }, { params });
   }
 
-  public patch(id: string, task: Optional<PicturePayload>, params?: HttpParams): Observable<Picture> {
+  public patch(id: string, task: Optional<PicturePayload>, params = new HttpParams()): Observable<Picture> {
     return this.httpClient.patch<Picture>(`${this.apiUrl}${id}/`, { pk: id, ...task }, { params });
   }
 
-  public restore(id: string, params?: HttpParams): Observable<Picture> {
+  public restore(id: string, params = new HttpParams()): Observable<Picture> {
     return this.httpClient.patch<Picture>(`${this.apiUrl}${id}/restore/`, { pk: id }, { params });
   }
 
-  public history(id: string, params?: HttpParams): Observable<RecentChanges[]> {
+  public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
     return this.httpClient
       .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
   }
 
-  public versions(id: string, params?: HttpParams): Observable<Version[]> {
+  public versions(id: string, params = new HttpParams()): Observable<Version[]> {
     return this.httpClient
       .get<DjangoAPI<Version[]>>(`${this.apiUrl}${id}/versions/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
@@ -175,11 +172,11 @@ export class PicturesService
     return this.httpClient.post<Picture>(`${this.apiUrl}${id}/versions/${version}/restore/`, { pk: id });
   }
 
-  public lock(id: string, params?: HttpParams): Observable<void> {
+  public lock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/lock/`, undefined, { params });
   }
 
-  public unlock(id: string, params?: HttpParams): Observable<void> {
+  public unlock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/unlock/`, undefined, { params });
   }
 
@@ -187,7 +184,7 @@ export class PicturesService
     return this.httpClient.get<ExportLink>(`${this.apiUrl}${id}/get_export_link/`);
   }
 
-  public getRelations(id: string, params?: HttpParams): Observable<any[]> {
+  public getRelations(id: string, params = new HttpParams()): Observable<any[]> {
     return this.httpClient.get<any[]>(`${this.apiUrl}${id}/relations/`, { params });
   }
 
@@ -203,7 +200,7 @@ export class PicturesService
     return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}`);
   }
 
-  public uploadImage(id: string, picture: PictureEditorPayload, params?: HttpParams): Observable<Picture> {
+  public uploadImage(id: string, picture: PictureEditorPayload, params = new HttpParams()): Observable<Picture> {
     const formData = new FormData();
     for (const [key, val] of Object.entries(picture)) {
       if (!val) continue;
@@ -218,11 +215,11 @@ export class PicturesService
     return this.httpClient.patch<Picture>(`${this.apiUrl}${id}/`, formData, { params });
   }
 
-  public downloadShapes(url: string, params?: HttpParams): Observable<any> {
+  public downloadShapes(url: string, params = new HttpParams()): Observable<any> {
     return this.httpClient.get<any>(url, { params });
   }
 
-  public convertTiff(url: string, picture: ConvertTiffPayload, params?: HttpParams): Observable<Blob> {
+  public convertTiff(url: string, picture: ConvertTiffPayload, params = new HttpParams()): Observable<Blob> {
     const formData = new FormData();
     for (const [key, val] of Object.entries(picture)) {
       if (!val) continue;

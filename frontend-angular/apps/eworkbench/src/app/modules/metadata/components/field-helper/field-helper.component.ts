@@ -6,7 +6,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Metadata } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
-import { isEqual } from 'lodash-es';
+import { isEqual } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({

@@ -295,7 +295,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   public onRemove(taskId: string): void {
     for (const column of this.columns) {
-      column.tasks = column.tasks?.filter(task => task.pk !== taskId);
+      column.tasks = column.tasks?.filter(task => task.pk !== taskId) as KanbanTask[];
     }
     this.columns = [...this.columns];
   }

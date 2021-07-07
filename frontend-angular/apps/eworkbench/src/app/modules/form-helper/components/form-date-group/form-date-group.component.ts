@@ -27,6 +27,7 @@ interface FormDateGroup {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormDateGroupComponent implements OnInit, AfterViewInit {
+  // eslint-disable-next-line @angular-eslint/no-input-rename
   @Input('value')
   public _value: DateGroup = {
     start: null,

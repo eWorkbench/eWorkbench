@@ -106,7 +106,7 @@ describe('ResourcePageComponent', () => {
   });
 
   it('should call initDetails()', () => {
-    const initDetailsSpy = spyOn(spectator.component, 'initDetails').and.callThrough();
+    const initDetailsSpy = jest.spyOn(spectator.component, 'initDetails');
     spectator.component.initDetails();
     expect(initDetailsSpy).toHaveBeenCalledTimes(1);
 
@@ -116,7 +116,7 @@ describe('ResourcePageComponent', () => {
   });
 
   /* it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.setInput({
       loading: false,
     });
@@ -146,7 +146,7 @@ describe('ResourcePageComponent', () => {
   }); */
 
   it('should call onUpdateMetadata()', () => {
-    const onUpdateMetadataSpy = spyOn(spectator.component, 'onUpdateMetadata').and.callThrough();
+    const onUpdateMetadataSpy = jest.spyOn(spectator.component, 'onUpdateMetadata');
     expect(spectator.component.metadata).toBeUndefined();
     spectator.component.onUpdateMetadata([mockMetadata]);
     expect(onUpdateMetadataSpy).toHaveBeenCalledTimes(1);
@@ -155,7 +155,7 @@ describe('ResourcePageComponent', () => {
   });
 
   it('should call onUpdateBookingRules()', () => {
-    const onUpdateBookingRulesSpy = spyOn(spectator.component, 'onUpdateBookingRules').and.callThrough();
+    const onUpdateBookingRulesSpy = jest.spyOn(spectator.component, 'onUpdateBookingRules');
     expect(spectator.component.bookingRules).toBeUndefined();
     spectator.component.onUpdateBookingRules(mockBookingRulesPayload);
     expect(onUpdateBookingRulesSpy).toHaveBeenCalledTimes(1);
@@ -164,13 +164,13 @@ describe('ResourcePageComponent', () => {
   });
 
   it('should call onClearPDF()', () => {
-    const onClearPDFSpy = spyOn(spectator.component, 'onClearPDF').and.callThrough();
+    const onClearPDFSpy = jest.spyOn(spectator.component, 'onClearPDF');
     spectator.component.onClearPDF();
     expect(onClearPDFSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onRemoveResourcePDFModalClose()', () => {
-    const onRemoveResourcePDFModalCloseSpy = spyOn(spectator.component, 'onRemoveResourcePDFModalClose').and.callThrough();
+    const onRemoveResourcePDFModalCloseSpy = jest.spyOn(spectator.component, 'onRemoveResourcePDFModalClose');
     spectator.component.onRemoveResourcePDFModalClose({ state: ModalState.Unchanged });
     expect(onRemoveResourcePDFModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Unchanged });
     expect(onRemoveResourcePDFModalCloseSpy).toHaveBeenCalledTimes(1);

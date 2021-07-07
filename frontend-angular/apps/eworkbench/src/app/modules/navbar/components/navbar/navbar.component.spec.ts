@@ -63,7 +63,7 @@ describe('NavbarComponent', () => {
 
   it('should call onLogout()', fakeAsync(() => {
     spectator.fixture.ngZone?.run(() => {
-      const onLogoutSpy = spyOn(spectator.component, 'onLogout').and.callThrough();
+      const onLogoutSpy = jest.spyOn(spectator.component, 'onLogout');
       spectator.component.onLogout();
       expect(onLogoutSpy).toHaveBeenCalledTimes(1);
     });

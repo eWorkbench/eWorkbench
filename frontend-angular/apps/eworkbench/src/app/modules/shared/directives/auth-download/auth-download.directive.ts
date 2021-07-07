@@ -25,7 +25,7 @@ export class AuthDownloadDirective {
   @HostListener('click')
   public async onClick(): Promise<void> {
     const response = await this.httpClient.get(this.url, { responseType: 'blob', observe: 'response' }).toPromise();
-    const url = URL.createObjectURL(response.body);
+    const url = URL.createObjectURL(response?.body);
     const anchor = document.createElement('a');
 
     anchor.href = url;

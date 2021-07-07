@@ -4,22 +4,11 @@
  */
 
 const nxPreset = require('@nrwl/jest/preset');
-
-const esModules = ['gantt-schedule-timeline-calendar'].join('|');
+const jestAngularPreset = require('jest-preset-angular/presets');
 
 module.exports = {
   ...nxPreset,
-  transform: {
-    '^.+\\.(ts|html)$': 'ts-jest',
-    '^.+\\.js$': 'babel-jest',
-  },
-  transformIgnorePatterns: [`<rootDir>/node_modules/(?!${esModules})`],
+  ...jestAngularPreset.defaults,
   collectCoverage: true,
   coverageReporters: ['text', 'lcov'],
-  globals: {
-    'ts-jest': {
-      babelConfig: true,
-      diagnostics: false,
-    },
-  },
 };

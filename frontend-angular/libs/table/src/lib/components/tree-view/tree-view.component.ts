@@ -5,7 +5,7 @@
 
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { difference } from 'lodash-es';
+import { difference } from 'lodash';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { TableSortDirection } from '../../enums/table-sort-direction.enum';
 import { TableColumn } from '../../interfaces/table-column.interface';

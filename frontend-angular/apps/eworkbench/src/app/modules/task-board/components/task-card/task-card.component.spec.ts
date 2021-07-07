@@ -40,7 +40,7 @@ describe('TaskCardComponent', () => {
   });
 
   it('should call onOpenChange()', () => {
-    const onOpenChangeSpy = spyOn(spectator.component, 'onOpenChange').and.callThrough();
+    const onOpenChangeSpy = jest.spyOn(spectator.component, 'onOpenChange');
     spectator.component.onOpenChange(true);
     expect(onOpenChangeSpy).toHaveBeenCalledWith(true);
     expect(onOpenChangeSpy).toHaveBeenCalledTimes(1);
@@ -53,7 +53,7 @@ describe('TaskCardComponent', () => {
   });
 
   it('should call onRemove()', () => {
-    const onRemoveSpy = spyOn(spectator.component, 'onRemove').and.callThrough();
+    const onRemoveSpy = jest.spyOn(spectator.component, 'onRemove');
     spectator.component.onRemove();
     expect(onRemoveSpy).toHaveBeenCalledTimes(1);
   });
@@ -70,7 +70,7 @@ describe('TaskCardComponent', () => {
 
   it('should have a priority', () => {
     const priorityElement = spectator.query('.task-card-expanded > div > div:nth-child(3) > span:nth-child(2)');
-    expect(priorityElement).toHaveText('Normal'); 
+    expect(priorityElement).toHaveText('Normal');
   }); */
 
   it('should have a task id', () => {

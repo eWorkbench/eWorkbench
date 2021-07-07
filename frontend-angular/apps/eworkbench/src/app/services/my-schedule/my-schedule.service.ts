@@ -17,7 +17,7 @@ export class MyScheduleService {
 
   public constructor(private readonly httpClient: HttpClient) {}
 
-  public getList(params?: HttpParams): Observable<(Appointment | Task)[]> {
+  public getList(params = new HttpParams()): Observable<(Appointment | Task)[]> {
     return this.httpClient.get<(Appointment | Task)[]>(this.apiUrl, { params });
   }
 

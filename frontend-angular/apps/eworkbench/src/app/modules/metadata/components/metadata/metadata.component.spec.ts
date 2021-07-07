@@ -11,8 +11,7 @@ import { LoadingModule } from '@app/modules/loading/loading.module';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
 import { ModalsModule } from '@eworkbench/modals';
-// TODO: Fix test
-/* import { cloneDeep } from 'lodash-es'; */
+import { cloneDeep } from 'lodash';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef } from '@ngneat/dialog';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
@@ -79,8 +78,7 @@ describe('MetadataComponent', () => {
     spectator.component.emitChanges();
   });
 
-  // TODO: Fix test
-  /* it('should call refreshOrdering()', () => {
+  it('should call refreshOrdering()', () => {
     spectator.setInput({ selectedParameters: [cloneDeep(mockMetadata), cloneDeep(mockMetadata)] });
     spectator.component.refreshOrdering();
     expect(spectator.component.selectedParameters[0].ordering).toBe(1);
@@ -93,11 +91,10 @@ describe('MetadataComponent', () => {
     spectator.component.refreshOrdering();
     expect(spectator.component.selectedParameters[0].ordering).toBe(1);
     expect(spectator.component.selectedParameters[1].ordering).toBe(2);
-  }); */
+  });
 
-  // TODO: Fix test
-  /* it('should call onChanged()', () => {
-    const onChangedSpy = spyOn(spectator.component, 'onChanged').and.callThrough();
+  it('should call onChanged()', () => {
+    const onChangedSpy = jest.spyOn(spectator.component, 'onChanged');
     spectator.setInput({ selectedParameters: [cloneDeep(mockMetadata)] });
 
     spectator.component.onChanged(mockMetadata);
@@ -106,8 +103,8 @@ describe('MetadataComponent', () => {
     const mockMetadata2 = { ...mockMetadata, id: '15240d85-b034-4c3d-b6f0-d2bf85c7bcc0' };
     spectator.component.onChanged(mockMetadata2);
     expect(onChangedSpy).toHaveBeenCalledWith(mockMetadata2);
-    expect(onChangedSpy).toHaveBeenCalledTimes(2);
-  }); */
+    expect(onChangedSpy).toHaveBeenCalledTimes(4);
+  });
 
   it('should call add and remove parameters', () => {
     spectator.setInput({ parametersData: mockMetadataParamData });
@@ -129,15 +126,15 @@ describe('MetadataComponent', () => {
       selectedParameters: [
         {
           ...spectator.component.selectedParameters[0],
-          id: mockMetadata2.id,
+          id: mockMetadata2.id!,
         },
         {
           ...spectator.component.selectedParameters[1],
-          id: mockMetadata.id,
+          id: mockMetadata.id!,
         },
         {
           ...spectator.component.selectedParameters[2],
-          id: mockMetadata2.id,
+          id: mockMetadata2.id!,
         },
       ],
     });
@@ -157,7 +154,7 @@ describe('MetadataComponent', () => {
 
   // TODO: Fix test
   /* it('should call onElementDrop()', () => {
-    const onElementDropSpy = spyOn(spectator.component, 'onElementDrop').and.callThrough();
+    const onElementDropSpy = jest.spyOn(spectator.component, 'onElementDrop');
     const expected = {
       previousIndex: 0,
       currentIndex: 1,

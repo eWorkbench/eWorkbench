@@ -179,7 +179,7 @@ export class NewMetadataFieldComponent implements OnInit {
   public patchFormValues(): void {
     this.form.patchValue(
       {
-        name: this.name,
+        name: this.name!,
         baseType: 'whole_number',
         final: true,
         multipleSelect: true,

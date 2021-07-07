@@ -35,45 +35,42 @@ import { map, switchMap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class DMPService
-  implements TableViewService, RecentChangesService, VersionsService<DMP>, LockService, ExportService, PermissionsService {
+  implements TableViewService, RecentChangesService, VersionsService<DMP>, LockService, ExportService, PermissionsService
+{
   public readonly apiUrl = `${environment.apiUrl}/dmps/`;
 
   public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
 
-  public getList(params?: HttpParams): Observable<{ total: number; data: DMP[] }> {
-    return this.httpClient
-      .get<DjangoAPI<DMP[]>>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+  public getList(params = new HttpParams()): Observable<{ total: number; data: DMP[] }> {
+    return this.httpClient.get<DjangoAPI<DMP[]>>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public add(dmp: DMPPayload, params?: HttpParams): Observable<DMP> {
+  public add(dmp: DMPPayload, params = new HttpParams()): Observable<DMP> {
     return this.httpClient.post<DMP>(this.apiUrl, dmp, { params });
   }
 
-  public get(id: string, userId: number, params?: HttpParams): Observable<PrivilegesData<DMP>> {
-    return this.httpClient
-      .get<DMP>(`${this.apiUrl}${id}/`, { params })
-      .pipe(
-        switchMap(
-          /* istanbul ignore next */ dmp =>
-            this.getUserPrivileges(id, userId, dmp.deleted).pipe(
-              map(privileges => {
-                const privilegesData: PrivilegesData<DMP> = {
-                  privileges,
-                  data: dmp,
-                };
-                return privilegesData;
-              })
-            )
-        )
-      );
+  public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<DMP>> {
+    return this.httpClient.get<DMP>(`${this.apiUrl}${id}/`, { params }).pipe(
+      switchMap(
+        /* istanbul ignore next */ dmp =>
+          this.getUserPrivileges(id, userId, dmp.deleted).pipe(
+            map(privileges => {
+              const privilegesData: PrivilegesData<DMP> = {
+                privileges,
+                data: dmp,
+              };
+              return privilegesData;
+            })
+          )
+      )
+    );
   }
 
   public getPrivilegesList(id: string): Observable<PrivilegesApi[]> {
@@ -109,25 +106,25 @@ export class DMPService
       .pipe(switchMap(/* istanbul ignore next */ () => this.getPrivilegesList(id)));
   }
 
-  public delete(id: string, params?: HttpParams): Observable<DMP> {
+  public delete(id: string, params = new HttpParams()): Observable<DMP> {
     return this.httpClient.patch<DMP>(`${this.apiUrl}${id}/soft_delete/`, { pk: id }, { params });
   }
 
-  public patch(id: string, dmp: DMPPayload, params?: HttpParams): Observable<DMP> {
+  public patch(id: string, dmp: DMPPayload, params = new HttpParams()): Observable<DMP> {
     return this.httpClient.patch<DMP>(`${this.apiUrl}${id}/`, dmp, { params });
   }
 
-  public restore(id: string, params?: HttpParams): Observable<DMP> {
+  public restore(id: string, params = new HttpParams()): Observable<DMP> {
     return this.httpClient.patch<DMP>(`${this.apiUrl}${id}/restore/`, { pk: id }, { params });
   }
 
-  public history(id: string, params?: HttpParams): Observable<RecentChanges[]> {
+  public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
     return this.httpClient
       .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
   }
 
-  public versions(id: string, params?: HttpParams): Observable<Version[]> {
+  public versions(id: string, params = new HttpParams()): Observable<Version[]> {
     return this.httpClient
       .get<DjangoAPI<Version[]>>(`${this.apiUrl}${id}/versions/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
@@ -156,11 +153,11 @@ export class DMPService
     return this.httpClient.post<DMP>(`${this.apiUrl}${id}/versions/${version}/restore/`, { pk: id });
   }
 
-  public lock(id: string, params?: HttpParams): Observable<void> {
+  public lock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/lock/`, undefined, { params });
   }
 
-  public unlock(id: string, params?: HttpParams): Observable<void> {
+  public unlock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/unlock/`, undefined, { params });
   }
 
@@ -175,7 +172,7 @@ export class DMPService
     });
   }
 
-  public getRelations(id: string, params?: HttpParams): Observable<Relation[]> {
+  public getRelations(id: string, params = new HttpParams()): Observable<Relation[]> {
     return this.httpClient.get<Relation[]>(`${this.apiUrl}${id}/relations/`, { params });
   }
 

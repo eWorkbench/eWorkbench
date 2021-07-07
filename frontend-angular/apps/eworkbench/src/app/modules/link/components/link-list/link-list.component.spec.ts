@@ -61,7 +61,7 @@ describe('LinkListComponent', () => {
   });
 
   it('should call filterRelations', () => {
-    const filterRelationsSpy = spyOn(spectator.component, 'filterRelations').and.callThrough();
+    const filterRelationsSpy = jest.spyOn(spectator.component, 'filterRelations');
     spectator.component.filterRelations();
     expect(filterRelationsSpy).toHaveBeenCalledTimes(1);
 
@@ -81,7 +81,7 @@ describe('LinkListComponent', () => {
   });
 
   it('should call onChangeFilterContentType', () => {
-    const onChangeFilterContentTypeSpy = spyOn(spectator.component, 'onChangeFilterContentType').and.callThrough();
+    const onChangeFilterContentTypeSpy = jest.spyOn(spectator.component, 'onChangeFilterContentType');
     spectator.setInput({
       allRelations: mockRelationList.results,
     });

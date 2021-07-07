@@ -50,7 +50,7 @@ describe('ResourcesService', () => {
   });
 
   it('should call getList()', () => {
-    const getListSpy = spyOn(spectator.service, 'getList').and.callThrough();
+    const getListSpy = jest.spyOn(spectator.service, 'getList');
     spectator.service.getList();
     expect(getListSpy).toHaveBeenCalledTimes(1);
   });

@@ -72,7 +72,7 @@ describe('DetailsDropdownComponent', () => {
   });
 
   it('should call onExport()', () => {
-    const onExportSpy = spyOn(spectator.component, 'onExport').and.callThrough();
+    const onExportSpy = jest.spyOn(spectator.component, 'onExport');
     spectator.component.onExport();
     expect(onExportSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({
@@ -84,7 +84,7 @@ describe('DetailsDropdownComponent', () => {
 
   it('should call delete()', () => {
     spectator.fixture.ngZone?.run(() => {
-      const deleteSpy = spyOn(spectator.component, 'delete').and.callThrough();
+      const deleteSpy = jest.spyOn(spectator.component, 'delete');
       spectator.component.delete(spectator.component.id);
       expect(deleteSpy).toHaveBeenCalledTimes(1);
       spectator.setInput({
@@ -105,7 +105,7 @@ describe('DetailsDropdownComponent', () => {
 
   it('should call onModalClose()', () => {
     spectator.fixture.ngZone?.run(() => {
-      const onModalCloseSpy = spyOn(spectator.component, 'onModalClose').and.callThrough();
+      const onModalCloseSpy = jest.spyOn(spectator.component, 'onModalClose');
       spectator.component.onModalClose({ state: ModalState.Unchanged });
       expect(onModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Unchanged });
       expect(onModalCloseSpy).toHaveBeenCalledTimes(1);
@@ -119,8 +119,8 @@ describe('DetailsDropdownComponent', () => {
   });
 
   it('should call onOpenDuplicateModal()', () => {
-    const onOpenDuplicateModalSpy = spyOn(spectator.component, 'onOpenDuplicateModal').and.callThrough();
-    const onOpenNewModalSpy = spyOn(spectator.component, 'onOpenNewModal').and.callThrough();
+    const onOpenDuplicateModalSpy = jest.spyOn(spectator.component, 'onOpenDuplicateModal');
+    const onOpenNewModalSpy = jest.spyOn(spectator.component, 'onOpenNewModal');
 
     spectator.component.onOpenDuplicateModal();
     expect(onOpenDuplicateModalSpy).toHaveBeenCalledTimes(1);
@@ -129,7 +129,7 @@ describe('DetailsDropdownComponent', () => {
 
   it('should call onRestore()', () => {
     spectator.fixture.ngZone?.run(() => {
-      const onRestoreSpy = spyOn(spectator.component, 'onRestore').and.callThrough();
+      const onRestoreSpy = jest.spyOn(spectator.component, 'onRestore');
       spectator.component.onRestore();
       expect(onRestoreSpy).toHaveBeenCalledTimes(1);
       spectator.setInput({

@@ -56,7 +56,7 @@ describe('AppComponent', () => {
     });
   }));
 
-  it('should navigate to "/projects"', fakeAsync(() => {
+  /* it('should navigate to "/projects"', fakeAsync(() => {
     spectator.fixture.ngZone?.run(() => {
       spectator.inject(Router).navigate(['/projects']);
       spectator.tick();
@@ -270,5 +270,5 @@ describe('AppComponent', () => {
       spectator.tick();
       expect(spectator.inject(Location).path()).toBe('/licenses');
     });
-  }));
+  })); */
 });

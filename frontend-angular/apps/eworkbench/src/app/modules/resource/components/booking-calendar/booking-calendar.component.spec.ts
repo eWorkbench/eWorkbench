@@ -74,19 +74,19 @@ describe('ResourceBookingCalendarComponent', () => {
   });
 
   it('should call the click function on the export button', () => {
-    const clickFunctionSpy = spyOn(spectator.component.customButtons.export, 'click').and.callThrough();
+    const clickFunctionSpy = jest.spyOn(spectator.component.customButtons.export, 'click');
     spectator.component.customButtons.export.click!({} as any, {} as any);
     expect(clickFunctionSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onSelect() with partial date selection', () => {
-    const onSelectSpy = spyOn(spectator.component, 'onSelect').and.callThrough();
+    const onSelectSpy = jest.spyOn(spectator.component, 'onSelect');
     spectator.component.onSelect(mockAppointmentRangePartialEvent);
     expect(onSelectSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onSelect() with full day selection', () => {
-    const onSelectSpy = spyOn(spectator.component, 'onSelect').and.callThrough();
+    const onSelectSpy = jest.spyOn(spectator.component, 'onSelect');
     spectator.component.onSelect(mockAppointmentRangeFullDayEvent);
     expect(onSelectSpy).toHaveBeenCalledTimes(1);
   });
@@ -96,13 +96,13 @@ describe('ResourceBookingCalendarComponent', () => {
   });
 
   it('should call the click function on the book button', () => {
-    const clickFunctionSpy = spyOn(spectator.component.customButtons.book, 'click').and.callThrough();
+    const clickFunctionSpy = jest.spyOn(spectator.component.customButtons.book, 'click');
     spectator.component.customButtons.book.click!({} as any, {} as any);
     expect(clickFunctionSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onResourceBookingModalClose()', () => {
-    const onResourceBookingModalCloseSpy = spyOn(spectator.component, 'onResourceBookingModalClose').and.callThrough();
+    const onResourceBookingModalCloseSpy = jest.spyOn(spectator.component, 'onResourceBookingModalClose');
     spectator.component.onResourceBookingModalClose({ state: ModalState.Unchanged });
     expect(onResourceBookingModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Unchanged });
     expect(onResourceBookingModalCloseSpy).toHaveBeenCalledTimes(1);

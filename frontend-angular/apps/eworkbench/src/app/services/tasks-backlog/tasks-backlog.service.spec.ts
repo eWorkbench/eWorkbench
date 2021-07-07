@@ -30,7 +30,7 @@ describe('TasksBacklogService', () => {
   });
 
   it('should call getList()', () => {
-    const getListSpy = spyOn(spectator.service, 'getList').and.callThrough();
+    const getListSpy = jest.spyOn(spectator.service, 'getList');
     spectator.service.getList(new HttpParams(), taskBoardId);
     expect(getListSpy).toHaveBeenCalledTimes(1);
   });
@@ -41,7 +41,7 @@ describe('TasksBacklogService', () => {
   });
 
   it('should call addTasks()', () => {
-    const addTasksSpy = spyOn(spectator.service, 'addTasks').and.callThrough();
+    const addTasksSpy = jest.spyOn(spectator.service, 'addTasks');
     spectator.service.addTasks(taskBoardId, {});
     expect(addTasksSpy).toHaveBeenCalledTimes(1);
   });

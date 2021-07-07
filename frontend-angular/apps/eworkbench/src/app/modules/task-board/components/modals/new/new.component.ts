@@ -69,8 +69,8 @@ export class NewTaskBoardModalComponent implements OnInit {
       return {
         title: this.f.title.value!,
         projects: this.f.projects.value,
-        background_color: this.initialState.background_color,
-        kanban_board_columns: this.initialState.kanban_board_columns,
+        background_color: this.initialState.background_color!,
+        kanban_board_columns: this.initialState.kanban_board_columns!,
       };
     }
 

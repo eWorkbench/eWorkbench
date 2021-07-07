@@ -108,7 +108,7 @@ export class NewCommentComponent implements OnInit {
           this.form.markAsPristine();
           this.loading = false;
           this.created.emit();
-          this.refresh?.next();
+          this.refresh?.next(true);
           this.cdr.markForCheck();
         },
         /* istanbul ignore next */ () => {

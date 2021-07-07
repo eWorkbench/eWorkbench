@@ -11,8 +11,7 @@ import { ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { mockProject, mockUser } from '@eworkbench/mocks';
 import { SkeletonsModule } from '@eworkbench/skeletons';
-import { mockProvider } from '@ngneat/spectator';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { mockProvider, createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { StoragePageComponent } from './storage-page.component';
@@ -37,7 +36,7 @@ describe('StoragePageComponent', () => {
   });
 
   it('should call initDetails()', () => {
-    const initDetailsSpy = spyOn(spectator.component, 'initDetails').and.callThrough();
+    const initDetailsSpy = jest.spyOn(spectator.component, 'initDetails');
     spectator.component.initDetails();
     expect(initDetailsSpy).toHaveBeenCalledTimes(1);
 
@@ -47,7 +46,7 @@ describe('StoragePageComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.setInput({
       loading: false,
     });

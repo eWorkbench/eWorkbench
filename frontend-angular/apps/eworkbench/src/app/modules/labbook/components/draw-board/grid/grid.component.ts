@@ -454,7 +454,7 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
         rows: drawBoardElement.rows,
         x: drawBoardElement.x,
         y: newY,
-        resizeEnabled: drawBoardElement.resizeEnabled,
+        resizeEnabled: drawBoardElement.resizeEnabled!,
         element: drawBoardElement.element,
       });
     });

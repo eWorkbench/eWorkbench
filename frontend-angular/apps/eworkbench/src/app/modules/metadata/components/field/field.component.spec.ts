@@ -291,7 +291,7 @@ describe('MetadataFieldComponent', () => {
   });
 
   it('should call onChanged()', () => {
-    const onChangedSpy = spyOn(spectator.component, 'onChanged').and.callThrough();
+    const onChangedSpy = jest.spyOn(spectator.component, 'onChanged');
 
     spectator.setInput({
       baseType: 'decimal',
@@ -350,7 +350,7 @@ describe('MetadataFieldComponent', () => {
   });
 
   it('should call toggleSingleSelection()', () => {
-    const toggleSingleSelectionSpy = spyOn(spectator.component, 'toggleSingleSelection').and.callThrough();
+    const toggleSingleSelectionSpy = jest.spyOn(spectator.component, 'toggleSingleSelection');
 
     spectator.component.toggleSingleSelection();
     expect(toggleSingleSelectionSpy).toBeCalledTimes(1);

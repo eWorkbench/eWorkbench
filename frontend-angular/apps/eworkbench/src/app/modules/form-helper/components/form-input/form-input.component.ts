@@ -6,7 +6,7 @@
 import { AfterViewInit, Component, ContentChild, EventEmitter, Input } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { cloneDeep, isEqual } from 'lodash-es';
+import { cloneDeep, isEqual } from 'lodash';
 
 @UntilDestroy()
 @Component({

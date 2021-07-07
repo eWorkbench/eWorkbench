@@ -26,7 +26,7 @@ describe('SitePreferencesService', () => {
   });
 
   it('should get site preferences', () => {
-    const getSpy = spyOn(spectator.service, 'get').and.callThrough();
+    const getSpy = jest.spyOn(spectator.service, 'get');
     spectator.service.get().subscribe(sitePreferences => expect(sitePreferences).toEqual(mockSitePreferences));
     expect(getSpy).toHaveBeenCalledTimes(1);
     spectator.expectOne(spectator.service.apiUrl, HttpMethod.GET);

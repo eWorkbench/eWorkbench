@@ -12,7 +12,7 @@ import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { of, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, take } from 'rxjs/operators';

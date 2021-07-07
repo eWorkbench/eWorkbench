@@ -16,7 +16,7 @@ import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { keyBy, merge, values } from 'lodash-es';
+import { keyBy, merge, values } from 'lodash';
 import { of, Subject } from 'rxjs';
 import { debounceTime, skip, switchMap, take } from 'rxjs/operators';
 
@@ -427,7 +427,7 @@ export class PluginsPageComponent implements OnInit {
       )
     );
 
-    this.listColumns = values(merged);
+    this.listColumns = values<TableColumn>(merged);
     const settings = this.listColumns.map(col => ({
       key: col.key,
       sort: col.sort,

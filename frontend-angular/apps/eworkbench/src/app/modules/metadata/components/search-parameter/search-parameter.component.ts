@@ -115,7 +115,7 @@ export class MetadataSearchParameterComponent implements OnInit {
 
     this.form.patchValue(
       {
-        type: this.initialType,
+        type: this.initialType!,
         operator: '=',
         combinationOperator: 'AND',
       },
@@ -128,7 +128,7 @@ export class MetadataSearchParameterComponent implements OnInit {
   }
 
   public onChanged(data?: string[] | string): void {
-    this.fieldData = data ?? this.fieldData;
+    this.fieldData = data ?? this.fieldData!;
     this.changed.emit({
       id: this.parameter.pk!,
       type: this.f.type.value,

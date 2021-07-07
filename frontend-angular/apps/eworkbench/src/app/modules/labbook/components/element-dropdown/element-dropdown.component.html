@@ -60,27 +60,27 @@
 </ng-container>
 
 <ng-template #dropdownUL let-t="t" let-menuClass="menuClass" let-itemClass="itemClass">
-  <li [class]="menuClass" role="menuitem">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalistic">
     <button type="button" [class]="itemClass" (click)="onOpenPrivilegesModal()" [disabled]="loading">
       <eworkbench-icon className="wb-unlock"></eworkbench-icon> {{ t('labbook.elementDropdown.privileges') }}
     </button>
   </li>
-  <li [class]="menuClass" role="menuitem">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalistic">
     <button type="button" [class]="itemClass" (click)="onOpenMoveToSectionModal()" [disabled]="loading">
       <eworkbench-icon className="wb-bars"></eworkbench-icon> {{ t('labbook.elementDropdown.moveToSection') }}
     </button>
   </li>
-  <li [class]="menuClass" role="menuitem" *ngIf="section">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalistic && section">
     <button type="button" [class]="itemClass" (click)="onOpenMoveBackToLabBookModal()" [disabled]="loading">
       <eworkbench-icon className="wb-bars"></eworkbench-icon> {{ t('labbook.elementDropdown.moveBackToLabBook') }}
     </button>
   </li>
-  <li [class]="menuClass" role="menuitem">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalistic">
     <button type="button" [class]="itemClass" (click)="onExport()" [disabled]="loading">
       <eworkbench-icon className="wb-pdf-file"></eworkbench-icon> {{ t('labbook.elementDropdown.export') }}
     </button>
   </li>
-  <li [class]="menuClass" role="menuitem" *ngIf="privileges?.trash && !initialState?.deleted">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalistic && privileges?.trash && !initialState?.deleted">
     <button type="button" [class]="itemClass" (click)="onDelete()" [disabled]="loading">
       <eworkbench-icon className="wb-trash-1"></eworkbench-icon> {{ t('labbook.elementDropdown.trashElement') }}
     </button>
@@ -90,7 +90,7 @@
       <eworkbench-icon className="wb-remove"></eworkbench-icon> {{ t('labbook.elementDropdown.removeFromLabBook') }}
     </button>
   </li>
-  <li [class]="menuClass" role="menuitem">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalistic">
     <button
       type="button"
       [class]="itemClass"
@@ -100,12 +100,12 @@
       <eworkbench-icon className="wb-files"></eworkbench-icon> {{ t('labbook.elementDropdown.showMetadata') }}
     </button>
   </li>
-  <li [class]="menuClass" role="menuitem">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalistic">
     <button type="button" [class]="itemClass" (click)="onOpenRecentChangesModal()" [disabled]="loading">
       <eworkbench-icon className="wb-undo"></eworkbench-icon> {{ t('labbook.elementDropdown.recentChanges') }}
     </button>
   </li>
-  <li [class]="menuClass" role="menuitem">
+  <li [class]="menuClass" role="menuitem" *ngIf="!minimalistic">
     <button type="button" [class]="itemClass" (click)="onOpenCommentsModal()" [disabled]="loading">
       <eworkbench-icon className="wb-comment"></eworkbench-icon> {{ t('labbook.elementDropdown.comments') }}
     </button>

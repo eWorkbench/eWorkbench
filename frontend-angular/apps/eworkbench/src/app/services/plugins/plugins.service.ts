@@ -17,7 +17,7 @@ export class PluginsService {
 
   public constructor(private readonly httpClient: HttpClient) {}
 
-  public get(params?: HttpParams): Observable<PluginDetails[]> {
+  public get(params = new HttpParams()): Observable<PluginDetails[]> {
     return this.httpClient.get<PluginDetails[]>(this.apiUrl, { params });
   }
 

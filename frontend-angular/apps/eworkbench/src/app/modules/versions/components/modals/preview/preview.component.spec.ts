@@ -59,7 +59,7 @@ describe('VersionPreviewModalComponent', () => {
   });
 
   it('should call onModalClose()', () => {
-    const onModalCloseSpy = spyOn(spectator.component, 'onModalClose').and.callThrough();
+    const onModalCloseSpy = jest.spyOn(spectator.component, 'onModalClose');
     spectator.component.onModalClose({ state: ModalState.Unchanged });
     expect(onModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Unchanged });
     expect(onModalCloseSpy).toHaveBeenCalledTimes(1);

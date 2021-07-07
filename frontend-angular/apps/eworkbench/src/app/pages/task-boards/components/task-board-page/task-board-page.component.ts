@@ -126,7 +126,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     return this.form.controls;
   }
 
-  public get lockUser(): { ownUser: boolean; user?: User | null } {
+  public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
     /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {

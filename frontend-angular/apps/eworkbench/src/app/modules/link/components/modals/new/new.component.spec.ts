@@ -53,20 +53,20 @@ describe('NewComponent', () => {
     spectator.setInput({
       contentType: 'shared_elements.contact',
     });
-    const initDetailsSpy = spyOn(spectator.component, 'initDetails').and.callThrough();
+    const initDetailsSpy = jest.spyOn(spectator.component, 'initDetails');
     spectator.component.initDetails();
     expect(initDetailsSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call showSearch()', () => {
-    const showSearchSpy = spyOn(spectator.component, 'showSearch').and.callThrough();
+    const showSearchSpy = jest.spyOn(spectator.component, 'showSearch');
     spectator.component.showSearch('shared_elements.contact');
     expect(showSearchSpy).toHaveBeenCalledTimes(1);
     expect(spectator.component.showContactSearch).toBe(true);
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({

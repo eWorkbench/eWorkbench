@@ -53,4 +53,10 @@
     (expand)="onExpandSection($event)"
     *ngIf="element.child_object_content_type_model === 'labbooks.labbooksection' && !section"
   ></eworkbench-labbook-draw-board-section>
+  <eworkbench-labbook-draw-board-permission-denied
+    [id]="id"
+    [element]="element"
+    (removed)="onRemove($event)"
+    *ngIf="!element.child_object"
+  ></eworkbench-labbook-draw-board-permission-denied>
 </ng-container>

@@ -34,40 +34,36 @@ export class TaskBoardsService implements TableViewService, ExportService, Permi
 
   public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
 
-  public getList(params?: HttpParams): Observable<{ total: number; data: TaskBoard[] }> {
-    return this.httpClient
-      .get<DjangoAPI<TaskBoard[]>>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+  public getList(params = new HttpParams()): Observable<{ total: number; data: TaskBoard[] }> {
+    return this.httpClient.get<DjangoAPI<TaskBoard[]>>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public create(taskBoard: TaskBoardPayload, params?: HttpParams): Observable<TaskBoard> {
+  public create(taskBoard: TaskBoardPayload, params = new HttpParams()): Observable<TaskBoard> {
     return this.httpClient.post<TaskBoard>(this.apiUrl, taskBoard, { params });
   }
 
-  public get(id: string, userId: number, params?: HttpParams): Observable<PrivilegesData<TaskBoard>> {
-    return this.httpClient
-      .get<TaskBoard>(`${this.apiUrl}${id}/`, { params })
-      .pipe(
-        switchMap(
-          /* istanbul ignore next */ taskBoard =>
-            this.getUserPrivileges(id, userId, taskBoard.deleted).pipe(
-              map(privileges => {
-                const privilegesData: PrivilegesData<TaskBoard> = {
-                  privileges,
-                  data: taskBoard,
-                };
-                return privilegesData;
-              })
-            )
-        )
-      );
+  public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<TaskBoard>> {
+    return this.httpClient.get<TaskBoard>(`${this.apiUrl}${id}/`, { params }).pipe(
+      switchMap(
+        /* istanbul ignore next */ taskBoard =>
+          this.getUserPrivileges(id, userId, taskBoard.deleted).pipe(
+            map(privileges => {
+              const privilegesData: PrivilegesData<TaskBoard> = {
+                privileges,
+                data: taskBoard,
+              };
+              return privilegesData;
+            })
+          )
+      )
+    );
   }
 
   public getPrivilegesList(id: string): Observable<PrivilegesApi[]> {
@@ -103,33 +99,33 @@ export class TaskBoardsService implements TableViewService, ExportService, Permi
       .pipe(switchMap(/* istanbul ignore next */ () => this.getPrivilegesList(id)));
   }
 
-  public delete(id: string, params?: HttpParams): Observable<TaskBoard> {
+  public delete(id: string, params = new HttpParams()): Observable<TaskBoard> {
     return this.httpClient.patch<TaskBoard>(`${this.apiUrl}${id}/soft_delete/`, { pk: id }, { params });
   }
 
-  public patch(id: string, taskBoard: Optional<TaskBoardPayload>, params?: HttpParams): Observable<TaskBoard> {
+  public patch(id: string, taskBoard: Optional<TaskBoardPayload>, params = new HttpParams()): Observable<TaskBoard> {
     return this.httpClient.patch<TaskBoard>(`${this.apiUrl}${id}/`, { pk: id, ...taskBoard }, { params });
   }
 
-  public restore(id: string, params?: HttpParams): Observable<TaskBoard> {
+  public restore(id: string, params = new HttpParams()): Observable<TaskBoard> {
     return this.httpClient.patch<TaskBoard>(`${this.apiUrl}${id}/restore/`, { pk: id }, { params });
   }
 
-  public history(id: string, params?: HttpParams): Observable<RecentChanges[]> {
+  public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
     return this.httpClient
       .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
   }
 
-  public lock(id: string, params?: HttpParams): Observable<void> {
+  public lock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/lock/`, undefined, { params });
   }
 
-  public unlock(id: string, params?: HttpParams): Observable<void> {
+  public unlock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/unlock/`, undefined, { params });
   }
 
-  public getRelations(id: string, params?: HttpParams): Observable<any[]> {
+  public getRelations(id: string, params = new HttpParams()): Observable<any[]> {
     return this.httpClient.get<any[]>(`${this.apiUrl}${id}/relations/`, { params });
   }
 
@@ -145,14 +141,14 @@ export class TaskBoardsService implements TableViewService, ExportService, Permi
     return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}`);
   }
 
-  public getTasks(id: string, params?: HttpParams): Observable<KanbanTask[]> {
+  public getTasks(id: string, params = new HttpParams()): Observable<KanbanTask[]> {
     return this.httpClient.get<KanbanTask[]>(`${this.apiUrl}${id}/tasks/`, { params });
   }
 
   public moveColumn(
     id: string,
     columns: TaskBoardColumn[],
-    params?: HttpParams
+    params = new HttpParams()
   ): Observable<{ kanban_board_columns: TaskBoardColumn[]; pk: string }> {
     return this.httpClient.patch<{ kanban_board_columns: TaskBoardColumn[]; pk: string }>(
       `${this.apiUrl}${id}/`,
@@ -164,27 +160,27 @@ export class TaskBoardsService implements TableViewService, ExportService, Permi
   public moveCard(
     id: string,
     task: { assignment_pk: string; to_column: string; to_index: number },
-    params?: HttpParams
+    params = new HttpParams()
   ): Observable<TaskBoardColumn[]> {
     return this.httpClient.put<TaskBoardColumn[]>(`${this.apiUrl}${id}/tasks/move_assignment/`, task, { params });
   }
 
-  public deleteCard(id: string, taskId: string, params?: HttpParams): Observable<void> {
+  public deleteCard(id: string, taskId: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}${id}/tasks/${taskId}/`, { params });
   }
 
-  public changeBackgroundImage(id: string, image: any, params?: HttpParams): Observable<TaskBoard> {
+  public changeBackgroundImage(id: string, image: any, params = new HttpParams()): Observable<TaskBoard> {
     const formData = new FormData();
     formData.append('pk', id);
     formData.append('background_image', image);
     return this.httpClient.patch<TaskBoard>(`${this.apiUrl}${id}/`, formData, { params });
   }
 
-  public changeBackgroundColor(id: string, color: string, params?: HttpParams): Observable<TaskBoard> {
+  public changeBackgroundColor(id: string, color: string, params = new HttpParams()): Observable<TaskBoard> {
     return this.httpClient.patch<TaskBoard>(`${this.apiUrl}${id}/`, { pk: id, background_color: color }, { params });
   }
 
-  public clearBackgroundImage(id: string, params?: HttpParams): Observable<void> {
+  public clearBackgroundImage(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.patch<void>(`${this.apiUrl}${id}/clear_background_image/`, {}, { params });
   }
 

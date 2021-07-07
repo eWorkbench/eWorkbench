@@ -28,43 +28,39 @@ export class DssContainersService implements TableViewService, RecentChangesServ
 
   public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
 
-  public getList(params?: HttpParams): Observable<{ total: number; data: DssContainer[] }> {
-    return this.httpClient
-      .get<DjangoAPI<DssContainer[]>>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+  public getList(params = new HttpParams()): Observable<{ total: number; data: DssContainer[] }> {
+    return this.httpClient.get<DjangoAPI<DssContainer[]>>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public get(id: string, userId: number, params?: HttpParams): Observable<PrivilegesData<DssContainer>> {
-    return this.httpClient
-      .get<DssContainer>(`${this.apiUrl}${id}/`, { params })
-      .pipe(
-        switchMap(
-          /* istanbul ignore next */ task =>
-            this.getUserPrivileges(id, userId, task.deleted).pipe(
-              map(privileges => {
-                const privilegesData: PrivilegesData<DssContainer> = {
-                  privileges,
-                  data: task,
-                };
-                return privilegesData;
-              })
-            )
-        )
-      );
+  public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<DssContainer>> {
+    return this.httpClient.get<DssContainer>(`${this.apiUrl}${id}/`, { params }).pipe(
+      switchMap(
+        /* istanbul ignore next */ task =>
+          this.getUserPrivileges(id, userId, task.deleted).pipe(
+            map(privileges => {
+              const privilegesData: PrivilegesData<DssContainer> = {
+                privileges,
+                data: task,
+              };
+              return privilegesData;
+            })
+          )
+      )
+    );
   }
 
-  public add(dssContainer: DssContainerPayload, params?: HttpParams): Observable<DssContainer> {
+  public add(dssContainer: DssContainerPayload, params = new HttpParams()): Observable<DssContainer> {
     return this.httpClient.post<DssContainer>(this.apiUrl, dssContainer, { params });
   }
 
-  public patch(id: string, dssContainer: DssContainerPayload, params?: HttpParams): Observable<DssContainer> {
+  public patch(id: string, dssContainer: DssContainerPayload, params = new HttpParams()): Observable<DssContainer> {
     return this.httpClient.patch<DssContainer>(`${this.apiUrl}${id}/`, { pk: id, ...dssContainer }, { params });
   }
 
@@ -101,17 +97,17 @@ export class DssContainersService implements TableViewService, RecentChangesServ
       .pipe(switchMap(/* istanbul ignore next */ () => this.getPrivilegesList(id)));
   }
 
-  public history(id: string, params?: HttpParams): Observable<RecentChanges[]> {
+  public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
     return this.httpClient
       .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
   }
 
-  public lock(id: string, params?: HttpParams): Observable<void> {
+  public lock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/lock/`, undefined, { params });
   }
 
-  public unlock(id: string, params?: HttpParams): Observable<void> {
+  public unlock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/unlock/`, undefined, { params });
   }
 

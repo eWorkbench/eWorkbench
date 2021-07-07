@@ -69,7 +69,7 @@ export class CalendarPageComponent implements OnInit {
   @Input()
   public customButtons: CalendarCustomButtons = {
     export: {
-      text: this.translocoService.translate('calendar.export'),
+      text: this.translocoService.translate('calendar.export')!,
       click: () => {
         this.openExportModal();
       },

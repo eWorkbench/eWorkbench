@@ -41,13 +41,11 @@ export class UserService {
   }
 
   public login(username: string, password: string): Observable<UserState> {
-    return this.httpClient
-      .post<{ token: string }>(`${environment.apiUrl}/auth/login/`, { username, password })
-      .pipe(
-        map(/* istanbul ignore next */ res => res.token),
-        switchMap(/* istanbul ignore next */ (token: string) => this.check(token)),
-        catchError(/* istanbul ignore next */ (error: HttpErrorResponse) => throwError(error))
-      );
+    return this.httpClient.post<{ token: string }>(`${environment.apiUrl}/auth/login/`, { username, password }).pipe(
+      map(/* istanbul ignore next */ res => res.token),
+      switchMap(/* istanbul ignore next */ (token: string) => this.check(token)),
+      catchError(/* istanbul ignore next */ (error: HttpErrorResponse) => throwError(error))
+    );
   }
 
   public logout(): void {

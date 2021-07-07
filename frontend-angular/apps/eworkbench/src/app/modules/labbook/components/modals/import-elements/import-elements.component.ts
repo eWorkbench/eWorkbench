@@ -38,7 +38,7 @@ interface FormImport {
 export class ImportLabBookElementsModalComponent implements OnInit {
   public labBookId = this.modalRef.data.labBookId;
 
-  public projects: string[] = this.modalRef.data.projects ?? [];
+  public projectsList: string[] = this.modalRef.data.projects ?? [];
 
   public state = ModalState.Unchanged;
 

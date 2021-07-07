@@ -1,0 +1,28 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="element">
+    <div class="header">
+      <button type="button" class="btn ewb-button-big square-md ewb-button-none cursor-move drag-handle mr-2">
+        <eworkbench-icon className="wb-arrow-cross"></eworkbench-icon>
+      </button>
+      <eworkbench-labbook-element-dropdown
+        [id]="element.child_object_id"
+        [labBookId]="id"
+        [elementId]="element.pk"
+        [minimalistic]="true"
+        (removed)="onRemove($event)"
+      ></eworkbench-labbook-element-dropdown>
+    </div>
+    <div class="body text-center p-3">
+      <h5>
+        <eworkbench-icon className="wb-exclamation" class="mr-2"></eworkbench-icon>
+        {{ t('labBook.element.permissionDenied') }}
+      </h5>
+      {{ t('labBook.element.notAllowed') }}
+    </div>
+  </div>
+</ng-container>

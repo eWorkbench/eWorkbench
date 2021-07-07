@@ -27,7 +27,7 @@ describe('SearchService', () => {
   });
 
   it('should call contacts() without HttpParams', () => {
-    const contactsSpy = spyOn(spectator.service, 'contacts').and.callThrough();
+    const contactsSpy = jest.spyOn(spectator.service, 'contacts');
     spectator.service.contacts('Test').subscribe(contact => expect(contact).toEqual(mockContact));
     expect(contactsSpy).toHaveBeenCalledTimes(1);
     spectator.expectOne(`${spectator.service.apiUrl}?model=contact&search=Test`, HttpMethod.GET);
@@ -35,7 +35,7 @@ describe('SearchService', () => {
 
   it('should call contacts() with HttpParams', () => {
     const params = new HttpParams().set('test', 'true');
-    const contactsSpy = spyOn(spectator.service, 'contacts').and.callThrough();
+    const contactsSpy = jest.spyOn(spectator.service, 'contacts');
     spectator.service.contacts('Test', params).subscribe(contact => expect(contact).toEqual(mockContact));
     expect(contactsSpy).toHaveBeenCalledTimes(1);
     spectator.expectOne(`${spectator.service.apiUrl}?test=true&model=contact&search=Test`, HttpMethod.GET);

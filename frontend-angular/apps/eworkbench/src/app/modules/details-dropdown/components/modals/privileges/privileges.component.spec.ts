@@ -18,7 +18,7 @@ import { ModalsModule } from '@eworkbench/modals';
 import { TableModule } from '@eworkbench/table';
 import { DialogRef } from '@ngneat/dialog';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
@@ -84,7 +84,7 @@ describe('PrivilegesModalComponent', () => {
   });
 
   it('should call initPrivileges() with mocked user', () => {
-    const initPrivilegesSpy = spyOn(spectator.component, 'initPrivileges').and.callThrough();
+    const initPrivilegesSpy = jest.spyOn(spectator.component, 'initPrivileges');
     spectator.setInput({ currentUser: mockUser });
     spectator.component.initPrivileges();
     expect(initPrivilegesSpy).toHaveBeenCalledTimes(1);
@@ -92,7 +92,7 @@ describe('PrivilegesModalComponent', () => {
 
   it('should call addUser()', () => {
     const userIdString = userId.toString();
-    const addUserSpy = spyOn(spectator.component, 'addUser').and.callThrough();
+    const addUserSpy = jest.spyOn(spectator.component, 'addUser');
     spectator.component.addUser(userIdString);
     expect(addUserSpy).toHaveBeenCalledTimes(1);
     expect(addUserSpy).toHaveBeenCalledWith(userIdString);
@@ -104,7 +104,7 @@ describe('PrivilegesModalComponent', () => {
   });
 
   it('should call onChangePrivilege()', () => {
-    const onChangePrivilegeSpy = spyOn(spectator.component, 'onChangePrivilege').and.callThrough();
+    const onChangePrivilegeSpy = jest.spyOn(spectator.component, 'onChangePrivilege');
     spectator.component.onChangePrivilege('full_access_privilege', userId);
     expect(onChangePrivilegeSpy).toHaveBeenCalledTimes(1);
     expect(onChangePrivilegeSpy).toHaveBeenCalledWith('full_access_privilege', userId);
@@ -127,7 +127,7 @@ describe('PrivilegesModalComponent', () => {
   });
 
   it('should call onRestorePrivileges()', () => {
-    const onRestorePrivilegesSpy = spyOn(spectator.component, 'onRestorePrivileges').and.callThrough();
+    const onRestorePrivilegesSpy = jest.spyOn(spectator.component, 'onRestorePrivileges');
     spectator.component.onRestorePrivileges(userId);
     expect(onRestorePrivilegesSpy).toHaveBeenCalledTimes(1);
     expect(onRestorePrivilegesSpy).toHaveBeenCalledWith(userId);
@@ -149,7 +149,7 @@ describe('PrivilegesModalComponent', () => {
   });
 
   it('should call onDeleteUser()', () => {
-    const onDeleteUserSpy = spyOn(spectator.component, 'onDeleteUser').and.callThrough();
+    const onDeleteUserSpy = jest.spyOn(spectator.component, 'onDeleteUser');
     spectator.component.onDeleteUser(userId);
     expect(onDeleteUserSpy).toHaveBeenCalledTimes(1);
     expect(onDeleteUserSpy).toHaveBeenCalledWith(userId);
@@ -161,7 +161,7 @@ describe('PrivilegesModalComponent', () => {
   });
 
   it('should call getTooltip()', () => {
-    const getTooltipSpy = spyOn(spectator.component, 'getTooltip').and.callThrough();
+    const getTooltipSpy = jest.spyOn(spectator.component, 'getTooltip');
 
     let privilege = 'invalid_privilege';
     let privilegeText = spectator.component.getTooltip(privilege);
@@ -174,7 +174,7 @@ describe('PrivilegesModalComponent', () => {
     privilegeText = spectator.component.getTooltip(privilege);
     expect(getTooltipSpy).toHaveBeenCalledTimes(2);
     expect(getTooltipSpy).toHaveBeenCalledWith(privilege);
-    expect(privilegeText).toBe('Full access');
+    expect(privilegeText).toBe('Rights management');
 
     privilege = 'view_privilege';
     privilegeText = spectator.component.getTooltip(privilege);

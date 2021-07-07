@@ -65,14 +65,14 @@ describe('NewMetadataFieldComponent', () => {
     spectator.component.form.controls.description.setValue(chance.string({ alpha: true, symbols: false }));
     spectator.component.form.controls.baseType.setValue('whole_number');
 
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should be in loading state and not add a new metadata field', () => {
     spectator.setInput({ loading: true });
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });

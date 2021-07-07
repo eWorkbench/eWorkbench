@@ -3,10 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { mockProvider, Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { DeleteStorageDirectoryModalComponent } from './delete.component';
 import { getTranslocoModule } from '@app/transloco-testing.module';
-import { mockProvider } from '@ngneat/spectator';
 import { DialogRef } from '@ngneat/dialog';
 import { of, Subject } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -45,7 +44,7 @@ describe('DeleteStorageDirectoryModalComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({
@@ -56,7 +55,7 @@ describe('DeleteStorageDirectoryModalComponent', () => {
   });
 
   it('should call saveUserDialogSettings()', () => {
-    const saveUserDialogSettingsSpy = spyOn(spectator.component, 'saveUserDialogSettings').and.callThrough();
+    const saveUserDialogSettingsSpy = jest.spyOn(spectator.component, 'saveUserDialogSettings');
     spectator.component.saveUserDialogSettings();
     expect(saveUserDialogSettingsSpy).toHaveBeenCalledTimes(1);
   });

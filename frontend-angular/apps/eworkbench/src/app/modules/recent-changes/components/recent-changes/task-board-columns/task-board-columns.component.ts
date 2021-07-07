@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { isEqual } from 'lodash-es';
+import { isEqual } from 'lodash';
 
 interface RecentChangesTaskBoardColumn {
   title: string;

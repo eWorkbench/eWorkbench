@@ -18,7 +18,7 @@ import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { keyBy, merge, values } from 'lodash-es';
+import { keyBy, merge, values } from 'lodash';
 import { Observable, of, Subject } from 'rxjs';
 import { debounceTime, map, skip, switchMap, take } from 'rxjs/operators';
 import { NewLabBookModalComponent } from '../modals/new/new.component';
@@ -382,7 +382,7 @@ export class LabBooksPageComponent implements OnInit {
       )
     );
 
-    this.listColumns = values(merged);
+    this.listColumns = values<TableColumn>(merged);
     const settings = this.listColumns.map(col => ({
       key: col.key,
       sort: col.sort,

@@ -9,7 +9,7 @@ import { TableColumn, TableViewComponent } from '@eworkbench/table';
 import { MetadataField, RecentChanges, RecentChangesChangeRecord, User } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash';
 import { map, switchMap } from 'rxjs/operators';
 
 interface MetadataParameters {

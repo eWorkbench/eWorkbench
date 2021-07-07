@@ -38,13 +38,13 @@ describe('MetadataFieldComponent', () => {
   });
 
   it('should call onRemove()', () => {
-    const onRemoveSpy = spyOn(spectator.component, 'onRemove').and.callThrough();
+    const onRemoveSpy = jest.spyOn(spectator.component, 'onRemove');
     spectator.component.onRemove();
     expect(onRemoveSpy).toHaveBeenCalled();
   });
 
   it('should call onChanged()', () => {
-    const onChangedSpy = spyOn(spectator.component, 'onChanged').and.callThrough();
+    const onChangedSpy = jest.spyOn(spectator.component, 'onChanged');
     spectator.component.onChanged();
     expect(onChangedSpy).toHaveBeenCalledTimes(1);
     spectator.component.onChanged('test');
@@ -70,7 +70,7 @@ describe('MetadataFieldComponent', () => {
   });
 
   it('should call onChangeType()', () => {
-    const onChangeTypeSpy = spyOn(spectator.component, 'onChangeType').and.callThrough();
+    const onChangeTypeSpy = jest.spyOn(spectator.component, 'onChangeType');
     spectator.component.onChangeType();
     expect(onChangeTypeSpy).toHaveBeenCalled();
   });

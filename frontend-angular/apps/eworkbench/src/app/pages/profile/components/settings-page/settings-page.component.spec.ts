@@ -100,7 +100,7 @@ describe('SettingsPageComponent', () => {
     });
 
     it('should call onSaveEmailNotificationsSpy()', () => {
-      const onSaveEmailNotificationsSpy = spyOn(spectator.component, 'onSaveEmailNotifications').and.callThrough();
+      const onSaveEmailNotificationsSpy = jest.spyOn(spectator.component, 'onSaveEmailNotifications');
       spectator.component.onSaveEmailNotifications();
       expect(onSaveEmailNotificationsSpy).toHaveBeenCalledTimes(1);
 
@@ -112,7 +112,7 @@ describe('SettingsPageComponent', () => {
     });
 
     it('should call onSaveDialogSettings()', () => {
-      const onSaveDialogSettingsSpy = spyOn(spectator.component, 'onSaveDialogSettings').and.callThrough();
+      const onSaveDialogSettingsSpy = jest.spyOn(spectator.component, 'onSaveDialogSettings');
       spectator.component.onSaveDialogSettings();
       expect(onSaveDialogSettingsSpy).toHaveBeenCalledTimes(1);
 
@@ -339,7 +339,7 @@ describe('SettingsPageComponent', () => {
     });
 
     it('should call onSaveEmailNotificationsSpy()', () => {
-      const onSaveEmailNotificationsSpy = spyOn(spectator.component, 'onSaveEmailNotifications').and.callThrough();
+      const onSaveEmailNotificationsSpy = jest.spyOn(spectator.component, 'onSaveEmailNotifications');
       spectator.component.onSaveEmailNotifications();
       expect(onSaveEmailNotificationsSpy).toHaveBeenCalledTimes(1);
 
@@ -351,7 +351,7 @@ describe('SettingsPageComponent', () => {
     });
 
     it('should call onSaveDialogSettings()', () => {
-      const onSaveDialogSettingsSpy = spyOn(spectator.component, 'onSaveDialogSettings').and.callThrough();
+      const onSaveDialogSettingsSpy = jest.spyOn(spectator.component, 'onSaveDialogSettings');
       spectator.component.onSaveDialogSettings();
       expect(onSaveDialogSettingsSpy).toHaveBeenCalledTimes(1);
 

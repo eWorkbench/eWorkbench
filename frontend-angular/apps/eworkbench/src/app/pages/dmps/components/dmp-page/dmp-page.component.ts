@@ -113,7 +113,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
     return this.form.get('formData') as FormArray<string>;
   }
 
-  public get lockUser(): { ownUser: boolean; user?: User | null } {
+  public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
     /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
@@ -137,7 +137,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       title: this.f.title.value ?? '',
       status: this.f.status.value,
       projects: this.f.projects.value,
-      metadata: this.metadata,
+      metadata: this.metadata!,
       dmp_form_data: formData,
     };
   }
@@ -504,7 +504,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
           const downloadLink = document.createElement('a');
           downloadLink.href = url;
           downloadLink.download = `dmp_${this.id}.${type}`;
-          downloadLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+          downloadLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window as Window }));
 
           // Fix for FireFox
           setTimeout(() => {

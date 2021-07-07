@@ -81,7 +81,7 @@ export class NewFileModalComponent implements OnInit {
       title: this.f.title.value!,
       name: this.f.name.value!,
       path: this.f.file.value!,
-      directory_id: this.f.storage.value ?? undefined,
+      directory_id: this.f.storage.value ?? undefined!,
       description: this.f.description.value ?? '',
       projects: this.f.projects.value,
     };

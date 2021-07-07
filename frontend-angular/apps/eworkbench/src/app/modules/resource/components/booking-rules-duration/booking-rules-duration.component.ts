@@ -134,7 +134,7 @@ export class ResourceBookingRulesDurationComponent implements OnInit {
     const duration = `${daysValue} ${durationValue}:00`;
 
     this.changed.emit({
-      id: this.rule!.id,
+      id: this.rule!.id!,
       rule: this.ruleKey,
       values: {
         duration,

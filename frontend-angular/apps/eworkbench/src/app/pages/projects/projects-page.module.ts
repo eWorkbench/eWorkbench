@@ -11,6 +11,7 @@ import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dro
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
+import { LabBookModule } from '@app/modules/labbook/labbook.module';
 import { LinkModule } from '@app/modules/link/link.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
 import { LockModule } from '@app/modules/lock/lock.module';
@@ -91,6 +92,7 @@ import { ProjectsPageRoutingModule } from './projects-page-routing.module';
     TabsModule.forRoot(),
     PopoverModule,
     FavoritesModule,
+    LabBookModule,
   ],
 })
 export class ProjectsPageModule {}

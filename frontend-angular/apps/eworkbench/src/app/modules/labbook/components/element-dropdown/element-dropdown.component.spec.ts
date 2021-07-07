@@ -74,7 +74,7 @@ describe('LabBookElementDropdownComponent', () => {
   });
 
   it('should call onExport()', () => {
-    const onExportSpy = spyOn(spectator.component, 'onExport').and.callThrough();
+    const onExportSpy = jest.spyOn(spectator.component, 'onExport');
     spectator.component.onExport();
     expect(onExportSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({
@@ -86,7 +86,7 @@ describe('LabBookElementDropdownComponent', () => {
 
   it('should call delete()', () => {
     spectator.fixture.ngZone?.run(() => {
-      const deleteSpy = spyOn(spectator.component, 'delete').and.callThrough();
+      const deleteSpy = jest.spyOn(spectator.component, 'delete');
       spectator.component.delete(spectator.component.id);
       expect(deleteSpy).toHaveBeenCalledTimes(1);
       spectator.setInput({
@@ -107,7 +107,7 @@ describe('LabBookElementDropdownComponent', () => {
 
   it('should call onDeleteModalClose()', () => {
     spectator.fixture.ngZone?.run(() => {
-      const onDeleteModalCloseSpy = spyOn(spectator.component, 'onDeleteModalClose').and.callThrough();
+      const onDeleteModalCloseSpy = jest.spyOn(spectator.component, 'onDeleteModalClose');
       spectator.component.onDeleteModalClose({ state: ModalState.Unchanged });
       expect(onDeleteModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Unchanged });
       expect(onDeleteModalCloseSpy).toHaveBeenCalledTimes(1);
@@ -119,7 +119,7 @@ describe('LabBookElementDropdownComponent', () => {
 
   it('should call remove()', () => {
     spectator.fixture.ngZone?.run(() => {
-      const removeSpy = spyOn(spectator.component, 'remove').and.callThrough();
+      const removeSpy = jest.spyOn(spectator.component, 'remove');
       spectator.component.remove();
       expect(removeSpy).toHaveBeenCalledTimes(1);
       spectator.setInput({
@@ -140,7 +140,7 @@ describe('LabBookElementDropdownComponent', () => {
 
   it('should call onRemoveModalClose()', () => {
     spectator.fixture.ngZone?.run(() => {
-      const onRemoveModalCloseSpy = spyOn(spectator.component, 'onRemoveModalClose').and.callThrough();
+      const onRemoveModalCloseSpy = jest.spyOn(spectator.component, 'onRemoveModalClose');
       spectator.component.onRemoveModalClose({ state: ModalState.Unchanged });
       expect(onRemoveModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Unchanged });
       expect(onRemoveModalCloseSpy).toHaveBeenCalledTimes(1);

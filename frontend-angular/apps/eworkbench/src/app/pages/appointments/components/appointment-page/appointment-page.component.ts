@@ -164,7 +164,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     return this.form.controls;
   }
 
-  public get lockUser(): { ownUser: boolean; user?: User | null } {
+  public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
     /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
@@ -213,7 +213,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
         timedelta_value: this.f.scheduledNotificationTimedeltaValue.value,
         timedelta_unit: this.f.scheduledNotificationTimedeltaUnit.value,
       },
-      metadata: this.metadata,
+      metadata: this.metadata!,
     };
 
     // The property 'scheduled_notification_writable' must not exist if timedelta fields contain null values
@@ -283,7 +283,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
-        skip(1),
+        skip(2),
         debounceTime(500),
         switchMap(() => {
           if (!this.lock?.locked) {

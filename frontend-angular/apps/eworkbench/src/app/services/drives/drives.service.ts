@@ -43,42 +43,40 @@ export class DrivesService implements TableViewService, RecentChangesService, Ex
       .pipe(map(/* istanbul ignore next */ data => ({ total: data.count, data: data.results })));
   }
 
-  public add(drive: DrivePayload, params?: HttpParams): Observable<Drive> {
+  public add(drive: DrivePayload, params = new HttpParams()): Observable<Drive> {
     return this.httpClient.post<Drive>(this.apiUrl, drive, { params });
   }
 
-  public get(id: string, userId: number, params?: HttpParams): Observable<PrivilegesData<Drive>> {
-    return this.httpClient
-      .get<Drive>(`${this.apiUrl}${id}/`, { params })
-      .pipe(
-        switchMap(
-          /* istanbul ignore next */ drive =>
-            this.getUserPrivileges(id, userId, drive.deleted).pipe(
-              map(privileges => {
-                const privilegesData: PrivilegesData<Drive> = {
-                  privileges,
-                  data: drive,
-                };
-                return privilegesData;
-              })
-            )
-        )
-      );
+  public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<Drive>> {
+    return this.httpClient.get<Drive>(`${this.apiUrl}${id}/`, { params }).pipe(
+      switchMap(
+        /* istanbul ignore next */ drive =>
+          this.getUserPrivileges(id, userId, drive.deleted).pipe(
+            map(privileges => {
+              const privilegesData: PrivilegesData<Drive> = {
+                privileges,
+                data: drive,
+              };
+              return privilegesData;
+            })
+          )
+      )
+    );
   }
 
-  public delete(id: string, params?: HttpParams): Observable<Drive> {
+  public delete(id: string, params = new HttpParams()): Observable<Drive> {
     return this.httpClient.patch<Drive>(`${this.apiUrl}${id}/soft_delete/`, { pk: id }, { params });
   }
 
-  public patch(id: string, drive: DrivePayload, params?: HttpParams): Observable<Drive> {
+  public patch(id: string, drive: DrivePayload, params = new HttpParams()): Observable<Drive> {
     return this.httpClient.patch<Drive>(`${this.apiUrl}${id}/`, drive, { params });
   }
 
-  public restore(id: string, params?: HttpParams): Observable<Drive> {
+  public restore(id: string, params = new HttpParams()): Observable<Drive> {
     return this.httpClient.patch<Drive>(`${this.apiUrl}${id}/restore/`, { pk: id }, { params });
   }
 
-  public history(id: string, params?: HttpParams): Observable<RecentChanges[]> {
+  public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
     return this.httpClient
       .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
@@ -133,7 +131,7 @@ export class DrivesService implements TableViewService, RecentChangesService, Ex
     return this.httpClient.get<ExportLink>(`${this.apiUrl}${id}/get_export_link/`);
   }
 
-  public getRelations(id: string, params?: HttpParams): Observable<Relation[]> {
+  public getRelations(id: string, params = new HttpParams()): Observable<Relation[]> {
     return this.httpClient.get<Relation[]>(`${this.apiUrl}${id}/relations/`, { params });
   }
 

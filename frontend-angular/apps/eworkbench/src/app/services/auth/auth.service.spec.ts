@@ -32,13 +32,13 @@ describe('AuthService', () => {
   });
 
   it('should login and return a user', () => {
-    const loginSpy = spyOn(spectator.service, 'login').and.callThrough();
+    const loginSpy = jest.spyOn(spectator.service, 'login');
     spectator.service.login('test', 'test').subscribe(val => expect(val).toEqual(mockUser));
     expect(loginSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should log out the user', () => {
-    const logoutSpy = spyOn(spectator.service, 'logout').and.callThrough();
+    const logoutSpy = jest.spyOn(spectator.service, 'logout');
     spectator.service.logout();
     expect(logoutSpy).toHaveBeenCalledTimes(1);
   });

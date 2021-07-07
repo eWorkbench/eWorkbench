@@ -41,7 +41,7 @@ describe('PluginFeedbackComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.setInput({
       loading: false,
     });
@@ -55,7 +55,7 @@ describe('PluginFeedbackComponent', () => {
   });
 
   it('should call onCancel()', () => {
-    const onCancelSpy = spyOn(spectator.component, 'onCancel').and.callThrough();
+    const onCancelSpy = jest.spyOn(spectator.component, 'onCancel');
     spectator.setInput({
       loading: false,
     });

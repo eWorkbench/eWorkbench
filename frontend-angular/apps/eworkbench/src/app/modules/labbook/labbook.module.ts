@@ -36,6 +36,7 @@ import { LabBookDrawBoardElementComponent } from './components/draw-board/elemen
 import { LabBookDrawBoardFileComponent } from './components/draw-board/file/file.component';
 import { LabBookDrawBoardGridComponent } from './components/draw-board/grid/grid.component';
 import { LabBookDrawBoardNoteComponent } from './components/draw-board/note/note.component';
+import { LabBookDrawBoardPermissionDeniedComponent } from './components/draw-board/permission-denied/permission-denied.component';
 import { LabBookDrawBoardPictureComponent } from './components/draw-board/picture/picture.component';
 import { LabBookDrawBoardPluginDataComponent } from './components/draw-board/plugin-data/plugin-data.component';
 import { LabBookSearchBarComponent } from './components/draw-board/search-bar/search-bar.component';
@@ -79,6 +80,7 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     NewLabBookPictureElementModalComponent,
     LabBookSearchBarComponent,
     NewLabBookSketchModalComponent,
+    LabBookDrawBoardPermissionDeniedComponent,
   ],
   imports: [
     CommonModule,
@@ -139,6 +141,7 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     NewLabBookPictureElementModalComponent,
     LabBookSearchBarComponent,
     NewLabBookSketchModalComponent,
+    LabBookDrawBoardPermissionDeniedComponent,
   ],
 })
 export class LabBookModule {}

@@ -112,7 +112,7 @@ export class StudyRoomBookingPageComponent implements OnInit {
     }
 
     this.studyRooms = [];
-    this.selectedStudyRoom = undefined;
+    this.selectedStudyRoom = undefined!;
 
     if (this.f.branchLibrary.value) {
       this.loading = true;
@@ -146,7 +146,7 @@ export class StudyRoomBookingPageComponent implements OnInit {
       return;
     }
 
-    this.selectedStudyRoom = undefined;
+    this.selectedStudyRoom = undefined!;
 
     if (this.currentUser && resource) {
       this.loading = true;

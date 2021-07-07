@@ -83,7 +83,7 @@ export class StorageElementComponent implements OnInit {
       this.loadFiles();
     }
 
-    this.rootDirectory = this.storage.sub_directories.find(directory => directory.is_virtual_root);
+    this.rootDirectory = this.storage.sub_directories.find(directory => directory.is_virtual_root)!;
     this.cdr.markForCheck();
 
     this.initSearch();

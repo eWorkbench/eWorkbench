@@ -59,7 +59,7 @@ describe('NewContactModalComponent', () => {
   });
 
   it('should add a new contact', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
 
     spectator.component.form.controls.firstName.setValue(chance.string({ alpha: true, symbols: false }));
     spectator.component.form.controls.lastName.setValue(chance.string({ alpha: true, symbols: false }));
@@ -83,7 +83,7 @@ describe('NewContactModalComponent', () => {
     spectator.component.form.controls.phone.setValue(chance.string({ alpha: true, symbols: false }));
     spectator.component.form.controls.company.setValue(chance.string({ alpha: true, symbols: false }));
 
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });
@@ -92,7 +92,7 @@ describe('NewContactModalComponent', () => {
     spectator.setInput({
       loading: true,
     });
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });
@@ -101,14 +101,14 @@ describe('NewContactModalComponent', () => {
     spectator.setInput({
       initialState: mockContact,
     });
-    const patchFormValuesSpy = spyOn(spectator.component, 'patchFormValues').and.callThrough();
+    const patchFormValuesSpy = jest.spyOn(spectator.component, 'patchFormValues');
     spectator.component.patchFormValues();
     expect(patchFormValuesSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call changeCopyProfile()', () => {
     const user = mockUser;
-    const changeCopyProfileSpy = spyOn(spectator.component, 'changeCopyProfile').and.callThrough();
+    const changeCopyProfileSpy = jest.spyOn(spectator.component, 'changeCopyProfile');
 
     spectator.component.changeCopyProfile(user);
     expect(changeCopyProfileSpy).toHaveBeenCalledTimes(1);

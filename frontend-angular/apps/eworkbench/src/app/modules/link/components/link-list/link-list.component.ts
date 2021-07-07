@@ -12,7 +12,7 @@ import { DropdownElement, ModalCallback, Relation, RelationPutPayload, User } fr
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { keyBy, merge, values } from 'lodash-es';
+import { keyBy, merge, values } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs/operators';
 import { DeleteLinkComponent } from '../modals/delete-link/delete-link.component';
@@ -58,7 +58,7 @@ export class LinkListComponent implements OnInit {
 
   public allRelations?: Relation[];
 
-  public selectedType?: string;
+  public selectedType?: string | undefined;
 
   public defaultColumns: TableColumn[] = [];
 
@@ -250,7 +250,7 @@ export class LinkListComponent implements OnInit {
       )
     );
 
-    this.listColumns = values(merged);
+    this.listColumns = values<TableColumn>(merged);
   }
 
   public filterRelations(): void {

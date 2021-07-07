@@ -12,8 +12,7 @@ import { FormsModule } from '@eworkbench/forms';
 import { mockProject } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { mockProvider } from '@ngneat/spectator';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { mockProvider, createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ToastrService } from 'ngx-toastr';
 import { of, Subject } from 'rxjs';
 import { NewStorageModalComponent } from './new.component';
@@ -43,7 +42,7 @@ describe('NewStorageModalComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.setInput({
       loading: false,
     });

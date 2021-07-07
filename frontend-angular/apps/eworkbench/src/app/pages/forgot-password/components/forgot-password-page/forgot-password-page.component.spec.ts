@@ -48,7 +48,7 @@ describe('ForgotPasswordPageComponent', () => {
   it('should call onForgotPassword()', () => {
     spectator.component.form.controls.email.setValue('alias@domain.com');
 
-    const onForgotPasswordSpy = spyOn(spectator.component, 'onForgotPassword').and.callThrough();
+    const onForgotPasswordSpy = jest.spyOn(spectator.component, 'onForgotPassword');
     spectator.component.onForgotPassword();
     expect(onForgotPasswordSpy).toHaveBeenCalledTimes(1);
 
@@ -60,7 +60,7 @@ describe('ForgotPasswordPageComponent', () => {
   });
 
   it('should call onForgotPassword() with an invalid form', () => {
-    const onForgotPasswordSpy = spyOn(spectator.component, 'onForgotPassword').and.callThrough();
+    const onForgotPasswordSpy = jest.spyOn(spectator.component, 'onForgotPassword');
     spectator.component.onForgotPassword();
     expect(onForgotPasswordSpy).toHaveBeenCalledTimes(1);
   });

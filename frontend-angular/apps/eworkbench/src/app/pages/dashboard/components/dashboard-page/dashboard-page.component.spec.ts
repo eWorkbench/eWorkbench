@@ -104,7 +104,7 @@ describe('DashboardPageComponent', () => {
   });
 
   it('should call onAppointmentModalClose()', () => {
-    const onAppointmentModalCloseSpy = spyOn(spectator.component, 'onAppointmentModalClose').and.callThrough();
+    const onAppointmentModalCloseSpy = jest.spyOn(spectator.component, 'onAppointmentModalClose');
     spectator.component.onAppointmentModalClose({ state: ModalState.Unchanged, data: mockAppointment });
     expect(onAppointmentModalCloseSpy).toHaveBeenCalledWith({ state: ModalState.Unchanged, data: mockAppointment });
     expect(onAppointmentModalCloseSpy).toHaveBeenCalledTimes(1);
@@ -115,8 +115,8 @@ describe('DashboardPageComponent', () => {
 
   it('should call onModalClose()', () => {
     spectator.fixture.ngZone?.run(() => {
-      const onModalCloseSpy = spyOn(spectator.component, 'onModalClose').and.callThrough();
-      spectator.component.onModalClose({ navigate: undefined });
+      const onModalCloseSpy = jest.spyOn(spectator.component, 'onModalClose');
+      spectator.component.onModalClose({});
       expect(onModalCloseSpy).toHaveBeenCalledWith({});
       expect(onModalCloseSpy).toHaveBeenCalledTimes(1);
       spectator.component.onModalClose({ navigate: ['/'] });
@@ -126,13 +126,13 @@ describe('DashboardPageComponent', () => {
   });
 
   it('should call onSelect() with partial date selection', () => {
-    const onSelectSpy = spyOn(spectator.component, 'onSelect').and.callThrough();
+    const onSelectSpy = jest.spyOn(spectator.component, 'onSelect');
     spectator.component.onSelect(mockAppointmentRangePartialEvent);
     expect(onSelectSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onSelect() with full day selection', () => {
-    const onSelectSpy = spyOn(spectator.component, 'onSelect').and.callThrough();
+    const onSelectSpy = jest.spyOn(spectator.component, 'onSelect');
     spectator.component.onSelect(mockAppointmentRangeFullDayEvent);
     expect(onSelectSpy).toHaveBeenCalledTimes(1);
   });

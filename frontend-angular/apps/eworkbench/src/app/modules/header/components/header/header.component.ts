@@ -31,7 +31,7 @@ export class HeaderComponent implements OnInit {
         if (isProject && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val)) {
           try {
             const project = await this.projectsService.get(val).pipe(untilDestroyed(this)).toPromise();
-            return { name: project.display, uri: `/${url.slice(-url.length, i++).join('/')}` };
+            return { name: project?.display ?? '', uri: `/${url.slice(-url.length, i++).join('/')}` };
           } catch {
             return { name: val, uri: `/${url.slice(-url.length, i++).join('/')}` };
           }

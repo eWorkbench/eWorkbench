@@ -18,7 +18,7 @@ import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { DialogRef } from '@ngneat/dialog';
-import { createRoutingFactory, mockProvider, Spectator } from '@ngneat/spectator';
+import { createRoutingFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { of, Subject } from 'rxjs';
@@ -64,7 +64,7 @@ describe('EditAppointmentModalComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
 
@@ -92,7 +92,7 @@ describe('EditAppointmentModalComponent', () => {
   });
 
   it('should call onDelete()', () => {
-    const onDeleteSpy = spyOn(spectator.component, 'onDelete').and.callThrough();
+    const onDeleteSpy = jest.spyOn(spectator.component, 'onDelete');
     spectator.component.onDelete();
     expect(onDeleteSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({
@@ -103,7 +103,7 @@ describe('EditAppointmentModalComponent', () => {
   });
 
   it('should call initDetails()', () => {
-    const initDetailsSpy = spyOn(spectator.component, 'initDetails').and.callThrough();
+    const initDetailsSpy = jest.spyOn(spectator.component, 'initDetails');
     spectator.setInput({
       currentUser: mockUser,
     });

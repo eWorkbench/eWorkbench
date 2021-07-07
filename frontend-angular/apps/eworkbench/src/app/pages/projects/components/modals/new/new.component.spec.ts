@@ -58,7 +58,7 @@ describe('NewProjectModalComponent', () => {
   });
 
   it('should add a new project', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.form.controls.name.setValue(chance.string({ alpha: true, symbols: false }));
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
@@ -68,7 +68,7 @@ describe('NewProjectModalComponent', () => {
     spectator.setInput({
       loading: true,
     });
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.form.controls.name.setValue(chance.string({ alpha: true, symbols: false }));
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);

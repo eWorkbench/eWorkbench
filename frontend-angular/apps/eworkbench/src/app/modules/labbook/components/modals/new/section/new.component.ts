@@ -30,7 +30,7 @@ export class NewLabBookSectionElementModalComponent implements OnInit {
   @Output()
   public closed = new EventEmitter<ModalCallback>();
 
-  public projects: string[] = this.modalRef.data.projects ?? [];
+  public projectsList: string[] = this.modalRef.data.projects ?? [];
 
   public state = ModalState.Unchanged;
 
@@ -70,7 +70,7 @@ export class NewLabBookSectionElementModalComponent implements OnInit {
     const section = {
       date: format(new Date(), this.dateFormat),
       title: this.translocoService.translate('labBook.newSectionElementModal.title.placeholder'),
-      projects: this.projects,
+      projects: this.projectsList,
     };
 
     return section;

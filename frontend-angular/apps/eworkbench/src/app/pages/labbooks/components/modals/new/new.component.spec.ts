@@ -12,7 +12,7 @@ import { MetadataModule } from '@app/modules/metadata/metadata.module';
 import { LabBooksService, ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
-import { mockProject } from '@eworkbench/mocks';
+import { mockProject, mockLabBook } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef } from '@ngneat/dialog';
@@ -20,7 +20,6 @@ import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectat
 import Chance from 'chance';
 import { ToastrService } from 'ngx-toastr';
 import { of, Subject } from 'rxjs';
-import { mockLabBook } from './mocks/labbook';
 import { NewLabBookModalComponent } from './new.component';
 
 describe('NewLabBookModalComponent', () => {
@@ -67,7 +66,7 @@ describe('NewLabBookModalComponent', () => {
   it('should add a new LabBook', () => {
     spectator.component.form.controls.title.setValue(chance.string({ alpha: true, symbols: false }));
     spectator.component.form.controls.description.setValue(chance.string({ alpha: true, symbols: false }));
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });
@@ -76,7 +75,7 @@ describe('NewLabBookModalComponent', () => {
     spectator.setInput({
       loading: true,
     });
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });

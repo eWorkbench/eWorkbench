@@ -107,7 +107,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         return this.timeParser(item.endTime!)!;
       })
-    );
+    ) as any;
     this.end = max(
       itemsWithDates.map(item => {
         if (item.endTime) {
@@ -115,7 +115,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         return this.timeParser(item.startTime!)!;
       })
-    );
+    ) as any;
 
     const topPadding = 60;
     const ganttHeight = this.items.length * gap + topPadding;

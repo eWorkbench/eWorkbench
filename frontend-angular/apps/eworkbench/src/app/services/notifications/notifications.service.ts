@@ -24,21 +24,19 @@ export class NotificationsService {
     return this.notifications.some(notification => !notification.read);
   }
 
-  public getList(params?: HttpParams): Observable<{ total: number; data: Notification[] }> {
-    return this.httpClient
-      .get<DjangoAPI<Notification[]>>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => {
-            this.notifications = [...data.results];
+  public getList(params = new HttpParams()): Observable<{ total: number; data: Notification[] }> {
+    return this.httpClient.get<DjangoAPI<Notification[]>>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => {
+          this.notifications = [...data.results];
 
-            return {
-              total: data.count,
-              data: data.results,
-            };
-          }
-        )
-      );
+          return {
+            total: data.count,
+            data: data.results,
+          };
+        }
+      )
+    );
   }
 
   public get(id: string): Observable<Notification> {

@@ -82,6 +82,7 @@ export const mockContact1: Contact = {
   projects: ['415107a9-23e6-4f70-82b3-2fe5ea04eb3a'],
   url: 'http://workbench.local:8000/api/contacts/17200f04-e862-4a67-938c-86739403984e/',
   version_number: 64,
+  is_favourite: false,
 };
 
 export const mockContact2: Contact = {
@@ -161,6 +162,7 @@ export const mockContact2: Contact = {
   projects: ['415107a9-23e6-4f70-82b3-2fe5ea04eb3a'],
   url: 'http://workbench.local:8000/api/contacts/17200f04-e862-4a67-938c-86739403984e/',
   version_number: 64,
+  is_favourite: false,
 };
 
 export const mockContacts: Contact[] = [mockContact1, mockContact2];

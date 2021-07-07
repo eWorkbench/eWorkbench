@@ -158,7 +158,7 @@ export class MetadataComponent implements OnInit {
 
     for (const parameter of parameters) {
       if (parameter.id === field.id) {
-        parameter.deleted = field.deleted;
+        parameter.deleted = field.deleted!;
         parameter.values = field.values;
       }
     }

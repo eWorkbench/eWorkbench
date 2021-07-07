@@ -50,7 +50,7 @@ describe('UserService', () => {
   });
 
   it('should log a user out', () => {
-    const logoutSpy = spyOn(spectator.service, 'logout').and.callThrough();
+    const logoutSpy = jest.spyOn(spectator.service, 'logout');
     spectator.service.logout();
     expect(logoutSpy).toHaveBeenCalledTimes(1);
   });

@@ -32,7 +32,7 @@ describe('MergeDuplicatesInputGroupComponent', () => {
   });
 
   it('should call onChangeFieldIndex()', () => {
-    const onChangeFieldIndexSpy = spyOn(spectator.component, 'onChangeFieldIndex').and.callThrough();
+    const onChangeFieldIndexSpy = jest.spyOn(spectator.component, 'onChangeFieldIndex');
     spectator.component.onChangeFieldIndex(1);
     expect(onChangeFieldIndexSpy).toHaveBeenCalledTimes(1);
     expect(spectator.component.selectedFieldIndex).toBe(1);

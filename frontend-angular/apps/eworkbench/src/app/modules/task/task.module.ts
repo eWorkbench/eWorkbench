@@ -16,6 +16,7 @@ import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { TextareaAutosizeModule } from 'ngx-textarea-autosize';
 import { FormHelperModule } from '../form-helper/form-helper.module';
 import { LabelModule } from '../label/label.module';
 import { LoadingModule } from '../loading/loading.module';
@@ -52,6 +53,7 @@ import { TaskStateComponent } from './components/task-state/task-state.component
     IconsModule,
     LoadingModule,
     TooltipModule.forRoot(),
+    TextareaAutosizeModule,
   ],
   exports: [NewTaskModalComponent, TaskStateComponent, TaskPriorityComponent, TaskChecklistComponent],
 })

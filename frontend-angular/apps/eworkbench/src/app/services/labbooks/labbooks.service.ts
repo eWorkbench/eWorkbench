@@ -37,27 +37,25 @@ import { map, switchMap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class LabBooksService
-  implements TableViewService, RecentChangesService, VersionsService<LabBook>, LockService, ExportService, PermissionsService {
+  implements TableViewService, RecentChangesService, VersionsService<LabBook>, LockService, ExportService, PermissionsService
+{
   public readonly apiUrl = `${environment.apiUrl}/labbooks/`;
 
   public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
 
-  public getList(params?: HttpParams): Observable<{ total: number; data: LabBook[] }> {
-    return this.httpClient
-      .get<DjangoAPI<LabBook[]>>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+  public getList(params = new HttpParams()): Observable<{ total: number; data: LabBook[] }> {
+    return this.httpClient.get<DjangoAPI<LabBook[]>>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public search(search: string, params?: HttpParams): Observable<LabBook[]> {
-    const baseParams = params ?? new HttpParams();
-    const httpParams = baseParams.set('search', search);
+  public search(search: string, params = new HttpParams()): Observable<LabBook[]> {
+    const httpParams = params.set('search', search);
 
     return this.httpClient
       .get<DjangoAPI<LabBook[]>>(this.apiUrl, { params: httpParams })
@@ -68,23 +66,21 @@ export class LabBooksService
     return this.httpClient.post<LabBook>(this.apiUrl, labbook);
   }
 
-  public get(id: string, userId: number, params?: HttpParams): Observable<PrivilegesData<LabBook>> {
-    return this.httpClient
-      .get<LabBook>(`${this.apiUrl}${id}/`, { params })
-      .pipe(
-        switchMap(
-          /* istanbul ignore next */ labBook =>
-            this.getUserPrivileges(id, userId, labBook.deleted).pipe(
-              map(privileges => {
-                const privilegesData: PrivilegesData<LabBook> = {
-                  privileges,
-                  data: labBook,
-                };
-                return privilegesData;
-              })
-            )
-        )
-      );
+  public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<LabBook>> {
+    return this.httpClient.get<LabBook>(`${this.apiUrl}${id}/`, { params }).pipe(
+      switchMap(
+        /* istanbul ignore next */ labBook =>
+          this.getUserPrivileges(id, userId, labBook.deleted).pipe(
+            map(privileges => {
+              const privilegesData: PrivilegesData<LabBook> = {
+                privileges,
+                data: labBook,
+              };
+              return privilegesData;
+            })
+          )
+      )
+    );
   }
 
   public getPrivilegesList(id: string): Observable<PrivilegesApi[]> {
@@ -159,13 +155,13 @@ export class LabBooksService
     return this.httpClient.put<string[]>(`${this.apiUrl}${id}/elements/update_all/`, elements);
   }
 
-  public history(id: string, params?: HttpParams): Observable<RecentChanges[]> {
+  public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
     return this.httpClient
       .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
   }
 
-  public versions(id: string, params?: HttpParams): Observable<Version[]> {
+  public versions(id: string, params = new HttpParams()): Observable<Version[]> {
     return this.httpClient
       .get<DjangoAPI<Version[]>>(`${this.apiUrl}${id}/versions/`, { params })
       .pipe(map(/* istanbul ignore next */ data => data.results));
@@ -194,11 +190,11 @@ export class LabBooksService
     return this.httpClient.post<LabBook>(`${this.apiUrl}${id}/versions/${version}/restore/`, { pk: id });
   }
 
-  public lock(id: string, params?: HttpParams): Observable<void> {
+  public lock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/lock/`, undefined, { params });
   }
 
-  public unlock(id: string, params?: HttpParams): Observable<void> {
+  public unlock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/unlock/`, undefined, { params });
   }
 
@@ -206,7 +202,7 @@ export class LabBooksService
     return this.httpClient.get<ExportLink>(`${this.apiUrl}${id}/get_export_link/`);
   }
 
-  public getRelations(id: string, params?: HttpParams): Observable<Relation[]> {
+  public getRelations(id: string, params = new HttpParams()): Observable<Relation[]> {
     return this.httpClient.get<Relation[]>(`${this.apiUrl}${id}/relations/`, { params });
   }
 

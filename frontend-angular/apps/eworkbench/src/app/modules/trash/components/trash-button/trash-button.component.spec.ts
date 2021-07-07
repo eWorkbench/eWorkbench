@@ -63,7 +63,7 @@ describe('TrashButtonComponent', () => {
 
   it('should call delete()', () => {
     const id = '8147b971-9ab6-4f8b-bbf5-76e8eccae3f8';
-    const deleteSpy = spyOn(spectator.component, 'delete').and.callThrough();
+    const deleteSpy = jest.spyOn(spectator.component, 'delete');
     spectator.component.delete(id);
     expect(deleteSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({
@@ -74,7 +74,7 @@ describe('TrashButtonComponent', () => {
   });
 
   it('should call onModalClose()', () => {
-    const onModalCloseSpy = spyOn(spectator.component, 'onModalClose').and.callThrough();
+    const onModalCloseSpy = jest.spyOn(spectator.component, 'onModalClose');
     spectator.component.onModalClose({ state: ModalState.Unchanged });
     expect(onModalCloseSpy).toHaveBeenCalledTimes(1);
     spectator.component.onModalClose({ state: ModalState.Changed });

@@ -104,13 +104,13 @@ describe('CalendarComponent', () => {
   });
 
   it('should call onDatesSet()', () => {
-    const onDatesSetSpy = spyOn(spectator.component, 'onDatesSet').and.callThrough();
+    const onDatesSetSpy = jest.spyOn(spectator.component, 'onDatesSet');
     spectator.component.onDatesSet(event);
     expect(onDatesSetSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onSelect()', () => {
-    const onSelectSpy = spyOn(spectator.component, 'onSelect').and.callThrough();
+    const onSelectSpy = jest.spyOn(spectator.component, 'onSelect');
     const dateStart = new Date(2020, 0, 15, 9, 0, 0, 0);
     const dateEnd = new Date(2020, 0, 15, 15, 0, 0, 0);
     const expected = {
@@ -128,32 +128,32 @@ describe('CalendarComponent', () => {
   });
 
   it('should call onEventClick()', () => {
-    const onEventClickSpy = spyOn(spectator.component, 'onEventClick').and.callThrough();
+    const onEventClickSpy = jest.spyOn(spectator.component, 'onEventClick');
     spectator.component.onEventClick({} as any);
     expect(onEventClickSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call getEvents()', () => {
-    const getEventsSpy = spyOn(spectator.component, 'getEvents').and.callThrough();
+    const getEventsSpy = jest.spyOn(spectator.component, 'getEvents');
     spectator.component.getEvents();
     expect(getEventsSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call removeAllEvents()', () => {
-    const removeAllEventsSpy = spyOn(spectator.component, 'removeAllEvents').and.callThrough();
+    const removeAllEventsSpy = jest.spyOn(spectator.component, 'removeAllEvents');
     spectator.component.removeAllEvents();
     expect(removeAllEventsSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call addEvent()', () => {
-    const addEventSpy = spyOn(spectator.component, 'addEvent').and.callThrough();
+    const addEventSpy = jest.spyOn(spectator.component, 'addEvent');
     spectator.component.addEvent({});
     expect(addEventSpy).toHaveBeenCalledWith({});
     expect(addEventSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call editEvent()', () => {
-    const editEventSpy = spyOn(spectator.component, 'editEvent').and.callThrough();
+    const editEventSpy = jest.spyOn(spectator.component, 'editEvent');
     spectator.component.addEvent(event);
     spectator.component.addEvent({ ...event, id: '704566f1-e73a-4f90-ad1d-36f4d8a58be9' });
     spectator.component.editEvent(event);
@@ -161,7 +161,7 @@ describe('CalendarComponent', () => {
   });
 
   it('should call removeEvent()', () => {
-    const removeEventSpy = spyOn(spectator.component, 'removeEvent').and.callThrough();
+    const removeEventSpy = jest.spyOn(spectator.component, 'removeEvent');
     spectator.component.addEvent(event);
     spectator.component.addEvent({ ...event, id: '704566f1-e73a-4f90-ad1d-36f4d8a58be9' });
     spectator.component.removeEvent(event);

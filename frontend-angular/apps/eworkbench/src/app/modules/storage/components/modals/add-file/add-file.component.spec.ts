@@ -41,7 +41,7 @@ describe('AddFileModalComponent', () => {
 
   it('should call selectFile', () => {
     spectator.setInput({ currentUser: mockUser });
-    const onSelectFileSpy = spyOn(spectator.component, 'selectFile').and.callThrough();
+    const onSelectFileSpy = jest.spyOn(spectator.component, 'selectFile');
     spectator.component.selectFile(mockFile);
     expect(spectator.component.selectedFile).toStrictEqual(mockFile);
     expect(onSelectFileSpy).toHaveBeenCalledTimes(1);

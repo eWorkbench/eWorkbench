@@ -6,8 +6,7 @@
 import { AuthService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { mockUser } from '@eworkbench/mocks';
-import { mockProvider } from '@ngneat/spectator';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { mockProvider, createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 import { FooterComponent } from './footer.component';
 

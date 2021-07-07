@@ -17,16 +17,14 @@ export class SearchService {
 
   public constructor(private readonly httpClient: HttpClient) {}
 
-  public contacts(search: string, params?: HttpParams): Observable<Contact[]> {
-    const baseParams = params ?? new HttpParams();
-    const httpParams = baseParams.set('model', 'contact').set('search', search);
+  public contacts(search: string, params = new HttpParams()): Observable<Contact[]> {
+    const httpParams = params.set('model', 'contact').set('search', search);
 
     return this.httpClient.get<Contact[]>(this.apiUrl, { params: httpParams });
   }
 
-  public search(search: string, params?: HttpParams): Observable<SearchResult[]> {
-    const baseParams = params ?? new HttpParams();
-    const httpParams = baseParams.set('search', search);
+  public search(search: string, params = new HttpParams()): Observable<SearchResult[]> {
+    const httpParams = params.set('search', search);
 
     return this.httpClient.get<SearchResult[]>(this.apiUrl, { params: httpParams });
   }

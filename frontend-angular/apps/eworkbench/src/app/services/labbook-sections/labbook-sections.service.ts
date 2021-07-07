@@ -21,7 +21,7 @@ export class LabBookSectionsService implements LockService {
     return this.httpClient.post<LabBookSection>(this.apiUrl, labbookSection);
   }
 
-  public get(id: string, params?: HttpParams): Observable<LabBookSection> {
+  public get(id: string, params = new HttpParams()): Observable<LabBookSection> {
     return this.httpClient.get<LabBookSection>(`${this.apiUrl}${id}/`, { params });
   }
 
@@ -29,11 +29,11 @@ export class LabBookSectionsService implements LockService {
     return this.httpClient.patch<LabBookSection>(`${this.apiUrl}${id}/`, labbookSection);
   }
 
-  public lock(id: string, params?: HttpParams): Observable<void> {
+  public lock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/lock/`, undefined, { params });
   }
 
-  public unlock(id: string, params?: HttpParams): Observable<void> {
+  public unlock(id: string, params = new HttpParams()): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}${id}/unlock/`, undefined, { params });
   }
 }

@@ -12,8 +12,7 @@ import { IconsModule } from '@eworkbench/icons';
 import { mockPluginDetails } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { DialogRef } from '@ngneat/dialog';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator';
-import { mockProvider } from '@ngneat/spectator/jest';
+import { mockProvider, createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { NewLabBookPluginElementModalComponent } from './new.component';
@@ -45,7 +44,7 @@ describe('NewLabBookPluginElementModalComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.setInput({
       loading: false,
     });
@@ -59,7 +58,7 @@ describe('NewLabBookPluginElementModalComponent', () => {
   });
 
   it('should call onToogleOnlyPluginsWithAccess()', () => {
-    const onToogleOnlyPluginsWithAccessSpy = spyOn(spectator.component, 'onToogleOnlyPluginsWithAccess').and.callThrough();
+    const onToogleOnlyPluginsWithAccessSpy = jest.spyOn(spectator.component, 'onToogleOnlyPluginsWithAccess');
     spectator.setInput({
       loading: false,
     });

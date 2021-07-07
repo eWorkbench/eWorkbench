@@ -19,20 +19,18 @@ export class MyResourceBookingsService implements TableViewService, ExportServic
 
   public constructor(private readonly httpClient: HttpClient) {}
 
-  public getList(params?: HttpParams): Observable<{ total: number; data: ResourceBooking[] }> {
-    return this.httpClient
-      .get<ResourceBooking[]>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.length,
-            data,
-          })
-        )
-      );
+  public getList(params = new HttpParams()): Observable<{ total: number; data: ResourceBooking[] }> {
+    return this.httpClient.get<ResourceBooking[]>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.length,
+          data,
+        })
+      )
+    );
   }
 
-  public delete(id: string, params?: HttpParams): Observable<ResourceBooking> {
+  public delete(id: string, params = new HttpParams()): Observable<ResourceBooking> {
     // Only remove the resource reference from the booking and don't actually delete it
     return this.httpClient.patch<ResourceBooking>(`${this.apiUrl}${id}/`, { resource_pk: null }, { params });
   }

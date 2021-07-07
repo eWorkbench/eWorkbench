@@ -57,7 +57,7 @@ export class FormDateInputComponent implements ControlValueAccessor, AfterViewIn
     this.onTouched = fn;
   }
 
-  public setDisabledState(isDisabled?: boolean): void {
+  public setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
   }
 }

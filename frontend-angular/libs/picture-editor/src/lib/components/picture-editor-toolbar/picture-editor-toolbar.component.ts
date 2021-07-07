@@ -5,7 +5,7 @@
 
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash';
 import { PictureEditorTool } from '../../enums/picture-editor-tool.enum';
 import { SaveSketchEvent } from '../../interfaces/save-sketch-event.interface';
 

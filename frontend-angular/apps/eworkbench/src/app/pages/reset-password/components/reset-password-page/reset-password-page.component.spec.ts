@@ -40,7 +40,7 @@ describe('ResetPasswordPageComponent', () => {
     spectator.component.form.controls.password.setValue('password');
     spectator.component.form.controls.passwordConfirm.setValue('password');
 
-    const onChangePasswordSpy = spyOn(spectator.component, 'onChangePassword').and.callThrough();
+    const onChangePasswordSpy = jest.spyOn(spectator.component, 'onChangePassword');
     spectator.component.onChangePassword();
     expect(onChangePasswordSpy).toHaveBeenCalledTimes(1);
 

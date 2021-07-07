@@ -21,7 +21,7 @@ describe('ProjectsSidebarModelService', () => {
   });
 
   it('should call get()', () => {
-    const getSpy = spyOn(spectator.service, 'get').and.callThrough();
+    const getSpy = jest.spyOn(spectator.service, 'get');
     spectator.service.get('sidebar.overview');
     expect(getSpy).toHaveBeenCalledTimes(1);
     spectator.service.get('sidebar.overview');

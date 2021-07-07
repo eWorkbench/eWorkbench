@@ -272,7 +272,7 @@ export class MetadataFieldComponent implements OnInit {
           answers: answers.map((answer: string) => ({
             answer,
           })),
-          single_selected: this.singleSelected,
+          single_selected: this.singleSelected!,
         };
 
         if (this.isNotFinal()) {
@@ -328,7 +328,7 @@ export class MetadataFieldComponent implements OnInit {
     this.clearAnswers();
 
     this.selectedValues = [];
-    this.singleSelected = undefined;
+    this.singleSelected = undefined!;
     this.values = parameter.values;
 
     this.initField();

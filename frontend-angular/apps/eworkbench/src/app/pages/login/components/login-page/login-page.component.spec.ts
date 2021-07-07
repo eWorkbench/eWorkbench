@@ -45,7 +45,7 @@ describe('LoginPageComponent', () => {
         password: 'password',
       });
 
-      const onLoginSpy = spyOn(spectator.component, 'onLogin').and.callThrough();
+      const onLoginSpy = jest.spyOn(spectator.component, 'onLogin');
       spectator.component.onLogin();
       expect(onLoginSpy).toHaveBeenCalledTimes(1);
 
@@ -59,7 +59,7 @@ describe('LoginPageComponent', () => {
 
   it('should call onLogin() with an invalid form', fakeAsync(() => {
     spectator.fixture.ngZone?.run(() => {
-      const onLoginSpy = spyOn(spectator.component, 'onLogin').and.callThrough();
+      const onLoginSpy = jest.spyOn(spectator.component, 'onLogin');
       spectator.component.onLogin();
       expect(onLoginSpy).toHaveBeenCalledTimes(1);
     });

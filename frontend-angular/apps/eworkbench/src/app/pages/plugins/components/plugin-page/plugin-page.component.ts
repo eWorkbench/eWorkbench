@@ -92,7 +92,7 @@ export class PluginPageComponent implements OnInit, OnDestroy {
     return this.form.controls;
   }
 
-  public get lockUser(): { ownUser: boolean; user?: User | null } {
+  public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
     /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
@@ -110,7 +110,7 @@ export class PluginPageComponent implements OnInit, OnDestroy {
     return {
       title: this.f.title.value!,
       projects: this.f.projects.value,
-      metadata: this.metadata,
+      metadata: this.metadata!,
     };
   }
 

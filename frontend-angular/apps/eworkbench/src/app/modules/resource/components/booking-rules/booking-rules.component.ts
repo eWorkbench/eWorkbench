@@ -140,7 +140,7 @@ export class ResourceBookingRulesComponent implements OnInit {
       const values = bookingRule.values as BookingRuleBookableTimeSlots;
 
       this.bookingRules.booking_rule_bookable_hours = {
-        id: bookingRule.id,
+        id: bookingRule.id!,
         monday: values.monday,
         tuesday: values.tuesday,
         wednesday: values.wednesday,
@@ -149,34 +149,34 @@ export class ResourceBookingRulesComponent implements OnInit {
         saturday: values.saturday,
         sunday: values.sunday,
         full_day: values.full_day,
-        time_start: values.time_start,
-        time_end: values.time_end,
+        time_start: values.time_start!,
+        time_end: values.time_end!,
       };
     } else if (rule === 'booking_rule_bookings_per_user') {
       this.bookingRules.booking_rule_bookings_per_user = bookingRule.values as BookingRuleBookingsPerUser[];
     } else if (rule === 'booking_rule_minimum_duration') {
       this.bookingRules.booking_rule_minimum_duration = {
-        id: bookingRule.id,
+        id: bookingRule.id!,
         duration: (bookingRule.values as BookingRuleDuration).duration,
       };
     } else if (rule === 'booking_rule_maximum_duration') {
       this.bookingRules.booking_rule_maximum_duration = {
-        id: bookingRule.id,
+        id: bookingRule.id!,
         duration: (bookingRule.values as BookingRuleDuration).duration,
       };
     } else if (rule === 'booking_rule_minimum_time_before') {
       this.bookingRules.booking_rule_minimum_time_before = {
-        id: bookingRule.id,
+        id: bookingRule.id!,
         duration: (bookingRule.values as BookingRuleDuration).duration,
       };
     } else if (rule === 'booking_rule_maximum_time_before') {
       this.bookingRules.booking_rule_maximum_time_before = {
-        id: bookingRule.id,
+        id: bookingRule.id!,
         duration: (bookingRule.values as BookingRuleDuration).duration,
       };
     } else if (rule === 'booking_rule_time_between') {
       this.bookingRules.booking_rule_time_between = {
-        id: bookingRule.id,
+        id: bookingRule.id!,
         duration: (bookingRule.values as BookingRuleDuration).duration,
       };
     }
@@ -328,13 +328,13 @@ export class ResourceBookingRulesComponent implements OnInit {
   }
 
   public reinitializeBookingRules(): void {
-    this.bookableTimeSlots = undefined;
-    this.bookingsPerUser = undefined;
-    this.minimumDuration = undefined;
-    this.maximumDuration = undefined;
-    this.minimumTimeBefore = undefined;
-    this.maximumTimeBefore = undefined;
-    this.timeBetween = undefined;
+    this.bookableTimeSlots = undefined!;
+    this.bookingsPerUser = undefined!;
+    this.minimumDuration = undefined!;
+    this.maximumDuration = undefined!;
+    this.minimumTimeBefore = undefined!;
+    this.maximumTimeBefore = undefined!;
+    this.timeBetween = undefined!;
 
     this.cdr.detectChanges();
 

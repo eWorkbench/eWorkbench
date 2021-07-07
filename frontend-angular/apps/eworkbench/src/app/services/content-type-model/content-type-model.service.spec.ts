@@ -21,7 +21,7 @@ describe('ContentTypeModelService', () => {
   });
 
   it('should call get()', () => {
-    const getSpy = spyOn(spectator.service, 'get').and.callThrough();
+    const getSpy = jest.spyOn(spectator.service, 'get');
     spectator.service.get('shared_elements.contact', 'translation');
     expect(getSpy).toHaveBeenCalledTimes(1);
     // @ts-expect-error

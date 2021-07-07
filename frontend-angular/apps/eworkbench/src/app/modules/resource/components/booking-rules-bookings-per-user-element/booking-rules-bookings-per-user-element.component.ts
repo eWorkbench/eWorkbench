@@ -114,8 +114,8 @@ export class ResourceBookingRulesBookingsPerUserElementComponent implements OnIn
 
   public pushChanges(): void {
     this.changed.emit({
-      id: this.rule.id,
-      uuid: this.rule.uuid,
+      id: this.rule.id!,
+      uuid: this.rule.uuid!,
       rule: this.ruleKey,
       values: {
         count: this.f.count.value,

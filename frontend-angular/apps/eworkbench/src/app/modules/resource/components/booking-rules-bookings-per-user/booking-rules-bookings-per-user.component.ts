@@ -61,8 +61,8 @@ export class ResourceBookingRulesBookingsPerUserComponent implements OnInit {
     const values = bookingRule.values as BookingRuleBookingsPerUser;
 
     this.rules.push({
-      id: bookingRule.id,
-      uuid: bookingRule.uuid,
+      id: bookingRule.id!,
+      uuid: bookingRule.uuid!,
       count: values.count,
       unit: values.unit,
     });

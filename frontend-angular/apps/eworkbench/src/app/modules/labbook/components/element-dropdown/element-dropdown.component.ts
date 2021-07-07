@@ -63,6 +63,9 @@ export class LabBookElementDropdownComponent implements OnInit {
   @Input()
   public newModalComponent?: any;
 
+  @Input()
+  public minimalistic = false;
+
   @Output()
   public removed = new EventEmitter<ElementRemoval>();
 
@@ -231,7 +234,7 @@ export class LabBookElementDropdownComponent implements OnInit {
 
             return this.labBookSectionsService
               .patch(this.section!, {
-                pk: this.section,
+                pk: this.section!,
                 child_elements: [...childElements],
               })
               .pipe(untilDestroyed(this));

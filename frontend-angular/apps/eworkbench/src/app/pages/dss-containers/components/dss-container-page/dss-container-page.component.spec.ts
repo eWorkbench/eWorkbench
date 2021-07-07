@@ -66,7 +66,7 @@ describe('DssContainerPageComponent', () => {
   });
 
   it('should call initDetails()', () => {
-    const initDetailsSpy = spyOn(spectator.component, 'initDetails').and.callThrough();
+    const initDetailsSpy = jest.spyOn(spectator.component, 'initDetails');
     spectator.component.initDetails();
     expect(initDetailsSpy).toHaveBeenCalledTimes(1);
 
@@ -76,7 +76,7 @@ describe('DssContainerPageComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.setInput({
       loading: false,
     });

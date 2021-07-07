@@ -14,8 +14,7 @@ export const mockDirectory: Directory = {
   created_by: mockUser,
   last_modified_at: '2019-04-18T13:17:43.403709+02:00',
   imported: false,
-  url:
-    'http://workbench.local:8000/api/drives/c6159dec-d393-4520-95ab-24c7d5941e4c/sub_directories/9c166a32-6b0c-4317-ac65-9f1ae7799a99/',
+  url: 'http://workbench.local:8000/api/drives/c6159dec-d393-4520-95ab-24c7d5941e4c/sub_directories/9c166a32-6b0c-4317-ac65-9f1ae7799a99/',
   display: '/',
   drive_id: 'c6159dec-d393-4520-95ab-24c7d5941e4c',
   download_directory:

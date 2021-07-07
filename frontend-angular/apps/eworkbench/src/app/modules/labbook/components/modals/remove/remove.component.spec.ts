@@ -39,14 +39,14 @@ describe('LabBookElementRemoveModalComponent', () => {
 
   it('should call onSubmit()', () => {
     expect(spectator.component.state).toBe(ModalState.Unchanged);
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
     expect(spectator.component.state).toBe(ModalState.Changed);
   });
 
   it('should call saveUserDialogSettings()', () => {
-    const saveUserDialogSettingsSpy = spyOn(spectator.component, 'saveUserDialogSettings').and.callThrough();
+    const saveUserDialogSettingsSpy = jest.spyOn(spectator.component, 'saveUserDialogSettings');
     spectator.component.saveUserDialogSettings();
     expect(saveUserDialogSettingsSpy).toHaveBeenCalledTimes(1);
   });

@@ -51,7 +51,7 @@ export class LinkComponent {
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
       /* istanbul ignore next */
-      this.refreshLinkList.next();
+      this.refreshLinkList.next(true);
     }
   }
 }

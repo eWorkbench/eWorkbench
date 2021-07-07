@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 2.4 - July 2021
+- [SITUMEWB-533] upgrade pillow, pin psycopg2-binary
+- [SITUMEWB-533] temporarily pin celery (new version was yanked)
+- [SITUMEWB-574,SITUMEWB-657] Prevent already selected user from being shown again in privileges dropdown and other adjustments
+- [SITUMEWB-533] Upgrade to angular 12
+- [SITUMEWB-677] Implemented autoresizing textareas for task checklist items
+- [SITUMEWB-681] Fixed empty white elements in LabBook
+
 ## Version 2.3 - June 2021
 - [SITUMEWB-432,SITUMEWB-464,SITUMEWB-672] Implement Lazy-Loading, Popover: Notifications, Fix 404 for drives/storages
 - [SITUMEWB-494] add existing users to projects on invites

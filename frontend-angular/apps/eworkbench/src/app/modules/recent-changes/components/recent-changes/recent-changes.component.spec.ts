@@ -15,7 +15,7 @@ import { ModalsModule } from '@eworkbench/modals';
 import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash';
 import { RecentChangesComponent } from './recent-changes.component';
 
 describe('RecentChangesComponent', () => {

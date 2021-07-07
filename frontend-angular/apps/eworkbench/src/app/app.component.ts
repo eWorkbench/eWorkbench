@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
     this.websocketService.connect();
 
     if (!isDevMode() && environment.tracking) {
-      this.matomoInjector.init((environment.matomoUrl as unknown) as string, (environment.matomoId as unknown) as number);
+      this.matomoInjector.init(environment.matomoUrl as unknown as string, environment.matomoId as unknown as number);
     }
   }
 }

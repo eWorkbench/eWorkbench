@@ -32,7 +32,7 @@ export class NewLabBookNoteElementModalComponent implements OnInit {
 
   public labBookId = this.modalRef.data.labBookId;
 
-  public projects: string[] = this.modalRef.data.projects ?? [];
+  public projectsList: string[] = this.modalRef.data.projects ?? [];
 
   public loading = true;
 
@@ -75,7 +75,7 @@ export class NewLabBookNoteElementModalComponent implements OnInit {
     const note = {
       subject: this.translocoService.translate('labBook.newNoteElementModal.subject.placeholder'),
       content: `<p>${this.translocoService.translate<string>('labBook.newNoteElementModal.content.placeholder')}</p>`,
-      projects: this.projects,
+      projects: this.projectsList,
     };
 
     return note;

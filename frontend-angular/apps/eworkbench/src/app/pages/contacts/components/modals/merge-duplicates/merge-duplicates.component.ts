@@ -248,7 +248,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
       academic_title: this.academicTitle,
       last_name: this.lastName,
       first_name: this.firstName,
-      metadata: this.selectedBaseContact?.metadata,
+      metadata: this.selectedBaseContact?.metadata ?? [],
       notes: this.note,
       projects: this.selectedBaseContact?.projects ?? [],
       email: this.email,
@@ -273,7 +273,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
       this.selectedBaseContact = contact;
       this.addContactAt(contact, 0);
     } else {
-      this.selectedBaseContact = undefined;
+      this.selectedBaseContact = undefined!;
       this.removeContactFields(0);
     }
     this.checkCanMerge();

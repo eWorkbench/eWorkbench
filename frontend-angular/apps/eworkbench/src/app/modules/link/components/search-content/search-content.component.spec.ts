@@ -33,7 +33,7 @@ describe('SearchContentComponent', () => {
   });
 
   it('should call initDetails()', () => {
-    const initDetailsSpy = spyOn(spectator.component, 'initDetails').and.callThrough();
+    const initDetailsSpy = jest.spyOn(spectator.component, 'initDetails');
     spectator.component.initDetails();
     expect(initDetailsSpy).toHaveBeenCalledTimes(1);
 
@@ -43,7 +43,7 @@ describe('SearchContentComponent', () => {
   });
 
   it('should call onChangeSelection()', () => {
-    const onChangeSelectionSpy = spyOn(spectator.component, 'onChangeSelection').and.callThrough();
+    const onChangeSelectionSpy = jest.spyOn(spectator.component, 'onChangeSelection');
     spectator.component.onChangeSelection({ target: { checked: true } }, mockAppointment);
     expect(onChangeSelectionSpy).toHaveBeenCalledTimes(1);
 
@@ -52,7 +52,7 @@ describe('SearchContentComponent', () => {
   });
 
   it('should call isSelected()', () => {
-    const isSelectedSpy = spyOn(spectator.component, 'isSelected').and.callThrough();
+    const isSelectedSpy = jest.spyOn(spectator.component, 'isSelected');
     spectator.setInput({ selectedContent: [mockAppointment.pk] });
     expect(spectator.component.isSelected(mockAppointment.pk)).toBe(true);
     expect(isSelectedSpy).toHaveBeenCalledTimes(1);

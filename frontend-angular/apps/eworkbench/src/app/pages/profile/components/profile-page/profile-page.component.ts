@@ -127,8 +127,8 @@ export class ProfilePageComponent implements OnInit {
           academic_title: this.initialState.userprofile.academic_title,
           additional_information: this.f.aboutMe.value ?? '',
           country: this.initialState.userprofile.country,
-          first_name: this.initialState.userprofile.first_name,
-          last_name: this.initialState.userprofile.last_name,
+          first_name: this.initialState.userprofile.first_name!,
+          last_name: this.initialState.userprofile.last_name!,
           org_zug_mitarbeiter_lang: this.initialState.userprofile.org_zug_mitarbeiter_lang,
           org_zug_student_lang: this.initialState.userprofile.org_zug_student_lang,
           phone: this.initialState.userprofile.phone,
@@ -192,9 +192,9 @@ export class ProfilePageComponent implements OnInit {
             { emitEvent: false }
           );
 
-          this.avatar = user.userprofile.avatar;
-          this.usedStorage = user.used_storage_megabyte?.toFixed(2);
-          this.availableStorage = user.available_storage_megabyte?.toFixed(2);
+          this.avatar = user.userprofile.avatar!;
+          this.usedStorage = user.used_storage_megabyte?.toFixed(2) as any;
+          this.availableStorage = user.available_storage_megabyte?.toFixed(2) as any;
           this.recalculateStoragePercentage(user);
 
           this.initialState = { ...user };
@@ -252,9 +252,9 @@ export class ProfilePageComponent implements OnInit {
         /* istanbul ignore next */ user => {
           this.initialState = { ...user };
 
-          this.avatar = user.userprofile.avatar;
-          this.usedStorage = user.used_storage_megabyte?.toFixed(2);
-          this.availableStorage = user.available_storage_megabyte?.toFixed(2);
+          this.avatar = user.userprofile.avatar!;
+          this.usedStorage = user.used_storage_megabyte?.toFixed(2) as any;
+          this.availableStorage = user.available_storage_megabyte?.toFixed(2) as any;
           this.recalculateStoragePercentage(user);
 
           this.updateStore();
@@ -345,7 +345,7 @@ export class ProfilePageComponent implements OnInit {
                   ...this.initialState,
                   userprofile: {
                     ...this.initialState.userprofile,
-                    avatar: user.userprofile.avatar,
+                    avatar: user.userprofile.avatar!,
                   },
                 };
               }
@@ -373,20 +373,20 @@ export class ProfilePageComponent implements OnInit {
     /* istanbul ignore next */
     if (files?.length) {
       this.fileToBase64(files[0]).subscribe(data => {
-        this.newAvatar = data;
+        this.newAvatar = data as string;
         this.cdr.markForCheck();
       });
     }
   }
 
   public onCancelAvatarChange(): void {
-    this.newAvatar = undefined;
+    this.newAvatar = undefined!;
     this.form.patchValue({
       avatar: '',
     });
   }
 
-  public fileToBase64(file: File): Observable<string> {
+  public fileToBase64(file: File): Observable<unknown> {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     return fromEvent(reader, 'load').pipe(untilDestroyed(this), pluck('currentTarget', 'result'));

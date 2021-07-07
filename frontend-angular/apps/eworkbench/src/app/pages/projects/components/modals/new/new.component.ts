@@ -159,7 +159,7 @@ export class NewProjectModalComponent implements OnInit {
         {
           name: this.initialState.name,
           parentProject: this.initialState.parent_project,
-          description: this.initialState.description,
+          description: this.initialState.description!,
           projectState: this.initialState.project_state,
           dateGroup: {
             start: this.initialState.start_date,

@@ -31,64 +31,53 @@ export class ProjectsService implements TableViewService, TreeViewService {
   public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
 
   public getList(params: HttpParams): Observable<{ total: number; data: Project[] }> {
-    return this.httpClient
-      .get<DjangoAPI<Project[]>>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+    return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public getChildrenOf(childrenOf: string, params?: HttpParams): Observable<{ total: number; data: Project[] }> {
-    const baseParams = params ?? new HttpParams();
-    const httpParams = baseParams.set('parent_project', childrenOf);
+  public getChildrenOf(childrenOf: string, params = new HttpParams()): Observable<{ total: number; data: Project[] }> {
+    const httpParams = params.set('parent_project', childrenOf);
 
-    return this.httpClient
-      .get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+    return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public getParentsOf(parentsOf: string, params?: HttpParams): Observable<{ total: number; data: Project[] }> {
-    const baseParams = params ?? new HttpParams();
-    const httpParams = baseParams.set('parents_of', parentsOf);
+  public getParentsOf(parentsOf: string, params = new HttpParams()): Observable<{ total: number; data: Project[] }> {
+    const httpParams = params.set('parents_of', parentsOf);
 
-    return this.httpClient
-      .get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+    return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public getRecursiveParent(recursiveParent: string, params?: HttpParams): Observable<{ total: number; data: Project[] }> {
-    const baseParams = params ?? new HttpParams();
-    const httpParams = baseParams.set('recursive_parent', recursiveParent);
+  public getRecursiveParent(recursiveParent: string, params = new HttpParams()): Observable<{ total: number; data: Project[] }> {
+    const httpParams = params.set('recursive_parent', recursiveParent);
 
-    return this.httpClient
-      .get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+    return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
   public getMembers(id: string): Observable<ProjectMember[]> {
@@ -111,36 +100,35 @@ export class ProjectsService implements TableViewService, TreeViewService {
     return this.httpClient.delete<void>(`${this.apiUrl}${id}/acls/${userId}/`);
   }
 
-  public search(search: string, params?: HttpParams): Observable<Project[]> {
-    const baseParams = params ?? new HttpParams();
-    const httpParams = baseParams.set('search', search);
+  public search(search: string, params = new HttpParams()): Observable<Project[]> {
+    const httpParams = params.set('search', search);
 
     return this.httpClient
       .get<DjangoAPI<Project[]>>(`${environment.apiUrl}/projects/`, { params: httpParams })
       .pipe(map(/* istanbul ignore next */ data => data.results));
   }
 
-  public add(project: ProjectPayload, params?: HttpParams): Observable<Project> {
+  public add(project: ProjectPayload, params = new HttpParams()): Observable<Project> {
     return this.httpClient.post<Project>(this.apiUrl, project, { params });
   }
 
-  public get(id: string, params?: HttpParams): Observable<Project> {
+  public get(id: string, params = new HttpParams()): Observable<Project> {
     return this.httpClient.get<Project>(`${this.apiUrl}${id}/`, { params });
   }
 
-  public delete(id: string, params?: HttpParams): Observable<Project> {
+  public delete(id: string, params = new HttpParams()): Observable<Project> {
     return this.httpClient.patch<Project>(`${this.apiUrl}${id}/soft_delete/`, { pk: id }, { params });
   }
 
-  public patch(id: string, project: ProjectPayload, params?: HttpParams): Observable<Project> {
+  public patch(id: string, project: ProjectPayload, params = new HttpParams()): Observable<Project> {
     return this.httpClient.patch<Project>(`${this.apiUrl}${id}/`, project, { params });
   }
 
-  public restore(id: string, params?: HttpParams): Observable<Project> {
+  public restore(id: string, params = new HttpParams()): Observable<Project> {
     return this.httpClient.patch<Project>(`${this.apiUrl}${id}/restore/`, { pk: id }, { params });
   }
 
-  public getRelations(id: string, params?: HttpParams): Observable<ProjectRelation[]> {
+  public getRelations(id: string, params = new HttpParams()): Observable<ProjectRelation[]> {
     return this.httpClient.get<ProjectRelation[]>(`${this.apiUrl}${id}/relations/`, { params });
   }
 

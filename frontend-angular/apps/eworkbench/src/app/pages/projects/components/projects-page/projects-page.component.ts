@@ -15,7 +15,7 @@ import { ModalCallback, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { keyBy, merge, values } from 'lodash-es';
+import { keyBy, merge, values } from 'lodash';
 import { switchMap, take } from 'rxjs/operators';
 import { NewProjectModalComponent } from '../modals/new/new.component';
 
@@ -222,7 +222,7 @@ export class ProjectsPageComponent implements OnInit {
       )
     );
 
-    this.listColumns = values(merged);
+    this.listColumns = values<TableColumn>(merged);
     const settings = this.listColumns.map(col => ({ key: col.key, sort: col.sort, hidden: col.hidden }));
 
     this.authService.user$

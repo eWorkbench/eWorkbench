@@ -67,7 +67,7 @@ describe('NewResourceModalComponent', () => {
   it('should add a new resource', () => {
     spectator.component.form.controls.name.setValue(chance.string({ alpha: true, symbols: false }));
 
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });
@@ -76,7 +76,7 @@ describe('NewResourceModalComponent', () => {
     spectator.setInput({
       loading: true,
     });
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
   });
@@ -85,7 +85,7 @@ describe('NewResourceModalComponent', () => {
     spectator.setInput({
       initialState: mockResource,
     });
-    const patchFormValuesSpy = spyOn(spectator.component, 'patchFormValues').and.callThrough();
+    const patchFormValuesSpy = jest.spyOn(spectator.component, 'patchFormValues');
     spectator.component.patchFormValues();
     expect(patchFormValuesSpy).toHaveBeenCalledTimes(1);
 

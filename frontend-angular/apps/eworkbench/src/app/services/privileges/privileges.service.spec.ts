@@ -22,7 +22,7 @@ describe('PrivilegesService', () => {
   });
 
   it('should call transform()', () => {
-    const transformSpy = spyOn(spectator.service, 'transform').and.callThrough();
+    const transformSpy = jest.spyOn(spectator.service, 'transform');
 
     spectator.service.transform(mockPrivilegesApi, false);
     expect(transformSpy).toHaveBeenCalledTimes(1);

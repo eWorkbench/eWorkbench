@@ -34,7 +34,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
 
   public labBookId = this.modalRef.data.labBookId;
 
-  public projects: string[] = this.modalRef.data.projects ?? [];
+  public projectsList: string[] = this.modalRef.data.projects ?? [];
 
   public loading = true;
 
@@ -94,7 +94,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
     const pluginInstance = {
       title: this.translocoService.translate('labBook.newPluginElementModal.title.placeholder'),
       plugin: this.selectedPlugin?.pk,
-      projects: this.projects,
+      projects: this.projectsList,
     };
 
     return pluginInstance;
@@ -237,19 +237,19 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
   }
 
   public onCancelDetails(): void {
-    this.pluginDetails = undefined;
-    this.showFeedbackFormForPlugin = undefined;
+    this.pluginDetails = undefined!;
+    this.showFeedbackFormForPlugin = undefined!;
     this.step = 1;
   }
 
   public onShowDetails(plugin: PluginDetails): void {
     this.pluginDetails = { ...plugin };
-    this.showFeedbackFormForPlugin = undefined;
+    this.showFeedbackFormForPlugin = undefined!;
   }
 
   public onSelect(plugin: PluginDetails): void {
     this.selectedPlugin = { ...plugin };
-    this.showFeedbackFormForPlugin = undefined;
+    this.showFeedbackFormForPlugin = undefined!;
     this.onChangeStep(2);
   }
 
@@ -258,6 +258,6 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
   }
 
   public onHideFeedbackForm(): void {
-    this.showFeedbackFormForPlugin = undefined;
+    this.showFeedbackFormForPlugin = undefined!;
   }
 }

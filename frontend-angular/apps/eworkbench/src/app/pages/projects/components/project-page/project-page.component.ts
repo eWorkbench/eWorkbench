@@ -215,7 +215,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
                 title: project.name,
                 dateGroup: { start: project.start_date, end: project.stop_date, fullDay: true },
                 state: project.project_state,
-                description: project.description,
+                description: project.description!,
                 parentProject: project.parent_project,
               },
               { emitEvent: false }

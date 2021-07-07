@@ -48,7 +48,7 @@ describe('RestoreButtonComponent', () => {
   });
 
   it('should call onRestore()', () => {
-    const onRestoreSpy = spyOn(spectator.component, 'onRestore').and.callThrough();
+    const onRestoreSpy = jest.spyOn(spectator.component, 'onRestore');
     const id = '8147b971-9ab6-4f8b-bbf5-76e8eccae3f8';
     spectator.component.onRestore(id);
     expect(onRestoreSpy).toBeCalledWith(id);

@@ -18,16 +18,14 @@ export class FAQService {
 
   public constructor(private readonly httpClient: HttpClient) {}
 
-  public get(params?: HttpParams): Observable<{ total: number; data: FAQ[] }> {
-    return this.httpClient
-      .get<DjangoAPI<FAQ[]>>(this.apiUrl, { params })
-      .pipe(
-        map(
-          /* istanbul ignore next */ data => ({
-            total: data.count,
-            data: data.results,
-          })
-        )
-      );
+  public get(params = new HttpParams()): Observable<{ total: number; data: FAQ[] }> {
+    return this.httpClient.get<DjangoAPI<FAQ[]>>(this.apiUrl, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 }

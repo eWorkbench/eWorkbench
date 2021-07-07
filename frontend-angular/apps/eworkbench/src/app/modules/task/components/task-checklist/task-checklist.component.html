@@ -21,14 +21,14 @@
       </div>
 
       <div class="flex-fill align-self-center">
-        <input
-          type="text"
+        <textarea
+          autosize
           class="form-control ewb-input"
           [formControl]="titles.controls[i]"
           [id]="'item.' + uniqueHash + '.' + i"
           [name]="'item.' + uniqueHash + '.' + i"
           (change)="onTriggerChange()"
-        />
+        ></textarea>
       </div>
 
       <button

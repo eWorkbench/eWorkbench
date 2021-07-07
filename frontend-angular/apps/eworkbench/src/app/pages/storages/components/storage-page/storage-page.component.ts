@@ -107,7 +107,7 @@ export class StoragePageComponent implements OnInit {
       title: this.f.title.value ?? '',
       projects: this.f.projects.value,
       dss_envelope_id: this.f.dssEnvelope.value,
-      metadata: this.metadata,
+      metadata: this.metadata!,
     };
   }
 

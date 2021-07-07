@@ -18,7 +18,7 @@
         <eworkbench-table-view class="d-block mb-4" [columns]="listColumns" [data]="privileges"></eworkbench-table-view>
 
         <ng-container *ngIf="userPrivileges?.edit">
-          <label for="user-modal">{{ t('detailsDropdown.privilegesModal.user.placeholder') }}</label>
+          <label for="user-modal">{{ t('detailsDropdown.privilegesModal.user.label') }}</label>
           <ng-select
             #select
             class="ewb-select"

@@ -45,11 +45,11 @@ describe('ExportModalComponent', () => {
   });
 
   it('should call onCopyExportUrlToClipboard()', () => {
-    const onCopyExportUrlToClipboardSpy = spyOn(spectator.component, 'onCopyExportUrlToClipboard').and.callThrough();
+    const onCopyExportUrlToClipboardSpy = jest.spyOn(spectator.component, 'onCopyExportUrlToClipboard');
     spectator.component.onCopyExportUrlToClipboard();
     expect(onCopyExportUrlToClipboardSpy).toHaveBeenCalledTimes(1);
 
-    spectator.component.iCalExportUrl = undefined;
+    spectator.component.iCalExportUrl = undefined as any;
     spectator.component.onCopyExportUrlToClipboard();
     expect(onCopyExportUrlToClipboardSpy).toHaveBeenCalledTimes(2);
 

@@ -102,19 +102,19 @@ describe('CalendarPageComponent', () => {
   });
 
   it('should call onDatesSet()', () => {
-    const onDatesSetSpy = spyOn(spectator.component, 'onDatesSet').and.callThrough();
+    const onDatesSetSpy = jest.spyOn(spectator.component, 'onDatesSet');
     spectator.component.onDatesSet(mockAppointmentDatesSetEvent);
     expect(onDatesSetSpy).toHaveBeenCalled();
   });
 
   it('should call getMySchedules()', () => {
-    const getMySchedulesSpy = spyOn(spectator.component, 'getMySchedules').and.callThrough();
+    const getMySchedulesSpy = jest.spyOn(spectator.component, 'getMySchedules');
     spectator.component.getMySchedules(mockAppointmentDatesSetEvent.view.activeStart, mockAppointmentDatesSetEvent.view.activeEnd);
     expect(getMySchedulesSpy).toHaveBeenCalled();
   });
 
   it('should call onModalClose()', () => {
-    const onModalCloseSpy = spyOn(spectator.component, 'onModalClose').and.callThrough();
+    const onModalCloseSpy = jest.spyOn(spectator.component, 'onModalClose');
     spectator.component.onModalClose({ state: ModalState.Unchanged, data: null });
     expect(onModalCloseSpy).toHaveBeenCalledTimes(1);
     spectator.component.onModalClose({ state: ModalState.Changed, data: null });
@@ -126,13 +126,13 @@ describe('CalendarPageComponent', () => {
   });
 
   it('should call onSelect() with partial date selection', () => {
-    const onSelectSpy = spyOn(spectator.component, 'onSelect').and.callThrough();
+    const onSelectSpy = jest.spyOn(spectator.component, 'onSelect');
     spectator.component.onSelect(mockAppointmentRangePartialEvent);
     expect(onSelectSpy).toHaveBeenCalled();
   });
 
   it('should call onSelect() with full day selection', () => {
-    const onSelectSpy = spyOn(spectator.component, 'onSelect').and.callThrough();
+    const onSelectSpy = jest.spyOn(spectator.component, 'onSelect');
     spectator.component.onSelect(mockAppointmentRangeFullDayEvent);
     expect(onSelectSpy).toHaveBeenCalled();
   });
@@ -142,20 +142,20 @@ describe('CalendarPageComponent', () => {
   });
 
   it('should call the click function on the export button', () => {
-    const clickFunctionSpy = spyOn(spectator.component.customButtons.export, 'click').and.callThrough();
+    const clickFunctionSpy = jest.spyOn(spectator.component.customButtons.export, 'click');
     spectator.component.customButtons.export.click!({} as any, {} as any);
     expect(clickFunctionSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onOpenPrivilegesModal()', () => {
     spectator.setInput({ calendarAccessPrivileges: mockCalendarAccessPrivileges });
-    const onOpenPrivilegesModalSpy = spyOn(spectator.component, 'onOpenPrivilegesModal').and.callThrough();
+    const onOpenPrivilegesModalSpy = jest.spyOn(spectator.component, 'onOpenPrivilegesModal');
     spectator.component.onOpenPrivilegesModal();
     expect(onOpenPrivilegesModalSpy).toHaveBeenCalled;
   });
 
   it('should call onSelectUser()', () => {
-    const onSelectUserSpy = spyOn(spectator.component, 'onSelectUser').and.callThrough();
+    const onSelectUserSpy = jest.spyOn(spectator.component, 'onSelectUser');
 
     spectator.component.onSelectUser(mockUser);
     expect(onSelectUserSpy).toHaveBeenCalledTimes(1);
@@ -170,14 +170,14 @@ describe('CalendarPageComponent', () => {
 
   it('should call onRemoveSelectedUser()', () => {
     spectator.setInput({ selectedUsers: [mockUser] });
-    const onRemoveSelectedUserSpy = spyOn(spectator.component, 'onRemoveSelectedUser').and.callThrough();
+    const onRemoveSelectedUserSpy = jest.spyOn(spectator.component, 'onRemoveSelectedUser');
 
     spectator.component.onRemoveSelectedUser(mockUser);
     expect(onRemoveSelectedUserSpy).toHaveBeenCalled();
   });
 
   it('should call getUnusedUsers()', () => {
-    const getUnusedUsersSpy = spyOn(spectator.component, 'getUnusedUsers').and.callThrough();
+    const getUnusedUsersSpy = jest.spyOn(spectator.component, 'getUnusedUsers');
     spectator.component.getUnusedUsers([mockUser]);
     expect(getUnusedUsersSpy).toHaveBeenCalled();
   });

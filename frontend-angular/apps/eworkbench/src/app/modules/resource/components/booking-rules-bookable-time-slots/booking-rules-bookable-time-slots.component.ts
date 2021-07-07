@@ -176,7 +176,7 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit, A
     const timeEnd = this.f.timeEnd.value ?? '00:00';
 
     this.changed.emit({
-      id: this.rule!.id,
+      id: this.rule!.id!,
       rule: this.ruleKey,
       values: {
         monday: this.f.monday.value,

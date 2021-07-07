@@ -66,7 +66,7 @@ describe('ProfilePageComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.component.onSubmit();
     expect(onSubmitSpy).toHaveBeenCalledTimes(1);
     spectator.setInput({
@@ -77,8 +77,8 @@ describe('ProfilePageComponent', () => {
   });
 
   it('should add and remove additional fields for employee affiliation', () => {
-    const onAddEmployeeAffiliationSpy = spyOn(spectator.component, 'onAddEmployeeAffiliation').and.callThrough();
-    const onRemoveEmployeeAffiliationSpy = spyOn(spectator.component, 'onRemoveEmployeeAffiliation').and.callThrough();
+    const onAddEmployeeAffiliationSpy = jest.spyOn(spectator.component, 'onAddEmployeeAffiliation');
+    const onRemoveEmployeeAffiliationSpy = jest.spyOn(spectator.component, 'onRemoveEmployeeAffiliation');
     expect(spectator.component.employeeAffiliation.controls.length).toBe(3);
     spectator.component.onAddEmployeeAffiliation();
     expect(onAddEmployeeAffiliationSpy).toHaveBeenCalledTimes(1);
@@ -90,8 +90,8 @@ describe('ProfilePageComponent', () => {
   });
 
   it('should add and remove additional fields for student affiliation', () => {
-    const onAddStudentAffiliationSpy = spyOn(spectator.component, 'onAddStudentAffiliation').and.callThrough();
-    const onRemoveStudentAffiliationSpy = spyOn(spectator.component, 'onRemoveStudentAffiliation').and.callThrough();
+    const onAddStudentAffiliationSpy = jest.spyOn(spectator.component, 'onAddStudentAffiliation');
+    const onRemoveStudentAffiliationSpy = jest.spyOn(spectator.component, 'onRemoveStudentAffiliation');
     expect(spectator.component.studentAffiliation.controls.length).toBe(3);
     spectator.component.onAddStudentAffiliation();
     expect(onAddStudentAffiliationSpy).toHaveBeenCalledTimes(1);
@@ -109,7 +109,7 @@ describe('ProfilePageComponent', () => {
     spectator.component.onCancelEmployeeAffiliation();
     expect(spectator.component.employeeAffiliation.controls.length).toBe(3);
 
-    spectator.component.initialState = undefined;
+    spectator.component.initialState = undefined as any;
     spectator.component.onCancelEmployeeAffiliation();
     expect(spectator.component.employeeAffiliation.controls.length).toBe(0);
   });
@@ -121,7 +121,7 @@ describe('ProfilePageComponent', () => {
     spectator.component.onCancelStudentAffiliation();
     expect(spectator.component.studentAffiliation.controls.length).toBe(3);
 
-    spectator.component.initialState = undefined;
+    spectator.component.initialState = undefined as any;
     spectator.component.onCancelStudentAffiliation();
     expect(spectator.component.studentAffiliation.controls.length).toBe(0);
   });

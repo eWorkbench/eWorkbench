@@ -102,7 +102,7 @@ describe('PluginPageComponent', () => {
   });
 
   it('should call initDetails()', () => {
-    const initDetailsSpy = spyOn(spectator.component, 'initDetails').and.callThrough();
+    const initDetailsSpy = jest.spyOn(spectator.component, 'initDetails');
     spectator.component.initDetails();
     expect(initDetailsSpy).toHaveBeenCalledTimes(1);
 
@@ -112,7 +112,7 @@ describe('PluginPageComponent', () => {
   });
 
   it('should call onSubmit()', () => {
-    const onSubmitSpy = spyOn(spectator.component, 'onSubmit').and.callThrough();
+    const onSubmitSpy = jest.spyOn(spectator.component, 'onSubmit');
     spectator.setInput({
       loading: false,
     });
@@ -126,13 +126,13 @@ describe('PluginPageComponent', () => {
   });
 
   it('should call onVersionChanged()', () => {
-    const onVersionChangedSpy = spyOn(spectator.component, 'onVersionChanged').and.callThrough();
+    const onVersionChangedSpy = jest.spyOn(spectator.component, 'onVersionChanged');
     spectator.component.onVersionChanged();
     expect(onVersionChangedSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onUpdateMetadata()', () => {
-    const onUpdateMetadataSpy = spyOn(spectator.component, 'onUpdateMetadata').and.callThrough();
+    const onUpdateMetadataSpy = jest.spyOn(spectator.component, 'onUpdateMetadata');
     expect(spectator.component.metadata).toBeUndefined();
     spectator.component.onUpdateMetadata([mockMetadata]);
     expect(onUpdateMetadataSpy).toHaveBeenCalledTimes(1);

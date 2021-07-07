@@ -36,13 +36,13 @@ describe('PluginDetailsDropdownComponent', () => {
   });
 
   it('should call onGiveFeedback()', () => {
-    const onGiveFeedbackSpy = spyOn(spectator.component, 'onGiveFeedback').and.callThrough();
+    const onGiveFeedbackSpy = jest.spyOn(spectator.component, 'onGiveFeedback');
     spectator.component.onGiveFeedback();
     expect(onGiveFeedbackSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call onRequestAccess()', () => {
-    const onRequestAccessSpy = spyOn(spectator.component, 'onRequestAccess').and.callThrough();
+    const onRequestAccessSpy = jest.spyOn(spectator.component, 'onRequestAccess');
     spectator.component.onRequestAccess();
     expect(onRequestAccessSpy).toHaveBeenCalledTimes(1);
   });

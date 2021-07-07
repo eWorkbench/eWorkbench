@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { AppointmentsService, AuthService, ProjectsService, SearchService, WebSocketService } from '@app/services';
+import { AppointmentsService, AuthService, ContactsService, ProjectsService, SearchService, WebSocketService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { CalendarEvent } from '@eworkbench/calendar';
 import {
@@ -66,9 +67,13 @@ export class EditAppointmentModalComponent implements OnInit {
 
   public contacts: Contact[] = [];
 
+  public favoriteContacts: Contact[] = [];
+
   public contactsInput$ = new Subject<string>();
 
   public projects: Project[] = [];
+
+  public favoriteProjects: Project[] = [];
 
   public projectInput$ = new Subject<string>();
 
@@ -112,6 +117,7 @@ export class EditAppointmentModalComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly websocketService: WebSocketService,
     private readonly projectsService: ProjectsService,
+    private readonly contactsService: ContactsService,
     private readonly userService: UserService,
     private readonly searchService: SearchService
   ) {}
@@ -121,7 +127,7 @@ export class EditAppointmentModalComponent implements OnInit {
     return this.form.controls;
   }
 
-  public get lockUser(): { ownUser: boolean; user?: User | null } {
+  public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
     /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
@@ -263,15 +269,25 @@ export class EditAppointmentModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
       )
       .subscribe(
         /* istanbul ignore next */ contacts => {
-          if (contacts.length) {
-            this.contacts = [...contacts];
-            this.cdr.markForCheck();
-          } else {
-            this.contacts = [];
+          this.contacts = [...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.contactsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ contacts => {
+          if (contacts.data.length) {
+            this.favoriteContacts = [...contacts.data];
+            this.contacts = [...this.contacts, ...this.favoriteContacts]
+              .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -281,12 +297,25 @@ export class EditAppointmentModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([])))
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        }
+      );
+
+    this.projectsService
+      .getList(new HttpParams().set('favourite', 'true'))
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.data.length) {
+            this.favoriteProjects = [...projects.data];
+            this.projects = [...this.projects, ...this.favoriteProjects]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -348,13 +377,15 @@ export class EditAppointmentModalComponent implements OnInit {
                       return of({
                         pk: id,
                         name: this.translocoService.translate('formInput.unknownProject'),
+                        is_favourite: false,
                       } as Project);
                     })
                   )
                 ),
                 map(project => {
-                  this.projects = [...this.projects, project];
-                  this.cdr.markForCheck();
+                  this.projects = [...this.projects, project]
+                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
                 }),
                 switchMap(() => of(privilegesData))
               );

@@ -84,7 +84,7 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
     return this.form.controls;
   }
 
-  public get lockUser(): { ownUser: boolean; user?: User | null } {
+  public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
     /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
@@ -263,8 +263,8 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ element => {
-          this.element.num_related_notes = element.num_related_notes;
-          this.element.num_relations = element.num_relations;
+          this.element.num_related_notes = element.num_related_notes!;
+          this.element.num_relations = element.num_relations!;
           this.cdr.markForCheck();
         }
       );

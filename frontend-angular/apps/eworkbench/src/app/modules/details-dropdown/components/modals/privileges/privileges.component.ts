@@ -12,7 +12,7 @@ import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { of, Subject } from 'rxjs';
 import { debounceTime, map, skip, switchMap } from 'rxjs/operators';
@@ -177,8 +177,10 @@ export class PrivilegesModalComponent implements OnInit {
       )
       .subscribe(
         /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.users = cloneDeep(users);
+          const selectedUsers = this.privileges.map(privilege => privilege.user_pk);
+          const filteredUsers = users.filter(user => !selectedUsers.includes(user.pk!));
+          if (filteredUsers.length) {
+            this.users = [...filteredUsers];
             this.cdr.markForCheck();
           }
         }
@@ -204,6 +206,7 @@ export class PrivilegesModalComponent implements OnInit {
       )
       .subscribe(
         /* istanbul ignore next */ () => {
+          this.users = [];
           this.loading = false;
           this.cdr.markForCheck();
           this.translocoService
@@ -231,7 +234,10 @@ export class PrivilegesModalComponent implements OnInit {
     this.privileges.map(privilege => {
       if (privilege.user_pk === userId) {
         this.loading = true;
+
         privilege[privilegeKey] = this.getNextPrivilegeValue(privilege[privilegeKey]);
+        this.fixPrivileges(privilege, privilegeKey);
+
         this.service
           .putUserPrivileges(this.id, privilege.user_pk, privilege)
           .pipe(untilDestroyed(this))
@@ -260,6 +266,35 @@ export class PrivilegesModalComponent implements OnInit {
           );
       }
     });
+  }
+
+  public fixPrivileges(
+    privilege: PrivilegesApi,
+    privilegeKey: 'full_access_privilege' | 'view_privilege' | 'edit_privilege' | 'trash_privilege' | 'restore_privilege'
+  ): void {
+    if (privilege[privilegeKey] === 'AL') {
+      if (privilegeKey === 'edit_privilege') {
+        privilege['view_privilege'] = 'AL';
+      } else if (privilegeKey === 'trash_privilege') {
+        privilege['view_privilege'] = 'AL';
+        privilege['edit_privilege'] = 'AL';
+      } else if (privilegeKey === 'restore_privilege') {
+        privilege['view_privilege'] = 'AL';
+        privilege['edit_privilege'] = 'AL';
+        privilege['trash_privilege'] = 'AL';
+      }
+    } else if (privilege[privilegeKey] === 'DE') {
+      if (privilegeKey === 'view_privilege') {
+        privilege['edit_privilege'] = 'DE';
+        privilege['trash_privilege'] = 'DE';
+        privilege['restore_privilege'] = 'DE';
+      } else if (privilegeKey === 'edit_privilege') {
+        privilege['trash_privilege'] = 'DE';
+        privilege['restore_privilege'] = 'DE';
+      } else if (privilegeKey === 'trash_privilege') {
+        privilege['restore_privilege'] = 'DE';
+      }
+    }
   }
 
   public getNextPrivilegeValue(value: string): 'AL' | 'NE' | 'DE' {

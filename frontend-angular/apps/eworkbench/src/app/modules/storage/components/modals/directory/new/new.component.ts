@@ -57,7 +57,7 @@ export class NewStorageDirectoryModalComponent implements OnInit {
     if (this.parent) {
       this.f.parent.setValue(this.parent.pk);
     } else {
-      this.parent = this.directories.find(directory => directory.is_virtual_root);
+      this.parent = this.directories.find(directory => directory.is_virtual_root)!;
     }
   }
 
