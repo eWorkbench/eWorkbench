@@ -4,11 +4,11 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="d-flex justify-content-between">
-    <div class="d-inline-block w-100 pr-3">
+  <div class="flex justify-between">
+    <div class="inline-block w-full pr-3">
       <label [for]="'startDate' + uniqueHash">
         {{ t('formDateGroup.startDate.label') }}
-        <eworkbench-form-asterisk class="d-inline-block" *ngIf="required"></eworkbench-form-asterisk>
+        <eworkbench-form-asterisk class="inline-block" *ngIf="required"></eworkbench-form-asterisk>
       </label>
       <div class="input-group">
         <input
@@ -28,10 +28,10 @@
         </div>
       </div>
     </div>
-    <div class="d-inline-block w-100">
+    <div class="inline-block w-full">
       <label [for]="'endDate' + uniqueHash">
         {{ t('formDateGroup.endDate.label') }}
-        <eworkbench-form-asterisk class="d-inline-block" *ngIf="required"></eworkbench-form-asterisk>
+        <eworkbench-form-asterisk class="inline-block" *ngIf="required"></eworkbench-form-asterisk>
       </label>
       <div class="input-group">
         <input
@@ -51,7 +51,7 @@
         </div>
       </div>
     </div>
-    <div class="d-inline-block w-50 align text-nowrap pl-3" *ngIf="fullDayToggle">
+    <div class="inline-block w-1/2 align whitespace-nowrap pl-3" *ngIf="fullDayToggle">
       <div class="custom-control custom-checkbox" slot="input">
         <input
           class="custom-control-input"

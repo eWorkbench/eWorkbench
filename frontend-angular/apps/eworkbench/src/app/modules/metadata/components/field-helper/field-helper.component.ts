@@ -19,6 +19,9 @@ export class MetadataFieldHelperComponent implements OnInit {
   public parameter!: Metadata;
 
   @Input()
+  public parametersCount = 0;
+
+  @Input()
   public loading = false;
 
   @Input()

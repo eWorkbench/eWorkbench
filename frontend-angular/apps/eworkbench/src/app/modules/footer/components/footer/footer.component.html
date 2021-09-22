@@ -6,50 +6,50 @@
 <ng-container *transloco="let t">
   <footer class="navbar navbar-expand-lg py-0">
     <span class="navbar-brand">{{ t('footer.brand') }}</span>
-    <ul class="navbar-nav ml-auto h-100">
-      <li class="h-100 d-flex align-items-center" *ngIf="currentUser">
-        <a class="h-100 w-100" [routerLink]="['/contact']">
-          <button class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left">
+    <ul class="navbar-nav ml-auto h-full">
+      <li class="h-full flex items-center" *ngIf="currentUser">
+        <a class="h-full w-full" [routerLink]="['/contact']">
+          <button class="btn ewb-button-regular font-normal h-full w-full text-left">
             {{ t('footer.menu.contact') }}
           </button>
         </a>
       </li>
-      <li class="h-100 d-flex align-items-center">
-        <a class="h-100 w-100" [routerLink]="['/faq']">
-          <button class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left">
+      <li class="h-full flex items-center">
+        <a class="h-full w-full" [routerLink]="['/faq']">
+          <button class="btn ewb-button-regular font-normal h-full w-full text-left">
             {{ t('footer.menu.faq') }}
           </button>
         </a>
       </li>
-      <li class="h-100 d-flex align-items-center">
-        <a class="h-100 w-100" [routerLink]="['/privacy-policy']">
-          <button class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left">
+      <li class="h-full flex items-center">
+        <a class="h-full w-full" [routerLink]="['/privacy-policy']">
+          <button class="btn ewb-button-regular font-normal h-full w-full text-left">
             {{ t('footer.menu.privacyPolicy') }}
           </button>
         </a>
       </li>
-      <!-- <li class="h-100 d-flex align-items-center">
-        <a class="h-100 w-100" [routerLink]="['/accessibility']">
-          <button class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left">{{ t('footer.menu.accessibility') }}</button>
+      <!-- <li class="h-full flex items-center">
+        <a class="h-full w-full" [routerLink]="['/accessibility']">
+          <button class="btn ewb-button-regular font-normal h-full w-full text-left">{{ t('footer.menu.accessibility') }}</button>
         </a>
       </li> -->
-      <li class="h-100 d-flex align-items-center">
-        <a class="h-100 w-100" [routerLink]="['/imprint']">
-          <button class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left">
+      <li class="h-full flex items-center">
+        <a class="h-full w-full" [routerLink]="['/imprint']">
+          <button class="btn ewb-button-regular font-normal h-full w-full text-left">
             {{ t('footer.menu.imprint') }}
           </button>
         </a>
       </li>
-      <li class="h-100 d-flex align-items-center">
-        <a class="h-100 w-100" [routerLink]="['/licenses']">
-          <button class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left">
+      <li class="h-full flex items-center">
+        <a class="h-full w-full" [routerLink]="['/licenses']">
+          <button class="btn ewb-button-regular font-normal h-full w-full text-left">
             {{ t('footer.menu.licenses') }}
           </button>
         </a>
       </li>
-      <li class="h-100 d-flex align-items-center">
-        <a class="h-100 w-100" href="https://github.com/eworkbench/" target="_blank">
-          <button class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left">
+      <li class="h-full flex items-center">
+        <a class="h-full w-full" href="https://github.com/eworkbench/" target="_blank">
+          <button class="btn ewb-button-regular font-normal h-full w-full text-left">
             {{ t('footer.menu.github') }}
           </button>
         </a>

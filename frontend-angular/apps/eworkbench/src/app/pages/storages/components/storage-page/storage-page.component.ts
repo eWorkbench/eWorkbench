@@ -4,16 +4,19 @@
  */
 
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
+import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
+import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, DrivesService, DssContainersService, PageTitleService, ProjectsService } from '@app/services';
 import { UserStore } from '@app/stores/user';
-import { Drive, DrivePayload, Envelope, Metadata, Privileges, Project, User } from '@eworkbench/types';
+import { Drive, DrivePayload, Envelope, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -37,6 +40,9 @@ interface FormStorage {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StoragePageComponent implements OnInit {
+  @ViewChild(CommentsComponent)
+  public comments!: CommentsComponent;
+
   public detailsTitle?: string;
 
   public id = this.route.snapshot.paramMap.get('id')!;
@@ -62,6 +68,8 @@ export class StoragePageComponent implements OnInit {
   public refreshResetValue = new EventEmitter<boolean>();
 
   public refreshMetadata = new EventEmitter<boolean>();
+
+  public refreshLinkList = new EventEmitter<boolean>();
 
   public newModalComponent = NewStorageModalComponent;
 
@@ -135,6 +143,7 @@ export class StoragePageComponent implements OnInit {
             this.projects = [...this.projects, project]
               .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
               .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
           }
         );
       }
@@ -230,6 +239,7 @@ export class StoragePageComponent implements OnInit {
                   this.projects = [...this.projects, project]
                     .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                     .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                  this.cdr.markForCheck();
                 }),
                 switchMap(() => of(privilegesData))
               );
@@ -306,6 +316,7 @@ export class StoragePageComponent implements OnInit {
           this.form.markAsPristine();
           this.refreshChanges.next(true);
           this.refreshMetadata.next(true);
+          this.refreshLinkList.next(true);
           this.refreshResetValue.next(true);
 
           this.loading = false;
@@ -364,6 +375,29 @@ export class StoragePageComponent implements OnInit {
     }
 
     return of(true);
+  }
+
+  public onRefreshLinkList(): void {
+    this.refreshLinkList.next(true);
+  }
+
+  public onOpenNewCommentModal(): void {
+    this.modalRef = this.modalService.open(NewCommentModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        contentType: this.initialState?.content_type,
+        service: this.drivesService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
+      if (callback.state === ModalState.Changed) {
+        this.comments.loadComments();
+      }
+    });
   }
 
   public onUpdateMetadata(metadata: Metadata[]): void {

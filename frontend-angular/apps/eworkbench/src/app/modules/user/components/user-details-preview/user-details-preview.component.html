@@ -6,29 +6,29 @@
 <ng-container *transloco="let t">
   <div class="profile-body">
     <div class="text-center mb-4">
-      <img class="avatar" [src]="user.userprofile.avatar" [alt]="t('user.detailsModal.picture')" />
+      <eworkbench-user-avatar [user]="user" [scale]="5"></eworkbench-user-avatar>
     </div>
     <div class="center">
       <div class="name-plate mb-4 mt-1">
         <div class="semi-bold">
           {{ user.userprofile.academic_title }} {{ user.userprofile.first_name }} {{ user.userprofile.last_name }}
         </div>
-        <div *ngIf="user.userprofile.country">{{ user.userprofile.country }}</div>
+        <div *ngIf="user.userprofile.country" class="ml-3">{{ user.userprofile.country }}</div>
       </div>
       <div *ngIf="user.userprofile.org_zug_mitarbeiter_lang" class="mb-2">
         {{ user.userprofile.org_zug_mitarbeiter_lang }}
       </div>
       <div *ngIf="user.userprofile.org_zug_student_lang" class="mb-2">{{ user.userprofile.org_zug_student_lang }}</div>
-      <div *ngIf="user.userprofile.phone" class="mb-2">
+      <div class="secondary-info mb-2" *ngIf="user.userprofile.phone">
         <eworkbench-icon className="wb-phone"></eworkbench-icon><span class="ml-1">{{ user.userprofile.phone }}</span>
       </div>
-      <div *ngIf="user.email" class="mb-2">
+      <div class="secondary-info mb-2" *ngIf="user.email">
         <eworkbench-icon className="wb-envelope"></eworkbench-icon>
         <a href="mailto:{{ user.email }}" class="ml-1">{{ user.email }}</a>
       </div>
-      <div *ngIf="user.userprofile.website" class="mb-4">
+      <div class="secondary-info mb-4" *ngIf="user.userprofile.website">
         <eworkbench-icon className="wb-globe"></eworkbench-icon>
-        <a [href]="user.userprofile.website" class="ml-1">{{ user.userprofile.website }}</a>
+        <a [href]="user.userprofile.website" target="_blank" class="ml-1">{{ user.userprofile.website }}</a>
       </div>
       <div *ngIf="user.userprofile.additional_information" [style.white-space]="'pre-line'">
         {{ user.userprofile.additional_information }}
@@ -40,7 +40,6 @@
 <ng-template #userTemplate>
   {{ user.userprofile.academic_title }} {{ user.userprofile.first_name }} {{ user.userprofile.last_name }}
 </ng-template>
-
 <ng-template #usernameTemplate>
   {{ user.username }}
 </ng-template>

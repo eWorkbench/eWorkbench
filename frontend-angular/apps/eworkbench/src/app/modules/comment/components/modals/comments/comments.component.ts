@@ -19,5 +19,7 @@ export class CommentsModalComponent {
 
   public service: any = this.modalRef.data.service;
 
+  public create: any = this.modalRef.data.create;
+
   public constructor(public readonly modalRef: DialogRef) {}
 }

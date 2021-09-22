@@ -30,16 +30,23 @@
           bindValue="pk"
         >
           <ng-template ng-label-tmp let-item="item" let-clear="clear">
-            <eworkbench-user-details class="d-inline-block mr-1" [user]="item" (click)="select.isOpen = false"></eworkbench-user-details>
-            <span class="sub-text">{{ item.email }}</span>
+            <div class="flex items-center user-option">
+              <eworkbench-user-details
+                class="inline-block mr-1"
+                [user]="item"
+                [chip]="true"
+                (click)="select.isOpen = false"
+              ></eworkbench-user-details>
+              <span class="sub-text">{{ item.email }}</span>
+            </div>
           </ng-template>
 
           <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
             <div class="user-dropdown-option">
-              <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+              <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
               <div>
                 <ng-container *ngIf="item?.userprofile.anonymized">
-                  <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                  <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
                 </ng-container>
                 <ng-container *ngIf="!item?.userprofile.anonymized">
                   <ng-container
@@ -142,7 +149,7 @@
       </div>
       <div class="mb-4">
         <label for="description-modal">{{ t('task.details.description.label') }}</label>
-        <eworkbench-wysiwyg-editor id="description-modal" [formControl]="descriptionFormControl"></eworkbench-wysiwyg-editor>
+        <eworkbench-wysiwyg-editor [id]="'description-modal'" [formControl]="descriptionFormControl"></eworkbench-wysiwyg-editor>
       </div>
       <div class="mb-4">
         <label for="projects-modal">{{ t('task.details.projects.label') }}</label>

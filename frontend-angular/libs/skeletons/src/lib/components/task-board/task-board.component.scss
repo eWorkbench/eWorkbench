@@ -8,6 +8,10 @@
 :host {
   display: block;
 
+  .ssc-head-line {
+    border-radius: unset;
+  }
+
   .task-board {
     display: flex;
     flex-direction: row;

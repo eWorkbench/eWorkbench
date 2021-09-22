@@ -3,13 +3,44 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+@import '~bootstrap/scss/root';
+@import '~bootstrap/scss/type';
+@import '~bootstrap/scss/tables';
+@import '~bootstrap/scss/forms';
+@import '~bootstrap/scss/buttons';
+@import '~bootstrap/scss/transitions';
+@import '~bootstrap/scss/dropdown';
+@import '~bootstrap/scss/button-group';
+@import '~bootstrap/scss/input-group';
+@import '~bootstrap/scss/custom-forms';
+@import '~bootstrap/scss/nav';
+@import '~bootstrap/scss/navbar';
+@import '~bootstrap/scss/breadcrumb';
+@import '~bootstrap/scss/badge';
+@import '~bootstrap/scss/alert';
+@import '~bootstrap/scss/progress';
+@import '~bootstrap/scss/close';
+@import '~bootstrap/scss/modal';
+@import '~bootstrap/scss/tooltip';
+@import '~bootstrap/scss/popover';
+@import '~bootstrap/scss/spinners';
+@import '~bootstrap/scss/utilities';
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import '~bootstrap/scss/reboot';
+
 @import 'styles/fonts';
 @import 'styles/colors';
 @import 'styles/variables';
 
 @import '~@angular/cdk/overlay-prebuilt';
 @import '~ngx-toastr/toastr';
-@import '~bootstrap/scss/bootstrap';
 @import '~flatpickr/dist/flatpickr.min.css';
 
 @import 'forms';
@@ -50,24 +81,6 @@ label {
   font-weight: 600;
 }
 
-.cursor {
-  &-pointer {
-    cursor: pointer !important;
-  }
-
-  &-help {
-    cursor: help !important;
-  }
-
-  &-move {
-    cursor: move !important;
-  }
-
-  &-default {
-    cursor: default !important;
-  }
-}
-
 .nav-tabs .nav-link {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -77,22 +90,14 @@ label {
   width: 100%;
 
   @media (min-width: $breakpoint-lg) {
-    width: 150px;
-  }
-
-  @media (min-width: $breakpoint-xl) {
-    width: 180px;
+    width: 415px;
   }
 
   &-lg {
     width: 100%;
 
     @media (min-width: $breakpoint-lg) {
-      width: 180px;
-    }
-
-    @media (min-width: $breakpoint-xl) {
-      width: 250px;
+      width: 415px;
     }
   }
 }
@@ -158,7 +163,13 @@ label {
 
 .with-sidebar {
   display: grid;
-  grid-template-columns: 50px auto;
+  grid-template-columns: 50px 1fr auto;
+  height: 100%;
+}
+
+.filter-sidebar {
+  display: grid;
+  grid-template-columns: 1fr auto;
   height: 100%;
 }
 
@@ -298,17 +309,17 @@ ngneat-dialog {
 
 .bg {
   &-primary {
-    background-color: #3070b3 !important;
+    background-color: $primary-color !important;
   }
 
   &-success {
     color: #333333;
-    background-color: #b7cc23 !important;
+    background-color: $success-color !important;
   }
 
   &-info {
     color: #333333;
-    background-color: #a1d9ff !important;
+    background-color: $light-blue-color !important;
   }
 
   &-danger {
@@ -416,38 +427,76 @@ eworkbench-dashboard-page {
   }
 }
 
-.ewb-tabs {
-  .nav-tabs {
-    border-bottom: none;
+.ewb {
+  &-popover {
+    max-width: 520px;
 
-    .nav-item {
-      height: 25px;
-      background-color: $secondary-color;
+    .popover-body {
+      padding: 15px;
+    }
+  }
 
-      a {
-        padding: 0 10.5px;
-        line-height: 25px;
-        font-size: 13px;
-        font-weight: normal;
-        border: none;
+  &-tabs {
+    .nav-tabs {
+      border-bottom: none;
+
+      .nav-item {
+        height: 25px;
+        background-color: $secondary-color;
+
+        a {
+          padding: 0 10.5px;
+          line-height: 25px;
+          font-size: 13px;
+          font-weight: normal;
+          border: none;
+        }
+      }
+
+      .active {
+        background-color: $primary-color;
+        color: #ffffff;
       }
     }
+  }
 
-    .active {
-      background-color: $primary-color;
-      color: #ffffff;
+  &-priority {
+    &-very-high {
+      color: $danger-color;
     }
+
+    &-high {
+      color: $orange-color;
+    }
+
+    &-normal {
+      color: $light-blue-color;
+    }
+
+    &-low {
+      color: $primary-color;
+    }
+
+    &-very-low {
+      color: $primary-color-hover;
+    }
+  }
+
+  &-chip {
+    display: inline-block;
+    background-color: $secondary-color;
+    color: $text-color;
+    height: 25px;
+    max-width: 250px;
+    padding: 3px 10px;
+    font-size: 13px;
+    border-radius: 13px;
+    white-space: nowrap;
+    overflow: auto;
+    text-overflow: ellipsis;
   }
 }
 
 .skeleton-wrapper {
   padding: 40px 70px;
-}
-
-.ewb-list-actions-container {
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 13px;
-  margin-bottom: 20px;
-  border-bottom: 3px solid $border-color;
 }

@@ -5,9 +5,9 @@
 
 <ng-container *transloco="let t">
   <div class="sidebar" cdkDropList [cdkDropListData]="elements" (cdkDropListDropped)="onSidebarDrop($event)">
-    <ul class="list-unstyled pt-3">
+    <ul class="list-unstyled pt-3 sticky top-56 z-50">
       <ng-container *ngFor="let element of elements">
-        <li cdkDrag class="d-flex align-items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
+        <li cdkDrag class="flex items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
           <a
             [routerLink]="
               getSidebarModel(element)?.modelName === 'overview'

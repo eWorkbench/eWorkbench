@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+@import 'colors';
+
 :host {
   display: block;
 
@@ -12,15 +14,15 @@
     gap: 8px;
 
     &-done {
-      background-color: #b7cc23;
+      background-color: $success-color;
     }
 
     &-in-progress {
-      background-color: #a1d9ff;
+      background-color: $light-blue-color;
     }
 
     &-new {
-      background-color: #3070b3;
+      background-color: $primary-color;
     }
   }
 }

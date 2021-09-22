@@ -9,6 +9,7 @@ import { mockAnonymousUser, mockUser, mockUserWithoutNames } from '@eworkbench/m
 import { ModalsModule } from '@eworkbench/modals';
 import { DialogService } from '@ngneat/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { UserModule } from '../../user.module';
 import { UserDetailsModalComponent } from '../modals/user-details/user-details.component';
 import { UserDetailsComponent } from './user-details.component';
 
@@ -17,7 +18,7 @@ describe('UserDetailsComponent', () => {
   const createComponent = createComponentFactory({
     component: UserDetailsComponent,
     declarations: [UserDetailsModalComponent],
-    imports: [getTranslocoModule(), ModalsModule, RouterTestingModule],
+    imports: [getTranslocoModule(), ModalsModule, RouterTestingModule, UserModule],
     mocks: [DialogService],
   });
 
@@ -31,7 +32,7 @@ describe('UserDetailsComponent', () => {
     spectator.setInput({
       user: mockAnonymousUser,
     });
-    const ngContent = spectator.query<HTMLSpanElement>('span');
+    const ngContent = spectator.query<HTMLDivElement>('div');
     expect(ngContent).toHaveText('Anonymous user');
   });
 

@@ -4,7 +4,7 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="progress" *ngIf="getTotalTasks()" [popover]="progressPopover" triggers="mouseenter:mouseleave">
+  <div class="progress" *ngIf="getTotalTasks()" [popover]="progressPopover" containerClass="ewb-popover" triggers="mouseenter:mouseleave">
     <div class="progress-bar bg-success" role="progressbar" [ngStyle]="{ width: progressbarValues.DONE }">
       {{ progressbarValues.DONE }}
     </div>
@@ -19,19 +19,20 @@
     {{ t('projects.noTasks') }}
   </span>
 </ng-container>
+
 <ng-template #progressPopover>
   <ng-container *transloco="let t">
-    <div class="d-flex flex-column p-2">
+    <div class="flex flex-col p-2">
       <div class="legend-item mb-2">
-        <div class="d-inline-block square legend-item-done"></div>
+        <div class="inline-block square legend-item-done"></div>
         {{ t('projects.progress.done') }}
       </div>
       <div class="legend-item mb-2">
-        <div class="d-inline-block square legend-item-in-progress"></div>
+        <div class="inline-block square legend-item-in-progress"></div>
         {{ t('projects.progress.inProgress') }}
       </div>
       <div class="legend-item">
-        <div class="d-inline-block square legend-item-new"></div>
+        <div class="inline-block square legend-item-new"></div>
         {{ t('projects.progress.new') }}
       </div>
     </div>

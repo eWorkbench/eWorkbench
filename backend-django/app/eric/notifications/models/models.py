@@ -40,6 +40,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     # Project
     NOTIFICATION_CONF_PROJECT_USER_CHANGED = 'NOTIFICATION_CONF_PROJECT_USER_CHANGED'
     NOTIFICATION_CONF_PROJECT_CHANGED = 'NOTIFICATION_CONF_PROJECT_CHANGED'
+    NOTIFICATION_CONF_PROJECT_COMMENT = 'NOTIFICATION_CONF_PROJECT_COMMENT'
 
     # DSS
     NOTIFICATION_DSS_IMPORT_IN_PROGRESS = 'NOTIFICATION_DSS_IMPORT_IN_PROGRESS'
@@ -59,6 +60,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
         (NOTIFICATION_CONF_PROJECT_USER_CHANGED, _('Users of project has been changed')),
         (NOTIFICATION_CONF_PROJECT_CHANGED, _('Project has been changed')),
+        (NOTIFICATION_CONF_PROJECT_COMMENT, _('A new project comment has been posted')),
 
         (NOTIFICATION_DSS_IMPORT_IN_PROGRESS, _('DSS import in progress')),
         (NOTIFICATION_DSS_IMPORT_FINISHED, _('DSS import finished')),

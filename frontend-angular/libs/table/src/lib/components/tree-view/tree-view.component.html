@@ -4,9 +4,9 @@
 -->
 
 <div *ngIf="!firstDataLoaded" class="ssc">
-  <div class="ssc-head-line mb-3"></div>
+  <div class="ssc-head-line mb-2"></div>
   <ng-container *ngFor="let _ of skeletonItems">
-    <div class="ssc-line mb-3"></div>
+    <div class="ssc-line mb-1"></div>
   </ng-container>
 </div>
 
@@ -23,7 +23,7 @@
           ></eworkbench-table-sort>
         </th>
         <td class="expand-cell" cdk-cell *cdkCellDef="let element">
-          <div *ngIf="isFirst" class="d-inline-block" [style.padding-left.px]="element.level * 30"></div>
+          <div *ngIf="isFirst" class="inline-block" [style.padding-left.px]="element.level * 30"></div>
           <button
             type="button"
             class="btn ewb-button-regular ewb-button-icon ewb-button-expand square mr-2"
@@ -48,7 +48,7 @@
 
     <div *ngIf="!loading && !data?.length" class="no-result">No results</div>
 
-    <div *ngIf="loadingMore" class="d-flex justify-content-center align-items-center">
+    <div *ngIf="loadingMore" class="flex justify-center items-center">
       <div class="spinner-border mt-3" role="status"></div>
     </div>
 

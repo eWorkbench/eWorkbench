@@ -4,8 +4,6 @@
 #
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 
-from django_changeset.models.queryset import ChangeSetQuerySetMixin
-
 from eric.core.models import BaseQuerySet
 from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet
 
@@ -54,7 +52,13 @@ class DmpQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
 
 
 class DmpFormQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
-    pass
+    def viewable(self, *args, **kwargs):
+        """
+        Returns all elements where the related dmp is viewable
+        """
+        from eric.dmp.models import Dmp
+
+        return self.filter(dmps__pk__in=Dmp.objects.viewable().values_list('pk'))
 
 
 class DmpFormFieldQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):

@@ -11,21 +11,4 @@
     font-weight: 600;
     padding: 9px 8px;
   }
-
-  .link-container {
-    display: grid;
-    grid-template-rows: auto;
-    gap: 16px;
-    align-items: flex-start;
-
-    .link-tools {
-      min-height: 75px;
-    }
-  }
-
-  @media (min-width: 1062px) {
-    .link-container {
-      grid-template-columns: 1fr 2fr;
-    }
-  }
 }

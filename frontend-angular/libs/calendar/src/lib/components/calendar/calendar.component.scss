@@ -31,6 +31,10 @@
   --fc-today-bg-color: #{$secondary-color};
   --fc-now-indicator-color: #{$primary-color};
 
+  .fc .fc-event {
+    overflow: auto;
+  }
+
   .fc .fc-toolbar-title {
     font-size: $font-size-md;
     font-weight: 600;

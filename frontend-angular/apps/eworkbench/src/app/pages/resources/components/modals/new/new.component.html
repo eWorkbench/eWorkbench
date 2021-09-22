@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ t('resource.newModal.header') }}
+      {{ duplicate ? t('resource.newModal.duplicate.header', { title: initialState.name }) : t('resource.newModal.create.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
@@ -14,7 +14,7 @@
           <div class="mb-4">
             <label for="name-modal">
               {{ t('resource.newModal.name.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -28,7 +28,7 @@
           <div class="mb-4">
             <label for="type-modal">
               {{ t('resource.newModal.type.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <ng-select
               class="ewb-select"
@@ -142,21 +142,24 @@
               (change)="changeUserAvailabilitySelectedUsers($event)"
             >
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                <eworkbench-user-details
-                  class="d-inline-block mr-1"
-                  [user]="item"
-                  (click)="select.isOpen = false"
-                ></eworkbench-user-details>
-                <span class="sub-text">{{ item.email }}</span>
-                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                <div class="flex items-center user-option">
+                  <eworkbench-user-details
+                    class="inline-block mr-1"
+                    [user]="item"
+                    [chip]="true"
+                    (click)="select.isOpen = false"
+                  ></eworkbench-user-details>
+                  <span class="sub-text">{{ item.email }}</span>
+                  <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                </div>
               </ng-template>
 
               <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <div class="user-dropdown-option">
-                  <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                  <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
                   <div>
                     <ng-container *ngIf="item?.userprofile.anonymized">
-                      <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                      <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
                     </ng-container>
                     <ng-container *ngIf="!item?.userprofile.anonymized">
                       <ng-container
@@ -179,7 +182,7 @@
           </div>
           <div class="mb-4">
             <label for="description-modal">{{ t('resource.newModal.description.label') }}</label>
-            <eworkbench-wysiwyg-editor id="description-modal" formControlName="description"></eworkbench-wysiwyg-editor>
+            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description"></eworkbench-wysiwyg-editor>
           </div>
           <div class="mb-4">
             <label for="projects-modal">{{ t('resource.newModal.projects.label') }}</label>
@@ -200,13 +203,16 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>
@@ -239,9 +245,9 @@
                 name="ownerAgreement"
                 required
               />
-              <label class="custom-control-label font-weight-normal" for="ownerAgreement-modal">
+              <label class="custom-control-label font-normal" for="ownerAgreement-modal">
                 {{ t('resource.newModal.ownerAgreement.label') }}
-                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
               </label>
             </div>
           </div>
@@ -251,7 +257,7 @@
               {{ t('resource.newModal.cancel') }}
             </button>
             <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
-              {{ t('resource.newModal.create') }}
+              {{ duplicate ? t('resource.newModal.duplicate') : t('resource.newModal.create') }}
             </button>
           </div>
         </form>

@@ -24,6 +24,7 @@ export interface TaskPayload {
 }
 
 export interface TaskChecklist {
+  ordering: number;
   checked: boolean;
   title: string;
   content_type?: number;
@@ -66,7 +67,8 @@ export interface KanbanTask {
   content_type_model: string;
   display: string;
   kanban_board_column: string;
-  num_related_notes: number;
+  num_related_comments?: number;
+  num_relations?: number;
   ordering: number;
   pk: string;
   task: Task;

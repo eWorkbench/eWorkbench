@@ -8,6 +8,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { AppointmentModule } from '@app/modules/appointment/appointment.module';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
@@ -32,6 +33,7 @@ import { TableModule } from '@eworkbench/table';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { AppointmentsPageRoutingModule } from './appointments-page-routing.module';
 import { AppointmentPageComponent } from './components/appointment-page/appointment-page.component';
 import { AppointmentsPageComponent } from './components/appointments-page/appointments-page.component';
@@ -74,6 +76,9 @@ import { AppointmentsPageComponent } from './components/appointments-page/appoin
     SkeletonsModule,
     LinkModule,
     FavoritesModule,
+    CommentModule,
+    LoadingModule,
+    TooltipModule.forRoot(),
   ],
 })
 export class AppointmentsPageModule {}

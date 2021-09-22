@@ -4,9 +4,9 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="d-flex mb-4">
+  <div class="flex mb-4">
     <div class="flex-fill text-center mb-4" *ngIf="plugin.logo">
-      <img [src]="plugin.logo" [alt]="plugin.title" class="img-fluid" />
+      <img [src]="plugin.logo" [alt]="plugin.title" class="max-w-full h-auto" />
     </div>
     <eworkbench-plugin-details-dropdown [plugin]="plugin" (selected)="onDropdownSelected($event)"></eworkbench-plugin-details-dropdown>
   </div>
@@ -20,7 +20,7 @@
   </div>
   <div class="mb-4">
     <label for="responsibleUsers-modal">{{ t('plugin.preview.responsibleUsers.label') }}</label>
-    <eworkbench-users-grouping [users]="plugin.responsible_users"></eworkbench-users-grouping>
+    <eworkbench-users-grouping [users]="plugin.responsible_users" [chip]="true"></eworkbench-users-grouping>
   </div>
   <div class="text-right">
     <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="onShowDetails()">

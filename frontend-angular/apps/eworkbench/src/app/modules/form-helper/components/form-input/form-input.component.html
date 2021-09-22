@@ -8,15 +8,15 @@
     <div>
       <label [for]="for" *ngIf="label">
         {{ label }}
-        <eworkbench-form-asterisk *ngIf="required" class="d-inline-block"></eworkbench-form-asterisk>
+        <eworkbench-form-asterisk *ngIf="required" class="inline-block"></eworkbench-form-asterisk>
       </label>
       <ng-content select="[slot=label]" *ngIf="!label"></ng-content>
     </div>
-    <div class="d-flex justify-content-between">
+    <div class="flex justify-between">
       <div class="flex-fill">
         <ng-content select="[slot=input]"></ng-content>
       </div>
-      <div class="ml-2 text-nowrap" [class]="buttonPosition" *ngIf="showButtons">
+      <div class="ml-2 whitespace-nowrap" [class]="buttonPosition" *ngIf="showButtons">
         <button
           type="submit"
           class="btn ewb-button-big ewb-button-primary square mr-1"

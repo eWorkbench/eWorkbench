@@ -35,7 +35,7 @@
               role="menu"
               aria-labelledby="calendar-filter-button"
             >
-              <li class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button" role="menuitem">
+              <li class="btn ewb-button-regular font-normal w-full text-left menu-item-button" role="menuitem">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -44,12 +44,12 @@
                     class="custom-control-input"
                     [formControl]="myAppointmentsCheckbox"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="my-appointments-filter">
+                  <label class="custom-control-label w-full font-normal" for="my-appointments-filter">
                     {{ t('calendar.header.filterByType.myAppointments.label') }}
                   </label>
                 </div>
               </li>
-              <li class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button" role="menuitem">
+              <li class="btn ewb-button-regular font-normal w-full text-left menu-item-button" role="menuitem">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -58,7 +58,7 @@
                     class="custom-control-input"
                     [formControl]="myTasksCheckbox"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="my-tasks-filter">
+                  <label class="custom-control-label w-full font-normal" for="my-tasks-filter">
                     {{ t('calendar.header.filterByType.myTasks.label') }}
                   </label>
                 </div>
@@ -268,9 +268,9 @@
       {{ event.startStr | formatDate: 'yyyy-MM-dd' }}
     </ng-container>
     <div *ngIf="event.extendedProps?.attending_users?.length">
-      <strong class="mr-1">{{ t('appointment.details.attendingUsers.label') }}:</strong>
+      <strong class="mr-1">{{ t('appointment.details.attendees.label') }}:</strong>
       <ng-container *ngFor="let user of event.extendedProps.attending_users; let last = last">
-        <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details><span *ngIf="!last">, </span>
+        <eworkbench-user-details class="inline-block" [user]="user"></eworkbench-user-details><span *ngIf="!last">, </span>
       </ng-container>
     </div>
     <div *ngIf="event.extendedProps?.resource">
@@ -294,7 +294,9 @@
 </ng-template>
 
 <ng-template #taskTitleCellTemplate let-row>
-  <a [routerLink]="['/tasks', row.pk]">{{ row.title }}</a>
+  <eworkbench-ellipsis-element [maxWidth]="300">
+    <a [routerLink]="['/tasks', row.pk]">{{ row.title }}</a>
+  </eworkbench-ellipsis-element>
 </ng-template>
 <ng-template #taskPriorityCellTemplate let-row>
   <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
@@ -304,7 +306,7 @@
 </ng-template>
 <ng-template #taskDueDateCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div *ngIf="row.due_date" class="text-danger">{{ t('dashboard.tasks.dueDateOn') }} {{ row.due_date | formatDate }}</div>
+    <div *ngIf="row.due_date" class="text-red-600">{{ t('dashboard.tasks.dueDateOn') }} {{ row.due_date | formatDate }}</div>
   </ng-container>
 </ng-template>
 

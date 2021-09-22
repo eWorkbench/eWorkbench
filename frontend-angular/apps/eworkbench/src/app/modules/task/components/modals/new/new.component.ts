@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { CDK_DRAG_CONFIG } from '@angular/cdk/drag-drop';
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
@@ -49,6 +50,14 @@ interface FormTask {
   templateUrl: './new.component.html',
   styleUrls: ['./new.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: CDK_DRAG_CONFIG,
+      useValue: {
+        zIndex: 1100,
+      },
+    },
+  ],
 })
 export class NewTaskModalComponent implements OnInit {
   public taskBoardId?: string = this.modalRef.data?.taskBoardId;
@@ -58,6 +67,8 @@ export class NewTaskModalComponent implements OnInit {
   public initialState?: Task = this.modalRef.data?.initialState;
 
   public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
+  public duplicate?: string = this.modalRef.data?.duplicate;
 
   public state = ModalState.Unchanged;
 
@@ -297,6 +308,7 @@ export class NewTaskModalComponent implements OnInit {
               this.projects = [...this.projects, project]
                 .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                 .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+              this.cdr.markForCheck();
             }
           );
       }

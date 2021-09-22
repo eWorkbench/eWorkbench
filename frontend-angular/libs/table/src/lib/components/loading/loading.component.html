@@ -3,8 +3,8 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<div *ngIf="loading" class="d-flex justify-content-center align-items-center loading">
-  <div class="spinner-border m-3" role="status"></div>
+<div *ngIf="loading" class="flex justify-center items-center loading">
+  <div class="spinner-border m-6" role="status"></div>
 </div>
 <div [class.loading-backdrop]="loading">
   <ng-content></ng-content>

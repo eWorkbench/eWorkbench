@@ -37,7 +37,7 @@ export class ColumnDetailsModalComponent implements OnInit {
 
   public form = this.fb.group<FormTaskBoardColumnDetails>({
     title: [null, [Validators.required]],
-    color: [null, [Validators.required]],
+    color: [null],
   });
 
   public constructor(
@@ -56,7 +56,8 @@ export class ColumnDetailsModalComponent implements OnInit {
     return {
       ...this.column,
       title: this.f.title.value!,
-      color: this.f.color.value!,
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      color: this.f.color.value || 'rgba(244,244,244,1)',
     };
   }
 
@@ -68,37 +69,6 @@ export class ColumnDetailsModalComponent implements OnInit {
       },
       { emitEvent: false }
     );
-  }
-
-  public onDelete(): void {
-    if (this.loading) {
-      return;
-    }
-    this.loading = true;
-
-    let order = 1;
-    const columns: TaskBoardColumn[] = this.columns
-      .filter(/* istanbul ignore next */ (col: TaskBoardColumn) => col.pk !== this.column.pk)
-      .map(
-        /* istanbul ignore next */ (col: TaskBoardColumn) => {
-          col.ordering = order++;
-          return col;
-        }
-      );
-
-    this.taskBoardsService
-      .moveColumn(this.taskBoardId, columns)
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ () => {
-          this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state });
-        },
-        /* istanbul ignore next */ () => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        }
-      );
   }
 
   public onSubmit(): void {

@@ -4,10 +4,10 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="d-inline-block label px-2" [style.background]="'#008000'" *ngIf="isAccessible">
+  <div class="inline-block label px-2" [style.background]="'#008000'" *ngIf="isAccessible">
     {{ t('plugin.accessibilityLabel.accessible') }}
   </div>
-  <div class="d-inline-block label px-2" [style.background]="'#ff6a5e'" *ngIf="!isAccessible">
+  <div class="inline-block label px-2" [style.background]="'#ff6a5e'" *ngIf="!isAccessible">
     {{ t('plugin.accessibilityLabel.accessDenied') }}
   </div>
 </ng-container>

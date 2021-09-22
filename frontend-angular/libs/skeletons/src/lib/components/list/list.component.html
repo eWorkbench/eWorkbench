@@ -4,8 +4,9 @@
 -->
 
 <div class="ssc">
-  <div *ngIf="header" class="ssc-line w-30 mb-3"></div>
+  <div *ngIf="collapseHeader" class="ssc-head-line h-10 mb-4"></div>
+  <div *ngIf="header" class="ssc-head-line h-8 mb-2"></div>
   <ng-container *ngFor="let _ of items">
-    <div class="ssc-line mb-2"></div>
+    <div class="ssc-line h-6 mb-1"></div>
   </ng-container>
 </div>

@@ -6,10 +6,12 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import NotFound
+from rest_framework.pagination import LimitOffsetPagination
 
 from eric.core.models.abstract import parse_parameters_for_workbench_models
 from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet
 from eric.relations.models import Relation
+from eric.relations.rest.filters import RelationFilter
 from eric.relations.rest.serializers import RelationSerializerExtended
 
 
@@ -19,9 +21,11 @@ class RelationViewSet(BaseAuthenticatedModelViewSet):
     serializer_class = RelationSerializerExtended
 
     # disable pagination for this endpoint
-    pagination_class = None
+    # pagination_class = None
+    pagination_class = LimitOffsetPagination
 
     ordering_fields = ('display', 'created_at', 'created_by')
+    filterset_class = RelationFilter
 
     @staticmethod
     def get_parent_object_or_404(*args, **kwargs):

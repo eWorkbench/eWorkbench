@@ -20,6 +20,8 @@ import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { PopoverModule } from 'ngx-bootstrap/popover';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { FavoritesModule } from '../favorites/favorites.module';
 import { FormHelperModule } from '../form-helper/form-helper.module';
 import { LoadingModule } from '../loading/loading.module';
 import { RecentChangesModule } from '../recent-changes/recent-changes.module';
@@ -29,6 +31,8 @@ import { UserModule } from '../user/user.module';
 import { BackgroundModalComponent } from './components/modals/background/background.component';
 import { BacklogModalComponent } from './components/modals/backlog/backlog.component';
 import { ColumnDetailsModalComponent } from './components/modals/column-details/column-details.component';
+import { DeleteColumnModalComponent } from './components/modals/delete-column/delete-column.component';
+import { NewTaskBoardColumnModalComponent } from './components/modals/new-column/new-column.component';
 import { NewTaskBoardModalComponent } from './components/modals/new/new.component';
 import { TaskBoardComponent } from './components/task-board/task-board.component';
 import { TaskCardComponent } from './components/task-card/task-card.component';
@@ -41,6 +45,8 @@ import { TaskCardComponent } from './components/task-card/task-card.component';
     ColumnDetailsModalComponent,
     NewTaskBoardModalComponent,
     BackgroundModalComponent,
+    NewTaskBoardColumnModalComponent,
+    DeleteColumnModalComponent,
   ],
   imports: [
     CommonModule,
@@ -71,7 +77,18 @@ import { TaskCardComponent } from './components/task-card/task-card.component';
     WysiwygEditorModule,
     IconsModule,
     LoadingModule,
+    FavoritesModule,
+    TooltipModule.forRoot(),
   ],
-  exports: [TaskBoardComponent, BacklogModalComponent, BackgroundModalComponent, NewTaskBoardModalComponent, DragDropModule],
+  exports: [
+    TaskBoardComponent,
+    BacklogModalComponent,
+    BackgroundModalComponent,
+    NewTaskBoardModalComponent,
+    DragDropModule,
+    NewTaskBoardColumnModalComponent,
+    DeleteColumnModalComponent,
+    DragDropModule,
+  ],
 })
 export class TaskBoardModule {}

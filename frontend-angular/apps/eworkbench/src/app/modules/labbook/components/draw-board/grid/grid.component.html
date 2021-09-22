@@ -5,7 +5,7 @@
 
 <ng-container *transloco="let t">
   <eworkbench-loading [loading]="loading">
-    <div class="m-5 text-center" *ngIf="!drawBoardElements.length && !loading">
+    <div class="m-12 text-center" *ngIf="!drawBoardElements.length && !loading">
       {{ section ? t('labBook.drawBoardNote.noChildElementsInSection') : t('labBook.drawBoardNote.noChildElements') }}
     </div>
 

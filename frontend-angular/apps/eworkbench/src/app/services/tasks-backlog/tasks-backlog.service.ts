@@ -25,7 +25,7 @@ export class TasksBacklogService implements TableViewService {
         /* istanbul ignore next */ tasks =>
           this.httpClient
             .get<DjangoAPI<Task[]>>(`${this.apiUrl}tasks/`, {
-              params: params.set('id', tasks.map(/* istanbul ignore next */ task => task.task_id).join(',')).set('state', 'NEW,PROG'),
+              params: params.set('id', tasks.map(/* istanbul ignore next */ task => task.task_id).join(',')),
             })
             .pipe(
               map(

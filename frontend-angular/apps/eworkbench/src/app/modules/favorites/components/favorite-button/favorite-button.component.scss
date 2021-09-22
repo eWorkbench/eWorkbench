@@ -6,11 +6,11 @@
 :host {
   display: block;
 
-  .ewb-button-big {
-    font-size: 18px;
-  }
-
   button {
+    min-width: 22px;
+    font-size: 14px;
+    text-align: center;
+
     .hover {
       display: none;
     }
@@ -38,5 +38,9 @@
         display: block;
       }
     }
+  }
+
+  button.ewb-button-big {
+    font-size: 18px;
   }
 }

@@ -14,7 +14,7 @@
           <div class="mb-4">
             <label for="title-modal">
               {{ t('picture.newModal.title.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -28,7 +28,7 @@
           <div class="mb-4">
             <label for="picture-modal">
               {{ t('picture.newModal.picture.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <div class="custom-file">
               <input type="file" class="custom-file-input" (change)="onUpload($event)" id="picture-modal" name="picture-modal" />
@@ -45,7 +45,7 @@
           <div class="mb-4">
             <label for="width-modal">
               {{ t('picture.newModal.width.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="number"
@@ -59,7 +59,7 @@
           <div class="mb-4">
             <label for="height-modal">
               {{ t('picture.newModal.height.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="number"
@@ -79,7 +79,7 @@
                 id="keepAspectRatio-modal"
                 name="keepAspectRatio-modal"
               />
-              <label class="custom-control-label font-weight-normal" for="keepAspectRatio-modal">{{
+              <label class="custom-control-label font-normal" for="keepAspectRatio-modal">{{
                 t('picture.newModal.keepAspectRatio.label')
               }}</label>
             </div>
@@ -103,13 +103,16 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>

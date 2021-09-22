@@ -1,0 +1,71 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *ngIf="user">
+  <div
+    class="rounded-full"
+    [style.transform]="'scale(' + scale + ')'"
+    [style.margin.px]="margin"
+    [ngClass]="{ 'ring-1 ring-offset-1 ring-tum-primary': ring }"
+  >
+    <ng-container *ngIf="user?.userprofile">
+      <ng-container *ngIf="user?.userprofile.anonymized">
+        <ng-template *ngTemplateOutlet="fallbackTemplate"></ng-template>
+      </ng-container>
+      <ng-container *ngIf="!user?.userprofile.anonymized">
+        <ng-template *ngTemplateOutlet="userTemplate; context: { user: user }"></ng-template>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!user || !user?.userprofile">
+  <div
+    class="rounded-full"
+    [style.transform]="'scale(' + scale + ')'"
+    [style.margin.px]="margin"
+    [ngClass]="{ 'ring-1 ring-offset-1 ring-tum-primary': ring }"
+  >
+    <ng-template *ngTemplateOutlet="fallbackTemplate"></ng-template>
+  </div>
+</ng-container>
+
+<ng-template #userTemplate let-user="user">
+  <ng-container *ngIf="user.userprofile?.avatar_is_set && user.userprofile?.avatar">
+    <ng-template *ngTemplateOutlet="avatarTemplate; context: { user: user }"></ng-template>
+  </ng-container>
+  <ng-container *ngIf="!user.userprofile?.avatar_is_set || !user.userprofile?.avatar">
+    <ng-container
+      *ngIf="user.userprofile?.first_name || user.userprofile?.last_name; then nameTemplate; else fallbackTemplate"
+    ></ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template #fallbackTemplate>
+  <ng-container *transloco="let t">
+    <div class="circle" [class.chip]="chip" [class.inverted]="inverted">
+      <ng-container *ngIf="chip">
+        <img src="/assets/fallback-avatar-s-blue.svg" [alt]="t('profile.picture')" *ngIf="!inverted" />
+        <img src="/assets/fallback-avatar-s-regular.svg" [alt]="t('profile.picture')" *ngIf="inverted" />
+      </ng-container>
+      <img src="/assets/fallback-avatar-regular.svg" [alt]="t('profile.picture')" *ngIf="!chip" />
+    </div>
+  </ng-container>
+</ng-template>
+
+<ng-template #nameTemplate>
+  <div class="circle" [class.chip]="chip" [class.inverted]="inverted">
+    <span class="initials">{{ getFirstLetter(user?.userprofile?.first_name) }}{{ getFirstLetter(user?.userprofile?.last_name) }}</span>
+  </div>
+</ng-template>
+
+<ng-template #avatarTemplate let-user="user">
+  <div class="circle" [class.chip]="chip" [class.inverted]="inverted">
+    <img
+      [src]="user?.userprofile?.avatar"
+      [alt]="getFirstLetter(user?.userprofile?.first_name) + getFirstLetter(user?.userprofile?.last_name)"
+    />
+  </div>
+</ng-template>

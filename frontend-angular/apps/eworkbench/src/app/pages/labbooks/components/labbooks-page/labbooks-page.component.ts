@@ -41,7 +41,7 @@ export class LabBooksPageComponent implements OnInit {
 
   public sidebarItem = ProjectSidebarItem.LabBooks;
 
-  @ViewChild('tableView')
+  @ViewChild('tableView', { static: true })
   public tableView!: TableViewComponent;
 
   @ViewChild('titleCellTemplate', { static: true })
@@ -68,9 +68,11 @@ export class LabBooksPageComponent implements OnInit {
 
   public projectsControl = this.fb.control<string | null>(null);
 
-  public usersControl = this.fb.control<string | null>(null);
+  public usersControl = this.fb.control<number | null>(null);
 
   public searchControl = this.fb.control<string | null>(null);
+
+  public favoritesControl = this.fb.control<boolean | null>(null);
 
   public users: User[] = [];
 
@@ -90,6 +92,10 @@ export class LabBooksPageComponent implements OnInit {
 
   public sorting?: TableSortChangedEvent;
 
+  public showUserFilter = false;
+
+  public savedFilters = false;
+
   public constructor(
     private readonly router: Router,
     public readonly labbooksService: LabBooksService,
@@ -106,6 +112,19 @@ export class LabBooksPageComponent implements OnInit {
     private readonly userStore: UserStore
   ) {}
 
+  public get filtersChanged(): boolean {
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    return Boolean(this.projectsControl.value || this.usersControl.value || this.searchControl.value || this.favoritesControl.value);
+  }
+
+  public get getFilterSelectedUser(): User | undefined {
+    return this.users.find(user => user.pk === this.usersControl.value);
+  }
+
+  public get getFilterSelectedProject(): Project | undefined {
+    return this.projects.find(project => project.pk === this.projectsControl.value);
+  }
+
   public ngOnInit(): void {
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(
       /* istanbul ignore next */ state => {
@@ -113,7 +132,7 @@ export class LabBooksPageComponent implements OnInit {
       }
     );
 
-    this.initTranslations();
+    this.initTranslations(this.showSidebar);
     this.initSidebar();
     this.initSearch(this.showSidebar);
     this.initSearchInput();
@@ -121,7 +140,7 @@ export class LabBooksPageComponent implements OnInit {
     this.pageTitleService.set(this.title);
   }
 
-  public initTranslations(): void {
+  public initTranslations(project = false): void {
     this.translocoService
       .selectTranslate('labbooks.title')
       .pipe(untilDestroyed(this))
@@ -195,6 +214,58 @@ export class LabBooksPageComponent implements OnInit {
         if (this.currentUser?.userprofile.ui_settings?.tables_sort?.labbooks) {
           this.sorting = this.currentUser.userprofile.ui_settings.tables_sort.labbooks;
         }
+
+        if (this.currentUser?.userprofile.ui_settings?.filter_settings?.labbooks) {
+          const filters = this.currentUser.userprofile.ui_settings?.filter_settings?.labbooks;
+
+          if (filters.active) {
+            this.savedFilters = true;
+          }
+
+          if (filters.users) {
+            this.userService
+              .getUserById(filters.users)
+              .pipe(untilDestroyed(this))
+              .subscribe(
+                /* istanbul ignore next */ users => {
+                  if (users.length) {
+                    this.users = [...users];
+                    this.cdr.markForCheck();
+                  }
+                }
+              );
+            this.usersControl.setValue(filters.users);
+            this.params = this.params.set('created_by', filters.users);
+          }
+
+          if (filters.projects && !project) {
+            this.projectsService
+              .get(filters.projects)
+              .pipe(untilDestroyed(this))
+              .subscribe(
+                /* istanbul ignore next */ project => {
+                  this.projects = [...this.projects, project];
+                  this.cdr.markForCheck();
+                }
+              );
+            this.projectsControl.setValue(filters.projects);
+            this.params = this.params.set('projects_recursive', filters.projects);
+          }
+
+          if (filters.search) {
+            this.searchControl.setValue(filters.search);
+            this.params = this.params.set('search', filters.search);
+          }
+
+          if (filters.favorites) {
+            this.favoritesControl.setValue(Boolean(filters.favorites));
+            this.params = this.params.set('favourite', filters.favorites);
+          }
+
+          if (filters.active) {
+            this.tableView.loadData(false, this.params);
+          }
+        }
       });
   }
 
@@ -210,6 +281,7 @@ export class LabBooksPageComponent implements OnInit {
               .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.projectsControl.setValue(params.projectId);
             this.project = params.projectId;
+            this.cdr.markForCheck();
           }
         );
       }
@@ -228,32 +300,44 @@ export class LabBooksPageComponent implements OnInit {
             queryParams.set('projects', value);
             history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
           }
-          return;
+        } else {
+          this.params = this.params.delete('projects_recursive');
+          this.tableView.loadData(false, this.params);
+          if (!project) {
+            queryParams.delete('projects');
+            history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+          }
         }
 
-        this.params = this.params.delete('projects_recursive');
-        this.tableView.loadData(false, this.params);
-        if (!project) {
-          queryParams.delete('projects');
-          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
         }
       }
     );
 
     this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
       /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
         if (value) {
           this.params = this.params.set('created_by', value);
           this.tableView.loadData(false, this.params);
-          // TODO: Needs endpoint to fetch a user by its id
-          /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: value }, queryParamsHandling: 'merge' }); */
-          return;
+          queryParams.set('users', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('created_by');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('users');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
         }
 
-        this.params = this.params.delete('created_by');
-        this.tableView.loadData(false, this.params);
-        // TODO: Needs endpoint to fetch a user by its id
-        /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: null }, queryParamsHandling: 'merge' }); */
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
       }
     );
 
@@ -266,20 +350,66 @@ export class LabBooksPageComponent implements OnInit {
           this.tableView.loadData(false, this.params);
           queryParams.set('search', value);
           history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
-          return;
+        } else {
+          this.params = this.params.delete('search');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('search');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
         }
 
-        this.params = this.params.delete('search');
-        this.tableView.loadData(false, this.params);
-        queryParams.delete('search');
-        history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.favoritesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (value) {
+          this.params = this.params.set('favourite', value);
+          this.tableView.loadData(false, this.params);
+          queryParams.set('favorites', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('favourite');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('favorites');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
       }
     );
 
     this.route.queryParamMap.pipe(untilDestroyed(this), take(1)).subscribe(
       /* istanbul ignore next */ queryParams => {
+        const users = queryParams.get('users');
         const projects = queryParams.get('projects');
         const search = queryParams.get('search');
+        const favorites = queryParams.get('favorites');
+
+        if (users) {
+          this.userService
+            .getUserById(users)
+            .pipe(untilDestroyed(this))
+            .subscribe(
+              /* istanbul ignore next */ users => {
+                if (users.length) {
+                  this.users = [...users];
+                  this.cdr.markForCheck();
+                }
+              }
+            );
+          this.usersControl.setValue(Number(users));
+        }
 
         if (projects && !project) {
           this.projectsService
@@ -296,6 +426,10 @@ export class LabBooksPageComponent implements OnInit {
 
         if (search) {
           this.searchControl.setValue(search);
+        }
+
+        if (favorites) {
+          this.favoritesControl.setValue(Boolean(favorites));
         }
       }
     );
@@ -325,8 +459,10 @@ export class LabBooksPageComponent implements OnInit {
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
+          if (projects.length) {
+            this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          }
         }
       );
 
@@ -439,6 +575,93 @@ export class LabBooksPageComponent implements OnInit {
         )
       )
       .subscribe();
+  }
+
+  public onSaveFilters(save: boolean): void {
+    if (save) {
+      this.userService
+        .get()
+        .pipe(
+          untilDestroyed(this),
+          take(1),
+          switchMap(
+            /* istanbul ignore next */ user => {
+              const currentUser = user;
+              return this.userService.changeSettings({
+                userprofile: {
+                  ui_settings: {
+                    ...currentUser.userprofile.ui_settings,
+                    filter_settings: {
+                      ...currentUser.userprofile.ui_settings?.filter_settings,
+                      labbooks: {
+                        active: true,
+                        users: this.usersControl.value,
+                        projects: this.projectsControl.value,
+                        search: this.searchControl.value,
+                        favorites: this.favoritesControl.value,
+                      },
+                    },
+                  },
+                },
+              });
+            }
+          )
+        )
+        .subscribe();
+    } else {
+      this.userService
+        .get()
+        .pipe(
+          untilDestroyed(this),
+          take(1),
+          switchMap(
+            /* istanbul ignore next */ user => {
+              const currentUser = user;
+              return this.userService.changeSettings({
+                userprofile: {
+                  ui_settings: {
+                    ...currentUser.userprofile.ui_settings,
+                    filter_settings: {
+                      ...currentUser.userprofile.ui_settings?.filter_settings,
+                      labbooks: {
+                        active: false,
+                      },
+                    },
+                  },
+                },
+              });
+            }
+          )
+        )
+        .subscribe();
+    }
+  }
+
+  public onUserFilterRadioAnyone(): void {
+    this.showUserFilter = false;
+    this.users = [];
+  }
+
+  public onUserFilterRadioMyself(checked: boolean): void {
+    if (checked && this.currentUser) {
+      this.showUserFilter = false;
+      this.users = [this.currentUser];
+    }
+  }
+
+  public onResetFilters(): void {
+    this.params = new HttpParams();
+    history.pushState(null, '', window.location.pathname);
+
+    this.projectsControl.setValue(null, { emitEvent: false });
+    this.projects = [];
+
+    this.usersControl.setValue(null, { emitEvent: false });
+    this.users = [];
+
+    this.searchControl.setValue(null, { emitEvent: false });
+
+    this.favoritesControl.setValue(null);
   }
 
   public canDeactivate(): Observable<boolean> {

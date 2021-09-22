@@ -23,7 +23,6 @@ import { FormHelperModule } from '../form-helper/form-helper.module';
 import { LoadingModule } from '../loading/loading.module';
 import { SharedModule } from '../shared/shared.module';
 import { UserModule } from '../user/user.module';
-import { ProjectLinksComponent } from './components/project-links/project-links.component';
 import { ProjectMembersHierarchyComponent } from './components/project-members-hierarchy/project-members-hierarchy.component';
 import { ChangeProjectMemberRoleModalComponent } from './components/project-members/modals/change-role/change-role.component';
 import { ExternalUserModalComponent } from './components/project-members/modals/external-user/external-user.component';
@@ -42,7 +41,6 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
     NewProjectMemberModalComponent,
     RemoveProjectMemberModalComponent,
     ExternalUserModalComponent,
-    ProjectLinksComponent,
     ProjectStateComponent,
     ChangeProjectMemberRoleModalComponent,
     ProjectMembersHierarchyComponent,
@@ -82,7 +80,6 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
     NewProjectMemberModalComponent,
     RemoveProjectMemberModalComponent,
     ExternalUserModalComponent,
-    ProjectLinksComponent,
     ProjectStateComponent,
     ChangeProjectMemberRoleModalComponent,
     ProjectMembersHierarchyComponent,

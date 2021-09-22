@@ -4,6 +4,6 @@
  */
 
 export interface DropdownElement {
-  value: string;
+  value: string | number;
   label: string;
 }

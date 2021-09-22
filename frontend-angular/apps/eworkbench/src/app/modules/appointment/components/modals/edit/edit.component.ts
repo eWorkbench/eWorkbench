@@ -36,7 +36,7 @@ interface FormAppointment {
   dateGroup: DateGroup;
   resource: string | null;
   location: string | null;
-  attendingUsers: number[];
+  attendees: number[];
   attendingContacts: string[];
   scheduledNotificationActive: boolean;
   scheduledNotificationTimedeltaValue: number | null;
@@ -98,7 +98,7 @@ export class EditAppointmentModalComponent implements OnInit {
     dateGroup: [{ start: null, end: null, fullDay: false }],
     resource: [null],
     location: [null],
-    attendingUsers: [[]],
+    attendees: [[]],
     attendingContacts: [[]],
     scheduledNotificationActive: [false],
     scheduledNotificationTimedeltaValue: [null],
@@ -162,7 +162,7 @@ export class EditAppointmentModalComponent implements OnInit {
 
     const appointment = {
       attending_contacts_pk: this.f.attendingContacts.value,
-      attending_users_pk: this.f.attendingUsers.value,
+      attending_users_pk: this.f.attendees.value,
       date_time_start: dateTimeStart,
       date_time_end: dateTimeEnd,
       full_day: this.f.dateGroup.value.fullDay,
@@ -346,7 +346,7 @@ export class EditAppointmentModalComponent implements OnInit {
                 },
                 resource: appointment.resource_pk,
                 location: appointment.location,
-                attendingUsers: appointment.attending_users_pk,
+                attendees: appointment.attending_users_pk,
                 attendingContacts: appointment.attending_contacts_pk,
                 description: appointment.text,
                 projects: appointment.projects,
@@ -386,6 +386,7 @@ export class EditAppointmentModalComponent implements OnInit {
                   this.projects = [...this.projects, project]
                     .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                     .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                  this.cdr.markForCheck();
                 }),
                 switchMap(() => of(privilegesData))
               );

@@ -4,30 +4,26 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="d-flex mb-4">
+  <div class="flex mb-4">
     <div class="flex-fill">
-      <div class="d-flex">
+      <div class="flex">
         <div class="mr-2" *ngIf="plugin.logo">
-          <img [src]="plugin.logo" [alt]="plugin.title" class="img-fluid" />
+          <img [src]="plugin.logo" [alt]="plugin.title" class="max-w-full h-auto" />
         </div>
         <div class="flex-fill">
           <div>
-            <label for="title-modal" class="font-weight-bold d-inline-block mr-1">{{ t('plugin.preview.title.label') }}</label>
+            <label for="title-modal" class="font-bold inline-block mr-1">{{ t('plugin.preview.title.label') }}</label>
             {{ plugin.title }}
           </div>
           <div>
-            <label for="shortDescription-modal" class="font-weight-bold d-inline-block mr-1">{{
-              t('plugin.preview.shortDescription.label')
-            }}</label>
+            <label for="shortDescription-modal" class="font-bold inline-block mr-1">{{ t('plugin.preview.shortDescription.label') }}</label>
             {{ plugin.short_description }}
           </div>
         </div>
         <div class="flex-fill">
           <div>
-            <label for="responsibleUsers-modal" class="font-weight-bold d-inline-block mr-1">{{
-              t('plugin.preview.responsibleUsers.label')
-            }}</label>
-            <eworkbench-users-grouping [users]="plugin.responsible_users" class="d-inline-block"></eworkbench-users-grouping>
+            <label for="responsibleUsers-modal" class="font-bold inline-block mr-1">{{ t('plugin.preview.responsibleUsers.label') }}</label>
+            <eworkbench-users-grouping [users]="plugin.responsible_users" [chip]="true" class="inline-block"></eworkbench-users-grouping>
           </div>
           <div>
             <eworkbench-plugin-accessibility-label [isAccessible]="plugin.is_accessible"></eworkbench-plugin-accessibility-label>

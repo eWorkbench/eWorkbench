@@ -20,7 +20,7 @@ from eric.base64_image_extraction.utils import convert_text_with_base64_images_t
 from eric.core.tests import custom_json_handler
 from eric.model_privileges.models import ModelPrivilege
 from eric.ms_office_handling.models.handlers import OFFICE_TEMP_FILE_PREFIX
-from eric.shared_elements.models import File, Meeting, Note, Task, UploadedFileEntry, CalendarAccess
+from eric.shared_elements.models import File, Meeting, Note, Task, UploadedFileEntry, CalendarAccess, Comment
 from eric.versions.models import Version
 
 logger = logging.getLogger(__name__)
@@ -128,6 +128,20 @@ def convert_meeting_text_with_base64_images_to_file_references(sender, instance,
 def convert_note_content_with_base64_images_to_file_references(sender, instance, *args, **kwargs):
     """
     Parse note content, find base64 references, upload image files to system and convert references to image URLs.
+
+    :param sender:
+    :param instance:
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    instance.content = convert_text_with_base64_images_to_file_references(instance, 'content')
+
+
+@receiver(pre_save, sender=Comment)
+def convert_comment_content_with_base64_images_to_file_references(sender, instance, *args, **kwargs):
+    """
+    Parse comment content, find base64 references, upload image files to system and convert references to image URLs.
 
     :param sender:
     :param instance:

@@ -11,7 +11,7 @@
       <div class="mb-4">
         <label for="subject">
           {{ t('contactForm.subject') }}
-          <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+          <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
         </label>
         <input
           type="subject"
@@ -25,9 +25,9 @@
       <div class="mb-4">
         <label for="message">
           {{ t('contactForm.message') }}
-          <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+          <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
         </label>
-        <eworkbench-wysiwyg-editor id="message" formControlName="message"></eworkbench-wysiwyg-editor>
+        <eworkbench-wysiwyg-editor [id]="'message'" formControlName="message"></eworkbench-wysiwyg-editor>
       </div>
       <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
         {{ t('contactForm.send') }}

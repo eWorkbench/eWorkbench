@@ -7,6 +7,7 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FileModule } from '@app/modules/file/file.module';
@@ -35,6 +36,7 @@ import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { FilePageComponent } from './components/file-page/file-page.component';
 import { FilesPageComponent } from './components/files-page/files-page.component';
 import { NewFileModalComponent } from './components/modals/new.component';
@@ -81,6 +83,9 @@ import { FilesPageRoutingModule } from './files-page-routing.module';
     StorageModule,
     FileModule,
     FavoritesModule,
+    CommentModule,
+    LoadingModule,
+    TooltipModule.forRoot(),
   ],
 })
 export class FilesPageModule {}

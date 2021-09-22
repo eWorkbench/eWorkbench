@@ -13,8 +13,10 @@ from eric.drives.models import Drive
 from eric.drives.models.models import Directory
 from eric.drives.rest.filters import DriveFilter
 from eric.drives.rest.serializers import DriveSerializer, DirectorySerializer
+from eric.dss.models import DSSContainer
+from eric.projects.models.exceptions import ContainerReadWriteException
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet
-from eric.shared_elements.models import File, DSSContainer, ContainerReadWriteException
+from eric.shared_elements.models import File
 
 
 class DriveSubDirectoriesViewSet(BaseAuthenticatedModelViewSet):

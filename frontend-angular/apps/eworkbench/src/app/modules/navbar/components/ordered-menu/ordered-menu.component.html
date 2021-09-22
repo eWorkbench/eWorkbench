@@ -6,7 +6,7 @@
 <ul
   #menu
   id="menu"
-  class="navbar-nav mt-2 mt-lg-0 h-100 w-100"
+  class="navbar-nav mt-2 lg:mt-0 h-full w-full"
   cdkDropList
   cdkDropListOrientation="horizontal"
   [cdkDropListData]="menuItems"
@@ -17,15 +17,15 @@
   (window:resize)="calculateLimit()"
 >
   <ng-container *ngFor="let item of menuItems">
-    <li cdkDrag class="d-flex align-items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
+    <li cdkDrag class="flex items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
       <a
-        class="h-100 w-100"
+        class="h-full w-full"
         [routerLink]="[getMenuModel(item)?.routerLink]"
         [class.disabled]="editMode"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: getMenuModel(item)?.routerLinkExactMatch }"
       >
-        <button class="btn ewb-button-regular text-uppercase route-button h-100 w-100 text-left text-nowrap">
+        <button class="btn ewb-button-regular uppercase route-button h-full w-full text-left">
           {{ getMenuModel(item)?.name }}
         </button>
       </a>
@@ -38,15 +38,21 @@
     dropdown
     container="body"
     placement="bottom right"
-    class="d-flex align-items-center"
+    class="flex items-center"
   >
-    <button id="overflow-menu-button" aria-controls="overflow-menu" type="button" class="btn ewb-button-regular h-100 w-100" dropdownToggle>
+    <button
+      id="overflow-menu-button"
+      aria-controls="overflow-menu"
+      type="button"
+      class="btn ewb-button-regular h-full w-full"
+      dropdownToggle
+    >
       <eworkbench-icon className="wb-more-horizontal"></eworkbench-icon>
     </button>
     <div
       *dropdownMenu
       id="overflow-menu"
-      class="dropdown-menu dropdown-menu-right details-dropdown-menu pb-0"
+      class="dropdown-menu dropdown-menu-right details-dropdown-menu !pb-0"
       role="menu"
       aria-labelledby="overflow-menu-button"
     >
@@ -66,9 +72,14 @@
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: getMenuModel(item)?.routerLinkExactMatch }"
           >
-            <li cdkDrag class="d-flex align-items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
-              <a class="h-100 w-100" [routerLink]="[getMenuModel(item)?.routerLink]" [class.disabled]="editMode" (click)="dropdown.hide()">
-                <button class="btn ewb-button-regular text-uppercase route-button h-100 w-100 text-left text-nowrap">
+            <li cdkDrag class="flex items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
+              <a
+                class="h-full w-full"
+                [routerLink]="[getMenuModel(item)?.routerLink]"
+                [class.disabled]="editMode"
+                (click)="dropdown.hide()"
+              >
+                <button class="btn ewb-button-regular uppercase route-button h-full w-full text-left">
                   {{ getMenuModel(item)?.name }}
                 </button>
               </a>
@@ -78,15 +89,15 @@
         <ng-container *transloco="let t">
           <form>
             <div class="edit-menu cursor-pointer mt-1">
-              <button *ngIf="!editMode" class="btn ewb-button-regular font-weight-normal" (click)="editMenu()">
+              <button *ngIf="!editMode" class="btn ewb-button-regular !font-normal" (click)="editMenu()">
                 <eworkbench-icon className="wb-cog"></eworkbench-icon>
                 {{ t('navbar.orderedMenu.editMenu') }}
               </button>
-              <button *ngIf="editMode" class="btn ewb-button-regular font-weight-normal" (click)="cancelEditMenu()">
+              <button *ngIf="editMode" class="btn ewb-button-regular !font-normal" (click)="cancelEditMenu()">
                 <eworkbench-icon className="wb-x-bold-close"></eworkbench-icon>
                 {{ t('navbar.orderedMenu.cancelEditMenu') }}
               </button>
-              <button *ngIf="editMode" class="btn ewb-button-regular font-weight-normal" (click)="saveMenu()">
+              <button *ngIf="editMode" class="btn ewb-button-regular !font-normal" (click)="saveMenu()">
                 <eworkbench-icon className="wb-check"></eworkbench-icon>
                 {{ t('navbar.orderedMenu.saveMenu') }}
               </button>

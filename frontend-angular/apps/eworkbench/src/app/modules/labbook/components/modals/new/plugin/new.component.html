@@ -63,7 +63,7 @@
                         [formControl]="onlyPluginsWithAccess"
                         (change)="onToogleOnlyPluginsWithAccess()"
                       />
-                      <label class="custom-control-label font-weight-normal" for="onlyPluginsWithAccess">{{
+                      <label class="custom-control-label font-normal" for="onlyPluginsWithAccess">{{
                         t('labBook.newPluginElementModal.onlyPluginsWithAccess.label')
                       }}</label>
                     </div>
@@ -99,7 +99,7 @@
                 <div class="mb-4">
                   <label for="parentElement-modal">
                     {{ t('labBook.newPluginElementModal.parentElement.label') }}
-                    <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                    <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
                   </label>
                   <ng-select
                     class="ewb-select"
@@ -116,7 +116,7 @@
                 <div class="mb-4">
                   <label for="position-modal">
                     {{ t('labBook.newPluginElementModal.position.label') }}
-                    <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                    <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
                   </label>
                   <ng-select
                     class="ewb-select"
@@ -131,7 +131,7 @@
                   ></ng-select>
                 </div>
 
-                <div class="d-flex justify-content-between mt-5">
+                <div class="flex justify-between mt-5">
                   <div>
                     <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onChangeStep(1)">
                       <eworkbench-icon className="wb-bold-chevron-left"></eworkbench-icon>
@@ -160,7 +160,7 @@
                 (dropdownSelected)="onDropdownSelected($event)"
               ></eworkbench-plugin-details>
 
-              <div class="d-flex justify-content-between mt-5">
+              <div class="flex justify-between mt-5">
                 <div>
                   <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onCancelDetails()">
                     <eworkbench-icon className="wb-bold-chevron-left"></eworkbench-icon>

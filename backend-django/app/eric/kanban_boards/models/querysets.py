@@ -6,7 +6,9 @@ import logging
 
 from django.db.models import Q
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
+from django_userforeignkey.request import get_current_user
 
+from eric.core.models import BaseQuerySet
 from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, \
     extend_queryset
 from eric.shared_elements.models.querysets import TaskQuerySet
@@ -51,6 +53,60 @@ class KanbanBoardColumnQuerySet(BaseProjectEntityPermissionQuerySet):
         from eric.kanban_boards.models import KanbanBoard
 
         return self.filter(kanban_board__pk__in=KanbanBoard.objects.editable().values_list('pk'))
+
+
+class KanbanBoardUserFilterSettingQuerySet(BaseQuerySet):
+    """
+    QuerySet for Kanban Board User Filter Setting.
+    The settings should only be for the current user.
+    """
+    def viewable(self, *args, **kwargs):
+        from eric.kanban_boards.models import KanbanBoard
+        return self.filter(
+            user=get_current_user(),
+            kanban_board__pk__in=KanbanBoard.objects.viewable().values_list('pk')
+        )
+
+    def editable(self, *args, **kwargs):
+        from eric.kanban_boards.models import KanbanBoard
+        return self.filter(
+            user=get_current_user(),
+            kanban_board__pk__in=KanbanBoard.objects.editable().values_list('pk')
+        )
+
+    def deletable(self, *args, **kwargs):
+        from eric.kanban_boards.models import KanbanBoard
+        return self.filter(
+            user=get_current_user(),
+            kanban_board__pk__in=KanbanBoard.objects.deletable().values_list('pk')
+        )
+
+
+class KanbanBoardUserSettingQuerySet(BaseQuerySet):
+    """
+    QuerySet for Kanban Board User Setting.
+    The settings should only be for the current user.
+    """
+    def viewable(self, *args, **kwargs):
+        from eric.kanban_boards.models import KanbanBoard
+        return self.filter(
+            user=get_current_user(),
+            kanban_board__pk__in=KanbanBoard.objects.viewable().values_list('pk')
+        )
+
+    def editable(self, *args, **kwargs):
+        from eric.kanban_boards.models import KanbanBoard
+        return self.filter(
+            user=get_current_user(),
+            kanban_board__pk__in=KanbanBoard.objects.editable().values_list('pk')
+        )
+
+    def deletable(self, *args, **kwargs):
+        from eric.kanban_boards.models import KanbanBoard
+        return self.filter(
+            user=get_current_user(),
+            kanban_board__pk__in=KanbanBoard.objects.deletable().values_list('pk')
+        )
 
 
 class KanbanBoardColumnTaskAssignmentQuerySet(BaseProjectEntityPermissionQuerySet):

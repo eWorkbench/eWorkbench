@@ -38,9 +38,7 @@
                   [checked]="selectedElements.length === totalElements"
                   (click)="onToggleAll()"
                 />
-                <label class="custom-control-label font-weight-normal" for="insertAll-modal">{{
-                  t('labBook.importModal.insertAll.label')
-                }}</label>
+                <label class="custom-control-label font-normal" for="insertAll-modal">{{ t('labBook.importModal.insertAll.label') }}</label>
               </div>
             </div>
 
@@ -58,7 +56,7 @@
                   [checked]="selectedElements.includes(element)"
                   (click)="onToggleSelected(element)"
                 />
-                <label class="custom-control-label font-weight-normal" [for]="'element.' + element.pk + '-modal'">
+                <label class="custom-control-label font-normal" [for]="'element.' + element.pk + '-modal'">
                   <eworkbench-icon [className]="element.child_object.content_type_model | formatContentTypeModel: 'icon'"></eworkbench-icon>
                   {{ element.child_object.display }}
                   ({{ element.child_object.content_type_model | formatContentTypeModel }})
@@ -76,7 +74,7 @@
                       [checked]="selectedElements.includes(sectionElement)"
                       (click)="onToggleSelected(sectionElement)"
                     />
-                    <label class="custom-control-label font-weight-normal" [for]="'sectionElement.' + sectionElement.pk + '-modal'">
+                    <label class="custom-control-label font-normal" [for]="'sectionElement.' + sectionElement.pk + '-modal'">
                       <eworkbench-icon
                         [className]="sectionElement.child_object.content_type_model | formatContentTypeModel: 'icon'"
                       ></eworkbench-icon>

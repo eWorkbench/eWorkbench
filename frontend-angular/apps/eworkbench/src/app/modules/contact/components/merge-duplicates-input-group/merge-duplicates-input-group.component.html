@@ -4,7 +4,7 @@
 -->
 
 <ng-container [formGroup]="formGroup" *transloco="let t">
-  <div class="font-weight-bold mb-2">{{ label }}</div>
+  <div class="font-bold mb-2">{{ label }}</div>
   <ng-container *ngFor="let _ of fields.controls; let i = index">
     <div class="element-group mb-1">
       <div class="custom-control custom-radio">
@@ -25,11 +25,11 @@
         [formControl]="fields.controls[i]"
         [name]="baseFormControlName + '.' + i"
       />
-      <eworkbench-wysiwyg-editor [formControl]="fields.controls[i]" *ngIf="editor"></eworkbench-wysiwyg-editor>
-      <span *ngIf="i === 0" class="text-nowrap flex-grow-1 label ml-1 pt-1">
+      <eworkbench-wysiwyg-editor *ngIf="editor" [formControl]="fields.controls[i]"></eworkbench-wysiwyg-editor>
+      <span *ngIf="i === 0" class="whitespace-nowrap flex-grow label ml-1 pt-1">
         {{ t('contacts.mergeDuplicatesInputGroup.baseContact.label') }}
       </span>
-      <span *ngIf="i > 0" class="text-nowrap label ml-1 pt-1">
+      <span *ngIf="i > 0" class="whitespace-nowrap label ml-1 pt-1">
         {{ t('contacts.mergeDuplicatesInputGroup.mergeContact.label') }} #{{ i }}
       </span>
     </div>

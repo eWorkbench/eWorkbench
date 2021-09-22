@@ -69,7 +69,7 @@ export class LabelsComponent {
 
   public removeLabel(label: Label): void {
     const labels = this.labels.filter(oldLabel => oldLabel.pk !== label.pk);
-    const labelsPayload = this.labels.map(label => label.pk);
+    const labelsPayload = labels.map(label => label.pk);
 
     if (this.id) {
       this.tasksService

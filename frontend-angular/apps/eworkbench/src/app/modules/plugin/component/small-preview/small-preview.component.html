@@ -3,12 +3,12 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<div class="d-flex">
+<div class="flex">
   <div class="mr-2" *ngIf="plugin.logo">
-    <img [src]="plugin.logo" [alt]="plugin.title" class="img-fluid" />
+    <img [src]="plugin.logo" [alt]="plugin.title" class="max-w-full h-auto" />
   </div>
   <div class="flex-fill">
-    <div class="font-weight-bold">{{ plugin.title }}</div>
+    <div class="font-bold">{{ plugin.title }}</div>
     <div>{{ plugin.short_description }}</div>
   </div>
 </div>

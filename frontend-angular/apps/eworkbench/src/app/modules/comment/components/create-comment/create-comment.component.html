@@ -1,0 +1,26 @@
+<ng-container *transloco="let t">
+  <eworkbench-loading [loading]="loading">
+    <div class="comment-container">
+      <eworkbench-user-avatar class="avatar" [user]="currentUser" [scale]="5"></eworkbench-user-avatar>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <eworkbench-wysiwyg-editor class="mt-1" formControlName="content"></eworkbench-wysiwyg-editor>
+        <div class="custom-control custom-checkbox inline-block mt-2">
+          <input
+            class="custom-control-input"
+            type="checkbox"
+            formControlName="private"
+            [id]="'private' + uniqueHash"
+            [name]="'private' + uniqueHash"
+          />
+          <label class="custom-control-label font-normal" [for]="'private' + uniqueHash">
+            {{ t('comments.newCommentModal.private.label') }}
+          </label>
+        </div>
+
+        <button type="submit" class="btn ewb-button-big ewb-button-primary float-right mt-2" [disabled]="loading || form.invalid">
+          {{ t('comments.newCommentModal.create') }}
+        </button>
+      </form>
+    </div>
+  </eworkbench-loading>
+</ng-container>

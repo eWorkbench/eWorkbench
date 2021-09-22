@@ -77,6 +77,7 @@ describe('SettingsPageComponent', () => {
           notificationProjects: new FormControl(false),
           NOTIFICATION_CONF_PROJECT_USER_CHANGED: new FormControl(false),
           NOTIFICATION_CONF_PROJECT_CHANGED: new FormControl(false),
+          NOTIFICATION_CONF_PROJECT_COMMENT: new FormControl(false),
 
           notificationDSS: new FormControl(false),
           NOTIFICATION_DSS_IMPORT_IN_PROGRESS: new FormControl(false),
@@ -165,6 +166,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.notificationProjects.value).toBe(false);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_USER_CHANGED.value).toBe(false);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_CHANGED.value).toBe(false);
+      expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_COMMENT.value).toBe(false);
 
       spectator.component.form.patchValue({
         notificationProjects: true,
@@ -174,6 +176,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.notificationProjects.value).toBe(true);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_USER_CHANGED.value).toBe(true);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_CHANGED.value).toBe(true);
+      expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_COMMENT.value).toBe(true);
     });
 
     it('should call onToggleEmailNotificationsDSS()', () => {
@@ -241,6 +244,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.notificationProjects.value).toBe(false);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_USER_CHANGED.value).toBe(false);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_CHANGED.value).toBe(false);
+      expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_COMMENT.value).toBe(false);
 
       expect(spectator.component.form.controls.notificationDSS.value).toBe(false);
       expect(spectator.component.form.controls.NOTIFICATION_DSS_IMPORT_IN_PROGRESS.value).toBe(false);
@@ -271,6 +275,7 @@ describe('SettingsPageComponent', () => {
         NOTIFICATION_CONF_TASK_RELATION_CHANGED: true,
         NOTIFICATION_CONF_PROJECT_USER_CHANGED: true,
         NOTIFICATION_CONF_PROJECT_CHANGED: true,
+        NOTIFICATION_CONF_PROJECT_COMMENT: true,
         NOTIFICATION_DSS_IMPORT_IN_PROGRESS: true,
         NOTIFICATION_DSS_IMPORT_FINISHED: true,
         NOTIFICATION_DSS_IMPORT_FAILED: true,
@@ -316,6 +321,7 @@ describe('SettingsPageComponent', () => {
           notificationProjects: new FormControl(true),
           NOTIFICATION_CONF_PROJECT_USER_CHANGED: new FormControl(true),
           NOTIFICATION_CONF_PROJECT_CHANGED: new FormControl(true),
+          NOTIFICATION_CONF_PROJECT_COMMENT: new FormControl(true),
 
           notificationDSS: new FormControl(true),
           NOTIFICATION_DSS_IMPORT_IN_PROGRESS: new FormControl(true),
@@ -404,6 +410,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.notificationProjects.value).toBe(true);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_USER_CHANGED.value).toBe(true);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_CHANGED.value).toBe(true);
+      expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_COMMENT.value).toBe(true);
 
       spectator.component.form.patchValue({
         notificationProjects: false,
@@ -413,6 +420,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.notificationProjects.value).toBe(false);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_USER_CHANGED.value).toBe(false);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_CHANGED.value).toBe(false);
+      expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_COMMENT.value).toBe(false);
     });
 
     it('should call onToggleEmailNotificationsDSS()', () => {
@@ -481,6 +489,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.notificationProjects.value).toBe(true);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_USER_CHANGED.value).toBe(true);
       expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_CHANGED.value).toBe(true);
+      expect(spectator.component.form.controls.NOTIFICATION_CONF_PROJECT_COMMENT.value).toBe(true);
 
       expect(spectator.component.form.controls.notificationDSS.value).toBe(true);
       expect(spectator.component.form.controls.NOTIFICATION_DSS_IMPORT_IN_PROGRESS.value).toBe(true);
@@ -511,6 +520,7 @@ describe('SettingsPageComponent', () => {
         NOTIFICATION_CONF_TASK_RELATION_CHANGED: false,
         NOTIFICATION_CONF_PROJECT_USER_CHANGED: false,
         NOTIFICATION_CONF_PROJECT_CHANGED: false,
+        NOTIFICATION_CONF_PROJECT_COMMENT: false,
         NOTIFICATION_DSS_IMPORT_IN_PROGRESS: false,
         NOTIFICATION_DSS_IMPORT_FINISHED: false,
         NOTIFICATION_DSS_IMPORT_FAILED: false,

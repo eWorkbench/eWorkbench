@@ -73,11 +73,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, MatomoGuard],
   },
   {
-    path: 'notes',
-    redirectTo: '/comments',
+    path: 'comments',
+    redirectTo: '/notes',
   },
   {
-    path: 'comments',
+    path: 'notes',
     loadChildren: () => import('./pages/notes/notes-page.module').then(m => m.NotesPageModule),
     canActivate: [AuthGuard, MatomoGuard],
   },

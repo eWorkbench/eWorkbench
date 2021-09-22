@@ -29,7 +29,7 @@ class LabBookChildElementSerializer(BaseModelSerializer):
     child_object_content_type_model = serializers.SerializerMethodField(read_only=True)
 
     # number of related comments
-    num_related_notes = serializers.IntegerField(read_only=True)
+    num_related_comments = serializers.IntegerField(read_only=True)
 
     # number of all relations (links)
     num_relations = serializers.IntegerField(read_only=True)
@@ -48,7 +48,7 @@ class LabBookChildElementSerializer(BaseModelSerializer):
         fields = (
             'pk', 'lab_book_id',
             'position_x', 'position_y', 'width', 'height',
-            'child_object', 'num_related_notes', 'num_relations',
+            'child_object', 'num_related_comments', 'num_relations',
             'child_object_content_type', 'child_object_id',
             'child_object_content_type_model'
         )

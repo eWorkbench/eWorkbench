@@ -13,8 +13,13 @@ $border-color: #e6e6e6;
 $text-color: #4d4d4d;
 $focus-color: #d2ecff;
 $highlight-color: #f3f9ff;
+$success-color: #b7cc23;
+$danger-color: #ff6a5e !default;
+$danger-color-hover: #b45f55 !default;
+$orange-color: #ffcc33;
+$light-blue-color: #a1d9ff;
 
-$invalid-border-color: #ff6a5e;
+$invalid-border-color: $danger-color;
 
 $alert-note-color: #677f99;
 $alert-note-border-color: #677f994d;
@@ -28,4 +33,4 @@ $alert-lock-link-color: $primary-color;
 
 $toast-info-background-color: #677f99;
 $toast-success-background-color: #a0af00;
-$toast-error-background-color: #ff6a5e;
+$toast-error-background-color: $danger-color;

@@ -50,8 +50,8 @@ export class AllResourceBookingsComponent implements OnInit {
   @ViewChild('appointmentDescriptionCellTemplate', { static: true })
   public appointmentDescriptionCellTemplate!: TemplateRef<any>;
 
-  @ViewChild('attendingUsersCellTemplate', { static: true })
-  public attendingUsersCellTemplate!: TemplateRef<any>;
+  @ViewChild('attendeesCellTemplate', { static: true })
+  public attendeesCellTemplate!: TemplateRef<any>;
 
   @ViewChild('dateTimeStartCellTemplate', { static: true })
   public dateTimeStartCellTemplate!: TemplateRef<any>;
@@ -160,8 +160,8 @@ export class AllResourceBookingsComponent implements OnInit {
             hidden: true,
           },
           {
-            cellTemplate: this.attendingUsersCellTemplate,
-            name: column.attendingUsers,
+            cellTemplate: this.attendeesCellTemplate,
+            name: column.attendees,
             key: 'attending_users',
           },
           {

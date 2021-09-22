@@ -7,7 +7,6 @@ export type MenuModels =
   | 'menu.dashboard'
   | 'menu.appointments'
   | 'menu.calendar'
-  | 'menu.comments'
   | 'menu.contacts'
   | 'menu.files'
   | 'menu.labbooks'

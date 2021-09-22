@@ -29,6 +29,12 @@
   align-items: center;
 }
 
+.modal-danger {
+  .modal-header {
+    background-color: $danger-color;
+  }
+}
+
 .modal-body {
   padding: 25px;
 }

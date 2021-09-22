@@ -1,5 +1,92 @@
 # Changelog
 
+## Version 2.5.4 - September 2021
+- [SITUMEWB-713] Fix backlog priority filter
+- [SITUMEWB-720] Allow created_by and assigned_users filters to be saved
+
+## Version 2.5.3 - September 2021
+- [SITUMEWB-675] Increased title length for tasks and notes
+- [SITUMEWB-675] Added ellipsis for task and note titles
+- [SITUMEWB-558,SITUMEWB-688,SITUMEWB-713] Maintanence fix and extended filter functionality
+- [SITUMEWB-475] Fix comment sorting
+- [SITUMEWB-694] backend for taskboard user settings
+
+## Version 2.5.2 - September 2021
+- [SITUMEWB-*] Fixed payload for new comments
+- [SITUMEWB-742] Fix labbook comments on child elements
+
+## Version 2.5.1 - September 2021
+- [SITUMEWB-660] Fixed a bug with file-storage assignment without permissions
+- [SITUMEWB-531,SITUMEWB-593,SITUMEWB-594] Several fixes for Comments, Links, Filtermenu
+- [SITUMEWB-747] Fix redirect for linking to notes
+- [SITUMEWB-707] Fixed task cards according to feedback
+- [SITUMEWB-711] Changes to task column color behavior on edit
+- [SITUMEWB-733] Changed modal title of tasks backlog
+- [SITUMEWB-714] Changes to user details
+- [SITUMEWB-712] Implemented autofocus directive for task column title field in new modal
+- [SITUMEWB-718] Implemented inverted avatars for project members hierarchy
+- [SITUMEWB-720] Add filter menu for task boards
+- [SITUMEWB-744] Implemented links for task cards
+- [SITUMEWB-477,SITUMEWB-475] Comment filtering and sorting
+- [SITUMEWB-749] Changes to task card description
+- [SITUMEWB-752] Fixed mandatory fields for new DMP modal
+- [SITUMEWB-742,SITUMEWB-746,SITUMEWB-688] Fix labels, comments; Allow created by task filter
+- [SITUMEWB-713] Backlog filters
+- [SITUMEWB-476] Implemented notification for comments on projects
+- [SITUMEWB-687] extend filteroptions of task lists
+- [SITUMEWB-*] add last_modified_at to cms json response
+- [SITUMEWB-707,SITUMEWB-744] replace num_related_notes with num_related_comments for labbooks and taskboards, add num_relations for taskboards
+- [SITUMEWB-742] private filter for relations
+- [SITUMEWB-752] add viewable method to dmpformqueryset
+
+## Version 2.5 - August 2021
+- [SITUMEWB-593] Allow filters to be saved
+- [SITUMEWB-691,SITUMEWB-726] Changes to duplicate modal of task boards
+- [SITUMEWB-686] Added description field to task boards
+- [SITUMEWB-742] Implement new comments and split notes
+- [SITUMEWB-593,SITUMEWB-594,SITUMEWB-595,SITUMEWB-596,SITUMEWB-597,SITUMEWB-598,SITUMEWB-599,SITUMEWB-600] Filter menu
+- [SITUMEWB-458] Changed Toastr message for contact form
+- [SITUMEWB-723] Implemented task checkbox drag and drop ordering
+- [SITUMEWB-*] Changed icons according to concept
+- [SITUMEWB-*] Changes according to TUM feedback regarding icons and placeholder texts
+- [SITUMEWB-580] Changes to highlighting in favorites dropdown
+- [SITUMEWB-410] Changes to favorite buttons and behavior
+- [SITUMEWB-407] Changes to metadata drag'n'drop
+- [SITUMEWB-470] Changes to subproject modal, dropdown elements and other UI elements
+- [SITUMEWB-660] Changes to storage assignment for files
+- [SITUMEWB-419] Implemented dropdown template for the case of no match
+- [SITUMEWB-419] Changed placeholder text for project dropdowns according to customer feedback
+- [SITUMEWB-711,SITUMEWB-712] Changes to task boards columns modals according to concept
+- [SITUMEWB-*] Fixed change detection on project dropdown when creating a new subproject
+- [SITUMEWB-721] Changed position of save and reset buttons on checklist elements
+- [SITUMEWB-740] Fixed dropdown element position
+- [SITUMEWB-*] drastically improve build time in dev
+- [SITUMEWB-436] Changes to metadata search
+- [SITUMEWB-474,SITUMEWB-475,SITUMEWB-477] fix comment creation
+- [SITUMEWB-*] Changed priority icon colors for tasks according to the concept
+- [SITUMEWB-704,SITUMEWB-705,SITUMEWB-706,SITUMEWB-707,SITUMEWB-708,SITUMEWB-709] Changes to task cards
+- [SITUMEWB-*] Fixed misspelling in translation file
+- [SITUMEWB-718] Changes to user avatar implementation
+- [SITUMEWB-474,SITUMEWB-475,SITUMEWB-477] Comments & Details rework
+- [SITUMEWB-700,SITUMEWB-702,SITUMEWB-710,SITUMEWB-711] Revamped existing and implemented new modals for task board columns and streamlined the UX
+- [SITUMEWB-712] Implemented new task board column modal
+- [SITUMEWB-715] Changed assignees modal
+- [SITUMEWB-701,SITUMEWB-714] Changes to task backlog modal
+- [SITUMEWB-717] Changed the user widget to also display the avatar or initials
+- [SITUMEWB-716] Changed wording of assignees and attendees
+- [SITUMEWB-474] Comments
+- [SITUMEWB-692] Added the possibility of duplicating columns and tasks too when duplicating task boards
+- [SITUMEWB-586] Notify attending contacts about an appointment via email
+- [SITUMEWB-742] new comment api
+- [SITUMEWB-458] Contact form - also send a copy of the mail to the sender
+- [SITUMEWB-684] Added description field to task boards
+- [SITUMEWB-693] Implemented API endpoint for setting the transparency on all columns of a task board
+- [SITUMEWB-722] Add task checklist ordering
+- [SITUMEWB-719] taskboard filter settings backend
+- [SITUMEWB-700] adjust default color for taskboard columns
+- [SITUMEWB-718] add avatar_is_set property to userprofile api
+- [SITUMEWB-471] api changes links comments
+
 ## Version 2.4 - July 2021
 - [SITUMEWB-533] upgrade pillow, pin psycopg2-binary
 - [SITUMEWB-533] temporarily pin celery (new version was yanked)

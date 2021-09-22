@@ -59,9 +59,9 @@ export class ContentTypeModelService {
       },
       'shared_elements.note': {
         modelName: 'note',
-        routerBaseLink: '/comments',
-        translation: this.translocoService.translate('comment.singular'),
-        translationPlural: this.translocoService.translate('comment.plural'),
+        routerBaseLink: '/notes',
+        translation: this.translocoService.translate('note.singular'),
+        translationPlural: this.translocoService.translate('note.plural'),
         icon: 'wb-comment',
       },
       'shared_elements.task': {

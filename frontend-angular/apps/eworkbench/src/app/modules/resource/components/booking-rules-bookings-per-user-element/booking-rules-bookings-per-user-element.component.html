@@ -38,7 +38,9 @@
     <div class="remove-button">
       <button
         type="button"
-        class="btn ewb-button-big ewb-button-secondary square"
+        class="btn ewb-button-big ewb-button-icon square"
+        [tooltip]="t('formInput.remove.tooltip')"
+        containerClass="tooltip-sm"
         (click)="onRemove()"
         [disabled]="loading"
         *ngIf="editable"

@@ -7,6 +7,7 @@ from eric.shared_elements.rest.serializers.element_label import ElementLabelSeri
 from eric.shared_elements.rest.serializers.file import FileSerializer, UploadedFileEntrySerializer
 from eric.shared_elements.rest.serializers.meeting import MeetingSerializer, MinimalisticMeetingSerializer
 from eric.shared_elements.rest.serializers.note import NoteSerializer
+from eric.shared_elements.rest.serializers.comment import CommentSerializer
 from eric.shared_elements.rest.serializers.calendar_access_privileges import CalendarAccessSerializer
 from eric.shared_elements.rest.serializers.task import TaskSerializer, MinimalisticTaskSerializer, \
     TaskCheckListItemSerializer

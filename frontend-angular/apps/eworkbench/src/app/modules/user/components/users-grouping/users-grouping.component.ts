@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { User } from '@eworkbench/types';
 import { DialogService } from '@ngneat/dialog';
 import { UsersListModalComponent } from '../modals/users-list/users-list.component';
@@ -18,10 +18,20 @@ export class UsersGroupingComponent {
   @Input()
   public users: User[] = [];
 
+  @Input()
+  public modal = true;
+
+  @Input()
+  public chip = false;
+
+  @Input()
+  public inverted = false;
+
   public constructor(private readonly modalService: DialogService) {}
 
-  public onOpenMoreModal(): void {
+  public onOpenMoreModal(event?: Event): void {
     /* istanbul ignore next */
+    event?.preventDefault();
     this.modalService.open(UsersListModalComponent, { closeButton: false, data: { users: this.users } });
   }
 }

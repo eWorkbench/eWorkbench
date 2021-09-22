@@ -4,14 +4,14 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="d-flex mb-2">
+  <div class="flex mb-2">
     <ng-container *ngIf="editable">
       <div class="flex-fill">
         <span [class.strike]="deleted">{{ parameter.field_info?.display }}</span>
       </div>
       <div class="ml-3" *ngIf="!deleted">
-        <eworkbench-icon className="wb-arrow-cross" class="handle"></eworkbench-icon>
-        <span class="delete-icon ml-2" [tooltip]="t('formInput.remove.tooltip')" containerClass="tooltip-sm" (click)="onDelete()"
+        <eworkbench-icon className="wb-arrow-cross" class="handle mr-2" *ngIf="parametersCount > 1"></eworkbench-icon>
+        <span class="delete-icon" [tooltip]="t('formInput.remove.tooltip')" containerClass="tooltip-sm" (click)="onDelete()"
           ><eworkbench-icon className="wb-remove"></eworkbench-icon
         ></span>
       </div>
@@ -22,7 +22,7 @@
       </div>
     </ng-container>
   </div>
-  <div class="d-flex">
+  <div class="flex">
     <div class="flex-fill">
       <eworkbench-metadata-field
         [uuid]="parameter.id"
@@ -35,9 +35,9 @@
         (changed)="onChanged($event)"
         *ngIf="!deleted"
       ></eworkbench-metadata-field>
-      <span class="text-secondary" *ngIf="deleted">{{ t('metadata.field.deleted') }}</span>
+      <span class="text-gray-600" *ngIf="deleted">{{ t('metadata.field.deleted') }}</span>
     </div>
-    <div class="ml-2 align-self-center" *ngIf="showButtons()">
+    <div class="ml-2 self-center" *ngIf="showButtons()">
       <button
         type="submit"
         class="btn ewb-button-big ewb-button-primary square mr-2"

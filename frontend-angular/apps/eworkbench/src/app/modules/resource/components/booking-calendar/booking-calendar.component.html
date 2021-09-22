@@ -35,9 +35,9 @@
       {{ event.startStr | formatDate: 'yyyy-MM-dd' }}
     </ng-container>
     <div *ngIf="event.extendedProps?.attending_users?.length">
-      <strong class="mr-1">{{ t('appointment.details.attendingUsers.label') }}:</strong>
+      <strong class="mr-1">{{ t('appointment.details.attendees.label') }}:</strong>
       <ng-container *ngFor="let user of event.extendedProps.attending_users; let last = last">
-        <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details><span *ngIf="!last">, </span>
+        <eworkbench-user-details class="inline-block" [user]="user"></eworkbench-user-details><span *ngIf="!last">, </span>
       </ng-container>
     </div>
     <div *ngIf="event.extendedProps?.resource">

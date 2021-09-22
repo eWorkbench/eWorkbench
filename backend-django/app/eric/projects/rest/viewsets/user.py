@@ -86,7 +86,8 @@ class PublicUserViewSet(BaseGenericViewSet,
         user = self.request.user
 
         # prevent empty search requests that would lead to information leakage
-        if 'search' in self.request.query_params and len(self.request.query_params['search']) > 1:
+        if 'search' in self.request.query_params and len(self.request.query_params['search']) > 1 or \
+                'user_id' in self.request.query_params:
             if user.is_superuser:
                 # superusers can find all users
                 users = self.get_all_users()
@@ -137,6 +138,11 @@ class PublicUserViewSet(BaseGenericViewSet,
             else:
                 # non-LDAP users can find users of shared projects only
                 users = self.get_users_with_shared_projects()
+            if 'user_id' in self.request.query_params:
+                try:
+                    users = users.filter(pk=self.request.query_params['user_id'])
+                except Exception as error:
+                    logger.error(f"Could not find user_id {self.request.query_params['user_id']}")
         else:
             # no search term -> return self only
             users = self.get_all_users().filter(pk=user.pk)

@@ -3,6 +3,18 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+@import 'colors';
+
 :host {
   display: block;
+
+  button {
+    min-width: 22px;
+    font-size: 12px;
+    text-align: center;
+
+    &:hover {
+      color: $primary-color;
+    }
+  }
 }

@@ -18,6 +18,9 @@ export class ListSkeletonComponent implements OnInit {
   @Input()
   public header = false;
 
+  @Input()
+  public collapseHeader = false;
+
   public items: number[] = [];
 
   public ngOnInit(): void {

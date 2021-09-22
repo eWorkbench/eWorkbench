@@ -9,13 +9,13 @@
       {{ t('user.listModal.header') }}
     </div>
     <div slot="body">
-      <ul class="m-0 p-0 pl-3">
-        <ng-container *ngFor="let user of users">
-          <li>
-            <eworkbench-user-details [user]="user"></eworkbench-user-details>
-          </li>
-        </ng-container>
-      </ul>
+      <ng-container *ngFor="let user of users; let last = last">
+        <div [class.mb-2]="!last">
+          <eworkbench-secondary-collapse-element [labelTemplate]="userDetailsTemplate" [element]="user" [collapsed]="true">
+            <eworkbench-user-details-preview [user]="user"></eworkbench-user-details-preview>
+          </eworkbench-secondary-collapse-element>
+        </div>
+      </ng-container>
     </div>
     <div slot="footer">
       <button type="button" class="btn ewb-button-big ewb-button-primary" (click)="modalRef.close()">
@@ -24,3 +24,7 @@
     </div>
   </eworkbench-modal>
 </ng-container>
+
+<ng-template #userDetailsTemplate let-user>
+  <eworkbench-user-details [user]="user" [active]="false"></eworkbench-user-details>
+</ng-template>

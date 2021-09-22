@@ -214,7 +214,8 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
     /* istanbul ignore next */
     this.modalService.open(CommentsModalComponent, {
       closeButton: false,
-      data: { service: this.picturesService, element: this.initialState },
+      width: '912px',
+      data: { service: this.picturesService, element: this.initialState, create: true },
     });
   }
 
@@ -252,7 +253,7 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ element => {
-          this.element.num_related_notes = element.num_related_notes!;
+          this.element.num_related_comments = element.num_related_comments!;
           this.element.num_relations = element.num_relations!;
           this.cdr.markForCheck();
         }

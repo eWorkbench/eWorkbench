@@ -1,0 +1,59 @@
+{% extends "email/simple_email_template.html" %}
+{% load i18n captureas %}
+
+{% block header_title %}
+    {% blocktrans %}Your contact form request{% endblocktrans %}
+{% endblock %}
+
+{% block preheader %}
+    {% blocktrans %}User {{ user_str }} has filled a contact form with the subject {{ subject }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    {% captureas workbench_link %}
+        <a href="{{ workbench_url }}">{{ workbench_url }}</a>
+    {% endcaptureas %}
+
+    <p>
+        <strong>
+            {% blocktrans %}
+                Thank you for your message. We will get back to you shortly via email.
+                We have attached your message for reference.
+            {% endblocktrans %}
+        </strong>
+    </p>
+
+    <p>{% blocktrans %}Dear Contact Admin!{% endblocktrans %}</p>
+
+    <p>
+        {% blocktrans %}
+            The User {{ user_str }} ({{ username }}, {{ user_email }}) has send following contact form:
+        {% endblocktrans %}
+    </p>
+
+    <p>
+        {% blocktrans %}
+            Subject: {{ subject }}
+        {% endblocktrans %} <br />
+        {% blocktrans %}
+            Message:
+        {% endblocktrans %}
+        {{ message|linebreaks}}
+    </p>
+
+    <p>
+        {% blocktrans %}
+            Additional information:
+        {% endblocktrans %}<br />
+        {% trans "URL" %}: {{ workbench_link }}<br />
+        {% trans "Browser-Version" %}: {{ browser_version }}<br />
+        {% trans "Backend-Version" %}: {{ backend_version }}<br />
+        {% trans "IP-Address" %}: {{ ip_address }}<br />
+        {% trans "User's local time" %}: {{ user_local_time }}<br />
+        {% trans "Server's local time" %}: {{ server_time }}
+    </p>
+{% endblock %}
+
+{% block footer %}
+{% include 'email/_footer.html' %}
+{% endblock %}

@@ -10,7 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
-import { DrivesService, DssContainersService, PageTitleService } from '@app/services';
+import { AuthService, DrivesService, DssContainersService, PageTitleService } from '@app/services';
 import { ProjectsService } from '@app/services/projects/projects.service';
 import { UserService, UserStore } from '@app/stores/user';
 import { TableColumn, TableViewComponent } from '@eworkbench/table';
@@ -31,25 +31,27 @@ import { NewStorageModalComponent } from '../modals/new/new.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StoragesPageComponent implements OnInit {
-  @ViewChild('tableView')
+  public title = '';
+
+  public currentUser: User | null = null;
+
+  public sidebarItem = ProjectSidebarItem.Storages;
+
+  @ViewChild('tableView', { static: true })
   public tableView!: TableViewComponent;
 
   @ViewChild('containerCellTemplate', { static: true })
   public containerCellTemplate!: TemplateRef<any>;
 
-  public title = '';
-
-  public sidebarItem = ProjectSidebarItem.Storages;
-
-  public loading = false;
-
   public projectsControl = this.fb.control<string | null>(null);
 
-  public usersControl = this.fb.control<string | null>(null);
+  public usersControl = this.fb.control<number | null>(null);
 
   public searchControl = this.fb.control<string | null>(null);
 
   public dssContainersControl = this.fb.control<string | null>(null);
+
+  public favoritesControl = this.fb.control<boolean | null>(null);
 
   public users: User[] = [];
 
@@ -71,9 +73,15 @@ export class StoragesPageComponent implements OnInit {
 
   public params = new HttpParams();
 
+  public loading = false;
+
   public modalRef?: DialogRef;
 
   public refresh = new EventEmitter<boolean>();
+
+  public showUserFilter = false;
+
+  public savedFilters = false;
 
   public constructor(
     public readonly drivesService: DrivesService,
@@ -88,10 +96,41 @@ export class StoragesPageComponent implements OnInit {
     private readonly pageTitleService: PageTitleService,
     private readonly titleService: Title,
     private readonly route: ActivatedRoute,
+    private readonly authService: AuthService,
     private readonly userStore: UserStore
   ) {}
 
+  public get filtersChanged(): boolean {
+    /* eslint-disable */
+    return Boolean(
+      this.projectsControl.value ||
+        this.usersControl.value ||
+        this.searchControl.value ||
+        this.dssContainersControl.value ||
+        this.favoritesControl.value
+    );
+    /* eslint-enable */
+  }
+
+  public get getFilterSelectedUser(): User | undefined {
+    return this.users.find(user => user.pk === this.usersControl.value);
+  }
+
+  public get getFilterSelectedProject(): Project | undefined {
+    return this.projects.find(project => project.pk === this.projectsControl.value);
+  }
+
+  public get getFilterSelectedDSSContainer(): DssContainer | undefined {
+    return this.dssContainers.find(dssContainer => dssContainer.pk === this.dssContainersControl.value);
+  }
+
   public ngOnInit(): void {
+    this.authService.user$.pipe(untilDestroyed(this)).subscribe(
+      /* istanbul ignore next */ state => {
+        this.currentUser = state.user;
+      }
+    );
+
     /* istanbul ignore next */
     this.refresh.pipe(untilDestroyed(this)).subscribe(showTrashedItems => {
       this.onFilterItems(showTrashedItems);
@@ -128,6 +167,63 @@ export class StoragesPageComponent implements OnInit {
           },
         ];
       });
+
+    if (this.currentUser?.userprofile.ui_settings?.filter_settings?.storages) {
+      const filters = this.currentUser.userprofile.ui_settings?.filter_settings?.storages;
+
+      if (filters.active) {
+        this.savedFilters = true;
+      }
+
+      if (filters.users) {
+        this.userService
+          .getUserById(filters.users)
+          .pipe(untilDestroyed(this))
+          .subscribe(
+            /* istanbul ignore next */ users => {
+              if (users.length) {
+                this.users = [...users];
+                this.cdr.markForCheck();
+              }
+            }
+          );
+        this.usersControl.setValue(filters.users);
+        this.params = this.params.set('created_by', filters.users);
+      }
+
+      if (filters.projects) {
+        this.projectsService
+          .get(filters.projects)
+          .pipe(untilDestroyed(this))
+          .subscribe(
+            /* istanbul ignore next */ project => {
+              this.projects = [...this.projects, project];
+              this.cdr.markForCheck();
+            }
+          );
+        this.projectsControl.setValue(filters.projects);
+        this.params = this.params.set('projects_recursive', filters.projects);
+      }
+
+      if (filters.search) {
+        this.searchControl.setValue(filters.search);
+        this.params = this.params.set('search', filters.search);
+      }
+
+      if (filters.dssContainers) {
+        this.dssContainersControl.setValue(filters.dssContainers);
+        this.params = this.params.set('container', filters.dssContainers);
+      }
+
+      if (filters.favorites) {
+        this.favoritesControl.setValue(Boolean(filters.favorites));
+        this.params = this.params.set('favourite', filters.favorites);
+      }
+
+      if (filters.active) {
+        this.tableView.loadData(false, this.params);
+      }
+    }
   }
 
   public initSidebar(): void {
@@ -142,6 +238,7 @@ export class StoragesPageComponent implements OnInit {
               .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.projectsControl.setValue(params.projectId);
             this.project = params.projectId;
+            this.cdr.markForCheck();
           }
         );
       }
@@ -176,32 +273,44 @@ export class StoragesPageComponent implements OnInit {
             queryParams.set('projects', value);
             history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
           }
-          return;
+        } else {
+          this.params = this.params.delete('projects_recursive');
+          this.tableView.loadData(false, this.params);
+          if (!project) {
+            queryParams.delete('projects');
+            history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+          }
         }
 
-        this.params = this.params.delete('projects_recursive');
-        this.tableView.loadData(false, this.params);
-        if (!project) {
-          queryParams.delete('projects');
-          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
         }
       }
     );
 
     this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
       /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
         if (value) {
           this.params = this.params.set('created_by', value);
           this.tableView.loadData(false, this.params);
-          // TODO: Needs endpoint to fetch a user by its id
-          /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: value }, queryParamsHandling: 'merge' }); */
-          return;
+          queryParams.set('users', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('created_by');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('users');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
         }
 
-        this.params = this.params.delete('created_by');
-        this.tableView.loadData(false, this.params);
-        // TODO: Needs endpoint to fetch a user by its id
-        /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: null }, queryParamsHandling: 'merge' }); */
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
       }
     );
 
@@ -214,13 +323,18 @@ export class StoragesPageComponent implements OnInit {
           this.tableView.loadData(false, this.params);
           queryParams.set('search', value);
           history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
-          return;
+        } else {
+          this.params = this.params.delete('search');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('search');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
         }
 
-        this.params = this.params.delete('search');
-        this.tableView.loadData(false, this.params);
-        queryParams.delete('search');
-        history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
       }
     );
 
@@ -231,23 +345,69 @@ export class StoragesPageComponent implements OnInit {
         if (value) {
           this.params = this.params.set('container', value);
           this.tableView.loadData(false, this.params);
-          queryParams.set('container', value);
+          queryParams.set('dssContainers', value);
           history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
-          return;
+        } else {
+          this.params = this.params.delete('container');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('dssContainers');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
         }
 
-        this.params = this.params.delete('container');
-        this.tableView.loadData(false, this.params);
-        queryParams.delete('container');
-        history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.favoritesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (value) {
+          this.params = this.params.set('favourite', value);
+          this.tableView.loadData(false, this.params);
+          queryParams.set('favorites', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('favourite');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('favorites');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
       }
     );
 
     this.route.queryParamMap.pipe(untilDestroyed(this), take(1)).subscribe(
       /* istanbul ignore next */ queryParams => {
+        const users = queryParams.get('users');
         const projects = queryParams.get('projects');
         const search = queryParams.get('search');
-        const container = queryParams.get('container');
+        const dssContainers = queryParams.get('dssContainers');
+        const favorites = queryParams.get('favorites');
+
+        if (users) {
+          this.userService
+            .getUserById(users)
+            .pipe(untilDestroyed(this))
+            .subscribe(
+              /* istanbul ignore next */ users => {
+                if (users.length) {
+                  this.users = [...users];
+                  this.cdr.markForCheck();
+                }
+              }
+            );
+          this.usersControl.setValue(Number(users));
+        }
 
         if (projects && !project) {
           this.projectsService
@@ -266,27 +426,18 @@ export class StoragesPageComponent implements OnInit {
           this.searchControl.setValue(search);
         }
 
-        if (container) {
-          this.dssContainersControl.setValue(container);
+        if (dssContainers) {
+          this.dssContainersControl.setValue(dssContainers);
+        }
+
+        if (favorites) {
+          this.favoritesControl.setValue(Boolean(favorites));
         }
       }
     );
   }
 
   public initSearchInput(): void {
-    this.projectsInput$
-      .pipe(
-        untilDestroyed(this),
-        debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
-      )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
-
     this.usersInput$
       .pipe(
         untilDestroyed(this),
@@ -297,6 +448,21 @@ export class StoragesPageComponent implements OnInit {
         /* istanbul ignore next */ users => {
           if (users.length) {
             this.users = [...users];
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
+    this.projectsInput$
+      .pipe(
+        untilDestroyed(this),
+        debounceTime(500),
+        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+      )
+      .subscribe(
+        /* istanbul ignore next */ projects => {
+          if (projects.length) {
+            this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.cdr.markForCheck();
           }
         }
@@ -340,6 +506,97 @@ export class StoragesPageComponent implements OnInit {
     if (restored) {
       this.tableView.loadData(false, this.params);
     }
+  }
+
+  public onSaveFilters(save: boolean): void {
+    if (save) {
+      this.userService
+        .get()
+        .pipe(
+          untilDestroyed(this),
+          take(1),
+          switchMap(
+            /* istanbul ignore next */ user => {
+              const currentUser = user;
+              return this.userService.changeSettings({
+                userprofile: {
+                  ui_settings: {
+                    ...currentUser.userprofile.ui_settings,
+                    filter_settings: {
+                      ...currentUser.userprofile.ui_settings?.filter_settings,
+                      storages: {
+                        active: true,
+                        users: this.usersControl.value,
+                        projects: this.projectsControl.value,
+                        search: this.searchControl.value,
+                        dssContainers: this.dssContainersControl.value,
+                        favorites: this.favoritesControl.value,
+                      },
+                    },
+                  },
+                },
+              });
+            }
+          )
+        )
+        .subscribe();
+    } else {
+      this.userService
+        .get()
+        .pipe(
+          untilDestroyed(this),
+          take(1),
+          switchMap(
+            /* istanbul ignore next */ user => {
+              const currentUser = user;
+              return this.userService.changeSettings({
+                userprofile: {
+                  ui_settings: {
+                    ...currentUser.userprofile.ui_settings,
+                    filter_settings: {
+                      ...currentUser.userprofile.ui_settings?.filter_settings,
+                      storages: {
+                        active: false,
+                      },
+                    },
+                  },
+                },
+              });
+            }
+          )
+        )
+        .subscribe();
+    }
+  }
+
+  public onUserFilterRadioAnyone(): void {
+    this.showUserFilter = false;
+    this.users = [];
+  }
+
+  public onUserFilterRadioMyself(checked: boolean): void {
+    if (checked && this.currentUser) {
+      this.showUserFilter = false;
+      this.users = [this.currentUser];
+    }
+  }
+
+  public onResetFilters(): void {
+    this.params = new HttpParams();
+    history.pushState(null, '', window.location.pathname);
+
+    this.projectsControl.setValue(null, { emitEvent: false });
+    this.projects = [];
+
+    this.usersControl.setValue(null, { emitEvent: false });
+    this.users = [];
+
+    this.searchControl.setValue(null, { emitEvent: false });
+
+    this.dssContainersControl.setValue(null, { emitEvent: false });
+    this.dssContainers = [];
+
+    this.favoritesControl.setValue(null);
   }
 
   public canDeactivate(): Observable<boolean> {

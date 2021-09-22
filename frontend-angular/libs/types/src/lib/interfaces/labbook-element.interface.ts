@@ -12,7 +12,7 @@ export interface LabBookElement<T> {
   content_type_model: string;
   display: string;
   lab_book_id: string;
-  num_related_notes?: number;
+  num_related_comments?: number;
   num_relations?: number;
   pk: string;
   position_x: number;

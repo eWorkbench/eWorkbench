@@ -24,20 +24,36 @@ export class UserDetailsComponent {
   @Input()
   public modal = true;
 
+  @Input()
+  public avatar = true;
+
+  @Input()
+  public avatarScale = 1;
+
+  @Input()
+  public chip = false;
+
+  @Input()
+  public inverted = false;
+
+  @Input()
+  public invertedAvatar = false;
+
   public modalRef?: DialogRef;
 
   public constructor(private readonly modalService: DialogService) {}
 
-  public onUserModal(event: Event): void {
-    /* istanbul ignore next */
-    event.preventDefault();
+  public openUserModal(event?: Event): void {
+    event?.preventDefault();
 
-    /* istanbul ignore next */
-    this.modalRef = this.modalService.open(UserDetailsModalComponent, {
-      closeButton: false,
-      data: {
-        user: this.user,
-      },
-    });
+    if (this.active) {
+      this.modalRef = this.modalService.open(UserDetailsModalComponent, {
+        closeButton: false,
+        width: '620px',
+        data: {
+          user: this.user,
+        },
+      });
+    }
   }
 }

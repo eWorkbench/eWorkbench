@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ t('project.newModal.header') }}
+      {{ newSubproject ? t('project.newModal.subproject.header') : t('project.newModal.project.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
@@ -14,7 +14,7 @@
           <div class="mb-4">
             <label for="name-modal">
               {{ t('project.newModal.name.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -43,24 +43,26 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
               </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
+              </ng-template>
             </ng-select>
           </div>
           <div class="mb-4">
-            <label for="description-modal">{{ t('project.newModal.description.label') }}</label>
-            <eworkbench-wysiwyg-editor id="description-modal" formControlName="description"></eworkbench-wysiwyg-editor>
+            <eworkbench-form-date-group formControlName="dateGroup" [required]="false" [fullDayToggle]="false"></eworkbench-form-date-group>
           </div>
           <div class="mb-4">
             <label for="state-modal">
               {{ t('project.newModal.state.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <ng-select
               class="ewb-select"
@@ -72,6 +74,7 @@
               bindValue="value"
               [clearable]="false"
               [searchable]="false"
+              [style.width.px]="200"
             >
               <ng-template ng-label-tmp let-item="item">
                 <ng-container [ngTemplateOutlet]="stateTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
@@ -85,7 +88,8 @@
             </ng-select>
           </div>
           <div class="mb-4">
-            <eworkbench-form-date-group formControlName="dateGroup" [required]="false" [fullDayToggle]="false"></eworkbench-form-date-group>
+            <label for="description-modal">{{ t('project.newModal.description.label') }}</label>
+            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description"></eworkbench-wysiwyg-editor>
           </div>
 
           <div class="modal-footer p-0 mt-5">
@@ -93,7 +97,12 @@
               {{ t('project.newModal.cancel') }}
             </button>
             <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
-              {{ t('project.newModal.create') }}
+              <ng-container *ngIf="duplicate">{{
+                newSubproject ? t('project.newModal.subproject.duplicate') : t('project.newModal.project.duplicate')
+              }}</ng-container>
+              <ng-container *ngIf="!duplicate">{{
+                newSubproject ? t('project.newModal.subproject.create') : t('project.newModal.project.create')
+              }}</ng-container>
             </button>
           </div>
         </form>

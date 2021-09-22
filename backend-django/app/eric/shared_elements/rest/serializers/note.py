@@ -5,7 +5,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 
-from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer, BaseModelWithCreatedBySerializer
+from eric.core.rest.serializers import BaseModelWithCreatedByAndSoftDeleteSerializer
 from eric.metadata.rest.serializers import EntityMetadataSerializer, EntityMetadataSerializerMixin
 from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
 from eric.shared_elements.models import Note
@@ -25,6 +25,7 @@ class NoteSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetada
 
     class Meta:
         model = Note
+
         fields = (
             'subject', 'content', 'projects',
             'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
@@ -36,6 +37,14 @@ class NoteSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetada
         metadata_list = self.pop_metadata(validated_data)
         instance = super(NoteSerializer, self).create(validated_data)
         self.create_metadata(metadata_list, instance)
+
+        # read the request data and add the values of relates_to_content_type_id, relates_to_pk and private to the
+        # instance so they can be used to create a relation within the viewset
+        request = self.context['request']
+        instance.relates_to_content_type_id = request.data.get('relates_to_content_type_id')
+        instance.relates_to_pk = request.data.get('relates_to_pk')
+        instance.private = request.data.get('private')
+
         return instance
 
     @transaction.atomic

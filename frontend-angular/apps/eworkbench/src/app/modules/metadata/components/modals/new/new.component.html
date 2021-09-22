@@ -20,7 +20,7 @@
           <div class="mb-4">
             <label for="name-modal">
               {{ t('metadata.newModal.name.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -34,14 +34,14 @@
           <div class="mb-4">
             <label for="description-modal">
               {{ t('metadata.newModal.description.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
-            <eworkbench-wysiwyg-editor id="description-modal" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
+            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
           </div>
           <div class="mb-4">
             <label for="baseType-modal">
               {{ t('metadata.newModal.baseType.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <ng-select
               class="ewb-select"
@@ -77,7 +77,7 @@
                 id="thousandsSeparator-modal"
                 name="thousandsSeparator-modal"
               />
-              <label class="custom-control-label font-weight-normal" for="thousandsSeparator-modal">{{
+              <label class="custom-control-label font-normal" for="thousandsSeparator-modal">{{
                 t('labBook.newModal.thousandsSeparator.label')
               }}</label>
             </div>
@@ -98,7 +98,7 @@
               <label for="answers-modal">{{ t('metadata.newModal.answers.label') }}</label>
               <div id="answers-modal">
                 <div *ngFor="let answer of answers.controls; let i = index" class="mb-4">
-                  <div class="d-flex justify-content-between">
+                  <div class="flex justify-between">
                     <div class="flex-fill">
                       <input
                         type="text"
@@ -128,7 +128,7 @@
                   id="multipleSelect-modal"
                   name="multipleSelect-modal"
                 />
-                <label class="custom-control-label font-weight-normal" for="multipleSelect-modal">{{
+                <label class="custom-control-label font-normal" for="multipleSelect-modal">{{
                   t('metadata.newModal.multipleSelect.label')
                 }}</label>
               </div>
@@ -136,7 +136,7 @@
             <div class="mb-4">
               <div class="custom-control custom-checkbox">
                 <input class="custom-control-input" type="checkbox" formControlName="final" id="final-modal" name="final-modal" />
-                <label class="custom-control-label font-weight-normal" for="final-modal">{{ t('metadata.newModal.final.label') }}</label>
+                <label class="custom-control-label font-normal" for="final-modal">{{ t('metadata.newModal.final.label') }}</label>
               </div>
             </div>
           </ng-container>

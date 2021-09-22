@@ -76,12 +76,6 @@ export class MenuModelService {
         routerLink: '/files',
         routerLinkExactMatch: false,
       },
-      'menu.comments': {
-        modelName: 'comments',
-        name: translocoService.translate('menu.comments'),
-        routerLink: '/comments',
-        routerLinkExactMatch: false,
-      },
       'menu.resources': {
         modelName: 'resources',
         name: translocoService.translate('menu.resources'),

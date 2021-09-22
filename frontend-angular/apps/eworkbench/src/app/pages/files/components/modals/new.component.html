@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ t('file.newModal.header') }}
+      {{ duplicate ? t('file.newModal.duplicate.header', { title: initialState.title }) : t('file.newModal.create.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
@@ -14,7 +14,7 @@
           <div class="mb-4">
             <label for="title-modal">
               {{ t('file.newModal.title.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -28,7 +28,7 @@
           <div class="mb-4">
             <label for="file-modal">
               {{ t('file.newModal.file.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <div *ngIf="!initialState?.pk">
               <div class="custom-file">
@@ -77,7 +77,7 @@
           </div>
           <div class="mb-4">
             <label for="description-modal">{{ t('file.newModal.description.label') }}</label>
-            <eworkbench-wysiwyg-editor id="description-modal" formControlName="description"></eworkbench-wysiwyg-editor>
+            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description"></eworkbench-wysiwyg-editor>
           </div>
           <div class="mb-4">
             <label for="projects-modal">{{ t('file.newModal.projects.label') }}</label>
@@ -99,13 +99,16 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>
@@ -115,7 +118,7 @@
               {{ t('file.newModal.cancel') }}
             </button>
             <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
-              {{ t('file.newModal.create') }}
+              {{ duplicate ? t('file.newModal.duplicate') : t('file.newModal.create') }}
             </button>
           </div>
         </form>

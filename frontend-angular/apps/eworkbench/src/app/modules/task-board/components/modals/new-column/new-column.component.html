@@ -1,0 +1,62 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('taskBoard.newColumnModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+          <div class="mb-4">
+            <label for="title">
+              {{ t('taskBoard.newColumnModal.title.label') }}
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="title"
+              id="title"
+              name="title"
+              [placeholder]="t('taskBoard.newColumnModal.title.placeholder')"
+              [autoFocus]
+            />
+          </div>
+          <div class="mb-4">
+            <label for="color">
+              {{ t('taskBoard.newColumnModal.color.label') }}
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              formControlName="color"
+              id="color"
+              name="color"
+              [placeholder]="t('taskBoard.newColumnModal.color.placeholder')"
+              [colorPicker]="f.color.value"
+              [value]="f.color.value"
+              (colorPickerChange)="f.color.setValue($event); f.color.markAsDirty()"
+              cpOutputFormat="rgba"
+              cpAlphaChannel="always"
+              cpPosition="bottom"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="modal-footer p-0">
+            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
+              {{ t('taskBoard.newColumnModal.cancel') }}
+            </button>
+            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              {{ t('taskBoard.newColumnModal.save') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

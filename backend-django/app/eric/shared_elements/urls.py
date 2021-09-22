@@ -15,6 +15,7 @@ from eric.shared_elements.rest.viewsets import ContactViewSet, NoteViewSet, File
     MeetingViewSet, MyTaskViewSet, MyScheduleViewSet, MyMeetingViewSet, ElementLabelViewSet, \
     CalendarAccessViewSet
 # register REST API Routers
+from eric.shared_elements.rest.viewsets.comment import CommentViewSet
 from eric.shared_elements.rest.viewsets.contact import ContactShareViewSet
 from eric.shared_elements.rest.viewsets.meeting import MyResourceBookingViewSet, AllResourceBookingViewSet, \
     EditorResourceBookingViewSet
@@ -94,6 +95,18 @@ notes_router.register(r'history', GenericChangeSetViewSet,
                       basename='note-changeset-paginated')
 notes_router.register(r'privileges', ModelPrivilegeViewSet, basename='note-privileges')
 
+"""
+Comments
+with history and relations
+"""
+router.register(r'comments', CommentViewSet, basename='comment')
+
+comments_router = routers.NestedSimpleRouter(router, r'comments', lookup='comment')
+comments_router.register(r'relations', RelationViewSet, basename='comment-relation')
+comments_router.register(r'history', GenericChangeSetViewSet,
+                         basename='comment-changeset-paginated')
+comments_router.register(r'privileges', ModelPrivilegeViewSet, basename='comment-privileges')
+
 
 """
 Meetings
@@ -135,6 +148,9 @@ urlpatterns = [
 
     # REST Endpoints for notes (history, relations)
     url(r'^', include(notes_router.urls)),
+
+    # REST Endpoints for comments (history, relations)
+    url(r'^', include(comments_router.urls)),
 
     # REST Endpoints for meetings  (history, relations)
     url(r'^', include(meetings_router.urls)),

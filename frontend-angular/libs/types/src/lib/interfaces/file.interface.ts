@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { Directory } from './directory.interface';
 import { Metadata } from './metadata.interface';
 import { User } from './user.interface';
 
@@ -25,6 +26,7 @@ export interface File {
   deleted: boolean;
   description: string;
   directory_id: string;
+  directory?: Directory | null;
   display: string;
   download: string;
   envelope_id: string | null;

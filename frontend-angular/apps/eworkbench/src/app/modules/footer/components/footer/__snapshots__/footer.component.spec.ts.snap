@@ -17,71 +17,70 @@ exports[`FooterComponent should match snapshot 1`] = `
       Universitätsbibliothek der Technischen Universität München
     </span>
     <ul
-      class="navbar-nav ml-auto h-100"
+      class="navbar-nav ml-auto h-full"
     >
-      
       <li
-        class="h-100 d-flex align-items-center"
+        class="h-full flex items-center"
       >
         <a
-          class="h-100 w-100"
+          class="h-full w-full"
         >
           <button
-            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+            class="btn ewb-button-regular font-normal h-full w-full text-left"
           >
              FAQ 
           </button>
         </a>
       </li>
       <li
-        class="h-100 d-flex align-items-center"
+        class="h-full flex items-center"
       >
         <a
-          class="h-100 w-100"
+          class="h-full w-full"
         >
           <button
-            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+            class="btn ewb-button-regular font-normal h-full w-full text-left"
           >
              Privacy Policy 
           </button>
         </a>
       </li>
       <li
-        class="h-100 d-flex align-items-center"
+        class="h-full flex items-center"
       >
         <a
-          class="h-100 w-100"
+          class="h-full w-full"
         >
           <button
-            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+            class="btn ewb-button-regular font-normal h-full w-full text-left"
           >
              Imprint 
           </button>
         </a>
       </li>
       <li
-        class="h-100 d-flex align-items-center"
+        class="h-full flex items-center"
       >
         <a
-          class="h-100 w-100"
+          class="h-full w-full"
         >
           <button
-            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+            class="btn ewb-button-regular font-normal h-full w-full text-left"
           >
              OSS Licenses 
           </button>
         </a>
       </li>
       <li
-        class="h-100 d-flex align-items-center"
+        class="h-full flex items-center"
       >
         <a
-          class="h-100 w-100"
+          class="h-full w-full"
           href="https://github.com/eworkbench/"
           target="_blank"
         >
           <button
-            class="btn ewb-button-regular font-weight-normal h-100 w-100 text-left"
+            class="btn ewb-button-regular font-normal h-full w-full text-left"
           >
              GitHub 
           </button>

@@ -219,9 +219,9 @@ class TaskVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase, Tas
             "user_pks": [self.superuser.pk, self.user1.pk],
             "project_pks": [self.project1.pk, self.project_tmp.pk, self.project2.pk],
             "checklist": [
-                {'title': 'item1', 'checked': 'false'},
-                {'title': 'item2', 'checked': 'false'},
-                {'title': 'item3', 'checked': 'true'}
+                {'title': 'item1', 'checked': 'false', 'ordering': 0},
+                {'title': 'item2', 'checked': 'false', 'ordering': 1},
+                {'title': 'item3', 'checked': 'true', 'ordering': 2}
             ],
             "label_pks": [self.label1_pk, self.label2_pk]
         }
@@ -273,8 +273,8 @@ class TaskVersionIntegrationTest(GenericVersionIntegrationTest, APITestCase, Tas
             'user_pks': [self.superuser.pk],
             'label_pks': [self.label3_pk],
             'checklist': [
-                {'title': 'new item1', 'checked': 'false'},
-                {'title': 'new item2', 'checked': 'true'},
+                {'title': 'new item1', 'checked': 'false', 'ordering': 0},
+                {'title': 'new item2', 'checked': 'true', 'ordering': 1},
             ],
         }
         mod = self.modified_data

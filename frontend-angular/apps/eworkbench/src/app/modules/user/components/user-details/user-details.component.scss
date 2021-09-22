@@ -5,15 +5,49 @@
 
 @import 'colors';
 
+$chip-size: 25px;
+
 :host {
   display: block;
 
-  .active {
+  a {
     color: $primary-color;
     cursor: pointer;
 
     &:hover {
       text-decoration: underline;
+    }
+
+    &.deactivated {
+      cursor: initial;
+      color: $text-color;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    &.inverted {
+      color: #ffffff;
+    }
+  }
+
+  .chip {
+    background-color: #f4f4f4;
+    border-radius: $chip-size;
+    height: $chip-size;
+    padding-left: 3px;
+    padding-right: 0.75rem;
+    font-size: 13px;
+
+    &.inverted {
+      background-color: $primary-color;
+      color: #ffffff;
+      font-weight: 300;
+
+      a {
+        color: #ffffff;
+      }
     }
   }
 }

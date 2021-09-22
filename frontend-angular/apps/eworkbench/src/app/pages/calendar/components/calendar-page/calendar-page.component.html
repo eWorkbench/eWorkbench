@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-header [title]="title">
     <ng-container slot="search">
-      <div class="d-flex align-items-center">
+      <div class="flex items-center">
         <div class="search-input mr-2">
           <ng-select
             class="ewb-select"
@@ -20,13 +20,16 @@
             bindLabel="name"
             bindValue="pk"
           >
-            <ng-template ng-option-tmp let-item="item">
+            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
               <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-              {{ item.name }}
+              <span [ngOptionHighlight]="search">{{ item.name }}</span>
             </ng-template>
             <ng-template ng-optgroup-tmp let-item="item">
               <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
               <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+            </ng-template>
+            <ng-template ng-notfound-tmp>
+              <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
             </ng-template>
           </ng-select>
         </div>
@@ -73,7 +76,7 @@
             role="menu"
             aria-labelledby="calendar-filter-button"
           >
-            <li class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button" role="menuitem">
+            <li class="btn ewb-button-regular font-normal w-full text-left menu-item-button" role="menuitem">
               <div class="custom-control custom-checkbox">
                 <input
                   type="checkbox"
@@ -82,12 +85,12 @@
                   class="custom-control-input"
                   [formControl]="myAppointmentsCheckbox"
                 />
-                <label class="custom-control-label w-100 font-weight-normal" for="my-appointments-filter">
+                <label class="custom-control-label w-full font-normal" for="my-appointments-filter">
                   {{ t('calendar.header.filterByType.myAppointments.label') }}
                 </label>
               </div>
             </li>
-            <li class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button" role="menuitem">
+            <li class="btn ewb-button-regular font-normal w-full text-left menu-item-button" role="menuitem">
               <div class="custom-control custom-checkbox">
                 <input
                   type="checkbox"
@@ -96,7 +99,7 @@
                   class="custom-control-input"
                   [formControl]="myTasksCheckbox"
                 />
-                <label class="custom-control-label w-100 font-weight-normal" for="my-tasks-filter">
+                <label class="custom-control-label w-full font-normal" for="my-tasks-filter">
                   {{ t('calendar.header.filterByType.myTasks.label') }}
                 </label>
               </div>
@@ -133,16 +136,23 @@
               (change)="onSelectUser($event)"
             >
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                <eworkbench-user-details class="d-inline-block mr-1" [user]="item" [active]="false"></eworkbench-user-details>
-                <span class="sub-text">{{ item.email }}</span>
+                <div class="flex items-center user-option">
+                  <eworkbench-user-details
+                    class="inline-block mr-1"
+                    [user]="item"
+                    [chip]="true"
+                    (click)="select.isOpen = false"
+                  ></eworkbench-user-details>
+                  <span class="sub-text">{{ item.email }}</span>
+                </div>
               </ng-template>
 
               <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <div class="user-dropdown-option">
-                  <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                  <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
                   <div>
                     <ng-container *ngIf="item?.userprofile.anonymized">
-                      <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                      <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
                     </ng-container>
                     <ng-container *ngIf="!item?.userprofile.anonymized">
                       <ng-container
@@ -175,20 +185,28 @@
             *ngIf="selectedUsers.length"
           >
             <ng-template ng-label-tmp let-item="item" let-clear="clear">
-              <eworkbench-user-details class="d-inline-block" [user]="item" [active]="false"></eworkbench-user-details>
-              <span
-                class="ng-value-icon left ml-1 rounded-circle"
-                aria-hidden="true"
-                [style.background]="item.color"
-                [style.width]="'20px'"
-              ></span>
+              <div class="flex items-center user-option">
+                <eworkbench-user-details
+                  class="inline-block mr-1"
+                  [user]="item"
+                  [chip]="true"
+                  (click)="select.isOpen = false"
+                ></eworkbench-user-details>
+                <span
+                  class="ng-value-icon left rounded-full"
+                  aria-hidden="true"
+                  [style.background]="item.color"
+                  [style.height]="'20px'"
+                  [style.width]="'20px'"
+                ></span>
+              </div>
             </ng-template>
             <ng-template ng-option-tmp let-item="item" let-search="searchTerm" let-item$="item$" let-index="index">
               <div class="user-dropdown-option">
                 <div>
                   <input id="item-{{ index }}" class="mr-1" type="checkbox" [ngModel]="item$.selected" />
                   <ng-container *ngIf="item?.userprofile.anonymized">
-                    <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                    <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
                   </ng-container>
                   <ng-container *ngIf="!item?.userprofile.anonymized">
                     <ng-container
@@ -225,14 +243,17 @@
               (change)="onSelectResource($event)"
             >
               <ng-template ng-label-tmp let-item="item">{{ item.display }} ({{ item.location }})</ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.display }}
-                <div class="sub-text">{{ item.location }}</div>
+                <span [ngOptionHighlight]="search">{{ item.display }}</span>
+                <div [ngOptionHighlight]="search" class="sub-text">{{ item.location }}</div>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>
@@ -250,7 +271,7 @@
             <ng-template ng-label-tmp let-item="item" let-clear="clear">
               {{ item.display }}
               <span
-                class="ng-value-icon left ml-1 rounded-circle"
+                class="ng-value-icon left ml-1 rounded-full"
                 aria-hidden="true"
                 [style.background]="item.color"
                 [style.width]="'20px'"
@@ -305,9 +326,9 @@
       {{ event.startStr | formatDate: 'yyyy-MM-dd' }}
     </ng-container>
     <div *ngIf="event.extendedProps?.attending_users?.length">
-      <strong class="mr-1">{{ t('appointment.details.attendingUsers.label') }}:</strong>
+      <strong class="mr-1">{{ t('appointment.details.attendees.label') }}:</strong>
       <ng-container *ngFor="let user of event.extendedProps.attending_users; let last = last">
-        <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details><span *ngIf="!last">, </span>
+        <eworkbench-user-details class="inline-block" [user]="user"></eworkbench-user-details><span *ngIf="!last">, </span>
       </ng-container>
     </div>
     <div *ngIf="event.extendedProps?.resource">

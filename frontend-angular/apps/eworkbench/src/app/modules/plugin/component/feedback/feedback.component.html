@@ -14,7 +14,7 @@
         <ng-template #subjectField>
           <label for="subject-modal">
             {{ t('plugin.feedback.subject.label') }}
-            <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+            <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
           </label>
           <input
             type="text"
@@ -29,9 +29,9 @@
       <div class="mb-4">
         <label for="message-modal">
           {{ t('plugin.feedback.message.label') }}
-          <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+          <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
         </label>
-        <eworkbench-wysiwyg-editor id="message-modal" formControlName="message"></eworkbench-wysiwyg-editor>
+        <eworkbench-wysiwyg-editor [id]="'message-modal'" formControlName="message"></eworkbench-wysiwyg-editor>
       </div>
 
       <div class="mt-5 text-right">

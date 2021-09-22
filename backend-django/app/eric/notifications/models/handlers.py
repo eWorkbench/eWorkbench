@@ -2,7 +2,11 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from email.mime.text import MIMEText
+
+import vobject
 from django.contrib.auth import get_user_model
+from django.core.mail import EmailMessage
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -17,7 +21,8 @@ from eric.notifications.utils import is_user_notification_allowed, send_mail
 from eric.projects.models import MyUser
 from eric.projects.models import Project, ProjectRoleUserAssignment
 from eric.relations.models import Relation
-from eric.shared_elements.models import Meeting, UserAttendsMeeting, Task, TaskAssignedUser
+from eric.shared_elements.models import Meeting, UserAttendsMeeting, Task, TaskAssignedUser, ContactAttendsMeeting
+from eric.site_preferences.models import options as site_preferences
 
 
 @receiver(post_save)
@@ -178,6 +183,56 @@ def create_notification_based_on_delete_user_from_meeting(sender, instance, *arg
             object_id=meeting.pk,
             notification_type=NotificationConfiguration.NOTIFICATION_CONF_MEETING_USER_CHANGED,
         )
+
+
+@receiver(post_save, sender=ContactAttendsMeeting)
+def create_notification_based_on_add_contact_to_meeting(sender, instance, *args, **kwargs):
+    """Notifies the attended contact that he was added to the meeting"""
+    attended_contact = instance.contact
+    if attended_contact.email:
+        calendar = vobject.iCalendar()
+        calendar.add('method').value = 'PUBLISH'  # IE/Outlook needs this
+
+        meeting = Meeting.objects.get(pk=instance.meeting.pk)
+
+        meeting.export_as_ical(calendar)
+        cal_stream = calendar.serialize()
+        ics_attachment = create_ics_attachment(cal_stream)
+
+        context = {
+            'instance': meeting
+        }
+
+        msg = EmailMessage(
+            subject=_("You have been added to meeting {meeting}").format(meeting=meeting.title),
+            body=render_to_string('notification/meeting_add_contact.html', context),
+            from_email=site_preferences.email_from,
+            to=[(f"{attended_contact.first_name} {attended_contact.last_name}", attended_contact.email)],
+        )
+        msg.content_subtype = "html"
+        msg.attach(ics_attachment)
+        msg.send()
+
+
+@receiver(post_delete, sender=ContactAttendsMeeting)
+def create_notification_based_on_delete_contact_from_meeting(sender, instance, *args, **kwargs):
+    """Notifies the attended contact that he was removed from the meeting"""
+    attended_contact = instance.contact
+    if attended_contact.email:
+        meeting = Meeting.objects.get(pk=instance.meeting.pk)
+
+        context = {
+            'instance': meeting
+        }
+
+        msg = EmailMessage(
+            subject=_("You have been removed from meeting {meeting}").format(meeting=meeting.title),
+            body=render_to_string('notification/meeting_remove_contact.html', context),
+            from_email=site_preferences.email_from,
+            to=[(f"{attended_contact.first_name} {attended_contact.last_name}", attended_contact.email)],
+        )
+        msg.content_subtype = "html"
+        msg.send()
 
 
 @receiver(post_save, sender=Task)
@@ -445,3 +500,13 @@ def create_notification_for_link_change(added, base_object, related_object):
             object_id=base_object.pk,
             notification_type=notification_type
         )
+
+
+def create_ics_attachment(serialized_file, name="meeting"):
+    """Creates an .ics attachment file for emails"""
+    attachment = MIMEText(serialized_file, "calendar")
+    attachment.add_header("Content-Type", "text/calendar")
+    attachment.add_header("Filename", f"{name}.ics")
+    attachment.add_header("Content-Disposition", f"attachment; filename={name}.ics")
+
+    return attachment

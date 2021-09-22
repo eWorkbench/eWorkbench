@@ -22,7 +22,7 @@ export class CMSService {
   public constructor(private readonly cmsQuery: CMSQuery, private readonly cmsStore: CMSStore, private readonly httpClient: HttpClient) {}
 
   public get get$(): Observable<CMSSettings> {
-    return this.cmsQuery.cms$;
+    return this.cmsQuery.cms$ as any;
   }
 
   public set(settings: CMSSettings): Observable<unknown> {

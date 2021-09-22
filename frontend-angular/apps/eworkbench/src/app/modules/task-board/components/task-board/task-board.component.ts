@@ -13,7 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { NewTaskModalComponent } from '@app/modules/task/components/modals/new/new.component';
 import { AuthService, LabelsService, TaskBoardsService, WebSocketService } from '@app/services';
-import { UserState } from '@app/stores/user';
+import { UserState, UserStore } from '@app/stores/user';
 import {
   KanbanTask,
   Label,
@@ -32,6 +32,7 @@ import { Observable } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { BacklogModalComponent } from '../modals/backlog/backlog.component';
 import { ColumnDetailsModalComponent } from '../modals/column-details/column-details.component';
+import { DeleteColumnModalComponent } from '../modals/delete-column/delete-column.component';
 
 @UntilDestroy()
 @Component({
@@ -69,7 +70,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   public modalRef?: DialogRef;
 
-  public filter: TaskBoardFilter = { user: null, search: null };
+  public filter: TaskBoardFilter = { assignee: null, user: null, project: null, search: null, priority: null, state: null, favorite: null };
 
   private skipNext = false;
 
@@ -82,7 +83,8 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     private readonly modalService: DialogService,
     private readonly websocketService: WebSocketService,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly userStore: UserStore
   ) {}
 
   public ngOnInit(): void {
@@ -230,14 +232,14 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     );
   }
 
-  public insertColumn(): void {
+  public insertColumn(title?: string, color?: string): void {
     const columns: TaskBoardColumn[] = [
       ...this.columns,
       {
-        color: 'rgba(224,224,224,0.65)',
+        color: color ?? 'rgba(244,244,244,1)',
         icon: '',
         ordering: this.columns.length + 1,
-        title: 'New column',
+        title: title ?? 'New column',
       },
     ];
 
@@ -315,6 +317,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewTaskModalComponent, {
       closeButton: false,
+      enableClose: false,
       data: { taskBoardId: this.id, initialState: { projects: this.projects }, column },
     });
     /* istanbul ignore next */
@@ -331,6 +334,55 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
+  public onRemoveColumn(column: TaskBoardColumn): void {
+    const userStoreValue = this.userStore.getValue();
+    /* istanbul ignore next */
+    const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-DeleteColumn']);
+
+    if (skipTrashDialog) {
+      this.delete(column);
+    } else {
+      this.modalRef = this.modalService.open(DeleteColumnModalComponent, {
+        closeButton: false,
+        windowClass: 'modal-danger',
+        data: { column, taskBoardId: this.id, columns: this.columns },
+      });
+      /* istanbul ignore next */
+      this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
+    }
+  }
+
+  public delete(column: TaskBoardColumn): void {
+    if (this.loading) {
+      return;
+    }
+    this.loading = true;
+
+    let order = 1;
+    const columns: TaskBoardColumn[] = this.columns
+      .filter(/* istanbul ignore next */ (col: TaskBoardColumn) => col.pk !== column.pk)
+      .map(
+        /* istanbul ignore next */ (col: TaskBoardColumn) => {
+          col.ordering = order++;
+          return col;
+        }
+      );
+
+    this.taskBoardsService
+      .moveColumn(this.id, columns)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ () => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        /* istanbul ignore next */ () => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        }
+      );
+  }
+
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
       this.loadData();
@@ -338,8 +390,24 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   public matchesFilter(task: Task): boolean {
+    let userFilter = false;
+    let assigneeFilter = false;
+    let projectFilter = false;
+    let searchFilter = false;
+    let priorityFilter = false;
+    let stateFilter = false;
+    let favoriteFilter = false;
+
     if (this.filter.user) {
-      return task.assigned_users_pk.includes(this.filter.user);
+      userFilter = task.created_by.pk === this.filter.user;
+    }
+
+    if (this.filter.assignee) {
+      assigneeFilter = task.assigned_users_pk.includes(this.filter.assignee);
+    }
+
+    if (this.filter.project) {
+      projectFilter = task.projects.includes(this.filter.project);
     }
 
     if (this.filter.search) {
@@ -347,7 +415,36 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       const taskTitle = task.title.toLowerCase();
       const taskDescription = task.description.toLowerCase();
       const searchTerm = this.filter.search.toLowerCase();
-      return taskTitle.includes(searchTerm) || taskDescription.includes(searchTerm) || taskId.includes(searchTerm);
+      searchFilter = taskTitle.includes(searchTerm) || taskDescription.includes(searchTerm) || taskId.includes(searchTerm);
+    }
+
+    if (this.filter.priority && this.filter.priority.length !== 5) {
+      priorityFilter = this.filter.priority.includes(task.priority);
+    }
+
+    if (this.filter.state && this.filter.state.length !== 3) {
+      stateFilter = this.filter.state.includes(task.state);
+    }
+
+    if (this.filter.favorite) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-boolean-literal-compare
+      favoriteFilter = task.is_favourite === true;
+    }
+
+    if (
+      this.filter.user ||
+      this.filter.assignee ||
+      this.filter.project ||
+      this.filter.search ||
+      (this.filter.priority && this.filter.priority.length !== 5) ||
+      (this.filter.state && this.filter.state.length !== 3) ||
+      this.filter.favorite
+    ) {
+      if (userFilter || assigneeFilter || projectFilter || searchFilter || priorityFilter || stateFilter || favoriteFilter) {
+        return true;
+      }
+
+      return false;
     }
 
     return true;

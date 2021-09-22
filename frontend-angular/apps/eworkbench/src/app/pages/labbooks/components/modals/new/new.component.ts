@@ -143,6 +143,7 @@ export class NewLabBookModalComponent implements OnInit {
               this.projects = [...this.projects, project]
                 .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                 .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+              this.cdr.markForCheck();
             }
           );
       }

@@ -4,6 +4,6 @@
 -->
 
 <div class="plugin-data p-2">
-  <img class="img-fluid" [src]="dataPicture || pluginLogo" [alt]="pluginTitle" (click)="onActivate()" *ngIf="!active" />
+  <img class="max-w-full h-auto" [src]="dataPicture || pluginLogo" [alt]="pluginTitle" (click)="onActivate()" *ngIf="!active" />
   <iframe [src]="safeAuthURL()" *ngIf="active"></iframe>
 </div>

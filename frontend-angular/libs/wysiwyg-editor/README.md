@@ -40,7 +40,7 @@ public toolbar?: string | string[];
 
 ```ts
 @Component({
-  template: `<eworkbench-wysiwyg-editor id="description" [control]="this.f.description"></eworkbench-wysiwyg-editor>`,
+  template: `<eworkbench-wysiwyg-editor [id]="'description'" [control]="this.f.description"></eworkbench-wysiwyg-editor>`,
 })
 class WYSIWYGEditorComponent {}
 ```

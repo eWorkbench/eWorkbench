@@ -12,7 +12,7 @@ from eric.core.admin.filters import is_null_filter
 from eric.model_privileges.admin import ModelPrivilegeInline, ReadOnlyModelPrivilegeInline
 from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
 from eric.shared_elements.models import Contact, Note, Meeting, Task, TaskAssignedUser, File, \
-    UploadedFileEntry, UserAttendsMeeting, ContactAttendsMeeting, TaskCheckList, CalendarAccess
+    UploadedFileEntry, UserAttendsMeeting, ContactAttendsMeeting, TaskCheckList, CalendarAccess, Comment
 
 User = get_user_model()
 
@@ -63,6 +63,26 @@ class NoteAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     search_fields = (
         'projects__name',
         'subject',
+        'content',
+        "created_by__username",
+        "created_by__email",
+    )
+    autocomplete_fields = ('projects',)
+    inlines = (ModelPrivilegeInline,)
+    list_filter = (
+        ProjectsFilter,
+    )
+
+
+@admin.register(Comment)
+class CommentAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
+    list_display = (
+        '__str__',
+        'created_by',
+        'created_at',
+    )
+    search_fields = (
+        'projects__name',
         'content',
         "created_by__username",
         "created_by__email",

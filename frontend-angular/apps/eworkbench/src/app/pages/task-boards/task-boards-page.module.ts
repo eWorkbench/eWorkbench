@@ -7,11 +7,13 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LinkModule } from '@app/modules/link/link.module';
+import { LoadingModule } from '@app/modules/loading/loading.module';
 import { LockModule } from '@app/modules/lock/lock.module';
 import { ProjectModule } from '@app/modules/project/project.module';
 import { RecentChangesModule } from '@app/modules/recent-changes/recent-changes.module';
@@ -24,6 +26,8 @@ import { FormsModule } from '@eworkbench/forms';
 import { IconsModule } from '@eworkbench/icons';
 import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
+import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { TaskBoardPageComponent } from './components/task-board-page/task-board-page.component';
 import { TaskBoardsPageComponent } from './components/task-boards-page/task-boards-page.component';
 import { TaskBoardsPageRoutingModule } from './task-boards-page-routing.module';
@@ -50,6 +54,10 @@ import { TaskBoardsPageRoutingModule } from './task-boards-page-routing.module';
     LinkModule,
     LockModule,
     FavoritesModule,
+    CommentModule,
+    LoadingModule,
+    TooltipModule.forRoot(),
+    WysiwygEditorModule,
   ],
 })
 export class TaskBoardsPageModule {}

@@ -16,6 +16,7 @@ import { mockBookingRuleTimeSlots } from '@eworkbench/mocks';
 import { ModalsModule } from '@eworkbench/modals';
 import { TableModule } from '@eworkbench/table';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ResourceBookingRulesBookableTimeSlotsComponent } from './booking-rules-bookable-time-slots.component';
 
 describe('ResourceBookingRulesBookableTimeSlotsComponent', () => {
@@ -34,6 +35,7 @@ describe('ResourceBookingRulesBookableTimeSlotsComponent', () => {
       TrashModule,
       ResourceModule,
       ModalsModule,
+      TooltipModule.forRoot(),
     ],
   });
 

@@ -4,8 +4,10 @@
 #
 import logging
 import os
+import re
 
 from django.conf import settings
+from django.db import transaction
 from django.db.models import F, Max, Q, Count, FloatField
 from django.http import QueryDict, FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -16,13 +18,15 @@ from rest_framework.exceptions import NotFound
 from eric.core.models import disable_permission_checks
 from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedReadOnlyModelViewSet
 from eric.kanban_boards.models import KanbanBoard, KanbanBoardColumnTaskAssignment
+from eric.kanban_boards.models.models import KanbanBoardUserFilterSetting, KanbanBoardColumn, KanbanBoardUserSetting
 from eric.kanban_boards.rest.filters import KanbanBoardFilter
 from eric.kanban_boards.rest.serializers import KanbanBoardSerializer, KanbanBoardColumnTaskAssignmentSerializer, \
-    MinimalisticKanbanBoardColumnTaskAssignmentSerializer
+    MinimalisticKanbanBoardColumnTaskAssignmentSerializer, KanbanBoardUserFilterSettingSerializer, \
+    KanbanBoardUserSettingSerializer
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, \
     BaseAuthenticatedModelViewSet, LockableViewSetMixIn
 from eric.relations.models import Relation
-from eric.shared_elements.models import Task, Note
+from eric.shared_elements.models import Task, Comment
 
 logger = logging.getLogger("eric.kanban_boards")
 
@@ -154,6 +158,99 @@ class KanbanBoardViewSet(
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(original_file_name)
         # set mime type to the stored mime type
         response['Content-Type'] = 'application/json;'
+
+        return response
+
+    @action(methods=['PATCH'], url_path='set_columns_transparency', detail=True)
+    def set_columns_transparency(self, request, *args, **kwargs):
+        # extracts all values from an rgba string, e.g.: rgba(33, 66, 99, 0.75)
+        rgba_regex = r"^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d{0,1}(?:\.\d+)?))?\)$"
+
+        kanban_board_columns = self.get_object().kanban_board_columns.all()
+        try:
+            alpha = float(request.data.get("alpha", 1))
+        except ValueError:
+            alpha = 1
+
+        for column in kanban_board_columns:
+            rgba = re.findall(rgba_regex, column.color, re.IGNORECASE)
+
+            if rgba:
+                red = rgba[0][0]
+                green = rgba[0][1]
+                blue = rgba[0][2]
+                alpha = 1 if alpha > 1 or alpha < 0 else alpha
+
+                column.color = f"rgba({red},{green},{blue},{alpha})"
+                column.save()
+
+        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        """ Creates a task board. """
+
+        # check if board for provided pk exists
+        duplicate_board_pk = self.request.GET.get("duplicate_tasks_from_board", None)
+        board_to_duplicate = None
+        if duplicate_board_pk:
+            queryset = KanbanBoard.objects.viewable()
+            board_to_duplicate = get_object_or_404(queryset, pk=duplicate_board_pk)
+
+        response = super(KanbanBoardViewSet, self).create(request, *args, **kwargs)
+
+        # duplicate board columns and tasks too
+        if board_to_duplicate:
+            from eric.shared_elements.models import Task, TaskCheckList
+
+            new_board = KanbanBoard.objects.filter(pk=response.data["pk"]).first()
+            if not new_board:
+                raise NotFound
+
+            # delete all auto-generated columns first
+            columns = KanbanBoardColumn.objects.filter(kanban_board__pk=new_board.pk)
+            for column in columns:
+                column.delete()
+
+            # duplicate columns from other board
+            columns = KanbanBoardColumn.objects.filter(kanban_board__pk=duplicate_board_pk).order_by("ordering")
+            for column in columns:
+                new_column = KanbanBoardColumn.objects.create(
+                    title=column.title,
+                    kanban_board=new_board,
+                    color=column.color,
+                    icon=column.icon,
+                    ordering=column.ordering,
+                )
+
+                # duplicate tasks for this column
+                task_assignments = KanbanBoardColumnTaskAssignment.objects.filter(kanban_board_column__pk=column.pk)
+                for task_assignment in task_assignments:
+                    task = task_assignment.task
+                    new_task = Task.objects.create(
+                        title=task.title,
+                        priority=task.priority,
+                        state=Task.TASK_STATE_NEW,
+                        description=task.description,
+                    )
+                    new_task.labels.set(task.labels.all())
+                    new_task.projects.set(new_board.projects.all())
+
+                    # duplicate checklist items for this task
+                    checklists = TaskCheckList.objects.filter(task__pk=task.pk)
+                    for checklist in checklists:
+                        TaskCheckList.objects.create(
+                            title=checklist.title,
+                            checked=False,
+                            task=new_task,
+                            ordering=checklist.ordering,
+                        )
+
+                    # assign duplicated task to new column
+                    KanbanBoardColumnTaskAssignment.objects.create(
+                        kanban_board_column=new_column,
+                        task=new_task,
+                    )
 
         return response
 
@@ -355,53 +452,55 @@ class KanbanBoardColumnTaskAssignmentViewSet(BaseAuthenticatedModelViewSet):
         for task_assignment in assignments:
             tasks.append(task_assignment.task.id)
 
-        note_content_type_id = Note.get_content_type().id
+        comment_content_type_id = Comment.get_content_type().id
         task_content_type_id = Task.get_content_type().id
 
-        related_left_notes = dict(
-            (str(x['pk']), x['num_related_left_notes']) for x in
+        related_left_comments = dict(
+            (str(x['pk']), x['num_related_left_comments']) for x in
             Relation.objects.filter(
                 Q(
                     right_content_type=task_content_type_id,
                     right_object_id__in=tasks
 
                 ) & Q(
-                    left_content_type=note_content_type_id
+                    left_content_type=comment_content_type_id
                 )
             ).order_by(
                 'right_object_id', 'right_content_type'
             ).values(
                 'right_object_id', 'right_content_type'
             ).annotate(
-                num_related_left_notes=Count('left_object_id'),
+                num_related_left_comments=Count('left_object_id'),
                 pk=F('right_object_id')
-            ).values('pk', 'num_related_left_notes')
+            ).values('pk', 'num_related_left_comments')
         )
 
-        related_right_notes = dict(
-            (str(x['pk']), x['num_related_right_notes']) for x in
+        related_right_comments = dict(
+            (str(x['pk']), x['num_related_right_comments']) for x in
             Relation.objects.filter(
                 Q(
                     left_content_type=task_content_type_id,
                     left_object_id__in=tasks
                 ) & Q(
-                    right_content_type=note_content_type_id
+                    right_content_type=comment_content_type_id
                 )
             ).order_by(
                 'left_object_id', 'left_content_type'
             ).values(
                 'left_object_id', 'left_content_type'
             ).annotate(
-                num_related_right_notes=Count('right_object_id'),
+                num_related_right_comments=Count('right_object_id'),
                 pk=F('left_object_id')
-            ).values('pk', 'num_related_right_notes')
+            ).values('pk', 'num_related_right_comments')
         )
 
         # iterate over child elements and set the child_object
         for task_assignment in assignments:
-            task_assignment.num_related_notes = \
-                related_left_notes.get(str(task_assignment.task.id), 0) + \
-                related_right_notes.get(str(task_assignment.task.id), 0)
+            task_assignment.num_related_comments = \
+                related_left_comments.get(str(task_assignment.task.id), 0) + \
+                related_right_comments.get(str(task_assignment.task.id), 0)
+            task_assignment.num_relations = task_assignment.task.relations.count() - \
+                task_assignment.num_related_comments
 
         return assignments
 
@@ -429,29 +528,32 @@ class KanbanBoardColumnTaskAssignmentViewSet(BaseAuthenticatedModelViewSet):
         filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
         obj = get_object_or_404(queryset, **filter_kwargs)
 
-        note_content_type_id = Note.get_content_type().id
+        comment_content_type_id = Comment.get_content_type().id
         task_content_type_id = Task.get_content_type().id
 
-        # count number of related notes
-        num_related_notes = Relation.objects.filter(
+        # count number of related comments
+        num_related_comments = Relation.objects.filter(
             Q(
                 Q(
                     left_content_type_id=task_content_type_id,
                     left_object_id=obj.task.id
                 ) & Q(
-                    right_content_type=note_content_type_id
+                    right_content_type=comment_content_type_id
                 )
             ) | Q(
                 Q(
                     right_content_type_id=task_content_type_id,
                     right_object_id=obj.task.id
                 ) & Q(
-                    left_content_type=note_content_type_id
+                    left_content_type=comment_content_type_id
                 )
             )
         ).count()
 
-        obj.num_related_notes = num_related_notes
+        obj.num_related_comments = num_related_comments
+
+        # count number of all other relations
+        obj.num_relations = obj.task.relations.count() - obj.num_related_comments
 
         return obj
 
@@ -613,3 +715,87 @@ class KanbanBoardColumnTaskAssignmentViewSet(BaseAuthenticatedModelViewSet):
         RevisionModelMixin.set_enabled(True)
 
         return response
+
+
+class KanbanBoardUserFilterSettingViewSet(BaseAuthenticatedModelViewSet):
+    """ Handles filter settings for kanban boards. """
+    serializer_class = KanbanBoardUserFilterSettingSerializer
+
+    search_fields = ()
+    ordering_fields = ('created_at', 'last_modified_at')
+
+    # disable paignation for this endpoint
+    pagination_class = None
+
+    def initial(self, request, *args, **kwargs):
+        """
+        Fetches the parent object and raises Http404 if the parent object does not exist (or the user does not have
+        access to said object)
+        """
+        super(KanbanBoardUserFilterSettingViewSet, self).initial(request, *args, **kwargs)
+        # store parent object
+        self.parent_object = self.get_parent_object_or_404(*args, **kwargs)
+
+    @staticmethod
+    def get_parent_object_or_404(*args, **kwargs):
+        """
+        Tries to retrieve the parent object (defined via the REST API)
+        Raises Http404 if we do not have access to the parent object
+        """
+        return get_object_or_404(KanbanBoard.objects.viewable(), pk=kwargs['kanbanboard_pk'])
+
+    def get_queryset(self):
+        if not hasattr(self, 'parent_object') or not self.parent_object:
+            return KanbanBoardUserFilterSetting.objects.none()
+
+        return KanbanBoardUserFilterSetting.objects.viewable().filter(
+            kanban_board=self.parent_object
+        ).prefetch_related('kanban_board')
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        # check if the current user is allowed to access the kanban board
+        self.check_object_permissions(request, KanbanBoardUserFilterSetting)
+        return super(KanbanBoardUserFilterSettingViewSet, self).create(request, *args, **kwargs)
+
+
+class KanbanBoardUserSettingViewSet(BaseAuthenticatedModelViewSet):
+    """ Handles user settings for kanban boards. """
+    serializer_class = KanbanBoardUserSettingSerializer
+
+    search_fields = ()
+    ordering_fields = ('created_at', 'last_modified_at')
+
+    # disable paignation for this endpoint
+    pagination_class = None
+
+    def initial(self, request, *args, **kwargs):
+        """
+        Fetches the parent object and raises Http404 if the parent object does not exist (or the user does not have
+        access to said object)
+        """
+        super(KanbanBoardUserSettingViewSet, self).initial(request, *args, **kwargs)
+        # store parent object
+        self.parent_object = self.get_parent_object_or_404(*args, **kwargs)
+
+    @staticmethod
+    def get_parent_object_or_404(*args, **kwargs):
+        """
+        Tries to retrieve the parent object (defined via the REST API)
+        Raises Http404 if we do not have access to the parent object
+        """
+        return get_object_or_404(KanbanBoard.objects.viewable(), pk=kwargs['kanbanboard_pk'])
+
+    def get_queryset(self):
+        if not hasattr(self, 'parent_object') or not self.parent_object:
+            return KanbanBoardUserSetting.objects.none()
+
+        return KanbanBoardUserSetting.objects.viewable().filter(
+            kanban_board=self.parent_object
+        ).prefetch_related('kanban_board')
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        # check if the current user is allowed to access the kanban board
+        self.check_object_permissions(request, KanbanBoardUserSetting)
+        return super(KanbanBoardUserSettingViewSet, self).create(request, *args, **kwargs)

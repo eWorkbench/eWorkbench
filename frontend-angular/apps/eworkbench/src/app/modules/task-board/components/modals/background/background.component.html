@@ -15,7 +15,7 @@
             <label for="backgroundImage">{{ t('taskBoard.backgroundModal.backgroundImage.label') }}</label>
             <div>
               <input type="file" class="text-size" (change)="onUpload($event)" id="backgroundImage" name="backgroundImage" />
-              <div class="d-inline-block" *ngIf="taskBoard.download_background_image">
+              <div class="inline-block" *ngIf="taskBoard.download_background_image">
                 {{ '| ' }}
                 <a href class="text-size" (click)="onClear($event)"
                   ><eworkbench-icon className="wb-remove"></eworkbench-icon> {{ t('taskBoard.backgroundModal.backgroundImage.remove') }}</a

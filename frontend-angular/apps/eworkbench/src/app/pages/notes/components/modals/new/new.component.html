@@ -14,7 +14,7 @@
           <div class="mb-4">
             <label for="subject-modal">
               {{ t('note.newModal.subject.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -28,9 +28,9 @@
           <div class="mb-4">
             <label for="content-modal">
               {{ t('note.newModal.content.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
-            <eworkbench-wysiwyg-editor id="content-modal" formControlName="content"></eworkbench-wysiwyg-editor>
+            <eworkbench-wysiwyg-editor [id]="'content-modal'" formControlName="content"></eworkbench-wysiwyg-editor>
           </div>
           <div class="mb-4">
             <label for="projects-modal">{{ t('note.newModal.projects.label') }}</label>
@@ -52,13 +52,16 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>

@@ -34,6 +34,7 @@ export const mockTaskBoard: TaskBoard = {
   content_type: 43,
   content_type_model: 'kanban_boards.kanbanboard',
   title: 'Test',
+  description: 'Description',
   version_number: 236,
   download_background_image_thumbnail: null,
   created_at: '2020-05-09T20:05:23.623552+02:00',

@@ -4,9 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, TemplateRef } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
 
-@UntilDestroy()
 @Component({
   selector: 'eworkbench-collapse-element',
   templateUrl: './collapse-element.component.html',

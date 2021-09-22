@@ -11,7 +11,7 @@ from rest_framework import status
 
 from eric.core.tests import custom_json_handler, HTTP_USER_AGENT, REMOTE_ADDR
 from eric.projects.tests.core import TestLockMixin
-from eric.shared_elements.models import Meeting, Note, Contact, Task, File
+from eric.shared_elements.models import Meeting, Note, Contact, Task, File, Comment
 
 User = get_user_model()
 
@@ -596,6 +596,177 @@ class NoteMixin(TestLockMixin):
         if response.status_code == status.HTTP_201_CREATED:
             decoded = json.loads(response.content.decode())
             return Note.objects.get(pk=decoded['pk']), response
+        else:
+            return None, response
+
+
+class CommentMixin(TestLockMixin):
+    """
+    Mixin which provides several wrapper methods for the /api/comments endpoint
+    """
+
+    def rest_get_comment_export_link(self, auth_token, comment_pk, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for getting the export link of a comment
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            '/api/comments/{}/get_export_link/'.format(comment_pk),
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_search_comments(self, auth_token, search_string, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for searching the comment endpoint
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            '/api/comments/?search={}'.format(search_string),
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_get_comments_recently_modified_by_me(self, auth_token, number_of_days, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for showing only recently modified elements of the comment endpoint
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            '/api/comments/?recently_modified_by_me={}'.format(number_of_days),
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_get_comment(self, auth_token, comment_pk, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for getting a comment by its pk via REST API
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            '/api/comments/{}/'.format(comment_pk),
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_get_comments(self, auth_token, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for getting a list of comments that the current user has access to via REST API
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            '/api/comments/',
+            {}, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_get_comments_for_project(self, auth_token, project_pk, HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for getting a list of comments for a specific project via REST API (using filter
+        ?project={project_pk}) """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.get(
+            '/api/comments/', {'project': project_pk},
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_delete_comment(self, auth_token, comment_pk, HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for deleting a comment via REST API """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.delete(
+            '/api/comments/{pk}/'.format(pk=comment_pk),
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_restore_comment(self, auth_token, comment_pk, HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for restoring a comment via REST API """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.patch(
+            '/api/comments/{pk}/restore/'.format(pk=comment_pk),
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_trash_comment(self, auth_token, comment_pk, HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for trashing a comment via REST API """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.patch(
+            '/api/comments/{pk}/soft_delete/'.format(pk=comment_pk),
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_update_comment(self, auth_token, comment_pk, project_pks, content, HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for creating a file via REST API """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        data = {
+            "content": content,
+        }
+
+        set_projects(data, project_pks)
+
+        return self.client.put(
+            '/api/comments/{}/'.format(comment_pk),
+            json.dumps(data, default=custom_json_handler),
+            content_type='application/json',
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_update_comment_project(self, auth_token, comment_pk, project_pks, HTTP_USER_AGENT, REMOTE_ADDR):
+        """
+        Wrapper for updating the project of a comment
+        :param auth_token:
+        :param comment_pk:
+        :param project_pks: list
+        :param HTTP_USER_AGENT:
+        :param REMOTE_ADDR:
+        :return: response
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        data = {
+            'projects': project_pks
+        }
+
+        return self.client.patch(
+            '/api/comments/{}/'.format(comment_pk),
+            json.dumps(data, default=custom_json_handler),
+            content_type='application/json',
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def rest_create_comment(self, auth_token, project_pks,
+                         content,
+                         HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for creating a file via REST API """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        data = {
+            "content": content,
+        }
+
+        set_projects(data, project_pks)
+
+        return self.client.post(
+            '/api/comments/'.format(),
+            json.dumps(data, default=custom_json_handler),
+            content_type='application/json',
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
+    def create_comment_orm(self, auth_token, project_pk,
+                        content,
+                        HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for rest_create_comment which also returns a Task Object from Djangos ORM """
+
+        response = self.rest_create_comment(auth_token, project_pk,
+                                         content,
+                                         HTTP_USER_AGENT, REMOTE_ADDR)
+        if response.status_code == status.HTTP_201_CREATED:
+            decoded = json.loads(response.content.decode())
+            return Comment.objects.get(pk=decoded['pk']), response
         else:
             return None, response
 

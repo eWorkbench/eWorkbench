@@ -4,11 +4,38 @@
 -->
 
 <ng-container *ngIf="users.length">
-  <eworkbench-user-details [user]="users[0]" class="d-inline-block"></eworkbench-user-details>
-  <ng-container *ngIf="users.length > 1">
-    <ng-container *transloco="let t">
-      {{ t('usersGrouping.and') }}
-      <a [routerLink]="" (click)="onOpenMoreModal()">{{ t('usersGrouping.usersMore', { count: users.length - 1 }) }}</a>
+  <div class="flex items-center whitespace-nowrap">
+    <eworkbench-user-details
+      [user]="users[0]"
+      [modal]="modal"
+      [chip]="chip"
+      [inverted]="inverted"
+      class="inline-block"
+    ></eworkbench-user-details>
+    <ng-container *ngIf="users.length > 1">
+      <ng-container *transloco="let t">
+        <span class="mx-1">{{ t('usersGrouping.and') }}</span>
+        <a href (click)="onOpenMoreModal($event)" *ngIf="modal">{{ t('usersGrouping.usersMore', { count: users.length - 1 }) }}</a>
+        <a
+          href
+          class="cursor-default"
+          (click)="$event.preventDefault()"
+          [popover]="usersListPopover"
+          [popoverContext]="{ users: users.slice(1) }"
+          containerClass="ewb-popover"
+          triggers="mouseenter:mouseleave"
+          *ngIf="!modal"
+          >{{ t('usersGrouping.usersMore', { count: users.length - 1 }) }}</a
+        >
+      </ng-container>
     </ng-container>
-  </ng-container>
+  </div>
 </ng-container>
+
+<ng-template #usersListPopover let-users="users">
+  <ng-container *ngFor="let user of users; let last = last">
+    <div [class.mb-2]="!last">
+      <eworkbench-user-details [user]="user"></eworkbench-user-details>
+    </div>
+  </ng-container>
+</ng-template>

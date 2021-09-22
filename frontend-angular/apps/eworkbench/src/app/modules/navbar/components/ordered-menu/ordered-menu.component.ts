@@ -116,7 +116,7 @@ export class OrderedMenuComponent implements OnInit, AfterViewInit {
         const a = document.createElement('a');
         const button = document.createElement('button');
 
-        li.className = 'd-flex align-items-center';
+        li.className = 'flex items-center';
         a.className = 'h-100 w-100';
         button.className = 'btn ewb-button-regular text-uppercase h-100 w-100 text-nowrap';
 

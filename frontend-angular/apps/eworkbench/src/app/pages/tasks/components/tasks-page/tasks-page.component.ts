@@ -40,7 +40,7 @@ export class TasksPageComponent implements OnInit {
 
   public sidebarItem = ProjectSidebarItem.Tasks;
 
-  @ViewChild('tableView')
+  @ViewChild('tableView', { static: true })
   public tableView!: TableViewComponent;
 
   @ViewChild('taskIdCellTemplate', { static: true })
@@ -75,9 +75,21 @@ export class TasksPageComponent implements OnInit {
 
   public projectsControl = this.fb.control<string | null>(null);
 
-  public usersControl = this.fb.control<string | null>(null);
+  public usersControl = this.fb.control<number | null>(null);
+
+  public assigneesControl = this.fb.control<number | null>(null);
 
   public searchControl = this.fb.control<string | null>(null);
+
+  public veryHighCheckbox = this.fb.control<boolean>(true);
+
+  public highCheckbox = this.fb.control<boolean>(true);
+
+  public normalCheckbox = this.fb.control<boolean>(true);
+
+  public lowCheckbox = this.fb.control<boolean>(true);
+
+  public veryLowCheckbox = this.fb.control<boolean>(true);
 
   public newCheckbox = this.fb.control<boolean>(true);
 
@@ -85,11 +97,17 @@ export class TasksPageComponent implements OnInit {
 
   public doneCheckbox = this.fb.control<boolean>(true);
 
-  public params = new HttpParams().set('state', 'NEW,PROG,DONE');
+  public favoritesControl = this.fb.control<boolean | null>(null);
+
+  public params = new HttpParams().set('state', 'NEW,PROG,DONE').set('priority', 'VHIGH,HIGH,NORM,LOW,VLOW');
 
   public users: User[] = [];
 
+  public assignees: User[] = [];
+
   public usersInput$ = new Subject<string>();
+
+  public assigneesInput$ = new Subject<string>();
 
   public projects: Project[] = [];
 
@@ -102,6 +120,12 @@ export class TasksPageComponent implements OnInit {
   public project?: string;
 
   public sorting?: TableSortChangedEvent;
+
+  public showUserFilter = false;
+
+  public showAssigneesFilter = false;
+
+  public savedFilters = false;
 
   public constructor(
     public readonly tasksService: TasksService,
@@ -119,6 +143,38 @@ export class TasksPageComponent implements OnInit {
     private readonly userStore: UserStore
   ) {}
 
+  public get filtersChanged(): boolean {
+    /* eslint-disable */
+    return Boolean(
+      this.projectsControl.value ||
+        this.usersControl.value ||
+        this.assigneesControl.value ||
+        this.searchControl.value ||
+        this.veryHighCheckbox.dirty ||
+        this.highCheckbox.dirty ||
+        this.normalCheckbox.dirty ||
+        this.lowCheckbox.dirty ||
+        this.veryLowCheckbox.dirty ||
+        this.newCheckbox.dirty ||
+        this.progressCheckbox.dirty ||
+        this.doneCheckbox.dirty ||
+        this.favoritesControl.value
+    );
+    /* eslint-enable */
+  }
+
+  public get getFilterSelectedUser(): User | undefined {
+    return this.users.find(user => user.pk === this.usersControl.value);
+  }
+
+  public get getFilterSelectedAssignee(): User | undefined {
+    return this.assignees.find(user => user.pk === this.assigneesControl.value);
+  }
+
+  public get getFilterSelectedProject(): Project | undefined {
+    return this.projects.find(project => project.pk === this.projectsControl.value);
+  }
+
   public ngOnInit(): void {
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(
       /* istanbul ignore next */ state => {
@@ -126,7 +182,7 @@ export class TasksPageComponent implements OnInit {
       }
     );
 
-    this.initTranslations();
+    this.initTranslations(this.showSidebar);
     this.initSidebar();
     this.initSearch(this.showSidebar);
     this.initSearchInput();
@@ -134,7 +190,7 @@ export class TasksPageComponent implements OnInit {
     this.pageTitleService.set(this.title);
   }
 
-  public initTranslations(): void {
+  public initTranslations(project = false): void {
     this.translocoService
       .selectTranslate('tasks.title')
       .pipe(untilDestroyed(this))
@@ -219,6 +275,130 @@ export class TasksPageComponent implements OnInit {
         if (this.currentUser?.userprofile.ui_settings?.tables_sort?.tasks) {
           this.sorting = this.currentUser.userprofile.ui_settings.tables_sort.tasks;
         }
+
+        if (this.currentUser?.userprofile.ui_settings?.filter_settings?.tasks) {
+          const filters = this.currentUser.userprofile.ui_settings?.filter_settings?.tasks;
+
+          if (filters.active) {
+            this.savedFilters = true;
+          }
+
+          if (filters.users) {
+            this.userService
+              .getUserById(filters.users)
+              .pipe(untilDestroyed(this))
+              .subscribe(
+                /* istanbul ignore next */ users => {
+                  if (users.length) {
+                    this.users = [...users];
+                    this.cdr.markForCheck();
+                  }
+                }
+              );
+            this.usersControl.setValue(filters.users);
+            this.params = this.params.set('created_by', filters.users);
+          }
+
+          if (filters.assignees) {
+            this.userService
+              .getUserById(filters.assignees)
+              .pipe(untilDestroyed(this))
+              .subscribe(
+                /* istanbul ignore next */ users => {
+                  if (users.length) {
+                    this.assignees = [...users];
+                    this.cdr.markForCheck();
+                  }
+                }
+              );
+            this.assigneesControl.setValue(filters.assignees);
+            this.params = this.params.set('assigned_users', filters.assignees);
+          }
+
+          if (filters.projects && !project) {
+            this.projectsService
+              .get(filters.projects)
+              .pipe(untilDestroyed(this))
+              .subscribe(
+                /* istanbul ignore next */ project => {
+                  this.projects = [...this.projects, project];
+                  this.cdr.markForCheck();
+                }
+              );
+            this.projectsControl.setValue(filters.projects);
+            this.params = this.params.set('projects_recursive', filters.projects);
+          }
+
+          if (filters.search) {
+            this.searchControl.setValue(filters.search);
+            this.params = this.params.set('search', filters.search);
+          }
+
+          if (filters.priority?.length) {
+            if (filters.priority.includes('VHIGH')) {
+              this.veryHighCheckbox.setValue(true);
+            } else {
+              this.veryHighCheckbox.setValue(false);
+            }
+
+            if (filters.priority.includes('HIGH')) {
+              this.highCheckbox.setValue(true);
+            } else {
+              this.highCheckbox.setValue(false);
+            }
+
+            if (filters.priority.includes('NORM')) {
+              this.normalCheckbox.setValue(true);
+            } else {
+              this.normalCheckbox.setValue(false);
+            }
+
+            if (filters.priority.includes('LOW')) {
+              this.lowCheckbox.setValue(true);
+            } else {
+              this.lowCheckbox.setValue(false);
+            }
+
+            if (filters.priority.includes('VLOW')) {
+              this.veryLowCheckbox.setValue(true);
+            } else {
+              this.veryLowCheckbox.setValue(false);
+            }
+
+            this.params = this.params.set('priority', filters.priority.join(','));
+          }
+
+          if (filters.state?.length) {
+            if (filters.state.includes('NEW')) {
+              this.newCheckbox.setValue(true);
+            } else {
+              this.newCheckbox.setValue(false);
+            }
+
+            if (filters.state.includes('PROG')) {
+              this.progressCheckbox.setValue(true);
+            } else {
+              this.progressCheckbox.setValue(false);
+            }
+
+            if (filters.state.includes('DONE')) {
+              this.doneCheckbox.setValue(true);
+            } else {
+              this.doneCheckbox.setValue(false);
+            }
+
+            this.params = this.params.set('state', filters.state.join(','));
+          }
+
+          if (filters.favorites) {
+            this.favoritesControl.setValue(Boolean(filters.favorites));
+            this.params = this.params.set('favourite', filters.favorites);
+          }
+
+          if (filters.active) {
+            this.tableView.loadData(false, this.params);
+          }
+        }
       });
 
     this.translocoService
@@ -253,6 +433,7 @@ export class TasksPageComponent implements OnInit {
               .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.projectsControl.setValue(params.projectId);
             this.project = params.projectId;
+            this.cdr.markForCheck();
           }
         );
       }
@@ -271,32 +452,68 @@ export class TasksPageComponent implements OnInit {
             queryParams.set('projects', value);
             history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
           }
-          return;
+        } else {
+          this.params = this.params.delete('projects_recursive');
+          this.tableView.loadData(false, this.params);
+          if (!project) {
+            queryParams.delete('projects');
+            history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+          }
         }
 
-        this.params = this.params.delete('projects_recursive');
-        this.tableView.loadData(false, this.params);
-        if (!project) {
-          queryParams.delete('projects');
-          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
         }
       }
     );
 
     this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
       /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (value) {
+          this.params = this.params.set('created_by', value);
+          this.tableView.loadData(false, this.params);
+          queryParams.set('users', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('created_by');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('users');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.assigneesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
         if (value) {
           this.params = this.params.set('assigned_users', value);
           this.tableView.loadData(false, this.params);
-          // TODO: Needs endpoint to fetch a user by its id
-          /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: value }, queryParamsHandling: 'merge' }); */
-          return;
+          queryParams.set('assignees', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('assigned_users');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('assignees');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
         }
 
-        this.params = this.params.delete('assigned_users');
-        this.tableView.loadData(false, this.params);
-        // TODO: Needs endpoint to fetch a user by its id
-        /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: null }, queryParamsHandling: 'merge' }); */
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
       }
     );
 
@@ -309,13 +526,163 @@ export class TasksPageComponent implements OnInit {
           this.tableView.loadData(false, this.params);
           queryParams.set('search', value);
           history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
-          return;
+        } else {
+          this.params = this.params.delete('search');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('search');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
         }
 
-        this.params = this.params.delete('search');
-        this.tableView.loadData(false, this.params);
-        queryParams.delete('search');
-        history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.veryHighCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('priority')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'VHIGH');
+        if (value) {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', [...params, 'VHIGH'].join(','));
+          }
+
+          this.tableView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', params.join(','));
+          }
+          this.tableView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.highCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('priority')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'HIGH');
+        if (value) {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', [...params, 'HIGH'].join(','));
+          }
+
+          this.tableView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', params.join(','));
+          }
+          this.tableView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.normalCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('priority')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'NORM');
+        if (value) {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', [...params, 'NORM'].join(','));
+          }
+
+          this.tableView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', params.join(','));
+          }
+          this.tableView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.lowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('priority')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'LOW');
+        if (value) {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', [...params, 'LOW'].join(','));
+          }
+
+          this.tableView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', params.join(','));
+          }
+          this.tableView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.veryLowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('priority')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'VLOW');
+        if (value) {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', [...params, 'VLOW'].join(','));
+          }
+
+          this.tableView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('priority');
+          if (params?.length) {
+            this.params = this.params.set('priority', params.join(','));
+          }
+          this.tableView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
       }
     );
 
@@ -332,14 +699,19 @@ export class TasksPageComponent implements OnInit {
           }
 
           this.tableView.loadData(false, this.params);
-          return;
+        } else {
+          this.params = this.params.delete('state');
+          if (params?.length) {
+            this.params = this.params.set('state', params.join(','));
+          }
+          this.tableView.loadData(false, this.params);
         }
 
-        this.params = this.params.delete('state');
-        if (params?.length) {
-          this.params = this.params.set('state', params.join(','));
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
         }
-        this.tableView.loadData(false, this.params);
       }
     );
 
@@ -356,14 +728,19 @@ export class TasksPageComponent implements OnInit {
           }
 
           this.tableView.loadData(false, this.params);
-          return;
+        } else {
+          this.params = this.params.delete('state');
+          if (params?.length) {
+            this.params = this.params.set('state', params.join(','));
+          }
+          this.tableView.loadData(false, this.params);
         }
 
-        this.params = this.params.delete('state');
-        if (params?.length) {
-          this.params = this.params.set('state', params.join(','));
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
         }
-        this.tableView.loadData(false, this.params);
       }
     );
 
@@ -380,21 +757,83 @@ export class TasksPageComponent implements OnInit {
           }
 
           this.tableView.loadData(false, this.params);
-          return;
+        } else {
+          this.params = this.params.delete('state');
+          if (params?.length) {
+            this.params = this.params.set('state', params.join(','));
+          }
+          this.tableView.loadData(false, this.params);
         }
 
-        this.params = this.params.delete('state');
-        if (params?.length) {
-          this.params = this.params.set('state', params.join(','));
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
         }
-        this.tableView.loadData(false, this.params);
+      }
+    );
+
+    this.favoritesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (value) {
+          this.params = this.params.set('favourite', value);
+          this.tableView.loadData(false, this.params);
+          queryParams.set('favorites', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('favourite');
+          this.tableView.loadData(false, this.params);
+          queryParams.delete('favorites');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
       }
     );
 
     this.route.queryParamMap.pipe(untilDestroyed(this), take(1)).subscribe(
       /* istanbul ignore next */ queryParams => {
+        const users = queryParams.get('users');
+        const assignees = queryParams.get('assignees');
         const projects = queryParams.get('projects');
         const search = queryParams.get('search');
+        const favorites = queryParams.get('favorites');
+
+        if (users) {
+          this.userService
+            .getUserById(users)
+            .pipe(untilDestroyed(this))
+            .subscribe(
+              /* istanbul ignore next */ users => {
+                if (users.length) {
+                  this.users = [...users];
+                  this.cdr.markForCheck();
+                }
+              }
+            );
+          this.usersControl.setValue(Number(users));
+        }
+
+        if (assignees) {
+          this.userService
+            .getUserById(assignees)
+            .pipe(untilDestroyed(this))
+            .subscribe(
+              /* istanbul ignore next */ users => {
+                if (users.length) {
+                  this.assignees = [...users];
+                  this.cdr.markForCheck();
+                }
+              }
+            );
+          this.usersControl.setValue(Number(users));
+        }
 
         if (projects && !project) {
           this.projectsService
@@ -411,6 +850,10 @@ export class TasksPageComponent implements OnInit {
 
         if (search) {
           this.searchControl.setValue(search);
+        }
+
+        if (favorites) {
+          this.favoritesControl.setValue(Boolean(favorites));
         }
       }
     );
@@ -432,6 +875,21 @@ export class TasksPageComponent implements OnInit {
         }
       );
 
+    this.assigneesInput$
+      .pipe(
+        untilDestroyed(this),
+        debounceTime(500),
+        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+      )
+      .subscribe(
+        /* istanbul ignore next */ users => {
+          if (users.length) {
+            this.assignees = [...users];
+            this.cdr.markForCheck();
+          }
+        }
+      );
+
     this.projectsInput$
       .pipe(
         untilDestroyed(this),
@@ -440,8 +898,10 @@ export class TasksPageComponent implements OnInit {
       )
       .subscribe(
         /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
+          if (projects.length) {
+            this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          }
         }
       );
 
@@ -556,6 +1016,135 @@ export class TasksPageComponent implements OnInit {
       .subscribe();
   }
 
+  public onSaveFilters(save: boolean): void {
+    if (save) {
+      this.userService
+        .get()
+        .pipe(
+          untilDestroyed(this),
+          take(1),
+          switchMap(
+            /* istanbul ignore next */ user => {
+              const currentUser = user;
+              return this.userService.changeSettings({
+                userprofile: {
+                  ui_settings: {
+                    ...currentUser.userprofile.ui_settings,
+                    filter_settings: {
+                      ...currentUser.userprofile.ui_settings?.filter_settings,
+                      tasks: {
+                        active: true,
+                        users: this.usersControl.value,
+                        assignees: this.assigneesControl.value,
+                        projects: this.projectsControl.value,
+                        search: this.searchControl.value,
+                        priority: this.params.getAll('priority')?.[0].split(',') ?? [],
+                        state: this.params.getAll('state')?.[0].split(',') ?? [],
+                        favorites: this.favoritesControl.value,
+                      },
+                    },
+                  },
+                },
+              });
+            }
+          )
+        )
+        .subscribe();
+    } else {
+      this.userService
+        .get()
+        .pipe(
+          untilDestroyed(this),
+          take(1),
+          switchMap(
+            /* istanbul ignore next */ user => {
+              const currentUser = user;
+              return this.userService.changeSettings({
+                userprofile: {
+                  ui_settings: {
+                    ...currentUser.userprofile.ui_settings,
+                    filter_settings: {
+                      ...currentUser.userprofile.ui_settings?.filter_settings,
+                      tasks: {
+                        active: false,
+                      },
+                    },
+                  },
+                },
+              });
+            }
+          )
+        )
+        .subscribe();
+    }
+  }
+
+  public onUserFilterRadioAnyone(): void {
+    this.showUserFilter = false;
+    this.users = [];
+  }
+
+  public onUserFilterRadioAnyoneAssignees(): void {
+    this.showUserFilter = false;
+    this.assignees = [];
+  }
+
+  public onUserFilterRadioMyself(checked: boolean): void {
+    if (checked && this.currentUser) {
+      this.showUserFilter = false;
+      this.users = [this.currentUser];
+    }
+  }
+
+  public onUserFilterRadioMyselfAssignees(checked: boolean): void {
+    if (checked && this.currentUser) {
+      this.showAssigneesFilter = false;
+      this.assignees = [this.currentUser];
+    }
+  }
+
+  public onResetFilters(): void {
+    this.params = new HttpParams().set('state', 'NEW,PROG,DONE').set('priority', 'VHIGH,HIGH,NORM,LOW,VLOW');
+    history.pushState(null, '', window.location.pathname);
+
+    this.projectsControl.setValue(null, { emitEvent: false });
+    this.projects = [];
+
+    this.usersControl.setValue(null, { emitEvent: false });
+    this.users = [];
+
+    this.assigneesControl.setValue(null, { emitEvent: false });
+    this.assignees = [];
+
+    this.searchControl.setValue(null, { emitEvent: false });
+
+    this.veryHighCheckbox.setValue(true, { emitEvent: false });
+    this.veryHighCheckbox.markAsPristine();
+
+    this.highCheckbox.setValue(true, { emitEvent: false });
+    this.highCheckbox.markAsPristine();
+
+    this.normalCheckbox.setValue(false, { emitEvent: false });
+    this.normalCheckbox.markAsPristine();
+
+    this.lowCheckbox.setValue(true, { emitEvent: false });
+    this.lowCheckbox.markAsPristine();
+
+    this.veryLowCheckbox.setValue(false, { emitEvent: false });
+    this.veryLowCheckbox.markAsPristine();
+
+    this.newCheckbox.setValue(true, { emitEvent: false });
+    this.newCheckbox.markAsPristine();
+
+    this.progressCheckbox.setValue(true, { emitEvent: false });
+    this.progressCheckbox.markAsPristine();
+
+    this.doneCheckbox.setValue(true, { emitEvent: false });
+    this.doneCheckbox.markAsPristine();
+
+    this.favoritesControl.setValue(null);
+  }
+
   public canDeactivate(): Observable<boolean> {
     if (this.showSidebar) {
       const userStoreValue = this.userStore.getValue();
@@ -586,6 +1175,7 @@ export class TasksPageComponent implements OnInit {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewTaskModalComponent, {
       closeButton: false,
+      enableClose: false,
       data: { withSidebar: this.showSidebar, initialState: { projects: this.project ? [this.project] : [] } },
     });
     /* istanbul ignore next */

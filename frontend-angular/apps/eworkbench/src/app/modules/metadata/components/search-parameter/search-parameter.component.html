@@ -34,24 +34,24 @@
         (changed)="onChanged($event)"
       ></eworkbench-metadata-field>
     </div>
-    <div>
-      <ng-select
-        class="ewb-select"
-        [formControl]="f.combinationOperator"
-        [items]="combinationOperators"
-        [clearable]="false"
-        bindValue="value"
-        (change)="onChanged()"
-      ></ng-select>
-    </div>
     <button
       type="button"
-      class="btn ewb-button ewb-button-big ewb-button-secondary square align-self-center"
+      class="btn ewb-button-big ewb-button-icon square"
       [tooltip]="t('formInput.remove.tooltip')"
       containerClass="tooltip-sm"
       (click)="onRemove()"
     >
       <eworkbench-icon className="wb-remove"></eworkbench-icon>
     </button>
+  </div>
+  <div class="combination mt-4">
+    <ng-select
+      class="ewb-select"
+      [formControl]="f.combinationOperator"
+      [items]="combinationOperators"
+      [clearable]="false"
+      bindValue="value"
+      (change)="onChanged()"
+    ></ng-select>
   </div>
 </ng-container>

@@ -8,6 +8,14 @@
 :host {
   display: block;
 
+  .ssc-head-line {
+    height: 30px;
+  }
+
+  .ssc-line {
+    height: 25px;
+  }
+
   .ssc-line,
   .ssc-head-line {
     border-radius: unset;
@@ -21,7 +29,7 @@
 
       > th {
         font-weight: 600;
-        border-bottom: 1px solid #e6e6e6;
+        border-bottom: 2px solid #e6e6e6;
         padding: 0 10px;
       }
 

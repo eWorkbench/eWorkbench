@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ t('contact.newModal.header') }}
+      {{ duplicate ? t('contact.newModal.duplicate.header', { title: initialState.display }) : t('contact.newModal.create.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
@@ -26,21 +26,23 @@
               (change)="changeCopyProfile($event)"
             >
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                <eworkbench-user-details
-                  class="d-inline-block mr-1"
-                  [user]="item"
-                  (click)="select.isOpen = false"
-                ></eworkbench-user-details>
-                <span class="sub-text">{{ item.email }}</span>
-                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                <div class="flex items-center user-option">
+                  <eworkbench-user-details
+                    class="inline-block mr-1"
+                    [user]="item"
+                    [chip]="true"
+                    (click)="select.isOpen = false"
+                  ></eworkbench-user-details>
+                  <span class="sub-text">{{ item.email }}</span>
+                </div>
               </ng-template>
 
               <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <div class="user-dropdown-option">
-                  <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                  <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
                   <div>
                     <ng-container *ngIf="item?.userprofile.anonymized">
-                      <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                      <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
                     </ng-container>
                     <ng-container *ngIf="!item?.userprofile.anonymized">
                       <ng-container
@@ -75,7 +77,7 @@
           <div class="mb-4">
             <label for="firstName-modal">
               {{ t('contact.newModal.firstName.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -89,7 +91,7 @@
           <div class="mb-4">
             <label for="lastName-modal">
               {{ t('contact.newModal.lastName.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -153,13 +155,16 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>
@@ -169,7 +174,7 @@
               {{ t('contact.newModal.cancel') }}
             </button>
             <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
-              {{ t('contact.newModal.create') }}
+              {{ duplicate ? t('contact.newModal.duplicate') : t('contact.newModal.create') }}
             </button>
           </div>
         </form>

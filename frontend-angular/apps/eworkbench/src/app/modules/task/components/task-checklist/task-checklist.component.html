@@ -4,46 +4,60 @@
 -->
 
 <ng-container *transloco="let t">
-  <ng-container *ngFor="let item of checkboxes.controls; let i = index; let last = last">
-    <div class="d-flex justify-content-between" [class.mb-2]="!last">
-      <div class="mr-3">
-        <div class="custom-control custom-checkbox">
-          <input
-            type="checkbox"
-            class="custom-control-input"
-            [id]="'checkbox.' + uniqueHash + '.' + i"
-            [name]="'checkbox.' + uniqueHash + '.' + i"
-            [formControl]="item"
-            (click)="onTriggerChange()"
-          />
-          <label class="custom-control-label font-weight-normal" [for]="'checkbox.' + uniqueHash + '.' + i"></label>
+  <div
+    cdkDropList
+    [cdkDropListData]="checklistObjects"
+    [cdkDropListOrientation]="dropListOrientation"
+    (cdkDropListDropped)="onElementDrop($event)"
+  >
+    <div cdkDropListGroup>
+      <div
+        cdkDrag
+        class="flex justify-between"
+        [class.mb-2]="!last"
+        [cdkDragDisabled]="checkboxes.controls.length < 2 || !editable"
+        *ngFor="let item of checkboxes.controls; let i = index; let last = last"
+      >
+        <div class="mr-3">
+          <div class="custom-control custom-checkbox">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              [id]="'checkbox.' + uniqueHash + '.' + i"
+              [name]="'checkbox.' + uniqueHash + '.' + i"
+              [formControl]="item"
+              (click)="onTriggerChange()"
+            />
+            <label class="custom-control-label font-normal" [for]="'checkbox.' + uniqueHash + '.' + i"></label>
+          </div>
+        </div>
+
+        <div class="flex-fill self-center">
+          <textarea
+            autosize
+            class="form-control ewb-input"
+            [formControl]="titles.controls[i]"
+            [id]="'item.' + uniqueHash + '.' + i"
+            [name]="'item.' + uniqueHash + '.' + i"
+            (change)="onTriggerChange()"
+          ></textarea>
+        </div>
+
+        <div class="align-self-center ml-2" *ngIf="editable">
+          <eworkbench-icon
+            cdkDragHandle
+            className="wb-arrow-cross"
+            class="handle cursor-move mr-2"
+            *ngIf="checkboxes.controls.length > 1"
+          ></eworkbench-icon>
+          <span class="delete-icon" [tooltip]="t('formInput.remove.tooltip')" containerClass="tooltip-sm" (click)="onRemoveItem(i)"
+            ><eworkbench-icon className="wb-remove"></eworkbench-icon
+          ></span>
         </div>
       </div>
-
-      <div class="flex-fill align-self-center">
-        <textarea
-          autosize
-          class="form-control ewb-input"
-          [formControl]="titles.controls[i]"
-          [id]="'item.' + uniqueHash + '.' + i"
-          [name]="'item.' + uniqueHash + '.' + i"
-          (change)="onTriggerChange()"
-        ></textarea>
-      </div>
-
-      <button
-        type="button"
-        class="btn ewb-button-big ewb-button-icon square ml-2 align-self-center"
-        [tooltip]="t('formInput.remove.tooltip')"
-        containerClass="tooltip-sm"
-        (click)="onRemoveItem(i)"
-        *ngIf="editable"
-      >
-        <eworkbench-icon className="wb-remove"></eworkbench-icon>
-      </button>
     </div>
-  </ng-container>
-  <button id="checklist" type="button" class="btn ewb-button-big ewb-button-primary mt-2" (click)="onAddItem()" *ngIf="editable">
-    {{ t('task.checklist.add') }}
+  </div>
+  <button id="checklist" type="button" class="btn ewb-button-background square rounded-none mt-2" (click)="onAddItem()" *ngIf="editable">
+    <eworkbench-icon className="wb-plus-circle"></eworkbench-icon>
   </button>
 </ng-container>

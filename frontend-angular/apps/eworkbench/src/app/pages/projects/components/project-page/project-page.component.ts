@@ -4,11 +4,14 @@
  */
 
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
+import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
+import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { AuthService, PageTitleService, ProjectsService, TasksService, WebSocketService } from '@app/services';
 import { UserStore } from '@app/stores/user';
@@ -50,6 +53,9 @@ interface FormProject {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectPageComponent implements OnInit, OnDestroy {
+  @ViewChild(CommentsComponent)
+  public comments!: CommentsComponent;
+
   public title?: string;
 
   public id = this.route.snapshot.paramMap.get('projectId')!;
@@ -265,6 +271,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
                     this.parentProject = [...this.parentProject, project]
                       .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                       .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                    this.cdr.markForCheck();
                   }),
                   switchMap(() => of(project))
                 );
@@ -414,7 +421,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
     );
   }
 
-  public onOpenNewSubProjectModal(): void {
+  public onOpenNewSubprojectModal(): void {
     this.modalRef = this.modalService.open(NewProjectModalComponent, {
       closeButton: false,
       data: {
@@ -423,8 +430,10 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
           project_state: 'INIT',
         },
         disableProjectField: true,
+        newSubproject: true,
       },
     });
+
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
@@ -440,6 +449,25 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
 
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
+  }
+
+  public onOpenNewCommentModal(): void {
+    this.modalRef = this.modalService.open(NewCommentModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        contentType: this.initialState?.content_type,
+        service: this.projectsService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
+      if (callback.state === ModalState.Changed) {
+        this.comments.loadComments();
+      }
+    });
   }
 
   public onModalClose(callback?: ModalCallback): void {

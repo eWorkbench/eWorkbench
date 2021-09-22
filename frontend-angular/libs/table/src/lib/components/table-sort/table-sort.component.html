@@ -10,10 +10,10 @@
   containerClass="tooltip-sm"
   (click)="onSortChanged(column.key)"
 >
-  <div class="d-flex flex-column">
+  <div class="flex flex-col">
     <eworkbench-icon
-      class="d-inline-block sort-icon"
-      [class.sort-inactive]="column.key !== sortBy || sort === sortDirection.None"
+      class="inline-block text-tum-primary"
+      [ngClass]="{ 'text-tum-info-color': column.key !== sortBy || sort === sortDirection.None }"
       [className]="sortIcon"
     ></eworkbench-icon>
   </div>

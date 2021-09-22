@@ -21,7 +21,7 @@
           <div class="mb-4">
             <label for="title-modal">
               {{ t('appointments.editModal.title.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -61,14 +61,14 @@
             />
           </div>
           <div class="mb-4">
-            <label for="attendingUsers-modal">{{ t('appointments.editModal.attendingUsers.label') }}</label>
+            <label for="attendees-modal">{{ t('appointments.editModal.attendees.label') }}</label>
             <ng-select
               #select
               class="ewb-select"
-              formControlName="attendingUsers"
-              labelForId="attendingUsers-modal"
-              name="attendingUsers-modal"
-              [placeholder]="t('appointments.editModal.attendingUsers.placeholder')"
+              formControlName="attendees"
+              labelForId="attendees-modal"
+              name="attendees-modal"
+              [placeholder]="t('appointments.editModal.attendees.placeholder')"
               [multiple]="true"
               [typeahead]="assigneesInput$"
               [items]="assignees"
@@ -77,21 +77,24 @@
               (change)="changeAssignees($event)"
             >
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                <eworkbench-user-details
-                  class="d-inline-block mr-1"
-                  [user]="item"
-                  (click)="select.isOpen = false"
-                ></eworkbench-user-details>
-                <span class="sub-text">{{ item.email }}</span>
-                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                <div class="flex items-center user-option">
+                  <eworkbench-user-details
+                    class="inline-block mr-1"
+                    [user]="item"
+                    [chip]="true"
+                    (click)="select.isOpen = false"
+                  ></eworkbench-user-details>
+                  <span class="sub-text">{{ item.email }}</span>
+                  <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                </div>
               </ng-template>
 
               <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <div class="user-dropdown-option">
-                  <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                  <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
                   <div>
                     <ng-container *ngIf="item?.userprofile.anonymized">
-                      <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                      <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
                     </ng-container>
                     <ng-container *ngIf="!item?.userprofile.anonymized">
                       <ng-container
@@ -141,13 +144,13 @@
                 id="remindAttending-modal"
                 name="remindAttending-modal"
               />
-              <label class="custom-control-label font-weight-normal" for="remindAttending-modal">{{
+              <label class="custom-control-label font-normal" for="remindAttending-modal">{{
                 t('appointments.editModal.remindAttending.label')
               }}</label>
             </div>
           </div>
           <div class="mb-4" *ngIf="f.scheduledNotificationActive.value">
-            <div class="d-flex">
+            <div class="flex items-center">
               <div class="flex-fill mr-3">
                 <input
                   type="text"
@@ -174,7 +177,7 @@
           </div>
           <div class="mb-4">
             <label for="description-modal">{{ t('appointments.editModal.description.label') }}</label>
-            <eworkbench-wysiwyg-editor id="description-modal" formControlName="description"></eworkbench-wysiwyg-editor>
+            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description"></eworkbench-wysiwyg-editor>
           </div>
           <div class="mb-4">
             <label for="projects-modal">{{ t('appointments.editModal.projects.label') }}</label>
@@ -196,13 +199,16 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>

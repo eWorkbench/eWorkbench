@@ -4,7 +4,7 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="d-flex justify-content-between mt-3 mb-1">
+  <div class="flex justify-between mt-3 mb-1">
     <label class="label-text">{{ t('resources.allBookings.header') }}</label>
 
     <div>
@@ -12,7 +12,7 @@
         {{ t('resources.allBookings.export') }}
       </button>
 
-      <div class="custom-control custom-checkbox d-inline-block ml-3">
+      <div class="custom-control custom-checkbox inline-block ml-3">
         <input
           class="custom-control-input"
           type="checkbox"
@@ -27,7 +27,7 @@
   </div>
 
   <eworkbench-table-manage-columns
-    class="d-flex justify-content-end mb-3"
+    class="flex justify-end mb-3"
     [columns]="listColumns"
     [defaultColumns]="defaultColumns"
     (columnsChanged)="onColumnsChanged($event)"
@@ -68,8 +68,8 @@
     {{ row.text | stripHTML }}
   </eworkbench-ellipsis-element>
 </ng-template>
-<ng-template #attendingUsersCellTemplate let-row>
-  <eworkbench-users-grouping [users]="row.attending_users"></eworkbench-users-grouping>
+<ng-template #attendeesCellTemplate let-row>
+  <eworkbench-users-grouping [users]="row.attending_users" [chip]="true"></eworkbench-users-grouping>
 </ng-template>
 <ng-template #dateTimeStartCellTemplate let-row>
   {{ row.date_time_start | formatDate }}
@@ -97,7 +97,7 @@
       </button>
 
       <eworkbench-trash-button
-        class="d-inline-block mr-2"
+        class="inline-block mr-2"
         [service]="allResourceBookingsService"
         [id]="row.pk"
         [tableView]="tableView"

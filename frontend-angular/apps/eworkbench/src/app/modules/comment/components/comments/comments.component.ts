@@ -3,20 +3,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { Validators } from '@angular/forms';
-import { ModalState } from '@app/enums/modal-state.enum';
-import { NotesService, SitePreferencesService } from '@app/services';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { HttpParams } from '@angular/common/http';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { CommentsState } from '@app/enums/comments-state.enum';
+import { SitePreferencesService } from '@app/services';
+import { TableColumn, TableSortDirection, TableViewComponent } from '@eworkbench/table';
+import { DropdownElement, SitePreferences } from '@eworkbench/types';
+import { FormControl } from '@ngneat/reactive-forms';
+import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { switchMap } from 'rxjs/operators';
-import { DeepNonNullable } from 'utility-types';
-
-interface FormComments {
-  subject: string | null;
-  content: string | null;
-  projects: string[] | null;
-}
 
 @UntilDestroy()
 @Component({
@@ -36,45 +31,75 @@ export class CommentsComponent implements OnInit {
   public contentType!: string;
 
   @Input()
-  public projects: string[] = [];
+  public create = false;
 
-  public data: any[] = [];
+  @ViewChild('tableView')
+  public tableView!: TableViewComponent;
 
-  public contentTypes: Record<string, number> = {};
+  @ViewChild('containerCellTemplate', { static: true })
+  public containerCellTemplate!: TemplateRef<any>;
 
-  public state = ModalState.Unchanged;
+  public params = new HttpParams();
 
-  public loading = true;
+  public listColumns: TableColumn[] = [];
 
-  public form = this.fb.group<FormComments>({
-    subject: [null, [Validators.required]],
-    content: [null, [Validators.required]],
-    projects: [[]],
-  });
+  public dropdownStates: DropdownElement[] = [];
+
+  public dropdownStateControl = new FormControl(CommentsState.All);
+
+  public dropdownSortControl = new FormControl(TableSortDirection.Descending);
+
+  public sort = TableSortDirection.Descending;
+
+  public sortBy = 'created_at';
+
+  public initialLoading = true;
 
   public constructor(
-    private readonly notesService: NotesService,
     private readonly sitePreferencesService: SitePreferencesService,
-    private readonly fb: FormBuilder,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly translocoService: TranslocoService
   ) {}
 
-  public get f(): FormGroup<FormComments>['controls'] {
-    /* istanbul ignore next */
-    return this.form.controls;
-  }
-
-  public get payload(): DeepNonNullable<FormComments> {
-    return {
-      subject: this.f.subject.value!,
-      content: this.f.content.value ?? '',
-      projects: this.projects,
-    };
-  }
-
   public ngOnInit(): void {
+    this.initTranslations();
     this.initSitePreferences();
-    this.initComments();
+  }
+
+  public initTranslations(): void {
+    this.translocoService
+      .selectTranslateObject('comments.columns')
+      .pipe(untilDestroyed(this))
+      .subscribe(column => {
+        this.listColumns = [
+          {
+            cellTemplate: this.containerCellTemplate,
+            name: column.title,
+            key: 'title',
+            hideable: false,
+          },
+        ];
+      });
+
+    this.translocoService
+      .selectTranslateObject('comments.state')
+      .pipe(untilDestroyed(this))
+      .subscribe(states => {
+        this.dropdownStates = [
+          {
+            value: CommentsState.All,
+            label: states.all,
+          },
+          {
+            value: CommentsState.Public,
+            label: states.public,
+          },
+          {
+            value: CommentsState.Private,
+            label: states.private,
+          },
+        ];
+      });
   }
 
   public initSitePreferences(): void {
@@ -82,54 +107,42 @@ export class CommentsComponent implements OnInit {
       .get()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (preferences: any) => {
-          this.contentTypes = preferences.content_types;
+        /* istanbul ignore next */ (preferences: SitePreferences) => {
+          this.params = this.params.set('with_content_type', preferences.content_types['shared_elements.comment']);
+          this.initialLoading = false;
           this.cdr.markForCheck();
         }
       );
   }
 
-  public initComments(): void {
-    this.service
-      .getRelations(this.id)
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ (links: any) => {
-          this.loading = false;
-          this.data = links.filter((link: any) => link.left_content_type_model === 'shared_elements.note').reverse();
-          this.cdr.markForCheck();
-        }
-      );
+  public loadComments(): void {
+    this.tableView.loadData();
   }
 
-  public onSubmit(): void {
-    if (this.loading) {
-      return;
+  public onChangeState(element: DropdownElement): void {
+    switch (element.value) {
+      case CommentsState.Public:
+        this.params = this.params.set('private', false);
+        this.tableView.updateParams(this.params);
+        this.tableView.loadData();
+        break;
+      case CommentsState.Private:
+        this.params = this.params.set('private', true);
+        this.tableView.updateParams(this.params);
+        this.tableView.loadData();
+        break;
+      default:
+        this.params = this.params.delete('private');
+        this.tableView.updateParams(this.params);
+        this.tableView.loadData();
+        break;
     }
-    this.loading = true;
+  }
 
-    this.notesService
-      .add(this.payload)
-      .pipe(
-        untilDestroyed(this),
-        switchMap(note =>
-          this.service.addRelation(this.id, {
-            left_content_type: this.contentTypes['shared_elements.note'],
-            left_object_id: note.pk,
-            right_content_type: this.contentType,
-            right_object_id: this.id,
-          })
-        )
-      )
-      .subscribe(
-        /* istanbul ignore next */ () => {
-          this.loading = false;
-          this.initComments();
-        },
-        /* istanbul ignore next */ () => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        }
-      );
+  public onChangeSort(element: number): void {
+    this.sort = element;
+    this.tableView.updateSort(element);
+    this.tableView.loadData();
+    this.cdr.markForCheck();
   }
 }

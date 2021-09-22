@@ -100,7 +100,7 @@
     *ngIf="timeBetween"
   ></eworkbench-resource-booking-rules-duration>
 
-  <div class="d-flex mt-3" *ngIf="editable">
+  <div class="flex mt-3" *ngIf="editable">
     <div class="flex-fill">
       <ng-select
         class="ewb-select"
@@ -115,7 +115,7 @@
       ></ng-select>
     </div>
 
-    <div class="ml-2 align-self-center" *ngIf="showButtons()">
+    <div class="ml-2 self-center" *ngIf="showButtons()">
       <button type="submit" class="btn ewb-button-big ewb-button-primary square mr-2" [disabled]="loading">
         <eworkbench-icon className="wb-check"></eworkbench-icon>
       </button>

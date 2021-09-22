@@ -4,8 +4,10 @@
 #
 from eric.core.models import BaseManager
 from eric.kanban_boards.models.querysets import KanbanBoardQuerySet, KanbanBoardColumnQuerySet, \
-    KanbanBoardColumnTaskAssignmentQuerySet
+    KanbanBoardColumnTaskAssignmentQuerySet, KanbanBoardUserFilterSettingQuerySet, KanbanBoardUserSettingQuerySet
 
 KanbanBoardManager = BaseManager.from_queryset(KanbanBoardQuerySet)
 KanbanBoardColumnManager = BaseManager.from_queryset(KanbanBoardColumnQuerySet)
 KanbanBoardColumnTaskAssignmentManager = BaseManager.from_queryset(KanbanBoardColumnTaskAssignmentQuerySet)
+KanbanBoardUserFilterSettingManager = BaseManager.from_queryset(KanbanBoardUserFilterSettingQuerySet)
+KanbanBoardUserSettingManager = BaseManager.from_queryset(KanbanBoardUserSettingQuerySet)

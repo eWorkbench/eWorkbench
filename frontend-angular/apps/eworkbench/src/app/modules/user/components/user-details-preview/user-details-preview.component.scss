@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+@import 'colors';
+
 :host {
   display: block;
 
@@ -19,6 +21,12 @@
 
       .semi-bold {
         font-weight: 600;
+      }
+
+      .secondary-info {
+        a {
+          color: $primary-color;
+        }
       }
 
       @media (min-width: 769px) {

@@ -22,6 +22,7 @@ export class AuthService {
   }
 
   public logout(): void {
+    localStorage.removeItem('hideMaintenance');
     this.userService.logout();
   }
 }

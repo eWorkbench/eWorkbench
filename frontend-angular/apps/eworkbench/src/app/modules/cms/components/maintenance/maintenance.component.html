@@ -6,11 +6,11 @@
 <ng-container *transloco="let t">
   <div class="notification" *ngIf="maintenance?.visible && maintenance?.text">
     <div class="notification-content">
-      <eworkbench-icon className="wb-exclamation" class="align-self-center"></eworkbench-icon>
+      <eworkbench-icon className="wb-exclamation" class="self-center"></eworkbench-icon>
       <span [innerHTML]="maintenance?.text | stripHTML"></span>
       <a
         href
-        class="align-self-center text-right"
+        class="self-center text-right"
         [tooltip]="t('maintenance.hide.tooltip')"
         container="body"
         containerClass="tooltip-sm"

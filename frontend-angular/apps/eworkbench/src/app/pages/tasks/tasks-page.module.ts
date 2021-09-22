@@ -7,6 +7,7 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
@@ -34,6 +35,7 @@ import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { TaskPageComponent } from './components/task-page/task-page.component';
 import { TasksPageComponent } from './components/tasks-page/tasks-page.component';
 import { TasksPageRoutingModule } from './tasks-page-routing.module';
@@ -78,6 +80,9 @@ import { TasksPageRoutingModule } from './tasks-page-routing.module';
     SkeletonsModule,
     LinkModule,
     FavoritesModule,
+    CommentModule,
+    LoadingModule,
+    TooltipModule.forRoot(),
   ],
 })
 export class TasksPageModule {}

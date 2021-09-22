@@ -12,7 +12,7 @@
     <main>
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile">
         <div class="mb-4">
-          <input type="file" accept="image/*" class="d-none" formControlName="avatar" (change)="onUploadAvatar($event)" #avatarFileSelect />
+          <input type="file" accept="image/*" class="hidden" formControlName="avatar" (change)="onUploadAvatar($event)" #avatarFileSelect />
 
           <div class="text-center" *ngIf="!newAvatar">
             <img *ngIf="avatar" class="avatar" [src]="avatar" [alt]="t('profile.picture')" />
@@ -135,7 +135,7 @@
             <div id="employee-affiliation">
               <div *ngFor="let _ of employeeAffiliation.controls; let i = index" class="mb-4">
                 <eworkbench-form-input [for]="'employeeAffiliation.' + i" [loading]="loading" [onSubmit]="refreshResetValue">
-                  <div class="d-flex justify-content-between" slot="input">
+                  <div class="flex justify-between" slot="input">
                     <div class="flex-fill">
                       <input
                         type="text"
@@ -149,7 +149,7 @@
 
                     <button
                       type="button"
-                      class="btn ewb-button-big ewb-button-icon square ml-2 align-self-center"
+                      class="btn ewb-button-big ewb-button-icon square ml-2 self-center"
                       [disabled]="loading"
                       [tooltip]="t('formInput.remove.tooltip')"
                       containerClass="tooltip-sm"
@@ -170,7 +170,7 @@
                 >
                   {{ t('profile.employeeAffiliation.add') }}
                 </button>
-                <div class="ml-3 d-inline-block" *ngIf="showEmployeeAffiliationButton">
+                <div class="ml-3 inline-block" *ngIf="showEmployeeAffiliationButton">
                   <button
                     type="submit"
                     class="btn ewb-button-big ewb-button-primary square"
@@ -183,7 +183,7 @@
                   </button>
                   <button
                     type="button"
-                    class="btn ewb-button-big ewb-button-secondary square ml-1 align-self-center"
+                    class="btn ewb-button-big ewb-button-secondary square ml-1 self-center"
                     [disabled]="loading"
                     [tooltip]="t('formInput.reset.tooltip')"
                     containerClass="tooltip-sm"
@@ -211,7 +211,7 @@
             <div id="student-affiliation">
               <div *ngFor="let _ of studentAffiliation.controls; let i = index" class="mb-4">
                 <eworkbench-form-input [for]="'studentAffiliation.' + i" [loading]="loading" [onSubmit]="refreshResetValue">
-                  <div class="d-flex justify-content-between" slot="input">
+                  <div class="flex justify-between" slot="input">
                     <div class="flex-fill">
                       <input
                         type="text"
@@ -224,7 +224,7 @@
                     </div>
                     <button
                       type="button"
-                      class="btn ewb-button-big ewb-button-icon square ml-2 align-self-center"
+                      class="btn ewb-button-big ewb-button-icon square ml-2 self-center"
                       [disabled]="loading"
                       [tooltip]="t('formInput.remove.tooltip')"
                       containerClass="tooltip-sm"
@@ -245,7 +245,7 @@
                 >
                   {{ t('profile.studentAffiliation.add') }}
                 </button>
-                <div class="ml-3 d-inline-block" *ngIf="showStudentAffiliationButton">
+                <div class="ml-3 inline-block" *ngIf="showStudentAffiliationButton">
                   <button
                     type="submit"
                     class="btn ewb-button-big ewb-button-primary square"
@@ -258,7 +258,7 @@
                   </button>
                   <button
                     type="button"
-                    class="btn ewb-button-big ewb-button-secondary square ml-1 align-self-center"
+                    class="btn ewb-button-big ewb-button-secondary square ml-1 self-center"
                     [disabled]="loading"
                     [tooltip]="t('formInput.reset.tooltip')"
                     containerClass="tooltip-sm"
@@ -392,7 +392,7 @@
         <div>
           <div class="preview">
             <div class="preview-header">{{ t('profile.preview') }}</div>
-            <div class="p-3">
+            <div class="p-6">
               <eworkbench-user-details-preview [user]="initialState" *ngIf="initialState"></eworkbench-user-details-preview>
             </div>
           </div>

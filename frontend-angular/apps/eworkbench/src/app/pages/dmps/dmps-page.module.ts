@@ -7,6 +7,7 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { DMPModule } from '@app/modules/dmp/dmp.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
@@ -80,6 +81,8 @@ import { DMPsPageRoutingModule } from './dmps-page-routing.module';
     TooltipModule.forRoot(),
     DMPModule,
     FavoritesModule,
+    CommentModule,
+    LoadingModule,
   ],
 })
 export class DMPsPageModule {}

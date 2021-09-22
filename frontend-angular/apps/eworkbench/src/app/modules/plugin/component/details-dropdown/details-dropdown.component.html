@@ -5,7 +5,7 @@
 
 <ng-container *transloco="let t">
   <div id="plugin-details-dropdown">
-    <div *ngIf="dropdown" class="d-inline-block h-100 navbar-nav" dropdown container="#plugin-details-dropdown" placement="bottom right">
+    <div *ngIf="dropdown" class="inline-block h-full navbar-nav" dropdown container="#plugin-details-dropdown" placement="bottom right">
       <button
         type="button"
         [id]="'plugin-details-dropdown-button' + plugin.pk"
@@ -34,7 +34,7 @@
         ></ng-template>
       </ul>
     </div>
-    <div *ngIf="!dropdown" class="d-inline-block w-100 navbar-nav">
+    <div *ngIf="!dropdown" class="inline-block w-full navbar-nav">
       <button
         type="button"
         class="btn ewb-button-big ewb-button-background square-md"

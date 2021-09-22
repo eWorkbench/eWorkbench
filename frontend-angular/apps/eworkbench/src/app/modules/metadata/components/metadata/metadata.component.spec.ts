@@ -11,10 +11,10 @@ import { LoadingModule } from '@app/modules/loading/loading.module';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
 import { ModalsModule } from '@eworkbench/modals';
-import { cloneDeep } from 'lodash';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef } from '@ngneat/dialog';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
+import { cloneDeep } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { MetadataFieldHelperComponent } from '../field-helper/field-helper.component';
@@ -53,18 +53,6 @@ describe('MetadataComponent', () => {
 
   it('should create', () => {
     expect(spectator).toBeTruthy();
-  });
-
-  it('should call onCancel()', () => {
-    spectator.setInput({ hasChanged: false });
-    expect(spectator.component.hasChanged).toBe(false);
-    spectator.component.onCancel();
-    expect(spectator.component.hasChanged).toBe(false);
-
-    spectator.setInput({ hasChanged: true });
-    expect(spectator.component.hasChanged).toBe(true);
-    spectator.component.onCancel();
-    expect(spectator.component.hasChanged).toBe(false);
   });
 
   it('should call emitChanges()', () => {

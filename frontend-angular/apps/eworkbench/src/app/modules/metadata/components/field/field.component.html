@@ -5,8 +5,8 @@
 
 <ng-container *transloco="let t">
   <div class="metadata-field" *ngFor="let answer of answers.controls; let i = index">
-    <div class="d-flex justify-content-between">
-      <div class="align-self-center mr-3" *ngIf="showCheckbox()">
+    <div class="flex justify-between">
+      <div class="self-center mr-3" *ngIf="showCheckbox()">
         <div class="custom-control custom-checkbox">
           <input
             type="checkbox"
@@ -17,10 +17,10 @@
             [disabled]="!editable"
             (click)="onChanged(baseType === 'checkbox' ? id : answers.controls[i].value)"
           />
-          <label class="custom-control-label font-weight-normal" [for]="'checkbox.' + uuid + '.' + i"></label>
+          <label class="custom-control-label font-normal" [for]="'checkbox.' + uuid + '.' + i"></label>
         </div>
       </div>
-      <div class="align-self-center mr-3" *ngIf="showRadio()">
+      <div class="self-center mr-3" *ngIf="showRadio()">
         <div class="custom-control custom-radio">
           <input
             type="radio"
@@ -35,7 +35,7 @@
           <label class="custom-control-label" [for]="'options.' + uuid + '.' + i"></label>
         </div>
       </div>
-      <div class="flex-fill align-self-center" *ngIf="baseType !== 'checkbox'">
+      <div class="flex-fill self-center" *ngIf="baseType !== 'checkbox'">
         <div class="input-group" *ngIf="!datepicker">
           <div class="input-group-prepend">
             <ng-container *ngIf="baseType === 'gps'">
@@ -75,8 +75,8 @@
   </div>
 
   <div class="metadata-field" *ngIf="isNotFinal()">
-    <div class="d-flex justify-content-between">
-      <div class="align-self-center mr-3" *ngIf="showCheckbox()">
+    <div class="flex justify-between">
+      <div class="self-center mr-3" *ngIf="showCheckbox()">
         <div class="custom-control custom-checkbox">
           <input
             type="checkbox"
@@ -86,10 +86,10 @@
             [name]="'checkbox.' + uuid"
             [disabled]="!editable"
           />
-          <label class="custom-control-label font-weight-normal" [for]="'checkbox.' + uuid + '.custom'"></label>
+          <label class="custom-control-label font-normal" [for]="'checkbox.' + uuid + '.custom'"></label>
         </div>
       </div>
-      <div class="align-self-center mr-3" *ngIf="showRadio()">
+      <div class="self-center mr-3" *ngIf="showRadio()">
         <div class="custom-control custom-radio">
           <input
             type="radio"
@@ -104,7 +104,7 @@
           <label class="custom-control-label" [for]="'options.' + uuid + '.custom'"></label>
         </div>
       </div>
-      <div class="flex-fill align-self-center">
+      <div class="flex-fill self-center">
         <input
           type="text"
           class="form-control ewb-input"

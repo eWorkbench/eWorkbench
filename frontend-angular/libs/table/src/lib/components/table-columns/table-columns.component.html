@@ -26,7 +26,7 @@
       <ng-container *ngFor="let column of _columns">
         <li
           *ngIf="column.hideable !== false"
-          class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button"
+          class="btn ewb-button-regular font-normal w-full text-left menu-item-button"
           role="menuitem"
           (change)="onColumnChanged(column)"
         >
@@ -38,7 +38,7 @@
               class="custom-control-input"
               [checked]="!column.hidden"
             />
-            <label class="custom-control-label w-100 font-weight-normal cursor-pointer" [for]="'table-column' + column.key">{{
+            <label class="custom-control-label w-full font-normal cursor-pointer" [for]="'table-column' + column.key">{{
               column.name
             }}</label>
           </div>
@@ -46,7 +46,7 @@
       </ng-container>
     </ul>
     <div *ngIf="reset" class="reset-columns cursor-pointer" (click)="resetColumns()">
-      <eworkbench-icon class="d-inline-block ml-3 mr-2" className="wb-undo"></eworkbench-icon>
+      <eworkbench-icon class="inline-block ml-3 mr-2" className="wb-undo"></eworkbench-icon>
       Reset to default
     </div>
   </div>

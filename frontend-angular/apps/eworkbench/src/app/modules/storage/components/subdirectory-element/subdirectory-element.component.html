@@ -8,16 +8,16 @@
     <div class="pl-4">
       <div>
         <ng-container *ngFor="let file of directoryFiles">
-          <div class="file-row pl-2 border-bottom">
-            <div class="align-self-center">
+          <div class="file-row pl-2 border-b">
+            <div class="self-center">
               <button type="button" class="btn btn-sm bg-transparent pl-0 mr-1">
-                <eworkbench-ellipsis-element class="d-inline-flex" [maxWidth]="300">
+                <eworkbench-ellipsis-element class="inline-flex" [maxWidth]="300">
                   <eworkbench-icon class="mr-1" [className]="file.icon_class"></eworkbench-icon>
                   <a [routerLink]="['/files', file.pk]">{{ file.name }}</a>
                 </eworkbench-ellipsis-element>
               </button>
             </div>
-            <div class="file-actions align-self-center">
+            <div class="file-actions self-center">
               <button
                 type="button"
                 class="btn btn-sm bg-transparent mr-1"
@@ -28,10 +28,10 @@
                 ({{ file?.file_size | formatFileSize }})
               </button>
             </div>
-            <div class="file-actions align-self-center">
+            <div class="file-actions self-center">
               <eworkbench-favorite-button
                 *ngIf="!file.deleted"
-                class="d-inline-block mr-2"
+                class="inline-block mr-2"
                 [id]="file.pk"
                 [contentType]="file.content_type"
                 [favorited]="file.is_favourite"
@@ -65,11 +65,11 @@
   </eworkbench-loading>
   <ng-template #collapseLabelTemplate let-directory>
     <div class="directory-row pt-1 pb-1">
-      <div class="align-self-center">
+      <div class="self-center">
         <eworkbench-icon className="wb-folder" class="mr-1"></eworkbench-icon
         ><a (click)="onOpenEditDirectoryModal(directory)">{{ directory.name }}</a>
       </div>
-      <div class="directory-actions align-self-center">
+      <div class="directory-actions self-center">
         <button
           class="btn ewb-button-small square"
           (click)="onOpenNewDirectoryModal(directory)"
@@ -92,7 +92,7 @@
           [tooltip]="t('storages.directory.actions.addExistingFile')"
           containerClass="tooltip-sm"
         >
-          <eworkbench-icon className="wb-plus"></eworkbench-icon>
+          <eworkbench-icon className="wb-plus-circle"></eworkbench-icon>
         </button>
         <button
           class="btn ewb-button-small square"
@@ -101,7 +101,7 @@
           containerClass="tooltip-sm"
         >
           <eworkbench-icon className="wb-upload"></eworkbench-icon>
-          <input type="file" class="d-none" (change)="onUpload($event, directory)" #file />
+          <input type="file" class="hidden" (change)="onUpload($event, directory)" #file />
         </button>
         <button
           class="btn ewb-button-small square"

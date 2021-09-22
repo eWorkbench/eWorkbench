@@ -5,23 +5,23 @@
 
 <ng-container *transloco="let t">
   <ng-container *ngIf="priority === 'VHIGH'">
-    <eworkbench-icon className="wb-2-chevrons-up" [class.mr-1]="label"></eworkbench-icon>
+    <eworkbench-icon className="wb-2-chevrons-up" class="ewb-priority-very-high" [class.mr-1]="label"></eworkbench-icon>
     <ng-container *ngIf="label">{{ t('tasks.priority.veryHigh') }}</ng-container>
   </ng-container>
   <ng-container *ngIf="priority === 'HIGH'">
-    <eworkbench-icon className="wb-chevron-up" [class.mr-1]="label"></eworkbench-icon>
+    <eworkbench-icon className="wb-chevron-up" class="ewb-priority-high" [class.mr-1]="label"></eworkbench-icon>
     <ng-container *ngIf="label">{{ t('tasks.priority.high') }}</ng-container>
   </ng-container>
   <ng-container *ngIf="priority === 'NORM'">
-    <eworkbench-icon className="wb-priority-normal" [class.mr-1]="label"></eworkbench-icon>
+    <eworkbench-icon className="wb-priority-normal" class="ewb-priority-normal" [class.mr-1]="label"></eworkbench-icon>
     <ng-container *ngIf="label">{{ t('tasks.priority.normal') }}</ng-container>
   </ng-container>
   <ng-container *ngIf="priority === 'LOW'">
-    <eworkbench-icon className="wb-chevron-down-1" [class.mr-1]="label"></eworkbench-icon>
+    <eworkbench-icon className="wb-chevron-down-1" class="ewb-priority-low" [class.mr-1]="label"></eworkbench-icon>
     <ng-container *ngIf="label">{{ t('tasks.priority.low') }}</ng-container>
   </ng-container>
   <ng-container *ngIf="priority === 'VLOW'">
-    <eworkbench-icon className="wb-2-chevrons-down" [class.mr-1]="label"></eworkbench-icon>
+    <eworkbench-icon className="wb-2-chevrons-down" class="ewb-priority-very-low" [class.mr-1]="label"></eworkbench-icon>
     <ng-container *ngIf="label">{{ t('tasks.priority.veryLow') }}</ng-container>
   </ng-container>
 </ng-container>

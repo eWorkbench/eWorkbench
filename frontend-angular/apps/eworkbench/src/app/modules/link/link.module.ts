@@ -56,6 +56,6 @@ import { SearchContentComponent } from './components/search-content/search-conte
     CommentModule,
     SkeletonsModule,
   ],
-  exports: [LinkComponent],
+  exports: [LinkComponent, LinkListComponent],
 })
 export class LinkModule {}

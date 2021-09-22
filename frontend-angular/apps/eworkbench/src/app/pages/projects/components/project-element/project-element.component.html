@@ -4,26 +4,29 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="project-element mb-4">
+  <div class="project-element mb-6">
     <div class="project-element-header">
-      <button
-        type="button"
-        class="btn ewb-button-big ewb-button-primary close-button square mr-2"
-        [attr.aria-expanded]="!collapsed"
-        aria-controls="collapseBasic"
-        (click)="onCollapse()"
-        [disabled]="loading"
-      >
-        <eworkbench-icon *ngIf="collapsed" className="wb-plus"></eworkbench-icon>
-        <eworkbench-icon *ngIf="!collapsed" className="wb-minus"></eworkbench-icon>
-      </button>
-      <span class="label-text">{{ labelText }}</span>
-      <div class="ml-auto">
-        <ng-content select="[slot=actions]"></ng-content>
+      <div class="flex justify-between mb-4 w-full">
+        <div class="flex items-center">
+          <button
+            type="button"
+            class="btn ewb-button-big ewb-button-primary close-button square mr-2"
+            [attr.aria-expanded]="!collapsed"
+            aria-controls="collapseBasic"
+            (click)="onCollapse()"
+            [disabled]="loading"
+          >
+            <eworkbench-icon *ngIf="collapsed" className="wb-plus"></eworkbench-icon>
+            <eworkbench-icon *ngIf="!collapsed" className="wb-minus"></eworkbench-icon>
+          </button>
+          <span class="label-text">{{ labelText }}</span>
+        </div>
+        <div class="ml-auto">
+          <ng-content select="[slot=actions]"></ng-content>
+        </div>
       </div>
     </div>
-    <hr />
-    <div [collapse]="collapsed">
+    <div [collapse]="collapsed" [ngClass]="{ 'mt-4': !collapsed }">
       <eworkbench-loading [loading]="loading">
         <ng-content select="[slot=body]" *ngIf="!loading"></ng-content>
       </eworkbench-loading>

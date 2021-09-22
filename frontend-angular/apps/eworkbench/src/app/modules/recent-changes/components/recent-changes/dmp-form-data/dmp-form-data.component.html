@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <div>{{ t('recentChanges.dmpFormData.dmpFormDataHaveChanged') }}</div>
   <ng-container *ngFor="let field of changeSet">
-    <div class="font-weight-bold">{{ field.name }}</div>
+    <div class="font-bold">{{ field.name }}</div>
     <div class="bg-danger p-2" [innerHTML]="field.oldValue | safeHTML" *ngIf="field.oldValue"></div>
     <div class="bg-success p-2" [innerHTML]="field.newValue | safeHTML" *ngIf="field.newValue"></div>
   </ng-container>

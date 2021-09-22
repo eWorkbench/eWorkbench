@@ -1,0 +1,10 @@
+{% load i18n captureas user_widgets simple_object_display date_filters %}
+
+<p>
+    {% blocktrans %}
+        You have been removed from the following appointment:
+    {% endblocktrans %}
+</p>
+<br />
+
+{% include 'notification/_meeting_details.html' %}

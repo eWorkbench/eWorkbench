@@ -179,3 +179,8 @@ class UserProfile(BaseModel):
     def first_name_and_last_name(self):
         name = f'{self.first_name} {self.last_name}'.strip()
         return name or '-'
+
+    @property
+    def avatar_is_set(self):
+        # returns false if no avatar is set and true if an avatar was uploaded
+        return self.avatar != 'unknown_user.gif'

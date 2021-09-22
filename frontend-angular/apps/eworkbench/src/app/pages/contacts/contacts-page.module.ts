@@ -7,6 +7,7 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { ContactModule } from '@app/modules/contact/contact.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
@@ -79,8 +80,10 @@ import { ContactsPageRoutingModule } from './contacts-page-routing.module';
     IconsModule,
     SkeletonsModule,
     AlertModule,
-    TooltipModule.forRoot(),
     FavoritesModule,
+    CommentModule,
+    LoadingModule,
+    TooltipModule.forRoot(),
   ],
 })
 export class ContactsPageModule {}

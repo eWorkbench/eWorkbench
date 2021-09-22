@@ -22,7 +22,7 @@
 </ng-container>
 
 <ng-template #nameCellTemplate let-row>
-  <eworkbench-ellipsis-element class="d-inline-flex" [maxWidth]="300">
+  <eworkbench-ellipsis-element class="inline-flex" [maxWidth]="300">
     <a [routerLink]="['/projects', row.pk]">{{ row.name }}</a>
   </eworkbench-ellipsis-element>
 </ng-template>

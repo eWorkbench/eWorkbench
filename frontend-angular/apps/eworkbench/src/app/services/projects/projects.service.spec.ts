@@ -206,14 +206,14 @@ describe('ProjectsService', () => {
     spectator.service.putRelation(pk, '1', mockProjectRelation).subscribe(data => {
       expect(data).toEqual(mockProjectRelation);
     });
-    spectator.expectOne(`${spectator.service.apiUrl}${pk}/relations/1`, HttpMethod.PUT);
+    spectator.expectOne(`${spectator.service.apiUrl}${pk}/relations/1/`, HttpMethod.PUT);
   });
 
   it('should delete a relation', () => {
     spectator.service.deleteRelation(pk, '1').subscribe(data => {
       expect(data).toBeUndefined();
     });
-    spectator.expectOne(`${spectator.service.apiUrl}${pk}/relations/1`, HttpMethod.DELETE);
+    spectator.expectOne(`${spectator.service.apiUrl}${pk}/relations/1/`, HttpMethod.DELETE);
   });
 
   it('should duplicate a project', () => {

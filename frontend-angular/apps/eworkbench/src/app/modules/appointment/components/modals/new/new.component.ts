@@ -25,7 +25,7 @@ interface FormAppointment {
   dateGroup: DateGroup;
   resource: string | null;
   location: string | null;
-  attendingUsers: number[];
+  attendees: number[];
   attendingContacts: string[];
   scheduledNotificationActive: boolean;
   scheduledNotificationTimedeltaValue: number | null;
@@ -54,6 +54,8 @@ export class NewAppointmentModalComponent implements OnInit {
   public initialState?: Appointment = this.modalRef.data?.initialState;
 
   public withSidebar?: boolean = this.modalRef.data?.withSidebar;
+
+  public duplicate?: string = this.modalRef.data?.duplicate;
 
   public id?: string = this.modalRef.data?.id;
 
@@ -96,7 +98,7 @@ export class NewAppointmentModalComponent implements OnInit {
     dateGroup: [{ start: null, end: null, fullDay: false }],
     resource: [null],
     location: [null],
-    attendingUsers: [[]],
+    attendees: [[]],
     attendingContacts: [[]],
     scheduledNotificationActive: [false],
     scheduledNotificationTimedeltaValue: [null],
@@ -147,7 +149,7 @@ export class NewAppointmentModalComponent implements OnInit {
 
     const appointment = {
       attending_contacts_pk: this.f.attendingContacts.value,
-      attending_users_pk: this.f.attendingUsers.value,
+      attending_users_pk: this.f.attendees.value,
       date_time_start: dateTimeStart,
       date_time_end: dateTimeEnd,
       full_day: this.f.dateGroup.value.fullDay,
@@ -356,7 +358,7 @@ export class NewAppointmentModalComponent implements OnInit {
           },
           resource: this.initialState.resource_pk,
           location: this.initialState.location,
-          attendingUsers: this.initialState.attending_users_pk,
+          attendees: this.initialState.attending_users_pk,
           attendingContacts: this.initialState.attending_contacts_pk,
           description: this.initialState.text,
           projects: this.initialState.projects,
@@ -392,6 +394,7 @@ export class NewAppointmentModalComponent implements OnInit {
               this.projects = [...this.projects, project]
                 .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                 .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+              this.cdr.markForCheck();
             }
           );
       }

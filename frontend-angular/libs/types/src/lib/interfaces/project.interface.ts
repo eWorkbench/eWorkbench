@@ -26,13 +26,6 @@ export interface ProjectMemberPatchPayload {
   role_pk: string;
 }
 
-export interface ProjectRelationPayload {
-  left_content_type: number;
-  left_object_id: string;
-  right_content_type: number;
-  right_object_id: string;
-}
-
 export interface ProjectTree {
   pk: string;
   name: string;
@@ -97,26 +90,3 @@ export interface ProjectMember {
   user: User;
   user_pk: number;
 }
-
-export interface ProjectRelation<T = any, U = any> {
-  display: string;
-  pk: string;
-  private: boolean;
-  content_type_model: string;
-  right_object_id: string;
-  right_content_type_model: string;
-  left_object_id: string;
-  last_modified_at: string;
-  right_content_type: number;
-  created_at: string;
-  right_content_object: T;
-  left_content_type: number;
-  last_modified_by: User;
-  created_by: User;
-  left_content_object: U;
-  left_content_type_model: string;
-  content_type: number;
-  table_object: U;
-}
-
-export interface ProjectRelationPutPayload extends ProjectRelation {}

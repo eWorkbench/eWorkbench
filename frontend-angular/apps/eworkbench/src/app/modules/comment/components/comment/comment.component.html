@@ -4,20 +4,58 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="d-flex">
-    <div>
-      <img class="rounded-circle mr-2" width="40" [src]="user.userprofile.avatar" [alt]="t('profile.picture')" />
+  <div class="p-6 border-b" [ngClass]="{ 'bg-tum-highlight': currentUser?.pk === comment.left_content_object.created_by.pk }">
+    <div class="flex justify-between mb-4">
+      <div class="flex space-x-1">
+        <div>
+          <div class="mr-2 cursor-pointer" (click)="openUserModal()">
+            <eworkbench-user-avatar
+              [user]="comment.left_content_object.created_by"
+              [scale]="1.6"
+              [ring]="currentUser?.pk === comment.left_content_object.created_by.pk"
+            ></eworkbench-user-avatar>
+          </div>
+        </div>
+        <div>
+          <div class="font-bold">
+            <eworkbench-user-details
+              class="inline-block"
+              [user]="comment.left_content_object.created_by"
+              [avatar]="false"
+            ></eworkbench-user-details>
+          </div>
+          <div class="text-gray-600">
+            {{ comment.left_content_object.created_at | formatDate }}
+          </div>
+        </div>
+      </div>
+      <div class="self-center" *ngIf="currentUser?.pk === comment.left_content_object.created_by.pk">
+        <button type="button" class="btn ewb-button-small mr-2" (click)="onChangePrivateState()" [disabled]="loading">
+          <eworkbench-icon
+            *ngIf="comment.private"
+            className="wb-locked"
+            [tooltip]="t('comments.privateComment.tooltip')"
+            containerClass="tooltip-sm"
+          ></eworkbench-icon>
+          <eworkbench-icon
+            *ngIf="!comment.private"
+            className="wb-unlock"
+            [tooltip]="t('comments.publicComment.tooltip')"
+            containerClass="tooltip-sm"
+          ></eworkbench-icon>
+        </button>
+        <button type="button" class="btn ewb-button-small" (click)="onOpenDeleteModal()" [disabled]="loading">
+          <eworkbench-icon
+            className="wb-remove"
+            [tooltip]="t('comments.deleteComment.tooltip')"
+            containerClass="tooltip-sm"
+          ></eworkbench-icon>
+        </button>
+      </div>
     </div>
     <div>
-      <div class="font-weight-bold">
-        {{ subject }}
-      </div>
-      <div class="text-secondary">
-        {{ t('comments.comment.createdBy') }}
-        <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details> -
-        <span class="font-italic">{{ createdAt | formatDate }}</span>
-      </div>
-      {{ comment | stripHTML }}
+      <div class="font-bold mb-2">{{ comment.left_content_object.subject }}</div>
+      <div [innerHTML]="comment.left_content_object.content | safeHTML"></div>
     </div>
   </div>
 </ng-container>

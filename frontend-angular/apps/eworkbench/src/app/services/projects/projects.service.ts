@@ -5,7 +5,6 @@
 
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { PrivilegesService } from '@app/services/privileges/privileges.service';
 import { environment } from '@environments/environment';
 import { TableViewService, TreeViewService } from '@eworkbench/table';
 import {
@@ -15,9 +14,9 @@ import {
   ProjectMemberPatchPayload,
   ProjectMemberPayload,
   ProjectPayload,
-  ProjectRelation,
-  ProjectRelationPayload,
-  ProjectRelationPutPayload,
+  Relation,
+  RelationPayload,
+  RelationPutPayload,
 } from '@eworkbench/types';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -28,7 +27,7 @@ import { map } from 'rxjs/operators';
 export class ProjectsService implements TableViewService, TreeViewService {
   public readonly apiUrl = `${environment.apiUrl}/projects/`;
 
-  public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
+  public constructor(private readonly httpClient: HttpClient) {}
 
   public getList(params: HttpParams): Observable<{ total: number; data: Project[] }> {
     return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params }).pipe(
@@ -128,20 +127,27 @@ export class ProjectsService implements TableViewService, TreeViewService {
     return this.httpClient.patch<Project>(`${this.apiUrl}${id}/restore/`, { pk: id }, { params });
   }
 
-  public getRelations(id: string, params = new HttpParams()): Observable<ProjectRelation[]> {
-    return this.httpClient.get<ProjectRelation[]>(`${this.apiUrl}${id}/relations/`, { params });
+  public getRelations(id: string, params = new HttpParams()): Observable<{ total: number; data: Relation[] }> {
+    return this.httpClient.get<DjangoAPI<Relation[]>>(`${this.apiUrl}${id}/relations/`, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public addRelation(id: string, payload: ProjectRelationPayload): Observable<ProjectRelation> {
-    return this.httpClient.post<ProjectRelation>(`${this.apiUrl}${id}/relations/`, payload);
+  public addRelation(id: string, payload: RelationPayload): Observable<Relation> {
+    return this.httpClient.post<Relation>(`${this.apiUrl}${id}/relations/`, payload);
   }
 
-  public putRelation(id: string, relationId: string, payload: ProjectRelationPutPayload): Observable<ProjectRelation> {
-    return this.httpClient.put<ProjectRelation>(`${this.apiUrl}${id}/relations/${relationId}`, payload);
+  public putRelation(id: string, relationId: string, payload: RelationPutPayload): Observable<Relation> {
+    return this.httpClient.put<Relation>(`${this.apiUrl}${id}/relations/${relationId}/`, payload);
   }
 
   public deleteRelation(id: string, relationId: string): Observable<void> {
-    return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}`);
+    return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}/`);
   }
 
   public duplicate(id: string): Observable<Project> {

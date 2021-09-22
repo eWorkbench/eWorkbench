@@ -15,7 +15,7 @@
       </div>
 
       <eworkbench-loading [loading]="loading">
-        <eworkbench-table-view class="d-block mb-4" [columns]="listColumns" [data]="privileges"></eworkbench-table-view>
+        <eworkbench-table-view class="block mb-4" [columns]="listColumns" [data]="privileges"></eworkbench-table-view>
 
         <ng-container *ngIf="userPrivileges?.edit">
           <label for="user-modal">{{ t('detailsDropdown.privilegesModal.user.label') }}</label>
@@ -33,16 +33,23 @@
             dropdownPosition="top"
           >
             <ng-template ng-label-tmp let-item="item" let-clear="clear">
-              <eworkbench-user-details class="d-inline-block mr-1" [user]="item" [active]="false"></eworkbench-user-details>
-              <span class="sub-text">{{ item.email }}</span>
+              <div class="flex items-center user-option">
+                <eworkbench-user-details
+                  class="inline-block mr-1"
+                  [user]="item"
+                  [chip]="true"
+                  (click)="select.isOpen = false"
+                ></eworkbench-user-details>
+                <span class="sub-text">{{ item.email }}</span>
+              </div>
             </ng-template>
 
             <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
               <div class="user-dropdown-option">
-                <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
                 <div>
                   <ng-container *ngIf="item?.userprofile.anonymized">
-                    <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                    <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
                   </ng-container>
                   <ng-container *ngIf="!item?.userprofile.anonymized">
                     <ng-container
@@ -74,7 +81,7 @@
 </ng-container>
 
 <ng-template #userCellTemplate let-row>
-  <eworkbench-user-details [user]="row.user"></eworkbench-user-details>
+  <eworkbench-user-details [user]="row.user" [modal]="false"></eworkbench-user-details>
 </ng-template>
 <ng-template #fullAccessButtonCellTemplate let-row>
   <ng-container
@@ -88,7 +95,7 @@
   ></ng-container>
 </ng-template>
 <ng-template #selectiveAccessButtonsCellTemplate let-row>
-  <div class="d-flex">
+  <div class="flex">
     <ng-container
       [ngTemplateOutlet]="buttonTemplate"
       [ngTemplateOutletContext]="{
@@ -134,26 +141,28 @@
 <ng-template #actionsCellTemplate let-row>
   <ng-container *transloco="let t">
     <ng-container *ngIf="userPrivileges?.edit && canReset(row)">
-      <button
-        type="button"
-        class="btn ewb-button-big ewb-button-secondary square mr-2"
-        [disabled]="loading || privileges.length === 1"
-        [tooltip]="t('detailsDropdown.privilegesModal.resetPrivileges.tooltip')"
-        containerClass="tooltip-sm"
-        (click)="onRestorePrivileges(row.user_pk)"
-      >
-        <eworkbench-icon className="wb-undo"></eworkbench-icon>
-      </button>
-      <button
-        type="button"
-        class="btn ewb-button-big ewb-button-primary square"
-        [disabled]="loading || privileges.length === 1"
-        [tooltip]="t('detailsDropdown.privilegesModal.removeUser.tooltip')"
-        containerClass="tooltip-sm"
-        (click)="onDeleteUser(row.user_pk)"
-      >
-        <eworkbench-icon className="wb-remove"></eworkbench-icon>
-      </button>
+      <div class="text-nowrap">
+        <button
+          type="button"
+          class="btn ewb-button-big ewb-button-secondary square mr-2"
+          [disabled]="loading || privileges.length === 1"
+          [tooltip]="t('detailsDropdown.privilegesModal.resetPrivileges.tooltip')"
+          containerClass="tooltip-sm"
+          (click)="onRestorePrivileges(row.user_pk)"
+        >
+          <eworkbench-icon className="wb-undo"></eworkbench-icon>
+        </button>
+        <button
+          type="button"
+          class="btn ewb-button-big ewb-button-primary square"
+          [disabled]="loading || privileges.length === 1"
+          [tooltip]="t('detailsDropdown.privilegesModal.removeUser.tooltip')"
+          containerClass="tooltip-sm"
+          (click)="onDeleteUser(row.user_pk)"
+        >
+          <eworkbench-icon className="wb-remove"></eworkbench-icon>
+        </button>
+      </div>
     </ng-container>
   </ng-container>
 </ng-template>

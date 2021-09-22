@@ -20,6 +20,7 @@ from eric.labbooks.rest.serializers import LabBookSerializer, LabBookChildElemen
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, \
     LockableViewSetMixIn
 from eric.relations.models import Relation
+from eric.shared_elements.models import Comment
 
 
 class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
@@ -169,31 +170,31 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
         filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
         obj = get_object_or_404(queryset, **filter_kwargs)
 
-        from eric.shared_elements.models import Note
-        note_content_type_id = Note.get_content_type().id
+        from eric.shared_elements.models import Comment
+        comment_content_type_id = Comment.get_content_type().id
 
-        # count number of related notes
-        num_related_notes = Relation.objects.filter(
+        # count number of related comments
+        num_related_comments = Relation.objects.filter(
             Q(
                 Q(
                     left_content_type_id=obj.child_object_content_type_id,
                     left_object_id=obj.child_object_id
                 ) & Q(
-                    right_content_type=note_content_type_id
+                    right_content_type=comment_content_type_id
                 )
             ) | Q(
                 Q(
                     right_content_type_id=obj.child_object_content_type_id,
                     right_object_id=obj.child_object_id
                 ) & Q(
-                    left_content_type=note_content_type_id
+                    left_content_type=comment_content_type_id
                 )
             )
         ).count()
-        obj.num_related_notes = num_related_notes
+        obj.num_related_comments = num_related_comments
 
         # count number of all other relations
-        obj.num_relations = obj.child_object.relations.count() - obj.num_related_notes
+        obj.num_relations = obj.child_object.relations.count() - obj.num_related_comments
 
         return obj
 
@@ -235,6 +236,7 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
 
         file_content_type_id = File.get_content_type().id
         note_content_type_id = Note.get_content_type().id
+        comment_content_type_id = Comment.get_content_type().id
         picture_content_type_id = Picture.get_content_type().id
         plugin_instance_content_type_id = PluginInstance.get_content_type().id
 
@@ -330,9 +332,9 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
         labbooksections = LabbookSection.objects.viewable().filter(pk__in=labbooksection_pks). \
             prefetch_common().in_bulk()
 
-        # fetch related notes
-        related_left_notes = dict(
-            (str(x['pk']), x['num_related_left_notes']) for x in
+        # fetch related comments
+        related_left_comments = dict(
+            (str(x['pk']), x['num_related_left_comments']) for x in
             Relation.objects.filter(
                 Q(
                     Q(
@@ -349,20 +351,20 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
                         right_object_id__in=plugin_instances
                     )
                 ) & Q(
-                    left_content_type=note_content_type_id
+                    left_content_type=comment_content_type_id
                 )
             ).order_by(
                 'right_object_id', 'right_content_type'
             ).values(
                 'right_object_id', 'right_content_type'
             ).annotate(
-                num_related_left_notes=Count('left_object_id'),
+                num_related_left_comments=Count('left_object_id'),
                 pk=F('right_object_id')
-            ).values('pk', 'num_related_left_notes')
+            ).values('pk', 'num_related_left_comments')
         )
 
-        related_right_notes = dict(
-            (str(x['pk']), x['num_related_right_notes']) for x in
+        related_right_comments = dict(
+            (str(x['pk']), x['num_related_right_comments']) for x in
             Relation.objects.filter(
                 Q(
                     Q(
@@ -379,16 +381,16 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
                         right_object_id__in=plugin_instances
                     )
                 ) & Q(
-                    right_content_type=note_content_type_id
+                    right_content_type=comment_content_type_id
                 )
             ).order_by(
                 'left_object_id', 'left_content_type'
             ).values(
                 'left_object_id', 'left_content_type'
             ).annotate(
-                num_related_right_notes=Count('right_object_id'),
+                num_related_right_comments=Count('right_object_id'),
                 pk=F('left_object_id')
-            ).values('pk', 'num_related_right_notes')
+            ).values('pk', 'num_related_right_comments')
         )
 
         # Performance Trick: iterate over child elements and set the child_object (else every element would be fetched
@@ -405,15 +407,15 @@ class LabBookChildElementViewSet(BaseAuthenticatedModelViewSet):
             elif element.is_labbook_section:
                 element.child_object = labbooksections.get(element.child_object_id, None)
 
-            # only set num_related_notes and num_relations if a child_object is available
+            # only set num_related_comments and num_relations if a child_object is available
             if element.child_object and not element.is_labbook_section:
-                element.num_related_notes = \
-                    related_left_notes.get(str(element.child_object_id), 0) + \
-                    related_right_notes.get(str(element.child_object_id), 0)
+                element.num_related_comments = \
+                    related_left_comments.get(str(element.child_object_id), 0) + \
+                    related_right_comments.get(str(element.child_object_id), 0)
 
-                element.num_relations = element.child_object.relations.count() - element.num_related_notes
+                element.num_relations = element.child_object.relations.count() - element.num_related_comments
             else:
-                element.num_related_notes = 0
+                element.num_related_comments = 0
                 element.num_relations = 0
 
         return child_elements

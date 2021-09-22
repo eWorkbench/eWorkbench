@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db.models.signals import post_save, pre_save, pre_delete, m2m_changed, post_delete
 from django.dispatch import receiver
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_changeset.models import ChangeSet, ChangeRecord
@@ -21,10 +22,12 @@ from django_userforeignkey.request import get_current_user, get_current_request
 from eric.core.models import LockMixin, permission_checks_disabled
 from eric.core.models.abstract import SoftDeleteMixin
 from eric.core.models.utils import get_permission_name
+from eric.notifications.models import NotificationConfiguration, Notification
 from eric.projects.models import Project, ProjectRoleUserAssignment, Role, ElementLock
 from eric.projects.models import UserStorageLimit, MyUser
 from eric.projects.models.cache import invalidate_project_cache
-from eric.shared_elements.models import Metadata
+from eric.relations.models import Relation
+from eric.shared_elements.models import Metadata, Comment
 from eric.site_preferences.models import options as site_preferences
 
 logger = logging.getLogger('eric.projects.models.handlers')
@@ -590,3 +593,43 @@ def populate_project_fts_parent_index(instance, *args, **kwargs):
     if instance.parent_project:
         instance.parent_project.fts_index = instance.parent_project._get_search_vector()
         instance.parent_project.save()
+
+
+@receiver(post_save, sender=Relation)
+def send_new_comment_notification_to_project_members(sender, instance, created, **kwargs):
+    """
+    When a new comment is created, send a notification to all other project members
+    """
+
+    # check if the left content type is a comment and the right content type is a project
+    if instance.left_content_type != Comment.get_content_type() and \
+       instance.right_content_type != Project.get_content_type():
+        return
+
+    # ignore raw inserts (e.g. from fixtures) and updates (not created)
+    if kwargs.get('raw') or not created:
+        return
+
+    comment = instance.left_content_object
+    project = instance.right_content_object
+    project_assignments = ProjectRoleUserAssignment.objects.filter(project__pk=project.pk)
+
+    # send notifications for all assignments
+    for assignment in project_assignments:
+        # If the user of the assignment is the comment creator then skip this iteration
+        if assignment.user.pk == comment.created_by.pk:
+            continue
+
+        message = render_to_string('notification/project_comment.html', {
+            'comment': comment,
+            'project': project
+        })
+
+        Notification.objects.create(
+            user=assignment.user,
+            title=_(f"A new comment has been posted for {project.name}"),
+            message=message,
+            content_type=Project.get_content_type(),
+            object_id=project.pk,
+            notification_type=NotificationConfiguration.NOTIFICATION_CONF_PROJECT_COMMENT,
+        )

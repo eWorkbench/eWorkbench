@@ -6,6 +6,7 @@
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
@@ -58,6 +59,7 @@ import { StoragesPageRoutingModule } from './storages-page-routing.module';
     ClipboardModule,
     ProjectModule,
     FavoritesModule,
+    CommentModule,
     LoadingModule,
   ],
 })

@@ -16,7 +16,7 @@ from eric.model_privileges.rest.viewsets import ModelPrivilegeViewSet
 from eric.relations.rest.viewsets import RelationViewSet
 
 from eric.kanban_boards.rest.viewsets import KanbanBoardViewSet, KanbanBoardColumnTaskAssignmentViewSet, \
-    TaskKanbanBoardAssignmentsViewSet
+    TaskKanbanBoardAssignmentsViewSet, KanbanBoardUserFilterSettingViewSet, KanbanBoardUserSettingViewSet
 
 # register REST API Routers
 router = get_api_router()
@@ -33,6 +33,10 @@ kanban_board_router.register(r'relations', RelationViewSet, basename='kanbanboar
 kanban_board_router.register(r'history', GenericChangeSetViewSet,
                              basename='kanbanboard-changeset-paginated')
 kanban_board_router.register(r'privileges', ModelPrivilegeViewSet, basename='kanbanboard-privileges')
+kanban_board_router.register(r'filtersettings', KanbanBoardUserFilterSettingViewSet,
+                             basename='kanbanboard-filtersettings')
+kanban_board_router.register(r'usersettings', KanbanBoardUserSettingViewSet,
+                             basename='kanbanboard-usersettings')
 
 # register sub view for assigned tasks
 kanban_board_router.register(r'tasks', KanbanBoardColumnTaskAssignmentViewSet, basename='kanbanboard-tasks')

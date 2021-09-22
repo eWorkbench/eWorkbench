@@ -801,7 +801,6 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         # user2 should still not be able to delete (only superuser can delete)
         response = self.rest_generic_delete_entity(self.token2, element.pk)
-        print(response.content.decode())
         self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # element should still be in database

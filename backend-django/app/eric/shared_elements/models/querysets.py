@@ -42,11 +42,12 @@ class NoteQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         """
         from eric.relations.models import Relation
         from eric.shared_elements.models import Note
+        from eric.shared_elements.models import Comment
 
         # exclude notes from models to check to avoid endless recursion
         workbench_models_except_notes = [
             model for model in get_all_workbench_models(WorkbenchEntityMixin)
-            if model is not Note
+            if model is not Note and model is not Comment
         ]
 
         # query for viewable elements that are in a relation and put them in a union-queryset ("conditions")
@@ -61,6 +62,12 @@ class NoteQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         viewable_element_pks = Note.objects.directly_viewable().values_list('pk', flat=True)
         related_element_viewable |= Q(
             Q(left_object_id__in=viewable_element_pks) | Q(right_object_id__in=viewable_element_pks)
+        )
+
+        # add directly viewable comments (to avoid endless recursion)
+        viewable_comment_element_pks = Comment.objects.directly_viewable().values_list('pk', flat=True)
+        related_element_viewable |= Q(
+            Q(left_object_id__in=viewable_comment_element_pks) | Q(right_object_id__in=viewable_comment_element_pks)
         )
 
         # Either return the inherited viewable or create a filter that returns all of the Notes
@@ -93,6 +100,82 @@ class NoteQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         Prefetch common attributes
         """
         return super(NoteQuerySet, self).prefetch_common() \
+            .prefetch_metadata()
+
+
+class CommentQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
+    """
+    Queryset for Comments
+    """
+
+    def directly_viewable(self):
+        return super().viewable().distinct()
+
+    def viewable(self, *args, **kwargs):
+        """
+        Notes are viewable if they have a related viewable element or are defined viewable for themselves
+        (via privileges or permissions)
+        """
+        from eric.relations.models import Relation
+        from eric.shared_elements.models import Note
+        from eric.shared_elements.models import Comment
+
+        # exclude notes from models to check to avoid endless recursion
+        workbench_models_except_notes = [
+            model for model in get_all_workbench_models(WorkbenchEntityMixin)
+            if model is not Note and model is not Comment
+        ]
+
+        # query for viewable elements that are in a relation and put them in a union-queryset ("conditions")
+        related_element_viewable = Q()
+        for model in workbench_models_except_notes:
+            viewable_element_pks = model.objects.viewable().values_list('pk', flat=True)
+            related_element_viewable |= Q(
+                Q(left_object_id__in=viewable_element_pks) | Q(right_object_id__in=viewable_element_pks)
+            )
+
+        # add directly viewable notes (to avoid endless recursion)
+        viewable_element_pks = Note.objects.directly_viewable().values_list('pk', flat=True)
+        related_element_viewable |= Q(
+            Q(left_object_id__in=viewable_element_pks) | Q(right_object_id__in=viewable_element_pks)
+        )
+
+        # add directly viewable comments (to avoid endless recursion)
+        viewable_comment_element_pks = Comment.objects.directly_viewable().values_list('pk', flat=True)
+        related_element_viewable |= Q(
+            Q(left_object_id__in=viewable_comment_element_pks) | Q(right_object_id__in=viewable_comment_element_pks)
+        )
+
+        # Either return the inherited viewable or create a filter that returns all of the Notes
+        # whose pk is in the "related_element_viewable"-queryset and which are not flagged private
+
+        # adding distinct to all Qs is a necessity, as the super-viewable returns distinct
+        # or not distinct-Qs, which causes Django to throw an assertion-error
+        # ("AssertionError at /api/notes/ Cannot combine a unique query with a non-unique query.")
+
+        viewable_relations = Relation.objects.filter(related_element_viewable, private=False)
+        viewable_relations_left = viewable_relations.values_list('left_object_id', flat=True)
+        viewable_relations_right = viewable_relations.values_list('right_object_id', flat=True)
+        viewable_notes_via_relations = self.filter(
+            Q(pk__in=viewable_relations_left) | Q(pk__in=viewable_relations_right)
+        ).distinct()
+
+        return (self.directly_viewable() | viewable_notes_via_relations).distinct()
+
+    def related_viewable(self, *args, **kwargs):
+        """
+        Comments are always viewable if they are related
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        return self.all()
+
+    def prefetch_common(self, *args, **kwargs):
+        """
+        Prefetch common attributes
+        """
+        return super(CommentQuerySet, self).prefetch_common() \
             .prefetch_metadata()
 
 

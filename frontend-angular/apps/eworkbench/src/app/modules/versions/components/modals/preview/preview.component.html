@@ -12,10 +12,9 @@
     <div slot="body">
       <div class="mb-4">
         <label for="versionCreated">{{ t('versions.previewModal.versionCreated.label') }}</label>
-        <div id="versionCreated">
-          {{ version.created_at | formatDate }}
-          {{ t('versions.by') }}
-          <eworkbench-user-details class="d-inline-block" [user]="version.created_by"></eworkbench-user-details>
+        <div class="flex items-center" id="versionCreated">
+          <span class="mr-2">{{ version.created_at | formatDate }}{{ ' ' }}{{ t('versions.by') }}</span>
+          <eworkbench-user-details class="inline-block" [user]="version.created_by" [modal]="false"></eworkbench-user-details>
         </div>
       </div>
       <div class="mb-4">

@@ -4,9 +4,8 @@
 -->
 
 <div class="ssc">
-  <div class="ssc-circle"></div>
-  <div>
-    <div class="ssc-head-line mb"></div>
-    <div class="ssc-square"></div>
-  </div>
+  <div *ngIf="header" class="ssc-head-line h-10 mb-4"></div>
+  <ng-container *ngFor="let _ of items">
+    <div class="ssc-line h-40 mb-1"></div>
+  </ng-container>
 </div>

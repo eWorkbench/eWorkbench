@@ -7,7 +7,7 @@
   <ng-container *transloco="let t">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="element" errorTailor>
       <div class="header">
-        <div class="d-flex justify-content-between">
+        <div class="flex justify-between">
           <div class="flex-fill">
             <eworkbench-form-input [for]="'title-' + uniqueHash" [loading]="loading" [margin]="false" [onSubmit]="refreshResetValue">
               <input
@@ -21,7 +21,7 @@
               />
             </eworkbench-form-input>
           </div>
-          <div class="ml-2 align-self-center">
+          <div class="ml-2 self-center">
             <button type="button" class="btn ewb-button-big square-md ewb-button-none cursor-move drag-handle mr-2">
               <eworkbench-icon className="wb-arrow-cross"></eworkbench-icon>
             </button>
@@ -90,14 +90,14 @@
           </a>
           <button type="button" class="btn ewb-button-big ewb-button-background" (click)="onOpenCommentsModal()">
             <eworkbench-icon className="wb-comment" class="mr-1"></eworkbench-icon>
-            <ng-container *ngIf="!element.num_related_notes">
+            <ng-container *ngIf="!element.num_related_comments">
               {{ t('labBook.drawBoard.element.footer.createComment') }}
             </ng-container>
-            <ng-container *ngIf="element.num_related_notes === 1">
-              {{ t('labBook.drawBoard.element.footer.comment', { count: element.num_related_notes }) }}
+            <ng-container *ngIf="element.num_related_comments === 1">
+              {{ t('labBook.drawBoard.element.footer.comment', { count: element.num_related_comments }) }}
             </ng-container>
-            <ng-container *ngIf="element.num_related_notes > 1">
-              {{ t('labBook.drawBoard.element.footer.comments', { count: element.num_related_notes }) }}
+            <ng-container *ngIf="element.num_related_comments > 1">
+              {{ t('labBook.drawBoard.element.footer.comments', { count: element.num_related_comments }) }}
             </ng-container>
           </button>
         </div>

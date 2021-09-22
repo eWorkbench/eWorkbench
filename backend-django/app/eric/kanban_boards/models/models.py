@@ -5,6 +5,8 @@
 import os
 import uuid
 
+from django.contrib.auth import get_user_model
+from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -12,6 +14,7 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 
 from django_changeset.models import RevisionModelMixin
+from django_cleanhtmlfield.fields import HTMLField
 
 from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin, WorkbenchEntityMixin, OrderingModelMixin, \
     IsFavouriteMixin
@@ -22,8 +25,7 @@ from eric.projects.models import FileSystemStorageLimitByUser, scramble_uploaded
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
 from eric.kanban_boards.models.managers import KanbanBoardManager, KanbanBoardColumnManager, \
-    KanbanBoardColumnTaskAssignmentManager
-
+    KanbanBoardColumnTaskAssignmentManager, KanbanBoardUserFilterSettingManager, KanbanBoardUserSettingManager
 
 rgba_color_validator = RegexValidator(
     get_rgb_rgba_pattern(),
@@ -77,6 +79,12 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
         max_length=128,
         verbose_name=_("Title of the Kanban Board"),
         db_index=True
+    )
+
+    description = HTMLField(
+        verbose_name=_("Description of the Kanban Board"),
+        blank=True,
+        strip_unsafe=True,
     )
 
     # reference to many projects (can be 0 projects, too)
@@ -238,7 +246,7 @@ class KanbanBoardColumn(BaseModel, OrderingModelMixin, ChangeSetMixIn, RevisionM
     color = models.CharField(
         max_length=30,
         verbose_name=_("RGBA color of the column"),
-        default="rgba(255,255,255,1)",  # white
+        default="rgba(244,244,244,1)",
         validators=[rgba_color_validator]
     )
 
@@ -329,3 +337,133 @@ class KanbanBoardColumnTaskAssignment(BaseModel, OrderingModelMixin, ChangeSetMi
         return _("Task {} is assigned to column {}").format(
             self.task, self.kanban_board_column.title
         )
+
+
+class KanbanBoardUserFilterSetting(BaseModel):
+    """
+    Through table for many to many filter setting of a User to a TaskBoard
+    """
+    objects = KanbanBoardUserFilterSettingManager()
+
+    class Meta:
+        verbose_name = _("Kanban Board User Filter Setting")
+        verbose_name_plural = _("Kanban Board User Filter Settings")
+        track_fields = ('kanban_board', 'user')
+        index_together = (
+            ("kanban_board", "user",),
+        )
+        unique_together = (
+            ("kanban_board", "user",),
+        )
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    kanban_board = models.ForeignKey(
+        'kanban_boards.KanbanBoard',
+        related_name="kanban_board_user_filter_settings",
+        on_delete=models.CASCADE,
+        verbose_name=_("Which kanban board is this user filter setting for"),
+    )
+
+    user = models.ForeignKey(
+        get_user_model(),
+        verbose_name=_("User"),
+        on_delete=models.CASCADE,
+    )
+
+    settings = JSONField(
+        verbose_name=_("Kanban Board User Filter Settings"),
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        verbose_name=_("Date when this element was created"),
+        auto_now_add=True,  # sets the date when the element is created
+        editable=False,
+        null=True,
+        db_index=True,
+    )
+
+    last_modified_at = models.DateTimeField(
+        verbose_name=_("Date when this element was last modified"),
+        auto_now=True,  # sets the date every time the element is saved
+        editable=False,
+        null=True,
+        db_index=True,
+    )
+
+    def __str__(self):
+        return f"TaskBoard User Filter Setting of TaskBoard {self.kanban_board} for User {self.user}"
+
+
+class KanbanBoardUserSetting(BaseModel):
+    """
+    Through table for many to many filter setting of a User to a TaskBoard
+    """
+    objects = KanbanBoardUserSettingManager()
+
+    class Meta:
+        verbose_name = _("Kanban Board User Setting")
+        verbose_name_plural = _("Kanban Board User Settings")
+        track_fields = ('kanban_board', 'user')
+        index_together = (
+            ("kanban_board", "user",),
+        )
+        unique_together = (
+            ("kanban_board", "user",),
+        )
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    kanban_board = models.ForeignKey(
+        'kanban_boards.KanbanBoard',
+        related_name="kanban_board_user_settings",
+        on_delete=models.CASCADE,
+        verbose_name=_("Which kanban board is this user setting for"),
+    )
+
+    user = models.ForeignKey(
+        get_user_model(),
+        verbose_name=_("User"),
+        on_delete=models.CASCADE,
+    )
+
+    restrict_task_information = models.BooleanField(
+        verbose_name=_("Whether the task information should be restricted in this Kanban Board"),
+        default=False,
+        db_index=True
+    )
+
+    day_indication = models.BooleanField(
+        verbose_name=_("Whether the day indications for this Kanban Board should be shown"),
+        default=False,
+        db_index=True
+    )
+
+    created_at = models.DateTimeField(
+        verbose_name=_("Date when this element was created"),
+        auto_now_add=True,  # sets the date when the element is created
+        editable=False,
+        null=True,
+        db_index=True,
+    )
+
+    last_modified_at = models.DateTimeField(
+        verbose_name=_("Date when this element was last modified"),
+        auto_now=True,  # sets the date every time the element is saved
+        editable=False,
+        null=True,
+        db_index=True,
+    )
+
+    def __str__(self):
+        return f"TaskBoard User Setting of TaskBoard {self.kanban_board} for User {self.user}"

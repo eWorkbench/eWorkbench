@@ -3,6 +3,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+@import 'variables';
+@import 'colors';
+
 :host {
   display: block;
+
+  .comment-border {
+    border-bottom: 1px solid $border-color;
+  }
 }

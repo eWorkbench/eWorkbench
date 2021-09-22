@@ -13,4 +13,10 @@
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 35px;
   }
+
+  ::ng-deep {
+    .checklist-pb {
+      padding-bottom: 37px;
+    }
+  }
 }

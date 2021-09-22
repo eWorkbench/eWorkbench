@@ -4,7 +4,7 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="search-input w-100 my-2">
+  <div class="search-input w-full my-2">
     <div class="input-group search-input-group">
       <input
         type="text"
@@ -41,6 +41,6 @@
       [checked]="isSelected(row.pk)"
       (change)="onChangeSelection($event, row)"
     />
-    <label class="custom-control-label font-weight-normal" [for]="'row.' + row.pk"></label>
+    <label class="custom-control-label font-normal" [for]="'row.' + row.pk"></label>
   </div>
 </ng-template>

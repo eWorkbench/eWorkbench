@@ -8,6 +8,7 @@ export * from './app-version/app-version.service';
 export * from './appointments/appointments.service';
 export * from './auth/auth.service';
 export * from './calendar-access-privileges/calendar-access-privileges.service';
+export * from './comments/comments.service';
 export * from './contact-form/contact-form.service';
 export * from './contacts/contacts.service';
 export * from './content-type-model/content-type-model.service';

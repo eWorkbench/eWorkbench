@@ -12,7 +12,7 @@
     *ngIf="editable"
   >
     <div cdkDropListGroup>
-      <div class="mb-4" cdkDrag *ngFor="let parameter of selectedParameters">
+      <div class="mb-4" cdkDrag [cdkDragDisabled]="selectedParameters.length < 2" *ngFor="let parameter of selectedParameters">
         <div cdkDragHandle>
           <ng-container
             [ngTemplateOutlet]="metadataFieldHelper"
@@ -31,7 +31,7 @@
     </div>
   </div>
 
-  <div class="d-flex" *ngIf="editable">
+  <div class="flex" *ngIf="editable">
     <div class="flex-fill">
       <ng-select
         class="ewb-select"
@@ -49,25 +49,15 @@
         </ng-template>
       </ng-select>
     </div>
-    <div class="ml-2 align-self-center" *ngIf="showButtons()">
+    <div class="ml-2 self-center" *ngIf="showButtons()">
       <button
         type="submit"
-        class="btn ewb-button-big ewb-button-primary square mr-1"
+        class="btn ewb-button-big ewb-button-primary square"
         [disabled]="loading"
         [tooltip]="t('formInput.save.tooltip')"
         containerClass="tooltip-sm"
       >
         <eworkbench-icon className="wb-check"></eworkbench-icon>
-      </button>
-      <button
-        type="button"
-        class="btn ewb-button-big ewb-button-secondary square"
-        [disabled]="loading"
-        [tooltip]="t('formInput.remove.tooltip')"
-        containerClass="tooltip-sm"
-        (click)="onCancel()"
-      >
-        <eworkbench-icon className="wb-undo"></eworkbench-icon>
       </button>
     </div>
   </div>
@@ -76,6 +66,7 @@
 <ng-template #metadataFieldHelper let-parameter="parameter">
   <eworkbench-metadata-field-helper
     [parameter]="parameter"
+    [parametersCount]="selectedParameters.length"
     [loading]="loading"
     [editable]="editable"
     (changed)="onChanged($event)"

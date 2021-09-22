@@ -41,7 +41,7 @@ class TaskCheckListItemSerializer(BaseModelSerializer):
 
     class Meta:
         model = TaskCheckList
-        fields = ('title', 'checked', 'pk')
+        fields = ('title', 'checked', 'pk', 'ordering',)
 
 
 class TaskSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin):
@@ -123,7 +123,12 @@ class TaskSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetada
         # and checklist items
         if checklist_items:
             for item in checklist_items:
-                TaskCheckList.objects.create(task=instance, title=item['title'], checked=item['checked'])
+                TaskCheckList.objects.create(
+                    task=instance,
+                    title=item['title'],
+                    checked=item['checked'],
+                    ordering=item['ordering']
+                )
 
         self.create_metadata(metadata_list, instance)
 
@@ -182,12 +187,18 @@ class TaskSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetada
                     real_item = TaskCheckList.objects.filter(task=instance, pk=item['pk']).first()
                     real_item.checked = item['checked']
                     real_item.title = item['title']
+                    real_item.ordering = item['ordering']
                     real_item.save()
                     # remove pk from current_checklist_items_pk
                     current_checklist_items_pk.remove(item['pk'])
                 else:
                     # create new item
-                    TaskCheckList.objects.create(task=instance, title=item['title'], checked=item['checked'])
+                    TaskCheckList.objects.create(
+                        task=instance,
+                        title=item['title'],
+                        checked=item['checked'],
+                        ordering=item['ordering'],
+                    )
 
             # finally, everything that is still in current_checklist_items_pk needs to be removed
             TaskCheckList.objects.filter(pk__in=current_checklist_items_pk).delete()

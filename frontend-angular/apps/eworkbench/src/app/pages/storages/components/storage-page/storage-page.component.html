@@ -6,7 +6,7 @@
 <eworkbench-header [title]="detailsTitle">
   <ng-container slot="elements" *ngIf="initialState">
     <eworkbench-favorite-button
-      class="d-inline-block mr-2"
+      class="inline-block mr-2"
       [id]="initialState?.pk"
       [contentType]="initialState?.content_type"
       [favorited]="initialState?.is_favourite"
@@ -32,8 +32,7 @@
   </aside>
   <div class="skeleton-wrapper">
     <eworkbench-list-skeleton [lines]="0" [header]="true"></eworkbench-list-skeleton>
-    <eworkbench-list-skeleton [header]="true" class="mb-5"></eworkbench-list-skeleton>
-    <eworkbench-link-skeleton></eworkbench-link-skeleton>
+    <eworkbench-list-skeleton [header]="true"></eworkbench-list-skeleton>
   </div>
 </div>
 
@@ -50,135 +49,186 @@
         <eworkbench-collapse-element class="mb-4" [labelText]="t('storage.details')" [collapsed]="true">
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="storage" errorTailor>
             <div>
-              <div class="mb-3">
-                <eworkbench-form-input
-                  for="title"
-                  [label]="t('storage.details.title.label')"
-                  [loading]="loading"
-                  [onSubmit]="refreshResetValue"
-                >
-                  <input
-                    type="text"
-                    class="form-control ewb-input"
-                    id="title"
-                    formControlName="title"
-                    name="title"
-                    [placeholder]="t('storage.details.title.placeholder')"
-                    slot="input"
-                  />
-                </eworkbench-form-input>
-              </div>
-              <div class="mb-3">
-                <label for="metadata">{{ t('storage.details.metadata.label') }}</label>
-                <eworkbench-metadata
-                  [selectedParameters]="initialState?.metadata"
-                  [editable]="privileges?.edit"
-                  [loading]="loading"
-                  [refresh]="refreshMetadata"
-                  (changed)="onUpdateMetadata($event)"
-                ></eworkbench-metadata>
-              </div>
+              <eworkbench-details-collapse-element [labelText]="t('storage.details.element.details')">
+                <ng-container slot="body">
+                  <div class="mb-4">
+                    <eworkbench-form-input
+                      for="title"
+                      [label]="t('storage.details.title.label')"
+                      [loading]="loading"
+                      [onSubmit]="refreshResetValue"
+                    >
+                      <input
+                        type="text"
+                        class="form-control ewb-input"
+                        id="title"
+                        formControlName="title"
+                        name="title"
+                        [placeholder]="t('storage.details.title.placeholder')"
+                        slot="input"
+                      />
+                    </eworkbench-form-input>
+                  </div>
+                  <div class="mb-4">
+                    <eworkbench-form-input
+                      for="projects"
+                      [label]="t('storage.details.projects.label')"
+                      [loading]="loading"
+                      [onSubmit]="refreshResetValue"
+                    >
+                      <ng-select
+                        class="ewb-select"
+                        formControlName="projects"
+                        labelForId="projects"
+                        name="projects"
+                        [placeholder]="t('storage.details.projects.placeholder')"
+                        [multiple]="true"
+                        [typeahead]="projectInput$"
+                        [items]="projects"
+                        groupBy="is_favourite"
+                        bindLabel="name"
+                        bindValue="pk"
+                        slot="input"
+                      >
+                        <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                          {{ item.name }}
+                          <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                          <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                          <span [ngOptionHighlight]="search">{{ item.name }}</span>
+                        </ng-template>
+                        <ng-template ng-optgroup-tmp let-item="item">
+                          <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                          <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                        </ng-template>
+                        <ng-template ng-notfound-tmp>
+                          <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
+                        </ng-template>
+                      </ng-select>
+                    </eworkbench-form-input>
+                  </div>
+                  <div class="mb-4">
+                    <eworkbench-form-input
+                      for="dssEnvelope"
+                      [label]="t('storage.details.dssEnvelope.label')"
+                      [loading]="loading"
+                      [onSubmit]="refreshResetValue"
+                    >
+                      <ng-select
+                        class="ewb-select"
+                        formControlName="dssEnvelope"
+                        labelForId="dssEnvelope"
+                        name="dssEnvelope"
+                        [placeholder]="t('storage.details.dssEnvelope.placeholder')"
+                        [items]="dssEnvelopes"
+                        [clearable]="false"
+                        bindLabel="path"
+                        bindValue="pk"
+                        slot="input"
+                      >
+                        <ng-template ng-option-tmp let-item="item" let-clear="clear">
+                          {{ item.path }} ({{ t('storage.details.dssEnvelope.container') }}: {{ item.container_path }})
+                        </ng-template>
+                      </ng-select>
+                    </eworkbench-form-input>
+                  </div>
+                  <div class="mb-4" *ngIf="selectedDssEnvelope">
+                    <label>{{ t('storage.details.dssLocation.label') }}</label>
+                    <div>{{ selectedDssEnvelope.container_path }}</div>
+                  </div>
+                  <div class="mb-4">
+                    <label for="created-by">{{ t('storage.details.createdBy.label') }}</label>
+                    <div class="flex items-center space-x-1">
+                      <eworkbench-user-details
+                        id="created-by"
+                        class="inline-block"
+                        [user]="initialState?.created_by"
+                      ></eworkbench-user-details>
+                      <span> | </span>
+                      <span id="created-at">{{ initialState?.created_at | formatDate }}</span>
+                    </div>
+                  </div>
+                  <div class="mb-4">
+                    <label for="last-modified-by">{{ t('storage.details.lastModifiedBy.label') }}</label>
+                    <div class="flex items-center space-x-1">
+                      <eworkbench-user-details id="last-modified-by" class="inline-block" [user]="initialState?.last_modified_by">
+                      </eworkbench-user-details>
+                      <span> | </span>
+                      <span id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</span>
+                    </div>
+                  </div>
+                </ng-container>
+              </eworkbench-details-collapse-element>
+
+              <eworkbench-details-collapse-element [labelText]="t('storage.details.element.metadata')">
+                <ng-container slot="body">
+                  <div class="mb-4">
+                    <eworkbench-metadata
+                      [selectedParameters]="initialState?.metadata"
+                      [editable]="privileges?.edit"
+                      [loading]="loading"
+                      [refresh]="refreshMetadata"
+                      (changed)="onUpdateMetadata($event)"
+                    ></eworkbench-metadata>
+                  </div>
+                </ng-container>
+              </eworkbench-details-collapse-element>
             </div>
             <div>
-              <div class="mb-3">
-                <label for="created-by">{{ t('storage.details.createdBy.label') }}</label>
-                <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
-              </div>
-              <div class="mb-3">
-                <label for="created-at">{{ t('storage.details.createdAt.label') }}</label>
-                <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
-              </div>
-              <div class="mb-3">
-                <label for="last-modified-by">{{ t('storage.details.lastModifiedBy.label') }}</label>
-                <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
-              </div>
-              <div class="mb-3">
-                <label for="last-modified-at">{{ t('storage.details.lastModifiedAt.label') }}</label>
-                <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
-              </div>
-              <div class="mb-3">
-                <eworkbench-form-input
-                  for="projects"
-                  [label]="t('storage.details.projects.label')"
-                  [loading]="loading"
-                  [onSubmit]="refreshResetValue"
-                >
-                  <ng-select
-                    class="ewb-select"
-                    formControlName="projects"
-                    labelForId="projects"
-                    name="projects"
-                    [placeholder]="t('storage.details.projects.placeholder')"
-                    [multiple]="true"
-                    [typeahead]="projectInput$"
-                    [items]="projects"
-                    groupBy="is_favourite"
-                    bindLabel="name"
-                    bindValue="pk"
-                    slot="input"
-                  >
-                    <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                      {{ item.name }}
-                      <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-                    </ng-template>
-                    <ng-template ng-option-tmp let-item="item">
-                      <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                      {{ item.name }}
-                    </ng-template>
-                    <ng-template ng-optgroup-tmp let-item="item">
-                      <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
-                      <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
-                    </ng-template>
-                  </ng-select>
-                </eworkbench-form-input>
-              </div>
-              <div class="mb-3">
-                <eworkbench-form-input
-                  for="dssEnvelope"
-                  [label]="t('storage.details.dssEnvelope.label')"
-                  [loading]="loading"
-                  [onSubmit]="refreshResetValue"
-                >
-                  <ng-select
-                    class="ewb-select"
-                    formControlName="dssEnvelope"
-                    labelForId="dssEnvelope"
-                    name="dssEnvelope"
-                    [placeholder]="t('storage.details.dssEnvelope.placeholder')"
-                    [items]="dssEnvelopes"
-                    [clearable]="false"
-                    bindLabel="path"
-                    bindValue="pk"
-                    slot="input"
-                  >
-                    <ng-template ng-option-tmp let-item="item" let-clear="clear">
-                      {{ item.path }} ({{ t('storage.details.dssEnvelope.container') }}: {{ item.container_path }})
-                    </ng-template>
-                  </ng-select>
-                </eworkbench-form-input>
-              </div>
-              <div class="mb-3" *ngIf="selectedDssEnvelope">
-                <label>{{ t('storage.details.dssLocation.label') }}</label>
-                <div>{{ selectedDssEnvelope.container_path }}</div>
-              </div>
+              <eworkbench-details-collapse-element [labelText]="t('storage.details.element.links')">
+                <ng-container slot="actions">
+                  <eworkbench-link
+                    [baseModel]="initialState"
+                    [service]="drivesService"
+                    (refreshLinkList)="onRefreshLinkList()"
+                  ></eworkbench-link>
+                </ng-container>
+                <ng-container slot="body">
+                  <eworkbench-link-list [id]="initialState.pk" [service]="drivesService" [refresh]="refreshLinkList"></eworkbench-link-list>
+                </ng-container>
+              </eworkbench-details-collapse-element>
             </div>
             <div>
-              <div class="mb-1">
-                <label for="recent-changes">{{ t('contact.details.recentChanges.label') }}</label>
-              </div>
-              <eworkbench-recent-changes
-                id="recent-changes"
-                [service]="drivesService"
-                [changesId]="id"
-                [refresh]="refreshChanges"
-              ></eworkbench-recent-changes>
+              <eworkbench-details-collapse-element [labelText]="t('storage.details.element.recentChanges')">
+                <ng-container slot="body">
+                  <eworkbench-recent-changes
+                    id="recent-changes"
+                    [service]="drivesService"
+                    [changesId]="id"
+                    [refresh]="refreshChanges"
+                    [users]="initialState?.attending_users"
+                  ></eworkbench-recent-changes>
+                </ng-container>
+              </eworkbench-details-collapse-element>
+
+              <eworkbench-details-collapse-element [labelText]="t('storage.details.element.comments')">
+                <ng-container slot="actions">
+                  <button
+                    type="button"
+                    class="btn ewb-button-regular ewb-button-outline mr-2"
+                    (click)="onOpenNewCommentModal()"
+                    [disabled]="loading"
+                  >
+                    {{ t('storage.details.comments.newComment') }}
+                  </button>
+                </ng-container>
+                <ng-container slot="body">
+                  <eworkbench-comments
+                    #comments
+                    [service]="drivesService"
+                    [id]="id"
+                    [contentType]="initialState.content_type"
+                  ></eworkbench-comments>
+                </ng-container>
+              </eworkbench-details-collapse-element>
             </div>
           </form>
         </eworkbench-collapse-element>
 
-        <eworkbench-storage-element [storage]="initialState" [collapsed]="false" [favoriteMarker]="false"></eworkbench-storage-element>
-
-        <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="drivesService" class="mt-3"></eworkbench-link>
+        <div>
+          <eworkbench-storage-element [storage]="initialState" [collapsed]="false" [favoriteMarker]="false"></eworkbench-storage-element>
+        </div>
       </main>
     </div>
   </ng-container>

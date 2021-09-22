@@ -4,9 +4,9 @@
 -->
 
 <div *ngIf="!firstDataLoaded" class="ssc">
-  <div class="ssc-head-line mb-3"></div>
+  <div class="ssc-head-line mb-2"></div>
   <ng-container *ngFor="let _ of skeletonItems">
-    <div class="ssc-line mb-3"></div>
+    <div class="ssc-line mb-1"></div>
   </ng-container>
 </div>
 
@@ -33,7 +33,7 @@
             (sortChanged)="onSortChanged($event)"
           ></eworkbench-table-sort>
         </th>
-        <td cdk-cell *cdkCellDef="let element">
+        <td cdk-cell *cdkCellDef="let element" [ngClass]="{ 'p-0': noPadding }">
           <ng-container *ngIf="column.cellTemplate">
             <ng-container [ngTemplateOutlet]="column.cellTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-container>
           </ng-container>
@@ -49,7 +49,7 @@
 
     <div *ngIf="!loading && !data?.length" class="no-result">No results</div>
 
-    <div *ngIf="loadingMore" class="d-flex justify-content-center align-items-center">
+    <div *ngIf="loadingMore" class="flex justify-center items-center">
       <div class="spinner-border mt-3" role="status"></div>
     </div>
 

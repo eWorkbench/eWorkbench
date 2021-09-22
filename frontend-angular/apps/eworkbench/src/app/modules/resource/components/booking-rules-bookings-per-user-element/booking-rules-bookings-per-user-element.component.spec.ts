@@ -3,19 +3,20 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { FormsModule } from '@eworkbench/forms';
-import { ResourceBookingRulesBookingsPerUserElementComponent } from './booking-rules-bookings-per-user-element.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { getTranslocoModule } from '@app/transloco-testing.module';
-import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
-import { TableModule } from '@eworkbench/table';
-import { UserModule } from '@app/modules/user/user.module';
 import { RouterTestingModule } from '@angular/router/testing';
+import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
+import { ResourceModule } from '@app/modules/resource/resource.module';
 import { SharedModule } from '@app/modules/shared/shared.module';
 import { TrashModule } from '@app/modules/trash/trash.module';
-import { ResourceModule } from '@app/modules/resource/resource.module';
+import { UserModule } from '@app/modules/user/user.module';
+import { getTranslocoModule } from '@app/transloco-testing.module';
+import { FormsModule } from '@eworkbench/forms';
 import { ModalsModule } from '@eworkbench/modals';
+import { TableModule } from '@eworkbench/table';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { ResourceBookingRulesBookingsPerUserElementComponent } from './booking-rules-bookings-per-user-element.component';
 
 describe('ResourceBookingRulesBookingsPerUserElementComponent', () => {
   let spectator: Spectator<ResourceBookingRulesBookingsPerUserElementComponent>;
@@ -33,6 +34,7 @@ describe('ResourceBookingRulesBookingsPerUserElementComponent', () => {
       TrashModule,
       ResourceModule,
       ModalsModule,
+      TooltipModule.forRoot(),
     ],
   });
 

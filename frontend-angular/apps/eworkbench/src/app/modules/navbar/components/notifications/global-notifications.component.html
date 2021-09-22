@@ -4,7 +4,7 @@
 -->
 
 <ng-container *transloco="let t">
-  <div class="h-100 w-100 bell-button position-relative" dropdown container="body" placement="bottom right">
+  <div class="h-full w-full bell-button relative" dropdown container="body" placement="bottom right">
     <button
       type="button"
       id="notifications-dropdown-button"
@@ -12,10 +12,7 @@
       aria-controls="notifications-dropdown-menu"
       dropdownToggle
     >
-      <span
-        *ngIf="notificationService.hasUnread"
-        class="badge badge-pill badge-warning d-inline-block position-absolute p-1 badge-bell"
-      ></span>
+      <span *ngIf="notificationService.hasUnread" class="badge badge-pill badge-warning inline-block absolute p-1 badge-bell"></span>
       <eworkbench-icon className="wb-bell"></eworkbench-icon>
     </button>
 
@@ -28,15 +25,15 @@
     >
       <div class="results-container restrict-notifications-container pt-1">
         <div>
-          <div class="font-weight-bold ml-2 mb-2">{{ t('navbar.globalNotifications.unread') }}</div>
+          <div class="font-bold ml-2 mb-2">{{ t('navbar.globalNotifications.unread') }}</div>
           <ng-container *ngIf="!unreadNotifications.length">
-            <li class="btn ewb-button-regular font-weight-normal w-100 text-left cursor-default">
+            <li class="btn ewb-button-regular font-normal w-full text-left cursor-default">
               {{ t('navbar.globalNotifications.noUnread') }}
             </li>
           </ng-container>
           <ng-container *ngIf="unreadNotifications.length">
             <ng-container *ngFor="let notification of unreadNotifications">
-              <li role="menuitem" class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button unread-item-button">
+              <li role="menuitem" class="btn ewb-button-regular font-normal w-full text-left menu-item-button unread-item-button">
                 <eworkbench-icon
                   [className]="notification.content_type_model | formatContentTypeModel: 'icon'"
                   class="mr-1"
@@ -50,15 +47,15 @@
               </li>
             </ng-container>
           </ng-container>
-          <div class="font-weight-bold ml-2 my-2">{{ t('navbar.globalNotifications.older') }}</div>
+          <div class="font-bold ml-2 my-2">{{ t('navbar.globalNotifications.older') }}</div>
           <ng-container *ngIf="!oldNotifications.length">
-            <li class="btn ewb-button-regular font-weight-normal w-100 text-left cursor-default">
+            <li class="btn ewb-button-regular font-normal w-full text-left cursor-default">
               {{ t('navbar.globalNotifications.noNotifications') }}
             </li>
           </ng-container>
           <ng-container *ngIf="oldNotifications.length">
             <ng-container *ngFor="let notification of oldNotifications">
-              <li role="menuitem" class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <li role="menuitem" class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <eworkbench-icon
                   [className]="notification.content_type_model | formatContentTypeModel: 'icon'"
                   class="mr-1"

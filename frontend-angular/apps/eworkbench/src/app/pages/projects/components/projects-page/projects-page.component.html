@@ -13,10 +13,10 @@
   </eworkbench-header>
 
   <main>
-    <div class="ewb-list-actions-container">
+    <div class="flex justify-between pb-4 mb-5 border-0 border-b-[3px] border-solid border-tum-border-gray">
       <eworkbench-trashed-items-filter (stateChanged)="onFilterItems($event)"></eworkbench-trashed-items-filter>
       <eworkbench-table-manage-columns
-        class="d-flex justify-content-end"
+        class="flex justify-end"
         [columns]="listColumns"
         [defaultColumns]="defaultColumns"
         (columnsChanged)="onColumnsChanged($event)"
@@ -33,7 +33,7 @@
 </ng-container>
 
 <ng-template #nameCellTemplate let-row>
-  <eworkbench-ellipsis-element class="d-inline-flex" [maxWidth]="300">
+  <eworkbench-ellipsis-element class="inline-flex" [maxWidth]="300">
     <a [routerLink]="['/projects', row.pk]">{{ row.name }}</a>
   </eworkbench-ellipsis-element>
 </ng-template>
@@ -55,21 +55,21 @@
 <ng-template #actionsCellTemplate let-row>
   <div class="text-right">
     <eworkbench-favorite-button
-      *ngIf="!row.deleted"
-      class="d-inline-block mr-2"
+      class="inline-block mr-2"
       [id]="row.pk"
       [contentType]="row.content_type"
       [favorited]="row.is_favourite"
     ></eworkbench-favorite-button>
     <eworkbench-trash-button
       *ngIf="!row.deleted"
-      class="d-inline-block"
+      class="inline-block"
       [service]="projectsService"
       [id]="row.pk"
       [tableView]="treeView"
     ></eworkbench-trash-button>
     <eworkbench-restore-button
       *ngIf="row.deleted"
+      class="inline-block"
       [service]="projectsService"
       [id]="row.pk"
       [tableView]="treeView"

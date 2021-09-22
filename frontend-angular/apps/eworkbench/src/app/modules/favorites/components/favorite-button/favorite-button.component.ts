@@ -27,7 +27,7 @@ export class FavoriteButtonComponent {
   public favorited = false;
 
   @Input()
-  public btnClass = 'btn bg-transparent ewb-button-small';
+  public btnClass = 'btn bg-transparent p-0';
 
   public loading = false;
 

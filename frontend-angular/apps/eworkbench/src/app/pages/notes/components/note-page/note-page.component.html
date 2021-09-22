@@ -7,7 +7,7 @@
   <eworkbench-header [title]="detailsTitle">
     <ng-container slot="elements" *ngIf="initialState">
       <eworkbench-favorite-button
-        class="d-inline-block mr-2"
+        class="inline-block mr-2"
         [id]="initialState?.pk"
         [contentType]="initialState?.content_type"
         [favorited]="initialState?.is_favourite"
@@ -16,7 +16,7 @@
       <eworkbench-details-dropdown
         [service]="notesService"
         [id]="id"
-        [redirectDestination]="[showSidebar ? '.' : '' + '/comments', id]"
+        [redirectDestination]="[showSidebar ? '.' : '' + '/notes', id]"
         [newModalComponent]="newModalComponent"
         [initialState]="initialState"
         [privileges]="privileges"
@@ -33,17 +33,19 @@
   <div class="skeleton-wrapper">
     <div class="note mb-5">
       <div>
-        <eworkbench-details-skeleton [fields]="1"></eworkbench-details-skeleton>
-        <eworkbench-wysiwyg-skeleton></eworkbench-wysiwyg-skeleton>
-        <eworkbench-details-skeleton [fields]="1"></eworkbench-details-skeleton>
+        <eworkbench-details-skeleton [fields]="3" [header]="true" class="mb-6"></eworkbench-details-skeleton>
+        <eworkbench-wysiwyg-skeleton class="mb-6"></eworkbench-wysiwyg-skeleton>
+        <eworkbench-details-skeleton [fields]="1" [header]="true"></eworkbench-details-skeleton>
       </div>
-      <eworkbench-details-skeleton [fields]="5"></eworkbench-details-skeleton>
       <div>
-        <eworkbench-list-skeleton [lines]="5" [header]="true" class="mb-5"></eworkbench-list-skeleton>
-        <eworkbench-list-skeleton [lines]="3" [header]="true"></eworkbench-list-skeleton>
+        <eworkbench-list-skeleton [lines]="5" [header]="true" [collapseHeader]="true"></eworkbench-list-skeleton>
+      </div>
+      <div>
+        <eworkbench-list-skeleton [lines]="5" [header]="true" [collapseHeader]="true" class="mb-6"></eworkbench-list-skeleton>
+        <eworkbench-list-skeleton [lines]="5" [header]="true" [collapseHeader]="true" class="mb-6"></eworkbench-list-skeleton>
+        <eworkbench-comment-skeleton [fields]="3" [header]="true"></eworkbench-comment-skeleton>
       </div>
     </div>
-    <eworkbench-link-skeleton></eworkbench-link-skeleton>
   </div>
 </div>
 
@@ -60,127 +62,178 @@
         <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="notesService"></eworkbench-lock>
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="note" errorTailor>
           <div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="subject"
-                [label]="t('note.details.subject.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-                [required]="true"
-              >
-                <input
-                  type="text"
-                  class="form-control ewb-input"
-                  id="subject"
-                  formControlName="subject"
-                  name="subject"
-                  [placeholder]="t('note.details.subject.placeholder')"
-                  slot="input"
-                />
-              </eworkbench-form-input>
-            </div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="content"
-                [label]="t('note.details.content.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-              >
-                <eworkbench-wysiwyg-editor id="content" formControlName="content" slot="input"></eworkbench-wysiwyg-editor>
-              </eworkbench-form-input>
-            </div>
-            <div class="mb-4">
-              <label for="metadata">{{ t('note.details.metadata.label') }}</label>
-              <eworkbench-metadata
-                [selectedParameters]="initialState?.metadata"
-                [editable]="privileges?.edit"
-                [loading]="loading"
-                [refresh]="refreshMetadata"
-                (changed)="onUpdateMetadata($event)"
-              ></eworkbench-metadata>
-            </div>
+            <eworkbench-details-collapse-element [labelText]="t('note.details.element.details')">
+              <ng-container slot="body">
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="subject"
+                    [label]="t('note.details.subject.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                    [required]="true"
+                  >
+                    <input
+                      type="text"
+                      class="form-control ewb-input"
+                      id="subject"
+                      formControlName="subject"
+                      name="subject"
+                      [placeholder]="t('note.details.subject.placeholder')"
+                      slot="input"
+                    />
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="projects"
+                    [label]="t('note.details.projects.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                  >
+                    <ng-select
+                      class="ewb-select"
+                      formControlName="projects"
+                      labelForId="projects"
+                      name="projects"
+                      [placeholder]="t('note.details.projects.placeholder')"
+                      [multiple]="true"
+                      [typeahead]="projectInput$"
+                      [items]="projects"
+                      groupBy="is_favourite"
+                      bindLabel="name"
+                      bindValue="pk"
+                      slot="input"
+                    >
+                      <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                        {{ item.name }}
+                        <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                      </ng-template>
+                      <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                        <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                        <span [ngOptionHighlight]="search">{{ item.name }}</span>
+                      </ng-template>
+                      <ng-template ng-optgroup-tmp let-item="item">
+                        <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                        <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                      </ng-template>
+                      <ng-template ng-notfound-tmp>
+                        <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
+                      </ng-template>
+                    </ng-select>
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <label for="created-by">{{ t('note.details.createdBy.label') }}</label>
+                  <div class="flex items-center space-x-1">
+                    <eworkbench-user-details
+                      id="created-by"
+                      class="inline-block"
+                      [user]="initialState?.created_by"
+                    ></eworkbench-user-details>
+                    <span> | </span>
+                    <span id="created-at">{{ initialState?.created_at | formatDate }}</span>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label for="last-modified-by">{{ t('note.details.lastModifiedBy.label') }}</label>
+                  <div class="flex items-center space-x-1">
+                    <eworkbench-user-details id="last-modified-by" class="inline-block" [user]="initialState?.last_modified_by">
+                    </eworkbench-user-details>
+                    <span> | </span>
+                    <span id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</span>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="content"
+                    [label]="t('note.details.content.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                  >
+                    <eworkbench-wysiwyg-editor [id]="'content'" formControlName="content" slot="input"></eworkbench-wysiwyg-editor>
+                  </eworkbench-form-input>
+                </div>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+
+            <eworkbench-details-collapse-element [labelText]="t('note.details.element.metadata')">
+              <ng-container slot="body">
+                <div class="mb-4">
+                  <eworkbench-metadata
+                    [selectedParameters]="initialState?.metadata"
+                    [editable]="privileges?.edit"
+                    [loading]="loading"
+                    [refresh]="refreshMetadata"
+                    (changed)="onUpdateMetadata($event)"
+                  ></eworkbench-metadata>
+                </div>
+              </ng-container>
+            </eworkbench-details-collapse-element>
           </div>
           <div>
-            <div class="mb-4">
-              <label for="created-by">{{ t('note.details.createdBy.label') }}</label>
-              <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
-            </div>
-            <div class="mb-4">
-              <label for="created-at">{{ t('note.details.createdAt.label') }}</label>
-              <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
-            </div>
-            <div class="mb-4">
-              <label for="last-modified-by">{{ t('note.details.lastModifiedBy.label') }}</label>
-              <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
-            </div>
-            <div class="mb-4">
-              <label for="last-modified-at">{{ t('note.details.lastModifiedAt.label') }}</label>
-              <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
-            </div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="projects"
-                [label]="t('note.details.projects.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-              >
-                <ng-select
-                  class="ewb-select"
-                  formControlName="projects"
-                  labelForId="projects"
-                  name="projects"
-                  [placeholder]="t('note.details.projects.placeholder')"
-                  [multiple]="true"
-                  [typeahead]="projectInput$"
-                  [items]="projects"
-                  groupBy="is_favourite"
-                  bindLabel="name"
-                  bindValue="pk"
-                  slot="input"
+            <eworkbench-details-collapse-element [labelText]="t('note.details.element.links')">
+              <ng-container slot="actions">
+                <eworkbench-link
+                  [baseModel]="initialState"
+                  [service]="notesService"
+                  (refreshLinkList)="onRefreshLinkList()"
+                ></eworkbench-link>
+              </ng-container>
+              <ng-container slot="body">
+                <eworkbench-link-list [id]="initialState.pk" [service]="notesService" [refresh]="refreshLinkList"></eworkbench-link-list>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+          </div>
+          <div>
+            <eworkbench-details-collapse-element [labelText]="t('note.details.element.recentChanges')">
+              <ng-container slot="body">
+                <eworkbench-recent-changes
+                  id="recent-changes"
+                  [service]="notesService"
+                  [changesId]="id"
+                  [refresh]="refreshChanges"
+                  [users]="initialState?.attending_users"
+                ></eworkbench-recent-changes>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+
+            <eworkbench-details-collapse-element [labelText]="t('note.details.element.versions')">
+              <ng-container slot="body">
+                <eworkbench-versions
+                  id="versions"
+                  contentType="note"
+                  [service]="notesService"
+                  [versionId]="id"
+                  [lastModifiedAt]="initialState?.last_modified_at"
+                  [refresh]="refreshVersions"
+                  [editable]="privileges?.edit"
+                  (changed)="onVersionChanged()"
+                ></eworkbench-versions>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+
+            <eworkbench-details-collapse-element [labelText]="t('note.details.element.comments')">
+              <ng-container slot="actions">
+                <button
+                  type="button"
+                  class="btn ewb-button-regular ewb-button-outline mr-2"
+                  (click)="onOpenNewCommentModal()"
+                  [disabled]="loading"
                 >
-                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                    {{ item.name }}
-                    <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-                  </ng-template>
-                  <ng-template ng-option-tmp let-item="item">
-                    <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                    {{ item.name }}
-                  </ng-template>
-                  <ng-template ng-optgroup-tmp let-item="item">
-                    <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
-                    <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
-                  </ng-template>
-                </ng-select>
-              </eworkbench-form-input>
-            </div>
-          </div>
-          <div>
-            <div class="mb-1">
-              <label for="recent-changes">{{ t('note.details.recentChanges.label') }}</label>
-            </div>
-            <eworkbench-recent-changes
-              id="recent-changes"
-              [service]="notesService"
-              [changesId]="id"
-              [refresh]="refreshChanges"
-            ></eworkbench-recent-changes>
-            <div class="mt-2 mb-1">
-              <label for="versions">{{ t('note.details.versions.label') }}</label>
-            </div>
-            <eworkbench-versions
-              id="versions"
-              contentType="note"
-              [service]="notesService"
-              [versionId]="id"
-              [lastModifiedAt]="initialState?.last_modified_at"
-              [refresh]="refreshVersions"
-              [editable]="privileges?.edit"
-              (changed)="onVersionChanged()"
-            ></eworkbench-versions>
+                  {{ t('note.details.comments.newComment') }}
+                </button>
+              </ng-container>
+              <ng-container slot="body">
+                <eworkbench-comments
+                  #comments
+                  [service]="notesService"
+                  [id]="id"
+                  [contentType]="initialState.content_type"
+                ></eworkbench-comments>
+              </ng-container>
+            </eworkbench-details-collapse-element>
           </div>
         </form>
-
-        <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="notesService" class="mt-3"></eworkbench-link>
       </main>
     </div>
   </ng-container>

@@ -165,8 +165,15 @@ export class NotesService
     return this.httpClient.get<ExportLink>(`${this.apiUrl}${id}/get_export_link/`);
   }
 
-  public getRelations(id: string, params = new HttpParams()): Observable<Relation[]> {
-    return this.httpClient.get<Relation[]>(`${this.apiUrl}${id}/relations/`, { params });
+  public getRelations(id: string, params = new HttpParams()): Observable<{ total: number; data: Relation[] }> {
+    return this.httpClient.get<DjangoAPI<Relation[]>>(`${this.apiUrl}${id}/relations/`, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
   public addRelation(id: string, payload: RelationPayload): Observable<Relation> {
@@ -174,10 +181,10 @@ export class NotesService
   }
 
   public putRelation(id: string, relationId: string, payload: RelationPutPayload): Observable<Relation> {
-    return this.httpClient.put<Relation>(`${this.apiUrl}${id}/relations/${relationId}`, payload);
+    return this.httpClient.put<Relation>(`${this.apiUrl}${id}/relations/${relationId}/`, payload);
   }
 
   public deleteRelation(id: string, relationId: string): Observable<void> {
-    return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}`);
+    return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}/`);
   }
 }

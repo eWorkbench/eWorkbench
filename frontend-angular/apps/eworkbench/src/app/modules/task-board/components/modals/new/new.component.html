@@ -6,31 +6,39 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ t('taskBoard.newTaskBoardModal.header') }}
+      {{
+        duplicate
+          ? t('taskBoard.newTaskBoardModal.duplicate.header', { title: initialState.title })
+          : t('taskBoard.newTaskBoardModal.create.header')
+      }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
           <div class="mb-4">
-            <label for="title">
+            <label for="title-modal">
               {{ t('taskBoard.newTaskBoardModal.title.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
               class="form-control ewb-input"
               formControlName="title"
-              id="title"
+              id="title-modal"
               name="title"
               [placeholder]="t('taskBoard.newTaskBoardModal.title.placeholder')"
             />
           </div>
           <div class="mb-4">
-            <label for="projects">{{ t('taskBoard.newTaskBoardModal.projects.label') }}</label>
+            <label for="description-modal">{{ t('taskBoard.newTaskBoardModal.description.label') }}</label>
+            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description"></eworkbench-wysiwyg-editor>
+          </div>
+          <div class="mb-4">
+            <label for="projects-modal">{{ t('taskBoard.newTaskBoardModal.projects.label') }}</label>
             <ng-select
               class="ewb-select"
               formControlName="projects"
-              labelForId="projects"
+              labelForId="projects-modal"
               name="projects"
               [placeholder]="t('taskBoard.newTaskBoardModal.projects.placeholder')"
               [multiple]="true"
@@ -44,15 +52,32 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
               </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
+              </ng-template>
             </ng-select>
+          </div>
+          <div class="mb-4" *ngIf="duplicate">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                formControlName="duplicate_tasks"
+                id="duplicate-modal"
+                name="duplicate-modal"
+              />
+              <label class="custom-control-label font-normal" for="duplicate-modal">{{
+                t('taskBoard.newTaskBoardModal.duplicateTasks.label')
+              }}</label>
+            </div>
           </div>
 
           <div class="modal-footer p-0 mt-5">
@@ -60,7 +85,7 @@
               {{ t('taskBoard.newTaskBoardModal.cancel') }}
             </button>
             <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
-              {{ t('taskBoard.newTaskBoardModal.create') }}
+              {{ duplicate ? t('taskBoard.newTaskBoardModal.duplicate') : t('taskBoard.newTaskBoardModal.create') }}
             </button>
           </div>
         </form>

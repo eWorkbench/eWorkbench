@@ -18,6 +18,9 @@ import {
   PrivilegesApi,
   PrivilegesData,
   RecentChanges,
+  Relation,
+  RelationPayload,
+  RelationPutPayload,
   TaskBoard,
   TaskBoardColumn,
   TaskBoardPayload,
@@ -125,20 +128,27 @@ export class TaskBoardsService implements TableViewService, ExportService, Permi
     return this.httpClient.post<void>(`${this.apiUrl}${id}/unlock/`, undefined, { params });
   }
 
-  public getRelations(id: string, params = new HttpParams()): Observable<any[]> {
-    return this.httpClient.get<any[]>(`${this.apiUrl}${id}/relations/`, { params });
+  public getRelations(id: string, params = new HttpParams()): Observable<{ total: number; data: Relation[] }> {
+    return this.httpClient.get<DjangoAPI<Relation[]>>(`${this.apiUrl}${id}/relations/`, { params }).pipe(
+      map(
+        /* istanbul ignore next */ data => ({
+          total: data.count,
+          data: data.results,
+        })
+      )
+    );
   }
 
-  public addRelation(id: string, payload: any): Observable<any> {
-    return this.httpClient.post<any>(`${this.apiUrl}${id}/relations/`, payload);
+  public addRelation(id: string, payload: RelationPayload): Observable<Relation> {
+    return this.httpClient.post<Relation>(`${this.apiUrl}${id}/relations/`, payload);
   }
 
-  public putRelation(id: string, relationId: string, payload: any): Observable<any> {
-    return this.httpClient.put<any>(`${this.apiUrl}${id}/relations/${relationId}`, payload);
+  public putRelation(id: string, relationId: string, payload: RelationPutPayload): Observable<Relation> {
+    return this.httpClient.put<Relation>(`${this.apiUrl}${id}/relations/${relationId}/`, payload);
   }
 
   public deleteRelation(id: string, relationId: string): Observable<void> {
-    return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}`);
+    return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}/`);
   }
 
   public getTasks(id: string, params = new HttpParams()): Observable<KanbanTask[]> {
@@ -186,5 +196,17 @@ export class TaskBoardsService implements TableViewService, ExportService, Permi
 
   public export(id: string): Observable<ExportLink> {
     return this.httpClient.get<ExportLink>(`${this.apiUrl}${id}/get_export_link/`);
+  }
+
+  public getFilterSettings(id: string): Observable<any> {
+    return this.httpClient.get<any>(`${this.apiUrl}${id}/filtersettings/`);
+  }
+
+  public upsertFilterSettings(id: string, payload: any, filterId?: string): Observable<any> {
+    if (filterId) {
+      return this.httpClient.put<any>(`${this.apiUrl}${id}/filtersettings/${filterId}/`, payload);
+    }
+
+    return this.httpClient.post<any>(`${this.apiUrl}${id}/filtersettings/`, payload);
   }
 }

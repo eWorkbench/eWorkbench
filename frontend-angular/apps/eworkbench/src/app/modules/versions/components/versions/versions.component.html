@@ -7,13 +7,14 @@
 <ng-container *ngIf="data.length">
   <eworkbench-table-view
     #tableView
-    class="mb-2"
+    class="mb-4"
     [columns]="listColumns"
     [data]="data"
     [columnHeader]="false"
     [paginationSize]="5"
   ></eworkbench-table-view>
 </ng-container>
+
 <ng-template #numberCellTemplate let-row>v{{ row.number }}</ng-template>
 <ng-template #createdAtCellTemplate let-row>
   <ng-container *transloco="let t">
@@ -23,9 +24,9 @@
 </ng-template>
 <ng-template #createdByCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div *ngIf="row.created_at">
-      {{ t('versions.createdBy') }}
-      <eworkbench-user-details class="d-inline-block" [user]="row.created_by"></eworkbench-user-details>
+    <div *ngIf="row.created_at" class="flex items-center">
+      <span class="mr-2">{{ t('versions.createdBy') }}</span>
+      <eworkbench-user-details class="inline-block" [user]="row.created_by"></eworkbench-user-details>
     </div>
   </ng-container>
 </ng-template>

@@ -49,6 +49,12 @@
         }
       }
 
+      &-right {
+        @media (min-width: $breakpoint-lg) {
+          margin-left: 0.75rem;
+        }
+      }
+
       &-search {
         @media (max-width: $breakpoint-lg) {
           display: none;
@@ -58,6 +64,7 @@
       &-user {
         @media (max-width: $breakpoint-lg) {
           margin-top: 10px;
+          flex: auto;
         }
       }
     }

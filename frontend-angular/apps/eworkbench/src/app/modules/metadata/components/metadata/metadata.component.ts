@@ -171,11 +171,6 @@ export class MetadataComponent implements OnInit {
     return this.hasChanged;
   }
 
-  public onCancel(): void {
-    // TODO: reset ordering
-    this.hasChanged = false;
-  }
-
   public hideButtons(): void {
     this.hasChanged = false;
   }

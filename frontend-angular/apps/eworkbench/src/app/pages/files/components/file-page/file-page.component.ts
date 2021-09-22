@@ -17,12 +17,15 @@ import {
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
+import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
+import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, DrivesService, FilesService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import { Directory, File, FilePayload, Lock, Metadata, Privileges, Project, User } from '@eworkbench/types';
+import { Directory, Drive, File, FilePayload, Lock, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -47,6 +50,9 @@ interface FormFile {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FilePageComponent implements OnInit, OnDestroy {
+  @ViewChild(CommentsComponent)
+  public comments!: CommentsComponent;
+
   public detailsTitle?: string;
 
   public id = this.route.snapshot.paramMap.get('id')!;
@@ -83,6 +89,8 @@ export class FilePageComponent implements OnInit, OnDestroy {
 
   public refreshMetadata = new EventEmitter<boolean>();
 
+  public refreshLinkList = new EventEmitter<boolean>();
+
   public assignees: User[] = [];
 
   public assigneesInput$ = new Subject<string>();
@@ -93,7 +101,11 @@ export class FilePageComponent implements OnInit, OnDestroy {
 
   public projectInput$ = new Subject<string>();
 
+  public storages: Drive[] = [];
+
   public directories: Directory[] = [];
+
+  public storagePrivileges?: Privileges;
 
   @ViewChild('uploadInput')
   public uploadInput!: ElementRef;
@@ -145,14 +157,19 @@ export class FilePageComponent implements OnInit, OnDestroy {
   }
 
   private get file(): Omit<FilePayload, 'path'> {
-    return {
+    const payload: Omit<FilePayload, 'path'> = {
       title: this.f.title.value!,
       name: this.f.name.value!,
-      directory_id: this.f.storage.value ?? null,
       description: this.f.description.value ?? '',
       projects: this.f.projects.value,
       metadata: this.metadata!,
     };
+
+    if (this.privileges?.fullAccess && this.directories.length) {
+      payload.directory_id = this.f.storage.value ?? null;
+    }
+
+    return payload;
   }
 
   public ngOnInit(): void {
@@ -220,6 +237,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
             this.projects = [...this.projects, project]
               .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
               .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
           }
         );
       }
@@ -332,6 +350,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
                   this.projects = [...this.projects, project]
                     .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                     .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                  this.cdr.markForCheck();
                 }),
                 switchMap(() => of(privilegesData))
               );
@@ -343,11 +362,13 @@ export class FilePageComponent implements OnInit, OnDestroy {
         switchMap(privilegesData =>
           this.drivesService.getList().pipe(
             map(drives => {
+              this.storages = [...drives.data];
               this.directories = drives.data
                 .flatMap(dir => dir.sub_directories)
                 .flatMap(d =>
                   d.is_virtual_root ? { ...d, display: drives.data.find(drive => drive.pk === d.drive_id)?.display ?? d.display } : d
                 );
+              this.cdr.markForCheck();
             }),
             switchMap(() => of(privilegesData))
           )
@@ -363,6 +384,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
 
           this.initialState = { ...file };
           this.privileges = { ...privileges };
+          this.initDirectoryDetails();
 
           this.loading = false;
 
@@ -426,10 +448,12 @@ export class FilePageComponent implements OnInit, OnDestroy {
           this.pageTitleService.set(file.display);
 
           this.initialState = { ...file };
+          this.initDirectoryDetails();
           this.form.markAsPristine();
           this.refreshChanges.next(true);
           this.refreshVersions.next(true);
           this.refreshMetadata.next(true);
+          this.refreshLinkList.next(true);
           this.refreshResetValue.next(true);
 
           this.loading = false;
@@ -495,9 +519,73 @@ export class FilePageComponent implements OnInit, OnDestroy {
     this.refreshVersions.next(true);
     this.refreshChanges.next(true);
     this.refreshMetadata.next(true);
+    this.refreshLinkList.next(true);
+  }
+
+  public onRefreshLinkList(): void {
+    this.refreshLinkList.next(true);
+  }
+
+  public onOpenNewCommentModal(): void {
+    this.modalRef = this.modalService.open(NewCommentModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        contentType: this.initialState?.content_type,
+        service: this.filesService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
+      if (callback.state === ModalState.Changed) {
+        this.comments.loadComments();
+      }
+    });
   }
 
   public onUpdateMetadata(metadata: Metadata[]): void {
     this.metadata = metadata;
+  }
+
+  public initDirectoryDetails(): void {
+    this.initialState!.directory = null;
+
+    const directory = this.directories.filter(directory => directory.pk === this.initialState!.directory_id);
+    if (directory.length) {
+      this.initialState!.directory = directory[0];
+
+      const storageId = this.getStorageIdForDirectory(this.initialState!.directory_id);
+      this.drivesService.get(storageId, this.currentUser!.pk!).subscribe(
+        /* istanbul ignore next */ privilegesData => {
+          this.storagePrivileges = privilegesData.privileges;
+        }
+      );
+    } else {
+      const directory: any = {
+        display: this.translocoService.translate('file.details.storage.unknown.label'),
+        name: '/',
+        pk: this.initialState!.directory_id,
+        drive_id: this.initialState!.directory_id,
+        directory: null,
+        is_virtual_root: true,
+      };
+
+      this.directories = [...this.directories, directory as Directory];
+      this.initialState!.directory = directory as Directory;
+    }
+  }
+
+  public getStorageForDirectory(directoryId: string): Drive[] {
+    return this.storages.filter(storage => storage.sub_directories.filter(directory => directory.pk === directoryId).length);
+  }
+
+  public getStorageNameForDirectory(directoryId: string): string {
+    return this.getStorageForDirectory(directoryId)[0]?.display || this.translocoService.translate('file.details.storage.unknown.label');
+  }
+
+  public getStorageIdForDirectory(directoryId: string): string {
+    return this.getStorageForDirectory(directoryId)[0]?.pk || '';
   }
 }

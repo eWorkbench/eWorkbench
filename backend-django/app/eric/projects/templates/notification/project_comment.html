@@ -1,0 +1,5 @@
+{% load i18n user_widgets simple_object_display date_filters %}
+
+<p>{% trans "Comment by" %} {{ comment.created_by }}:</p>
+
+{{ comment.content | safe }}

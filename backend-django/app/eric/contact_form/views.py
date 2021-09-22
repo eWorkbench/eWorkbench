@@ -55,22 +55,25 @@ class SendContactForm(APIView):
                 'ip_address': self.get_client_ip(request)
             }
 
-            # render email text
-            email_html_message = render_to_string('contact_form.html', context)
-
+            # send an e-mail to the contact admins
             msg = EmailMessage(
-                # title:
-                _("Contact form of {user_str}".format(user_str=str(request.user))),
-                # message:
-                email_html_message,
-                # from:
-                site_preferences.email_from,
-                # to:
-                settings.CONTACT_ADMIN,
-                # reply to
-                reply_to=[request.user.email]
+                subject=_("Contact form of {user_str}".format(user_str=str(request.user))),
+                body=render_to_string('contact_form.html', context),
+                from_email=site_preferences.email_from,
+                to=settings.CONTACT_ADMIN,
+                reply_to=[request.user.email],
             )
-            msg.content_subtype = "html"  # Main content is now text/html
+            msg.content_subtype = "html"
+            msg.send()
+
+            # send an e-mail to the sender
+            msg = EmailMessage(
+                subject=_("Your contact form request"),
+                body=render_to_string('contact_form_sender.html', context),
+                from_email=site_preferences.email_from,
+                to=[(str(request.user), request.user.email)],
+            )
+            msg.content_subtype = "html"
             msg.send()
 
             # add log entry

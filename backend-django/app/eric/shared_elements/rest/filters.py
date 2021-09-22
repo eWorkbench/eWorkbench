@@ -8,7 +8,7 @@ from django.db.models.constants import LOOKUP_SEP
 from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, WorkbenchElementFilter, BetterBooleanFilter
 from eric.core.rest.filters import ListFilter
 from eric.drives.models import Drive
-from eric.shared_elements.models import Contact, Task, Meeting, Note, File, ElementLabel, CalendarAccess
+from eric.shared_elements.models import Contact, Task, Meeting, Note, File, ElementLabel, CalendarAccess, Comment
 from eric.dss.models import DSSContainer
 
 
@@ -36,12 +36,15 @@ class TaskFilter(WorkbenchElementFilter):
             'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'assigned_users': BaseFilter.FOREIGNKEY_COMPERATORS,
             'state': BaseFilter.CHOICE_COMPERATORS,
+            'priority': BaseFilter.CHOICE_COMPERATORS,
             'due_date': BaseFilter.DATE_COMPERATORS,
-            'start_date': BaseFilter.DATE_COMPERATORS
+            'start_date': BaseFilter.DATE_COMPERATORS,
+            'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
     id = ListFilter(field_name='id', exclude=True)
     state = ListFilter(field_name='state')
+    priority = ListFilter(field_name='priority')
 
     full_day = BetterBooleanFilter()
 
@@ -139,6 +142,16 @@ class AnonymousMeetingFilter(BaseFilter):
 class NoteFilter(WorkbenchElementFilter):
     class Meta:
         model = Note
+        fields = {
+            'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
+            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
+            'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
+        }
+
+
+class CommentFilter(WorkbenchElementFilter):
+    class Meta:
+        model = Comment
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
             'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,

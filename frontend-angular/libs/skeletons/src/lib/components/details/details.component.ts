@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'eworkbench-details-skeleton',
@@ -11,14 +11,16 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   styleUrls: ['./details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DetailsSkeletonComponent {
+export class DetailsSkeletonComponent implements OnInit {
   @Input()
   public fields = 5;
 
   @Input()
   public header = false;
 
-  public get iterationHelperArray(): any[] {
-    return Array(this.fields);
+  public items: number[] = [];
+
+  public ngOnInit(): void {
+    this.items = Array(this.fields).fill(1);
   }
 }

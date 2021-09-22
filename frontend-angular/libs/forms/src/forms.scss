@@ -76,6 +76,27 @@ label {
     }
   }
 
+  &-inverted {
+    color: #595959;
+    background-color: unset;
+
+    &:hover {
+      color: $primary-color;
+      background-color: unset;
+    }
+  }
+
+  &-danger {
+    color: #ffffff;
+    background-color: $danger-color;
+
+    &:hover,
+    &.active {
+      color: #ffffff;
+      background-color: $danger-color-hover;
+    }
+  }
+
   &-additional {
     color: #ffffff;
     background-color: $additional-color;
@@ -407,6 +428,10 @@ a.ewb-button-regular {
               background-color: transparent;
             }
           }
+        }
+
+        .user-option {
+          margin-left: -10px;
         }
       }
     }

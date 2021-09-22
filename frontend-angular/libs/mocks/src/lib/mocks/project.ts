@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { DjangoAPI, Project, ProjectMember, ProjectRelation, ProjectRelationPayload } from '@eworkbench/types';
+import { DjangoAPI, Project, ProjectMember, Relation, RelationPayload } from '@eworkbench/types';
 import { mockUser } from './user';
 
 export const mockProject: Project = {
@@ -170,14 +170,14 @@ export const mockProjectMember: ProjectMember = {
   content_type: 22,
 };
 
-export const mockProjectRelationPayload: ProjectRelationPayload = {
+export const mockProjectRelationPayload: RelationPayload = {
   right_content_type: 18,
   right_object_id: '82d2c101-a39b-4e05-a10c-c9d47f307c6c',
   left_content_type: 33,
   left_object_id: '2b546736-dc55-4b55-9091-01da70fa67fe',
 };
 
-export const mockProjectRelation: ProjectRelation = {
+export const mockProjectRelation: Relation = {
   display: 'Left object id 2b546736-dc55-4b55-9091-01da70fa67fe, right object id 82d2c101-a39b-4e05-a10c-c9d47f307c6c',
   pk: '7b1a7165-6872-4c75-9d1b-649d460b678b',
   private: true,

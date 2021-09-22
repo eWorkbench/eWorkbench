@@ -4,12 +4,14 @@
  */
 
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
+import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
+import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { NewLabelModalComponent } from '@app/modules/label/component/modals/new/new.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { NewTaskModalComponent } from '@app/modules/task/components/modals/new/new.component';
@@ -59,6 +61,9 @@ interface FormTask {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskPageComponent implements OnInit, OnDestroy {
+  @ViewChild(CommentsComponent)
+  public comments!: CommentsComponent;
+
   public detailsTitle?: string;
 
   public id = this.route.snapshot.paramMap.get('id')!;
@@ -92,6 +97,8 @@ export class TaskPageComponent implements OnInit, OnDestroy {
   public refreshResetValue = new EventEmitter<boolean>();
 
   public refreshMetadata = new EventEmitter<boolean>();
+
+  public refreshLinkList = new EventEmitter<boolean>();
 
   public assignees: User[] = [];
 
@@ -286,6 +293,7 @@ export class TaskPageComponent implements OnInit, OnDestroy {
             this.projects = [...this.projects, project]
               .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
               .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
           }
         );
       }
@@ -402,6 +410,7 @@ export class TaskPageComponent implements OnInit, OnDestroy {
                   this.projects = [...this.projects, project]
                     .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                     .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                  this.cdr.markForCheck();
                 }),
                 switchMap(() => of(privilegesData))
               );
@@ -501,6 +510,7 @@ export class TaskPageComponent implements OnInit, OnDestroy {
           this.refreshChanges.next(true);
           this.refreshVersions.next(true);
           this.refreshMetadata.next(true);
+          this.refreshLinkList.next(true);
           this.refreshResetValue.next(true);
 
           this.loading = false;
@@ -589,6 +599,30 @@ export class TaskPageComponent implements OnInit, OnDestroy {
     this.refreshVersions.next(true);
     this.refreshChanges.next(true);
     this.refreshMetadata.next(true);
+    this.refreshLinkList.next(true);
+  }
+
+  public onRefreshLinkList(): void {
+    this.refreshLinkList.next(true);
+  }
+
+  public onOpenNewCommentModal(): void {
+    this.modalRef = this.modalService.open(NewCommentModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        contentType: this.initialState?.content_type,
+        service: this.tasksService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
+      if (callback.state === ModalState.Changed) {
+        this.comments.loadComments();
+      }
+    });
   }
 
   public onUpdateMetadata(metadata: Metadata[]): void {

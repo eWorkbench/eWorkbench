@@ -5,8 +5,10 @@
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { HeaderModule } from '@app/modules/header/header.module';
+import { LoadingModule } from '@app/modules/loading/loading.module';
 import { ProjectsService } from '@app/services';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { mockProject, mockUser } from '@eworkbench/mocks';
@@ -20,7 +22,16 @@ describe('StoragePageComponent', () => {
   let spectator: Spectator<StoragePageComponent>;
   const createComponent = createComponentFactory({
     component: StoragePageComponent,
-    imports: [getTranslocoModule(), HttpClientTestingModule, RouterTestingModule, HeaderModule, SkeletonsModule, FavoritesModule],
+    imports: [
+      getTranslocoModule(),
+      HttpClientTestingModule,
+      RouterTestingModule,
+      HeaderModule,
+      SkeletonsModule,
+      FavoritesModule,
+      CommentModule,
+      LoadingModule,
+    ],
     providers: [
       mockProvider(ProjectsService, {
         getList: () => of({ total: 1, data: [mockProject] }),

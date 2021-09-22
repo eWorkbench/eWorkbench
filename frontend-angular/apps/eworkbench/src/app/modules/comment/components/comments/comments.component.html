@@ -3,25 +3,80 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<ng-container *transloco="let t">
-  <eworkbench-loading [loading]="loading">
-    <eworkbench-new-comment
-      class="mb-4"
-      [id]="id"
-      [contentType]="contentType"
-      [service]="service"
-      (created)="initComments()"
-    ></eworkbench-new-comment>
-
-    <ng-container *ngFor="let comment of data; let last = last">
-      <div [ngClass]="{ 'mb-4 pb-4 border-bottom': !last }">
-        <eworkbench-comment
-          [user]="comment.left_content_object.created_by"
-          [createdAt]="comment.left_content_object.created_at"
-          [subject]="comment.left_content_object.subject"
-          [comment]="comment.left_content_object.content"
-        ></eworkbench-comment>
-      </div>
-    </ng-container>
-  </eworkbench-loading>
+<ng-container *ngIf="create">
+  <eworkbench-create-comment
+    class="mb-4"
+    [id]="id"
+    [service]="service"
+    [contentType]="contentType"
+    (refresh)="loadComments()"
+  ></eworkbench-create-comment>
 </ng-container>
+
+<ng-container *ngIf="!initialLoading">
+  <div class="flex justify-between pb-4">
+    <div>
+      <label class="mr-2" for="comment-state">State</label>
+      <ng-select
+        class="btn ewb-select inline-block text-left pl-0 min-w-[150px]"
+        [formControl]="dropdownStateControl"
+        labelForId="comment-state"
+        name="comment-state"
+        [searchable]="false"
+        [clearable]="false"
+        bindValue="value"
+        [items]="dropdownStates"
+        (change)="onChangeState($event)"
+      ></ng-select>
+    </div>
+
+    <div>
+      <label for="comment-sort">Sort per date</label>
+      <ng-select
+        class="btn ewb-select inline-block text-left pr-0 min-w-[160px]"
+        [formControl]="dropdownSortControl"
+        labelForId="comment-sort"
+        name="comment-sort"
+        [searchable]="false"
+        [clearable]="false"
+        (change)="onChangeSort($event)"
+      >
+        <ng-option [value]="2">
+          <div class="flex space-x-1 items-center">
+            <eworkbench-icon [className]="'wb-sort-ascending'" class="text-base"></eworkbench-icon>
+            <ng-container *transloco="let t">
+              <span>{{ t('comments.sort.ascending') }}</span>
+            </ng-container>
+          </div>
+        </ng-option>
+        <ng-option [value]="1">
+          <div class="flex space-x-1 items-center">
+            <eworkbench-icon [className]="'wb-sort-descending'" class="text-base"></eworkbench-icon>
+            <ng-container *transloco="let t">
+              <span>{{ t('comments.sort.descending') }}</span>
+            </ng-container>
+          </div>
+        </ng-option>
+      </ng-select>
+    </div>
+  </div>
+
+  <eworkbench-table-view
+    #tableView
+    [columns]="listColumns"
+    [service]="service"
+    [params]="params"
+    [customId]="id"
+    [sort]="sort"
+    [sortBy]="sortBy"
+    [relation]="true"
+    [columnHeader]="false"
+    [rowHover]="false"
+    [noPadding]="true"
+    [paginationSize]="6"
+  ></eworkbench-table-view>
+</ng-container>
+
+<ng-template #containerCellTemplate let-row>
+  <eworkbench-comment class="comment-border" [comment]="row" [service]="service" (refresh)="loadComments()"></eworkbench-comment>
+</ng-template>

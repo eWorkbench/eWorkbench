@@ -3,6 +3,6 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<ng-container *ngFor="let user of assignedUsers; let last = last">
-  <eworkbench-user-details class="d-inline-block" [user]="user"></eworkbench-user-details><span *ngIf="!last">, </span>
+<ng-container *ngFor="let user of assignees; let last = last">
+  <eworkbench-user-details class="inline-block mr-2" [user]="user"></eworkbench-user-details><span *ngIf="!last" class="mr-2">, </span>
 </ng-container>

@@ -14,12 +14,12 @@ import { NewLabBookModalComponent } from '@app/pages/labbooks/components/modals/
 import { NewNoteModalComponent } from '@app/pages/notes/components/modals/new/new.component';
 import { NewProjectModalComponent } from '@app/pages/projects/components/modals/new/new.component';
 import { NewStorageModalComponent } from '@app/pages/storages/components/modals/new/new.component';
+import { NotesService } from '@app/services';
 import { AppointmentsService } from '@app/services/appointments/appointments.service';
 import { ContactsService } from '@app/services/contacts/contacts.service';
 import { DrivesService } from '@app/services/drives/drives.service';
 import { FilesService } from '@app/services/files/files.service';
 import { LabBooksService } from '@app/services/labbooks/labbooks.service';
-import { NotesService } from '@app/services/notes/notes.service';
 import { PluginInstancesService } from '@app/services/plugin-instances/plugin-instances.service';
 import { ProjectsService } from '@app/services/projects/projects.service';
 import { TaskBoardsService } from '@app/services/task-board/task-board.service';
@@ -80,8 +80,8 @@ export class NewLinkModalComponent implements OnInit {
   @ViewChild('appointmentStartDateCellTemplate', { static: true })
   public appointmentStartDateCellTemplate!: TemplateRef<any>;
 
-  @ViewChild('commentSubjectCellTemplate', { static: true })
-  public commentSubjectCellTemplate!: TemplateRef<any>;
+  @ViewChild('noteSubjectCellTemplate', { static: true })
+  public noteSubjectCellTemplate!: TemplateRef<any>;
 
   @ViewChild('contactFirstNameCellTemplate', { static: true })
   public contactFirstNameCellTemplate!: TemplateRef<any>;
@@ -121,7 +121,7 @@ export class NewLinkModalComponent implements OnInit {
 
   public appointmentListColumns: TableColumn[] = [];
 
-  public commentListColumns: TableColumn[] = [];
+  public noteListColumns: TableColumn[] = [];
 
   public contactListColumns: TableColumn[] = [];
 
@@ -141,7 +141,7 @@ export class NewLinkModalComponent implements OnInit {
 
   public showAppointmentSearch = false;
 
-  public showCommentSearch = false;
+  public showNoteSearch = false;
 
   public showContactSearch = false;
 
@@ -161,7 +161,7 @@ export class NewLinkModalComponent implements OnInit {
 
   public refreshAppointments = new EventEmitter<boolean>();
 
-  public refreshComments = new EventEmitter<boolean>();
+  public refreshNotes = new EventEmitter<boolean>();
 
   public refreshContacts = new EventEmitter<boolean>();
 
@@ -258,9 +258,9 @@ export class NewLinkModalComponent implements OnInit {
       .selectTranslateObject('notes.columns')
       .pipe(untilDestroyed(this))
       .subscribe(column => {
-        this.commentListColumns = [
+        this.noteListColumns = [
           {
-            cellTemplate: this.commentSubjectCellTemplate,
+            cellTemplate: this.noteSubjectCellTemplate,
             name: column.subject,
             key: 'subject',
             sortable: true,
@@ -589,7 +589,7 @@ export class NewLinkModalComponent implements OnInit {
     return this.form.get('taskBoardRelations') as FormArray<RelationPayload>;
   }
 
-  public showSearch(contentType: string): void {
+  public showSearch(contentType?: string): void {
     switch (contentType) {
       case 'shared_elements.meeting': {
         this.showAppointmentSearch = true;
@@ -599,10 +599,10 @@ export class NewLinkModalComponent implements OnInit {
         break;
       }
       case 'shared_elements.note': {
-        this.showCommentSearch = true;
+        this.showNoteSearch = true;
         this.newContentModal = NewNoteModalComponent;
         this.newContentLabel = 'link.newModal.newContentLabel.note';
-        this.refreshContent = this.refreshComments;
+        this.refreshContent = this.refreshNotes;
         break;
       }
       case 'shared_elements.contact': {
@@ -704,6 +704,7 @@ export class NewLinkModalComponent implements OnInit {
     /* istanbul ignore next */
     this.newContentModalRef = this.modalService.open(this.newContentModal, {
       closeButton: false,
+      enableClose: false,
     });
     /* istanbul ignore next */
     this.newContentModalRef.afterClosed$

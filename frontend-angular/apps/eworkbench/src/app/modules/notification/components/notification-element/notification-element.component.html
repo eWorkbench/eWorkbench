@@ -12,12 +12,12 @@
 </eworkbench-collapse-element>
 
 <ng-template #collapseLabelTemplate let-notification>
-  <div class="d-flex flex-column">
+  <div class="flex flex-col">
     <div>
       <eworkbench-icon [className]="notification.content_type_model | formatContentTypeModel: 'icon'" class="mr-1"></eworkbench-icon>
       <a
         [routerLink]="[notification.content_type_model | formatContentTypeModel: 'routerBaseLink', notification.object_id]"
-        class="font-weight-bold"
+        class="font-bold"
       >
         {{ notification.title }}
       </a>
@@ -27,7 +27,7 @@
     </div>
     <div>
       <span>{{ notification.created_at | formatDate }} by </span>
-      <eworkbench-user-details class="d-inline-block" [user]="notification.created_by"></eworkbench-user-details>
+      <eworkbench-user-details class="inline-block" [user]="notification.created_by"></eworkbench-user-details>
     </div>
   </div>
 </ng-template>

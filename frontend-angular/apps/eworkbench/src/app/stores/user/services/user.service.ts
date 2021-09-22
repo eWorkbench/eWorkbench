@@ -25,7 +25,7 @@ export class UserService {
   public readonly userProfileInfoUrl = `${environment.apiUrl}/cms/json/userprofile_info/`;
 
   public get get$(): Observable<UserState> {
-    return this.userQuery.user$;
+    return this.userQuery.user$ as any;
   }
 
   private set(user: User | null, token: string | null): Observable<unknown> {
@@ -84,6 +84,12 @@ export class UserService {
         return user;
       })
     );
+  }
+
+  public getUserById(id: string, params?: HttpParams): Observable<User[]> {
+    const baseParams = params ?? new HttpParams();
+    const searchParams = baseParams.set('user_id', id.toString());
+    return this.httpClient.get<User[]>(`${environment.apiUrl}/users/`, { params: searchParams });
   }
 
   public put(user: User): Observable<User> {

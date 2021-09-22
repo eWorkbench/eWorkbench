@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, Self } from '@angular/core';
 import { NgControl, Validators } from '@angular/forms';
 import { TaskChecklist } from '@eworkbench/types';
@@ -27,15 +28,18 @@ export class TaskChecklistComponent implements AfterViewInit {
   @Input('value')
   public _value: TaskChecklist[] = [];
 
-  public checklistObjects: TaskChecklist[] = [];
-
+  @Input()
   public editable = false;
+
+  public checklistObjects: TaskChecklist[] = [];
 
   public onChange: any = () => {};
 
   public onTouch: any = () => {};
 
   public uniqueHash = uuidv4();
+
+  public dropListOrientation = 'vertical';
 
   public form = this.fb.group<FormAnswers>({
     checkboxes: this.fb.array([]),
@@ -70,6 +74,7 @@ export class TaskChecklistComponent implements AfterViewInit {
         pk: this.checklistObjects[i].pk!,
         title: this.titles.controls[i].value,
         checked: this.checkboxes.controls[i].value,
+        ordering: i,
       });
     }
 
@@ -140,7 +145,7 @@ export class TaskChecklistComponent implements AfterViewInit {
   public onAddItem(): void {
     this.checkboxes.push(this.fb.control(false));
     this.titles.push(this.fb.control(''));
-    this.checklistObjects.push({ checked: false, title: '' });
+    this.checklistObjects.push({ checked: false, title: '', ordering: this.checklistObjects.length });
     this.onTriggerChange();
   }
 
@@ -149,5 +154,31 @@ export class TaskChecklistComponent implements AfterViewInit {
       this.onChange(this.value);
       this.onTouch(this.value);
     }, 1);
+  }
+
+  public onElementDrop(event: CdkDragDrop<any[]>): void {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    this.refreshOrdering(event.previousIndex, event.currentIndex);
+  }
+
+  public refreshOrdering(from: number, to: number): void {
+    const delta = to < from ? -1 : 1;
+
+    const titles = [...this.titles.controls].map(control => control.value);
+    this.titles.controls[to].patchValue(titles[from]);
+    for (let i = from; i !== to; i += delta) {
+      this.titles.controls[i].patchValue(titles[i + delta]);
+    }
+
+    const checkboxes = [...this.checkboxes.controls].map(control => control.value);
+    this.checkboxes.controls[to].patchValue(checkboxes[from]);
+    for (let i = from; i !== to; i += delta) {
+      this.checkboxes.controls[i].patchValue(checkboxes[i + delta]);
+    }
+
+    this.onTriggerChange();
   }
 }

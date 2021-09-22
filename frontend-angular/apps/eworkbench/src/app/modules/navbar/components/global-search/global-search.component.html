@@ -32,11 +32,11 @@
         role="menu"
         aria-labelledby="search-input"
       >
-        <div class="d-flex">
-          <div class="d-flex flex-column justify-content-between restrict-search-container pt-1">
+        <div class="flex">
+          <div class="flex flex-col justify-between restrict-search-container pt-1">
             <div>
-              <div class="font-weight-bold ml-2 mb-2">{{ t('navbar.globalSearch.restrictSearch') }}</div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="font-bold ml-2 mb-2">{{ t('navbar.globalSearch.restrictSearch') }}</div>
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -46,13 +46,13 @@
                     formControlName="appointment"
                     (change)="onChangeFilter($event, 'shared_elements.meeting')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-appointment">
+                  <label class="custom-control-label w-full font-normal" for="search-appointment">
                     <eworkbench-icon [className]="'shared_elements.meeting' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'shared_elements.meeting' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -62,13 +62,13 @@
                     formControlName="note"
                     (change)="onChangeFilter($event, 'shared_elements.note')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-note">
+                  <label class="custom-control-label w-full font-normal" for="search-note">
                     <eworkbench-icon [className]="'shared_elements.note' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'shared_elements.note' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -78,13 +78,13 @@
                     formControlName="contact"
                     (change)="onChangeFilter($event, 'shared_elements.contact')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-contact">
+                  <label class="custom-control-label w-full font-normal" for="search-contact">
                     <eworkbench-icon [className]="'shared_elements.contact' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'shared_elements.contact' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -94,13 +94,13 @@
                     formControlName="dmp"
                     (change)="onChangeFilter($event, 'dmp.dmp')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-dmp">
+                  <label class="custom-control-label w-full font-normal" for="search-dmp">
                     <eworkbench-icon [className]="'dmp.dmp' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'dmp.dmp' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -110,13 +110,13 @@
                     formControlName="dss"
                     (change)="onChangeFilter($event, 'dss.dsscontainer')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-dss">
+                  <label class="custom-control-label w-full font-normal" for="search-dss">
                     <eworkbench-icon [className]="'dss.dsscontainer' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'dss.dsscontainer' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -126,13 +126,13 @@
                     formControlName="file"
                     (change)="onChangeFilter($event, 'shared_elements.file')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-file">
+                  <label class="custom-control-label w-full font-normal" for="search-file">
                     <eworkbench-icon [className]="'shared_elements.file' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'shared_elements.file' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -142,13 +142,13 @@
                     formControlName="labbook"
                     (change)="onChangeFilter($event, 'labbooks.labbook')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-labbook">
+                  <label class="custom-control-label w-full font-normal" for="search-labbook">
                     <eworkbench-icon [className]="'labbooks.labbook' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'labbooks.labbook' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -158,13 +158,13 @@
                     formControlName="picture"
                     (change)="onChangeFilter($event, 'pictures.picture')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-picture">
+                  <label class="custom-control-label w-full font-normal" for="search-picture">
                     <eworkbench-icon [className]="'pictures.picture' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'pictures.picture' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -174,13 +174,13 @@
                     formControlName="plugin"
                     (change)="onChangeFilter($event, 'plugins.plugininstance')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-plugin">
+                  <label class="custom-control-label w-full font-normal" for="search-plugin">
                     <eworkbench-icon [className]="'plugins.plugininstance' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'plugins.plugininstance' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -190,13 +190,13 @@
                     formControlName="project"
                     (change)="onChangeFilter($event, 'projects.project')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-project">
+                  <label class="custom-control-label w-full font-normal" for="search-project">
                     <eworkbench-icon [className]="'projects.project' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'projects.project' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -206,13 +206,13 @@
                     formControlName="resource"
                     (change)="onChangeFilter($event, 'projects.resource')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-resource">
+                  <label class="custom-control-label w-full font-normal" for="search-resource">
                     <eworkbench-icon [className]="'projects.resource' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'projects.resource' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -222,13 +222,13 @@
                     formControlName="drive"
                     (change)="onChangeFilter($event, 'drives.drive')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-drive">
+                  <label class="custom-control-label w-full font-normal" for="search-drive">
                     <eworkbench-icon [className]="'drives.drive' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'drives.drive' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -238,13 +238,13 @@
                     formControlName="task"
                     (change)="onChangeFilter($event, 'shared_elements.task')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-task">
+                  <label class="custom-control-label w-full font-normal" for="search-task">
                     <eworkbench-icon [className]="'shared_elements.task' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'shared_elements.task' | formatContentTypeModel: 'translation' }}
                   </label>
                 </div>
               </div>
-              <div class="btn ewb-button-regular font-weight-normal w-100 text-left menu-item-button">
+              <div class="btn ewb-button-regular font-normal w-full text-left menu-item-button">
                 <div class="custom-control custom-checkbox">
                   <input
                     type="checkbox"
@@ -254,7 +254,7 @@
                     formControlName="taskboard"
                     (change)="onChangeFilter($event, 'kanban_boards.kanbanboard')"
                   />
-                  <label class="custom-control-label w-100 font-weight-normal" for="search-taskboard">
+                  <label class="custom-control-label w-full font-normal" for="search-taskboard">
                     <eworkbench-icon [className]="'kanban_boards.kanbanboard' | formatContentTypeModel: 'icon'"></eworkbench-icon>
                     {{ 'kanban_boards.kanbanboard' | formatContentTypeModel: 'translation' }}
                   </label>
@@ -275,15 +275,15 @@
                     [routerLink]="[result.content_type_model | formatContentTypeModel: 'routerBaseLink', result.pk]"
                     (click)="hideDropdown()"
                   >
-                    <li role="menuitem" class="btn ewb-button-regular text-left h-auto w-100 pt-1 pb-1 border-bottom menu-item">
-                      <div class="d-flex">
+                    <li role="menuitem" class="btn ewb-button-regular text-left h-auto w-full pt-1 pb-1 border-b menu-item">
+                      <div class="flex">
                         <eworkbench-icon
                           [className]="result.content_type_model | formatContentTypeModel: 'icon'"
-                          class="result-icon align-self-center"
+                          class="result-icon self-center"
                         ></eworkbench-icon>
                         <div class="ml-2">
-                          <div class="result-name text-truncate">{{ result.display }}</div>
-                          <div class="d-flex text-nowrap font-weight-normal">
+                          <div class="result-name truncate">{{ result.display }}</div>
+                          <div class="flex whitespace-nowrap font-normal">
                             {{ t('navbar.globalSearch.createdBy') }}
                             <eworkbench-user-details [user]="result.created_by" [modal]="false" class="ml-1"></eworkbench-user-details>
                           </div>

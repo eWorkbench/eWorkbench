@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
   selector: 'eworkbench-wysiwyg-skeleton',
@@ -11,4 +11,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrls: ['./wysiwyg.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WysiwygSkeletonComponent {}
+export class WysiwygSkeletonComponent {
+  @Input()
+  public header = false;
+}

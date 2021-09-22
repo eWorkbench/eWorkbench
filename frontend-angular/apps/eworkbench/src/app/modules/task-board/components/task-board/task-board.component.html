@@ -14,8 +14,39 @@
         [attr.data-pk]="column.pk"
         *ngFor="let column of columns"
       >
-        <div cdkDragHandle class="d-flex align-items-center justify-content-center heading" (click)="openColumnDetailsModal(column)">
-          <h1 class="title text-center">{{ column.title }}</h1>
+        <div cdkDragHandle class="flex items-center heading">
+          <h1 class="title flex-fill">{{ column.title }}</h1>
+          <div class="inline-block" dropdown container="body" placement="bottom right">
+            <a href dropdownToggle (click)="(false)" class="btn ewb-button ewb-button-transparent">
+              <eworkbench-icon className="wb-more-vertical"></eworkbench-icon>
+            </a>
+            <ul *dropdownMenu class="dropdown-menu dropdown-menu-right details-dropdown-menu whitespace-nowrap" role="menu">
+              <li>
+                <button
+                  type="button"
+                  class="btn ewb-button-regular font-normal w-full text-left menu-item-button"
+                  (click)="openColumnDetailsModal(column)"
+                >
+                  <span class="mr-2">
+                    <eworkbench-icon className="wb-pen"></eworkbench-icon>
+                  </span>
+                  {{ t('taskBoard.column.dropdown.editColumn') }}
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  class="btn ewb-button-regular font-normal w-full text-left menu-item-button"
+                  (click)="onRemoveColumn(column)"
+                >
+                  <span class="mr-2">
+                    <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                  </span>
+                  {{ t('taskBoard.column.dropdown.removeColumn') }}
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
         <div
           [class.empty]="!column.tasks?.length"
@@ -37,13 +68,23 @@
             ></eworkbench-task-card>
           </ng-container>
         </div>
-        <div class="list-footer d-flex align-items-end justify-content-end p-1">
-          <button (click)="openNewTaskModal(column.pk)" class="btn ewb-button-regular font-weight-normal p-0 mr-2">
-            <eworkbench-icon className="wb-plus"></eworkbench-icon>
+        <div class="list-footer flex">
+          <button
+            (click)="openNewTaskModal(column.pk)"
+            class="btn ewb-button-regular font-normal mr-2"
+            [tooltip]="t('taskBoard.newTask.tooltip')"
+            container="body"
+            containerClass="tooltip-sm"
+          >
             {{ t('taskBoard.newTask') }}
           </button>
-          <button (click)="openBacklogModal(column.pk)" class="btn ewb-button-regular font-weight-normal p-0">
-            <eworkbench-icon className="wb-list"></eworkbench-icon>
+          <button
+            (click)="openBacklogModal(column.pk)"
+            class="btn ewb-button-regular font-normal"
+            [tooltip]="t('taskBoard.backlog.tooltip')"
+            container="body"
+            containerClass="tooltip-sm"
+          >
             {{ t('taskBoard.backlog') }}
           </button>
         </div>

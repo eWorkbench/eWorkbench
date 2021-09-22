@@ -26,13 +26,16 @@
               bindValue="pk"
               (change)="onChangeBaseContact($event)"
             >
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.display }}
+                <span [ngOptionHighlight]="search">{{ item.display }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>
@@ -40,7 +43,7 @@
           <div class="mb-4">
             <div *ngFor="let _ of mergeContacts.controls; let i = index" class="mb-4">
               <label [for]="'mergeContact.' + i">{{ t('contacts.mergeDuplicatesModal.mergeContact.label') }} #{{ i + 1 }}</label>
-              <div class="d-flex justify-content-between my-1">
+              <div class="flex justify-between my-1">
                 <div class="flex-fill mr-2">
                   <ng-select
                     class="ewb-select"
@@ -55,20 +58,23 @@
                     bindValue="pk"
                     (change)="onChangeMergeContact(i, $event)"
                   >
-                    <ng-template ng-option-tmp let-item="item">
+                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                       <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                      {{ item.display }}
+                      <span [ngOptionHighlight]="search">{{ item.display }}</span>
                     </ng-template>
                     <ng-template ng-optgroup-tmp let-item="item">
                       <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                       <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                    </ng-template>
+                    <ng-template ng-notfound-tmp>
+                      <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
                     </ng-template>
                   </ng-select>
                 </div>
                 <button
                   *ngIf="mergeContacts.controls.length > 1"
                   type="button"
-                  class="btn ewb-button-regular ewb-button-secondary mr-1 square align-self-center"
+                  class="btn ewb-button-regular ewb-button-secondary mr-1 square self-center"
                   [disabled]="loading"
                   [tooltip]="t('formInput.remove.tooltip')"
                   containerClass="tooltip-sm"
@@ -78,7 +84,7 @@
                 </button>
                 <button
                   type="button"
-                  class="btn ewb-button-regular ewb-button-secondary align-self-center"
+                  class="btn ewb-button-regular ewb-button-secondary self-center"
                   [disabled]="loading"
                   (click)="setContactAsBase(i)"
                 >
@@ -90,13 +96,13 @@
 
             <button
               type="button"
-              class="btn ewb-button-small ewb-button-background square"
+              class="btn ewb-button-background square rounded-none"
               [disabled]="loading"
               [tooltip]="t('contacts.mergeDuplicatesModal.addContact.tooltip')"
               containerClass="tooltip-sm"
               (click)="onAddMergeContact()"
             >
-              <eworkbench-icon className="wb-plus"></eworkbench-icon>
+              <eworkbench-icon className="wb-plus-circle"></eworkbench-icon>
             </button>
           </div>
 
@@ -173,7 +179,7 @@
               [editor]="true"
             ></eworkbench-merge-duplicates-input-group>
 
-            <div class="font-weight-bold mb-1">{{ t('contacts.mergeDuplicatesModal.contact.otherData.label') }}</div>
+            <div class="font-bold mb-1">{{ t('contacts.mergeDuplicatesModal.contact.otherData.label') }}</div>
             {{ t('contacts.mergeDuplicatesModal.contact.otherData.text') }}
           </div>
 

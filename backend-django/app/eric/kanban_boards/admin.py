@@ -7,9 +7,11 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
+from eric.favourites.admin import UserFilter
+from eric.kanban_boards.forms import KanbanBoardUserFilterSettingForm
 from eric.kanban_boards.models import KanbanBoard, KanbanBoardColumn
+from eric.kanban_boards.models.models import KanbanBoardUserFilterSetting, KanbanBoardUserSetting
 from eric.model_privileges.admin import ModelPrivilegeInline
 from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
 
@@ -41,3 +43,48 @@ class KanbanBoardAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin)
     )
     inlines = (ModelPrivilegeInline, KanbanBoardColumnInline,)
     autocomplete_fields = ('projects', )
+
+
+@admin.register(KanbanBoardUserFilterSetting)
+class KanbanBoardUserFilterSettingAdmin(admin.ModelAdmin):
+    list_display = (
+        '__str__',
+        'kanban_board',
+    )
+    search_fields = (
+        'kanban_board__title',
+        'user__username',
+        'user__email',
+        'user__userprofile__first_name',
+        'user__userprofile__last_name',
+    )
+    list_filter = (
+        UserFilter,
+    )
+    autocomplete_fields = (
+        'user',
+    )
+    list_per_page = 20
+    form = KanbanBoardUserFilterSettingForm
+
+
+@admin.register(KanbanBoardUserSetting)
+class KanbanBoardUserSettingAdmin(admin.ModelAdmin):
+    list_display = (
+        '__str__',
+        'kanban_board',
+    )
+    search_fields = (
+        'kanban_board__title',
+        'user__username',
+        'user__email',
+        'user__userprofile__first_name',
+        'user__userprofile__last_name',
+    )
+    list_filter = (
+        UserFilter,
+    )
+    autocomplete_fields = (
+        'user',
+    )
+    list_per_page = 20

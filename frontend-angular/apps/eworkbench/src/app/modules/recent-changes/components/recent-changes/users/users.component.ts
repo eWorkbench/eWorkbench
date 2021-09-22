@@ -21,7 +21,7 @@ export class RecentChangesUsersComponent implements OnInit {
   @Input()
   public users: User[] = []; // Users from details
 
-  public assignedUsers: (User | undefined)[] = []; // Mixed array of mapped users from details and unknown users
+  public assignees: (User | undefined)[] = []; // Mixed array of mapped users from details and unknown users
 
   public ngOnInit(): void {
     this.initDetails();
@@ -29,7 +29,7 @@ export class RecentChangesUsersComponent implements OnInit {
 
   public initDetails(): void {
     const userIds: number[] = this.value.split(',').map(id => Number(id));
-    this.assignedUsers = userIds.map(id => {
+    this.assignees = userIds.map(id => {
       const user = this.users.filter(user => user.pk === id);
       return user.length ? user[0] : undefined;
     });

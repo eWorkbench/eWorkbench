@@ -1,0 +1,43 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">
+      {{ t('comments.newCommentModal.header') }}
+    </div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <div class="comment-container">
+          <eworkbench-user-avatar class="avatar" [user]="currentUser" [scale]="5"></eworkbench-user-avatar>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <eworkbench-wysiwyg-editor class="mt-1" formControlName="content"></eworkbench-wysiwyg-editor>
+            <div class="custom-control custom-checkbox inline-block mt-2">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                formControlName="private"
+                [id]="'private' + uniqueHash"
+                [name]="'private' + uniqueHash"
+              />
+              <label class="custom-control-label font-normal" [for]="'private' + uniqueHash">
+                {{ t('comments.newCommentModal.private.label') }}
+              </label>
+            </div>
+
+            <div class="modal-footer p-0 mt-5">
+              <button type="button" class="btn ewb-button-big ewb-button-primary mr-2" [disabled]="loading" (click)="modalRef.close()">
+                {{ t('comments.newCommentModal.close') }}
+              </button>
+              <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+                {{ t('comments.newCommentModal.create') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

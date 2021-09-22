@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <nav class="navbar navbar-light navbar-expand-lg">
     <a #navbarBrand class="navbar-brand" [routerLink]="['/']">
-      <img src="assets/images/logo.png" class="d-inline-block align-top" alt="TUM" />
+      <img src="assets/images/logo.png" class="inline-block align-top" alt="TUM" />
       Workbench<sup>{{ version }}</sup>
     </a>
     <button
@@ -18,25 +18,30 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse h-100" [collapse]="collapsed" *ngIf="currentUser">
-      <div class="navbar-container w-100 h-100">
+    <div class="collapse navbar-collapse h-full" [collapse]="collapsed" *ngIf="currentUser">
+      <div class="navbar-container w-full h-full">
         <eworkbench-ordered-menu
           *ngIf="!minimalisticNavbar"
-          class="h-100 mt-lg-0"
+          class="h-full lg:mt-0"
           [navbarBrand]="navbarBrand"
           [navbarRightContent]="navbarRightContent"
         ></eworkbench-ordered-menu>
-        <div #navbarRightContent class="d-flex ml-3">
-          <ul class="navbar-nav navbar-search h-100" *ngIf="!minimalisticNavbar">
-            <li class="h-100 d-flex align-items-center mr-3">
+        <div #navbarRightContent class="flex navbar-right">
+          <ul class="navbar-nav navbar-search h-full" *ngIf="!minimalisticNavbar">
+            <li class="h-full flex items-center mr-3">
               <eworkbench-global-search></eworkbench-global-search>
             </li>
           </ul>
-          <ul class="navbar-nav h-100 navbar-user" [class.ml-auto]="minimalisticNavbar">
-            <li class="h-100 d-flex align-items-center">
+          <ul class="navbar-nav h-full navbar-user" [class.ml-auto]="minimalisticNavbar">
+            <li class="h-full flex items-center">
+              <a class="inline-block h-full" [routerLink]="['/metadata-search']" routerLinkActive="active">
+                <button class="btn ewb-button-regular font-normal h-full whitespace-nowrap">{{ t('navbar.menu.metadataSearch') }}</button>
+              </a>
+            </li>
+            <li class="h-full flex items-center">
               <div
                 *ngIf="dropdown"
-                class="d-inline-block h-100 dropdown-active"
+                class="inline-block h-full dropdown-active"
                 dropdown
                 container="body"
                 placement="bottom right"
@@ -44,7 +49,7 @@
               >
                 <button
                   id="navbar-dropdown-button"
-                  class="btn ewb-button-regular font-weight-normal h-100 text-nowrap"
+                  class="btn ewb-button-regular font-normal h-full whitespace-nowrap"
                   aria-controls="navbar-dropdown-menu"
                   dropdownToggle
                 >
@@ -70,10 +75,10 @@
                   ></ng-template>
                 </ul>
               </div>
-              <div *ngIf="!dropdown" class="w-100">
+              <div *ngIf="!dropdown" class="w-full">
                 <button
                   id="navbar-collapse-button"
-                  class="btn ewb-button-regular nav-button w-100 text-left"
+                  class="btn ewb-button-regular nav-button w-full text-left"
                   [attr.aria-expanded]="!userCollapsed"
                   aria-controls="navbar-collapse-menu"
                   (click)="userCollapsed = !userCollapsed"
@@ -102,8 +107,8 @@
               </div>
             </li>
           </ul>
-          <ul class="navbar-nav h-100">
-            <li class="h-100 d-flex align-items-center ml-3 mr-5">
+          <ul class="navbar-nav h-full">
+            <li class="h-full flex items-center ml-3 mr-5">
               <eworkbench-global-notifications></eworkbench-global-notifications>
             </li>
           </ul>
@@ -117,7 +122,7 @@
   <li [class]="menuClass" role="menuitem" *ngIf="!minimalisticNavbar && isDSSCurator">
     <a
       [class]="itemClass"
-      class="text-nowrap"
+      class="whitespace-nowrap"
       [routerLink]="['/dsscontainers']"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"

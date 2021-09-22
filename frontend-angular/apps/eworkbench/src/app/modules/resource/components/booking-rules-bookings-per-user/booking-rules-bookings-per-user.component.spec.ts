@@ -22,6 +22,7 @@ import {
 import { ModalsModule } from '@eworkbench/modals';
 import { TableModule } from '@eworkbench/table';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ResourceBookingRulesBookingsPerUserComponent } from './booking-rules-bookings-per-user.component';
 
 describe('ResourceBookingRulesBookingsPerUserComponent', () => {
@@ -41,6 +42,7 @@ describe('ResourceBookingRulesBookingsPerUserComponent', () => {
       ResourceModule,
       ModalsModule,
       IconsModule,
+      TooltipModule.forRoot(),
     ],
   });
 

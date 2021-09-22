@@ -13,13 +13,13 @@
         {{ t('storage.webDavModal.description') }}
       </div>
       <div class="mb-3">
-        <label for="url-modal" class="font-weight-bold">{{ t('storage.webDavModal.webDavUrl.label') }}</label>
+        <label for="url-modal" class="font-bold">{{ t('storage.webDavModal.webDavUrl.label') }}</label>
         <div class="input-group">
           <input type="text" class="form-control ewb-input" [value]="storage!.webdav_url" id="url-modal" name="url-modal" />
           <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
             <button
               type="button"
-              class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+              class="btn ewb-button-big ewb-button-primary ml-2 self-center square-md"
               (click)="onCopyToClipboard(storage!.webdav_url)"
             >
               <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
@@ -31,13 +31,13 @@
         <div class="mb-3">
           <div class="protocol-host-port-container">
             <div>
-              <label for="protocol-modal" class="font-weight-bold">{{ t('storage.webDavModal.protocol.label') }}</label>
+              <label for="protocol-modal" class="font-bold">{{ t('storage.webDavModal.protocol.label') }}</label>
               <div class="input-group">
                 <input type="text" class="form-control ewb-input" [value]="details!.protocol" id="protocol-modal" name="protocol-modal" />
                 <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
                   <button
                     type="button"
-                    class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                    class="btn ewb-button-big ewb-button-primary ml-2 self-center square-md"
                     (click)="onCopyToClipboard(details!.protocol)"
                   >
                     <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
@@ -46,13 +46,13 @@
               </div>
             </div>
             <div>
-              <label for="host-modal" class="font-weight-bold">{{ t('storage.webDavModal.host.label') }}</label>
+              <label for="host-modal" class="font-bold">{{ t('storage.webDavModal.host.label') }}</label>
               <div class="input-group">
                 <input type="text" class="form-control ewb-input" [value]="details!.host" id="host-modal" name="host-modal" />
                 <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
                   <button
                     type="button"
-                    class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                    class="btn ewb-button-big ewb-button-primary ml-2 self-center square-md"
                     (click)="onCopyToClipboard(details!.host)"
                   >
                     <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
@@ -61,13 +61,13 @@
               </div>
             </div>
             <div>
-              <label for="port-modal" class="font-weight-bold">{{ t('storage.webDavModal.port.label') }}</label>
+              <label for="port-modal" class="font-bold">{{ t('storage.webDavModal.port.label') }}</label>
               <div class="input-group">
                 <input type="text" class="form-control ewb-input" [value]="details!.port" id="port-modal" name="port-modal" />
                 <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
                   <button
                     type="button"
-                    class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                    class="btn ewb-button-big ewb-button-primary ml-2 self-center square-md"
                     (click)="onCopyToClipboard(details!.port)"
                   >
                     <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
@@ -78,13 +78,13 @@
           </div>
         </div>
         <div class="mb-3">
-          <label for="path-modal" class="font-weight-bold">{{ t('storage.webDavModal.path.label') }}</label>
+          <label for="path-modal" class="font-bold">{{ t('storage.webDavModal.path.label') }}</label>
           <div class="input-group">
             <input type="text" class="form-control ewb-input" [value]="details!.path" id="path-modal" name="path-modal" />
             <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
               <button
                 type="button"
-                class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                class="btn ewb-button-big ewb-button-primary ml-2 self-center square-md"
                 (click)="onCopyToClipboard(details!.path)"
               >
                 <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
@@ -93,13 +93,13 @@
           </div>
         </div>
         <div class="mb-3">
-          <label for="username-modal" class="font-weight-bold">{{ t('storage.webDavModal.username.label') }}</label>
+          <label for="username-modal" class="font-bold">{{ t('storage.webDavModal.username.label') }}</label>
           <div class="input-group">
             <input type="text" class="form-control ewb-input" [value]="currentUser!.username" id="username-modal" name="username-modal" />
             <div class="input-group-append" [tooltip]="t('storage.webDavModal.copyToClipboard')" containerClass="tooltip-sm">
               <button
                 type="button"
-                class="btn ewb-button-big ewb-button-primary ml-2 align-self-center square-md"
+                class="btn ewb-button-big ewb-button-primary ml-2 self-center square-md"
                 (click)="onCopyToClipboard(currentUser!.username)"
               >
                 <eworkbench-icon className="wb-copy-link"></eworkbench-icon>
@@ -108,7 +108,7 @@
           </div>
         </div>
         <div class="mb-3">
-          <label class="font-weight-bold">{{ t('storage.webDavModal.password.label') }}</label>
+          <label class="font-bold">{{ t('storage.webDavModal.password.label') }}</label>
           <div><span [tooltip]="t('storage.webDavModal.password')" containerClass="tooltip-sm">********</span></div>
         </div>
       </eworkbench-collapse-element>

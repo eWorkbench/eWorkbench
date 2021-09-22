@@ -1,8 +1,19 @@
 diff --git a/node_modules/@tinymce/tinymce-angular/fesm2015/tinymce-tinymce-angular.js b/node_modules/@tinymce/tinymce-angular/fesm2015/tinymce-tinymce-angular.js
-index b99e64c..67bdb31 100644
+index b99e64c..79b6d0b 100644
 --- a/node_modules/@tinymce/tinymce-angular/fesm2015/tinymce-tinymce-angular.js
 +++ b/node_modules/@tinymce/tinymce-angular/fesm2015/tinymce-tinymce-angular.js
-@@ -448,9 +454,9 @@ class EditorComponent extends Events {
+@@ -401,7 +407,9 @@ class EditorComponent extends Events {
+     }
+     ngOnDestroy() {
+         if (getTinymce() !== null) {
+-            getTinymce().remove(this._editor);
++            try {
++                getTinymce().remove(this._editor);
++            } catch (error) {}
+         }
+     }
+     createElement() {
+@@ -448,9 +456,9 @@ class EditorComponent extends Events {
          if (typeof this.initialValue === 'string') {
              this.ngZone.run(() => {
                  editor.setContent(this.initialValue);

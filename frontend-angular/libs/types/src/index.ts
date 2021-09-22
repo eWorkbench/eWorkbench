@@ -6,6 +6,7 @@
 export * from './lib/interfaces/appointment.interface';
 export * from './lib/interfaces/calendar-access-privileges.interface';
 export * from './lib/interfaces/cms.interface';
+export * from './lib/interfaces/comment.interface';
 export * from './lib/interfaces/contact-form.interface';
 export * from './lib/interfaces/contact.interface';
 export * from './lib/interfaces/content-type-model.interface';

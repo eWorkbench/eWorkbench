@@ -8,6 +8,7 @@ import { TaskUser } from './task-user.interface';
 
 export interface TaskBoardPayload {
   title: string;
+  description?: string;
   projects: string[];
   background_color?: string;
   kanban_board_columns?: TaskBoardColumn[];
@@ -30,12 +31,18 @@ export interface TaskBoard {
   pk: string;
   projects: string[];
   title: string;
+  description: string;
   url: string;
   version_number: number;
   is_favourite: boolean;
 }
 
 export interface TaskBoardFilter {
+  assignee: number | null;
   user: number | null;
+  project: string | null;
   search: string | null;
+  priority: string[] | null;
+  state: string[] | null;
+  favorite: boolean | null;
 }

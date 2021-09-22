@@ -7,6 +7,7 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
@@ -32,6 +33,7 @@ import { TableModule } from '@eworkbench/table';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { LabBookPageComponent } from './components/labbook-page/labbook-page.component';
 import { LabBooksPageComponent } from './components/labbooks-page/labbooks-page.component';
 import { NewLabBookModalComponent } from './components/modals/new/new.component';
@@ -75,6 +77,9 @@ import { LabBooksPageRoutingModule } from './labbooks-page-routing.module';
     SkeletonsModule,
     LinkModule,
     FavoritesModule,
+    CommentModule,
+    LoadingModule,
+    TooltipModule.forRoot(),
   ],
 })
 export class LabBooksPageModule {}

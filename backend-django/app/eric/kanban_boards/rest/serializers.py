@@ -8,14 +8,15 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django_userforeignkey.request import get_current_request
+from django_userforeignkey.request import get_current_request, get_current_user
 from rest_framework import serializers
 from rest_framework_nested.relations import NestedHyperlinkedIdentityField
 
 from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
 from eric.core.rest.serializers import BaseModelSerializer, \
-    BaseModelWithCreatedByAndSoftDeleteSerializer
+    BaseModelWithCreatedByAndSoftDeleteSerializer, PublicUserSerializer, BaseModelWithCreatedBySerializer
 from eric.kanban_boards.models import KanbanBoard, KanbanBoardColumn, KanbanBoardColumnTaskAssignment
+from eric.kanban_boards.models.models import KanbanBoardUserFilterSetting, KanbanBoardUserSetting
 from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
 from eric.shared_elements.models import Task
 from eric.shared_elements.rest.serializers import TaskSerializer
@@ -82,7 +83,7 @@ class KanbanBoardColumnTaskAssignmentSerializer(BaseModelSerializer):
     class Meta:
         model = KanbanBoardColumnTaskAssignment
         fields = (
-            'pk', 'kanban_board_column', 'ordering', 'task', 'task_id', 'url', 'num_related_notes'
+            'pk', 'kanban_board_column', 'ordering', 'task', 'task_id', 'url', 'num_related_comments', 'num_relations',
         )
 
     url = NestedHyperlinkedIdentityField(
@@ -106,7 +107,10 @@ class KanbanBoardColumnTaskAssignmentSerializer(BaseModelSerializer):
         allow_null=True
     )
 
-    num_related_notes = serializers.IntegerField(read_only=True)
+    num_related_comments = serializers.IntegerField(read_only=True)
+
+    # number of all relations (links)
+    num_relations = serializers.IntegerField(read_only=True)
 
 
 class KanbanBoardSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer):
@@ -138,7 +142,7 @@ class KanbanBoardSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer):
     class Meta:
         model = KanbanBoard
         fields = (
-            'title', 'projects',
+            'title', 'description', 'projects',
             'kanban_board_columns',
             'background_image', 'download_background_image',
             'background_image_thumbnail', 'download_background_image_thumbnail',
@@ -272,5 +276,71 @@ class KanbanBoardSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer):
 
             # update kanban board instance
             instance = super(KanbanBoardSerializer, self).update(instance, validated_data)
+
+        return instance
+
+
+class KanbanBoardUserFilterSettingSerializer(BaseModelWithCreatedBySerializer):
+    """ Serializer for KanbanBoardUserFilterSetting """
+
+    kanban_board_pk = serializers.PrimaryKeyRelatedField(
+        queryset=KanbanBoard.objects.all(),
+        source='kanban_board',
+        many=False,
+        required=True
+    )
+
+    user_id = serializers.PrimaryKeyRelatedField(
+        # write is handled in KanbanBoardUserFilterSettingViewSet
+        read_only=True,
+    )
+
+    class Meta:
+        model = KanbanBoardUserFilterSetting
+        fields = ('kanban_board_pk',
+                  'user_id',
+                  'settings',
+                  )
+        read_only_fields = ('user_id',)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        user = get_current_user()
+        validated_data['user_id'] = user.id
+        instance = super().create(validated_data)
+
+        return instance
+
+
+class KanbanBoardUserSettingSerializer(BaseModelWithCreatedBySerializer):
+    """ Serializer for KanbanBoardUserSetting """
+
+    kanban_board_pk = serializers.PrimaryKeyRelatedField(
+        queryset=KanbanBoard.objects.all(),
+        source='kanban_board',
+        many=False,
+        required=True
+    )
+
+    user_id = serializers.PrimaryKeyRelatedField(
+        # write is handled in KanbanBoardUserFilterSettingViewSet
+        read_only=True,
+    )
+
+    class Meta:
+        model = KanbanBoardUserSetting
+        fields = (
+            'kanban_board_pk',
+            'user_id',
+            'restrict_task_information',
+            'day_indication',
+        )
+        read_only_fields = ('user_id',)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        user = get_current_user()
+        validated_data['user_id'] = user.id
+        instance = super().create(validated_data)
 
         return instance

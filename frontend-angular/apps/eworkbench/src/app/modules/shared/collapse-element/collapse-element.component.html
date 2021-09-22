@@ -17,11 +17,11 @@
       <eworkbench-icon *ngIf="collapsed" className="wb-plus"></eworkbench-icon>
       <eworkbench-icon *ngIf="!collapsed" className="wb-minus"></eworkbench-icon>
     </button>
-    <span *ngIf="labelText" class="font-weight-bold label-text"> {{ labelText }}</span>
+    <span *ngIf="labelText" class="font-bold label-text"> {{ labelText }}</span>
     <ng-template *ngIf="labelTemplate" [ngTemplateOutlet]="labelTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-template>
   </div>
   <hr class="mt-2 mb-0" />
-  <div class="collapse-element-body p-3" [collapse]="collapsed">
+  <div class="collapse-element-body p-6" [collapse]="collapsed">
     <ng-content></ng-content>
   </div>
 </div>

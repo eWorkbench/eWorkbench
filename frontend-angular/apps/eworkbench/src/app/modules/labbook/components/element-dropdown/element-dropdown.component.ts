@@ -337,7 +337,8 @@ export class LabBookElementDropdownComponent implements OnInit {
     /* istanbul ignore next */
     this.modalService.open(CommentsModalComponent, {
       closeButton: false,
-      data: { service: this.service, element: this.initialState },
+      width: '912px',
+      data: { service: this.service, element: this.initialState, create: true },
     });
   }
 

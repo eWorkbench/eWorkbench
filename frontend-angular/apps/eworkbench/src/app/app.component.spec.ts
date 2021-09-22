@@ -152,11 +152,11 @@ describe('AppComponent', () => {
     });
   }));
 
-  it('should navigate to "/comments"', fakeAsync(() => {
+  it('should navigate to "/notes"', fakeAsync(() => {
     spectator.fixture.ngZone?.run(() => {
-      spectator.inject(Router).navigate(['/comments']);
+      spectator.inject(Router).navigate(['/notes']);
       spectator.tick();
-      expect(spectator.inject(Location).path()).toBe('/login?returnUrl=%2Fcomments');
+      expect(spectator.inject(Location).path()).toBe('/login?returnUrl=%2Fnotes');
     });
   }));
 

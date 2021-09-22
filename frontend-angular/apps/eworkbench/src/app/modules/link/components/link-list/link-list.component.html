@@ -3,61 +3,62 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<eworkbench-list-skeleton *ngIf="!relations" class="skeleton" [header]="true" [lines]="3"></eworkbench-list-skeleton>
-<ng-container *ngIf="relations">
+<ng-container *ngIf="!initialLoading">
   <ng-container *transloco="let t">
     <eworkbench-loading [loading]="loading">
       <div class="link-tools mb-2 text-right">
         <ng-select
-          class="ewb-select d-inline-block text-left"
+          class="btn ewb-select inline-block text-left"
           [placeholder]="t('linkList.filterLinks')"
-          [items]="contentTypes"
+          [items]="dropdownContentTypes"
           (change)="onChangeFilterContentType($event)"
         ></ng-select>
       </div>
-      <eworkbench-table-manage-columns
-        class="d-flex justify-content-end mb-3"
-        [columns]="listColumns"
-        [reset]="false"
-        (columnsChanged)="onColumnsChanged($event)"
-      ></eworkbench-table-manage-columns>
       <eworkbench-table-view
         #tableView
-        [data]="relations"
         [columns]="listColumns"
-        [pagination]="false"
-        (sortChanged)="onSortChanged($event)"
+        [service]="service"
+        [params]="params"
+        [customId]="id"
+        [sort]="1"
+        sortBy="created_at"
+        [relation]="true"
+        [skeletonLines]="12"
+        [paginationSize]="12"
       ></eworkbench-table-view>
     </eworkbench-loading>
   </ng-container>
 </ng-container>
 
-<ng-template #relationNameCellTemplate let-row>
-  <ng-container *ngIf="row.right_object_id === this.id">
-    <eworkbench-icon
-      [className]="row.left_content_object.content_type_model | formatContentTypeModel: 'icon'"
-      class="mr-2"
-    ></eworkbench-icon>
-    <a [routerLink]="[row.left_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.left_content_object.pk]">{{
-      row.left_content_object.display
-    }}</a>
-  </ng-container>
-  <ng-container *ngIf="row.left_object_id === this.id && row.right_object_id !== this.id">
-    <eworkbench-icon
-      [className]="row.right_content_object.content_type_model | formatContentTypeModel: 'icon'"
-      class="mr-2"
-    ></eworkbench-icon>
-    <a
-      [routerLink]="[row.right_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.right_content_object.pk]"
-      >{{ row.right_content_object.display }}</a
-    >
-  </ng-container>
+<ng-template #titleCellTemplate let-row>
+  <eworkbench-ellipsis-element [maxWidth]="190">
+    <ng-container *ngIf="row.right_object_id === id">
+      <eworkbench-icon
+        [className]="row.left_content_object.content_type_model | formatContentTypeModel: 'icon'"
+        class="mr-2"
+      ></eworkbench-icon>
+      <a
+        [routerLink]="[row.left_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.left_content_object.pk]"
+        >{{ row.left_content_object.display }}</a
+      >
+    </ng-container>
+    <ng-container *ngIf="row.left_object_id === id && row.right_object_id !== id">
+      <eworkbench-icon
+        [className]="row.right_content_object.content_type_model | formatContentTypeModel: 'icon'"
+        class="mr-2"
+      ></eworkbench-icon>
+      <a
+        [routerLink]="[row.right_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.right_content_object.pk]"
+        >{{ row.right_content_object.display }}</a
+      >
+    </ng-container>
+  </eworkbench-ellipsis-element>
 </ng-template>
 <ng-template #typeCellTemplate let-row>
-  <ng-container *ngIf="row.right_object_id === this.id">
+  <ng-container *ngIf="row.right_object_id === id">
     {{ row.left_content_object.content_type_model | formatContentTypeModel }}
   </ng-container>
-  <ng-container *ngIf="row.left_object_id === this.id && row.right_object_id !== this.id">
+  <ng-container *ngIf="row.left_object_id === id && row.right_object_id !== id">
     {{ row.right_content_object.content_type_model | formatContentTypeModel }}
   </ng-container>
 </ng-template>
@@ -65,11 +66,13 @@
   <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
 </ng-template>
 <ng-template #linkedAtCellTemplate let-row>
-  {{ row.created_at | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.created_at | formatDate }}
+  </div>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div class="text-right" *ngIf="currentUser?.pk === row.created_by.pk">
+    <div class="text-right whitespace-nowrap" *ngIf="currentUser?.pk === row.created_by.pk">
       <button type="button" class="btn ewb-button-small mr-2" (click)="onChangePrivateState(row)" [disabled]="loading">
         <eworkbench-icon
           *ngIf="row.private"
@@ -85,7 +88,7 @@
         ></eworkbench-icon>
       </button>
       <button type="button" class="btn ewb-button-small" (click)="onOpenDeleteModal(row)" [disabled]="loading">
-        <eworkbench-icon className="wb-trash-1" [tooltip]="t('linkList.deleteLink.tooltip')" containerClass="tooltip-sm"></eworkbench-icon>
+        <eworkbench-icon className="wb-remove" [tooltip]="t('linkList.deleteLink.tooltip')" containerClass="tooltip-sm"></eworkbench-icon>
       </button>
     </div>
   </ng-container>

@@ -6,13 +6,13 @@
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
+import { SitePreferencesService } from '@app/services';
 import { AuthService } from '@app/services/auth/auth.service';
-import { TableSortChangedEvent, TableSortDirection, TableColumn, TableViewComponent, TableColumnChangedEvent } from '@eworkbench/table';
-import { DropdownElement, ModalCallback, Relation, RelationPutPayload, User } from '@eworkbench/types';
+import { TableColumn, TableViewComponent } from '@eworkbench/table';
+import { ContentTypeModels, DropdownElement, ModalCallback, Relation, RelationPutPayload, SitePreferences, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { keyBy, merge, values } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs/operators';
 import { DeleteLinkComponent } from '../modals/delete-link/delete-link.component';
@@ -28,8 +28,8 @@ export class LinkListComponent implements OnInit {
   @ViewChild('tableView')
   public tableView!: TableViewComponent;
 
-  @ViewChild('relationNameCellTemplate', { static: true })
-  public relationNameCellTemplate!: TemplateRef<any>;
+  @ViewChild('titleCellTemplate', { static: true })
+  public titleCellTemplate!: TemplateRef<any>;
 
   @ViewChild('typeCellTemplate', { static: true })
   public typeCellTemplate!: TemplateRef<any>;
@@ -50,15 +50,15 @@ export class LinkListComponent implements OnInit {
   public service!: any;
 
   @Input()
-  public refresh?: EventEmitter<string>;
+  public refresh?: EventEmitter<boolean>;
+
+  public params = new HttpParams().set('ordering', '-created_at');
+
+  public initialLoading = true;
 
   public loading = false;
 
-  public relations?: Relation[];
-
-  public allRelations?: Relation[];
-
-  public selectedType?: string | undefined;
+  public selectedType?: string | number | undefined;
 
   public defaultColumns: TableColumn[] = [];
 
@@ -68,40 +68,23 @@ export class LinkListComponent implements OnInit {
 
   public modalRef?: DialogRef;
 
-  private sortBy = 'created_at';
+  public dropdownContentTypes: DropdownElement[] = [];
 
-  private sort = TableSortDirection.Descending;
-
-  public contentTypes: DropdownElement[] = [];
+  public contentTypes: Record<ContentTypeModels | string, number> = {};
 
   public constructor(
     private readonly translocoService: TranslocoService,
     private readonly cdr: ChangeDetectorRef,
     private readonly toastrService: ToastrService,
     private readonly modalService: DialogService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly sitePreferencesService: SitePreferencesService
   ) {}
-
-  private get orderByDirection(): string | null {
-    switch (this.sort) {
-      case TableSortDirection.None: {
-        return null;
-      }
-
-      case TableSortDirection.Ascending: {
-        return '';
-      }
-
-      case TableSortDirection.Descending: {
-        return '-';
-      }
-    }
-  }
 
   public ngOnInit(): void {
     /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
-      this.initDetails();
+      this.tableView.loadData();
     });
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -109,7 +92,7 @@ export class LinkListComponent implements OnInit {
     });
 
     this.initTranslations();
-    this.initDetails();
+    this.initSitePreferences();
   }
 
   public initTranslations(): void {
@@ -119,24 +102,19 @@ export class LinkListComponent implements OnInit {
       .subscribe(column => {
         this.defaultColumns = [
           {
-            cellTemplate: this.relationNameCellTemplate,
-            name: column.relationName,
+            cellTemplate: this.titleCellTemplate,
+            name: column.title,
             key: 'left_content_object',
           },
           {
-            cellTemplate: this.typeCellTemplate,
-            name: column.type,
-            key: 'type',
-          },
-          {
             cellTemplate: this.linkedByCellTemplate,
-            name: column.createdBy,
+            name: column.setBy,
             key: 'created_by',
             sortable: true,
           },
           {
             cellTemplate: this.linkedAtCellTemplate,
-            name: column.linkedAt,
+            name: column.setAt,
             key: 'created_at',
             sortable: true,
           },
@@ -155,14 +133,14 @@ export class LinkListComponent implements OnInit {
       .selectTranslateObject('linkList.contentType')
       .pipe(untilDestroyed(this))
       .subscribe(contentType => {
-        this.contentTypes = [
+        this.dropdownContentTypes = [
           {
             value: 'shared_elements.meeting',
             label: contentType.appointment,
           },
           {
             value: 'shared_elements.note',
-            label: contentType.comment,
+            label: contentType.note,
           },
           {
             value: 'shared_elements.contact',
@@ -208,72 +186,30 @@ export class LinkListComponent implements OnInit {
       });
   }
 
-  public initDetails(): void {
-    if (this.loading) {
-      return;
-    }
-    this.loading = true;
-
-    let params = new HttpParams();
-    if (this.orderByDirection !== null) {
-      params = params.set('ordering', `${this.orderByDirection}${this.sortBy}`);
-    }
-
-    this.service
-      .getRelations(this.id, params)
+  public initSitePreferences(): void {
+    this.sitePreferencesService
+      .get()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (relations: Relation[]) => {
-          this.loading = false;
-          if (relations.length) {
-            this.allRelations = [...relations];
-            this.filterRelations();
-          } else {
-            this.relations = [];
-          }
+        /* istanbul ignore next */ (preferences: SitePreferences) => {
+          this.params = this.params.set('without_content_type', preferences.content_types['shared_elements.comment']);
+          this.contentTypes = preferences.content_types;
+          this.initialLoading = false;
           this.cdr.markForCheck();
         }
       );
-
-    this.cdr.markForCheck();
-  }
-
-  public onColumnsChanged(event: TableColumnChangedEvent): void {
-    const merged = merge(
-      keyBy(event, 'key'),
-      keyBy(
-        this.defaultColumns.map(column => ({
-          cellTemplate: column.cellTemplate,
-          key: column.key,
-        })),
-        'key'
-      )
-    );
-
-    this.listColumns = values<TableColumn>(merged);
-  }
-
-  public filterRelations(): void {
-    if (this.allRelations?.length) {
-      if (this.selectedType) {
-        const result: Relation[] = this.allRelations.filter(relation => relation.left_content_type_model === this.selectedType);
-        this.relations = [...result];
-      } else {
-        this.relations = [...this.allRelations];
-      }
-      this.cdr.markForCheck();
-    }
-  }
-
-  public onSortChanged(event: TableSortChangedEvent): void {
-    this.sortBy = event.key;
-    this.sort = event.direction;
-    this.initDetails();
   }
 
   public onChangeFilterContentType(element?: DropdownElement): void {
     this.selectedType = element?.value;
-    this.filterRelations();
+    if (this.selectedType) {
+      this.params = this.params.set('with_content_type', this.contentTypes[this.selectedType]);
+    } else {
+      this.params = this.params.delete('with_content_type');
+    }
+    this.tableView.updateParams(this.params);
+    this.tableView.loadData();
+    this.cdr.markForCheck();
   }
 
   public onChangePrivateState(relation: RelationPutPayload): void {
@@ -312,7 +248,7 @@ export class LinkListComponent implements OnInit {
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
-      this.initDetails();
+      this.tableView.loadData();
     }
   }
 }

@@ -7,7 +7,7 @@
   <eworkbench-header [title]="detailsTitle">
     <ng-container slot="elements" *ngIf="initialState">
       <eworkbench-favorite-button
-        class="d-inline-block mr-2"
+        class="inline-block mr-2"
         [id]="initialState?.pk"
         [contentType]="initialState?.content_type"
         [favorited]="initialState?.is_favourite"
@@ -33,17 +33,19 @@
   <div class="skeleton-wrapper">
     <div class="file mb-5">
       <div>
-        <eworkbench-details-skeleton [fields]="5"></eworkbench-details-skeleton>
-        <eworkbench-wysiwyg-skeleton></eworkbench-wysiwyg-skeleton>
-        <eworkbench-details-skeleton [fields]="1"></eworkbench-details-skeleton>
+        <eworkbench-details-skeleton [fields]="8" [header]="true" class="mb-6"></eworkbench-details-skeleton>
+        <eworkbench-wysiwyg-skeleton [header]="true" class="mb-6"></eworkbench-wysiwyg-skeleton>
+        <eworkbench-details-skeleton [fields]="1" [header]="true"></eworkbench-details-skeleton>
       </div>
-      <eworkbench-details-skeleton [fields]="5"></eworkbench-details-skeleton>
       <div>
-        <eworkbench-list-skeleton [lines]="5" [header]="true" class="mb-5"></eworkbench-list-skeleton>
-        <eworkbench-list-skeleton [lines]="3" [header]="true"></eworkbench-list-skeleton>
+        <eworkbench-list-skeleton [lines]="5" [header]="true" [collapseHeader]="true"></eworkbench-list-skeleton>
+      </div>
+      <div>
+        <eworkbench-list-skeleton [lines]="5" [header]="true" [collapseHeader]="true" class="mb-6"></eworkbench-list-skeleton>
+        <eworkbench-list-skeleton [lines]="5" [header]="true" [collapseHeader]="true" class="mb-6"></eworkbench-list-skeleton>
+        <eworkbench-comment-skeleton [fields]="3" [header]="true"></eworkbench-comment-skeleton>
       </div>
     </div>
-    <eworkbench-link-skeleton></eworkbench-link-skeleton>
   </div>
 </div>
 
@@ -60,219 +62,330 @@
         <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="filesService"></eworkbench-lock>
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="file" errorTailor>
           <div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="title"
-                [label]="t('file.details.title.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-                [required]="true"
-              >
-                <input
-                  type="text"
-                  class="form-control ewb-input"
-                  id="title"
-                  formControlName="title"
-                  name="title"
-                  [placeholder]="t('file.details.title.placeholder')"
-                  slot="input"
-                />
-              </eworkbench-form-input>
-            </div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="name"
-                [label]="t('file.details.name.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-                [required]="true"
-              >
-                <input
-                  type="text"
-                  class="form-control ewb-input"
-                  id="name"
-                  formControlName="name"
-                  name="name"
-                  [placeholder]="t('file.details.name.placeholder')"
-                  slot="input"
-                />
-              </eworkbench-form-input>
-            </div>
+            <eworkbench-details-collapse-element [labelText]="t('file.details.element.details')">
+              <ng-container slot="body">
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="title"
+                    [label]="t('file.details.title.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                    [required]="true"
+                  >
+                    <input
+                      type="text"
+                      class="form-control ewb-input"
+                      id="title"
+                      formControlName="title"
+                      name="title"
+                      [placeholder]="t('file.details.title.placeholder')"
+                      slot="input"
+                    />
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="name"
+                    [label]="t('file.details.name.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                    [required]="true"
+                  >
+                    <input
+                      type="text"
+                      class="form-control ewb-input"
+                      id="name"
+                      formControlName="name"
+                      name="name"
+                      [placeholder]="t('file.details.name.placeholder')"
+                      slot="input"
+                    />
+                  </eworkbench-form-input>
+                </div>
 
-            <div class="mb-4">
-              <label for="download">{{ t('file.details.download.label') }}</label>
-              <div>
+                <div class="mb-4">
+                  <label for="download">{{ t('file.details.download.label') }}</label>
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-sm bg-transparent text-left"
+                      [authDownload]="{ url: initialState?.download, fileName: initialState?.original_filename }"
+                    >
+                      <eworkbench-icon className="wb-download" class="mr-1"></eworkbench-icon>
+                      <span class="btn-link">{{ initialState?.name }}</span>
+                      ({{ initialState?.file_size | formatFileSize }})
+                    </button>
+                  </div>
+                </div>
+
+                <div class="mb-4" *ngIf="privileges?.edit">
+                  <label for="uploadFile">{{ t('file.details.upload.label') }}</label>
+                  <div>
+                    <input
+                      #uploadInput
+                      type="file"
+                      class="ewb-file-button"
+                      [disabled]="loading || !privileges?.edit"
+                      (change)="onUpload($event)"
+                      id="uploadFile"
+                      name="uploadFile"
+                    />
+                    <label for="uploadFile" class="btn ewb-button-regular ewb-button-secondary">
+                      <eworkbench-icon className="wb-upload" class="mr-1"></eworkbench-icon>
+                      {{ t('file.details.updateFile') }}
+                    </label>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <ng-container *ngIf="privileges.fullAccess">
+                    <eworkbench-form-input
+                      for="storage"
+                      [label]="t('file.details.storage.label')"
+                      [loading]="loading"
+                      [onSubmit]="refreshResetValue"
+                      *ngIf="directories.length"
+                    >
+                      <ng-select
+                        class="ewb-select"
+                        formControlName="storage"
+                        labelForId="storage"
+                        name="storage"
+                        [placeholder]="t('file.details.storage.placeholder')"
+                        [items]="directories | createTree"
+                        bindLabel="display"
+                        bindValue="pk"
+                        [clearable]="true"
+                        [searchable]="true"
+                        slot="input"
+                      >
+                        <ng-template ng-label-tmp let-item="item">
+                          <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
+                          }}{{ item.display }}
+                        </ng-template>
+
+                        <ng-template ng-option-tmp let-item="item">
+                          <div [style.padding-left.px]="item.is_virtual_root ? 0 : item.level * 10">
+                            <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
+                            }}{{ item.display }}
+                          </div>
+                        </ng-template>
+                      </ng-select>
+                    </eworkbench-form-input>
+                    <ng-container *ngIf="!directories.length">
+                      <div class="flex align-items-center gap-3">
+                        <div>
+                          {{ initialState?.directory?.display || t('file.details.storage.none.label') }}
+                        </div>
+                        <button
+                          type="button"
+                          class="btn ewb-button-small ewb-button-primary cursor-help rounded text-monospace"
+                          [tooltip]="t('file.details.storage.none.tooltip')"
+                          placement="right"
+                        >
+                          i
+                        </button>
+                      </div>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container *ngIf="!privileges.fullAccess">
+                    <label>{{ t('file.details.storage.label') }}</label>
+                    <div class="flex align-items-center gap-3">
+                      <ng-container *ngIf="initialState?.directory">
+                        <div class="ewb-chip">
+                          <eworkbench-icon
+                            [className]="initialState?.directory?.is_virtual_root ? 'wb-storages' : 'wb-folder'"
+                            class="mr-1"
+                            *ngIf="initialState?.directory"
+                          ></eworkbench-icon>
+                          <ng-container *ngIf="storagePrivileges?.view">
+                            <a [routerLink]="['/storages', getStorageIdForDirectory(initialState.directory_id)]"
+                              ><ng-container *ngIf="initialState.directory.is_virtual_root">{{
+                                initialState.directory.display
+                              }}</ng-container
+                              ><ng-container *ngIf="!initialState.directory.is_virtual_root"
+                                >{{ getStorageNameForDirectory(initialState.directory_id) }} |
+                                {{ initialState.directory.display }}</ng-container
+                              ></a
+                            >
+                          </ng-container>
+                          <ng-container *ngIf="!storagePrivileges?.view">
+                            {{ t('file.details.storage.unknown.label') }}
+                          </ng-container>
+                        </div>
+                        <ng-container *ngIf="!storagePrivileges?.edit">
+                          <button
+                            type="button"
+                            class="btn ewb-button-small ewb-button-primary cursor-help rounded text-monospace"
+                            [tooltip]="t('file.details.storage.noEditPermission.tooltip')"
+                            placement="right"
+                          >
+                            i
+                          </button>
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngIf="!initialState?.directory">
+                        {{ t('file.details.storage.none.label') }}
+                      </ng-container>
+                    </div>
+                  </ng-container>
+                </div>
+                <div class="mb-4" *ngIf="initialState?.is_dss_file">
+                  <label>{{ t('file.details.dssLocation.label') }}</label>
+                  <div>{{ initialState?.location }}</div>
+                </div>
+                <div class="mb-4">
+                  <eworkbench-form-input
+                    for="projects"
+                    [label]="t('file.details.projects.label')"
+                    [loading]="loading"
+                    [onSubmit]="refreshResetValue"
+                  >
+                    <ng-select
+                      class="ewb-select"
+                      formControlName="projects"
+                      labelForId="projects"
+                      name="projects"
+                      [placeholder]="t('file.details.projects.placeholder')"
+                      [multiple]="true"
+                      [typeahead]="projectInput$"
+                      [items]="projects"
+                      groupBy="is_favourite"
+                      bindLabel="name"
+                      bindValue="pk"
+                      slot="input"
+                    >
+                      <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                        {{ item.name }}
+                        <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                      </ng-template>
+                      <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                        <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                        <span [ngOptionHighlight]="search">{{ item.name }}</span>
+                      </ng-template>
+                      <ng-template ng-optgroup-tmp let-item="item">
+                        <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                        <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                      </ng-template>
+                      <ng-template ng-notfound-tmp>
+                        <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
+                      </ng-template>
+                    </ng-select>
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <label for="created-by">{{ t('file.details.createdBy.label') }}</label>
+                  <div class="flex items-center space-x-1">
+                    <eworkbench-user-details
+                      id="created-by"
+                      class="inline-block"
+                      [user]="initialState?.created_by"
+                    ></eworkbench-user-details>
+                    <span> | </span>
+                    <span id="created-at">{{ initialState?.created_at | formatDate }}</span>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label for="last-modified-by">{{ t('file.details.lastModifiedBy.label') }}</label>
+                  <div class="flex items-center space-x-1">
+                    <eworkbench-user-details id="last-modified-by" class="inline-block" [user]="initialState?.last_modified_by">
+                    </eworkbench-user-details>
+                    <span> | </span>
+                    <span id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</span>
+                  </div>
+                </div>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+
+            <eworkbench-details-collapse-element [labelText]="t('file.details.element.description')">
+              <ng-container slot="body">
+                <div class="mb-4">
+                  <eworkbench-form-input for="description" [loading]="loading" [onSubmit]="refreshResetValue">
+                    <eworkbench-wysiwyg-editor [id]="'description'" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
+                  </eworkbench-form-input>
+                </div>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+
+            <eworkbench-details-collapse-element [labelText]="t('file.details.element.metadata')">
+              <ng-container slot="body">
+                <div class="mb-4">
+                  <eworkbench-metadata
+                    [selectedParameters]="initialState?.metadata"
+                    [editable]="privileges?.edit"
+                    [loading]="loading"
+                    [refresh]="refreshMetadata"
+                    (changed)="onUpdateMetadata($event)"
+                  ></eworkbench-metadata>
+                </div>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+          </div>
+          <div>
+            <eworkbench-details-collapse-element [labelText]="t('file.details.element.links')">
+              <ng-container slot="actions">
+                <eworkbench-link
+                  [baseModel]="initialState"
+                  [service]="filesService"
+                  (refreshLinkList)="onRefreshLinkList()"
+                ></eworkbench-link>
+              </ng-container>
+              <ng-container slot="body">
+                <eworkbench-link-list [id]="initialState.pk" [service]="filesService" [refresh]="refreshLinkList"></eworkbench-link-list>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+          </div>
+          <div>
+            <eworkbench-details-collapse-element [labelText]="t('file.details.element.recentChanges')">
+              <ng-container slot="body">
+                <eworkbench-recent-changes
+                  id="recent-changes"
+                  [service]="filesService"
+                  [changesId]="id"
+                  [refresh]="refreshChanges"
+                  [users]="initialState?.attending_users"
+                ></eworkbench-recent-changes>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+
+            <eworkbench-details-collapse-element [labelText]="t('file.details.element.versions')">
+              <ng-container slot="body">
+                <eworkbench-versions
+                  id="versions"
+                  contentType="file"
+                  [service]="filesService"
+                  [versionId]="id"
+                  [lastModifiedAt]="initialState?.last_modified_at"
+                  [refresh]="refreshVersions"
+                  [editable]="privileges?.edit"
+                  (changed)="onVersionChanged()"
+                ></eworkbench-versions>
+              </ng-container>
+            </eworkbench-details-collapse-element>
+
+            <eworkbench-details-collapse-element [labelText]="t('file.details.element.comments')">
+              <ng-container slot="actions">
                 <button
                   type="button"
-                  class="btn btn-sm bg-transparent text-left"
-                  [authDownload]="{ url: initialState?.download, fileName: initialState?.original_filename }"
+                  class="btn ewb-button-regular ewb-button-outline mr-2"
+                  (click)="onOpenNewCommentModal()"
+                  [disabled]="loading"
                 >
-                  <eworkbench-icon className="wb-download" class="mr-1"></eworkbench-icon>
-                  <span class="btn-link">{{ initialState?.name }}</span>
-                  ({{ initialState?.file_size | formatFileSize }})
+                  {{ t('file.details.comments.newComment') }}
                 </button>
-              </div>
-            </div>
-
-            <div class="mb-4" *ngIf="privileges?.edit">
-              <label for="uploadFile">{{ t('file.details.upload.label') }}</label>
-              <div>
-                <input
-                  #uploadInput
-                  type="file"
-                  class="ewb-file-button"
-                  [disabled]="loading || !privileges?.edit"
-                  (change)="onUpload($event)"
-                  id="uploadFile"
-                  name="uploadFile"
-                />
-                <label for="uploadFile" class="btn ewb-button-regular ewb-button-secondary">
-                  <eworkbench-icon className="wb-upload" class="mr-1"></eworkbench-icon>
-                  {{ t('file.details.updateFile') }}
-                </label>
-              </div>
-            </div>
-
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="storage"
-                [label]="t('file.details.storage.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-              >
-                <ng-select
-                  class="ewb-select"
-                  formControlName="storage"
-                  labelForId="storage"
-                  name="storage"
-                  [placeholder]="t('file.details.storage.placeholder')"
-                  [items]="directories | createTree"
-                  bindLabel="display"
-                  bindValue="pk"
-                  [clearable]="true"
-                  [searchable]="true"
-                  slot="input"
-                >
-                  <ng-template ng-label-tmp let-item="item">
-                    <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
-                    }}{{ item.display }}
-                  </ng-template>
-
-                  <ng-template ng-option-tmp let-item="item">
-                    <div [style.padding-left.px]="item.is_virtual_root ? 0 : item.level * 10">
-                      <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
-                      }}{{ item.display }}
-                    </div>
-                  </ng-template>
-                </ng-select>
-              </eworkbench-form-input>
-            </div>
-            <div class="mb-4" *ngIf="initialState?.is_dss_file">
-              <label>{{ t('file.details.dssLocation.label') }}</label>
-              <div>{{ initialState?.location }}</div>
-            </div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="description"
-                [label]="t('file.details.description.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-              >
-                <eworkbench-wysiwyg-editor id="description" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
-              </eworkbench-form-input>
-            </div>
-            <div class="mb-4">
-              <label for="metadata">{{ t('file.details.metadata.label') }}</label>
-              <eworkbench-metadata
-                [selectedParameters]="initialState?.metadata"
-                [editable]="privileges?.edit"
-                [loading]="loading"
-                [refresh]="refreshMetadata"
-                (changed)="onUpdateMetadata($event)"
-              ></eworkbench-metadata>
-            </div>
-          </div>
-          <div>
-            <div class="mb-4">
-              <label for="created-by">{{ t('file.details.createdBy.label') }}</label>
-              <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
-            </div>
-            <div class="mb-4">
-              <label for="created-at">{{ t('file.details.createdAt.label') }}</label>
-              <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
-            </div>
-            <div class="mb-4">
-              <label for="last-modified-by">{{ t('file.details.lastModifiedBy.label') }}</label>
-              <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
-            </div>
-            <div class="mb-4">
-              <label for="last-modified-at">{{ t('file.details.lastModifiedAt.label') }}</label>
-              <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
-            </div>
-            <div class="mb-4">
-              <eworkbench-form-input
-                for="projects"
-                [label]="t('file.details.projects.label')"
-                [loading]="loading"
-                [onSubmit]="refreshResetValue"
-              >
-                <ng-select
-                  class="ewb-select"
-                  formControlName="projects"
-                  labelForId="projects"
-                  name="projects"
-                  [placeholder]="t('file.details.projects.placeholder')"
-                  [multiple]="true"
-                  [typeahead]="projectInput$"
-                  [items]="projects"
-                  groupBy="is_favourite"
-                  bindLabel="name"
-                  bindValue="pk"
-                  slot="input"
-                >
-                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                    {{ item.name }}
-                    <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-                  </ng-template>
-                  <ng-template ng-option-tmp let-item="item">
-                    <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                    {{ item.name }}
-                  </ng-template>
-                  <ng-template ng-optgroup-tmp let-item="item">
-                    <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
-                    <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
-                  </ng-template>
-                </ng-select>
-              </eworkbench-form-input>
-            </div>
-          </div>
-          <div>
-            <div class="mb-1">
-              <label for="recent-changes">{{ t('file.details.recentChanges.label') }}</label>
-            </div>
-            <eworkbench-recent-changes
-              id="recent-changes"
-              [service]="filesService"
-              [changesId]="id"
-              [refresh]="refreshChanges"
-            ></eworkbench-recent-changes>
-            <div class="mt-2 mb-1">
-              <label for="versions">{{ t('file.details.versions.label') }}</label>
-            </div>
-            <eworkbench-versions
-              id="versions"
-              contentType="file"
-              [service]="filesService"
-              [versionId]="id"
-              [lastModifiedAt]="initialState?.last_modified_at"
-              [refresh]="refreshVersions"
-              [editable]="privileges?.edit"
-              (changed)="onVersionChanged()"
-            ></eworkbench-versions>
+              </ng-container>
+              <ng-container slot="body">
+                <eworkbench-comments
+                  #comments
+                  [service]="filesService"
+                  [id]="id"
+                  [contentType]="initialState.content_type"
+                ></eworkbench-comments>
+              </ng-container>
+            </eworkbench-details-collapse-element>
           </div>
         </form>
-
-        <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="filesService" class="mt-3"></eworkbench-link>
       </main>
     </div>
   </ng-container>

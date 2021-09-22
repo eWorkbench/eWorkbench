@@ -11,8 +11,9 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
+from eric.core.tests import test_utils
 from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin
-from eric.shared_elements.tests.core import TaskMixin, NoteMixin, ContactMixin, MeetingMixin
+from eric.shared_elements.tests.core import TaskMixin, NoteMixin, ContactMixin, MeetingMixin, CommentMixin
 from eric.relations.tests.core import RelationsMixin
 from eric.relations.models import Relation
 from eric.projects.models import Project
@@ -26,7 +27,7 @@ REMOTE_ADDR = "127.0.0.1"
 
 
 class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMixin,
-                    TaskMixin, NoteMixin, ContactMixin, MeetingMixin):
+                    TaskMixin, NoteMixin, ContactMixin, MeetingMixin, CommentMixin):
     """ Extensive testing of relation endpoint """
 
     def setUp(self):
@@ -191,6 +192,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         # decode the relations for this note
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
         # should be exactly one
         self.assertEquals(len(decoded_response), 1, msg="Should be exactly one relation for this note")
         self.assertEquals(decoded_response[0]['pk'], str(relation.pk))
@@ -200,6 +202,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         # decode the relations for this task
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
         # should be five relations
         self.assertEquals(len(decoded_response), 1, msg="Should be exactly one relation for this task")
         self.assertEquals(decoded_response[0]['pk'], str(relation.pk))
@@ -216,6 +219,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         # decode the relations for this note
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
         # should be exactly one
         self.assertEquals(len(decoded_response), 1, msg="Should be exactly one relation")
         self.assertEquals(decoded_response[0]['pk'], str(relation.pk))
@@ -225,6 +229,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         # decode the relations for this task
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
         # should be five relations
         self.assertEquals(len(decoded_response), 2, msg="Should be exactly two relations for this task")
         self.assertEquals(Relation.objects.all().count(), 2, msg="There should be exactly two relations")
@@ -241,6 +246,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         # decode the relations for this note
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
         # should be exactly one
         self.assertEquals(len(decoded_response), 1, msg="Should be exactly one relation for contact")
         self.assertEquals(decoded_response[0]['pk'], str(relation.pk))
@@ -250,6 +256,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         # decode the relations for this task
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
         # should be three relations
         self.assertEquals(len(decoded_response), 3, msg="Should be exactly three relations for this task")
         self.assertEquals(Relation.objects.all().count(), 3, msg="There should be exactly three relations")
@@ -264,6 +271,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_task_relations(self.token1, self.task2.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
         print(len(decoded_response))
 
         # get all relations for this task
@@ -271,6 +279,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         # decode the relations for this note
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
         # should be five relations
         self.assertEquals(len(decoded_response), 4, msg="Should be exactly four relations for tasks")
 
@@ -552,6 +561,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_task_relations(self.token1, self.task1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, 200)
         decoded_content = json.loads(response.content.decode())
+        decoded_content = test_utils.get_paginated_results(decoded_content)
         self.assertEquals(len(decoded_content), 5, msg="There should be 5 relations for this task")
         self.assertEquals(Relation.objects.all().count(), 5, msg="There should be 5 relations")
 
@@ -604,6 +614,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_meeting_relations(self.token1, self.meeting1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, 200)
         decoded_content = json.loads(response.content.decode())
+        decoded_content = test_utils.get_paginated_results(decoded_content)
         self.assertEquals(len(decoded_content), 5, msg="There should be 5 relations for this meeting")
         self.assertEquals(Relation.objects.all().count(), 5, msg="There should be 5 relations")
 
@@ -656,6 +667,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_contact_relations(self.token1, self.contact1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, 200)
         decoded_content = json.loads(response.content.decode())
+        decoded_content = test_utils.get_paginated_results(decoded_content)
         self.assertEquals(len(decoded_content), 5, msg="There should be 5 relations for this contact")
         self.assertEquals(Relation.objects.all().count(), 5, msg="There should be 5 relations")
 
@@ -708,6 +720,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_note_relations(self.token1, self.note1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, 200)
         decoded_content = json.loads(response.content.decode())
+        decoded_content = test_utils.get_paginated_results(decoded_content)
         self.assertEquals(len(decoded_content), 5, msg="There should be 5 relations for this note")
         self.assertEquals(Relation.objects.all().count(), 5, msg="There should be 5 relations")
 
@@ -796,6 +809,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_task_relations(self.token2, self.task1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
 
         # verify response to contain the note
         self.assertEquals(len(decoded_response), 1, msg="There should be exactly one relation with the task")
@@ -824,6 +838,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_meeting_relations(self.token2, self.meeting1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
 
         # verify response to contain the note
         self.assertEquals(len(decoded_response), 1, msg="There should be exactly one relation with the meeting")
@@ -852,6 +867,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_contact_relations(self.token2, self.contact1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
 
         # verify response to contain the note (but not the relations marked as private)
         self.assertEquals(len(decoded_response), 1, msg="There should be exactly one relation with the contact")
@@ -880,6 +896,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_note_relations(self.token2, self.note1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
 
         # verify response to contain the note
         self.assertEquals(len(decoded_response), 1, msg="There should be exactly one relation with the note")
@@ -934,6 +951,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_task_relations(self.token2, self.task1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
 
         # verify response to contain the note
         self.assertEquals(len(decoded_response), 1, msg="There should be exactly one relation with the task")
@@ -1018,6 +1036,7 @@ class RelationsTest(APITestCase, AuthenticationMixin, ProjectsMixin, RelationsMi
         response = self.rest_get_task_relations(self.token2, self.task1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
+        decoded_response = test_utils.get_paginated_results(decoded_response)
 
         # verify response to contain the note
         self.assertEquals(len(decoded_response), 1, msg="There should be exactly one relation with the task")

@@ -7,7 +7,19 @@
   <ng-container *ngIf="user">
     <ng-container *ngIf="user?.userprofile">
       <ng-container *ngIf="user?.userprofile.anonymized">
-        <span class="text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+        <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
+          <eworkbench-user-avatar
+            [user]="user"
+            [chip]="chip"
+            [inverted]="inverted || invertedAvatar"
+            [scale]="avatarScale"
+            class="mr-2"
+            *ngIf="avatar"
+          ></eworkbench-user-avatar>
+          <div [class.text-gray-600]="!inverted">
+            {{ t('user.details.anonymizedUser') }}
+          </div>
+        </div>
       </ng-container>
       <ng-container *ngIf="!user?.userprofile.anonymized">
         <ng-container
@@ -17,16 +29,76 @@
     </ng-container>
   </ng-container>
   <ng-container *ngIf="!user || !user?.userprofile">
-    {{ t('user.details.unknownUser') }}
+    <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
+      <eworkbench-user-avatar
+        [user]="user"
+        [chip]="chip"
+        [inverted]="inverted || invertedAvatar"
+        [scale]="avatarScale"
+        class="mr-2"
+        *ngIf="avatar"
+      ></eworkbench-user-avatar>
+      <div>
+        {{ t('user.details.unknownUser') }}
+      </div>
+    </div>
   </ng-container>
 </ng-container>
 
 <ng-template #userTemplate>
-  <a href (click)="onUserModal($event)" *ngIf="modal">{{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}</a>
-  <ng-container *ngIf="!modal">{{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}</ng-container>
+  <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
+    <eworkbench-user-avatar
+      [user]="user"
+      [chip]="chip"
+      [inverted]="inverted || invertedAvatar"
+      [scale]="avatarScale"
+      class="mr-2"
+      *ngIf="avatar"
+    ></eworkbench-user-avatar>
+    <a href (click)="openUserModal($event)" [class.deactivated]="!active" [class.inverted]="inverted" *ngIf="modal"
+      >{{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}</a
+    >
+    <a
+      href
+      class="cursor-default"
+      [popover]="userDetailsPopover"
+      [popoverContext]="{ user: user }"
+      containerClass="ewb-popover"
+      triggers="mouseenter:mouseleave"
+      (click)="$event.preventDefault()"
+      *ngIf="!modal"
+    >
+      {{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}
+    </a>
+  </div>
 </ng-template>
 
 <ng-template #usernameTemplate>
-  <a href (click)="onUserModal($event)" *ngIf="modal">{{ user?.username }}</a>
-  <ng-container *ngIf="!modal">{{ user?.username }}</ng-container>
+  <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
+    <eworkbench-user-avatar
+      [user]="user"
+      [chip]="chip"
+      [inverted]="inverted || invertedAvatar"
+      [scale]="avatarScale"
+      class="mr-2"
+      *ngIf="avatar"
+    ></eworkbench-user-avatar>
+    <a href (click)="openUserModal($event)" [class.deactivated]="!active" [class.inverted]="inverted" *ngIf="modal">{{ user?.username }}</a>
+    <a
+      href
+      class="cursor-default"
+      [popover]="userDetailsPopover"
+      [popoverContext]="{ user: user }"
+      containerClass="ewb-popover"
+      triggers="mouseenter:mouseleave"
+      (click)="$event.preventDefault()"
+      *ngIf="!modal"
+    >
+      {{ user?.username }}
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #userDetailsPopover let-user="user">
+  <eworkbench-user-details-preview [user]="user"></eworkbench-user-details-preview>
 </ng-template>

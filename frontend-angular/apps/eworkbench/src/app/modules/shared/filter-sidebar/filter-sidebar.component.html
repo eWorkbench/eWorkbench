@@ -1,0 +1,51 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="sidebar-filter" [class.active]="open">
+    <div class="pt-3 sticky" [class.top-56]="!miniTop" [class.top-12]="miniTop">
+      <button *ngIf="!open" type="button" class="btn menu-button square" (click)="open = true">
+        <eworkbench-icon [className]="'wb-filter'"></eworkbench-icon>
+      </button>
+      <div *ngIf="open">
+        <div class="flex items-center bg-tum-secondary">
+          <button type="button" class="btn menu-button square active flex-shrink-0 mr-1" (click)="open = false">
+            <eworkbench-icon [className]="'wb-remove'"></eworkbench-icon>
+          </button>
+          <div class="flex justify-between w-full">
+            <span class="text-base font-bold">{{ t('filterSidebar.title') }}</span>
+            <button
+              type="button"
+              class="btn ewb-button-regular ewb-button-additional mr-6"
+              [disabled]="!activeFilters"
+              (click)="resetFilters.emit(true)"
+            >
+              {{ t('filterSidebar.resetAll') }}
+            </button>
+          </div>
+        </div>
+
+        <div class="mx-14 mb-6 py-6 space-y-8 sidebar-filter-content">
+          <ng-content></ng-content>
+        </div>
+        <div *ngIf="rememberFilters" class="mx-14 pb-6">
+          <div class="custom-control custom-checkbox">
+            <input
+              class="custom-control-input"
+              type="checkbox"
+              id="remember-filter"
+              name="remember-filter"
+              [checked]="savedFilters"
+              (change)="saveFilters.emit($event.target.checked)"
+            />
+            <label for="remember-filter" class="custom-control-label font-normal leading-5">
+              {{ t('filterSidebar.remember.label') }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

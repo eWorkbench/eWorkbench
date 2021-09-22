@@ -38,6 +38,10 @@ export class NewProjectModalComponent implements OnInit {
 
   public disableProjectField?: boolean = this.modalRef.data?.disableProjectField;
 
+  public newSubproject?: boolean = this.modalRef.data?.newSubproject;
+
+  public duplicate?: string = this.modalRef.data?.duplicate;
+
   public loading = false;
 
   public state = ModalState.Unchanged;
@@ -189,6 +193,7 @@ export class NewProjectModalComponent implements OnInit {
               this.projects = [...this.projects, project]
                 .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                 .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+              this.cdr.markForCheck();
             }
           );
       }

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
@@ -25,11 +25,12 @@ export class LinkComponent {
   @Input()
   public service!: any;
 
+  @Output()
+  public refreshLinkList = new EventEmitter<boolean>();
+
   public loading = false;
 
   public modalRef?: DialogRef;
-
-  public refreshLinkList = new EventEmitter<boolean>();
 
   public constructor(private readonly modalService: DialogService) {}
 

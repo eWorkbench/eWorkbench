@@ -8,22 +8,8 @@
 :host {
   display: block;
 
-  .ssc {
-    display: grid;
-    grid-template-columns: 120px auto;
-    gap: 16px;
-
-    .ssc-circle {
-      width: 120px;
-      height: 120px;
-    }
-
-    .ssc-head-line {
-      border-radius: unset;
-    }
-
-    .ssc-square {
-      margin-bottom: 16px;
-    }
+  .ssc-line,
+  .ssc-head-line {
+    border-radius: unset;
   }
 }

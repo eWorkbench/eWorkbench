@@ -34,7 +34,9 @@ git+https://github.com/anx-ckreuzberger/djangodav@updates
 django-changeset==1.0.0
 django-dbsettings==1.1.*
 gitdb==4.0.*
-GitPython==3.1.*
+# Pinned as 3.1.19 introduced an import error: ImportError: cannot import name
+# 'TypeGuard' from 'typing_extensions' Todo: upgrade
+GitPython==3.1.18
 html2text>=2020.1.*
 html5lib==1.0.*
 lxml==4.5.*

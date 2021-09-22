@@ -10,7 +10,7 @@
       <span aria-hidden="true">×</span>
     </button>
   </div>
-  <div class="modal-body">
+  <div class="modal-body" [class.p-0]="noPadding">
     <ng-content select="[slot=body]"></ng-content>
   </div>
   <div *ngIf="modalFooter" class="modal-footer">

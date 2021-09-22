@@ -3,7 +3,7 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<div *ngIf="dropdown" class="d-inline-block h-100 navbar-nav" dropdown container="body" placement="bottom right" [insideClick]="true">
+<div *ngIf="dropdown" class="inline-block h-full navbar-nav" dropdown container="body" placement="bottom right" [insideClick]="true">
   <button
     type="button"
     id="details-dropdown-button"
@@ -32,7 +32,7 @@
     ></ng-template>
   </ul>
 </div>
-<div *ngIf="!dropdown" class="d-inline-block w-100 navbar-nav">
+<div *ngIf="!dropdown" class="inline-block w-full navbar-nav">
   <button
     type="button"
     class="btn ewb-button-big ewb-button-background square-md"

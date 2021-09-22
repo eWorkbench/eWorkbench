@@ -17,7 +17,7 @@ from eric.projects.tests.core import AuthenticationMixin
 from eric.search.models.abstract import FTSMixin
 from eric.search.rest.viewsets import SearchViewSet
 from eric.search.tests.core import FTSDataMixin
-from eric.shared_elements.models import Contact, File, Meeting, Note, Task
+from eric.shared_elements.models import Contact, File, Meeting, Note, Task, Comment
 
 
 class GlobalFTSSearchTest(APITestCase, AuthenticationMixin, FTSDataMixin):
@@ -46,6 +46,7 @@ class GlobalFTSSearchTest(APITestCase, AuthenticationMixin, FTSDataMixin):
             Resource,
             Task,
             DSSContainer,
+            Comment,
         ]
 
     def _get_searchable_models(self):

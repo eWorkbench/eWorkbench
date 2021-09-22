@@ -6,8 +6,8 @@
 <ng-container *transloco="let t">
   <form [formGroup]="form" class="element" (ngSubmit)="onSubmit()" errorTailor>
     <div class="header">
-      <div class="d-flex justify-content-between">
-        <div class="mr-2 align-self-center">
+      <div class="flex justify-between">
+        <div class="mr-2 self-center">
           <button type="button" class="btn ewb-button-big ewb-button-none text-white" (click)="onExpandSection()" *ngIf="!expanded">
             <eworkbench-icon className="wb-bold-chevron-right"></eworkbench-icon>
           </button>
@@ -42,10 +42,10 @@
             />
           </eworkbench-form-input>
         </div>
-        <div class="ml-2 align-self-center" *ngIf="!readonly">
+        <div class="ml-2 self-center" *ngIf="!readonly">
           <button
             type="button"
-            class="btn ewb-button-big square-md ewb-button-none text-danger cursor-move drag-handle mr-2"
+            class="btn ewb-button-big square-md ewb-button-none text-red-600 cursor-move drag-handle mr-2"
             *ngIf="lock?.locked"
           >
             <eworkbench-icon className="wb-locked"></eworkbench-icon>

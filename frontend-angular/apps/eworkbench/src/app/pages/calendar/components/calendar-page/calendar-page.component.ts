@@ -233,6 +233,7 @@ export class CalendarPageComponent implements OnInit {
               .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
             this.projectsControl.setValue(params.projectId);
             this.project = params.projectId;
+            this.cdr.markForCheck();
           }
         );
       }

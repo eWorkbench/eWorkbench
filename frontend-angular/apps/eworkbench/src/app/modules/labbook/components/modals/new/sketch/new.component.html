@@ -20,7 +20,7 @@
             <div class="mb-4">
               <label for="parentElement-modal">
                 {{ t('labBook.newSketchModal.parentElement.label') }}
-                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
               </label>
               <ng-select
                 class="ewb-select"
@@ -37,7 +37,7 @@
             <div class="mb-4">
               <label for="position-modal">
                 {{ t('labBook.newSketchModal.position.label') }}
-                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
               </label>
               <ng-select
                 class="ewb-select"
@@ -65,7 +65,7 @@
             <div class="mb-4">
               <label for="title-modal">
                 {{ t('labBook.newSketchModal.title.label') }}
-                <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+                <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
               </label>
               <input
                 type="text"
@@ -95,13 +95,16 @@
                   {{ item.name }}
                   <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
                 </ng-template>
-                <ng-template ng-option-tmp let-item="item">
+                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                   <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                  {{ item.name }}
+                  <span [ngOptionHighlight]="search">{{ item.name }}</span>
                 </ng-template>
                 <ng-template ng-optgroup-tmp let-item="item">
                   <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                   <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                </ng-template>
+                <ng-template ng-notfound-tmp>
+                  <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
                 </ng-template>
               </ng-select>
             </div>
@@ -109,7 +112,7 @@
               <eworkbench-picture-editor [sketch]="true" (saveSketch)="onSubmit($event)"></eworkbench-picture-editor>
             </div>
 
-            <div class="d-flex justify-content-between mt-5">
+            <div class="flex justify-between mt-5">
               <div>
                 <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onChangeStep(1)">
                   <eworkbench-icon className="wb-bold-chevron-left"></eworkbench-icon>

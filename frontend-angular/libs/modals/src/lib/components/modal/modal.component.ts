@@ -23,5 +23,8 @@ export class ModalComponent {
   @Input()
   public closeButton = true;
 
+  @Input()
+  public noPadding = false;
+
   public constructor(public readonly modalRef: DialogRef) {}
 }

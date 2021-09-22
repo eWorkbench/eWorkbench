@@ -34,20 +34,19 @@ from django_userforeignkey.request import get_current_user
 from eric.base64_image_extraction.models import ExtractedImage
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
 from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin, \
-    IsFavouriteMixin
+    IsFavouriteMixin, OrderingModelMixin
 from eric.core.models.fields import AutoIncrementIntegerWithPrefixField
 from eric.core.utils import convert_html_to_text, get_rgb_rgba_pattern
-from eric.dss.models.models import get_upload_to_path, dss_storage, DSSContainer
+from eric.dss.models.models import get_upload_to_path, dss_storage
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
 from eric.projects.models import FileSystemStorageLimitByUser, Project, MyUser, Resource
-from eric.projects.models.exceptions import ContainerReadWriteException
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
 from eric.shared_elements.models.managers import ContactManager, NoteManager, FileManager, TaskManager, \
     TaskAssignedUserManager, TaskCheckListManager, MeetingManager, UserAttendsMeetingManager, \
-    ContactAttendsMeetingManager, ElementLabelManager, CalendarAccessManager
+    ContactAttendsMeetingManager, ElementLabelManager, CalendarAccessManager, CommentManager
 
 METADATA_VERSION_KEY = "metadata_version"
 UNHANDLED_VERSION_ERROR = NotImplementedError("Unhandled metadata version")
@@ -268,8 +267,7 @@ class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         editable=False
     )
 
-    subject = models.CharField(
-        max_length=128,
+    subject = models.TextField(
         verbose_name=_("Subject of the note"),
         db_index=True
     )
@@ -317,6 +315,90 @@ class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
     def __restore_metadata_v1(self, metadata):
         self.subject = metadata.get("subject")
+        self.content = metadata.get("content")
+
+        self.projects.clear()
+        project_pks = metadata.get("projects")
+        if project_pks is not None and len(project_pks) > 0:
+            projects = Project.objects.filter(pk__in=project_pks).viewable()
+            self.projects.add(*projects)
+
+        Metadata.restore_all_from_entity(self, metadata.get("metadata"))
+
+
+class Comment(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
+              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
+    """ Defines a comment, which can be associated to ANYTHING (project, contact, milestone, ...) """
+    objects = CommentManager()
+
+    class Meta(WorkbenchEntityMixin.Meta):
+        verbose_name = "Comment"
+        verbose_name_plural = "Comments"
+        ordering = ['created_at', ]
+        permissions = (
+            ("trash_comment", "Can trash a comment"),
+            ("restore_comment", "Can restore a comment"),
+            ("change_project_comment", "Can change the project of a comment"),
+            ("add_comment_without_project", "Can add a comment without a project")
+        )
+        track_fields = ('content', 'projects', 'deleted')
+        track_related_many = (
+            ('metadata', ('field', 'values',)),
+        )
+        fts_template = 'fts/comment.html'
+        export_template = 'export/comment.html'
+
+        def get_default_serializer(*args, **kwargs):
+            from eric.shared_elements.rest.serializers import CommentSerializer
+            return CommentSerializer
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    content = HTMLField(
+        verbose_name=_("Content of the comment"),
+        blank=True,
+        strip_unsafe=True,
+    )
+
+    # reference to many projects (can be 0 projects, too)
+    projects = models.ManyToManyField(
+        'projects.Project',
+        verbose_name=_("Which projects is this comment associated to"),
+        related_name="comments",
+        blank=True
+    )
+
+    extracted_images = GenericRelation(ExtractedImage)
+
+    metadata = MetadataRelation()
+
+    def __str__(self):
+        return str(self.pk)
+
+    def export_metadata(self):
+        """ Exports in the latest format """
+        return self.__export_metadata_v1()
+
+    def __export_metadata_v1(self):
+        return {
+            METADATA_VERSION_KEY: 1,
+            "content": self.content,
+            "projects": [p.pk for p in self.projects.all()],
+            "metadata": Metadata.export_all_from_entity(self),
+        }
+
+    def restore_metadata(self, metadata):
+        version = metadata.get(METADATA_VERSION_KEY)
+        if version == 1:
+            self.__restore_metadata_v1(metadata)
+        else:
+            raise UNHANDLED_VERSION_ERROR
+
+    def __restore_metadata_v1(self, metadata):
         self.content = metadata.get("content")
 
         self.projects.clear()
@@ -720,14 +802,18 @@ class TaskAssignedUser(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         return "User {user} is assigned to task {task}".format(user=self.assigned_user, task=self.task)
 
 
-class TaskCheckList(BaseModel, ChangeSetMixIn, RevisionModelMixin):
+class TaskCheckList(BaseModel, ChangeSetMixIn, RevisionModelMixin, OrderingModelMixin):
     """ Defines the checklist for a task """
     objects = TaskCheckListManager()
 
     class Meta:
         verbose_name = _("Task Checklist Item")
         verbose_name_plural = _("Task Checklist Items")
-        ordering = ["task__task_id", "created_at"]
+        ordering = [
+            'task__task_id',
+            'ordering',
+            'created_at',  # fallback for default ordering
+        ]
         track_fields = ('title', 'checked', 'task',)
 
     id = models.UUIDField(
@@ -831,8 +917,7 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         db_index=True
     )
 
-    title = models.CharField(
-        max_length=128,
+    title = models.TextField(
         verbose_name=_("Title of the task")
     )
 

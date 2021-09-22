@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { CustomControlErrorComponent } from '@app/modules/shared/control-error/control-error.component';
@@ -54,6 +55,7 @@ import { TaskStateComponent } from './components/task-state/task-state.component
     LoadingModule,
     TooltipModule.forRoot(),
     TextareaAutosizeModule,
+    DragDropModule,
   ],
   exports: [NewTaskModalComponent, TaskStateComponent, TaskPriorityComponent, TaskChecklistComponent],
 })

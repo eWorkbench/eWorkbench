@@ -31,7 +31,7 @@ export interface RelationPayload {
   left_object_id: string;
   right_content_type: number;
   right_object_id: string;
-  private: boolean;
+  private?: boolean;
 }
 
 // TODO: should only be RelationPayload and patch relevant data

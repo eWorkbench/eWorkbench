@@ -15,7 +15,6 @@
             "main": "apps/eworkbench/src/main.ts",
             "polyfills": "apps/eworkbench/src/polyfills.ts",
             "tsConfig": "apps/eworkbench/tsconfig.app.json",
-            "aot": true,
             "assets": [
               "apps/eworkbench/src/assets",
               {
@@ -58,13 +57,7 @@
                   "with": "apps/eworkbench/src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -77,8 +70,17 @@
                   "maximumError": "50kb"
                 }
               ]
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -88,8 +90,12 @@
           "configurations": {
             "production": {
               "browserTarget": "eworkbench:build:production"
+            },
+            "development": {
+              "browserTarget": "eworkbench:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

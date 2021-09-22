@@ -6,22 +6,9 @@
 :host {
   display: inline-block;
 
-  .sort {
-    &-button {
-      height: unset;
-      box-shadow: none;
-
-      &:hover {
-        background: none;
-      }
-    }
-
-    &-icon {
-      color: #3070b3;
-    }
-
-    &-inactive {
-      color: #595959;
+  .sort-button {
+    &:hover {
+      background: none;
     }
   }
 }

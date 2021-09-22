@@ -29,6 +29,7 @@ interface FormSettings {
   notificationProjects: boolean;
   NOTIFICATION_CONF_PROJECT_USER_CHANGED: boolean;
   NOTIFICATION_CONF_PROJECT_CHANGED: boolean;
+  NOTIFICATION_CONF_PROJECT_COMMENT: boolean;
 
   notificationDSS: boolean;
   NOTIFICATION_DSS_IMPORT_IN_PROGRESS: boolean;
@@ -85,6 +86,7 @@ export class SettingsPageComponent implements OnInit {
     notificationProjects: [{ value: false, disabled: this.loading }],
     NOTIFICATION_CONF_PROJECT_USER_CHANGED: [{ value: false, disabled: this.loading }],
     NOTIFICATION_CONF_PROJECT_CHANGED: [{ value: false, disabled: this.loading }],
+    NOTIFICATION_CONF_PROJECT_COMMENT: [{ value: false, disabled: this.loading }],
 
     notificationDSS: [{ value: false, disabled: this.loading }],
     NOTIFICATION_DSS_IMPORT_IN_PROGRESS: [{ value: false, disabled: this.loading }],
@@ -153,6 +155,9 @@ export class SettingsPageComponent implements OnInit {
     }
     if (this.f.NOTIFICATION_CONF_PROJECT_CHANGED.value) {
       notifications.push('NOTIFICATION_CONF_PROJECT_CHANGED');
+    }
+    if (this.f.NOTIFICATION_CONF_PROJECT_COMMENT.value) {
+      notifications.push('NOTIFICATION_CONF_PROJECT_COMMENT');
     }
     if (this.f.NOTIFICATION_DSS_IMPORT_IN_PROGRESS.value) {
       notifications.push('NOTIFICATION_DSS_IMPORT_IN_PROGRESS');
@@ -429,6 +434,7 @@ export class SettingsPageComponent implements OnInit {
     this.form.patchValue({
       NOTIFICATION_CONF_PROJECT_USER_CHANGED: toggleValue,
       NOTIFICATION_CONF_PROJECT_CHANGED: toggleValue,
+      NOTIFICATION_CONF_PROJECT_COMMENT: toggleValue,
     });
     this.onSaveEmailNotifications();
   }
@@ -482,7 +488,10 @@ export class SettingsPageComponent implements OnInit {
       notificationTasks: toggleValue,
     });
 
-    toggleValue = this.f.NOTIFICATION_CONF_PROJECT_USER_CHANGED.value && this.f.NOTIFICATION_CONF_PROJECT_CHANGED.value;
+    toggleValue =
+      this.f.NOTIFICATION_CONF_PROJECT_USER_CHANGED.value &&
+      this.f.NOTIFICATION_CONF_PROJECT_CHANGED.value &&
+      this.f.NOTIFICATION_CONF_PROJECT_COMMENT.value;
     this.form.patchValue({
       notificationProjects: toggleValue,
     });

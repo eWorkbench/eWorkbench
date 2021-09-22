@@ -6,12 +6,12 @@
 <ng-container *transloco="let t">
   <button
     type="button"
-    class="btn ewb-button-small"
+    class="btn p-0"
     [disabled]="loading"
     [tooltip]="t('restoreButton.tooltip')"
     containerClass="tooltip-sm"
     (click)="onRestore(id)"
   >
-    <eworkbench-icon className="wb-undo"></eworkbench-icon>
+    <eworkbench-icon className="wb-recycle"></eworkbench-icon>
   </button>
 </ng-container>

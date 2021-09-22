@@ -16,7 +16,7 @@
         <div>
           <ng-select
             #parameterTypes
-            class="ewb-select d-inline-block"
+            class="ewb-select inline-block"
             formControlName="types"
             id="types"
             [items]="types"
@@ -40,7 +40,7 @@
         </div>
         <div>
           <ng-select
-            class="ewb-select d-inline-block"
+            class="ewb-select inline-block"
             formControlName="parameters"
             id="parameters"
             [items]="searchParametersDropdown"
@@ -64,20 +64,22 @@
 </ng-container>
 
 <ng-template #titleCellTemplate let-row>
-  <a [routerLink]="[row.content_type_model | formatContentTypeModel: 'routerBaseLink', row.pk]">{{ row.display }}</a>
+  <eworkbench-ellipsis-element [maxWidth]="300">
+    <a [routerLink]="[row.content_type_model | formatContentTypeModel: 'routerBaseLink', row.pk]">{{ row.display }}</a>
+  </eworkbench-ellipsis-element>
 </ng-template>
 <ng-template #typeCellTemplate let-row>{{ row.content_type_model | formatContentTypeModel }}</ng-template>
 <ng-template #createdByCellTemplate let-row>
   <ng-container *transloco="let t">
     {{ t('metadataSearch.createdBy') }}
-    <eworkbench-user-details class="d-inline-block" [user]="row.created_by"></eworkbench-user-details>
+    <eworkbench-user-details class="inline-block" [user]="row.created_by"></eworkbench-user-details>
     {{ t('metadataSearch.createdBy.at') }} {{ row.created_at | formatDate }}
   </ng-container>
 </ng-template>
 <ng-template #lastModifiedByCellTemplate let-row>
   <ng-container *transloco="let t">
     {{ t('metadataSearch.lastModifiedBy') }}
-    <eworkbench-user-details class="d-inline-block" [user]="row.last_modified_by"></eworkbench-user-details>
+    <eworkbench-user-details class="inline-block" [user]="row.last_modified_by"></eworkbench-user-details>
     {{ t('metadataSearch.lastModifiedBy.at') }} {{ row.last_modified_at | formatDate }}
   </ng-container>
 </ng-template>

@@ -8,12 +8,8 @@
 :host {
   display: block;
 
-  .ssc-line {
+  .ssc-line,
+  .ssc-head-line {
     border-radius: unset;
-  }
-
-  .ssc-square {
-    margin-bottom: 16px;
-    height: 140px;
   }
 }

@@ -132,19 +132,23 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, TaskMi
         task_data['checklist_items'] = [
             {
                 'title': "Analyze",
-                'checked': False
+                'checked': False,
+                'ordering': 0,
             },
             {
                 'title': "Fix",
                 'checked': True,
+                'ordering': 1,
             },
             {
                 'title': "Testing",
                 'checked': False,
+                'ordering': 2,
             },
             {
                 'title': "Quality Assurance",
-                'checked': False
+                'checked': False,
+                'ordering': 3,
             }
         ]
 
@@ -193,7 +197,8 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, TaskMi
         # now add another item to checklist_items
         task_data['checklist_items'].append({
             'title': "Paid by customer",
-            'checked': False
+            'checked': False,
+            'ordering': 4,
         })
         response = self.rest_update_task_checklist_items(
             self.token1, decoded_response['pk'], task_data['checklist_items'], HTTP_USER_AGENT, REMOTE_ADDR

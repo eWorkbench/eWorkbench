@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ t('task.newTaskModal.header') }}
+      {{ duplicate ? t('task.newTaskModal.duplicate.header', { title: initialState.title }) : t('task.newTaskModal.create.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
@@ -14,7 +14,7 @@
           <div class="mb-4">
             <label for="title-modal">
               {{ t('task.newTaskModal.title.label') }}
-              <eworkbench-form-asterisk class="d-inline-block"></eworkbench-form-asterisk>
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -42,21 +42,24 @@
               (change)="changeAssignees($event)"
             >
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                <eworkbench-user-details
-                  class="d-inline-block mr-1"
-                  [user]="item"
-                  (click)="select.isOpen = false"
-                ></eworkbench-user-details>
-                <span class="sub-text">{{ item.email }}</span>
-                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                <div class="flex items-center user-option">
+                  <eworkbench-user-details
+                    class="inline-block mr-1"
+                    [user]="item"
+                    [chip]="true"
+                    (click)="select.isOpen = false"
+                  ></eworkbench-user-details>
+                  <span class="sub-text">{{ item.email }}</span>
+                  <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                </div>
               </ng-template>
 
               <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <div class="user-dropdown-option">
-                  <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                  <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
                   <div>
                     <ng-container *ngIf="item?.userprofile.anonymized">
-                      <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
+                      <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
                     </ng-container>
                     <ng-container *ngIf="!item?.userprofile.anonymized">
                       <ng-container
@@ -129,24 +132,19 @@
             </ng-select>
           </div>
           <div class="mb-4">
-            <label for="checklist-modal" class="w-100">{{ t('task.newTaskModal.checklist.label') }}</label>
-            <eworkbench-task-checklist formControlName="checklist"></eworkbench-task-checklist>
+            <label for="checklist-modal" class="w-full">{{ t('task.newTaskModal.checklist.label') }}</label>
+            <eworkbench-task-checklist formControlName="checklist" [editable]="true"></eworkbench-task-checklist>
           </div>
           <div class="mb-4">
-            <label for="labels-modal" class="w-100">{{ t('task.newTaskModal.labels.label') }}</label>
+            <label for="labels-modal" class="w-full">{{ t('task.newTaskModal.labels.label') }}</label>
             <eworkbench-labels [labels]="labels" (labelChange)="labelChange($event)"></eworkbench-labels>
-            <button
-              id="labels-modal"
-              type="button"
-              class="btn ewb-button-small ewb-button-background close-button square"
-              (click)="openLabelsModal()"
-            >
-              <eworkbench-icon className="wb-plus"></eworkbench-icon>
+            <button id="labels-modal" type="button" class="btn ewb-button-background square rounded-none mt-2" (click)="openLabelsModal()">
+              <eworkbench-icon className="wb-plus-circle"></eworkbench-icon>
             </button>
           </div>
           <div class="mb-4">
             <label for="description-modal">{{ t('task.newTaskModal.description.label') }}</label>
-            <eworkbench-wysiwyg-editor id="description-modal" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
+            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
           </div>
           <div class="mb-4">
             <label for="project-modal">{{ t('task.newTaskModal.projects.label') }}</label>
@@ -168,13 +166,16 @@
                 {{ item.name }}
                 <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
               </ng-template>
-              <ng-template ng-option-tmp let-item="item">
+              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                 <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                {{ item.name }}
+                <span [ngOptionHighlight]="search">{{ item.name }}</span>
               </ng-template>
               <ng-template ng-optgroup-tmp let-item="item">
                 <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
                 <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+              </ng-template>
+              <ng-template ng-notfound-tmp>
+                <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
               </ng-template>
             </ng-select>
           </div>
@@ -184,7 +185,7 @@
               {{ t('task.newTaskModal.cancel') }}
             </button>
             <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
-              {{ t('task.newTaskModal.create') }}
+              {{ duplicate ? t('task.newTaskModal.duplicate') : t('task.newTaskModal.create') }}
             </button>
           </div>
         </form>

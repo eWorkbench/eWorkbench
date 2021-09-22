@@ -8,6 +8,10 @@
 :host {
   display: block;
 
+  .combination {
+    width: 100px;
+  }
+
   @media (max-width: 991px) {
     .search-parameter > div {
       margin-bottom: 0.25rem;
@@ -17,7 +21,7 @@
   @media (min-width: $breakpoint-lg) {
     .search-parameter {
       display: grid;
-      grid-template-columns: 244px 100px 300px 100px 25px;
+      grid-template-columns: 244px 100px 300px 25px;
       gap: 16px;
     }
   }
@@ -25,7 +29,7 @@
   @media (min-width: 2000px) {
     .search-parameter {
       display: grid;
-      grid-template-columns: 400px 100px auto 100px 25px;
+      grid-template-columns: 400px 100px auto 25px;
       gap: 16px;
     }
   }

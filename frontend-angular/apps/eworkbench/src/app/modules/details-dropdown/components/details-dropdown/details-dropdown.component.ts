@@ -43,6 +43,9 @@ export class DetailsDropdownComponent implements OnInit {
   public newModalComponent?: any;
 
   @Input()
+  public backdropClose = true;
+
+  @Input()
   public privilegesElement = true;
 
   @Input()
@@ -197,11 +200,12 @@ export class DetailsDropdownComponent implements OnInit {
       );
   }
 
-  public onOpenNewModal(initialState?: any): void {
+  public onOpenNewModal(initialState?: any, duplicate?: string): void {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(this.newModalComponent, {
       closeButton: false,
-      data: { service: this.service, initialState },
+      enableClose: this.backdropClose,
+      data: { service: this.service, duplicate, initialState },
     });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
@@ -225,7 +229,7 @@ export class DetailsDropdownComponent implements OnInit {
         this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
       }
     } else {
-      this.onOpenNewModal(this.initialState);
+      this.onOpenNewModal(this.initialState, this.initialState.pk);
     }
   }
 

@@ -8,7 +8,7 @@
     <div class="rule-label">{{ t('resources.bookingRules.bookingsPerUser.label') }}</div>
 
     <div>
-      <div class="d-block text-danger mb-2" *ngIf="unitSelectionInvalid()">
+      <div class="block text-red-600 mb-2" *ngIf="unitSelectionInvalid()">
         <eworkbench-icon className="wb-exclamation"></eworkbench-icon>
         {{ t('resources.bookingRules.bookingsPerUser.notice.invalidUnitSelection') }}
       </div>
@@ -27,12 +27,12 @@
 
       <button
         type="button"
-        class="btn ewb-button-regular font-weight-normal ewb-button-background my-2"
+        class="btn ewb-button-background square rounded-none my-2"
         (click)="onAdd()"
         [disabled]="loading"
         *ngIf="rule.length < 3 && editable"
       >
-        <eworkbench-icon className="wb-plus"></eworkbench-icon> {{ t('resources.bookingRules.bookingsPerUser.add') }}
+        <eworkbench-icon className="wb-plus-circle"></eworkbench-icon>
       </button>
     </div>
   </div>

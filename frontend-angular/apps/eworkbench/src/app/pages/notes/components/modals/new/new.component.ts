@@ -136,6 +136,7 @@ export class NewNoteModalComponent implements OnInit {
               this.projects = [...this.projects, project]
                 .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                 .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+              this.cdr.markForCheck();
             }
           );
       }
@@ -154,7 +155,7 @@ export class NewNoteModalComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ note => {
           this.state = ModalState.Changed;
-          this.modalRef.close({ state: this.state, data: { newContent: note }, navigate: ['/comments', note.pk] });
+          this.modalRef.close({ state: this.state, data: { newContent: note }, navigate: ['/notes', note.pk] });
           this.translocoService
             .selectTranslate('note.newModal.toastr.success')
             .pipe(untilDestroyed(this))

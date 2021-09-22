@@ -11,4 +11,4 @@ from eric.cms.models import Content
 class MinimalContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
-        fields = ('title', 'text', 'public')
+        fields = ('title', 'text', 'public', 'last_modified_at')

@@ -5,11 +5,13 @@
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { LinkModule } from '@app/modules/link/link.module';
+import { LoadingModule } from '@app/modules/loading/loading.module';
 import { LockModule } from '@app/modules/lock/lock.module';
 import { MetadataModule } from '@app/modules/metadata/metadata.module';
 import { RecentChangesModule } from '@app/modules/recent-changes/recent-changes.module';
@@ -59,6 +61,8 @@ describe('DMPPageComponent', () => {
       LinkModule,
       LockModule,
       FavoritesModule,
+      CommentModule,
+      LoadingModule,
     ],
     providers: [
       mockProvider(ContactsService, {

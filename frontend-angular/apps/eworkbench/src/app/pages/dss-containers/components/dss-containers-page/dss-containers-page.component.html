@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-header [title]="title">
     <ng-container slot="search">
-      <div class="d-flex align-items-center">
+      <div class="flex items-center">
         <div class="search-input mr-2">
           <div class="input-group search-input-group">
             <input
@@ -46,7 +46,7 @@
   </eworkbench-collapse-element>
 
   <eworkbench-table-manage-columns
-    class="d-flex justify-content-end mb-4"
+    class="flex justify-end mb-4"
     [columns]="listColumns"
     [defaultColumns]="defaultColumns"
     (columnsChanged)="onColumnsChanged($event)"

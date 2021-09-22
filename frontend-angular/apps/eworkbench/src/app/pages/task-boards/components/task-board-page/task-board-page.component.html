@@ -6,52 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-header [title]="title">
     <ng-container slot="search">
-      <div class="d-flex align-items-center">
-        <div class="search-input mr-2">
-          <ng-select
-            #select
-            class="ewb-select"
-            [formControl]="usersControl"
-            labelForId="users-header"
-            name="users-modal"
-            [placeholder]="t('notes.header.users.placeholder')"
-            [typeahead]="usersInput$"
-            [items]="users"
-            bindLabel="username"
-            bindValue="pk"
-          >
-            <ng-template ng-label-tmp let-item="item" let-clear="clear">
-              <eworkbench-user-details class="d-inline-block mr-1" [user]="item" [active]="false"></eworkbench-user-details>
-              <span class="sub-text">{{ item.email }}</span>
-            </ng-template>
-
-            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-              <div class="user-dropdown-option">
-                <img class="rounded-circle mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
-                <div>
-                  <ng-container *ngIf="item?.userprofile.anonymized">
-                    <span class="details text-secondary">{{ t('user.details.anonymizedUser') }}</span>
-                  </ng-container>
-                  <ng-container *ngIf="!item?.userprofile.anonymized">
-                    <ng-container
-                      *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
-                    ></ng-container>
-                  </ng-container>
-
-                  <ng-template #userTemplate>
-                    <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
-                  </ng-template>
-                  <ng-template #usernameTemplate>
-                    <span [ngOptionHighlight]="search">{{ item?.username }}</span>
-                  </ng-template>
-
-                  <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-
+      <div class="flex items-center">
         <div class="search-input">
           <div class="input-group search-input-group">
             <input
@@ -79,7 +34,7 @@
     </ng-container>
     <ng-container slot="elements" *ngIf="initialState">
       <eworkbench-favorite-button
-        class="d-inline-block mr-2"
+        class="inline-block mr-2"
         [id]="initialState?.pk"
         [contentType]="initialState?.content_type"
         [favorited]="initialState?.is_favourite"
@@ -89,12 +44,8 @@
         <eworkbench-icon className="wb-color-bucket"></eworkbench-icon>
         {{ t('taskBoard.background') }}
       </button>
-      <button class="btn ewb-button-big ewb-button-background mr-2" (click)="insertColumn()">
+      <button class="btn ewb-button-big ewb-button-background mr-2" (click)="openNewColumnModal()">
         <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('taskBoard.column') }}
-      </button>
-      <button class="btn ewb-button-big ewb-button-background mr-2" (click)="openBacklogModal()">
-        <eworkbench-icon className="wb-list"></eworkbench-icon>
-        {{ t('taskBoard.backlog') }}
       </button>
       <eworkbench-details-dropdown
         [service]="taskBoardsService"
@@ -117,10 +68,11 @@
   </div>
 </div>
 
-<div [class.with-sidebar]="showSidebar">
+<div [class.filter-sidebar]="!showSidebar" [class.with-sidebar]="showSidebar">
   <aside *ngIf="showSidebar">
     <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
   </aside>
+
   <main class="task-board" [ngStyle]="styles">
     <ng-container *ngIf="initialState">
       <ng-container *transloco="let t">
@@ -141,94 +93,136 @@
           ></eworkbench-lock>
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="task-board-details" errorTailor>
             <div>
-              <div class="mb-4">
-                <eworkbench-form-input
-                  for="title"
-                  [label]="t('taskBoard.details.title.label')"
-                  [loading]="loading"
-                  [onSubmit]="refreshResetValue"
-                  [required]="true"
-                >
-                  <input
-                    type="text"
-                    class="form-control ewb-input"
-                    id="title"
-                    formControlName="title"
-                    name="title"
-                    [placeholder]="t('taskBoard.details.title.placeholder')"
-                    slot="input"
-                  />
-                </eworkbench-form-input>
-              </div>
+              <eworkbench-details-collapse-element [labelText]="t('taskBoard.details.element.details')">
+                <ng-container slot="body">
+                  <div class="mb-4">
+                    <eworkbench-form-input
+                      for="title"
+                      [label]="t('taskBoard.details.title.label')"
+                      [loading]="loading"
+                      [onSubmit]="refreshResetValue"
+                      [required]="true"
+                    >
+                      <input
+                        type="text"
+                        class="form-control ewb-input"
+                        id="title"
+                        formControlName="title"
+                        name="title"
+                        [placeholder]="t('taskBoard.details.title.placeholder')"
+                        slot="input"
+                      />
+                    </eworkbench-form-input>
+                  </div>
+                  <div class="mb-4">
+                    <eworkbench-form-input
+                      for="description"
+                      [label]="t('taskBoard.details.description.label')"
+                      [loading]="loading"
+                      [onSubmit]="refreshResetValue"
+                    >
+                      <eworkbench-wysiwyg-editor
+                        [id]="'description'"
+                        formControlName="description"
+                        slot="input"
+                      ></eworkbench-wysiwyg-editor>
+                    </eworkbench-form-input>
+                  </div>
+                  <div class="mb-4">
+                    <eworkbench-form-input
+                      for="projects"
+                      [label]="t('taskBoard.details.projects.label')"
+                      [loading]="loading"
+                      [onSubmit]="refreshResetValue"
+                    >
+                      <ng-select
+                        class="ewb-select"
+                        formControlName="projects"
+                        labelForId="projects"
+                        name="projects"
+                        [placeholder]="t('taskBoard.details.projects.placeholder')"
+                        [multiple]="true"
+                        [typeahead]="projectInput$"
+                        [items]="projects"
+                        groupBy="is_favourite"
+                        bindLabel="name"
+                        bindValue="pk"
+                        slot="input"
+                      >
+                        <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                          {{ item.name }}
+                          <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                          <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                          <span [ngOptionHighlight]="search">{{ item.name }}</span>
+                        </ng-template>
+                        <ng-template ng-optgroup-tmp let-item="item">
+                          <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                          <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                        </ng-template>
+                        <ng-template ng-notfound-tmp>
+                          <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
+                        </ng-template>
+                      </ng-select>
+                    </eworkbench-form-input>
+                  </div>
+                  <div class="mb-4">
+                    <label for="created-by">{{ t('taskBoard.details.createdBy.label') }}</label>
+                    <div class="flex items-center space-x-1">
+                      <eworkbench-user-details
+                        id="created-by"
+                        class="inline-block"
+                        [user]="initialState?.created_by"
+                      ></eworkbench-user-details>
+                      <span> | </span>
+                      <span id="created-at">{{ initialState?.created_at | formatDate }}</span>
+                    </div>
+                  </div>
+                  <div class="mb-4">
+                    <label for="last-modified-by">{{ t('taskBoard.details.lastModifiedBy.label') }}</label>
+                    <div class="flex items-center space-x-1">
+                      <eworkbench-user-details id="last-modified-by" class="inline-block" [user]="initialState?.last_modified_by">
+                      </eworkbench-user-details>
+                      <span> | </span>
+                      <span id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</span>
+                    </div>
+                  </div>
+                </ng-container>
+              </eworkbench-details-collapse-element>
             </div>
             <div>
-              <div class="mb-4">
-                <label for="created-by">{{ t('taskBoard.details.createdBy.label') }}</label>
-                <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
-              </div>
-              <div class="mb-4">
-                <label for="created-at">{{ t('taskBoard.details.createdAt.label') }}</label>
-                <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
-              </div>
-              <div class="mb-4">
-                <label for="last-modified-by">{{ t('taskBoard.details.lastModifiedBy.label') }}</label>
-                <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
-              </div>
-              <div class="mb-4">
-                <label for="last-modified-at">{{ t('taskBoard.details.lastModifiedAt.label') }}</label>
-                <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
-              </div>
-              <div class="mb-4">
-                <eworkbench-form-input
-                  for="projects"
-                  [label]="t('taskBoard.details.projects.label')"
-                  [loading]="loading"
-                  [onSubmit]="refreshResetValue"
-                >
-                  <ng-select
-                    class="ewb-select"
-                    formControlName="projects"
-                    labelForId="projects"
-                    name="projects"
-                    [placeholder]="t('taskBoard.details.projects.placeholder')"
-                    [multiple]="true"
-                    [typeahead]="projectInput$"
-                    [items]="projects"
-                    groupBy="is_favourite"
-                    bindLabel="name"
-                    bindValue="pk"
-                    slot="input"
-                  >
-                    <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                      {{ item.name }}
-                      <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-                    </ng-template>
-                    <ng-template ng-option-tmp let-item="item">
-                      <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
-                      {{ item.name }}
-                    </ng-template>
-                    <ng-template ng-optgroup-tmp let-item="item">
-                      <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
-                      <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
-                    </ng-template>
-                  </ng-select>
-                </eworkbench-form-input>
-              </div>
+              <eworkbench-details-collapse-element [labelText]="t('taskBoard.details.element.links')">
+                <ng-container slot="actions">
+                  <eworkbench-link
+                    [baseModel]="initialState"
+                    [service]="taskBoardsService"
+                    (refreshLinkList)="onRefreshLinkList()"
+                  ></eworkbench-link>
+                </ng-container>
+                <ng-container slot="body">
+                  <eworkbench-link-list
+                    [id]="initialState.pk"
+                    [service]="taskBoardsService"
+                    [refresh]="refreshLinkList"
+                  ></eworkbench-link-list>
+                </ng-container>
+              </eworkbench-details-collapse-element>
             </div>
             <div>
-              <div class="mb-1">
-                <label for="recent-changes">{{ t('taskBoard.details.recentChanges.label') }}</label>
-                <eworkbench-recent-changes
-                  id="recent-changes"
-                  [service]="taskBoardsService"
-                  [changesId]="id"
-                  [refresh]="refreshChanges"
-                ></eworkbench-recent-changes>
-              </div>
+              <eworkbench-details-collapse-element [labelText]="t('taskBoard.details.element.recentChanges')">
+                <ng-container slot="body">
+                  <eworkbench-recent-changes
+                    id="recent-changes"
+                    [service]="taskBoardsService"
+                    [changesId]="id"
+                    [refresh]="refreshChanges"
+                    [users]="initialState?.attending_users"
+                  ></eworkbench-recent-changes>
+                </ng-container>
+              </eworkbench-details-collapse-element>
             </div>
           </form>
-
-          <eworkbench-link *ngIf="initialState" [baseModel]="initialState" [service]="taskBoardsService" class="mt-3"></eworkbench-link>
         </eworkbench-collapse-element>
       </ng-container>
     </ng-container>
@@ -240,4 +234,393 @@
       (boardChange)="onBoardChange($event)"
     ></eworkbench-task-board>
   </main>
+
+  <ng-container *ngIf="initialState">
+    <ng-container *transloco="let t">
+      <aside>
+        <eworkbench-filter-sidebar
+          [open]="true"
+          [activeFilters]="filtersChanged"
+          [savedFilters]="savedFilters"
+          (resetFilters)="onResetFilters()"
+          (saveFilters)="onSaveFilters($event)"
+        >
+          <div>
+            <label for="users-filter" class="text-base font-bold">{{ t('taskBoards.filter.createdBy.label') }}</label>
+            <div class="mt-4">
+              <div class="space-y-2">
+                <div class="custom-control custom-radio">
+                  <input
+                    type="radio"
+                    class="custom-control-input"
+                    name="filter-user-radio"
+                    id="filter-user-radio-1"
+                    [value]="null"
+                    [formControl]="usersControl"
+                    (change)="onUserFilterRadioAnyone()"
+                  />
+                  <label for="filter-user-radio-1" class="custom-control-label font-normal leading-6">
+                    {{ t('filter-menu.anyone.label') }}
+                  </label>
+                </div>
+                <div class="custom-control custom-radio">
+                  <input
+                    type="radio"
+                    class="custom-control-input"
+                    name="filter-user-radio"
+                    id="filter-user-radio-2"
+                    [value]="currentUser.pk"
+                    [formControl]="usersControl"
+                    (change)="onUserFilterRadioMyself($event.target.checked)"
+                  />
+                  <label for="filter-user-radio-2" class="custom-control-label font-normal leading-6">
+                    {{ t('filter-menu.myself.label') }}
+                  </label>
+                </div>
+                <div class="custom-control custom-radio">
+                  <input
+                    type="radio"
+                    class="custom-control-input"
+                    name="filter-user-radio"
+                    id="filter-user-radio-3"
+                    (change)="showUserFilter = $event.target.checked"
+                  />
+                  <label for="filter-user-radio-3" class="custom-control-label font-normal leading-6">
+                    {{ t('filter-menu.chooseAUser.label') }}
+                  </label>
+                </div>
+              </div>
+              <div *ngIf="showUserFilter" class="mt-4">
+                <ng-select
+                  #select
+                  class="ewb-select"
+                  [formControl]="usersControl"
+                  labelForId="users-filter"
+                  name="users-filter"
+                  [placeholder]="t('taskBoards.filter.users.placeholder')"
+                  [typeahead]="usersInput$"
+                  [items]="users"
+                  bindLabel="username"
+                  bindValue="pk"
+                >
+                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                    <div class="flex items-center user-option">
+                      <eworkbench-user-details
+                        class="inline-block mr-1"
+                        [user]="item"
+                        [chip]="true"
+                        (click)="select.isOpen = false"
+                      ></eworkbench-user-details>
+                      <span class="sub-text">{{ item.email }}</span>
+                    </div>
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                    <div class="user-dropdown-option">
+                      <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                      <div>
+                        <ng-container *ngIf="item?.userprofile.anonymized">
+                          <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
+                        </ng-container>
+                        <ng-container *ngIf="!item?.userprofile.anonymized">
+                          <ng-container
+                            *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
+                          ></ng-container>
+                        </ng-container>
+
+                        <ng-template #userTemplate>
+                          <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
+                        </ng-template>
+                        <ng-template #usernameTemplate>
+                          <span [ngOptionHighlight]="search">{{ item?.username }}</span>
+                        </ng-template>
+
+                        <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="assignees-filter" class="text-base font-bold">{{ t('taskBoards.filter.assignedUsers.label') }}</label>
+            <div class="mt-4">
+              <div class="space-y-2">
+                <div class="custom-control custom-radio">
+                  <input
+                    type="radio"
+                    class="custom-control-input"
+                    name="filter-assignee-radio"
+                    id="filter-assignee-radio-1"
+                    [value]="null"
+                    [formControl]="assigneesControl"
+                    (change)="onUserFilterRadioAnyoneAssignees()"
+                  />
+                  <label for="filter-assignee-radio-1" class="custom-control-label font-normal leading-6">
+                    {{ t('filter-menu.anyone.label') }}
+                  </label>
+                </div>
+                <div class="custom-control custom-radio">
+                  <input
+                    type="radio"
+                    class="custom-control-input"
+                    name="filter-assignee-radio"
+                    id="filter-assignee-radio-2"
+                    [value]="currentUser.pk"
+                    [formControl]="assigneesControl"
+                    (change)="onUserFilterRadioMyselfAssignees($event.target.checked)"
+                  />
+                  <label for="filter-assignee-radio-2" class="custom-control-label font-normal leading-6">
+                    {{ t('filter-menu.myself.label') }}
+                  </label>
+                </div>
+                <div class="custom-control custom-radio">
+                  <input
+                    type="radio"
+                    class="custom-control-input"
+                    name="filter-assignee-radio"
+                    id="filter-assignee-radio-3"
+                    (change)="showAssigneesFilter = $event.target.checked"
+                  />
+                  <label for="filter-assignee-radio-3" class="custom-control-label font-normal leading-6">
+                    {{ t('filter-menu.chooseAUser.label') }}
+                  </label>
+                </div>
+              </div>
+              <div *ngIf="showAssigneesFilter" class="mt-4">
+                <ng-select
+                  #select
+                  class="ewb-select"
+                  [formControl]="assigneesControl"
+                  labelForId="assignees-filter"
+                  name="assignees-filter"
+                  [placeholder]="t('taskBoards.filter.users.placeholder')"
+                  [typeahead]="assigneesInput$"
+                  [items]="assignees"
+                  bindLabel="username"
+                  bindValue="pk"
+                >
+                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                    <div class="flex items-center user-option">
+                      <eworkbench-user-details
+                        class="inline-block mr-1"
+                        [user]="item"
+                        [chip]="true"
+                        (click)="select.isOpen = false"
+                      ></eworkbench-user-details>
+                      <span class="sub-text">{{ item.email }}</span>
+                    </div>
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                    <div class="user-dropdown-option">
+                      <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
+                      <div>
+                        <ng-container *ngIf="item?.userprofile.anonymized">
+                          <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
+                        </ng-container>
+                        <ng-container *ngIf="!item?.userprofile.anonymized">
+                          <ng-container
+                            *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
+                          ></ng-container>
+                        </ng-container>
+
+                        <ng-template #userTemplate>
+                          <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
+                        </ng-template>
+                        <ng-template #usernameTemplate>
+                          <span [ngOptionHighlight]="search">{{ item?.username }}</span>
+                        </ng-template>
+
+                        <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="projects-filter" class="text-base font-bold">{{ t('taskBoards.filter.projectRelation.label') }}</label>
+            <div class="mt-4">
+              <ng-select
+                class="ewb-select"
+                [formControl]="projectsControl"
+                labelForId="projects-filter"
+                name="projects-filter"
+                [placeholder]="t('taskBoards.filter.projects.placeholder')"
+                [typeahead]="projectsInput$"
+                [items]="projects"
+                groupBy="is_favourite"
+                bindLabel="name"
+                bindValue="pk"
+              >
+                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                  <eworkbench-icon className="wb-favorite-3" class="favorite-icon" *ngIf="item.is_favourite"></eworkbench-icon>
+                  <span [ngOptionHighlight]="search">{{ item.name }}</span>
+                </ng-template>
+                <ng-template ng-optgroup-tmp let-item="item">
+                  <ng-container *ngIf="item.is_favourite">{{ t('formInput.select.optgroup.favorite') }}</ng-container>
+                  <ng-container *ngIf="!item.is_favourite">{{ t('formInput.select.optgroup.other') }}</ng-container>
+                </ng-template>
+                <ng-template ng-notfound-tmp>
+                  <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
+                </ng-template>
+              </ng-select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-base font-bold">{{ t('taskBoards.filter.taskPriority.label') }}</label>
+            <div class="mt-4">
+              <ul class="list-unstyled">
+                <li>
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      id="very-high-prio-task-filter"
+                      name="very-high-prio-task-filter"
+                      class="custom-control-input"
+                      [formControl]="veryHighCheckbox"
+                    />
+                    <label for="very-high-prio-task-filter" class="custom-control-label font-normal leading-5">
+                      {{ t('taskBoards.filter.filterByTaskPriority.veryHigh.label') }}
+                    </label>
+                  </div>
+                </li>
+                <li>
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      id="high-prio-task-filter"
+                      name="high-prio-task-filter"
+                      class="custom-control-input"
+                      [formControl]="highCheckbox"
+                    />
+                    <label for="high-prio-task-filter" class="custom-control-label font-normal leading-5">
+                      {{ t('taskBoards.filter.filterByTaskPriority.high.label') }}
+                    </label>
+                  </div>
+                </li>
+                <li>
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      id="normal-task-filter"
+                      name="normal-task-filter"
+                      class="custom-control-input"
+                      [formControl]="normalCheckbox"
+                    />
+                    <label for="normal-task-filter" class="custom-control-label font-normal leading-5">
+                      {{ t('taskBoards.filter.filterByTaskPriority.normal.label') }}
+                    </label>
+                  </div>
+                </li>
+                <li>
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      id="low-task-filter"
+                      name="low-task-filter"
+                      class="custom-control-input"
+                      [formControl]="lowCheckbox"
+                    />
+                    <label for="low-task-filter" class="custom-control-label font-normal leading-5">
+                      {{ t('taskBoards.filter.filterByTaskPriority.low.label') }}
+                    </label>
+                  </div>
+                </li>
+                <li>
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      id="very-low-task-filter"
+                      name="very-low-task-filter"
+                      class="custom-control-input"
+                      [formControl]="veryLowCheckbox"
+                    />
+                    <label for="very-low-task-filter" class="custom-control-label font-normal leading-5">
+                      {{ t('taskBoards.filter.filterByTaskPriority.veryLow.label') }}
+                    </label>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-base font-bold">{{ t('taskBoards.filter.taskState.label') }}</label>
+            <div class="mt-4">
+              <ul class="list-unstyled">
+                <li>
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      id="new-task-filter"
+                      name="new-task-filter"
+                      class="custom-control-input"
+                      [formControl]="newCheckbox"
+                    />
+                    <label for="new-task-filter" class="custom-control-label font-normal leading-5">
+                      {{ t('taskBoards.filter.filterByTaskState.new.label') }}
+                    </label>
+                  </div>
+                </li>
+                <li>
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      id="progress-task-filter"
+                      name="progress-task-filter"
+                      class="custom-control-input"
+                      [formControl]="progressCheckbox"
+                    />
+                    <label for="progress-task-filter" class="custom-control-label font-normal leading-5">
+                      {{ t('taskBoards.filter.filterByTaskState.inProgress.label') }}
+                    </label>
+                  </div>
+                </li>
+                <li>
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      id="done-task-filter"
+                      name="done-task-filter"
+                      class="custom-control-input"
+                      [formControl]="doneCheckbox"
+                    />
+                    <label for="done-task-filter" class="custom-control-label font-normal leading-5">
+                      {{ t('taskBoards.filter.filterByTaskState.done.label') }}
+                    </label>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <label for="favorites-filter" class="text-base font-bold">{{ t('taskBoards.filter.favoriteMarker.label') }}</label>
+            <div class="mt-4">
+              <div class="custom-control custom-checkbox">
+                <input
+                  class="custom-control-input"
+                  type="checkbox"
+                  [formControl]="favoritesControl"
+                  id="favorites-filter"
+                  name="favorites-filter"
+                  [checked]="favoritesControl.value"
+                />
+                <label for="favorites-filter" class="custom-control-label font-normal leading-5">
+                  {{ t('taskBoards.filter.favorites.label') }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </eworkbench-filter-sidebar>
+      </aside>
+    </ng-container>
+  </ng-container>
 </div>

@@ -4,6 +4,7 @@
  */
 
 @import 'variables';
+@import 'colors';
 
 :host {
   display: block;
@@ -12,6 +13,7 @@
     &-header {
       display: flex;
       align-items: center;
+      border-bottom: 3px solid $border-color;
 
       .label-text {
         font-size: $font-size-md;

@@ -17,7 +17,7 @@ PUBLIC_USER_FIELDS = (
     'first_name', 'last_name', 'anonymized', 'academic_title', 'additional_information', 'country',
     'email_others',
     'org_zug_mitarbeiter', 'org_zug_mitarbeiter_lang', 'org_zug_student', 'org_zug_student_lang',
-    'phone', 'salutation', 'title_salutation', 'title_pre', 'title_post', 'type', 'avatar', 'website',
+    'phone', 'salutation', 'title_salutation', 'title_pre', 'title_post', 'type', 'avatar', 'website', 'avatar_is_set',
 )
 
 
@@ -27,7 +27,7 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = PUBLIC_USER_FIELDS + ('ui_settings',)
-        read_only_fields = ('type',)
+        read_only_fields = ('type', 'avatar_is_set')
 
     def update(self, instance, validated_data):
         """

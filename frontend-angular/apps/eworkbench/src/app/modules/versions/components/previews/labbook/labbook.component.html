@@ -25,7 +25,7 @@
       </div>
       <div class="mb-4">
         <label for="description-modal">{{ t('labBook.details.description.label') }}</label>
-        <eworkbench-wysiwyg-editor id="description-modal" [formControl]="descriptionFormControl"></eworkbench-wysiwyg-editor>
+        <eworkbench-wysiwyg-editor [id]="'description-modal'" [formControl]="descriptionFormControl"></eworkbench-wysiwyg-editor>
       </div>
       <div class="mb-4">
         <label for="projects-modal">{{ t('labBook.details.projects.label') }}</label>
@@ -62,7 +62,7 @@
       </div>
       <div class="mb-4" *ngIf="labBook?.child_elements">
         <label>{{ t('labBook.details.elements.label') }}</label>
-        <div class="d-flex mb-1" *ngFor="let element of labBook!.child_elements!">
+        <div class="flex mb-1" *ngFor="let element of labBook!.child_elements!">
           <div class="flex-fill">
             <eworkbench-icon [className]="element.content_type | formatContentTypeModel: 'icon'"></eworkbench-icon>
             <ng-container *ngIf="element.viewable">

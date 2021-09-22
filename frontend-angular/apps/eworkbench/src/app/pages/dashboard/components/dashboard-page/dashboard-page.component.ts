@@ -534,7 +534,7 @@ export class DashboardPageComponent implements OnInit {
 
   public onOpenNewTaskModal(): void {
     /* istanbul ignore next */
-    this.modalRef = this.modalService.open(NewTaskModalComponent, { closeButton: false });
+    this.modalRef = this.modalService.open(NewTaskModalComponent, { closeButton: false, enableClose: false });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }

@@ -4,12 +4,15 @@
  */
 
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { NewAppointmentModalComponent } from '@app/modules/appointment/components/modals/new/new.component';
+import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
+import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import {
@@ -31,6 +34,7 @@ import {
   DropdownElement,
   Lock,
   Metadata,
+  ModalCallback,
   Privileges,
   Project,
   Resource,
@@ -51,7 +55,7 @@ interface FormAppointment {
   description: string | null;
   projects: string[];
   dateGroup: DateGroup;
-  attendingUsers: number[];
+  attendees: number[];
   attendingContacts: string[];
   resource: string | null;
   scheduledNotificationActive: boolean;
@@ -67,6 +71,9 @@ interface FormAppointment {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppointmentPageComponent implements OnInit, OnDestroy {
+  @ViewChild(CommentsComponent)
+  public comments!: CommentsComponent;
+
   public detailsTitle?: string;
 
   public id = this.route.snapshot.paramMap.get('id')!;
@@ -121,6 +128,8 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
 
   public refreshMetadata = new EventEmitter<boolean>();
 
+  public refreshLinkList = new EventEmitter<boolean>();
+
   public newModalComponent = NewAppointmentModalComponent;
 
   public remindAttendingUnits: DropdownElement[] = [];
@@ -131,7 +140,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     description: [null],
     projects: [[]],
     dateGroup: [{ start: null, end: null, fullDay: false }],
-    attendingUsers: [[]],
+    attendees: [[]],
     attendingContacts: [[]],
     resource: [null],
     scheduledNotificationActive: [false],
@@ -205,7 +214,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       date_time_start: dateTimeStart,
       date_time_end: dateTimeEnd,
       full_day: this.f.dateGroup.value.fullDay,
-      attending_users_pk: this.f.attendingUsers.value,
+      attending_users_pk: this.f.attendees.value,
       attending_contacts_pk: this.f.attendingContacts.value,
       resource_pk: this.f.resource.value,
       scheduled_notification_writable: {
@@ -306,6 +315,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
             this.projects = [...this.projects, project]
               .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
               .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
           }
         );
       }
@@ -442,7 +452,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
             this.form.patchValue(
               {
                 title: appointment.title,
-                attendingUsers: appointment.attending_users_pk,
+                attendees: appointment.attending_users_pk,
                 attendingContacts: appointment.attending_contacts_pk,
                 location: appointment.location,
                 description: appointment.text,
@@ -487,6 +497,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
                   this.projects = [...this.projects, project]
                     .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                     .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                  this.cdr.markForCheck();
                 }),
                 switchMap(() => of(privilegesData))
               );
@@ -555,6 +566,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
           this.refreshChanges.next(true);
           this.refreshVersions.next(true);
           this.refreshMetadata.next(true);
+          this.refreshLinkList.next(true);
           this.refreshResetValue.next(true);
 
           this.loading = false;
@@ -620,6 +632,30 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     this.refreshVersions.next(true);
     this.refreshChanges.next(true);
     this.refreshMetadata.next(true);
+    this.refreshLinkList.next(true);
+  }
+
+  public onRefreshLinkList(): void {
+    this.refreshLinkList.next(true);
+  }
+
+  public onOpenNewCommentModal(): void {
+    this.modalRef = this.modalService.open(NewCommentModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        contentType: this.initialState?.content_type,
+        service: this.appointmentsService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
+      if (callback.state === ModalState.Changed) {
+        this.comments.loadComments();
+      }
+    });
   }
 
   public onUpdateMetadata(metadata: Metadata[]): void {

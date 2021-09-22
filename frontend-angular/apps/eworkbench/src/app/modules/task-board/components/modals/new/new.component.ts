@@ -19,6 +19,8 @@ import { catchError, debounceTime, mergeMap, switchMap } from 'rxjs/operators';
 
 interface FormTaskBoard {
   title: string | null;
+  description: string | null;
+  duplicate_tasks: boolean;
   projects: string[];
 }
 
@@ -34,6 +36,8 @@ export class NewTaskBoardModalComponent implements OnInit {
 
   public withSidebar?: boolean = this.modalRef.data?.withSidebar;
 
+  public duplicate?: string = this.modalRef.data?.duplicate;
+
   public state = ModalState.Unchanged;
 
   public loading = false;
@@ -46,6 +50,8 @@ export class NewTaskBoardModalComponent implements OnInit {
 
   public form = this.fb.group<FormTaskBoard>({
     title: [null, [Validators.required]],
+    description: [null],
+    duplicate_tasks: [false],
     projects: [[]],
   });
 
@@ -68,14 +74,16 @@ export class NewTaskBoardModalComponent implements OnInit {
     if (this.initialState) {
       return {
         title: this.f.title.value!,
+        description: this.f.description.value ?? '',
         projects: this.f.projects.value,
         background_color: this.initialState.background_color!,
-        kanban_board_columns: this.initialState.kanban_board_columns!,
+        kanban_board_columns: this.f.duplicate_tasks.value ? [] : this.initialState.kanban_board_columns!,
       };
     }
 
     return {
       title: this.f.title.value!,
+      description: this.f.description.value ?? '',
       projects: this.f.projects.value,
     };
   }
@@ -120,6 +128,7 @@ export class NewTaskBoardModalComponent implements OnInit {
       this.form.patchValue(
         {
           title: this.initialState.title,
+          description: this.initialState.description,
           projects: this.initialState.projects,
         },
         { emitEvent: false }
@@ -144,6 +153,7 @@ export class NewTaskBoardModalComponent implements OnInit {
               this.projects = [...this.projects, project]
                 .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
                 .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+              this.cdr.markForCheck();
             }
           );
       }
@@ -156,8 +166,13 @@ export class NewTaskBoardModalComponent implements OnInit {
     }
     this.loading = true;
 
+    let params = new HttpParams();
+    if (this.f.duplicate_tasks.value && this.duplicate) {
+      params = params.set('duplicate_tasks_from_board', this.duplicate.toString());
+    }
+
     this.taskBoardsService
-      .create(this.taskBoard)
+      .create(this.taskBoard, params)
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ taskBoard => {

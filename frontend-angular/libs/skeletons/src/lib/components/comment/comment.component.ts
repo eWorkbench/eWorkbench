@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'eworkbench-comment-skeleton',
@@ -11,4 +11,16 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrls: ['./comment.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommentSkeletonComponent {}
+export class CommentSkeletonComponent implements OnInit {
+  @Input()
+  public fields = 5;
+
+  @Input()
+  public header = false;
+
+  public items: number[] = [];
+
+  public ngOnInit(): void {
+    this.items = Array(this.fields).fill(1);
+  }
+}

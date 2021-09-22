@@ -63,7 +63,7 @@ export const mockKanbanTask: KanbanTask = {
   content_type_model: 'kanban_boards.kanbanboardcolumntaskassignment',
   display: 'Task Test is assigned to column New column',
   kanban_board_column: '9069e47f-9476-4bb3-95f2-65a9a0326793',
-  num_related_notes: 0,
+  num_related_comments: 0,
   ordering: 0,
   pk: 'ff079b33-317a-455b-904c-5c25595b3f84',
   task: mockTask,
