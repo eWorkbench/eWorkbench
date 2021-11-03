@@ -6,6 +6,7 @@
     "project": "./tsconfig.*?.json"
   },
   "rules": {
-    "prettier/prettier": [2, {}, { "usePrettierrc": true }]
+    "prettier/prettier": [2, {}, { "usePrettierrc": true }],
+    "@typescript-eslint/no-unsafe-argument": 0
   }
 }

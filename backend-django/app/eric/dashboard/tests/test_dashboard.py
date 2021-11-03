@@ -67,7 +67,7 @@ class DashboardTest(APITestCase, AuthenticationMixin, DashboardMixin, ProjectsMi
     def test_my_dashboard(self):
         """
         Tests the /my/dashboard endpoint (basic tests)
-        Should return several lists and a summary
+        Should return several lists
         :return:
         """
         response = self.rest_get_my_dashboard(self.token1, HTTP_USER_AGENT, REMOTE_ADDR)
@@ -75,14 +75,11 @@ class DashboardTest(APITestCase, AuthenticationMixin, DashboardMixin, ProjectsMi
         decoded_response = json.loads(response.content.decode())
 
         self.assertTrue('projects' in decoded_response, msg="/my/dashboard contains projects")
-        self.assertTrue('tasks' in decoded_response, msg="/my/dashboard contains tasks")
-        # self.assertTrue('meetings' in decoded_response, msg="/my/dashboard contains meetings")
-        # self.assertTrue('notes' in decoded_response, msg="/my/dashboard contains notes")
         self.assertTrue('contacts' in decoded_response, msg="/my/dashboard contains contacts")
-        # self.assertTrue('kanbanboards' in decoded_response, msg="/my/dashboard contains kanbanboards")
+        self.assertTrue('dmps' in decoded_response, msg="/my/dashboard contains dmps")
         self.assertTrue('files' in decoded_response, msg="/my/dashboard contains files")
+        self.assertTrue('tasks' in decoded_response, msg="/my/dashboard contains tasks")
         self.assertTrue('resources' in decoded_response, msg="/my/dashboard contains resources")
-        self.assertTrue('summary' in decoded_response, msg="/my/dashboard contains summary")
 
     def test_only_viewable_projects_in_dashboard(self):
         """

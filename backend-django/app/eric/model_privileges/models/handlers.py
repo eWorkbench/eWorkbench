@@ -168,3 +168,32 @@ def auto_create_owner_entity_permission(instance, created, *args, **kwargs):
         full_access_privilege=ModelPrivilege.ALLOW,
         content_object=instance
     )
+
+
+@receiver(pre_save, sender=ModelPrivilege)
+def fix_privileges(instance, *args, **kwargs):
+    # Check if the privileges are correct and fix them if they are not. We start checking them from the
+    # right side and fix privilege based on the "highest" allowed privilege in the following order:
+    # restore > trash > edit > view
+    if instance.restore_privilege == ModelPrivilege.ALLOW:
+        instance.view_privilege = ModelPrivilege.ALLOW
+        instance.edit_privilege = ModelPrivilege.ALLOW
+        instance.trash_privilege = ModelPrivilege.ALLOW
+    elif instance.trash_privilege == ModelPrivilege.ALLOW:
+        instance.view_privilege = ModelPrivilege.ALLOW
+        instance.edit_privilege = ModelPrivilege.ALLOW
+    elif instance.edit_privilege == ModelPrivilege.ALLOW:
+        instance.view_privilege = ModelPrivilege.ALLOW
+
+    # Now, we must also check the denied privileges. We start checking them from the left side and fix
+    # privilege based on the "lowest" denied privilege in the following order:
+    # view > edit > trash > restore
+    if instance.view_privilege == ModelPrivilege.DENY:
+        instance.edit_privilege = ModelPrivilege.DENY
+        instance.trash_privilege = ModelPrivilege.DENY
+        instance.restore_privilege = ModelPrivilege.DENY
+    elif instance.edit_privilege == ModelPrivilege.DENY:
+        instance.trash_privilege = ModelPrivilege.DENY
+        instance.restore_privilege = ModelPrivilege.DENY
+    elif instance.trash_privilege == ModelPrivilege.DENY:
+        instance.restore_privilege = ModelPrivilege.DENY

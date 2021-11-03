@@ -51,6 +51,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   @Input()
   public setFilter?: EventEmitter<TaskBoardFilter>;
 
+  @Input()
+  public userSettings = {};
+
   @Output()
   public boardChange = new EventEmitter<PrivilegesData<TaskBoard>>();
 
@@ -62,7 +65,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   public loading = true;
 
-  public tasks = this.taskBoardsService.getTasks(this.id);
+  public tasks = this.taskBoardsService.getTasks(this.id).pipe(untilDestroyed(this));
 
   public dropListOrientation = 'vertical';
 

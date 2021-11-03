@@ -45,6 +45,8 @@ import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from '
 interface FormTask {
   title: string | null;
   assignees: number[];
+  scheduledNotificationActive: boolean;
+  scheduledNotificationTime: DateGroup;
   dateGroup: DateGroup;
   priority: string | null;
   state: string | null;
@@ -118,9 +120,21 @@ export class TaskPageComponent implements OnInit, OnDestroy {
 
   public taskBoardAssignments: TaskBoardAssignment[] = [];
 
+  public customLabel = {
+    start: null,
+    end: null,
+  };
+
+  public customPlaceholder = {
+    start: null,
+    end: null,
+  };
+
   public form: FormGroup<FormTask> = this.fb.group({
     title: [null, [Validators.required]],
     assignees: [[]],
+    scheduledNotificationActive: [{ value: false, disabled: true }],
+    scheduledNotificationTime: [{ start: null, end: null, fullDay: false }],
     dateGroup: [{ start: null, end: null, fullDay: false }],
     priority: [null],
     state: [null],
@@ -187,9 +201,11 @@ export class TaskPageComponent implements OnInit, OnDestroy {
       dateTimeEnd = dateTimeEnd.toISOString();
     }
 
-    return {
+    const task = {
       title: this.f.title.value!,
       assigned_users_pk: this.f.assignees.value,
+      remind_assignees: this.f.scheduledNotificationActive.value,
+      reminder_datetime: this.f.scheduledNotificationTime.value.start,
       start_date: dateTimeStart,
       due_date: dateTimeEnd,
       full_day: this.f.dateGroup.value.fullDay,
@@ -201,6 +217,14 @@ export class TaskPageComponent implements OnInit, OnDestroy {
       labels: this.f.labels.value,
       metadata: this.metadata!,
     };
+
+    // The property 'reminder_datetime' must not exist if remind_assignees field contains null values
+    if (!this.f.scheduledNotificationActive.value) {
+      // @ts-ignore
+      delete task.reminder_datetime;
+    }
+
+    return task;
   }
 
   public ngOnInit(): void {
@@ -232,6 +256,14 @@ export class TaskPageComponent implements OnInit, OnDestroy {
       }
     );
 
+    this.f.assignees.valueChanges.pipe(untilDestroyed(this)).subscribe(value => {
+      if (value.length) {
+        this.f.scheduledNotificationActive.enable();
+      } else {
+        this.f.scheduledNotificationActive.disable();
+      }
+    });
+
     this.initTranslations();
     this.initSidebar();
     this.initSearchInput();
@@ -262,13 +294,28 @@ export class TaskPageComponent implements OnInit, OnDestroy {
           { label: tasks.state.done, value: 'DONE' },
         ];
       });
+
+    this.translocoService
+      .selectTranslateObject('task.formDateGroup')
+      .pipe(untilDestroyed(this))
+      .subscribe(formGroup => {
+        this.customLabel = {
+          start: formGroup.label.start,
+          end: formGroup.label.end,
+        };
+
+        this.customPlaceholder = {
+          start: formGroup.placeholder.start,
+          end: formGroup.placeholder.end,
+        };
+      });
   }
 
   public initFormChanges(): void {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
-        skip(1),
+        skip(2),
         debounceTime(500),
         switchMap(() => {
           this.cdr.markForCheck();
@@ -372,6 +419,8 @@ export class TaskPageComponent implements OnInit, OnDestroy {
               {
                 title: task.title,
                 assignees: task.assigned_users_pk,
+                scheduledNotificationActive: task.remind_assignees,
+                scheduledNotificationTime: { start: task.reminder_datetime },
                 dateGroup: { start: task.start_date, end: task.due_date, fullDay: task.full_day },
                 priority: task.priority,
                 state: task.state,
@@ -382,6 +431,22 @@ export class TaskPageComponent implements OnInit, OnDestroy {
               },
               { emitEvent: false }
             );
+
+            if (this.f.scheduledNotificationActive.value) {
+              this.f.scheduledNotificationActive.enable({ emitEvent: false });
+            }
+
+            if (!this.f.scheduledNotificationActive.value) {
+              const date = new Date();
+              this.form.patchValue(
+                {
+                  scheduledNotificationTime: {
+                    start: set(date, { hours: date.getHours() + 1, minutes: 0, seconds: 0 }).toISOString(),
+                  },
+                },
+                { emitEvent: false }
+              );
+            }
 
             if (!privileges.edit) {
               this.form.disable({ emitEvent: false });

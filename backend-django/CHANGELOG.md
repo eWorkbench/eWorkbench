@@ -1,5 +1,24 @@
 # Changelog
 
+## Version 2.6.2 - October 2021
+- [SITUMEWB-765] Revert overview element
+
+## Version 2.6.1 - October 2021
+- [SITUMEWB-765] Fix button triggering twice
+- [SITUMEWB-*,SITUMEWB-695,SITUMEWB-699] Fix translations for task boards
+
+## Version 2.6 - October 2021
+- [SITUMEWB-669] new datastructure for project hierarchies
+- [SITUMEWB-698] backend for task reminder feature
+- [SITUMEWB-655] Implemented receiver to prevent inconsistent privileges
+- [SITUMEWB-656] Fixed legacy privileges via migration to prevent inconsistent privileges
+- [SITUMEWB-761] Removed bubbles from dashboard and remove unneeded elements from dashboard API
+- [SITUMEWB-699] Rework task modal & assignee reminders
+- [SITUMEWB-436] Remove metadatasearch from search dropdown
+- [SITUMEWB-755] Clear metadatasearch completely on select
+- [SITUMEWB-695,SITUMEWB-696,SITUMEWB-697,SITUMEWB-699,SITUMEWB-727,SITUMEWB-728] Task / Taskboard settings
+- [SITUMEWB-*] Fix maintenance message showing when disabled
+
 ## Version 2.5.4 - September 2021
 - [SITUMEWB-713] Fix backlog priority filter
 - [SITUMEWB-720] Allow created_by and assigned_users filters to be saved

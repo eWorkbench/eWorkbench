@@ -135,7 +135,7 @@ export class NewTaskBoardModalComponent implements OnInit {
       );
 
       /* istanbul ignore next */
-      if (this.initialState.projects.length) {
+      if (this.initialState.projects?.length) {
         from(this.initialState.projects)
           .pipe(
             untilDestroyed(this),

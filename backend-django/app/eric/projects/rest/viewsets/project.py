@@ -107,8 +107,8 @@ class ProjectChangeSetViewSet(ChangeSetViewSet):
         if not project_pk:
             return ChangeSet.objects.none()
 
-        project_ids = Project.get_all_sub_project_pks_for(project_pk)
-        project_ids.append(project_pk)
+        project_ids = Project.objects.filter(pk=project_pk).first().get_descendants(include_self=True)\
+            .values_list('pk', flat=True)
 
         # build a conditions list, where we will add more conditions with "OR"
         conditions = Q()

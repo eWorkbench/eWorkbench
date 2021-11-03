@@ -17,7 +17,7 @@ from eric.core.templatetags.date_filters import date_short
 from eric.notifications.config import MINIMUM_TIME_BETWEEN_EMAILS, SINGLE_MAIL_NOTIFICATIONS
 from eric.notifications.models import Notification, ScheduledNotification, NotificationConfiguration
 from eric.notifications.utils import send_mail, is_user_notification_allowed
-from eric.shared_elements.models import Meeting
+from eric.shared_elements.models import Meeting, Task
 from eric.site_preferences.models import options as site_preferences
 
 User = get_user_model()
@@ -29,6 +29,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.process_scheduled_notifications()
+        self.process_task_reminders()
 
         users_that_recently_received_notifications = Notification.objects.filter(
             processed=True,
@@ -68,6 +69,32 @@ class Command(BaseCommand):
             send_mail(subject=title, message=plaintext, to_email=contact.email, html_message=html)
         except Exception as exc:
             LOGGER.exception(exc)
+
+    @classmethod
+    def process_task_reminders(cls):
+        now = timezone.now()
+        tasks = Task.objects.filter(
+            remind_assignees=True,
+            reminder_datetime__lte=now + timedelta(seconds=60),
+            reminder_datetime__gte=now - timedelta(seconds=60),
+        )
+        for task in tasks:
+            assigned_users = task.assigned_users.all()
+            title = _(f"Reminder: Task {task.title}")
+            html_message = render_to_string('notification/task_reminder.html', {'instance': task})
+            for assigned_user in assigned_users:
+                Notification.objects.get_or_create(
+                    user=assigned_user,
+                    content_type=task.get_content_type(),
+                    object_id=task.pk,
+                    notification_type=NotificationConfiguration.NOTIFICATION_CONF_TASK_REMINDER,
+                    created_at__gte=now - timedelta(seconds=90),
+                    defaults={
+                        'title': title,
+                        'message': html_message,
+                        'created_at': now
+                    }
+                )
 
     @classmethod
     def process_scheduled_notifications(cls):

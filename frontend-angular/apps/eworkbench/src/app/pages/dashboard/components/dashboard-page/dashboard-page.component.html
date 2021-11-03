@@ -86,7 +86,7 @@
     </eworkbench-dashboard-element>
   </div>
   <ng-container *transloco="let t">
-    <div class="grid-container-2-to-1 mb-4">
+    <div class="grid-container mb-8">
       <div class="my-tasks">
         <eworkbench-dashboard-element [loading]="loading">
           <div slot="label">
@@ -108,14 +108,10 @@
               [data]="dashboard.tasks"
               [columnHeader]="false"
               class="table-small"
+              [class.mb-5]="dashboard.tasks.length"
             ></eworkbench-table-view>
           </div>
         </eworkbench-dashboard-element>
-      </div>
-      <div class="bubble-chart">
-        <div slot="body">
-          <div id="chart" class="text-center"></div>
-        </div>
       </div>
     </div>
     <div class="grid-container">

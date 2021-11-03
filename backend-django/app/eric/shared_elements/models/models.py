@@ -982,6 +982,19 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         blank=True
     )
 
+    remind_assignees = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name=_("remind assignees")
+    )
+
+    reminder_datetime = models.DateTimeField(
+        verbose_name=_("Task reminder datetime"),
+        db_index=True,
+        null=True,
+        blank=True
+    )
+
     extracted_images = GenericRelation(ExtractedImage)
 
     metadata = MetadataRelation()

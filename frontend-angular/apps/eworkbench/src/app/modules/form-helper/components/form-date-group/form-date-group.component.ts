@@ -41,6 +41,27 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
   @Input()
   public fullDayToggle = true;
 
+  @Input()
+  public endDate = true;
+
+  @Input()
+  public labels = true;
+
+  @Input()
+  public placeholders = true;
+
+  @Input()
+  public customLabel = {
+    start: null,
+    end: null,
+  };
+
+  @Input()
+  public customPlaceholder = {
+    start: null,
+    end: null,
+  };
+
   public onChange: any = () => {};
 
   public onTouch: any = () => {};

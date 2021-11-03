@@ -151,8 +151,39 @@
                   </eworkbench-form-input>
                 </div>
                 <div class="mb-4">
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      class="custom-control-input"
+                      type="checkbox"
+                      formControlName="scheduledNotificationActive"
+                      id="remindAssignees"
+                      name="remindAssignees"
+                    />
+                    <label class="custom-control-label font-normal" for="remindAssignees">
+                      {{ t('task.details.remindAssignees.label') }}
+                    </label>
+                  </div>
+                </div>
+                <div class="mb-4 inline-block" [class.hidden]="!f.scheduledNotificationActive.value">
                   <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
-                    <eworkbench-form-date-group formControlName="dateGroup" slot="input"></eworkbench-form-date-group>
+                    <eworkbench-form-date-group
+                      formControlName="scheduledNotificationTime"
+                      [fullDayToggle]="false"
+                      [endDate]="false"
+                      [labels]="false"
+                      [placeholders]="false"
+                      slot="input"
+                    ></eworkbench-form-date-group>
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
+                  <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+                    <eworkbench-form-date-group
+                      formControlName="dateGroup"
+                      [customLabel]="customLabel"
+                      [customPlaceholder]="customPlaceholder"
+                      slot="input"
+                    ></eworkbench-form-date-group>
                   </eworkbench-form-input>
                 </div>
                 <div class="mb-4">

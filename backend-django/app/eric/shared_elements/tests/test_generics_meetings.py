@@ -90,6 +90,10 @@ class TestGenericMeetings(APITestCase, EntityChangeRelatedProjectTestMixin, Meet
 
         # now override the view_privilege for user2
         decoded_privileges[1]['view_privilege'] = ModelPrivilege.DENY
+        decoded_privileges[1]['edit_privilege'] = ModelPrivilege.DENY
+        decoded_privileges[1]['trash_privilege'] = ModelPrivilege.DENY
+        decoded_privileges[1]['delete_privilege'] = ModelPrivilege.DENY
+        decoded_privileges[1]['restore_privilege'] = ModelPrivilege.DENY
         response = self.rest_update_privilege(self.token1, "meetings", meeting.pk,
                                               self.user2.pk, decoded_privileges[1], HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)

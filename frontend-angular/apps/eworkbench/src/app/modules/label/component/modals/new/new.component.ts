@@ -4,7 +4,6 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabelsService } from '@app/services';
 import { LabelPayload } from '@eworkbench/types';
@@ -31,7 +30,7 @@ export class NewLabelModalComponent {
 
   public form = this.fb.group<FormLabel>({
     name: [null],
-    color: [null, [Validators.required]],
+    color: [null],
   });
 
   public constructor(
@@ -49,7 +48,7 @@ export class NewLabelModalComponent {
   public get label(): LabelPayload {
     return {
       name: this.f.name.value ?? '',
-      color: this.f.color.value!,
+      color: this.f.color.value ?? 'rgba(174,174,174, 0.8)',
     };
   }
 

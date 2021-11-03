@@ -10,6 +10,8 @@ import { TaskUser } from './task-user.interface';
 
 export interface TaskPayload {
   assigned_users_pk: number[];
+  remind_assignees: boolean;
+  reminder_datetime: string | null;
   checklist_items: TaskChecklist[];
   start_date: string | null;
   due_date: string | null;
@@ -36,6 +38,8 @@ export interface TaskChecklist {
 export interface Task {
   assigned_users: TaskUser[];
   assigned_users_pk: number[];
+  remind_assignees: boolean;
+  reminder_datetime: string | null;
   checklist_items: TaskChecklist[];
   content_type: number;
   content_type_model: string;

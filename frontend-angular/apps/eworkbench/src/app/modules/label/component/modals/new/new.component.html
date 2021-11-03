@@ -14,7 +14,6 @@
           <div class="mb-4">
             <label for="name-modal">
               {{ t('label.newModal.name.label') }}
-              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"
@@ -23,12 +22,12 @@
               id="name-modal"
               name="name-modal"
               [placeholder]="t('label.newModal.name.placeholder')"
+              [autoFocus]
             />
           </div>
           <div class="mb-4">
             <label for="color-modal">
               {{ t('label.newModal.color.label') }}
-              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
             </label>
             <input
               type="text"

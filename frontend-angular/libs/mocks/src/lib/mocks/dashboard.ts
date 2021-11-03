@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { mockDMP } from '@eworkbench/mocks';
 import { Dashboard } from '@eworkbench/types';
 import { mockContact } from './contact';
 import { mockFile } from './file';
@@ -14,22 +15,9 @@ import { mockKanbanTask } from './task';
 
 export const mockDashboard: Dashboard = {
   contacts: [mockContact],
-  dmps: [], // TODO: Fill this with a mock when DMPs have been implemented
+  dmps: [mockDMP],
   files: [mockFile],
   projects: [mockProject],
   resources: [mockResource],
   tasks: [mockKanbanTask],
-  summary: {
-    contacts: 1,
-    dmps: 0,
-    drives: 0,
-    files: 1,
-    kanbanboards: 1,
-    labbooks: 0,
-    appointments: 0,
-    notes: 0,
-    projects: 1,
-    resources: 1,
-    tasks: 1,
-  },
 };

@@ -78,17 +78,13 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
             return list(["all"], )
         else:
             # access ProjectRoleUserAssignment and get all projects where user has the permission
-            pk_list = list(
-                ProjectRoleUserAssignment.objects.filter(
-                    user=user,
-                    role__permissions__content_type=entity.get_content_type(),
-                    role__permissions__codename=permission
-                ).values_list('project__id', flat=True)
-            )
+            projects_ids = ProjectRoleUserAssignment.objects.filter(
+                user=user,
+                role__permissions__content_type=entity.get_content_type(),
+                role__permissions__codename=permission
+            ).distinct().values_list('project__id', flat=True)
 
-            # based on this list, get all sub projects of those projects, as permissions are inherited to sub projects
-            pk_list_with_subprojects = Project.get_all_sub_project_pks_for_list(pk_list)
-            pk_list_with_subprojects.extend(pk_list)
+            pk_list_with_subprojects = Project.get_all_projects_with_descendants(projects_ids)
 
             return pk_list_with_subprojects
 
@@ -101,12 +97,11 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         pk_list = kwargs.pop('prefetched_project_ids', None)
 
         if not pk_list:
-            pk_list = Project.get_all_sub_project_pks_for(project_pk)
-            pk_list.append(project_pk)
+            pk_list = Project.objects.filter(pk=project_pk).first().get_descendants(include_self=True)
 
         return self.filter(
             projects__pk__in=pk_list
-        )
+        ).distinct()
 
     def viewable(self, *args, **kwargs):
         """
@@ -117,14 +112,14 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         )
 
         if "all" in project_pks:
-            return self.all()
+            return self.all().distinct()
 
         return self.filter(
             Q(
                 # get all entities where the current user has permissions
                 project__pk__in=project_pks
             )
-        )
+        ).distinct()
 
     def editable(self, *args, **kwargs):
         """
@@ -135,11 +130,11 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         )
 
         if "all" in project_pks:
-            return self.all()
+            return self.all().distinct()
 
         return self.filter(
             project__pk__in=project_pks
-        )
+        ).distinct()
 
     def related_project_attribute_editable(self, *args, **kwargs):
         """
@@ -152,11 +147,11 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         )
 
         if "all" in project_pks:
-            return self.all()
+            return self.all().distinct()
 
         return self.filter(
             project__pk__in=project_pks
-        )
+        ).distinct()
 
     def deletable(self, *args, **kwargs):
         """
@@ -167,11 +162,11 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         )
 
         if "all" in project_pks:
-            return self.filter(deleted=True)
+            return self.filter(deleted=True).distinct()
 
         return self.filter(
             project__pk__in=project_pks
-        )
+        ).distinct()
 
 
 class ProjectRoleUserAssignmentQuerySet(BaseProjectPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -188,8 +183,7 @@ class ProjectRoleUserAssignmentQuerySet(BaseProjectPermissionQuerySet, ChangeSet
         pk_list = kwargs.pop('prefetched_project_ids', None)
 
         if not pk_list:
-            pk_list = Project.get_all_sub_project_pks_for(project_pk)
-            pk_list.append(project_pk)
+            pk_list = Project.objects.filter(pk=project_pk).first().get_descendants(include_self=True)
 
         return self.filter(
             project__pk__in=pk_list
@@ -660,11 +654,11 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         )
 
         if "all" in project_pks:
-            return self.all()
+            return self.all().distinct()
 
         return self.filter(
             pk__in=project_pks
-        )
+        ).distinct()
 
     def viewable_with_orphans(self, *args, **kwargs):
         """
@@ -681,7 +675,7 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
                 parent_project__isnull=True
             ).exclude(
                 deleted=True
-            )
+            ).distinct()
 
         return self.filter(
             pk__in=project_pks
@@ -689,7 +683,7 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
             parent_project__in=project_pks
         ).exclude(
             deleted=True
-        )
+        ).distinct()
 
     def deletable(self, *args, **kwargs):
         """
@@ -703,12 +697,12 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         )
 
         if "all" in project_pks:
-            return self.filter(deleted=True)
+            return self.filter(deleted=True).distinct()
 
         return self.filter(
             deleted=True,
             pk__in=project_pks
-        )
+        ).distinct()
 
     def restorable(self, *args, **kwargs):
         """
@@ -722,12 +716,12 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         )
 
         if "all" in project_pks:
-            return self.filter(deleted=True)
+            return self.filter(deleted=True).distinct()
 
         return self.filter(
             deleted=True,
             pk__in=project_pks
-        )
+        ).distinct()
 
     def trashable(self, *args, **kwargs):
         """
@@ -741,12 +735,12 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         )
 
         if "all" in project_pks:
-            return self.filter(deleted=False)
+            return self.filter(deleted=False).distinct()
 
         return self.filter(
             deleted=False,
             pk__in=project_pks
-        )
+        ).distinct()
 
     def parent_project_changeable(self, *args, **kwargs):
         """
@@ -761,11 +755,11 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         )
 
         if "all" in project_pks:
-            return self.filter(deleted=False)
+            return self.filter(deleted=False).distinct()
 
         return self.filter(
             pk__in=project_pks
-        )
+        ).distinct()
 
     def not_closed_or_deleted_or_canceled(self, *args, **kwargs):
         """
@@ -775,7 +769,7 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
 
         return self.exclude(
             project_state__in=[Project.PAUSED, Project.FINISHED, Project.CANCEL, Project.DELETED]
-        )
+        ).distinct()
 
     def editable(self, *args, **kwargs):
         """
@@ -788,11 +782,11 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         )
 
         if "all" in project_pks:
-            return self.all()
+            return self.all().distinct()
 
         return self.filter(
             pk__in=project_pks
-        )
+        ).distinct()
 
 
 class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):

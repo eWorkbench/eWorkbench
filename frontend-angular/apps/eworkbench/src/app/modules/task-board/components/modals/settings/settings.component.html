@@ -1,0 +1,145 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <eworkbench-modal [modalFooter]="false">
+    <div slot="header">{{ t('taskBoard.settingsModal.header', { name: taskBoard.display }) }}</div>
+    <div slot="body">
+      <eworkbench-loading [loading]="loading">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="mb-4 border-0 border-b-[2px] border-solid border-tum-border-gray">
+            <div class="mb-4">
+              <label for="file-modal">
+                {{ t('taskBoard.settingsModal.backgroundImage.label') }}
+              </label>
+              <div class="flex items-center space-x-2">
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" (change)="onUpload($event)" id="file-modal" name="file-modal" />
+                  <label
+                    for="file-modal"
+                    class="custom-file-label ewb-input-file"
+                    [class.custom-file-label-filled]="f.backgroundImage.value"
+                  >
+                    {{ filePlaceholder }}
+                  </label>
+                </div>
+
+                <div class="inline-block" *ngIf="taskBoard.download_background_image && !fileCleared">
+                  <button
+                    type="button"
+                    class="btn bg-transparent p-0"
+                    [tooltip]="t('taskBoard.settingsModal.backgroundImage.remove')"
+                    containerClass="tooltip-sm"
+                    (click)="onClear($event)"
+                  >
+                    <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                  </button>
+                </div>
+              </div>
+              <span class="opacity-70">
+                {{ t('taskBoard.settingsModal.backgroundImage.text') }}
+              </span>
+            </div>
+            <div class="mb-4">
+              <label for="backgroundColor">{{ t('taskBoard.settingsModal.backgroundColor.label') }}</label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                formControlName="backgroundColor"
+                id="backgroundColor"
+                name="backgroundColor"
+                [placeholder]="t('taskBoard.columnDetailsModal.backgroundColor.placeholder')"
+                [colorPicker]="f.backgroundColor.value"
+                [value]="f.backgroundColor.value"
+                (colorPickerChange)="onColorChange($event)"
+                cpOutputFormat="rgba"
+                cpAlphaChannel="always"
+                cpPosition="bottom"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <div class="mb-4 border-0 border-b-[2px] border-solid border-tum-border-gray">
+            <div class="mb-4">
+              <label for="transparency">{{ t('taskBoard.settingsModal.transparency.label') }}</label>
+              <div class="flex space-x-2">
+                <span> {{ f.transparency.value }}% </span>
+                <input
+                  type="range"
+                  class="block w-1/4"
+                  formControlName="transparency"
+                  name="transparency"
+                  id="transparency"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="100"
+                  (change)="onTransparencyChange($event.target.value)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="mb-4">
+              <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" formControlName="minimalistic" id="minimalistic" name="minimalistic" />
+                <label class="custom-control-label font-normal" for="minimalistic">
+                  {{ t('taskBoard.settingsModal.minimalistic.label') }}
+                </label>
+              </div>
+              <span class="ml-6 opacity-70">
+                {{ t('taskBoard.settingsModal.minimalistic.text') }}
+              </span>
+            </div>
+            <div class="mb-4">
+              <div class="custom-control custom-checkbox">
+                <input
+                  class="custom-control-input"
+                  type="checkbox"
+                  formControlName="dayIndication"
+                  id="day-indication"
+                  name="day-indication"
+                />
+                <label class="custom-control-label font-normal" for="day-indication">
+                  {{ t('taskBoard.settingsModal.dayIndication.label') }}
+                </label>
+              </div>
+              <span class="ml-6 opacity-70">
+                {{ t('taskBoard.settingsModal.dayIndication.text') }}
+              </span>
+            </div>
+          </div>
+
+          <div class="modal-footer p-0 mt-5">
+            <button
+              *ngIf="form.dirty"
+              type="button"
+              class="btn ewb-button-big ewb-button-secondary mr-2"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
+              {{ t('taskBoard.settingsModal.cancel') }}
+            </button>
+            <button *ngIf="form.dirty" type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+              {{ t('taskBoard.settingsModal.save') }}
+            </button>
+
+            <button
+              *ngIf="!form.dirty"
+              type="button"
+              class="btn ewb-button-big ewb-button-primary"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
+              {{ t('taskBoard.settingsModal.close') }}
+            </button>
+          </div>
+        </form>
+      </eworkbench-loading>
+    </div>
+  </eworkbench-modal>
+</ng-container>

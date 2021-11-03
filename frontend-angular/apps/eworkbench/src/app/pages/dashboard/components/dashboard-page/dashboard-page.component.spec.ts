@@ -92,14 +92,12 @@ describe('DashboardPageComponent', () => {
             projects: [],
             resources: [],
             tasks: [],
-            summary: { test: 2 },
           } as any,
         },
       }))
   );
 
   it('should create', () => {
-    spectator.component.renderBubbleChart();
     expect(spectator).toBeTruthy();
   });
 

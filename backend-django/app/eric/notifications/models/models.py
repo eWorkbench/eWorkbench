@@ -36,6 +36,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     NOTIFICATION_CONF_TASK_USER_CHANGED = 'NOTIFICATION_CONF_TASK_USER_CHANGED'
     NOTIFICATION_CONF_TASK_CHANGED = 'NOTIFICATION_CONF_TASK_CHANGED'
     NOTIFICATION_CONF_TASK_RELATION_CHANGED = 'NOTIFICATION_CONF_TASK_RELATION_CHANGED'
+    NOTIFICATION_CONF_TASK_REMINDER = 'NOTIFICATION_CONF_TASK_REMINDER'
 
     # Project
     NOTIFICATION_CONF_PROJECT_USER_CHANGED = 'NOTIFICATION_CONF_PROJECT_USER_CHANGED'
@@ -57,6 +58,7 @@ class NotificationConfiguration(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         (NOTIFICATION_CONF_TASK_USER_CHANGED, _('Assigned users of task has been changed')),
         (NOTIFICATION_CONF_TASK_CHANGED, _('Task has been changed')),
         (NOTIFICATION_CONF_TASK_RELATION_CHANGED, _('Relation of task has been changed')),
+        (NOTIFICATION_CONF_TASK_REMINDER, _('Remind of task')),
 
         (NOTIFICATION_CONF_PROJECT_USER_CHANGED, _('Users of project has been changed')),
         (NOTIFICATION_CONF_PROJECT_CHANGED, _('Project has been changed')),

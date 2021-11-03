@@ -28,12 +28,12 @@ import { RecentChangesModule } from '../recent-changes/recent-changes.module';
 import { SharedModule } from '../shared/shared.module';
 import { TaskModule } from '../task/task.module';
 import { UserModule } from '../user/user.module';
-import { BackgroundModalComponent } from './components/modals/background/background.component';
 import { BacklogModalComponent } from './components/modals/backlog/backlog.component';
 import { ColumnDetailsModalComponent } from './components/modals/column-details/column-details.component';
 import { DeleteColumnModalComponent } from './components/modals/delete-column/delete-column.component';
 import { NewTaskBoardColumnModalComponent } from './components/modals/new-column/new-column.component';
 import { NewTaskBoardModalComponent } from './components/modals/new/new.component';
+import { SettingsModalComponent } from './components/modals/settings/settings.component';
 import { TaskBoardComponent } from './components/task-board/task-board.component';
 import { TaskCardComponent } from './components/task-card/task-card.component';
 
@@ -44,9 +44,9 @@ import { TaskCardComponent } from './components/task-card/task-card.component';
     BacklogModalComponent,
     ColumnDetailsModalComponent,
     NewTaskBoardModalComponent,
-    BackgroundModalComponent,
     NewTaskBoardColumnModalComponent,
     DeleteColumnModalComponent,
+    SettingsModalComponent,
   ],
   imports: [
     CommonModule,
@@ -83,12 +83,12 @@ import { TaskCardComponent } from './components/task-card/task-card.component';
   exports: [
     TaskBoardComponent,
     BacklogModalComponent,
-    BackgroundModalComponent,
     NewTaskBoardModalComponent,
     DragDropModule,
     NewTaskBoardColumnModalComponent,
     DeleteColumnModalComponent,
     DragDropModule,
+    SettingsModalComponent,
   ],
 })
 export class TaskBoardModule {}

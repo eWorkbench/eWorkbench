@@ -63,6 +63,7 @@
               [taskBoardId]="id"
               [labels]="labels"
               [task]="task"
+              [userSettings]="userSettings"
               (removed)="onRemove($event)"
               *ngIf="matchesFilter(task.task)"
             ></eworkbench-task-card>

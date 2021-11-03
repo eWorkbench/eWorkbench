@@ -11,6 +11,8 @@ import { mockUser } from './user';
 
 export const mockTaskPayload: TaskPayload = {
   assigned_users_pk: [],
+  remind_assignees: false,
+  reminder_datetime: null,
   checklist_items: [],
   labels: [],
   due_date: '2020-01-01 12:00',
@@ -25,6 +27,8 @@ export const mockTaskPayload: TaskPayload = {
 export const mockTask: Task = {
   assigned_users: [],
   assigned_users_pk: [],
+  remind_assignees: false,
+  reminder_datetime: null,
   checklist_items: [],
   content_type: 33,
   content_type_model: 'shared_elements.task',

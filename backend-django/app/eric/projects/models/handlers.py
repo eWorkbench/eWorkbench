@@ -10,6 +10,7 @@ import django.dispatch
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError, PermissionDenied
+from django.db import transaction
 from django.db.models.signals import post_save, pre_save, pre_delete, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -25,7 +26,6 @@ from eric.core.models.utils import get_permission_name
 from eric.notifications.models import NotificationConfiguration, Notification
 from eric.projects.models import Project, ProjectRoleUserAssignment, Role, ElementLock
 from eric.projects.models import UserStorageLimit, MyUser
-from eric.projects.models.cache import invalidate_project_cache
 from eric.relations.models import Relation
 from eric.shared_elements.models import Metadata, Comment
 from eric.site_preferences.models import options as site_preferences
@@ -141,6 +141,8 @@ def check_create_roles_for_parent_project(user, sender, instance, *args, **kwarg
     :param kwargs:
     :return:
     """
+    with transaction.atomic():
+        Project.objects.rebuild()
     # the user is already logged in and does not have the global permission to create something, therefore we need
     # to check the add_project permissions of instance.parent_project
     if not hasattr(instance, 'parent_project'):
@@ -564,17 +566,19 @@ def auto_create_element_lock(instance, *args, **kwargs):
 @receiver(post_save, sender=Project)
 def update_project_cache_after_save(*args, **kwargs):
     """
-    Invalidates the project cache after a project is changed (saved).
+    mptt rebuild the tree
     """
-    invalidate_project_cache()
+    with transaction.atomic():
+        Project.objects.rebuild()
 
 
 @receiver(post_delete, sender=Project)
 def update_project_cache_after_delete(*args, **kwargs):
     """
-    Invalidates the project cache after a project is deleted.
+    mptt rebuild the tree
     """
-    invalidate_project_cache()
+    with transaction.atomic():
+        Project.objects.rebuild()
 
 
 @receiver(post_save, sender=Project)

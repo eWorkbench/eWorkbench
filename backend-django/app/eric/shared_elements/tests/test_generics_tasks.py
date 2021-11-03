@@ -94,6 +94,10 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, TaskMi
 
         # now override the view_privilege for user2
         decoded_privileges[1]['view_privilege'] = ModelPrivilege.DENY
+        decoded_privileges[1]['edit_privilege'] = ModelPrivilege.DENY
+        decoded_privileges[1]['trash_privilege'] = ModelPrivilege.DENY
+        decoded_privileges[1]['delete_privilege'] = ModelPrivilege.DENY
+        decoded_privileges[1]['restore_privilege'] = ModelPrivilege.DENY
         response = self.rest_update_privilege(self.token1, "tasks", task.pk,
                                               self.user2.pk, decoded_privileges[1], HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
@@ -113,12 +117,12 @@ class TestGenericsTasks(APITestCase, EntityChangeRelatedProjectTestMixin, TaskMi
         self.assertEquals(decoded_privileges[1]['user']['pk'], self.user2.pk)
         # verify that user1 is the owner
         self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.ALLOW)
-        # verify that user2 only has view and edit privilege
+        # verify that user2 only has no privileges
         self.assertEquals(decoded_privileges[1]['full_access_privilege'], ModelPrivilege.NEUTRAL)
         self.assertEquals(decoded_privileges[1]['view_privilege'], ModelPrivilege.DENY)
-        self.assertEquals(decoded_privileges[1]['edit_privilege'], ModelPrivilege.ALLOW)
-        self.assertEquals(decoded_privileges[1]['delete_privilege'], ModelPrivilege.NEUTRAL)
-        self.assertEquals(decoded_privileges[1]['restore_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEquals(decoded_privileges[1]['edit_privilege'], ModelPrivilege.DENY)
+        self.assertEquals(decoded_privileges[1]['delete_privilege'], ModelPrivilege.DENY)
+        self.assertEquals(decoded_privileges[1]['restore_privilege'], ModelPrivilege.DENY)
 
     def test_create_update_task_checklist(self):
         """

@@ -33,9 +33,9 @@
             <div *ngIf="!initialState?.pk">
               <div class="custom-file">
                 <input type="file" class="custom-file-input" (change)="onUpload($event)" id="file-modal" name="file-modal" />
-                <label for="file-modal" class="custom-file-label ewb-input-file" [class.custom-file-label-filled]="this.f.file.value">{{
-                  filePlaceholder
-                }}</label>
+                <label for="file-modal" class="custom-file-label ewb-input-file" [class.custom-file-label-filled]="f.file.value">
+                  {{ filePlaceholder }}
+                </label>
               </div>
             </div>
             <div *ngIf="initialState?.pk">
@@ -63,14 +63,14 @@
               slot="input"
             >
               <ng-template ng-label-tmp let-item="item">
-                <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
-                }}{{ item.display }}
+                <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>
+                {{ ' ' }}{{ item.display }}
               </ng-template>
 
               <ng-template ng-option-tmp let-item="item">
                 <div [style.padding-left.px]="item.is_virtual_root ? 0 : item.level * 10">
-                  <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
-                  }}{{ item.display }}
+                  <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>
+                  {{ ' ' }}{{ item.display }}
                 </div>
               </ng-template>
             </ng-select>

@@ -55,7 +55,7 @@ class ProjectFilter(BaseFilter):
         if recursive_parent_pk:
             recursive_parent = Project.objects.filter(pk=recursive_parent_pk).first()
             if recursive_parent:
-                sub_project_pks = [project.pk for project in recursive_parent.all_sub_projects]
+                sub_project_pks = recursive_parent.get_descendants(include_self=False).values_list('pk', flat=True)
                 qs = qs.filter(pk__in=sub_project_pks)
 
         # load parent projects of the given pk only

@@ -613,3 +613,77 @@ class ScheduledNotificationsTest(APITestCase, CommonTestMixin, AuthenticationMix
             # the scheduled_date_time should not have changed as the meeting.date_time_start is in the past, so
             # no new scheduled notification should be sent
             self.assertEquals(second_new_scheduled_notification_datetime, new_scheduled_notification_datetime)
+
+
+class TaskReminderNotificationsTest(APITestCase, CommonTestMixin, AuthenticationMixin, UserMixin, TaskMixin,
+                                    NotificationMixIn):
+    def setUp(self):
+        self.user_group = Group.objects.get(name='User')
+        self.user1, self.token1 = self.create_user_and_log_in(
+            username='user1', email='one@test.local', groups=['User']
+        )
+        self.user2, self.token2 = self.create_user_and_log_in(
+            username='user2', email='two@test.local', groups=['User']
+        )
+        self.user3, self.token3 = self.create_user_and_log_in(
+            username='user3', email='three@test.local', groups=['User']
+        )
+
+    def test_creating_reminder_notifications_for_tasks(self):
+        """ Tests creating a reminder notification for a new task """
+
+        # there should be zero notifications to begin with
+        self.assertEquals(Notification.objects.all().count(), 0)
+
+        now_plus_20 = timezone.now() + timezone.timedelta(minutes=20)
+        now_plus_30 = timezone.now() + timezone.timedelta(minutes=30)
+        now_plus_35 = timezone.now() + timezone.timedelta(minutes=35)
+        now_plus_60 = timezone.now() + timezone.timedelta(minutes=60)
+
+        # create a task with a reminder
+        response = self.rest_create_task(
+            auth_token=self.token1,
+            project_pks=[],
+            title='Task 101',
+            description='Test 😀',
+            state=Task.TASK_STATE_PROGRESS,
+            priority=Task.TASK_PRIORITY_NORMAL,
+            start_date=timezone.now(),
+            due_date=now_plus_60,
+            HTTP_USER_AGENT="APITestClient",
+            REMOTE_ADDR="127.0.0.1",
+            assigned_user=[self.user1.pk, self.user2.pk, self.user3.pk],
+            remind_assignees=True,
+            reminder_datetime=now_plus_30,
+        )
+        self.assert_response_status(response, expected_status_code=status.HTTP_201_CREATED)
+
+        # there should be 4 notifications now (2 Task changed, 2 you have been added)
+        self.assertEquals(Notification.objects.all().count(), 4)
+
+        # travel in time 20 minutes forward
+        with time_machine.travel(now_plus_20, tick=False):
+            from eric.notifications.management.commands.send_notifications import Command as send_notifications_command
+            send_notifications_command().handle()
+
+            reminder_notifications = Notification.objects.all().filter(title__startswith="Reminder: Task Task 101")
+            # there should be 0 reminder notifications now
+            self.assertEquals(reminder_notifications.count(), 0)
+
+        # travel in time 30 minutes forward
+        with time_machine.travel(now_plus_30, tick=False):
+            from eric.notifications.management.commands.send_notifications import Command as send_notifications_command
+            send_notifications_command().handle()
+
+            reminder_notifications = Notification.objects.all().filter(title__startswith="Reminder: Task Task 101")
+            # there should be 3 reminder notifications now
+            self.assertEquals(reminder_notifications.count(), 3)
+
+        # travel in time 35 minutes forward
+        with time_machine.travel(now_plus_35, tick=False):
+            from eric.notifications.management.commands.send_notifications import Command as send_notifications_command
+            send_notifications_command().handle()
+
+            reminder_notifications = Notification.objects.all().filter(title__startswith="Reminder: Task Task 101")
+            # there should still be 3 reminder notifications now
+            self.assertEquals(reminder_notifications.count(), 3)

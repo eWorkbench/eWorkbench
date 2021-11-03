@@ -34,9 +34,10 @@ export class MaintenanceComponent implements OnInit {
       .pipe(untilDestroyed(this), take(1))
       .subscribe(
         /* istanbul ignore next */ maintenance => {
-          const visible = !Boolean(localStorage.getItem('hideMaintenance'));
+          const visible = !Boolean(localStorage.getItem('hideMaintenance')) && maintenance.visible;
 
           this.maintenance = { ...maintenance, visible };
+          this.cmsService.set({ maintenance: this.maintenance });
           this.cdr.markForCheck();
         },
         /* istanbul ignore next */ () => {

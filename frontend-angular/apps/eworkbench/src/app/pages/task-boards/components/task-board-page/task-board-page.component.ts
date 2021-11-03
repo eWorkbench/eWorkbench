@@ -13,10 +13,10 @@ import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
-import { BackgroundModalComponent } from '@app/modules/task-board/components/modals/background/background.component';
 import { BacklogModalComponent } from '@app/modules/task-board/components/modals/backlog/backlog.component';
 import { NewTaskBoardColumnModalComponent } from '@app/modules/task-board/components/modals/new-column/new-column.component';
 import { NewTaskBoardModalComponent } from '@app/modules/task-board/components/modals/new/new.component';
+import { SettingsModalComponent } from '@app/modules/task-board/components/modals/settings/settings.component';
 import { TaskBoardComponent } from '@app/modules/task-board/components/task-board/task-board.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, PageTitleService, ProjectsService, TaskBoardsService, WebSocketService } from '@app/services';
@@ -138,6 +138,8 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   public showAssigneesFilter = false;
 
   public savedFilters = false;
+
+  public userSettings = {};
 
   private stateFilters: string[] = ['NEW', 'PROG', 'DONE'];
 
@@ -264,6 +266,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     this.initSidebar();
     this.initSearch();
     this.initSearchInput();
+    this.initUserSettings();
   }
 
   public ngOnDestroy(): void {
@@ -758,6 +761,17 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       );
   }
 
+  public initUserSettings(): void {
+    this.taskBoardsService
+      .getUserSettings(this.id)
+      .pipe(untilDestroyed(this), take(1))
+      .subscribe(([settings]) => {
+        if (settings) {
+          this.userSettings = { ...settings };
+        }
+      });
+  }
+
   public initPageTitle(): void {
     this.pageTitleService
       .get()
@@ -778,7 +792,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       backgroundPosition: 'center',
       backgroundAttachment: 'fixed',
       backgroundSize: 'cover',
-      minHeight: '100%',
+      minHeight: 'calc(100% - 95px)',
     };
 
     this.initialState = { ...board };
@@ -803,6 +817,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     this.pageTitleService.set(board.display);
 
     this.initDetails(privilegesData);
+    this.initUserSettings();
     this.initPageTitle();
   }
 
@@ -1008,11 +1023,13 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     this.favoritesControl.setValue(null);
   }
 
-  public openBackgroundModal(): void {
+  public openSettingsModal(): void {
     /* istanbul ignore next */
-    this.modalRef = this.modalService.open(BackgroundModalComponent, {
+    this.modalRef = this.modalService.open(SettingsModalComponent, {
       closeButton: false,
-      data: { taskBoard: this.initialState! },
+      enableClose: false,
+      width: '620px',
+      data: { taskBoard: this.initialState!, userSettings: this.userSettings },
     });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));

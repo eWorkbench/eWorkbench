@@ -3,24 +3,29 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<ng-container *ngFor="let label of labels">
-  <div class="inline-block label mr-2 mt-2" [style]="'background: ' + label.color">
-    <button
-      type="button"
-      class="btn ewb-button ewb-button-regular label-button py-0 px-2"
-      [style]="'color: ' + label.font_color"
-      (click)="openEditLabelModal(label)"
-    >
-      {{ label.name }}
-    </button>
-    <button
-      type="button"
-      class="btn ewb-button ewb-button-regular label-close py-0 px-1"
-      [style]="'color: ' + label.font_color"
-      (click)="removeLabel(label)"
-      *ngIf="!readonly"
-    >
-      ×
-    </button>
-  </div>
+<ng-container *transloco="let t">
+  <ng-container *ngFor="let label of labels">
+    <div class="inline-block rounded-full mr-2 mt-2" [style]="'background: ' + label.color">
+      <button
+        type="button"
+        class="btn ewb-button ewb-button-regular label-button py-0 px-2"
+        [style]="'color: ' + label.font_color"
+        (click)="openEditLabelModal(label)"
+      >
+        {{ label.name }}
+      </button>
+      <button
+        type="button"
+        class="btn ewb-button ewb-button-regular label-close py-0 pl-1 pr-2"
+        [style]="'color: ' + label.font_color"
+        (click)="removeLabel(label)"
+        *ngIf="!readonly"
+        [tooltip]="t('label.remove.tooltip')"
+        container="body"
+        containerClass="tooltip-sm"
+      >
+        ×
+      </button>
+    </div>
+  </ng-container>
 </ng-container>

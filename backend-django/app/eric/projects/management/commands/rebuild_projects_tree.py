@@ -3,12 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.core.management import BaseCommand
-
-from eric.projects.models.cache import invalidate_project_cache
+from django.db import transaction
 
 
 class Command(BaseCommand):
     help = 'Invalidates the project cache'
 
     def handle(self, *args, **options):
-        invalidate_project_cache()
+        from eric.projects.models.models import Project
+        with transaction.atomic():
+            Project.objects.rebuild()

@@ -6,12 +6,6 @@
 :host {
   display: block;
 
-  .grid-container-2-to-1 {
-    display: grid;
-    grid-template-columns: 2fr minmax(300px, 1fr);
-    gap: 35px;
-  }
-
   .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));

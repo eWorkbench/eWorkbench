@@ -6,8 +6,8 @@
 <ng-container *transloco="let t">
   <div class="flex justify-between">
     <div class="inline-block w-full pr-3">
-      <label [for]="'startDate' + uniqueHash">
-        {{ t('formDateGroup.startDate.label') }}
+      <label [for]="'startDate' + uniqueHash" *ngIf="labels">
+        {{ t(customLabel.start ?? 'formDateGroup.startDate.label') }}
         <eworkbench-form-asterisk class="inline-block" *ngIf="required"></eworkbench-form-asterisk>
       </label>
       <div class="input-group">
@@ -18,7 +18,7 @@
           [formControl]="f.start"
           [id]="'startDate' + uniqueHash"
           [name]="'startDate' + uniqueHash"
-          [placeholder]="t('formDateGroup.startDate.placeholder')"
+          [placeholder]="placeholders ? customPlaceholder.start ?? t('formDateGroup.startDate.placeholder') : ''"
           autocomplete="off"
         />
         <div class="input-group-append cursor-pointer" (click)="startDate.click()" *ngIf="!f.start.disabled">
@@ -28,9 +28,9 @@
         </div>
       </div>
     </div>
-    <div class="inline-block w-full">
-      <label [for]="'endDate' + uniqueHash">
-        {{ t('formDateGroup.endDate.label') }}
+    <div class="inline-block w-full" *ngIf="endDate">
+      <label [for]="'endDate' + uniqueHash" *ngIf="labels">
+        {{ t(customLabel.end ?? 'formDateGroup.endDate.label') }}
         <eworkbench-form-asterisk class="inline-block" *ngIf="required"></eworkbench-form-asterisk>
       </label>
       <div class="input-group">
@@ -41,7 +41,7 @@
           [formControl]="f.end"
           [id]="'endDate' + uniqueHash"
           [name]="'endDate' + uniqueHash"
-          [placeholder]="t('formDateGroup.endDate.placeholder')"
+          [placeholder]="placeholders ? customPlaceholder.end ?? t('formDateGroup.endDate.placeholder') : ''"
           autocomplete="off"
         />
         <div class="input-group-append cursor-pointer" (click)="endDate.click()" *ngIf="!f.end.disabled">

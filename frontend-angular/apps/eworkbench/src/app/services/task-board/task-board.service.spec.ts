@@ -36,7 +36,7 @@ describe('TaskBoardService', () => {
         moveCard: () => of(mockTaskBoardColumn),
         deleteCard: () => of([]),
         changeBackgroundImage: () => of(mockTaskBoard),
-        changeBackgroundColor: () => of(mockTaskBoard),
+        changeBoardSettings: () => of(mockTaskBoard),
         clearBackgroundImage: () => of([]),
         export: () => of(mockExportLink),
         getPrivilegesList: () => of([mockPrivilegesApi]),
@@ -150,7 +150,9 @@ describe('TaskBoardService', () => {
   });
 
   it('should change the background color', () => {
-    spectator.service.changeBackgroundColor(taskBoardId, 'rgba(224,177,177,1)').subscribe(data => expect(data).toEqual(mockTaskBoard));
+    spectator.service
+      .changeBoardSettings(taskBoardId, { background_color: 'rgba(224,177,177,1)' })
+      .subscribe(data => expect(data).toEqual(mockTaskBoard));
     spectator.expectOne(`${spectator.service.apiUrl}${taskBoardId}/`, HttpMethod.PATCH);
   });
 

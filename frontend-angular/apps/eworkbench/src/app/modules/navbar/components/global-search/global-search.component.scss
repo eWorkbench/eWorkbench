@@ -19,11 +19,11 @@
   font-size: 13px;
 
   > div {
-    height: 420px;
+    height: 390px;
   }
 
   .results-container {
-    height: 420px;
+    height: 390px;
     overflow-y: auto;
     border-left: 1px solid $border-color;
 
@@ -44,15 +44,6 @@
 
   .restrict-search-container {
     min-width: 250px;
-  }
-
-  .metadata-search {
-    display: flex;
-    align-items: center;
-    font-size: 13px;
-    color: #4d4d4d;
-    background-color: #f4f4f4;
-    height: 30px;
   }
 
   .loading {

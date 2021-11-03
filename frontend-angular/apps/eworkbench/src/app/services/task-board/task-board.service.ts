@@ -186,8 +186,8 @@ export class TaskBoardsService implements TableViewService, ExportService, Permi
     return this.httpClient.patch<TaskBoard>(`${this.apiUrl}${id}/`, formData, { params });
   }
 
-  public changeBackgroundColor(id: string, color: string, params = new HttpParams()): Observable<TaskBoard> {
-    return this.httpClient.patch<TaskBoard>(`${this.apiUrl}${id}/`, { pk: id, background_color: color }, { params });
+  public changeBoardSettings(id: string, payload: TaskBoardPayload, params = new HttpParams()): Observable<TaskBoard> {
+    return this.httpClient.patch<TaskBoard>(`${this.apiUrl}${id}/`, { ...payload, pk: id }, { params });
   }
 
   public clearBackgroundImage(id: string, params = new HttpParams()): Observable<void> {
@@ -208,5 +208,21 @@ export class TaskBoardsService implements TableViewService, ExportService, Permi
     }
 
     return this.httpClient.post<any>(`${this.apiUrl}${id}/filtersettings/`, payload);
+  }
+
+  public changeColumnTransparency(id: string, opacity: number): Observable<void> {
+    return this.httpClient.patch<void>(`${this.apiUrl}${id}/set_columns_transparency/`, { alpha: opacity });
+  }
+
+  public getUserSettings(id: string): Observable<any> {
+    return this.httpClient.get<any>(`${this.apiUrl}${id}/usersettings/`);
+  }
+
+  public upsertUserSettings(id: string, payload: any, settingId?: string): Observable<any> {
+    if (settingId) {
+      return this.httpClient.put<any>(`${this.apiUrl}${id}/usersettings/${settingId}/`, payload);
+    }
+
+    return this.httpClient.post<any>(`${this.apiUrl}${id}/usersettings/`, payload);
   }
 }

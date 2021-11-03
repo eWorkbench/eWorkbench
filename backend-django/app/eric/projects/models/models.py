@@ -12,12 +12,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadhandler import MemoryFileUploadHandler
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Case, Value, When
 from django.db.models.functions import Concat
 from django.utils import timezone
@@ -27,13 +26,13 @@ from django_changeset.models import RevisionModelMixin
 from django_cleanhtmlfield.fields import HTMLField
 from django_request_cache import cache_for_request
 from django_userforeignkey.request import get_current_user
+from mptt.models import MPTTModel, TreeForeignKey
 
 from eric.core.admin.is_deleteable import IsDeleteableMixin
 from eric.core.models import BaseModel, LockMixin
 from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, IsFavouriteMixin
 from eric.metadata.models.fields import MetadataRelation
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
-from eric.projects.models.cache import ALL_PROJECTS_CACHE_KEY, get_cache_key_for_sub_projects
 from eric.projects.models.exceptions import UserStorageLimitReachedException, MaxFileSizeReachedException
 from eric.projects.models.managers import ProjectManager, ResourceManager, ProjectRoleUserAssignmentManager, \
     UserStorageLimitManager, RoleManager, ElementLockManager
@@ -221,7 +220,7 @@ class ElementLock(BaseModel):
         }
 
 
-class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn,
+class Project(MPTTModel, BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn,
               WorkbenchEntityMixin, IsFavouriteMixin):
     """ Defines a project with a name, description, state, several dates, etc... """
     objects = ProjectManager()
@@ -246,6 +245,9 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         def get_default_serializer(*args, **kwargs):
             from eric.projects.rest.serializers import ProjectSerializerExtended
             return ProjectSerializerExtended
+
+    class MPTTMeta:
+        parent_attr = 'parent_project'
 
     # Project State Choices
     INITIALIZED = 'INIT'
@@ -299,7 +301,8 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         null=True,
         db_index=True
     )
-    parent_project = models.ForeignKey(
+
+    parent_project = TreeForeignKey(
         'self',
         on_delete=models.SET_NULL,
         null=True,
@@ -307,6 +310,11 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         verbose_name=_("Parent Project"),
         related_name='sub_projects'
     )
+
+    def delete(self, *args, **kwargs):
+        BaseModel.delete(self, *args, **kwargs)
+        with transaction.atomic():
+            Project.objects.rebuild()
 
     def get_project_where_user_has_role(self, user):
         """
@@ -405,6 +413,11 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         del project_dict['fts_language']
         del project_dict['_state']
         del project_dict['__original_data__']
+        del project_dict['_mptt_cached_fields']
+        del project_dict['lft']
+        del project_dict['rght']
+        del project_dict['tree_id']
+        del project_dict['level']
 
         # updates the project dict (e.g. name or parent pk should be changed in the duplicated object)
         project_dict.update(kwargs)
@@ -431,18 +444,11 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         """
 
         # Hint: A user with access to a project always also has access to all sub-projects
-
-        # add current project to list of sub-projects
-        projects = [self] + self.all_sub_projects
-
-        # sometimes a weird behaviour occurs, where a project is contained two times (probably some caching issue)
-        # => make sure all projects are distinct
-        return list(set(projects))
+        return self.get_descendants(include_self=True)
 
     @property
     def all_sub_projects(self):
         """ Gets all sub projects (recursively) of the project """
-
         return self.get_all_sub_projects_for(self.pk)
 
     def __str__(self):
@@ -461,7 +467,6 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         viewable_project_pks = {}
 
         # build an index with viewable projects
-        # viewable_project_pks = dict(Project.objects.viewable().values_list('pk', 'parent_project_id'))
         for project in viewable_projects:
             viewable_project_pks[project.pk] = project.parent_project_id
 
@@ -556,93 +561,39 @@ class Project(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         Static cached method that retrieves a list of all viewable projects
         :return:
         """
-        return list(Project.objects.viewable())
-
-    @staticmethod
-    def get_all_projects():
-        """
-        Returns a cached list of all_projects.
-        If the cache is empty, the list is filled from database.
-        :return:
-        """
-        all_projects = cache.get(ALL_PROJECTS_CACHE_KEY, None)
-
-        if all_projects is None:
-            all_projects = list(Project.objects.all())
-            cache.set(ALL_PROJECTS_CACHE_KEY, all_projects, timeout=None)
-
-        return all_projects
+        return Project.objects.viewable()
 
     @classmethod
     def get_all_sub_projects_for_list(cls, pk_list):
         """ Gets all the sub projects (recursively) for all the given project PKs """
-
         all_sub_projects = []
 
         for pk in pk_list:
             all_sub_projects.extend(cls.get_all_sub_projects_for(pk))
-
         return all_sub_projects
 
     @classmethod
     def get_all_sub_project_pks_for_list(cls, pk_list):
-        """ Gets all the sub project PKs (recursively) for all the given project PKs """
+        all_subs = Project.objects.filter(pk__in=pk_list).distinct()
+        for project in all_subs:
+            all_subs = all_subs | project.get_descendants(include_self=False).distinct()
+        return all_subs.distinct()
 
-        return [project.pk for project in cls.get_all_sub_projects_for_list(pk_list)]
+    @classmethod
+    def get_all_projects_with_descendants(cls, pk_list):
+        all_subs = Project.objects.filter(pk__in=pk_list).distinct()
+        for project in all_subs:
+            all_subs = all_subs | project.get_descendants(include_self=False).distinct()
+        return all_subs.distinct()
 
     @staticmethod
     def get_all_sub_projects_for(pk):
-        """ Gets all sub projects (recursively) for the given project PK """
-
-        # load sub projects from cache
-        cache_key = get_cache_key_for_sub_projects(pk)
-        sub_projects = cache.get(cache_key, None)
-
-        # update cache if it is empty
-        if sub_projects is None:
-            # find the PKs of all sub projects
-            sub_pk_list = Project.load_all_sub_projects_of([pk])
-
-            # load project data and cache it
-            sub_projects = list(Project.objects.filter(pk__in=sub_pk_list))
-            cache_key = get_cache_key_for_sub_projects(pk)
-            cache.set(cache_key, sub_projects, timeout=None)
-
+        sub_projects = Project.objects.filter(pk=pk).first().get_descendants(include_self=False)
         return sub_projects
 
     @classmethod
     def get_all_sub_project_pks_for(cls, pk):
-        """ Gets all sub project PKs (recursively) for the given project PK """
-
-        return [project.pk for project in cls.get_all_sub_projects_for(pk)]
-
-    @staticmethod
-    def load_all_sub_projects_of(pk_list):
-        """
-        Builds a list of all sub projects (recursively) for the given project PKs.
-        :param pk_list: list of project PKs
-        :return: list of sub project PKs
-        """
-        all_projects = Project.get_all_projects()
-        sub_project_pks = []
-
-        # get all projects where the parent project id can be found in pk_list
-        for project in all_projects:
-            if project.parent_project_id in pk_list:
-                sub_project_pks.append(project.pk)
-
-        # if there are any projects, get their sub projects
-        if len(sub_project_pks) > 0:
-            try:
-                r = Project.load_all_sub_projects_of(sub_project_pks)
-                sub_project_pks.extend(r)
-            except RuntimeError as re:
-                # catch runtime errors (maximum recursion depth exceeded)
-                logger.error(
-                    _('Runtime error in get_all_sub_projects() - possible circular reference: {}').format(re.args[0])
-                )
-
-        return sub_project_pks
+        return Project.objects.filter(pk=pk).first().get_descendants(include_self=False).values_list('pk', flat=True)
 
     @staticmethod
     def duplicate_sub_projects(parent_pk_dict):

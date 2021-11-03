@@ -69,7 +69,8 @@ a {
   color: $primary-color;
 }
 
-main {
+main,
+.main {
   padding: $main-padding-y-narrow $main-padding-x-narrow;
 
   @media (min-width: $breakpoint-lg) {

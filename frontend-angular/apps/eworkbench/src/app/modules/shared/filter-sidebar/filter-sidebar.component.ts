@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { UntilDestroy } from '@ngneat/until-destroy';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CMSService } from '@app/stores/cms/services/cms.service';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
 @Component({
@@ -13,7 +14,7 @@ import { UntilDestroy } from '@ngneat/until-destroy';
   styleUrls: ['./filter-sidebar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FilterSidebarComponent {
+export class FilterSidebarComponent implements OnInit {
   @Input()
   public open = false;
 
@@ -34,4 +35,16 @@ export class FilterSidebarComponent {
 
   @Output()
   public saveFilters = new EventEmitter<boolean>();
+
+  public cmsMessageShown = false;
+
+  public constructor(private readonly cmsService: CMSService, private readonly cdr: ChangeDetectorRef) {}
+
+  public ngOnInit(): void {
+    this.cmsService.get$.pipe(untilDestroyed(this)).subscribe(({ maintenance }) => {
+      console.log(maintenance);
+      this.cmsMessageShown = maintenance.visible;
+      this.cdr.markForCheck();
+    });
+  }
 }

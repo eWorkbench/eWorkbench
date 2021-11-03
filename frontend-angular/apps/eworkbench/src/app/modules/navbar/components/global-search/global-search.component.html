@@ -261,11 +261,6 @@
                 </div>
               </div>
             </div>
-            <div class="metadata-search cursor-pointer">
-              <a class="ml-2" [routerLink]="['/metadata-search']" routerLinkActive="active" (click)="hideDropdown()">
-                {{ t('navbar.globalSearch.metadataSearch') }}
-              </a>
-            </div>
           </div>
           <ng-container *ngIf="searchText">
             <eworkbench-loading class="loading" [loading]="loading">

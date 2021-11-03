@@ -983,7 +983,8 @@ class TaskMixin(TestLockMixin):
 
     def rest_create_task(self, auth_token, project_pks,
                          title, description, state, priority, start_date, due_date, assigned_user,
-                         HTTP_USER_AGENT, REMOTE_ADDR, checklist_items=None):
+                         HTTP_USER_AGENT, REMOTE_ADDR, checklist_items=None,
+                         remind_assignees=False, reminder_datetime=None):
         """ Wrapper for creating a file via REST API """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
 
@@ -1002,6 +1003,12 @@ class TaskMixin(TestLockMixin):
 
         if checklist_items:
             data['checklist_items'] = checklist_items
+
+        if remind_assignees:
+            data['remind_assignees'] = remind_assignees
+
+        if reminder_datetime:
+            data['reminder_datetime'] = reminder_datetime
 
         set_projects(data, project_pks)
 

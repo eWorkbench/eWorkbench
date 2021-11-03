@@ -4,7 +4,7 @@
  */
 
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, Self } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, Self, ViewChild } from '@angular/core';
 import { NgControl, Validators } from '@angular/forms';
 import { TaskChecklist } from '@eworkbench/types';
 import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
@@ -30,6 +30,9 @@ export class TaskChecklistComponent implements AfterViewInit {
 
   @Input()
   public editable = false;
+
+  @ViewChild('checkboxElements')
+  public checkboxElements!: ElementRef<HTMLDivElement>;
 
   public checklistObjects: TaskChecklist[] = [];
 
@@ -146,13 +149,18 @@ export class TaskChecklistComponent implements AfterViewInit {
     this.checkboxes.push(this.fb.control(false));
     this.titles.push(this.fb.control(''));
     this.checklistObjects.push({ checked: false, title: '', ordering: this.checklistObjects.length });
-    this.onTriggerChange();
+    this.onTriggerChange(true);
   }
 
-  public onTriggerChange(): void {
+  public onTriggerChange(focus = false): void {
     setTimeout(() => {
       this.onChange(this.value);
       this.onTouch(this.value);
+
+      if (focus) {
+        const el = this.checkboxElements.nativeElement.lastElementChild as HTMLDivElement;
+        el.querySelector('textarea')?.focus();
+      }
     }, 1);
   }
 

@@ -35,6 +35,8 @@ import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/o
 interface FormTask {
   title: string | null;
   assignees: number[];
+  scheduledNotificationActive: boolean;
+  scheduledNotificationTime: DateGroup;
   dateGroup: DateGroup;
   priority: TaskPayload['priority'] | null;
   state: TaskPayload['state'] | null;
@@ -92,9 +94,21 @@ export class NewTaskModalComponent implements OnInit {
 
   public stateItems: DropdownElement[] = [];
 
+  public customLabel = {
+    start: null,
+    end: null,
+  };
+
+  public customPlaceholder = {
+    start: null,
+    end: null,
+  };
+
   public form = this.fb.group<FormTask>({
     title: [null, [Validators.required]],
     assignees: [[]],
+    scheduledNotificationActive: [{ value: false, disabled: true }],
+    scheduledNotificationTime: [{ start: null, end: null, fullDay: false }],
     dateGroup: [{ start: null, end: null, fullDay: false }],
     priority: ['NORM', [Validators.required]],
     state: ['NEW', [Validators.required]],
@@ -142,8 +156,10 @@ export class NewTaskModalComponent implements OnInit {
       dateTimeEnd = dateTimeEnd.toISOString();
     }
 
-    return {
+    const task = {
       assigned_users_pk: this.f.assignees.value,
+      remind_assignees: this.f.scheduledNotificationActive.value,
+      reminder_datetime: this.f.scheduledNotificationTime.value.start,
       checklist_items: this.f.checklist.value,
       labels: this.f.labels.value,
       projects: this.f.projects.value,
@@ -155,9 +171,25 @@ export class NewTaskModalComponent implements OnInit {
       state: this.f.state.value ?? 'NEW',
       description: this.f.description.value ?? '',
     };
+
+    // The property 'reminder_datetime' must not exist if remind_assignees field contains null values
+    if (!this.f.scheduledNotificationActive.value) {
+      // @ts-ignore
+      delete task.reminder_datetime;
+    }
+
+    return task;
   }
 
   public ngOnInit(): void {
+    this.f.assignees.valueChanges.pipe(untilDestroyed(this)).subscribe(value => {
+      if (value.length) {
+        this.f.scheduledNotificationActive.enable();
+      } else {
+        this.f.scheduledNotificationActive.disable();
+      }
+    });
+
     this.initTranslations();
     this.initSearchInput();
     this.patchFormValues();
@@ -181,6 +213,21 @@ export class NewTaskModalComponent implements OnInit {
           { label: tasks.state.inProgress, value: 'PROG' },
           { label: tasks.state.done, value: 'DONE' },
         ];
+      });
+
+    this.translocoService
+      .selectTranslateObject('task.formDateGroup')
+      .pipe(untilDestroyed(this))
+      .subscribe(formGroup => {
+        this.customLabel = {
+          start: formGroup.label.start,
+          end: formGroup.label.end,
+        };
+
+        this.customPlaceholder = {
+          start: formGroup.placeholder.start,
+          end: formGroup.placeholder.end,
+        };
       });
   }
 
@@ -235,6 +282,8 @@ export class NewTaskModalComponent implements OnInit {
         {
           title: this.initialState.title,
           assignees: this.initialState.assigned_users_pk,
+          scheduledNotificationActive: this.initialState.remind_assignees,
+          scheduledNotificationTime: { start: this.initialState.reminder_datetime },
           dateGroup: {
             start: this.initialState.start_date,
             end: this.initialState.due_date,
@@ -256,6 +305,22 @@ export class NewTaskModalComponent implements OnInit {
 
       if (!this.f.priority.value) {
         this.form.patchValue({ priority: 'NORM' }, { emitEvent: false });
+      }
+
+      if (this.f.scheduledNotificationActive.value) {
+        this.f.scheduledNotificationActive.enable({ emitEvent: false });
+      }
+
+      if (!this.f.scheduledNotificationActive.value) {
+        const date = new Date();
+        this.form.patchValue(
+          {
+            scheduledNotificationTime: {
+              start: set(date, { hours: date.getHours() + 1, minutes: 0, seconds: 0 }).toISOString(),
+            },
+          },
+          { emitEvent: false }
+        );
       }
 
       this.assignees = [...(this.initialState.assigned_users ??= [])];

@@ -7,9 +7,9 @@ import { TaskBoardColumn } from './task-board-column.interface';
 import { TaskUser } from './task-user.interface';
 
 export interface TaskBoardPayload {
-  title: string;
+  title?: string;
   description?: string;
-  projects: string[];
+  projects?: string[];
   background_color?: string;
   kanban_board_columns?: TaskBoardColumn[];
 }

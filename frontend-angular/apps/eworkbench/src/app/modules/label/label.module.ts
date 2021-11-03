@@ -16,10 +16,22 @@ import { LabelsComponent } from './component/label/label.component';
 import { NewLabelModalComponent } from './component/modals/new/new.component';
 import { EditLabelModalComponent } from './component/modals/edit/edit.component';
 import { FormHelperModule } from '../form-helper/form-helper.module';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [LabelsComponent, NewLabelModalComponent, EditLabelModalComponent],
-  imports: [CommonModule, RouterModule, TranslocoRootModule, ModalsModule, FormsModule, FormHelperModule, LoadingModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TranslocoRootModule,
+    ModalsModule,
+    FormsModule,
+    FormHelperModule,
+    LoadingModule,
+    TooltipModule.forRoot(),
+    SharedModule,
+  ],
   exports: [LabelsComponent, NewLabelModalComponent, EditLabelModalComponent],
 })
 export class LabelModule {}

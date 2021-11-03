@@ -139,6 +139,6 @@ export class GlobalSearchComponent implements OnInit {
 
   public hideDropdown(): void {
     this.dropdown.hide();
-    this.f.search.setValue(null);
+    this.resetSearch();
   }
 }

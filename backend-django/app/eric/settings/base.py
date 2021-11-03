@@ -146,6 +146,9 @@ INSTALLED_APPS = [
     # CKEditor needs to be at the bottom, so eric.core can overwrite the ckeditor-init.js file
     'ckeditor',
     'ckeditor_uploader',
+
+    # django-mptt: Modified Preorder Tree Traversal
+    'mptt',
 ]
 # Application definition
 ASGI_APPLICATION = "eric.routing.application"

@@ -5,7 +5,12 @@
 
 <ng-container *transloco="let t">
   <div class="sidebar-filter" [class.active]="open">
-    <div class="pt-3 sticky" [class.top-56]="!miniTop" [class.top-12]="miniTop">
+    <div
+      class="pt-3 sticky"
+      [class.top-36]="!miniTop && !cmsMessageShown"
+      [class.top-56]="!miniTop && cmsMessageShown"
+      [class.top-12]="miniTop"
+    >
       <button *ngIf="!open" type="button" class="btn menu-button square" (click)="open = true">
         <eworkbench-icon [className]="'wb-filter'"></eworkbench-icon>
       </button>

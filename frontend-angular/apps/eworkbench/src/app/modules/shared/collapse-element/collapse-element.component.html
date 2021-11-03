@@ -3,7 +3,11 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<div class="collapse-element" [class.bg-white]="background" [class.no-border]="!border">
+<div
+  class="collapse-element bg-tum-secondary hover:bg-tum-secondary-hover"
+  [class.no-border]="!border"
+  [ngClass]="{ 'bg-[#F4F4F4]': background }"
+>
   <div class="collapse-element-header px-2 pt-2" [class.align-items-center]="center">
     <button
       *ngIf="collapsible"
@@ -21,7 +25,7 @@
     <ng-template *ngIf="labelTemplate" [ngTemplateOutlet]="labelTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-template>
   </div>
   <hr class="mt-2 mb-0" />
-  <div class="collapse-element-body p-6" [collapse]="collapsed">
+  <div class="collapse-element-body p-6 bg-white" [collapse]="collapsed">
     <ng-content></ng-content>
   </div>
 </div>

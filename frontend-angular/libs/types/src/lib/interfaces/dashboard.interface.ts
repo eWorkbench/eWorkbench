@@ -10,20 +10,6 @@ import { Project } from './project.interface';
 import { Resource } from './resource.interface';
 import { KanbanTask } from './task.interface';
 
-export interface DashboardSummary {
-  contacts: number;
-  dmps: number;
-  drives: number;
-  files: number;
-  kanbanboards: number;
-  labbooks: number;
-  appointments: number;
-  notes: number;
-  projects: number;
-  resources: number;
-  tasks: number;
-}
-
 export interface Dashboard {
   contacts: Contact[];
   dmps: DMP[];
@@ -31,5 +17,4 @@ export interface Dashboard {
   projects: Project[];
   resources: Resource[];
   tasks: KanbanTask[];
-  summary: DashboardSummary;
 }

@@ -10,7 +10,7 @@
     [cdkDropListOrientation]="dropListOrientation"
     (cdkDropListDropped)="onElementDrop($event)"
   >
-    <div cdkDropListGroup>
+    <div #checkboxElements cdkDropListGroup>
       <div
         cdkDrag
         class="flex justify-between"
@@ -40,10 +40,11 @@
             [id]="'item.' + uniqueHash + '.' + i"
             [name]="'item.' + uniqueHash + '.' + i"
             (change)="onTriggerChange()"
+            [placeholder]="t('task.checklist.placeholder')"
           ></textarea>
         </div>
 
-        <div class="align-self-center ml-2" *ngIf="editable">
+        <div class="align-self-center ml-2 cursor-pointer" *ngIf="editable">
           <eworkbench-icon
             cdkDragHandle
             className="wb-arrow-cross"

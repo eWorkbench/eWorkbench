@@ -167,6 +167,35 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
 
         return Response(serializer.data)
 
+    def partial_update(self, request, *args, **kwargs):
+        # Check if the privileges are correct and fix them if they are not. We start checking them from the
+        # right side and fix privilege based on the "highest" allowed privilege in the following order:
+        # restore > trash > edit > view
+        if request.data.get("restore_privilege") == ModelPrivilege.ALLOW:
+            request.data["view_privilege"] = ModelPrivilege.ALLOW
+            request.data["edit_privilege"] = ModelPrivilege.ALLOW
+            request.data["trash_privilege"] = ModelPrivilege.ALLOW
+        elif request.data.get("trash_privilege") == ModelPrivilege.ALLOW:
+            request.data["view_privilege"] = ModelPrivilege.ALLOW
+            request.data["edit_privilege"] = ModelPrivilege.ALLOW
+        elif request.data.get("edit_privilege") == ModelPrivilege.ALLOW:
+            request.data["view_privilege"] = ModelPrivilege.ALLOW
+
+        # Now, we must also check the denied privileges. We start checking them from the left side and fix
+        # privilege based on the "lowest" denied privilege in the following order:
+        # view > edit > trash > restore
+        if request.data.get("view_privilege") == ModelPrivilege.DENY:
+            request.data["edit_privilege"] = ModelPrivilege.DENY
+            request.data["trash_privilege"] = ModelPrivilege.DENY
+            request.data["restore_privilege"] = ModelPrivilege.DENY
+        elif request.data.get("edit_privilege") == ModelPrivilege.DENY:
+            request.data["trash_privilege"] = ModelPrivilege.DENY
+            request.data["restore_privilege"] = ModelPrivilege.DENY
+        elif request.data.get("trash_privilege") == ModelPrivilege.DENY:
+            request.data["restore_privilege"] = ModelPrivilege.DENY
+
+        return super(ModelPrivilegeViewSet, self).partial_update(request, *args, **kwargs)
+
     def get_object(self):
         """
         Returns a single privilege based on the kwargs user_id

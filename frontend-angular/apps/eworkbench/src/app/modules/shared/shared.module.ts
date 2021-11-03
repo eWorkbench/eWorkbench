@@ -7,10 +7,12 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { TranslocoRootModule } from '@app/transloco-root.module';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { LoadingModule } from '../loading/loading.module';
 import { CollapseElementComponent } from './collapse-element/collapse-element.component';
 import { CustomControlErrorComponent } from './control-error/control-error.component';
 import { DetailsCollapseElementComponent } from './details-collapse-element/details-collapse-element.component';
@@ -19,6 +21,7 @@ import { AutoFocusDirective } from './directives/auto-focus/auto-focus.directive
 import { EllipsisElementComponent } from './ellipsis/ellipsis-element.component';
 import { FilterSidebarComponent } from './filter-sidebar/filter-sidebar.component';
 import { PendingChangesModalComponent } from './modals/pending-changes/pending-changes.component';
+import { OverviewCollapseElementComponent } from './overview-collapse-element/overview-collapse-element.component';
 import { FormatContentTypeModelPipe } from './pipes/content-type-model/content-type-model.pipe';
 import { FormatDatePipe } from './pipes/format-date/format-date.pipe';
 import { FormatFileSizePipe } from './pipes/format-file-size/format-file-size.pipe';
@@ -48,8 +51,9 @@ import { TrashedItemsFilterComponent } from './trashed-items-filter/trashed-item
     TrashedItemsFilterComponent,
     FilterSidebarComponent,
     AutoFocusDirective,
+    OverviewCollapseElementComponent,
   ],
-  imports: [CommonModule, getTranslocoModule(), IconsModule, CollapseModule.forRoot(), ModalsModule],
+  imports: [CommonModule, getTranslocoModule(), IconsModule, CollapseModule.forRoot(), ModalsModule, TranslocoRootModule, LoadingModule],
   exports: [
     FormatDatePipe,
     FormatSpeakingDatePipe,
@@ -68,6 +72,7 @@ import { TrashedItemsFilterComponent } from './trashed-items-filter/trashed-item
     TrashedItemsFilterComponent,
     FilterSidebarComponent,
     AutoFocusDirective,
+    OverviewCollapseElementComponent,
   ],
 })
 export class SharedModule {}

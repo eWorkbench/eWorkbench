@@ -34,7 +34,6 @@ import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { hierarchy, pack, scaleOrdinal, schemeCategory10, select } from 'd3';
 import { format, set } from 'date-fns';
 import { CalendarComponent } from 'libs/calendar/src/lib/components/calendar/calendar.component';
 import { CalendarPopoverWrapperComponent } from 'libs/calendar/src/lib/components/popover/popover.component';
@@ -132,7 +131,6 @@ export class DashboardPageComponent implements OnInit {
     projects: [],
     resources: [],
     tasks: [],
-    summary: {},
   };
 
   public modalRef?: DialogRef;
@@ -317,7 +315,6 @@ export class DashboardPageComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ dashboard => {
           this.dashboard = { ...dashboard };
-          this.renderBubbleChart();
           this.loading = false;
           this.cdr.markForCheck();
         },
@@ -363,64 +360,6 @@ export class DashboardPageComponent implements OnInit {
       .subscribe(title => {
         this.titleService.setTitle(title);
       });
-  }
-
-  public renameBubbleKeys(key: string): string {
-    if (key === 'notes') {
-      return 'comments';
-    } else if (key === 'drives') {
-      return 'storages';
-    } else if (key === 'kanbanboards') {
-      return 'taskboards';
-    } else if (key === 'meetings') {
-      return 'appointments';
-    }
-
-    return key;
-  }
-
-  public renderBubbleChart(): void {
-    const width = 500;
-    const height = 300;
-    const color = scaleOrdinal(schemeCategory10);
-    const bubble = pack().size([width, height]).padding(5);
-    const svg = select('#chart').append('svg').attr('width', width).attr('height', height);
-
-    const nodes = hierarchy({
-      children: Object.entries(this.dashboard.summary!).map(([key, value]) => ({
-        name: this.renameBubbleKeys(key),
-        count: value,
-      })),
-    }).sum((d: any) => d.count);
-
-    const node = svg
-      .selectAll('.node')
-      .data(bubble(nodes).leaves())
-      .enter()
-      .append('g')
-      .attr('transform', d => `translate(${d.x * 1.5 - width / 4},${d.y})`)
-      .append('a')
-      .attr('role', 'button')
-      .attr('xlink:href', (d: any) => `${window.location.origin}/${d.data.name as string}`);
-
-    node
-      .append('circle')
-      .attr('x', d => d.x)
-      .attr('y', d => d.y)
-      .attr('r', d => d.r)
-      .style('fill', (d: any) => color(d.data.name));
-
-    node
-      .append('text')
-      .attr('dy', '1.3em')
-      .style('text-anchor', 'middle')
-      .text((d: any) => d.data.count);
-
-    node
-      .append('text')
-      .attr('dy', '.2em')
-      .style('text-anchor', 'middle')
-      .text((d: any) => (d.data.name as string).charAt(0).toUpperCase() + (d.data.name as string).slice(1));
   }
 
   public onDatesSet(event: DatesSetArg): void {

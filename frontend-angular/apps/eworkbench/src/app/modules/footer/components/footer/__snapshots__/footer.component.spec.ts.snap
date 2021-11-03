@@ -24,6 +24,7 @@ exports[`FooterComponent should match snapshot 1`] = `
       >
         <a
           class="h-full w-full"
+          href="/"
         >
           <button
             class="btn ewb-button-regular font-normal h-full w-full text-left"
@@ -37,6 +38,7 @@ exports[`FooterComponent should match snapshot 1`] = `
       >
         <a
           class="h-full w-full"
+          href="/"
         >
           <button
             class="btn ewb-button-regular font-normal h-full w-full text-left"
@@ -50,6 +52,7 @@ exports[`FooterComponent should match snapshot 1`] = `
       >
         <a
           class="h-full w-full"
+          href="/"
         >
           <button
             class="btn ewb-button-regular font-normal h-full w-full text-left"
@@ -63,6 +66,7 @@ exports[`FooterComponent should match snapshot 1`] = `
       >
         <a
           class="h-full w-full"
+          href="/"
         >
           <button
             class="btn ewb-button-regular font-normal h-full w-full text-left"
