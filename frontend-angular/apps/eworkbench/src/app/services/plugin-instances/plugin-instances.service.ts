@@ -181,10 +181,10 @@ export class PluginInstancesService
   }
 
   public putRelation(id: string, relationId: string, payload: RelationPutPayload): Observable<Relation> {
-    return this.httpClient.put<Relation>(`${this.apiUrl}${id}/relations/${relationId}`, payload);
+    return this.httpClient.put<Relation>(`${this.apiUrl}${id}/relations/${relationId}/`, payload);
   }
 
   public deleteRelation(id: string, relationId: string): Observable<void> {
-    return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}`);
+    return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}/`);
   }
 }

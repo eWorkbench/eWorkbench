@@ -91,7 +91,7 @@ $chip-size: 16px;
       font-size: 10px;
       margin-top: 20px;
 
-      button {
+      button:not(.square-md) {
         height: unset;
         font-size: 10px;
       }
@@ -99,10 +99,12 @@ $chip-size: 16px;
       &-user {
         display: flex;
         flex-direction: row-reverse;
+        padding-left: 5px;
 
         &-avatar {
           display: inline-block;
           margin-left: -5px;
+          margin-top: 2px;
         }
       }
     }

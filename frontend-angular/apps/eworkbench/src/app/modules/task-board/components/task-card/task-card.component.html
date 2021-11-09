@@ -79,38 +79,53 @@
           </ng-container>
         </div>
         <div class="task-card-footer">
-          <div class="task-card-footer-user">
-            <ng-container *ngIf="task.task.assigned_users.length">
-              <ng-container *ngIf="task.task.assigned_users.length > 3">
-                <div class="task-card-footer-user-avatar cursor-pointer">
-                  <eworkbench-user-avatar
-                    [user]="{
-                      pk: null,
-                      userprofile: {
-                        anonymized: false,
-                        avatar_is_set: false,
-                        avatar: null,
-                        first_name: '+',
-                        last_name: (task.task.assigned_users.length - 2).toString()
-                      }
-                    }"
-                    (click)="openMoreModal(task.task.assigned_users)"
-                  ></eworkbench-user-avatar>
-                </div>
+          <div class="flex">
+            <div class="mr-2" *ngIf="task.task.description">
+              <button
+                type="button"
+                class="btn ewb-button-big ewb-button-background toggle-button square-md"
+                [tooltip]="expanded ? t('taskBoard.taskCard.hideDescription.tooltip') : t('taskBoard.taskCard.showDescription.tooltip')"
+                container="body"
+                containerClass="tooltip-sm"
+                (click)="onToggleExpand()"
+              >
+                <eworkbench-icon className="wb-chevron-down-1" *ngIf="!expanded"></eworkbench-icon>
+                <eworkbench-icon className="wb-chevron-up" *ngIf="expanded"></eworkbench-icon>
+              </button>
+            </div>
+            <div class="task-card-footer-user">
+              <ng-container *ngIf="task.task.assigned_users.length">
+                <ng-container *ngIf="task.task.assigned_users.length > 3">
+                  <div class="task-card-footer-user-avatar cursor-pointer">
+                    <eworkbench-user-avatar
+                      [user]="{
+                        pk: null,
+                        userprofile: {
+                          anonymized: false,
+                          avatar_is_set: false,
+                          avatar: null,
+                          first_name: '+',
+                          last_name: (task.task.assigned_users.length - 2).toString()
+                        }
+                      }"
+                      (click)="openMoreModal(task.task.assigned_users)"
+                    ></eworkbench-user-avatar>
+                  </div>
+                </ng-container>
+                <ng-container *ngFor="let user of prepareAssignees(task.task.assigned_users)">
+                  <div class="task-card-footer-user-avatar cursor-pointer">
+                    <eworkbench-user-avatar
+                      [user]="user"
+                      [ring]="currentUser.pk === user.pk"
+                      [tooltip]="assigneesFormat(user)"
+                      container="body"
+                      containerClass="tooltip-sm"
+                      (click)="openUserModal(user)"
+                    ></eworkbench-user-avatar>
+                  </div>
+                </ng-container>
               </ng-container>
-              <ng-container *ngFor="let user of prepareAssignees(task.task.assigned_users)">
-                <div class="task-card-footer-user-avatar cursor-pointer">
-                  <eworkbench-user-avatar
-                    [user]="user"
-                    [ring]="currentUser.pk === user.pk"
-                    [tooltip]="assigneesFormat(user)"
-                    container="body"
-                    containerClass="tooltip-sm"
-                    (click)="openUserModal(user)"
-                  ></eworkbench-user-avatar>
-                </div>
-              </ng-container>
-            </ng-container>
+            </div>
           </div>
           <div class="inline-block align-self-center">
             <a [routerLink]="['/tasks', task.task.pk]" target="_blank">
@@ -155,23 +170,9 @@
             </button>
           </div>
         </div>
-        <ng-container *ngIf="task.task.description">
-          <hr />
-          <button
-            type="button"
-            class="btn ewb-button-big ewb-button-background toggle-button square-md"
-            [tooltip]="expanded ? t('taskBoard.taskCard.hideDescription.tooltip') : t('taskBoard.taskCard.showDescription.tooltip')"
-            container="body"
-            containerClass="tooltip-sm"
-            (click)="onToggleExpand()"
-          >
-            <eworkbench-icon className="wb-chevron-down-1" *ngIf="!expanded"></eworkbench-icon>
-            <eworkbench-icon className="wb-chevron-up" *ngIf="expanded"></eworkbench-icon>
-          </button>
-          <div class="task-card-expanded mt-2" *ngIf="expanded">
-            <div class="description" [innerHTML]="task.task.description"></div>
-          </div>
-        </ng-container>
+        <div class="task-card-expanded mt-2" *ngIf="task.task.description && expanded">
+          <div class="description" [innerHTML]="task.task.description"></div>
+        </div>
       </ng-container>
     </div>
   </div>

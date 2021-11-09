@@ -27,6 +27,7 @@ import { NewFileModalComponent } from '@app/pages/files/components/modals/new.co
 import { NewProjectModalComponent } from '@app/pages/projects/components/modals/new/new.component';
 import { NewResourceModalComponent } from '@app/pages/resources/components/modals/new/new.component';
 import { AuthService, DashboardService, MyScheduleService, PageTitleService } from '@app/services';
+import { DateService } from '@app/services/date/date.service';
 import { TableColumn } from '@eworkbench/table';
 import { Appointment, Dashboard, ModalCallback, Task, User } from '@eworkbench/types';
 import { DateSelectArg, DatesSetArg, EventClickArg, EventContentArg, EventHoveringArg, EventInput, MountArg } from '@fullcalendar/angular';
@@ -160,6 +161,7 @@ export class DashboardPageComponent implements OnInit {
     private readonly translocoService: TranslocoService,
     private readonly modalService: DialogService,
     private readonly dashboardService: DashboardService,
+    private readonly dateService: DateService,
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
     private readonly pageTitleService: PageTitleService,
@@ -399,6 +401,11 @@ export class DashboardPageComponent implements OnInit {
             event.extendedProps = { ...schedule };
           }
 
+          // Infamous hack for full day handling of backend with 23:59:59.999 end dates. End date will be moved to T+1 0:00:00.000.
+          if (event.allDay) {
+            event.end = this.dateService.fixFullDay(event.end);
+          }
+
           /* istanbul ignore next */
           this.calendar.addEvent(event);
         });
@@ -441,6 +448,11 @@ export class DashboardPageComponent implements OnInit {
       /* istanbul ignore next */
       const event = callback.data?.event;
       if (event) {
+        // Infamous hack for full day handling of backend with 23:59:59.999 end dates. End date will be moved to T+1 0:00:00.000.
+        if (event.fullDay) {
+          event.end = this.dateService.fixFullDay(event.end);
+        }
+
         this.calendar.addEvent({
           id: event.pk,
           title: event.title,

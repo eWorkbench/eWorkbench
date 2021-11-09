@@ -1,9 +1,8 @@
-FROM alpine:3.3
+FROM python:3.9-slim
+LABEL maintainer="HNezbeda@anexia-it.com"
 
-RUN apk add --update --no-cache build-base python-dev py-pip py-docutils && \
-    pip install maildump && \
-    apk del build-base && \
-    rm -rf /var/cache/apk/* /root/.cache
+ARG MAILDUMP_VERSION
+RUN pip install maildump==$MAILDUMP_VERSION
 
 EXPOSE 1080
 EXPOSE 1025

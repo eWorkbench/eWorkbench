@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 2.6.3 - November 2021
+- [SITUMEWB-745] Resolve infinite loading for project hierarchy in case of holey tree
+- [SITUMEWB-772] Fixed displaying full day bookings in calendar views
+- [SITUMEWB-750] Changes to task card opener button for description
+
 ## Version 2.6.2 - October 2021
 - [SITUMEWB-765] Revert overview element
 

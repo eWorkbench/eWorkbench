@@ -34,6 +34,7 @@ import {
   ResourceBookingsService,
   ResourcesService,
 } from '@app/services';
+import { DateService } from '@app/services/date/date.service';
 import { UserService, UserStore } from '@app/stores/user';
 import { CalendarCustomButtons } from '@eworkbench/calendar';
 import { Appointment, CalendarAccessPrivileges, ModalCallback, Project, Resource, Task, User } from '@eworkbench/types';
@@ -185,6 +186,7 @@ export class CalendarPageComponent implements OnInit {
     private readonly calendarAccessPrivilegesService: CalendarAccessPrivilegesService,
     private readonly userService: UserService,
     private readonly pageTitleService: PageTitleService,
+    private readonly dateService: DateService,
     private readonly titleService: Title,
     private readonly userStore: UserStore,
     private readonly resolver: ComponentFactoryResolver,
@@ -506,6 +508,11 @@ export class CalendarPageComponent implements OnInit {
             event.extendedProps = { ...schedule };
           }
 
+          // Infamous hack for full day handling of backend with 23:59:59.999 end dates. End date will be moved to T+1 0:00:00.000.
+          if (event.allDay) {
+            event.end = this.dateService.fixFullDay(event.end);
+          }
+
           /* istanbul ignore next */
           this.calendar.addEvent(event);
         });
@@ -533,6 +540,11 @@ export class CalendarPageComponent implements OnInit {
             event.borderColor = this.getResourceColor(schedule);
             event.backgroundColor = this.getResourceColor(schedule);
             event.extendedProps = { ...schedule };
+
+            // Infamous hack for full day handling of backend with 23:59:59.999 end dates. End date will be moved to T+1 0:00:00.000.
+            if (event.allDay) {
+              event.end = this.dateService.fixFullDay(event.end);
+            }
 
             /* istanbul ignore next */
             this.calendar.addEvent(event);

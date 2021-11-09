@@ -89,6 +89,8 @@ services:
     hostname: maildump.workbench.local
     build:
       context: ./docker/maildump
+      args:
+        MAILDUMP_VERSION: 1.0
     volumes:
       - maildump_data:/maildump
     expose:

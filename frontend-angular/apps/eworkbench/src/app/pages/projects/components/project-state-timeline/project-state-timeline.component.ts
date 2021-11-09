@@ -107,11 +107,13 @@ export class ProjectStateTimelineComponent implements OnInit {
               return;
             }
 
-            const parentProject = projects.find(element => element.pk === project.parent_project)!;
-            if (!parentProject.children) {
+            const parentProject = projects.find(element => element.pk === project.parent_project);
+            if (!parentProject) {
+              this.rootProject?.children?.push(project);
+            } else if (!parentProject.children) {
               parentProject.children = [];
+              parentProject.children.push(project);
             }
-            parentProject.children.push(project);
           });
           this.treeData = [this.rootProject!];
           this.loading = false;

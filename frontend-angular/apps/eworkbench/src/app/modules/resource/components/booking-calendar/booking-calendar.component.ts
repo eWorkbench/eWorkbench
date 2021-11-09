@@ -24,6 +24,7 @@ import { EditAppointmentModalComponent } from '@app/modules/appointment/componen
 import { NewAppointmentModalComponent } from '@app/modules/appointment/components/modals/new/new.component';
 import { ExportModalComponent } from '@app/modules/schedule/components/modals/export/export.component';
 import { AuthService, ResourceBookingsService } from '@app/services';
+import { DateService } from '@app/services/date/date.service';
 import { CalendarCustomButtons } from '@eworkbench/calendar';
 import { Appointment, ModalCallback, Resource, User } from '@eworkbench/types';
 import {
@@ -110,6 +111,7 @@ export class ResourceBookingCalendarComponent implements OnInit {
   public constructor(
     public readonly resourceBookingsService: ResourceBookingsService,
     private readonly cdr: ChangeDetectorRef,
+    private readonly dateService: DateService,
     private readonly modalService: DialogService,
     private readonly authService: AuthService,
     private readonly translocoService: TranslocoService,
@@ -149,6 +151,11 @@ export class ResourceBookingCalendarComponent implements OnInit {
       .subscribe(
         /* istanbul ignore next */ appointments => {
           appointments.forEach(appointment => {
+            // Infamous hack for full day handling of backend with 23:59:59.999 end dates. End date will be moved to T+1 0:00:00.000.
+            if (appointment.full_day && appointment.date_time_end) {
+              appointment.date_time_end = this.dateService.fixFullDay(appointment.date_time_end);
+            }
+
             /* istanbul ignore next */
             this.calendar.addEvent({
               id: appointment.pk,
