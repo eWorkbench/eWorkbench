@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.6.4 - November 2021
+- [SITUMEWB-774,SITUMEWB-695: Fix project hierarchy display for deep project trees
+
 ## Version 2.6.3 - November 2021
 - [SITUMEWB-745] Resolve infinite loading for project hierarchy in case of holey tree
 - [SITUMEWB-772] Fixed displaying full day bookings in calendar views

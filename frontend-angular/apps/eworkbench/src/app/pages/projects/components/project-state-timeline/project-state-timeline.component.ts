@@ -108,10 +108,13 @@ export class ProjectStateTimelineComponent implements OnInit {
             }
 
             const parentProject = projects.find(element => element.pk === project.parent_project);
+            // eslint-disable-next-line no-negated-condition
             if (!parentProject) {
               this.rootProject?.children?.push(project);
-            } else if (!parentProject.children) {
-              parentProject.children = [];
+            } else {
+              if (!parentProject.children) {
+                parentProject.children = [];
+              }
               parentProject.children.push(project);
             }
           });

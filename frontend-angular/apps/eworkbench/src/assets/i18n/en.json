@@ -590,7 +590,7 @@
   "taskBoard.settingsModal.dayIndication.label": "Replace date with day indication",
   "taskBoard.settingsModal.dayIndication.text": "Show \"Yesterday\", \"Today\" and \"Tomorrow\" instead of the date.",
   "taskBoard.settingsModal.cancel": "Cancel",
-  "taskBoard.settingsModal.save": "Save",
+  "taskBoard.settingsModal.save": "Save changes",
   "taskBoard.settingsModal.close": "Close",
   "taskBoard.column.dropdown.editColumn": "Edit column",
   "taskBoard.column.dropdown.removeColumn": "Remove column",
