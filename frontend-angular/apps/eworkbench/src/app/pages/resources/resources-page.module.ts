@@ -7,6 +7,7 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommentModule } from '@app/modules/comment/comment.module';
 import { DetailsDropdownModule } from '@app/modules/details-dropdown/details-dropdown.module';
 import { FavoritesModule } from '@app/modules/favorites/favorites.module';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
@@ -78,6 +79,7 @@ import { ResourcesPageRoutingModule } from './resources-page-routing.module';
     LinkModule,
     TooltipModule.forRoot(),
     FavoritesModule,
+    CommentModule,
   ],
 })
 export class ResourcesPageModule {}

@@ -41,6 +41,13 @@ services:
       - ./:/app
       - app_data:/var/lib/app
     command: while true; do python manage.py send_notifications; sleep 60; done
+  cron_trash_unneeded_tmp_files:
+    <<: *python
+    ports: []
+    volumes:
+      - ./:/app
+      - app_data:/var/lib/app
+    command: while true; do python manage.py trash_unneeded_tmp_files; sleep 60; done
 #  # Celery
 #  celery:
 #    <<: *python

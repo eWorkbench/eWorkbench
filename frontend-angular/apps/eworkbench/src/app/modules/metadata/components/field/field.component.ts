@@ -140,7 +140,7 @@ export class MetadataFieldComponent implements OnInit {
         this.selectedValues.push(this.id);
       }
     } else if (this.baseType === 'selection' && answers) {
-      answers.map(answer => this.answers.push(this.fb.control(answer, [Validators.required]) as any));
+      answers.map(answer => this.answers.push(this.fb.control(answer) as any));
       this.readonly = true;
 
       if (values) {
@@ -165,20 +165,15 @@ export class MetadataFieldComponent implements OnInit {
     } else if (this.baseType === 'fraction') {
       ['numerator', 'denominator'].map(
         /* istanbul ignore next*/ field =>
-          this.answers.push(this.fb.control(values ? values[field] : '', [Validators.required, Validators.pattern(/^[-+]?[1-9]\d*$/)]))
+          this.answers.push(this.fb.control(values ? values[field] : '', [Validators.pattern(/^[-+]?[1-9]\d*$/)]))
       );
     } else if (this.baseType === 'gps') {
       // x coordinate
-      this.answers.push(
-        this.fb.control(values ? values.x : '', [Validators.required, Validators.pattern(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$/)])
-      );
+      this.answers.push(this.fb.control(values ? values.x : '', [Validators.pattern(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$/)]));
 
       // y coordinate
       this.answers.push(
-        this.fb.control(values ? values.y : '', [
-          Validators.required,
-          Validators.pattern(/^[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/),
-        ])
+        this.fb.control(values ? values.y : '', [Validators.pattern(/^[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/)])
       );
     } else if (this.baseType === 'time') {
       this.datetimePickerConfig = this.timePickerConfig;
@@ -190,16 +185,14 @@ export class MetadataFieldComponent implements OnInit {
       }
 
       // 24h time format with an optional leading zero
-      this.answers.push(
-        this.fb.control(value, [Validators.required, Validators.pattern(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)]) as any
-      );
+      this.answers.push(this.fb.control(value, [Validators.pattern(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)]) as any);
     } else {
       if (this.baseType === 'date') {
         this.datetimePickerConfig = this.datePickerConfig;
         this.datepicker = true;
       }
 
-      this.answers.push(this.fb.control(values ? values.value : '', [Validators.required]));
+      this.answers.push(this.fb.control(values ? values.value : ''));
     }
   }
 

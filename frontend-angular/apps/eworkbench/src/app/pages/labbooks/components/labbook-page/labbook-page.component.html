@@ -46,7 +46,7 @@
         <ng-container *ngIf="initialState?.deleted">
           <eworkbench-trash-notice></eworkbench-trash-notice>
         </ng-container>
-        <eworkbench-collapse-element class="mb-4" [labelText]="detailsTitle" [collapsed]="true">
+        <eworkbench-overview-collapse-element class="mb-4" [collapsed]="true">
           <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [service]="labBooksService"></eworkbench-lock>
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="labbook" errorTailor>
             <div>
@@ -244,7 +244,7 @@
               </eworkbench-details-collapse-element>
             </div>
           </form>
-        </eworkbench-collapse-element>
+        </eworkbench-overview-collapse-element>
 
         <eworkbench-labbook-draw-board #drawBoard [id]="id" [projects]="initialState?.projects"></eworkbench-labbook-draw-board>
       </main>

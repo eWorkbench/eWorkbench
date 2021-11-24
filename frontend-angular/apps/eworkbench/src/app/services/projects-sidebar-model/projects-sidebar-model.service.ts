@@ -18,7 +18,7 @@ export class ProjectsSidebarModelService {
       'sidebar.overview': {
         modelName: 'overview',
         icon: 'wb-overview',
-        name: 'Overview',
+        name: 'Details',
         routerBaseLink: '',
       },
       'sidebar.tasks': {

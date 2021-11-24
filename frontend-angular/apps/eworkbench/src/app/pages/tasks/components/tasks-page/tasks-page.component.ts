@@ -1172,11 +1172,12 @@ export class TasksPageComponent implements OnInit {
   }
 
   public openNewTaskModal(): void {
+    const initialState = this.project ? { projects: [this.project] } : null;
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewTaskModalComponent, {
       closeButton: false,
       enableClose: false,
-      data: { withSidebar: this.showSidebar, initialState: { projects: this.project ? [this.project] : [] } },
+      data: { withSidebar: this.showSidebar, initialState: initialState },
     });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));

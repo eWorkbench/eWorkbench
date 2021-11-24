@@ -21,7 +21,7 @@ describe('FormatDatePipe', () => {
   });
 
   it('it should properly format a date with a custom format', () => {
-    spectator = createPipe(`{{ '${date}' | formatDate: 'yyyy-MM-dd' }}`);
+    spectator = createPipe(`{{ '${date}' | formatDate: false }}`);
     expect(spectator.element).toHaveText(format(parseISO(date), 'yyyy-MM-dd'));
   });
 

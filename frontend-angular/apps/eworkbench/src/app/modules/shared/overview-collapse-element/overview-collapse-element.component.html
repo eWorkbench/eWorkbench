@@ -6,18 +6,14 @@
 <ng-container *transloco="let t">
   <div class="collapse-element bg-tum-secondary hover:bg-tum-secondary-hover" [class.no-border]="!border">
     <div class="cursor-pointer" (click)="onToggleCollapse()">
-      <div class="collapse-element-header px-6 pt-2" [class.align-items-center]="center">
+      <div class="collapse-element-header px-4 pt-2.5" [class.align-items-center]="center">
         <div class="flex items-center">
-          <div class="btn ewb-button-big ewb-button-none square mr-2 text-base">
-            <eworkbench-icon className="wb-overview"></eworkbench-icon>
-          </div>
-
-          <span class="font-bold label-text mr-2">{{ t('shared.overviewCollapseElement.label') }}</span>
-
-          <div *ngIf="collapsible" class="btn ewb-button-big ewb-button-none square text-base">
+          <div *ngIf="collapsible" class="btn ewb-button-big ewb-button-none square text-base mr-1">
             <eworkbench-icon *ngIf="collapsed" className="wb-bold-chevron-down"></eworkbench-icon>
             <eworkbench-icon *ngIf="!collapsed" className="wb-bold-chevron-up"></eworkbench-icon>
           </div>
+
+          <span class="font-bold label-text mr-2">{{ t('shared.overviewCollapseElement.label') }}</span>
         </div>
       </div>
       <hr class="mt-2 mb-0" />

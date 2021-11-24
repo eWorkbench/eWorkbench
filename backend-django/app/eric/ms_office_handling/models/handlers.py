@@ -18,7 +18,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from eric.core.models import DisableSignals, disable_permission_checks
+from eric.core.models import disable_permission_checks
 from eric.shared_elements.models import File, UploadedFileEntry
 
 from django_userforeignkey.request import get_current_user

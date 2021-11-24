@@ -23,7 +23,12 @@
         <div class="flex-fill">
           <div>
             <label for="responsibleUsers-modal" class="font-bold inline-block mr-1">{{ t('plugin.preview.responsibleUsers.label') }}</label>
-            <eworkbench-users-grouping [users]="plugin.responsible_users" [chip]="true" class="inline-block"></eworkbench-users-grouping>
+            <eworkbench-users-grouping
+              [users]="plugin.responsible_users"
+              [chip]="true"
+              [modal]="false"
+              class="inline-block"
+            ></eworkbench-users-grouping>
           </div>
           <div>
             <eworkbench-plugin-accessibility-label [isAccessible]="plugin.is_accessible"></eworkbench-plugin-accessibility-label>

@@ -4,10 +4,11 @@
  */
 
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { AuthService, ProjectsSidebarModelService } from '@app/services';
+import { CMSService } from '@app/stores/cms/services/cms.service';
 import { UserService, UserStore } from '@app/stores/user';
 import { ProjectSidebarModelItem, ProjectSidebarModels } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
@@ -32,6 +33,8 @@ export class ProjectSidebarComponent implements OnInit {
 
   public editMode = false;
 
+  public cmsMessageShown = false;
+
   public constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
@@ -39,7 +42,9 @@ export class ProjectSidebarComponent implements OnInit {
     private readonly translocoService: TranslocoService,
     private readonly projectsSidebarModelService: ProjectsSidebarModelService,
     private readonly userStore: UserStore,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly cmsService: CMSService,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   public ngOnInit(): void {
@@ -70,6 +75,11 @@ export class ProjectSidebarComponent implements OnInit {
         }
       }
     );
+
+    this.cmsService.get$.pipe(untilDestroyed(this)).subscribe(({ maintenance }) => {
+      this.cmsMessageShown = maintenance.visible;
+      this.cdr.markForCheck();
+    });
   }
 
   public onSidebarDrop(event: CdkDragDrop<any>): void {

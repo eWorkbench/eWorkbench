@@ -46,7 +46,7 @@
         <ng-container *ngIf="initialState?.deleted">
           <eworkbench-trash-notice></eworkbench-trash-notice>
         </ng-container>
-        <eworkbench-collapse-element class="mb-4" [labelText]="t('storage.details')" [collapsed]="true">
+        <eworkbench-overview-collapse-element class="mb-4" [collapsed]="true">
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="storage" errorTailor>
             <div>
               <eworkbench-details-collapse-element [labelText]="t('storage.details.element.details')">
@@ -224,7 +224,7 @@
               </eworkbench-details-collapse-element>
             </div>
           </form>
-        </eworkbench-collapse-element>
+        </eworkbench-overview-collapse-element>
 
         <div>
           <eworkbench-storage-element [storage]="initialState" [collapsed]="false" [favoriteMarker]="false"></eworkbench-storage-element>

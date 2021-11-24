@@ -585,13 +585,15 @@ export class CalendarPageComponent implements OnInit {
   }
 
   public openNewModal(startDate?: string, endDate?: string, allDay?: boolean): void {
+    const initialState = this.project ? { projects: [this.project] } : null;
+    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewAppointmentModalComponent, {
       closeButton: false,
       data: {
         selectedStartDate: startDate,
         selectedEndDate: endDate,
         selectedFullDay: allDay,
-        initialState: { projects: this.project ? [this.project] : [] },
+        initialState: initialState,
       },
     });
     /* istanbul ignore next */

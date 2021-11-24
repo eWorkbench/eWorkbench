@@ -41,10 +41,10 @@
   <eworkbench-project-progress-bar [project]="row"></eworkbench-project-progress-bar>
 </ng-template>
 <ng-template #startDateCellTemplate let-row>
-  {{ row.start_date | formatDate: 'yyyy-MM-dd' }}
+  {{ row.start_date | formatDate: false }}
 </ng-template>
 <ng-template #stopDateCellTemplate let-row>
-  {{ row.stop_date | formatDate: 'yyyy-MM-dd' }}
+  {{ row.stop_date | formatDate: false }}
 </ng-template>
 <ng-template #taskStatusCellTemplate let-row>
   {{ row.tasks_status.DONE }} / {{ row.tasks_status.NEW + row.tasks_status.PROG + row.tasks_status.DONE }}

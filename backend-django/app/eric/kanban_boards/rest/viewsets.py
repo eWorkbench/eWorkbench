@@ -163,12 +163,14 @@ class KanbanBoardViewSet(
 
     @action(methods=['PATCH'], url_path='set_columns_transparency', detail=True)
     def set_columns_transparency(self, request, *args, **kwargs):
-        # extracts all values from an rgba string, e.g.: rgba(33, 66, 99, 0.75)
-        rgba_regex = r"^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d{0,1}(?:\.\d+)?))?\)$"
+        # Extracts all values from an rgba string, e.g.: rgba(33, 66, 99, 0.75).
+        # The last value can be anything. Firstly, I don't care what the last value is because we will overwrite it in
+        # the next step and it could also be a mathematical expression which looks like this: 1e-17
+        rgba_regex = r"^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(.*))?\)$"
 
         kanban_board_columns = self.get_object().kanban_board_columns.all()
         try:
-            alpha = float(request.data.get("alpha", 1))
+            alpha = round(float(request.data.get("alpha", 1)), 2)
         except ValueError:
             alpha = 1
 

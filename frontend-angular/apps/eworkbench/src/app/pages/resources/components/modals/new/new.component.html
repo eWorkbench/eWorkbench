@@ -86,7 +86,10 @@
             />
           </div>
           <div class="mb-4">
-            <label for="userAvailability-modal">{{ t('resource.newModal.userAvailability.label') }}</label>
+            <label for="userAvailability-modal">
+              {{ t('resource.newModal.userAvailability.label') }}
+              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
+            </label>
             <ng-select
               class="ewb-select"
               formControlName="userAvailability"

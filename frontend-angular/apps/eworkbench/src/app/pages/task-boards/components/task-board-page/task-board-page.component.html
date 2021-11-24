@@ -40,7 +40,7 @@
       <eworkbench-trash-notice></eworkbench-trash-notice>
     </ng-container>
 
-    <eworkbench-collapse-element class="mb-4" [labelText]="title" [collapsed]="true">
+    <eworkbench-overview-collapse-element class="mb-4" [collapsed]="true">
       <ng-container *ngIf="initialState?.deleted">
         <eworkbench-trash-notice></eworkbench-trash-notice>
       </ng-container>
@@ -66,16 +66,6 @@
                     [placeholder]="t('taskBoard.details.title.placeholder')"
                     slot="input"
                   />
-                </eworkbench-form-input>
-              </div>
-              <div class="mb-4">
-                <eworkbench-form-input
-                  for="description"
-                  [label]="t('taskBoard.details.description.label')"
-                  [loading]="loading"
-                  [onSubmit]="refreshResetValue"
-                >
-                  <eworkbench-wysiwyg-editor [id]="'description'" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
                 </eworkbench-form-input>
               </div>
               <div class="mb-4">
@@ -136,7 +126,18 @@
               </div>
             </ng-container>
           </eworkbench-details-collapse-element>
+
+          <eworkbench-details-collapse-element [labelText]="t('taskBoard.details.element.description')">
+            <ng-container slot="body">
+              <div class="mb-4">
+                <eworkbench-form-input for="description" [loading]="loading" [onSubmit]="refreshResetValue">
+                  <eworkbench-wysiwyg-editor [id]="'description'" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
+                </eworkbench-form-input>
+              </div>
+            </ng-container>
+          </eworkbench-details-collapse-element>
         </div>
+
         <div>
           <eworkbench-details-collapse-element [labelText]="t('taskBoard.details.element.links')">
             <ng-container slot="actions">
@@ -151,6 +152,7 @@
             </ng-container>
           </eworkbench-details-collapse-element>
         </div>
+
         <div>
           <eworkbench-details-collapse-element [labelText]="t('taskBoard.details.element.recentChanges')">
             <ng-container slot="body">
@@ -163,9 +165,30 @@
               ></eworkbench-recent-changes>
             </ng-container>
           </eworkbench-details-collapse-element>
+
+          <eworkbench-details-collapse-element [labelText]="t('taskBoard.details.element.comments')">
+            <ng-container slot="actions">
+              <button
+                type="button"
+                class="btn ewb-button-regular ewb-button-outline mr-2"
+                (click)="onOpenNewCommentModal()"
+                [disabled]="loading"
+              >
+                {{ t('taskBoard.details.comments.newComment') }}
+              </button>
+            </ng-container>
+            <ng-container slot="body">
+              <eworkbench-comments
+                #comments
+                [service]="taskBoardsService"
+                [id]="id"
+                [contentType]="initialState.content_type"
+              ></eworkbench-comments>
+            </ng-container>
+          </eworkbench-details-collapse-element>
         </div>
       </form>
-    </eworkbench-collapse-element>
+    </eworkbench-overview-collapse-element>
   </ng-container>
 </div>
 

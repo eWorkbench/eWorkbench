@@ -19,6 +19,8 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
+import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
+import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { RemoveResourcePDFModalComponent } from '@app/modules/resource/components/modals/remove-pdf/remove-pdf.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
@@ -68,6 +70,9 @@ interface FormResource {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourcePageComponent implements OnInit, OnDestroy {
+  @ViewChild(CommentsComponent)
+  public comments!: CommentsComponent;
+
   @ViewChild('termsOfUsePDFInput')
   public termsOfUsePDFInput!: ElementRef;
 
@@ -108,6 +113,8 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
   public refreshInitialState = new EventEmitter<Resource>();
 
   public refreshMetadata = new EventEmitter<boolean>();
+
+  public refreshLinkList = new EventEmitter<boolean>();
 
   public refreshBookingRules = new EventEmitter<boolean>();
 
@@ -516,6 +523,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
           this.form.markAsPristine();
           this.refreshChanges.next(true);
           this.refreshMetadata.next(true);
+          this.refreshLinkList.next(true);
           this.refreshResetValue.next(true);
           this.refreshInitialState.next(this.initialState);
 
@@ -635,7 +643,30 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  public onOpenNewCommentModal(): void {
+    this.modalRef = this.modalService.open(NewCommentModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        contentType: this.initialState?.content_type,
+        service: this.resourcesService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
+      if (callback.state === ModalState.Changed) {
+        this.comments.loadComments();
+      }
+    });
+  }
+
   public onResourceBooked(): void {
     this.refreshMyBookings.next(true);
+  }
+
+  public onRefreshLinkList(): void {
+    this.refreshLinkList.next(true);
   }
 }

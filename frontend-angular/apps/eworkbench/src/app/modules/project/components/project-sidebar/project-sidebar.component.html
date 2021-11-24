@@ -5,7 +5,7 @@
 
 <ng-container *transloco="let t">
   <div class="sidebar" cdkDropList [cdkDropListData]="elements" (cdkDropListDropped)="onSidebarDrop($event)">
-    <ul class="list-unstyled pt-3 sticky top-56 z-50">
+    <ul class="list-unstyled pt-3 sticky z-50" [class.top-36]="!cmsMessageShown" [class.top-56]="cmsMessageShown">
       <ng-container *ngFor="let element of elements">
         <li cdkDrag class="flex items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
           <a

@@ -261,7 +261,7 @@
     </ng-container>
     <ng-container *ngIf="event.allDay">
       <strong>{{ t('calendar.popover.date.label') }}:</strong>
-      {{ event.startStr | formatDate: 'yyyy-MM-dd' }}
+      {{ event.startStr | formatDate: false }}
     </ng-container>
     <div *ngIf="event.extendedProps?.attending_users?.length">
       <strong class="mr-1">{{ t('appointment.details.attendees.label') }}:</strong>
@@ -302,7 +302,7 @@
 </ng-template>
 <ng-template #taskDueDateCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div *ngIf="row.due_date" class="text-red-600">{{ t('dashboard.tasks.dueDateOn') }} {{ row.due_date | formatDate }}</div>
+    <div *ngIf="row.due_date" class="text-red-600">{{ t('dashboard.tasks.dueDateOn') }} {{ row.due_date | formatDate: !row.full_day }}</div>
   </ng-container>
 </ng-template>
 

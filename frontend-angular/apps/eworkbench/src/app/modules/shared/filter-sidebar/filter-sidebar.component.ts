@@ -42,7 +42,6 @@ export class FilterSidebarComponent implements OnInit {
 
   public ngOnInit(): void {
     this.cmsService.get$.pipe(untilDestroyed(this)).subscribe(({ maintenance }) => {
-      console.log(maintenance);
       this.cmsMessageShown = maintenance.visible;
       this.cdr.markForCheck();
     });

@@ -1,7 +1,19 @@
 # Changelog
 
+## Version 2.7 - November 2021
+- [SITUMEWB-778] Overview Element
+- [SITUMEWB-782] Fix storage display in file detail view
+- [SITUMEWB-764] management command to trash/delete unneeded ms office tmp files which is then run in crontab
+- [SITUMEWB-*] Fixed transparency handling of task board columns
+- [SITUMEWB-*] Fixed text wrapping on search bar in LabBook draw board
+- [SITUMEWB-*] Fixed user chips in modal when adding a plugin to the LabBook
+- [SITUMEWB-*] Refined date pipes
+- [SITUMEWB-*] Fixed form patching on modals with an initial state set
+- [SITUMEWB-*] Changes to metadata validators
+- [SITUMEWB-*] Added asterisk to user availability field
+
 ## Version 2.6.4 - November 2021
-- [SITUMEWB-774,SITUMEWB-695: Fix project hierarchy display for deep project trees
+- [SITUMEWB-774,SITUMEWB-695] Fix project hierarchy display for deep project trees
 
 ## Version 2.6.3 - November 2021
 - [SITUMEWB-745] Resolve infinite loading for project hierarchy in case of holey tree

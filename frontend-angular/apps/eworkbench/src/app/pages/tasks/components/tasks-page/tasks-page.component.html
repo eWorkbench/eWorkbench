@@ -580,10 +580,10 @@
   <eworkbench-task-state [state]="row.state"></eworkbench-task-state>
 </ng-template>
 <ng-template #startDateCellTemplate let-row>
-  {{ row.start_date | formatDate }}
+  {{ row.start_date | formatDate: !row.full_day }}
 </ng-template>
 <ng-template #dueDateCellTemplate let-row>
-  {{ row.due_date | formatDate }}
+  {{ row.due_date | formatDate: !row.full_day }}
 </ng-template>
 <ng-template #assignedToCellTemplate let-row>
   <eworkbench-users-grouping [users]="row.assigned_users" [chip]="true"></eworkbench-users-grouping>

@@ -323,7 +323,7 @@
     </ng-container>
     <ng-container *ngIf="event.allDay">
       <strong>{{ t('calendar.popover.date.label') }}:</strong>
-      {{ event.startStr | formatDate: 'yyyy-MM-dd' }}
+      {{ event.startStr | formatDate: false }}
     </ng-container>
     <div *ngIf="event.extendedProps?.attending_users?.length">
       <strong class="mr-1">{{ t('appointment.details.attendees.label') }}:</strong>

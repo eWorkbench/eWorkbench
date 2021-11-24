@@ -639,10 +639,11 @@ export class NotesPageComponent implements OnInit {
   }
 
   public openNewModal(): void {
+    const initialState = this.project ? { projects: [this.project] } : null;
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewNoteModalComponent, {
       closeButton: false,
-      data: { service: this.notesService, initialState: { projects: this.project ? [this.project] : [] } },
+      data: { service: this.notesService, initialState: initialState },
     });
     /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));

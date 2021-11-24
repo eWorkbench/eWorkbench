@@ -10,7 +10,18 @@ import { format, parseISO } from 'date-fns';
   name: 'formatDate',
 })
 export class FormatDatePipe implements PipeTransform {
-  public transform(value?: string, formatString = "yyyy-MM-dd, HH':'mm"): string {
-    return value ? format(parseISO(value), formatString) : '';
+  public transform(
+    value?: string,
+    withTime = true,
+    formatDayString = 'yyyy-MM-dd',
+    formatTimeString = "HH':'mm",
+    formatSeparator = ', '
+  ): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = parseISO(value);
+    return withTime ? format(date, `${formatDayString}${formatSeparator}${formatTimeString}`) : format(date, formatDayString);
   }
 }

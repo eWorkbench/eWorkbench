@@ -9,10 +9,10 @@
       <div class="toolbar">
         <div class="toolbar-filter">
           <div class="flex items-center">
-            <button type="button" class="btn ewb-button-big ewb-button-none text-white cursor-default">
+            <button type="button" class="btn ewb-button-big ewb-button-none text-white cursor-default whitespace-nowrap">
               {{ t('labBook.searchBar.displaySectionsFrom') }}
             </button>
-            <div class="search-input mr-2">
+            <div class="search-input">
               <input
                 type="text"
                 class="form-control ewb-input"
@@ -38,7 +38,7 @@
               />
             </div>
             <div>
-              <button type="button" class="btn ewb-button-big ewb-button-none text-white" (click)="onReset()">
+              <button type="button" class="btn ewb-button-big ewb-button-none text-white whitespace-nowrap" (click)="onReset()">
                 {{ t('labBook.searchBar.resetFilter') }}
               </button>
             </div>
