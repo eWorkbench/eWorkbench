@@ -222,4 +222,11 @@ describe('DMPService', () => {
     spectator.service.unlock(pk).subscribe();
     spectator.expectOne(`${spectator.service.apiUrl}${pk}/unlock/`, HttpMethod.POST);
   });
+
+  it('should duplicate a DMP', () => {
+    spectator.service.duplicate(pk).subscribe(data => {
+      expect(data).toEqual(mockDMP);
+    });
+    spectator.expectOne(`${spectator.service.apiUrl}${pk}/duplicate/`, HttpMethod.POST);
+  });
 });

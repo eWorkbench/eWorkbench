@@ -9,7 +9,7 @@ module.exports = {
     '<rootDir>/libs/calendar',
     '<rootDir>/libs/gantt-chart',
     '<rootDir>/libs/modals',
-    '<rootDir>/apps/picture-editor',
+    '<rootDir>/libs/picture-editor',
     '<rootDir>/libs/table',
     '<rootDir>/libs/wysiwyg-editor',
   ],

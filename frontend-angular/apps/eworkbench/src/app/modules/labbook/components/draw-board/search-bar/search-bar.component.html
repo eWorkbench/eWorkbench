@@ -45,7 +45,7 @@
           </div>
         </div>
         <div class="toolbar-actions self-center">
-          <button type="button" class="btn ewb-button-big ewb-button-background" (click)="onOpenNewSectionModal()">
+          <button type="button" class="btn ewb-button-big ewb-button-background" (click)="onOpenNewSectionModal()" *ngIf="editable">
             {{ t('labBook.searchBar.newSection') }}
           </button>
         </div>
@@ -64,7 +64,7 @@
             class="section"
             [id]="id"
             [element]="section"
-            [readonly]="true"
+            [editable]="false"
             [closeSection]="close"
             (expand)="onExpandSection($event)"
             *ngFor="let section of sections"

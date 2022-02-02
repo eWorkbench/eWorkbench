@@ -28,7 +28,7 @@ export class CommentsComponent implements OnInit {
   public id!: string;
 
   @Input()
-  public contentType!: string;
+  public contentType!: number;
 
   @Input()
   public create = false;

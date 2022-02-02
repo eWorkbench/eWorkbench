@@ -35,7 +35,7 @@ export class StudyRoomDetailsComponent implements OnInit {
   @Input()
   public initialState!: Resource;
 
-  public editable = false;
+  public editable? = false;
 
   public userAvailabilitySelectedUsers: User[] = [];
 

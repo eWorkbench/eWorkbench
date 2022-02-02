@@ -25,7 +25,7 @@ export class MetadataFieldHelperComponent implements OnInit {
   public loading = false;
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Output()
   public changed = new EventEmitter<Metadata>();
@@ -80,7 +80,7 @@ export class MetadataFieldHelperComponent implements OnInit {
   }
 
   public showButtons(): boolean {
-    return this.hasChanged && this.editable;
+    return this.hasChanged && Boolean(this.editable);
   }
 
   public onDelete(): void {

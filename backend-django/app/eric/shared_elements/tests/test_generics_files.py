@@ -157,14 +157,6 @@ class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMi
                                          'somefile.txt', 1024, HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # at the same time, user1 should NOT be able to create a project for project2
-        response = self.rest_create_file(self.token3, self.project2.pk, 'Test Title', 'Test Description',
-                                         'somefile.txt', 1024, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
-
-        # there should only be one file
-        self.assertEquals(File.objects.all().count(), 1, msg="There should be one file")
-
         # now give the user the global add_file permission
         self.user3.user_permissions.add(self.add_file_without_project_permission)
 

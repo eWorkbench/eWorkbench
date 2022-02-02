@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { UserStore } from '@app/stores/user';
-import { TableViewComponent } from '@eworkbench/table';
+import { TableViewComponent, TreeViewComponent } from '@eworkbench/table';
 import { ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
@@ -30,7 +30,7 @@ export class TrashButtonComponent {
   public service!: any;
 
   @Input()
-  public tableView?: TableViewComponent;
+  public tableView?: TableViewComponent | TreeViewComponent;
 
   @Input()
   public loading = false;

@@ -36,14 +36,14 @@
   </div>
 </div>
 
-<ng-container *ngIf="initialState">
+<ng-container *ngIf="initialState && privileges">
   <ng-container *transloco="let t">
     <div [class.with-sidebar]="showSidebar">
       <aside *ngIf="showSidebar">
         <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
       </aside>
       <main>
-        <ng-container *ngIf="initialState?.deleted">
+        <ng-container *ngIf="initialState.deleted">
           <eworkbench-trash-notice></eworkbench-trash-notice>
         </ng-container>
         <eworkbench-overview-collapse-element class="mb-4" [collapsed]="true">
@@ -130,19 +130,19 @@
                       <eworkbench-user-details
                         id="created-by"
                         class="inline-block"
-                        [user]="initialState?.created_by"
+                        [user]="initialState.created_by"
                       ></eworkbench-user-details>
                       <span> | </span>
-                      <span id="created-at">{{ initialState?.created_at | formatDate }}</span>
+                      <span id="created-at">{{ initialState.created_at | formatDate }}</span>
                     </div>
                   </div>
                   <div class="mb-4">
                     <label for="last-modified-by">{{ t('labBook.details.lastModifiedBy.label') }}</label>
                     <div class="flex items-center space-x-1">
-                      <eworkbench-user-details id="last-modified-by" class="inline-block" [user]="initialState?.last_modified_by">
+                      <eworkbench-user-details id="last-modified-by" class="inline-block" [user]="initialState.last_modified_by">
                       </eworkbench-user-details>
                       <span> | </span>
-                      <span id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</span>
+                      <span id="last-modified-at">{{ initialState.last_modified_at | formatDate }}</span>
                     </div>
                   </div>
                 </ng-container>
@@ -166,8 +166,8 @@
                 <ng-container slot="body">
                   <div class="mb-4">
                     <eworkbench-metadata
-                      [selectedParameters]="initialState?.metadata"
-                      [editable]="privileges?.edit"
+                      [selectedParameters]="initialState.metadata"
+                      [editable]="privileges.edit"
                       [loading]="loading"
                       [refresh]="refreshMetadata"
                       (changed)="onUpdateMetadata($event)"
@@ -202,7 +202,6 @@
                     [service]="labBooksService"
                     [changesId]="id"
                     [refresh]="refreshChanges"
-                    [users]="initialState?.attending_users"
                   ></eworkbench-recent-changes>
                 </ng-container>
               </eworkbench-details-collapse-element>
@@ -214,9 +213,10 @@
                     contentType="labBook"
                     [service]="labBooksService"
                     [versionId]="id"
-                    [lastModifiedAt]="initialState?.last_modified_at"
+                    [lastModifiedAt]="initialState.last_modified_at"
                     [refresh]="refreshVersions"
-                    [editable]="privileges?.edit"
+                    [editable]="privileges.edit"
+                    [finalizeVersionAlwaysVisible]="true"
                     (changed)="onVersionChanged()"
                   ></eworkbench-versions>
                 </ng-container>
@@ -246,7 +246,12 @@
           </form>
         </eworkbench-overview-collapse-element>
 
-        <eworkbench-labbook-draw-board #drawBoard [id]="id" [projects]="initialState?.projects"></eworkbench-labbook-draw-board>
+        <eworkbench-labbook-draw-board
+          #drawBoard
+          [id]="id"
+          [projects]="initialState.projects"
+          [editable]="privileges.edit"
+        ></eworkbench-labbook-draw-board>
       </main>
     </div>
   </ng-container>

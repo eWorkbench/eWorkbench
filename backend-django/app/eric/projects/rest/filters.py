@@ -34,6 +34,7 @@ class ProjectFilter(BaseFilter):
         fields = {
             'project_state': BaseFilter.CHOICE_COMPERATORS,
             'parent_project': BaseFilter.FOREIGNKEY_COMPERATORS,
+            'created_by': BaseFilter.FOREIGNKEY_COMPERATORS
         }
 
     favourite = FavouriteFilter()

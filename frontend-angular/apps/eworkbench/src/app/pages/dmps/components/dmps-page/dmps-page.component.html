@@ -69,10 +69,10 @@
           >
             <span class="text-sm mr-2"
               >{{ t('filterHeader.createdBy') }}{{ ' '
-              }}{{ getFilterSelectedUser.pk === currentUser.pk ? t('filterHeader.createdBy.myself') : '' }}</span
+              }}{{ getFilterSelectedUser.pk === currentUser?.pk ? t('filterHeader.createdBy.myself') : '' }}</span
             >
             <eworkbench-user-details
-              *ngIf="getFilterSelectedUser.pk !== currentUser.pk"
+              *ngIf="getFilterSelectedUser.pk !== currentUser?.pk"
               class="inline-block mr-2"
               [user]="getFilterSelectedUser"
               [active]="false"
@@ -183,9 +183,9 @@
                   class="custom-control-input"
                   name="filter-user-radio"
                   id="filter-user-radio-2"
-                  [value]="currentUser.pk"
+                  [value]="currentUser?.pk"
                   [formControl]="usersControl"
-                  (change)="onUserFilterRadioMyself($event.target.checked)"
+                  (change)="onUserFilterRadioMyself($event.target?.checked)"
                 />
                 <label for="filter-user-radio-2" class="custom-control-label font-normal leading-6">{{
                   t('filter-menu.myself.label')
@@ -197,7 +197,7 @@
                   class="custom-control-input"
                   name="filter-user-radio"
                   id="filter-user-radio-3"
-                  (change)="showUserFilter = $event.target.checked"
+                  (change)="showUserFilter = $event.target?.checked"
                 />
                 <label for="filter-user-radio-3" class="custom-control-label font-normal leading-6">{{
                   t('filter-menu.chooseAUser.label')

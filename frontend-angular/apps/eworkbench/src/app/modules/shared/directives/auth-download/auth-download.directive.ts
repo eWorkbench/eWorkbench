@@ -5,6 +5,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Directive, HostListener, Input } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
 
 @Directive({
   selector: '[authDownload]',
@@ -24,8 +25,8 @@ export class AuthDownloadDirective {
 
   @HostListener('click')
   public async onClick(): Promise<void> {
-    const response = await this.httpClient.get(this.url, { responseType: 'blob', observe: 'response' }).toPromise();
-    const url = URL.createObjectURL(response?.body);
+    const response = await lastValueFrom(this.httpClient.get(this.url, { responseType: 'blob', observe: 'response' }));
+    const url = URL.createObjectURL(response.body!);
     const anchor = document.createElement('a');
 
     anchor.href = url;

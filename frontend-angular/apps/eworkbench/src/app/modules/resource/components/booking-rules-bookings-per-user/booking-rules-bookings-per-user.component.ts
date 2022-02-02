@@ -24,7 +24,7 @@ export class ResourceBookingRulesBookingsPerUserComponent implements OnInit {
   public rule!: BookingRuleBookingsPerUser[];
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Input()
   public loading = false;

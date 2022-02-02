@@ -34,6 +34,9 @@ export class LabBookSearchBarComponent implements AfterViewInit {
   @Input()
   public projects: string[] = [];
 
+  @Input()
+  public editable? = false;
+
   @Output()
   public created = new EventEmitter<LabBookElementEvent>();
 

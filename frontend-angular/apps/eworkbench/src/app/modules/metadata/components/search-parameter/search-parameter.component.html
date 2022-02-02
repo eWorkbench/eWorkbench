@@ -8,7 +8,7 @@
     <div>
       <ng-select
         class="ewb-select"
-        [formControl]="f.type"
+        [formControl]="$any(f.type)"
         [items]="types"
         [clearable]="false"
         bindValue="value"
@@ -18,7 +18,7 @@
     <div>
       <ng-select
         class="ewb-select"
-        [formControl]="f.operator"
+        [formControl]="$any(f.operator)"
         [items]="operators"
         [clearable]="false"
         bindValue="value"
@@ -47,7 +47,7 @@
   <div class="combination mt-4">
     <ng-select
       class="ewb-select"
-      [formControl]="f.combinationOperator"
+      [formControl]="$any(f.combinationOperator)"
       [items]="combinationOperators"
       [clearable]="false"
       bindValue="value"

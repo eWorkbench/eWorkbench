@@ -289,8 +289,8 @@ export class CalendarComponent implements OnInit {
       customButtons: this.customButtons!,
       dayHeaders: this.dayHeaders,
       dayHeaderFormat: this.dayHeaderFormat,
-      slotDuration: this.slotDuration,
-      slotLabelInterval: this.slotLabelInterval,
+      slotDuration: this.slotDuration as any,
+      slotLabelInterval: this.slotLabelInterval as any,
       slotLabelFormat: this.slotLabelFormat,
       timeZone: this.timeZone,
       slotMinTime: this.slotMinTime,
@@ -319,42 +319,42 @@ export class CalendarComponent implements OnInit {
           dayHeaderFormat: this.dayHeaderFormatMonthView,
         },
       },
-      select: this.onSelect.bind(this),
-      datesSet: this.onDatesSet.bind(this),
-      eventClick: this.onEventClick.bind(this),
-      eventDidMount: this.onEventDidMount.bind(this),
-      eventWillUnmount: this.onEventWillUnmount.bind(this),
-      eventMouseEnter: this.onEventMouseEnter.bind(this),
-      eventMouseLeave: this.onEventMouseLeave.bind(this),
+      select: this.onSelect.bind(this) as any,
+      datesSet: this.onDatesSet.bind(this) as any,
+      eventClick: this.onEventClick.bind(this) as any,
+      eventDidMount: this.onEventDidMount.bind(this) as any,
+      eventWillUnmount: this.onEventWillUnmount.bind(this) as any,
+      eventMouseEnter: this.onEventMouseEnter.bind(this) as any,
+      eventMouseLeave: this.onEventMouseLeave.bind(this) as any,
     };
   }
 
-  public onDatesSet(event: DatesSetArg): void {
-    this.datesSet.emit(event);
+  public onDatesSet(event: Event): void {
+    this.datesSet.emit(event as unknown as DatesSetArg);
   }
 
-  public onSelect(range: DateSelectArg): void {
-    this.selected.emit(range);
+  public onSelect(range: Event): void {
+    this.selected.emit(range as unknown as DateSelectArg);
   }
 
-  public onEventClick(event: EventClickArg): void {
-    this.eventClicked.emit(event);
+  public onEventClick(event: Event): void {
+    this.eventClicked.emit(event as unknown as EventClickArg);
   }
 
-  public onEventDidMount(event: MountArg<EventContentArg>): void {
-    this.eventDidMount.emit(event);
+  public onEventDidMount(event: Event): void {
+    this.eventDidMount.emit(event as unknown as MountArg<EventContentArg>);
   }
 
-  public onEventWillUnmount(event: MountArg<EventContentArg>): void {
-    this.eventWillUnmount.emit(event);
+  public onEventWillUnmount(event: Event): void {
+    this.eventWillUnmount.emit(event as unknown as MountArg<EventContentArg>);
   }
 
-  public onEventMouseEnter(event: EventHoveringArg): void {
-    this.eventMouseEnter.emit(event);
+  public onEventMouseEnter(event: Event): void {
+    this.eventMouseEnter.emit(event as unknown as EventHoveringArg);
   }
 
-  public onEventMouseLeave(event: EventHoveringArg): void {
-    this.eventMouseLeave.emit(event);
+  public onEventMouseLeave(event: Event): void {
+    this.eventMouseLeave.emit(event as unknown as EventHoveringArg);
   }
 
   public getEvents(): EventApi[] {

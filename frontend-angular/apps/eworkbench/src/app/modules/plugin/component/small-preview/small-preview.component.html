@@ -4,11 +4,11 @@
 -->
 
 <div class="flex">
-  <div class="mr-2" *ngIf="plugin.logo">
-    <img [src]="plugin.logo" [alt]="plugin.title" class="max-w-full h-auto" />
+  <div class="mr-2" *ngIf="plugin?.logo">
+    <img [src]="plugin?.logo" [alt]="plugin?.title" class="max-w-full h-auto" />
   </div>
   <div class="flex-fill">
-    <div class="font-bold">{{ plugin.title }}</div>
-    <div>{{ plugin.short_description }}</div>
+    <div class="font-bold">{{ plugin?.title }}</div>
+    <div>{{ plugin?.short_description }}</div>
   </div>
 </div>

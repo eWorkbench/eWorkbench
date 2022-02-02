@@ -56,7 +56,7 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="picture?.metadata.length">
+      <div class="mb-4" *ngIf="picture?.metadata?.length">
         <label for="metadata-modal">{{ t('picture.details.metadata.label') }}</label>
         <ng-container *ngFor="let field of picture?.metadata">
           <div class="mb-2">

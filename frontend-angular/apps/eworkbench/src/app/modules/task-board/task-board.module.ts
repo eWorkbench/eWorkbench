@@ -79,6 +79,7 @@ import { TaskCardComponent } from './components/task-card/task-card.component';
     LoadingModule,
     FavoritesModule,
     TooltipModule.forRoot(),
+    SharedModule,
   ],
   exports: [
     TaskBoardComponent,

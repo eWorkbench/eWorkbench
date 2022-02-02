@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ duplicate ? t('file.newModal.duplicate.header', { title: initialState.title }) : t('file.newModal.create.header') }}
+      {{ duplicate ? t('file.newModal.duplicate.header', { title: initialState?.title }) : t('file.newModal.create.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">

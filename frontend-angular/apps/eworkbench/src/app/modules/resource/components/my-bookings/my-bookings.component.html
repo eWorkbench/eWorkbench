@@ -46,27 +46,27 @@
 </ng-container>
 
 <ng-template #nameCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.resource.display" containerClass="tooltip-sm" [delay]="500">
     {{ row.resource.display }}
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #typeCellTemplate let-row>
   <eworkbench-resource-type [type]="row.resource.type"></eworkbench-resource-type>
 </ng-template>
 <ng-template #descriptionCellTemplate let-row>
-  <eworkbench-ellipsis-element maxWidth="350">
+  <div ellipsis="350" [tooltip]="row.resource.description | stripHTML" containerClass="tooltip-sm" [delay]="500">
     {{ row.resource.description | stripHTML }}
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #appointmentCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.display" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/appointments', row.pk]">{{ row.display }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #appointmentDescriptionCellTemplate let-row>
-  <eworkbench-ellipsis-element maxWidth="350">
+  <div ellipsis="350" [tooltip]="row.text | stripHTML" containerClass="tooltip-sm" [delay]="500">
     {{ row.text | stripHTML }}
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #attendeesCellTemplate let-row>
   <eworkbench-users-grouping [users]="row.attending_users" [chip]="true"></eworkbench-users-grouping>

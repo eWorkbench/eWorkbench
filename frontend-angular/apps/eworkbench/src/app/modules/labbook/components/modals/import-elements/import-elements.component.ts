@@ -20,7 +20,7 @@ import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of } from 'rxjs';
+import { lastValueFrom, Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 
 interface FormImport {
@@ -122,13 +122,12 @@ export class ImportLabBookElementsModalComponent implements OnInit {
     const elementsForSection: Record<string, LabBookElement<any>[]> = {};
 
     const getElementsOperation = async (): Promise<void> => {
-      await this.labBooksService
-        .getElements(this.labBookId)
-        .pipe(
+      await lastValueFrom(
+        this.labBooksService.getElements(this.labBookId).pipe(
           untilDestroyed(this),
           map(/* istanbul ignore next*/ labBookElements => elements.push(...labBookElements))
         )
-        .toPromise();
+      );
     };
 
     const sectionOperation = async (): Promise<void> => {
@@ -139,14 +138,14 @@ export class ImportLabBookElementsModalComponent implements OnInit {
       }
 
       for (const section of sections) {
-        await this.importLabBookElement(section, elements)
-          .pipe(
+        await lastValueFrom(
+          this.importLabBookElement(section, elements).pipe(
             map(newSection => {
               elements.push(newSection);
               sectionMap[section.child_object_id] = newSection.child_object_id;
             })
           )
-          .toPromise();
+        );
       }
     };
 
@@ -164,8 +163,8 @@ export class ImportLabBookElementsModalComponent implements OnInit {
           e => e.child_object_content_type_model === 'labbooks.labbooksection' && e.child_object_id === oldSectionId
         ).length;
 
-        await this.importLabBookElement(labBookElement, parentSectionSelected ? elementsForSection[newSectionId] : elements)
-          .pipe(
+        await lastValueFrom(
+          this.importLabBookElement(labBookElement, parentSectionSelected ? elementsForSection[newSectionId] : elements).pipe(
             map(newLabBookElement => {
               if (parentSectionSelected) {
                 elementsForSection[newSectionId] ??= [];
@@ -175,7 +174,7 @@ export class ImportLabBookElementsModalComponent implements OnInit {
               }
             })
           )
-          .toPromise();
+        );
       }
     };
 
@@ -185,12 +184,12 @@ export class ImportLabBookElementsModalComponent implements OnInit {
       }
 
       for (const [sectionId, elements] of Object.entries(elementsForSection)) {
-        await this.labBookSectionsService
-          .patch(sectionId, {
+        await lastValueFrom(
+          this.labBookSectionsService.patch(sectionId, {
             pk: sectionId,
             child_elements: [...elements.map(e => e.pk)],
           })
-          .toPromise();
+        );
       }
     };
 
@@ -230,9 +229,8 @@ export class ImportLabBookElementsModalComponent implements OnInit {
     this.sectionElements = {};
 
     const getElementsOperation = async (): Promise<void> => {
-      await this.labBooksService
-        .getElements(id)
-        .pipe(
+      await lastValueFrom(
+        this.labBooksService.getElements(id).pipe(
           untilDestroyed(this),
           map(
             /* istanbul ignore next*/ labBookElements => {
@@ -241,7 +239,7 @@ export class ImportLabBookElementsModalComponent implements OnInit {
             }
           )
         )
-        .toPromise();
+      );
     };
 
     const sectionOperation = async (): Promise<void> => {
@@ -252,9 +250,8 @@ export class ImportLabBookElementsModalComponent implements OnInit {
       }
 
       for (const labBookElement of this.elements) {
-        await this.labBooksService
-          .getElements(id, labBookElement.child_object_id)
-          .pipe(
+        await lastValueFrom(
+          this.labBooksService.getElements(id, labBookElement.child_object_id).pipe(
             untilDestroyed(this),
             map(childElements => {
               this.sectionElements[labBookElement.child_object_id] = childElements;
@@ -267,7 +264,7 @@ export class ImportLabBookElementsModalComponent implements OnInit {
               this.cdr.markForCheck();
             })
           )
-          .toPromise();
+        );
       }
     };
 

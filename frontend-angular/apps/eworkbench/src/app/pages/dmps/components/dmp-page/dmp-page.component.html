@@ -20,7 +20,6 @@
         [newModalComponent]="newModalComponent"
         [initialState]="initialState"
         [privileges]="privileges"
-        [duplicateElement]="false"
         *ngIf="privileges"
       ></eworkbench-details-dropdown>
     </ng-container>
@@ -189,7 +188,7 @@
                   <ng-container slot="body">
                     <div class="mb-4">
                       <eworkbench-metadata
-                        [selectedParameters]="initialState?.metadata"
+                        [selectedParameters]="initialState?.metadata ?? []"
                         [editable]="privileges?.edit"
                         [loading]="loading"
                         [refresh]="refreshMetadata"
@@ -221,7 +220,6 @@
                       [service]="dmpService"
                       [changesId]="id"
                       [refresh]="refreshChanges"
-                      [users]="initialState?.attending_users"
                     ></eworkbench-recent-changes>
                   </ng-container>
                 </eworkbench-details-collapse-element>
@@ -265,7 +263,7 @@
           ></eworkbench-overview-collapse-element>
 
           <div class="border border-tum-border-gray p-4">
-            <ng-container *ngIf="initialState?.dmp_form_data.length">
+            <ng-container *ngIf="initialState?.dmp_form_data?.length">
               <div class="dmp mb-4" *ngFor="let data of initialState?.dmp_form_data; let i = index">
                 <div class="dmp-form-data">
                   <label [for]="'formData.' + i">{{ data.name }}</label>

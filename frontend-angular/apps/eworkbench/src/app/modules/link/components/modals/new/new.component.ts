@@ -9,12 +9,14 @@ import { NewAppointmentModalComponent } from '@app/modules/appointment/component
 import { NewTaskBoardModalComponent } from '@app/modules/task-board/components/modals/new/new.component';
 import { NewTaskModalComponent } from '@app/modules/task/components/modals/new/new.component';
 import { NewContactModalComponent } from '@app/pages/contacts/components/modals/new/new.component';
+import { NewDMPModalComponent } from '@app/pages/dmps/components/modals/new/new.component';
 import { NewFileModalComponent } from '@app/pages/files/components/modals/new.component';
 import { NewLabBookModalComponent } from '@app/pages/labbooks/components/modals/new/new.component';
 import { NewNoteModalComponent } from '@app/pages/notes/components/modals/new/new.component';
+import { NewPictureModalComponent } from '@app/pages/pictures/components/modals/new/new.component';
 import { NewProjectModalComponent } from '@app/pages/projects/components/modals/new/new.component';
 import { NewStorageModalComponent } from '@app/pages/storages/components/modals/new/new.component';
-import { NotesService } from '@app/services';
+import { DMPService, NotesService, PicturesService } from '@app/services';
 import { AppointmentsService } from '@app/services/appointments/appointments.service';
 import { ContactsService } from '@app/services/contacts/contacts.service';
 import { DrivesService } from '@app/services/drives/drives.service';
@@ -32,14 +34,17 @@ import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { TabDirective, TabsetComponent } from 'ngx-bootstrap/tabs';
 import { ToastrService } from 'ngx-toastr';
+import { lastValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 interface FormRelations {
   appointmentRelations: RelationPayload[];
   noteRelations: RelationPayload[];
   contactRelations: RelationPayload[];
+  dmpRelations: RelationPayload[];
   fileRelations: RelationPayload[];
   labBookRelations: RelationPayload[];
+  pictureRelations: RelationPayload[];
   pluginInstanceRelations: RelationPayload[];
   projectRelations: RelationPayload[];
   driveRelations: RelationPayload[];
@@ -89,11 +94,20 @@ export class NewLinkModalComponent implements OnInit {
   @ViewChild('contactLastNameCellTemplate', { static: true })
   public contactLastNameCellTemplate!: TemplateRef<any>;
 
+  @ViewChild('dmpTitleCellTemplate', { static: true })
+  public dmpTitleCellTemplate!: TemplateRef<any>;
+
   @ViewChild('fileNameCellTemplate', { static: true })
   public fileNameCellTemplate!: TemplateRef<any>;
 
   @ViewChild('labBookTitleCellTemplate', { static: true })
   public labBookTitleCellTemplate!: TemplateRef<any>;
+
+  @ViewChild('pictureTitleCellTemplate', { static: true })
+  public pictureTitleCellTemplate!: TemplateRef<any>;
+
+  @ViewChild('picturePreviewCellTemplate', { static: true })
+  public picturePreviewCellTemplate!: TemplateRef<any>;
 
   @ViewChild('pluginInstanceTitleCellTemplate', { static: true })
   public pluginInstanceTitleCellTemplate!: TemplateRef<any>;
@@ -125,9 +139,13 @@ export class NewLinkModalComponent implements OnInit {
 
   public contactListColumns: TableColumn[] = [];
 
+  public dmpListColumns: TableColumn[] = [];
+
   public fileListColumns: TableColumn[] = [];
 
   public labbookListColumns: TableColumn[] = [];
+
+  public pictureListColumns: TableColumn[] = [];
 
   public pluginDataListColumns: TableColumn[] = [];
 
@@ -145,9 +163,13 @@ export class NewLinkModalComponent implements OnInit {
 
   public showContactSearch = false;
 
+  public showDMPSearch = false;
+
   public showFileSearch = false;
 
   public showLabbookSearch = false;
+
+  public showPictureSearch = false;
 
   public showPluginDataSearch = false;
 
@@ -165,9 +187,13 @@ export class NewLinkModalComponent implements OnInit {
 
   public refreshContacts = new EventEmitter<boolean>();
 
+  public refreshDMPs = new EventEmitter<boolean>();
+
   public refreshFiles = new EventEmitter<boolean>();
 
   public refreshLabBooks = new EventEmitter<boolean>();
+
+  public refreshPictures = new EventEmitter<boolean>();
 
   public refreshPluginData = new EventEmitter<boolean>();
 
@@ -195,8 +221,10 @@ export class NewLinkModalComponent implements OnInit {
     appointmentRelations: this.fb.array([]),
     noteRelations: this.fb.array([]),
     contactRelations: this.fb.array([]),
+    dmpRelations: this.fb.array([]),
     fileRelations: this.fb.array([]),
     labBookRelations: this.fb.array([]),
+    pictureRelations: this.fb.array([]),
     pluginInstanceRelations: this.fb.array([]),
     projectRelations: this.fb.array([]),
     driveRelations: this.fb.array([]),
@@ -208,8 +236,10 @@ export class NewLinkModalComponent implements OnInit {
     public readonly appointmentsService: AppointmentsService,
     public readonly notesService: NotesService,
     public readonly contactsService: ContactsService,
+    public readonly dmpsService: DMPService,
     public readonly filesService: FilesService,
     public readonly labBooksService: LabBooksService,
+    public readonly picturesService: PicturesService,
     public readonly pluginInstancesService: PluginInstancesService,
     public readonly projectsService: ProjectsService,
     public readonly drivesService: DrivesService,
@@ -249,6 +279,12 @@ export class NewLinkModalComponent implements OnInit {
             cellTemplate: this.genericCreatedByCellTemplate,
             name: column.createdBy,
             key: 'created_by',
+            sortable: true,
+          },
+          {
+            cellTemplate: this.genericCreatedAtCellTemplate,
+            name: column.createdAt,
+            key: 'created_at',
             sortable: true,
           },
         ];
@@ -295,6 +331,37 @@ export class NewLinkModalComponent implements OnInit {
             cellTemplate: this.contactLastNameCellTemplate,
             name: column.lastName,
             key: 'last_name',
+            sortable: true,
+          },
+          {
+            cellTemplate: this.genericCreatedByCellTemplate,
+            name: column.createdBy,
+            key: 'created_by',
+            sortable: true,
+          },
+          {
+            cellTemplate: this.genericCreatedAtCellTemplate,
+            name: column.createdAt,
+            key: 'created_at',
+            sortable: true,
+          },
+        ];
+      });
+
+    this.translocoService
+      .selectTranslateObject('dmps.columns')
+      .pipe(untilDestroyed(this))
+      .subscribe(column => {
+        this.dmpListColumns = [
+          {
+            cellTemplate: this.dmpTitleCellTemplate,
+            name: column.title,
+            key: 'title',
+            sortable: true,
+          },
+          {
+            name: column.dmpForm,
+            key: 'dmp_form_title',
             sortable: true,
           },
           {
@@ -360,6 +427,25 @@ export class NewLinkModalComponent implements OnInit {
             name: column.createdAt,
             key: 'created_at',
             sortable: true,
+          },
+        ];
+      });
+
+    this.translocoService
+      .selectTranslateObject('pictures.columns')
+      .pipe(untilDestroyed(this))
+      .subscribe(column => {
+        this.pictureListColumns = [
+          {
+            cellTemplate: this.pictureTitleCellTemplate,
+            name: column.title,
+            key: 'title',
+            sortable: true,
+          },
+          {
+            cellTemplate: this.picturePreviewCellTemplate,
+            name: column.preview,
+            key: 'download_rendered_image',
           },
         ];
       });
@@ -533,8 +619,10 @@ export class NewLinkModalComponent implements OnInit {
       ...this.appointmentRelations.value,
       ...this.noteRelations.value,
       ...this.contactRelations.value,
+      ...this.dmpRelations.value,
       ...this.fileRelations.value,
       ...this.labBookRelations.value,
+      ...this.pictureRelations.value,
       ...this.pluginInstanceRelations.value,
       ...this.projectRelations.value,
       ...this.driveRelations.value,
@@ -561,12 +649,20 @@ export class NewLinkModalComponent implements OnInit {
     return this.form.get('contactRelations') as FormArray<RelationPayload>;
   }
 
+  public get dmpRelations(): FormArray<RelationPayload> {
+    return this.form.get('dmpRelations') as FormArray<RelationPayload>;
+  }
+
   public get fileRelations(): FormArray<RelationPayload> {
     return this.form.get('fileRelations') as FormArray<RelationPayload>;
   }
 
   public get labBookRelations(): FormArray<RelationPayload> {
     return this.form.get('labBookRelations') as FormArray<RelationPayload>;
+  }
+
+  public get pictureRelations(): FormArray<RelationPayload> {
+    return this.form.get('pictureRelations') as FormArray<RelationPayload>;
   }
 
   public get pluginInstanceRelations(): FormArray<RelationPayload> {
@@ -612,6 +708,13 @@ export class NewLinkModalComponent implements OnInit {
         this.refreshContent = this.refreshContacts;
         break;
       }
+      case 'shared_elements.dmp': {
+        this.showDMPSearch = true;
+        this.newContentModal = NewDMPModalComponent;
+        this.newContentLabel = 'link.newModal.newContentLabel.dmp';
+        this.refreshContent = this.refreshDMPs;
+        break;
+      }
       case 'shared_elements.file': {
         this.showFileSearch = true;
         this.newContentModal = NewFileModalComponent;
@@ -624,6 +727,13 @@ export class NewLinkModalComponent implements OnInit {
         this.newContentModal = NewLabBookModalComponent;
         this.newContentLabel = 'link.newModal.newContentLabel.labBook';
         this.refreshContent = this.refreshLabBooks;
+        break;
+      }
+      case 'shared_elements.picture': {
+        this.showPictureSearch = true;
+        this.newContentModal = NewPictureModalComponent;
+        this.newContentLabel = 'link.newModal.newContentLabel.picture';
+        this.refreshContent = this.refreshPictures;
         break;
       }
       case 'plugins.plugininstance': {
@@ -678,9 +788,7 @@ export class NewLinkModalComponent implements OnInit {
     this.loading = true;
 
     Promise.all([
-      ...this.relations.map(relation => {
-        return this.service.addRelation(this.baseModel.pk, relation).pipe(untilDestroyed(this)).toPromise();
-      }),
+      ...this.relations.map(relation => lastValueFrom(this.service.addRelation(this.baseModel.pk, relation).pipe(untilDestroyed(this)))),
     ]).then(
       /* istanbul ignore next */ () => {
         this.state = ModalState.Changed;

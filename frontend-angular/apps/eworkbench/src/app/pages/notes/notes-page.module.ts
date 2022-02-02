@@ -32,6 +32,7 @@ import { TableModule } from '@eworkbench/table';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { NewNoteModalComponent } from './components/modals/new/new.component';
 import { NotePageComponent } from './components/note-page/note-page.component';
 import { NotesPageComponent } from './components/notes-page/notes-page.component';
@@ -76,6 +77,7 @@ import { NotesPageRoutingModule } from './notes-page-routing.module';
     FavoritesModule,
     CommentModule,
     LoadingModule,
+    TooltipModule.forRoot(),
   ],
 })
 export class NotesPageModule {}

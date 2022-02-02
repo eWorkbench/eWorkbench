@@ -23,7 +23,7 @@ export class PictureEditorDetailsDropdownComponent implements OnInit {
   public sketch = false;
 
   @Input()
-  public backgroundImage!: HTMLImageElement;
+  public backgroundImage?: HTMLImageElement;
 
   @Input()
   public canvas: any;
@@ -86,9 +86,9 @@ export class PictureEditorDetailsDropdownComponent implements OnInit {
         }
         this.loading = true;
 
-        this.backgroundImage.src = URL.createObjectURL(files[0]);
+        this.backgroundImage!.src = URL.createObjectURL(files[0]);
 
-        const backgroundImage: any = await fetch(this.backgroundImage.src).then(res => res.blob());
+        const backgroundImage: any = await fetch(this.backgroundImage!.src).then(res => res.blob());
         backgroundImage.name = `${this.picture.pk as string}_background.png`;
 
         this.service

@@ -87,12 +87,12 @@ describe('LabBookElementDropdownComponent', () => {
   it('should call delete()', () => {
     spectator.fixture.ngZone?.run(() => {
       const deleteSpy = jest.spyOn(spectator.component, 'delete');
-      spectator.component.delete(spectator.component.id);
+      spectator.component.delete(spectator.component.id as string);
       expect(deleteSpy).toHaveBeenCalledTimes(1);
       spectator.setInput({
         loading: true,
       });
-      spectator.component.delete(spectator.component.id);
+      spectator.component.delete(spectator.component.id as string);
       expect(deleteSpy).toHaveBeenCalledTimes(2);
     });
   });

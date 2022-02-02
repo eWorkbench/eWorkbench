@@ -29,7 +29,7 @@ export interface Drive {
   last_modified_at: string;
   last_modified_by: User;
   location: string;
-  metadata: Metadata;
+  metadata: Metadata[];
   pk: string;
   projects: string[];
   sub_directories: Directory[];

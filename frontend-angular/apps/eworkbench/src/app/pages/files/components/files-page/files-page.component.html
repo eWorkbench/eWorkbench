@@ -69,10 +69,10 @@
           >
             <span class="text-sm mr-2"
               >{{ t('filterHeader.createdBy') }}{{ ' '
-              }}{{ getFilterSelectedUser.pk === currentUser.pk ? t('filterHeader.createdBy.myself') : '' }}</span
+              }}{{ getFilterSelectedUser.pk === currentUser?.pk ? t('filterHeader.createdBy.myself') : '' }}</span
             >
             <eworkbench-user-details
-              *ngIf="getFilterSelectedUser.pk !== currentUser.pk"
+              *ngIf="getFilterSelectedUser.pk !== currentUser?.pk"
               class="inline-block mr-2"
               [user]="getFilterSelectedUser"
               [active]="false"
@@ -215,9 +215,9 @@
                   class="custom-control-input"
                   name="filter-user-radio"
                   id="filter-user-radio-2"
-                  [value]="currentUser.pk"
+                  [value]="currentUser?.pk"
                   [formControl]="usersControl"
-                  (change)="onUserFilterRadioMyself($event.target.checked)"
+                  (change)="onUserFilterRadioMyself($event.target?.checked)"
                 />
                 <label for="filter-user-radio-2" class="custom-control-label font-normal leading-6">{{
                   t('filter-menu.myself.label')
@@ -229,7 +229,7 @@
                   class="custom-control-input"
                   name="filter-user-radio"
                   id="filter-user-radio-3"
-                  (change)="showUserFilter = $event.target.checked"
+                  (change)="showUserFilter = $event.target?.checked"
                 />
                 <label for="filter-user-radio-3" class="custom-control-label font-normal leading-6">{{
                   t('filter-menu.chooseAUser.label')
@@ -388,15 +388,15 @@
 </div>
 
 <ng-template #titleCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="[showSidebar ? '.' : '' + '/files', row.pk]">{{ row.title }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #nameCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <eworkbench-file-icon class="inline-block mr-2" [mime]="row.mime_type"></eworkbench-file-icon>
     <a [routerLink]="[showSidebar ? '.' : '' + '/files', row.pk]">{{ row.name }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #fileSizeCellTemplate let-row>
   {{ row.file_size | formatFileSize }}

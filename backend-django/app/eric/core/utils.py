@@ -17,10 +17,11 @@ from django.utils.http import urlquote
 
 
 def get_rgb_rgba_pattern():
-    # from https://dev.to/taufik_nurrohman/match-valid-rgb-rgba-color-string-using-range-pattern-3142
+    # From https://dev.to/taufik_nurrohman/match-valid-rgb-rgba-color-string-using-range-pattern-3142
+    # Modified by MPO to allow "1.0" values too and not only "1".
     return r"(?:rgb\(\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d" \
            r"|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*\)|rgba\(\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]" \
-           r"\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*([01]|0?\.\d+)\s*\))"
+           r"\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*([01]|[01]?\.\d+)\s*\))"
 
 
 def rfc5987_content_disposition(file_name, disposition_type="attachment"):

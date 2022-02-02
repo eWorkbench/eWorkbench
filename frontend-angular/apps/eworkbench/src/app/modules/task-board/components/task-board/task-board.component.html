@@ -4,7 +4,12 @@
 -->
 
 <ng-container *transloco="let t">
-  <div cdkDropList [cdkDropListData]="columns" [cdkDropListOrientation]="dropListOrientation" (cdkDropListDropped)="onColumnDrop($event)">
+  <div
+    cdkDropList
+    [cdkDropListData]="columns"
+    [cdkDropListOrientation]="$any(dropListOrientation)"
+    (cdkDropListDropped)="onColumnDrop($event)"
+  >
     <div cdkDropListGroup class="task-board">
       <div
         cdkDrag
@@ -52,7 +57,7 @@
           [class.empty]="!column.tasks?.length"
           cdkDropList
           [cdkDropListData]="column.tasks"
-          (cdkDropListDropped)="onCardDrop($event)"
+          (cdkDropListDropped)="onCardDrop($any($event))"
           class="list-content"
         >
           <ng-container *ngFor="let task of column.tasks">

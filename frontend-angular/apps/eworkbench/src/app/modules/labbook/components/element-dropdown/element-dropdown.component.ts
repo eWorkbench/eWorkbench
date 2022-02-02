@@ -40,7 +40,7 @@ export class LabBookElementDropdownComponent implements OnInit {
   public service!: any;
 
   @Input()
-  public id!: string;
+  public id?: string;
 
   @Input()
   public labBookId!: string;
@@ -59,6 +59,9 @@ export class LabBookElementDropdownComponent implements OnInit {
 
   @Input()
   public privileges?: Privileges;
+
+  @Input()
+  public labBookEditable? = false;
 
   @Input()
   public newModalComponent?: any;
@@ -148,7 +151,7 @@ export class LabBookElementDropdownComponent implements OnInit {
     const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
     if (skipTrashDialog) {
-      this.delete(this.id);
+      this.delete(this.id!);
     } else {
       this.modalRef = this.modalService.open(DeleteModalComponent, {
         closeButton: false,
@@ -174,7 +177,7 @@ export class LabBookElementDropdownComponent implements OnInit {
         /* istanbul ignore next */ () => {
           this.loading = false;
           this.translocoService
-            .selectTranslate('labbook.elementDropdown.trashElement.toastr.success')
+            .selectTranslate('labBook.elementDropdown.trashElement.toastr.success')
             .pipe(untilDestroyed(this))
             .subscribe(success => {
               this.toastrService.success(success);
@@ -295,7 +298,7 @@ export class LabBookElementDropdownComponent implements OnInit {
           this.removed.emit({ id: this.elementId, gridReload: false });
           this.loading = false;
           this.translocoService
-            .selectTranslate('labbook.elementDropdown.removeFromLabBook.toastr.success')
+            .selectTranslate('labBook.elementDropdown.removeFromLabBook.toastr.success')
             .pipe(untilDestroyed(this))
             .subscribe(success => {
               this.toastrService.success(success);

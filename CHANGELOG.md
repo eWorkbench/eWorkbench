@@ -1,5 +1,40 @@
 # Changelog
 
+## Version 2.8.3 - February 2022
+- [SITUMEWB-*] Fix matomo tracking
+
+## Version 2.8.2 - January 2022
+- [SITUMEWB-819] Fix storage permissions
+
+## Version 2.8.1 - January 2022
+- [SITUMEWB-763] Changes to LabBook handlers regarding changes to child elements
+- [SITUMEWB-763] Automatic refresh of history for LabBooks when child elements change
+- [SITUMEWB-779] Fixed UI issues with metadata in projects for users without edit privileges
+- [SITUMEWB-816] Show tooltip on ellipsis elements
+
+## Version 2.8 - December 2021
+- [SITUMEWB-760] allow editing elements even with unknown projects
+- [SITUMEWB-763] Implemented versioning of LabBook child elements
+- [SITUMEWB-*] Fixed rgba regex for task board columns color
+- [SITUMEWB-768] Implemented search options for projects
+- [SITUMEWB-773] Changes to password reset email
+- [SITUMEWB-775] Implemented duplicating DMPs
+- [SITUMEWB-779] Added metadata to projects
+- [SITUMEWB-784] Fixed assignees reminder blocking the creation or update of appointments
+- [SITUMEWB-768] Projects filtermenu
+- [SITUMEWB-805] Fix dmp and picture relations
+- [SITUMEWB-807] Fix breadcrumbs navigation
+- [SITUMEWB-806] Disable tracking with cookies on matomo
+- [SITUMEWB-*] Fix linting
+- [SITUMEWB-*] Fixed permission handling of LabBook sections
+- [SITUMEWB-799] Booking rules placement
+- [SITUMEWB-804] Fixed project search on task board details
+- [SITUMEWB-773] Disallow email logins
+- [SITUMEWB-763] Changes to LabBook permission checks
+
+## Version 2.7.1 - November 2021
+- [SITUMEWB-*] Exclude error 504 requests from Toastr messages
+
 ## Version 2.7 - November 2021
 - [SITUMEWB-778] Overview Element
 - [SITUMEWB-782] Fix storage display in file detail view

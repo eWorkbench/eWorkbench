@@ -13,7 +13,7 @@ import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
-import { of, Subject } from 'rxjs';
+import { lastValueFrom, of, Subject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 
 interface FormMergeDuplicates {
@@ -348,9 +348,10 @@ export class MergeDuplicatesModalComponent implements OnInit {
     this.loading = true;
 
     Promise.all([
-      this.contactsService.patch(this.baseContact, this.contact).pipe(untilDestroyed(this)).toPromise(),
+      lastValueFrom(this.contactsService.patch(this.baseContact, this.contact).pipe(untilDestroyed(this))),
       ...this.mergeContacts.value.map(contactPk => {
-        if (contactPk) return this.contactsService.delete(contactPk).pipe(untilDestroyed(this)).toPromise();
+        if (contactPk) return lastValueFrom(this.contactsService.delete(contactPk).pipe(untilDestroyed(this)));
+        return Promise.resolve({} as Contact);
       }),
     ]).then(
       /* istanbul ignore next */ () => {

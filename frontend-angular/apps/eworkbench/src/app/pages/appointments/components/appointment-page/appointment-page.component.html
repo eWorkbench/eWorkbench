@@ -388,7 +388,7 @@
               <ng-container slot="body">
                 <div class="mb-4">
                   <eworkbench-metadata
-                    [selectedParameters]="initialState?.metadata"
+                    [selectedParameters]="initialState?.metadata ?? []"
                     [editable]="privileges?.edit"
                     [loading]="loading"
                     [refresh]="refreshMetadata"

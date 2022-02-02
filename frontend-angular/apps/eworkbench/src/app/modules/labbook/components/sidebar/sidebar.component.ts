@@ -33,6 +33,9 @@ export class LabBookSidebarComponent implements OnInit {
   @Input()
   public projects: string[] = [];
 
+  @Input()
+  public editable? = false;
+
   @Output()
   public created = new EventEmitter<LabBookElementEvent>();
 

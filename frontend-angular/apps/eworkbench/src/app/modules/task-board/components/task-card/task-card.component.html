@@ -65,7 +65,10 @@
             <eworkbench-icon className="wb-clock" class="leading-3"></eworkbench-icon>
             <span *ngIf="userSettings.day_indication">{{ task.task.due_date | formatSpeakingDate: !task.task.full_day }}</span>
             <span *ngIf="userSettings.day_indication === false">{{ task.task.due_date | formatDate }}</span>
-            <span *ngIf="userSettings.day_indication == null">{{ task.task.due_date | formatSpeakingDate: !task.task.full_day }}</span>
+            <span *ngIf="userSettings.day_indication === null">{{ task.task.due_date | formatSpeakingDate: !task.task.full_day }}</span>
+            <span *ngIf="userSettings.day_indication === undefined">{{
+              task.task.due_date | formatSpeakingDate: !task.task.full_day
+            }}</span>
           </div>
           <ng-container *ngIf="task.task.labels.length">
             <div
@@ -98,16 +101,18 @@
                 <ng-container *ngIf="task.task.assigned_users.length > 3">
                   <div class="task-card-footer-user-avatar cursor-pointer">
                     <eworkbench-user-avatar
-                      [user]="{
-                        pk: null,
-                        userprofile: {
-                          anonymized: false,
-                          avatar_is_set: false,
-                          avatar: null,
-                          first_name: '+',
-                          last_name: (task.task.assigned_users.length - 2).toString()
-                        }
-                      }"
+                      [user]="
+                        $any({
+                          pk: undefined,
+                          userprofile: {
+                            anonymized: false,
+                            avatar_is_set: false,
+                            avatar: undefined,
+                            first_name: '+',
+                            last_name: (task.task.assigned_users.length - 2).toString()
+                          }
+                        })
+                      "
                       (click)="openMoreModal(task.task.assigned_users)"
                     ></eworkbench-user-avatar>
                   </div>
@@ -116,7 +121,7 @@
                   <div class="task-card-footer-user-avatar cursor-pointer">
                     <eworkbench-user-avatar
                       [user]="user"
-                      [ring]="currentUser.pk === user.pk"
+                      [ring]="currentUser?.pk === user.pk"
                       [tooltip]="assigneesFormat(user)"
                       container="body"
                       containerClass="tooltip-sm"

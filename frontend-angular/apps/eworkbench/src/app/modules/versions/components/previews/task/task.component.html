@@ -20,6 +20,7 @@
       <div class="mb-4">
         <label for="assignees-modal">{{ t('task.details.assignees.label') }}</label>
         <ng-select
+          #select
           class="ewb-select"
           name="assignees-modal"
           [formControl]="assigneesFormControl"
@@ -169,7 +170,7 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="task?.metadata.length">
+      <div class="mb-4" *ngIf="task?.metadata?.length">
         <label for="metadata-modal">{{ t('task.details.metadata.label') }}</label>
         <ng-container *ngFor="let field of task?.metadata">
           <div class="mb-2">

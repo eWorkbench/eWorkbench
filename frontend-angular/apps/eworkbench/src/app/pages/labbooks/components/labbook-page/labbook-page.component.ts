@@ -166,6 +166,12 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
           this.lock = data.element_lock_changed;
           this.cdr.detectChanges();
         }
+
+        /* istanbul ignore next */
+        if (data.labbook_child_element_changed?.model_pk === this.id) {
+          this.refreshChanges.next(true);
+          this.refreshVersions.next(true);
+        }
       }
     );
 

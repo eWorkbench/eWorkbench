@@ -165,12 +165,12 @@
           </ng-select>
         </div>
         <div class="mb-4" *ngIf="initialState?.description">
-          <label for="description">{{ t('resource.details.description.label') }}</label>
+          <label for="description">{{ t('resource.details.element.description') }}</label>
           <div [innerHTML]="initialState.description"></div>
         </div>
-        <div class="mb-4" *ngIf="initialState?.metadata.length">
-          <label for="metadata">{{ t('resource.details.metadata.label') }}</label>
-          <eworkbench-metadata [selectedParameters]="initialState?.metadata"></eworkbench-metadata>
+        <div class="mb-4" *ngIf="initialState?.metadata?.length">
+          <label for="metadata">{{ t('resource.details.element.metadata') }}</label>
+          <eworkbench-metadata [selectedParameters]="initialState?.metadata ?? []"></eworkbench-metadata>
         </div>
       </div>
       <div>

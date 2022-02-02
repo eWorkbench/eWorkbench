@@ -31,6 +31,7 @@ import { LoginPageRoutingModule } from './login-page-routing.module';
         useFactory(translocoService: TranslocoService) {
           return {
             required: () => translocoService.translate('form.errors.required'),
+            emaildetected: () => translocoService.translate('form.errors.emaildetected'),
           };
         },
         deps: [TranslocoService],

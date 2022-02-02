@@ -55,10 +55,13 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
   public section?: string;
 
   @Input()
-  private readonly created?: EventEmitter<LabBookElementEvent>;
+  public created?: EventEmitter<LabBookElementEvent>;
 
   @Input()
-  private readonly refresh?: EventEmitter<boolean>;
+  public refresh?: EventEmitter<boolean>;
+
+  @Input()
+  public editable? = false;
 
   public closeSection = new EventEmitter<string>();
 
@@ -258,6 +261,10 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
   }
 
   public updateAllElements(elements?: LabBookElementPayload[]): void {
+    if (!this.editable) {
+      return;
+    }
+
     // Delay the process for a tick or else gridster won't recognize the changes
     setTimeout(() => {
       if (this.loading) {
@@ -483,7 +490,7 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
   }
 
   public getItemResizeEnabled(contentType: string): boolean {
-    return contentType !== 'labbooks.labbooksection';
+    return contentType !== 'labbooks.labbooksection' && Boolean(this.editable);
   }
 
   public getNewElementHeight(contentType: string): number {

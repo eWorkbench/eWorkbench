@@ -16,7 +16,7 @@
       <eworkbench-details-dropdown
         [service]="taskBoardsService"
         [id]="initialState?.pk"
-        [redirectDestination]="['/taskboards', initialState?.pk]"
+        [redirectDestination]="['/taskboards', initialState?.pk!]"
         [newModalComponent]="newTaskBoardModalComponent"
         [initialState]="initialState"
         [privileges]="privileges"
@@ -82,7 +82,7 @@
                     name="projects"
                     [placeholder]="t('taskBoard.details.projects.placeholder')"
                     [multiple]="true"
-                    [typeahead]="projectInput$"
+                    [typeahead]="projectsInput$"
                     [items]="projects"
                     groupBy="is_favourite"
                     bindLabel="name"
@@ -161,7 +161,6 @@
                 [service]="taskBoardsService"
                 [changesId]="id"
                 [refresh]="refreshChanges"
-                [users]="initialState?.attending_users"
               ></eworkbench-recent-changes>
             </ng-container>
           </eworkbench-details-collapse-element>
@@ -242,7 +241,7 @@
       <eworkbench-task-board
         #taskBoardC
         [setFilter]="setFilter"
-        [projects]="initialState?.projects"
+        [projects]="initialState?.projects ?? []"
         [userSettings]="userSettings"
         (boardChange)="onBoardChange($event)"
       ></eworkbench-task-board>
@@ -283,9 +282,9 @@
                     class="custom-control-input"
                     name="filter-user-radio"
                     id="filter-user-radio-2"
-                    [value]="currentUser.pk"
+                    [value]="currentUser?.pk"
                     [formControl]="usersControl"
-                    (change)="onUserFilterRadioMyself($event.target.checked)"
+                    (change)="onUserFilterRadioMyself($event.target?.checked)"
                   />
                   <label for="filter-user-radio-2" class="custom-control-label font-normal leading-6">
                     {{ t('filter-menu.myself.label') }}
@@ -297,7 +296,7 @@
                     class="custom-control-input"
                     name="filter-user-radio"
                     id="filter-user-radio-3"
-                    (change)="showUserFilter = $event.target.checked"
+                    (change)="showUserFilter = $event.target?.checked"
                   />
                   <label for="filter-user-radio-3" class="custom-control-label font-normal leading-6">
                     {{ t('filter-menu.chooseAUser.label') }}
@@ -382,9 +381,9 @@
                     class="custom-control-input"
                     name="filter-assignee-radio"
                     id="filter-assignee-radio-2"
-                    [value]="currentUser.pk"
+                    [value]="currentUser?.pk"
                     [formControl]="assigneesControl"
-                    (change)="onUserFilterRadioMyselfAssignees($event.target.checked)"
+                    (change)="onUserFilterRadioMyselfAssignees($event.target?.checked)"
                   />
                   <label for="filter-assignee-radio-2" class="custom-control-label font-normal leading-6">
                     {{ t('filter-menu.myself.label') }}
@@ -396,7 +395,7 @@
                     class="custom-control-input"
                     name="filter-assignee-radio"
                     id="filter-assignee-radio-3"
-                    (change)="showAssigneesFilter = $event.target.checked"
+                    (change)="showAssigneesFilter = $event.target?.checked"
                   />
                   <label for="filter-assignee-radio-3" class="custom-control-label font-normal leading-6">
                     {{ t('filter-menu.chooseAUser.label') }}

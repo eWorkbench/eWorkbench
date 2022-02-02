@@ -5,8 +5,6 @@
 
 <eworkbench-header [title]="title"></eworkbench-header>
 
-<eworkbench-page-skeleton *ngIf="!initialStateNotifications && !initialStateUser"></eworkbench-page-skeleton>
-
 <ng-container *ngIf="initialStateNotifications && initialStateUser">
   <ng-container *transloco="let t">
     <main>
@@ -450,6 +448,21 @@
               />
               <label class="custom-control-label font-normal" for="confirmationPromptDuplicateProject">{{
                 t('profileSettings.dialog.confirmationPrompts.duplicateProject.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="confirmationPromptDuplicateDMP"
+                name="confirmationPromptDuplicateDMP"
+                formControlName="confirmationPromptDuplicateDMP"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-normal" for="confirmationPromptDuplicateDMP">{{
+                t('profileSettings.dialog.confirmationPrompts.duplicateDMP.label')
               }}</label>
             </div>
           </div>

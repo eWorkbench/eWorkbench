@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ duplicate ? t('contact.newModal.duplicate.header', { title: initialState.display }) : t('contact.newModal.create.header') }}
+      {{ duplicate ? t('contact.newModal.duplicate.header', { title: initialState?.display }) : t('contact.newModal.create.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
@@ -14,6 +14,7 @@
           <div class="mb-4">
             <label for="copyProfile">{{ t('contact.newModal.copyProfile.label') }}</label>
             <ng-select
+              #select
               class="ewb-select"
               formControlName="copyProfile"
               labelForId="copyProfile"

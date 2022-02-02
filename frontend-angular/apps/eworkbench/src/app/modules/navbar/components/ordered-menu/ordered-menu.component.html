@@ -23,7 +23,7 @@
         [routerLink]="[getMenuModel(item)?.routerLink]"
         [class.disabled]="editMode"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: getMenuModel(item)?.routerLinkExactMatch }"
+        [routerLinkActiveOptions]="{ exact: getMenuModel(item)?.routerLinkExactMatch! }"
       >
         <button class="btn ewb-button-regular uppercase route-button h-full w-full text-left">
           {{ getMenuModel(item)?.name }}
@@ -70,7 +70,7 @@
             class="menu-item-button"
             [class.disabled]="editMode"
             routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: getMenuModel(item)?.routerLinkExactMatch }"
+            [routerLinkActiveOptions]="{ exact: getMenuModel(item)?.routerLinkExactMatch! }"
           >
             <li cdkDrag class="flex items-center" [cdkDragDisabled]="!editMode" [class.cursor-move]="editMode">
               <a

@@ -18,13 +18,13 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class FavoriteButtonComponent {
   @Input()
-  public id!: string;
+  public id?: string;
 
   @Input()
-  public contentType!: number;
+  public contentType?: number;
 
   @Input()
-  public favorited = false;
+  public favorited? = false;
 
   @Input()
   public btnClass = 'btn bg-transparent p-0';
@@ -45,7 +45,7 @@ export class FavoriteButtonComponent {
     this.loading = true;
 
     this.favoritesService
-      .add(this.id, this.contentType)
+      .add(this.id!, this.contentType!)
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ () => {
@@ -72,7 +72,7 @@ export class FavoriteButtonComponent {
     this.loading = true;
 
     this.favoritesService
-      .delete(this.id, this.contentType)
+      .delete(this.id!, this.contentType!)
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ () => {

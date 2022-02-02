@@ -17,6 +17,7 @@ import { FormsModule } from '@eworkbench/forms';
 import { TableModule } from '@eworkbench/table';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { MetadataSearchPageComponent } from './components/metadata-search-page/metadata-search-page.component';
 import { MetadataSearchPageRoutingModule } from './metadata-search-page-routing.module';
 
@@ -43,6 +44,7 @@ import { MetadataSearchPageRoutingModule } from './metadata-search-page-routing.
     TableModule,
     SharedModule,
     UserModule,
+    TooltipModule.forRoot(),
   ],
 })
 export class MetadataSearchPageModule {}

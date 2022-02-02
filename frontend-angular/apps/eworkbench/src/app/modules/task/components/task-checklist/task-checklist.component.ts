@@ -29,7 +29,7 @@ export class TaskChecklistComponent implements AfterViewInit {
   public _value: TaskChecklist[] = [];
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @ViewChild('checkboxElements')
   public checkboxElements!: ElementRef<HTMLDivElement>;

@@ -18,7 +18,7 @@ import { CustomControlErrorComponent } from './control-error/control-error.compo
 import { DetailsCollapseElementComponent } from './details-collapse-element/details-collapse-element.component';
 import { AuthDownloadDirective } from './directives/auth-download/auth-download.directive';
 import { AutoFocusDirective } from './directives/auto-focus/auto-focus.directive';
-import { EllipsisElementComponent } from './ellipsis/ellipsis-element.component';
+import { EllipsisDirective } from './directives/ellipsis/ellipsis.directive';
 import { FilterSidebarComponent } from './filter-sidebar/filter-sidebar.component';
 import { PendingChangesModalComponent } from './modals/pending-changes/pending-changes.component';
 import { OverviewCollapseElementComponent } from './overview-collapse-element/overview-collapse-element.component';
@@ -44,7 +44,6 @@ import { TrashedItemsFilterComponent } from './trashed-items-filter/trashed-item
     CollapseElementComponent,
     SecondaryCollapseElementComponent,
     DetailsCollapseElementComponent,
-    EllipsisElementComponent,
     AuthDownloadDirective,
     SafeHtmlPipe,
     PendingChangesModalComponent,
@@ -52,6 +51,7 @@ import { TrashedItemsFilterComponent } from './trashed-items-filter/trashed-item
     FilterSidebarComponent,
     AutoFocusDirective,
     OverviewCollapseElementComponent,
+    EllipsisDirective,
   ],
   imports: [CommonModule, getTranslocoModule(), IconsModule, CollapseModule.forRoot(), ModalsModule, TranslocoRootModule, LoadingModule],
   exports: [
@@ -65,7 +65,6 @@ import { TrashedItemsFilterComponent } from './trashed-items-filter/trashed-item
     CollapseElementComponent,
     SecondaryCollapseElementComponent,
     DetailsCollapseElementComponent,
-    EllipsisElementComponent,
     AuthDownloadDirective,
     SafeHtmlPipe,
     PendingChangesModalComponent,
@@ -73,6 +72,7 @@ import { TrashedItemsFilterComponent } from './trashed-items-filter/trashed-item
     FilterSidebarComponent,
     AutoFocusDirective,
     OverviewCollapseElementComponent,
+    EllipsisDirective,
   ],
 })
 export class SharedModule {}

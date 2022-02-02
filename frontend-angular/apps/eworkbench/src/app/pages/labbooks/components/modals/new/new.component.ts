@@ -36,6 +36,8 @@ export class NewLabBookModalComponent implements OnInit {
 
   public withSidebar?: boolean = this.modalRef.data?.withSidebar;
 
+  public duplicate?: string = this.modalRef.data?.duplicate;
+
   public loading = false;
 
   public state = ModalState.Unchanged;

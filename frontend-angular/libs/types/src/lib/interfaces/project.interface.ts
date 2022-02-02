@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { Metadata } from '@eworkbench/types';
 import { Role } from './role.interface';
 import { User } from './user.interface';
 
@@ -13,6 +14,7 @@ export interface ProjectPayload {
   project_state: 'INIT' | 'START' | 'FIN' | 'PAUSE' | 'CANCE' | 'DEL';
   description?: string;
   parent_project: string | null;
+  metadata?: Metadata[];
 }
 
 export interface ProjectMemberPayload {
@@ -46,7 +48,7 @@ export interface Project {
   created_at: string;
   content_type_model?: string;
   name: string;
-  metadata: any[];
+  metadata: Metadata[];
   version_number?: number;
   notes?: string;
   display: string;

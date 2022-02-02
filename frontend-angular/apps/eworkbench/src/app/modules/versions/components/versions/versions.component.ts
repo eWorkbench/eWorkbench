@@ -53,13 +53,13 @@ export class VersionsComponent implements OnInit {
   public modalRef?: DialogRef;
 
   @Input()
-  public lastModifiedAt?: string;
+  public lastModifiedAt?: string | null;
 
   @Input()
   public refresh?: EventEmitter<boolean>;
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Input()
   public finalizeVersionAlwaysVisible = false;

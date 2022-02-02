@@ -65,10 +65,10 @@
           >
             <span class="text-sm mr-2"
               >{{ t('filterHeader.createdBy') }}{{ ' '
-              }}{{ getFilterSelectedUser.pk === currentUser.pk ? t('filterHeader.createdBy.myself') : '' }}</span
+              }}{{ getFilterSelectedUser.pk === currentUser?.pk ? t('filterHeader.createdBy.myself') : '' }}</span
             >
             <eworkbench-user-details
-              *ngIf="getFilterSelectedUser.pk !== currentUser.pk"
+              *ngIf="getFilterSelectedUser.pk !== currentUser?.pk"
               class="inline-block mr-2"
               [user]="getFilterSelectedUser"
               [active]="false"
@@ -97,22 +97,6 @@
               [tooltip]="t('filterHeader.chip.tooltip.remove')"
               containerClass="tooltip-sm"
               (click)="projectsControl.setValue(null)"
-            >
-              <eworkbench-icon className="wb-remove"></eworkbench-icon>
-            </button>
-          </div>
-
-          <div
-            *ngIf="getFilterSelectedPlugin"
-            class="bg-tum-primary hover:bg-tum-primary-hover text-white py-0.5 px-2.5 rounded-full inline-flex justify-between items-center"
-          >
-            <span class="text-sm mr-2">{{ getFilterSelectedPlugin.display }}</span>
-            <button
-              type="button"
-              class="btn ewb-button-small text-white"
-              [tooltip]="t('filterHeader.chip.tooltip.remove')"
-              containerClass="tooltip-sm"
-              (click)="pluginsControl.setValue(null)"
             >
               <eworkbench-icon className="wb-remove"></eworkbench-icon>
             </button>
@@ -194,9 +178,9 @@
                   class="custom-control-input"
                   name="filter-user-radio"
                   id="filter-user-radio-2"
-                  [value]="currentUser.pk"
+                  [value]="currentUser?.pk"
                   [formControl]="usersControl"
-                  (change)="onUserFilterRadioMyself($event.target.checked)"
+                  (change)="onUserFilterRadioMyself($event.target?.checked)"
                 />
                 <label for="filter-user-radio-2" class="custom-control-label font-normal leading-6">{{
                   t('filter-menu.myself.label')
@@ -208,7 +192,7 @@
                   class="custom-control-input"
                   name="filter-user-radio"
                   id="filter-user-radio-3"
-                  (change)="showUserFilter = $event.target.checked"
+                  (change)="showUserFilter = $event.target?.checked"
                 />
                 <label for="filter-user-radio-3" class="custom-control-label font-normal leading-6">{{
                   t('filter-menu.chooseAUser.label')
@@ -323,9 +307,9 @@
 </div>
 
 <ng-template #subjectCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.subject" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/notes', row.pk]">{{ row.subject }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #createdAtCellTemplate let-row>
   {{ row.created_at | formatDate }}

@@ -167,6 +167,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       project_state: (this.f.state.value as Project['project_state'] | null) ?? 'INIT',
       description: this.f.description.value ?? '',
       parent_project: this.f.parentProject.value,
+      metadata: this.metadata!,
     };
   }
 

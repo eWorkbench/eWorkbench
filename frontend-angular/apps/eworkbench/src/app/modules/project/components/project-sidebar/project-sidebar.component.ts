@@ -123,8 +123,8 @@ export class ProjectSidebarComponent implements OnInit {
       );
   }
 
-  public getSidebarModel(model: ProjectSidebarModels): ProjectSidebarModelItem | null {
-    return this.projectsSidebarModelService.get(model);
+  public getSidebarModel(model: ProjectSidebarModels | string): ProjectSidebarModelItem | null {
+    return this.projectsSidebarModelService.get(model as ProjectSidebarModels);
   }
 
   public onToggleEditMode(): void {

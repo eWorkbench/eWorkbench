@@ -9,12 +9,14 @@
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
+          "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/apps/eworkbench",
             "index": "apps/eworkbench/src/index.html",
             "main": "apps/eworkbench/src/main.ts",
             "polyfills": "apps/eworkbench/src/polyfills.ts",
             "tsConfig": "apps/eworkbench/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
               "apps/eworkbench/src/assets",
               {
@@ -51,13 +53,6 @@
           },
           "configurations": {
             "production": {
-              "fileReplacements": [
-                {
-                  "replace": "apps/eworkbench/src/environments/environment.ts",
-                  "with": "apps/eworkbench/src/environments/environment.prod.ts"
-                }
-              ],
-              "outputHashing": "all",
               "budgets": [
                 {
                   "type": "initial",
@@ -69,7 +64,14 @@
                   "maximumWarning": "30kb",
                   "maximumError": "50kb"
                 }
-              ]
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "apps/eworkbench/src/environments/environment.ts",
+                  "with": "apps/eworkbench/src/environments/environment.prod.ts"
+                }
+              ],
+              "outputHashing": "all"
             },
             "development": {
               "buildOptimizer": false,
@@ -106,7 +108,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["apps/eworkbench/src/**/*.ts"]
+            "lintFilePatterns": ["apps/eworkbench/src/**/*.ts", "apps/eworkbench/src/**/*.html"]
           }
         },
         "test": {
@@ -153,7 +155,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["libs/forms/**/*.ts"]
+            "lintFilePatterns": ["libs/forms/**/*.ts", "libs/forms/**/*.html"]
           }
         },
         "test": {
@@ -174,7 +176,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["libs/table/**/*.ts"]
+            "lintFilePatterns": ["libs/table/**/*.ts", "libs/table/**/*.html"]
           }
         },
         "test": {
@@ -195,7 +197,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["libs/wysiwyg-editor/**/*.ts"]
+            "lintFilePatterns": ["libs/wysiwyg-editor/**/*.ts", "libs/wysiwyg-editor/**/*.html"]
           }
         },
         "test": {
@@ -216,7 +218,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["libs/gantt-chart/**/*.ts"]
+            "lintFilePatterns": ["libs/gantt-chart/**/*.ts", "libs/gantt-chart/**/*.html"]
           }
         },
         "test": {
@@ -237,7 +239,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["libs/calendar/**/*.ts"]
+            "lintFilePatterns": ["libs/calendar/**/*.ts", "libs/calendar/**/*.html"]
           }
         },
         "test": {
@@ -258,7 +260,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["libs/modals/**/*.ts"]
+            "lintFilePatterns": ["libs/modals/**/*.ts", "libs/modals/**/*.html"]
           }
         },
         "test": {
@@ -296,11 +298,6 @@
             "lintFilePatterns": ["libs/mocks/**/*.ts"]
           }
         }
-      },
-      "schematics": {
-        "@nrwl/angular:component": {
-          "styleext": "scss"
-        }
       }
     },
     "icons": {
@@ -333,7 +330,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["libs/skeletons/**/*.ts"]
+            "lintFilePatterns": ["libs/skeletons/**/*.ts", "libs/skeletons/**/*.html"]
           }
         },
         "test": {
@@ -354,7 +351,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["libs/picture-editor/**/*.ts"]
+            "lintFilePatterns": ["libs/picture-editor/**/*.ts", "libs/picture-editor/**/*.html"]
           }
         },
         "test": {

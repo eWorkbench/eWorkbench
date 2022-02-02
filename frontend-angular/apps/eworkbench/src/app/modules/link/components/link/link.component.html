@@ -55,6 +55,11 @@
     </button>
   </li>
   <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('shared_elements.dmp')" [disabled]="loading">
+      <eworkbench-icon className="wb-dmps"></eworkbench-icon> {{ t('link.dropdown.dmp') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
     <button type="button" [class]="itemClass" (click)="openNewLinkModal('shared_elements.file')" [disabled]="loading">
       <eworkbench-icon className="wb-files"></eworkbench-icon> {{ t('link.dropdown.file') }}
     </button>
@@ -62,6 +67,11 @@
   <li [class]="menuClass" role="menuitem">
     <button type="button" [class]="itemClass" (click)="openNewLinkModal('labbooks.labbook')" [disabled]="loading">
       <eworkbench-icon className="wb-lab-book"></eworkbench-icon> {{ t('link.dropdown.labBook') }}
+    </button>
+  </li>
+  <li [class]="menuClass" role="menuitem">
+    <button type="button" [class]="itemClass" (click)="openNewLinkModal('shared_elements.picture')" [disabled]="loading">
+      <eworkbench-icon className="wb-image"></eworkbench-icon> {{ t('link.dropdown.picture') }}
     </button>
   </li>
   <li [class]="menuClass" role="menuitem">

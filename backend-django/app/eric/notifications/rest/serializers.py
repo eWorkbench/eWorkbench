@@ -1,11 +1,11 @@
-from django.contrib.contenttypes.models import ContentType
-from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
 #
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from rest_framework.exceptions import ValidationError
+from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 
 from eric.core.rest.serializers import BaseModelSerializer, PublicUserSerializer
@@ -103,20 +103,18 @@ class ScheduledNotificationSerializer(BaseModelSerializer):
 
         if not timedelta_value:
             raise ValidationError({
-                'scheduled_notification_writable': {
-                    'timedelta_value': [
-                        _("Time delta value is required")
-                    ]
-                }
+                'remind_attendees': ValidationError(
+                    _('Time delta value is required'),
+                    code='invalid'
+                )
             })
 
         if not timedelta_unit:
             raise ValidationError({
-                'scheduled_notification_writable': {
-                    'timedelta_value': [
-                        _("Time delta unit is required")
-                    ]
-                }
+                'remind_attendees': ValidationError(
+                    _('Time delta unit is required'),
+                    code='invalid'
+                )
             })
 
         scheduled_date_time = ScheduledNotification.calculate_scheduled_date_time(
@@ -126,14 +124,14 @@ class ScheduledNotificationSerializer(BaseModelSerializer):
         now = timezone.now()
         active = scheduled_notification.get('active', False)
 
-        # make sure that we are not scheduling a reminder that lies in the past
-        if active and scheduled_date_time < now:
+        # Make sure that we are not scheduling a reminder that lies in the past.
+        # Make also sure this will only be checked if the end time lies in the future.
+        if active and instance.date_time_end > now > scheduled_date_time:
             raise ValidationError({
-                'scheduled_notification_writable': {
-                    'timedelta_value': [
-                        _("Reminder lies in the past")
-                    ]
-                }
+                'remind_attendees': ValidationError(
+                    _('Reminder lies in the past'),
+                    code='invalid'
+                ),
             })
 
         content_type_id = ContentType.objects.get_for_model(instance).pk

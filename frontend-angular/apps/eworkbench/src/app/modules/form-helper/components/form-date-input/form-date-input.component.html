@@ -3,4 +3,4 @@
   SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<input type="text" class="form-control ewb-input" [formControl]="ngControl.control" [id]="inputId" [name]="inputName" />
+<input type="text" class="form-control ewb-input" [formControl]="$any(ngControl.control)" [id]="inputId" [name]="inputName" />

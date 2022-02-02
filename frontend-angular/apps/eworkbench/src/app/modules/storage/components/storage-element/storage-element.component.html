@@ -52,7 +52,7 @@
         <div class="root-actions py-1 self-center" *ngIf="!collapsed && rootDirectory">
           <button
             class="btn ewb-button-small square"
-            (click)="onOpenNewDirectoryModal(rootDirectory)"
+            (click)="onOpenNewDirectoryModal()"
             [tooltip]="t('storages.directory.actions.addFolder')"
             containerClass="tooltip-sm"
           >
@@ -77,7 +77,7 @@
           </button>
           <button
             class="btn ewb-button-small square"
-            [authDownload]="{ url: rootDirectory?.download_directory, fileName: storage.title }"
+            [authDownload]="{ url: rootDirectory?.download_directory!, fileName: storage.title }"
             [tooltip]="t('storages.directory.actions.downloadDirectory')"
             containerClass="tooltip-sm"
           >

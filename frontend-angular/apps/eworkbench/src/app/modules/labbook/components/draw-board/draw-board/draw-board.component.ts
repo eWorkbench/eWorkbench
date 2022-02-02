@@ -27,6 +27,9 @@ export class LabBookDrawBoardComponent {
   @Input()
   public projects: string[] = [];
 
+  @Input()
+  public editable? = false;
+
   public created = new EventEmitter<LabBookElementEvent>();
 
   public refresh = new EventEmitter<boolean>();

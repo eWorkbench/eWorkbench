@@ -22,10 +22,10 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class AppointmentPreviewComponent implements OnInit {
   @Input()
-  public id!: string;
+  public id?: string;
 
   @Input()
-  public version!: string;
+  public version?: string;
 
   @Input()
   public versionInProgress?: number | null;
@@ -77,7 +77,7 @@ export class AppointmentPreviewComponent implements OnInit {
 
   public initDetails(): void {
     this.appointmentsService
-      .previewVersion(this.id, this.version)
+      .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ (appointment: Appointment) => {
@@ -134,7 +134,7 @@ export class AppointmentPreviewComponent implements OnInit {
     this.loading = true;
 
     this.appointmentsService
-      .restoreVersion(this.id, this.version, Boolean(this.versionInProgress))
+      .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ () => {

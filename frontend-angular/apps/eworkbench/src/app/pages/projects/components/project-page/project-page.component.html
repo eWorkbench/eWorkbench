@@ -201,6 +201,18 @@
                 </eworkbench-form-input>
               </ng-container>
             </eworkbench-project-element>
+
+            <eworkbench-project-element [labelText]="t('project.details.element.metadata')">
+              <ng-container slot="body">
+                <eworkbench-metadata
+                  [selectedParameters]="initialState?.metadata ?? []"
+                  [editable]="privileges?.edit"
+                  [loading]="loading"
+                  [refresh]="refreshMetadata"
+                  (changed)="onUpdateMetadata($event)"
+                ></eworkbench-metadata>
+              </ng-container>
+            </eworkbench-project-element>
           </div>
           <div>
             <eworkbench-project-element elementName="hierarchy" [labelText]="t('project.details.element.hierarchy')">

@@ -32,7 +32,7 @@
                     class="btn bg-transparent p-0"
                     [tooltip]="t('taskBoard.settingsModal.backgroundImage.remove')"
                     containerClass="tooltip-sm"
-                    (click)="onClear($event)"
+                    (click)="onClear()"
                   >
                     <eworkbench-icon className="wb-remove"></eworkbench-icon>
                   </button>
@@ -51,7 +51,7 @@
                 id="backgroundColor"
                 name="backgroundColor"
                 [placeholder]="t('taskBoard.columnDetailsModal.backgroundColor.placeholder')"
-                [colorPicker]="f.backgroundColor.value"
+                [colorPicker]="f.backgroundColor.value!"
                 [value]="f.backgroundColor.value"
                 (colorPickerChange)="onColorChange($event)"
                 cpOutputFormat="rgba"
@@ -77,7 +77,7 @@
                   max="100"
                   step="1"
                   value="100"
-                  (change)="onTransparencyChange($event.target.value)"
+                  (change)="onTransparencyChange($event.target?.value)"
                 />
               </div>
             </div>

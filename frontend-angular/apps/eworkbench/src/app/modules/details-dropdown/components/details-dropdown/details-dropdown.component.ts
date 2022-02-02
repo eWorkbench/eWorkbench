@@ -9,12 +9,13 @@ import { Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DeleteModalComponent } from '@app/modules/trash/components/modals/delete/delete.component';
 import { UserStore } from '@app/stores/user';
-import { ExportLink, ModalCallback, Privileges, Project } from '@eworkbench/types';
+import { DMP, ExportLink, ModalCallback, Privileges, Project } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs/operators';
+import { DuplicateDMPModalComponent } from '../modals/duplicate-dmp/duplicate.component';
 import { DuplicateProjectModalComponent } from '../modals/duplicate-project/duplicate.component';
 import { PrivilegesModalComponent } from '../modals/privileges/privileges.component';
 import { ShareModalComponent } from '../modals/share/share.component';
@@ -31,7 +32,7 @@ export class DetailsDropdownComponent implements OnInit {
   public service!: any;
 
   @Input()
-  public id!: string;
+  public id?: string;
 
   @Input()
   public initialState?: any;
@@ -139,7 +140,7 @@ export class DetailsDropdownComponent implements OnInit {
     const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
     if (skipTrashDialog) {
-      this.delete(this.id);
+      this.delete(this.id!);
     } else {
       this.modalRef = this.modalService.open(DeleteModalComponent, {
         closeButton: false,
@@ -212,16 +213,30 @@ export class DetailsDropdownComponent implements OnInit {
   }
 
   public onOpenDuplicateModal(): void {
-    if (this.initialState.content_type_model === 'projects.project') {
-      const userStoreValue = this.userStore.getValue();
+    const userStoreValue = this.userStore.getValue();
 
+    if (this.initialState.content_type_model === 'projects.project') {
       /* istanbul ignore next */
       const skipDuplicateDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-DuplicateProject']);
 
       if (skipDuplicateDialog) {
-        this.duplicateProject(this.id);
+        this.duplicateProject(this.id!);
       } else {
         this.modalRef = this.modalService.open(DuplicateProjectModalComponent, {
+          closeButton: false,
+          data: { id: this.id },
+        });
+        /* istanbul ignore next */
+        this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
+      }
+    } else if (this.initialState.content_type_model === 'dmp.dmp') {
+      /* istanbul ignore next */
+      const skipDuplicateDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-DuplicateDMP']);
+
+      if (skipDuplicateDialog) {
+        this.duplicateDMP(this.id!);
+      } else {
+        this.modalRef = this.modalService.open(DuplicateDMPModalComponent, {
           closeButton: false,
           data: { id: this.id },
         });
@@ -263,6 +278,31 @@ export class DetailsDropdownComponent implements OnInit {
           this.router.navigate(['/projects', project.pk]);
           this.translocoService
             .selectTranslate('project.duplicate.toastr.success')
+            .pipe(untilDestroyed(this))
+            .subscribe(success => {
+              this.toastrService.success(success);
+            });
+        },
+        /* istanbul ignore next */ () => {
+          this.loading = false;
+        }
+      );
+  }
+
+  public duplicateDMP(id: string): void {
+    if (this.loading) {
+      return;
+    }
+    this.loading = true;
+
+    this.service
+      .duplicate(id)
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        /* istanbul ignore next */ (dmp: DMP) => {
+          this.router.navigate(['/dmps', dmp.pk]);
+          this.translocoService
+            .selectTranslate('dmp.duplicate.toastr.success')
             .pipe(untilDestroyed(this))
             .subscribe(success => {
               this.toastrService.success(success);

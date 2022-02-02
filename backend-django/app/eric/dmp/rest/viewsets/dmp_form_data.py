@@ -4,8 +4,7 @@
 #
 from rest_framework import viewsets
 from django.contrib.contenttypes.models import ContentType
-
-from django_changeset.models import ChangeSet, ChangeRecord
+from django_changeset.models import ChangeSet
 
 from eric.core.rest.viewsets import BaseAuthenticatedUpdateOnlyModelViewSet
 from eric.dmp.models import DmpFormData

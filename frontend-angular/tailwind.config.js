@@ -1,17 +1,6 @@
-// eslint-disable-next-line
-const { guessProductionMode } = require('@ngneat/tailwind');
-
-process.env.TAILWIND_MODE = guessProductionMode() ? 'build' : 'watch';
-
 module.exports = {
-  prefix: '',
-  mode: 'jit',
-  purge: {
-    enabled: guessProductionMode(),
-    content: ['./apps/eworkbench/**/*.{html,ts,css,scss,sass,less,styl}', './libs/**/*.{html,ts,css,scss,sass,less,styl}'],
-  },
+  content: ['./apps/eworkbench/**/*.{html,ts,css,scss,sass,less,styl}', './libs/**/*.{html,ts,css,scss,sass,less,styl}'],
   important: true,
-  darkMode: false,
   theme: {
     extend: {
       colors: {
@@ -37,9 +26,6 @@ module.exports = {
         },
       },
     },
-  },
-  variants: {
-    extend: {},
   },
   corePlugins: {
     preflight: false,

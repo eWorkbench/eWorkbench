@@ -48,6 +48,60 @@ def on_add_labbook_child_element_update_projects(instance, created, *args, **kwa
         instance.child_object.save()
 
 
+# TODO: Sadly, we can't just update the last_modified_at field as this creates an Error 412 with the changeset
+# @receiver(post_save, sender=LabBookChildElement)
+# @receiver(post_delete, sender=LabBookChildElement)
+# def update_labbook_last_updated_fields_via_child_element(instance, created, *args, **kwargs):
+#     """
+#     If a child element is changed we must update the last_modified_by field for the parent LabBook.
+#     The field last_modified_at will automatically be updated with the current timestamp.
+#     :param instance:
+#     :return:
+#     """
+#     if not instance.is_editable() or not instance.lab_book.is_editable():
+#         return
+#
+#     # If the LabBook this element is a part of is trashed we can't update any data, so this check is required.
+#     if not instance.lab_book.deleted:
+#         instance.lab_book.last_modified_by = instance.last_modified_by
+#         instance.lab_book.save()
+
+
+# TODO: Sadly, we can't just update the last_modified_at field as this creates an Error 412 with the changeset
+# @receiver(post_save, sender=Note)
+# @receiver(post_save, sender=Picture)
+# @receiver(post_save, sender=File)
+# @receiver(post_save, sender=PluginInstance)
+# @receiver(post_save, sender=LabbookSection)
+# @receiver(post_delete, sender=Note)
+# @receiver(post_delete, sender=Picture)
+# @receiver(post_delete, sender=File)
+# @receiver(post_delete, sender=PluginInstance)
+# @receiver(post_delete, sender=LabbookSection)
+# def update_labbook_last_updated_fields_via_child_element_object(instance, created, *args, **kwargs):
+#     """
+#     If a child element object is changed we must update the last_modified_by field for the parent LabBook.
+#     The field last_modified_at will automatically be updated with the current timestamp.
+#     :param instance:
+#     :return:
+#     """
+#     if not instance.is_editable():
+#         return
+#
+#     child_element = LabBookChildElement.objects.editable().filter(
+#         child_object_content_type=instance.get_content_type(),
+#         child_object_id=instance.pk
+#     ).first()
+#
+#     if not child_element or not child_element.is_editable():
+#         return
+#
+#     # If the LabBook this element is a part of is trashed we can't update any data, so this check is required.
+#     if not child_element.lab_book.deleted:
+#         child_element.lab_book.last_modified_by = instance.last_modified_by
+#         child_element.lab_book.save()
+
+
 @receiver(m2m_changed, sender=LabBook.projects.through)
 def update_projects_of_all_labbook_child_elements(instance, action, *args, **kwargs):
     """

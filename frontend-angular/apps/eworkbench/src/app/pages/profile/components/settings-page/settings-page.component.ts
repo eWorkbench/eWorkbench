@@ -46,6 +46,7 @@ interface FormSettings {
   confirmationPromptDeleteColumn: boolean;
   confirmationPromptTrashElementFromDetailView: boolean;
   confirmationPromptDuplicateProject: boolean;
+  confirmationPromptDuplicateDMP: boolean;
   confirmationPromptRemoveElementFromLabbook: boolean;
   confirmationPromptTrashAndDeleteElementFromLabbook: boolean;
 }
@@ -103,6 +104,7 @@ export class SettingsPageComponent implements OnInit {
     confirmationPromptDeleteColumn: [{ value: false, disabled: this.loading }],
     confirmationPromptTrashElementFromDetailView: [{ value: false, disabled: this.loading }],
     confirmationPromptDuplicateProject: [{ value: false, disabled: this.loading }],
+    confirmationPromptDuplicateDMP: [{ value: false, disabled: this.loading }],
     confirmationPromptRemoveElementFromLabbook: [{ value: false, disabled: this.loading }],
     confirmationPromptTrashAndDeleteElementFromLabbook: [{ value: false, disabled: this.loading }],
   });
@@ -182,6 +184,7 @@ export class SettingsPageComponent implements OnInit {
       'SkipDialog-ConvertTiff': !this.f.confirmationPromptConvertTiff.value,
       'SkipDialog-DeleteColumn': !this.f.confirmationPromptDeleteColumn.value,
       'SkipDialog-DuplicateProject': !this.f.confirmationPromptDuplicateProject.value,
+      'SkipDialog-DuplicateDMP': !this.f.confirmationPromptDuplicateDMP.value,
       'SkipDialog-LeaveProject': !this.f.confirmationPromptLeaveProject.value,
       'SkipDialog-MoveElementOutOfSection': !this.f.confirmationPromptMoveElementOutOfSection.value,
       'SkipDialog-RemoveDirectory': !this.f.confirmationPromptRemoveDirectory.value,
@@ -262,6 +265,12 @@ export class SettingsPageComponent implements OnInit {
             if ('SkipDialog-DuplicateProject' in prompts) {
               this.form.patchValue({
                 confirmationPromptDuplicateProject: !prompts['SkipDialog-DuplicateProject'],
+              });
+            }
+
+            if ('SkipDialog-DuplicateDMP' in prompts) {
+              this.form.patchValue({
+                confirmationPromptDuplicateDMP: !prompts['SkipDialog-DuplicateDMP'],
               });
             }
 
@@ -461,6 +470,7 @@ export class SettingsPageComponent implements OnInit {
       confirmationPromptDeleteColumn: toggleValue,
       confirmationPromptTrashElementFromDetailView: toggleValue,
       confirmationPromptDuplicateProject: toggleValue,
+      confirmationPromptDuplicateDMP: toggleValue,
       confirmationPromptRemoveElementFromLabbook: toggleValue,
       confirmationPromptTrashAndDeleteElementFromLabbook: toggleValue,
     });
@@ -515,6 +525,7 @@ export class SettingsPageComponent implements OnInit {
       this.f.confirmationPromptDeleteColumn.value &&
       this.f.confirmationPromptTrashElementFromDetailView.value &&
       this.f.confirmationPromptDuplicateProject.value &&
+      this.f.confirmationPromptDuplicateDMP.value &&
       this.f.confirmationPromptRemoveElementFromLabbook.value &&
       this.f.confirmationPromptTrashAndDeleteElementFromLabbook.value;
     this.form.patchValue({

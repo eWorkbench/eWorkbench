@@ -53,7 +53,7 @@
   <ng-container *transloco="let t">
     <div [class.with-sidebar]="showSidebar">
       <aside *ngIf="showSidebar">
-        <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
+        <eworkbench-project-sidebar></eworkbench-project-sidebar>
       </aside>
       <main>
         <ng-container *ngIf="initialState?.deleted">
@@ -160,7 +160,7 @@
               <ng-container slot="body">
                 <div class="mb-4">
                   <eworkbench-metadata
-                    [selectedParameters]="initialState?.metadata"
+                    [selectedParameters]="initialState?.metadata ?? []"
                     [editable]="privileges?.edit"
                     [loading]="loading"
                     [refresh]="refreshMetadata"
@@ -192,7 +192,6 @@
                   [service]="notesService"
                   [changesId]="id"
                   [refresh]="refreshChanges"
-                  [users]="initialState?.attending_users"
                 ></eworkbench-recent-changes>
               </ng-container>
             </eworkbench-details-collapse-element>

@@ -38,7 +38,8 @@ export class ErrorInterceptor implements HttpInterceptor {
             .subscribe(internalServerError => {
               this.toastrService.error(internalServerError.body, internalServerError.header);
             });
-        } else if (![200, 404].includes(error.status)) {
+        } else if (![200, 404, 504].includes(error.status)) {
+          // TODO: Remove status 504 as soon as these issues have been resolved. As per request by Mr. Kallenborn.
           const errors = error.error;
           this.translocoService.selectTranslate('errorInterceptor.error').subscribe(errorLabel => {
             for (const errorField of Object.keys(errors)) {

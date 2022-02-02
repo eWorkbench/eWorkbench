@@ -31,9 +31,10 @@
     <eworkbench-sidebar-skeleton></eworkbench-sidebar-skeleton>
   </aside>
   <div class="skeleton-wrapper">
+    <eworkbench-list-skeleton class="mb-5" [header]="true" [lines]="2"></eworkbench-list-skeleton>
     <eworkbench-calendar-skeleton class="mb-5"></eworkbench-calendar-skeleton>
     <eworkbench-list-skeleton class="mb-5" [header]="true"></eworkbench-list-skeleton>
-    <eworkbench-link-skeleton></eworkbench-link-skeleton>
+    <eworkbench-list-skeleton [header]="true"></eworkbench-list-skeleton>
   </div>
 </div>
 
@@ -447,7 +448,7 @@
                 <ng-container slot="body">
                   <div class="mb-4">
                     <eworkbench-metadata
-                      [selectedParameters]="initialState?.metadata"
+                      [selectedParameters]="initialState?.metadata ?? []"
                       [editable]="privileges?.edit"
                       [loading]="loading"
                       [refresh]="refreshMetadata"
@@ -515,17 +516,7 @@
         </eworkbench-overview-collapse-element>
       </ng-container>
 
-      <div class="resource-booking-calendar">
-        <eworkbench-resource-booking-calendar
-          [resource]="initialState"
-          [interval]="initialState?.calendar_interval"
-          [onSubmit]="refreshInitialState"
-          (changed)="onResourceBooked()"
-          *ngIf="initialState && !updateInProgress"
-        ></eworkbench-resource-booking-calendar>
-      </div>
-
-      <form (ngSubmit)="onSubmit()" class="mt-5">
+      <form (ngSubmit)="onSubmit()" class="mb-5">
         <eworkbench-resource-booking-rules
           [editable]="privileges?.edit"
           [bookableTimeSlots]="initialState?.booking_rule_bookable_hours"
@@ -542,6 +533,16 @@
           *ngIf="initialState"
         ></eworkbench-resource-booking-rules>
       </form>
+
+      <div class="resource-booking-calendar">
+        <eworkbench-resource-booking-calendar
+          [resource]="initialState"
+          [interval]="initialState?.calendar_interval"
+          [onSubmit]="refreshInitialState"
+          (changed)="onResourceBooked()"
+          *ngIf="initialState && !updateInProgress"
+        ></eworkbench-resource-booking-calendar>
+      </div>
 
       <div class="mt-5" *ngIf="privileges?.edit">
         <eworkbench-all-resource-bookings

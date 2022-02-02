@@ -54,7 +54,7 @@ export class ResourceBookingRulesComponent implements OnInit {
   public loading = false;
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Input()
   public refresh?: EventEmitter<boolean>;

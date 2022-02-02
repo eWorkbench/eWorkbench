@@ -42,6 +42,9 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
   public section?: string;
 
   @Input()
+  public editable? = false;
+
+  @Input()
   public refreshElementRelations?: EventEmitter<{ model_name: string; model_pk: string }>;
 
   @Output()
@@ -197,6 +200,11 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
         /* istanbul ignore next */ privilegesData => {
           const privileges = privilegesData.privileges;
           this.privileges = { ...privileges };
+
+          if (!this.privileges.edit) {
+            this.form.disable({ emitEvent: false });
+          }
+
           this.cdr.markForCheck();
         }
       );

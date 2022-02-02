@@ -22,7 +22,7 @@
               id="name-modal"
               name="name-modal"
               [placeholder]="t('label.newModal.name.placeholder')"
-              [autoFocus]
+              autoFocus
             />
           </div>
           <div class="mb-4">
@@ -36,7 +36,7 @@
               id="color-modal"
               name="color-modal"
               [placeholder]="t('label.newModal.color.placeholder')"
-              [colorPicker]="f.color.value"
+              [colorPicker]="f.color.value!"
               [value]="f.color.value"
               (colorPickerChange)="f.color.setValue($event); f.color.markAsDirty()"
               cpOutputFormat="rgba"

@@ -6,17 +6,19 @@
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService, PageTitleService, ProjectsService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TreeViewComponent } from '@eworkbench/table';
 import { ModalCallback, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { keyBy, merge, values } from 'lodash';
-import { switchMap, take } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
+import { debounceTime, skip, switchMap, take } from 'rxjs/operators';
 import { NewProjectModalComponent } from '../modals/new/new.component';
 
 @UntilDestroy()
@@ -61,11 +63,37 @@ export class ProjectsPageComponent implements OnInit {
 
   public state: Record<string, string> = {};
 
-  public params = new HttpParams().set('parent_projects_and_orphans', 'true');
+  public usersControl = this.fb.control<number | null>(null);
+
+  public searchControl = this.fb.control<string | null>(null);
+
+  public newCheckbox = this.fb.control<boolean>(true);
+
+  public progressCheckbox = this.fb.control<boolean>(true);
+
+  public finishedCheckbox = this.fb.control<boolean>(true);
+
+  public pausedCheckbox = this.fb.control<boolean>(true);
+
+  public cancelledCheckbox = this.fb.control<boolean>(true);
+
+  public deletedCheckbox = this.fb.control<boolean>(true);
+
+  public favoritesControl = this.fb.control<boolean | null>(null);
+
+  public params = new HttpParams().set('parent_projects_and_orphans', 'true').set('project_state', 'INIT,START,FIN,PAUSE,CANCE,DEL');
+
+  public users: User[] = [];
+
+  public usersInput$ = new Subject<string>();
 
   public modalRef?: DialogRef;
 
   public expandable = true;
+
+  public showUserFilter = false;
+
+  public savedFilters = false;
 
   public constructor(
     public readonly projectsService: ProjectsService,
@@ -76,8 +104,30 @@ export class ProjectsPageComponent implements OnInit {
     private readonly titleService: Title,
     private readonly userService: UserService,
     private readonly authService: AuthService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly fb: FormBuilder,
+    private readonly route: ActivatedRoute
   ) {}
+
+  public get filtersChanged(): boolean {
+    /* eslint-disable */
+    return Boolean(
+      this.usersControl.value ||
+        this.searchControl.value ||
+        this.newCheckbox.dirty ||
+        this.progressCheckbox.dirty ||
+        this.finishedCheckbox.dirty ||
+        this.pausedCheckbox.dirty ||
+        this.cancelledCheckbox.dirty ||
+        this.deletedCheckbox.dirty ||
+        this.favoritesControl.value
+    );
+    /* eslint-enable */
+  }
+
+  public get getFilterSelectedUser(): User | undefined {
+    return this.users.find(user => user.pk === this.usersControl.value);
+  }
 
   public ngOnInit(): void {
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(
@@ -87,6 +137,8 @@ export class ProjectsPageComponent implements OnInit {
     );
 
     this.initTranslations();
+    this.initSearch();
+    this.initSearchInput();
     this.initPageTitle();
     this.pageTitleService.set(this.title);
   }
@@ -165,6 +217,84 @@ export class ProjectsPageComponent implements OnInit {
         } else {
           this.listColumns = [...this.defaultColumns];
         }
+
+        if (this.currentUser?.userprofile.ui_settings?.filter_settings?.projects) {
+          const filters = this.currentUser.userprofile.ui_settings?.filter_settings?.projects;
+
+          if (filters.active) {
+            this.savedFilters = true;
+          }
+
+          if (filters.users) {
+            this.userService
+              .getUserById(filters.users)
+              .pipe(untilDestroyed(this))
+              .subscribe(
+                /* istanbul ignore next */ users => {
+                  if (users.length) {
+                    this.users = [...users];
+                    this.cdr.markForCheck();
+                  }
+                }
+              );
+            this.usersControl.setValue(filters.users);
+            this.params = this.params.delete('parent_projects_and_orphans').set('created_by', filters.users);
+          }
+
+          if (filters.search) {
+            this.searchControl.setValue(filters.search);
+            this.params = this.params.delete('parent_projects_and_orphans').set('search', filters.search);
+          }
+
+          if (filters.state?.length) {
+            if (filters.state.includes('INIT')) {
+              this.newCheckbox.setValue(true);
+            } else {
+              this.newCheckbox.setValue(false);
+            }
+
+            if (filters.state.includes('START')) {
+              this.progressCheckbox.setValue(true);
+            } else {
+              this.progressCheckbox.setValue(false);
+            }
+
+            if (filters.state.includes('FIN')) {
+              this.finishedCheckbox.setValue(true);
+            } else {
+              this.finishedCheckbox.setValue(false);
+            }
+
+            if (filters.state.includes('PAUSE')) {
+              this.pausedCheckbox.setValue(true);
+            } else {
+              this.pausedCheckbox.setValue(false);
+            }
+
+            if (filters.state.includes('CANCE')) {
+              this.cancelledCheckbox.setValue(true);
+            } else {
+              this.cancelledCheckbox.setValue(false);
+            }
+
+            if (filters.state.includes('DEL')) {
+              this.deletedCheckbox.setValue(true);
+            } else {
+              this.deletedCheckbox.setValue(false);
+            }
+
+            this.params = this.params.delete('parent_projects_and_orphans').set('state', filters.state.join(','));
+          }
+
+          if (filters.favorites) {
+            this.favoritesControl.setValue(Boolean(filters.favorites));
+            this.params = this.params.delete('parent_projects_and_orphans').set('favourite', filters.favorites);
+          }
+
+          if (filters.active) {
+            this.treeView.loadData(false, this.params);
+          }
+        }
       });
 
     this.translocoService
@@ -181,6 +311,302 @@ export class ProjectsPageComponent implements OnInit {
       });
   }
 
+  public initSearch(): void {
+    this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (value) {
+          this.params = this.params.delete('parent_projects_and_orphans').set('created_by', value);
+          this.treeView.loadData(false, this.params);
+          queryParams.set('users', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('created_by');
+          this.treeView.loadData(false, this.params);
+          queryParams.delete('users');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (value) {
+          this.params = this.params.delete('parent_projects_and_orphans').set('search', value);
+          this.treeView.loadData(false, this.params);
+          queryParams.set('search', value);
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('search');
+          this.treeView.loadData(false, this.params);
+          queryParams.delete('search');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.newCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('project_state')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'INIT');
+        if (value) {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.delete('parent_projects_and_orphans').set('project_state', [...params, 'INIT'].join(','));
+          }
+
+          this.treeView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.set('project_state', params.join(','));
+          }
+          this.treeView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.progressCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('project_state')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'START');
+        if (value) {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.delete('parent_projects_and_orphans').set('project_state', [...params, 'START'].join(','));
+          }
+
+          this.treeView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.set('project_state', params.join(','));
+          }
+          this.treeView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.finishedCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('project_state')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'FIN');
+        if (value) {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.delete('parent_projects_and_orphans').set('project_state', [...params, 'FIN'].join(','));
+          }
+
+          this.treeView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.set('project_state', params.join(','));
+          }
+          this.treeView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.pausedCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('project_state')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'PAUSE');
+        if (value) {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.delete('parent_projects_and_orphans').set('project_state', [...params, 'PAUSE'].join(','));
+          }
+
+          this.treeView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.set('project_state', params.join(','));
+          }
+          this.treeView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.cancelledCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('project_state')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'CANCE');
+        if (value) {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.delete('parent_projects_and_orphans').set('project_state', [...params, 'CANCE'].join(','));
+          }
+
+          this.treeView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.set('project_state', params.join(','));
+          }
+          this.treeView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.deletedCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const params = this.params
+          .getAll('project_state')?.[0]
+          .split(',')
+          .filter(/* istanbul ignore next */ params => params !== 'DEL');
+        if (value) {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.delete('parent_projects_and_orphans').set('project_state', [...params, 'DEL'].join(','));
+          }
+
+          this.treeView.loadData(false, this.params);
+        } else {
+          this.params = this.params.delete('project_state');
+          if (params?.length) {
+            this.params = this.params.set('project_state', params.join(','));
+          }
+          this.treeView.loadData(false, this.params);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.favoritesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
+      /* istanbul ignore next */ value => {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (value) {
+          this.params = this.params.delete('parent_projects_and_orphans').set('favourite', value);
+          this.treeView.loadData(false, this.params);
+          queryParams.set('favorites', value.toString());
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        } else {
+          this.params = this.params.delete('favourite');
+          this.treeView.loadData(false, this.params);
+          queryParams.delete('favorites');
+          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        }
+
+        if (this.savedFilters) {
+          this.onSaveFilters(true);
+        } else {
+          this.onSaveFilters(false);
+        }
+      }
+    );
+
+    this.route.queryParamMap.pipe(untilDestroyed(this), take(1)).subscribe(
+      /* istanbul ignore next */ queryParams => {
+        const users = queryParams.get('users');
+        const search = queryParams.get('search');
+        const favorites = queryParams.get('favorites');
+
+        if (users) {
+          this.userService
+            .getUserById(users)
+            .pipe(untilDestroyed(this))
+            .subscribe(
+              /* istanbul ignore next */ users => {
+                if (users.length) {
+                  this.users = [...users];
+                  this.cdr.markForCheck();
+                }
+              }
+            );
+          this.usersControl.setValue(Number(users));
+        }
+
+        if (search) {
+          this.searchControl.setValue(search);
+        }
+
+        if (favorites) {
+          this.favoritesControl.setValue(Boolean(favorites));
+        }
+      }
+    );
+  }
+
+  public initSearchInput(): void {
+    this.usersInput$
+      .pipe(
+        untilDestroyed(this),
+        debounceTime(500),
+        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+      )
+      .subscribe(
+        /* istanbul ignore next */ users => {
+          if (users.length) {
+            this.users = [...users];
+            this.cdr.markForCheck();
+          }
+        }
+      );
+  }
+
   public initPageTitle(): void {
     this.pageTitleService
       .get()
@@ -192,12 +618,10 @@ export class ProjectsPageComponent implements OnInit {
 
   public onFilterItems(showTrashedItems: boolean): void {
     if (showTrashedItems) {
-      this.params = this.params.set('deleted', 'true');
-      this.params = this.params.delete('parent_projects_and_orphans');
+      this.params = this.params.set('deleted', 'true').delete('parent_projects_and_orphans');
       this.expandable = false;
     } else {
-      this.params = this.params.delete('deleted');
-      this.params = this.params.set('parent_projects_and_orphans', 'true');
+      this.params = this.params.delete('deleted').set('parent_projects_and_orphans', 'true');
       this.expandable = true;
     }
     this.treeView.loadData(false, this.params);
@@ -247,6 +671,108 @@ export class ProjectsPageComponent implements OnInit {
         )
       )
       .subscribe();
+  }
+
+  public onSaveFilters(save: boolean): void {
+    if (save) {
+      this.userService
+        .get()
+        .pipe(
+          untilDestroyed(this),
+          take(1),
+          switchMap(
+            /* istanbul ignore next */ user => {
+              const currentUser = user;
+              return this.userService.changeSettings({
+                userprofile: {
+                  ui_settings: {
+                    ...currentUser.userprofile.ui_settings,
+                    filter_settings: {
+                      ...currentUser.userprofile.ui_settings?.filter_settings,
+                      projects: {
+                        active: true,
+                        users: this.usersControl.value,
+                        search: this.searchControl.value,
+                        state: this.params.getAll('project_state')?.[0].split(',') ?? [],
+                        favorites: this.favoritesControl.value,
+                      },
+                    },
+                  },
+                },
+              });
+            }
+          )
+        )
+        .subscribe();
+    } else {
+      this.userService
+        .get()
+        .pipe(
+          untilDestroyed(this),
+          take(1),
+          switchMap(
+            /* istanbul ignore next */ user => {
+              const currentUser = user;
+              return this.userService.changeSettings({
+                userprofile: {
+                  ui_settings: {
+                    ...currentUser.userprofile.ui_settings,
+                    filter_settings: {
+                      ...currentUser.userprofile.ui_settings?.filter_settings,
+                      projects: {
+                        active: false,
+                      },
+                    },
+                  },
+                },
+              });
+            }
+          )
+        )
+        .subscribe();
+    }
+  }
+
+  public onUserFilterRadioAnyone(): void {
+    this.showUserFilter = false;
+    this.users = [];
+  }
+
+  public onUserFilterRadioMyself(checked: boolean): void {
+    if (checked && this.currentUser) {
+      this.showUserFilter = false;
+      this.users = [this.currentUser];
+    }
+  }
+
+  public onResetFilters(): void {
+    this.params = new HttpParams().set('parent_projects_and_orphans', 'true').set('project_state', 'INIT,START,FIN,PAUSE,CANCE,DEL');
+    history.pushState(null, '', window.location.pathname);
+
+    this.usersControl.setValue(null, { emitEvent: false });
+    this.users = [];
+
+    this.searchControl.setValue(null, { emitEvent: false });
+
+    this.newCheckbox.setValue(true, { emitEvent: false });
+    this.newCheckbox.markAsPristine();
+
+    this.progressCheckbox.setValue(true, { emitEvent: false });
+    this.progressCheckbox.markAsPristine();
+
+    this.finishedCheckbox.setValue(true, { emitEvent: false });
+    this.finishedCheckbox.markAsPristine();
+
+    this.pausedCheckbox.setValue(true, { emitEvent: false });
+    this.pausedCheckbox.markAsPristine();
+
+    this.cancelledCheckbox.setValue(true, { emitEvent: false });
+    this.cancelledCheckbox.markAsPristine();
+
+    this.deletedCheckbox.setValue(true, { emitEvent: false });
+    this.deletedCheckbox.markAsPristine();
+
+    this.favoritesControl.setValue(null);
   }
 
   public openNewModal(): void {

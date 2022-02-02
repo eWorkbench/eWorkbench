@@ -11,10 +11,10 @@
     [ngClass]="{ 'ring-1 ring-offset-1 ring-tum-primary': ring }"
   >
     <ng-container *ngIf="user?.userprofile">
-      <ng-container *ngIf="user?.userprofile.anonymized">
+      <ng-container *ngIf="user?.userprofile?.anonymized">
         <ng-template *ngTemplateOutlet="fallbackTemplate"></ng-template>
       </ng-container>
-      <ng-container *ngIf="!user?.userprofile.anonymized">
+      <ng-container *ngIf="!user?.userprofile?.anonymized">
         <ng-template *ngTemplateOutlet="userTemplate; context: { user: user }"></ng-template>
       </ng-container>
     </ng-container>

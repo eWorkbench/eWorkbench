@@ -23,10 +23,10 @@ import { map } from 'rxjs/operators';
 })
 export class FilePreviewComponent implements OnInit {
   @Input()
-  public id!: string;
+  public id?: string;
 
   @Input()
-  public version!: string;
+  public version?: string;
 
   @Input()
   public versionInProgress?: number | null;
@@ -69,7 +69,7 @@ export class FilePreviewComponent implements OnInit {
 
   public initDetails(): void {
     this.filesService
-      .previewVersion(this.id, this.version)
+      .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ (file: File) => {
@@ -154,7 +154,7 @@ export class FilePreviewComponent implements OnInit {
     this.loading = true;
 
     this.filesService
-      .restoreVersion(this.id, this.version, Boolean(this.versionInProgress))
+      .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ () => {

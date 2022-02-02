@@ -58,7 +58,7 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
   public element!: LabBookElement<any>;
 
   @Input()
-  public readonly = false;
+  public editable? = true;
 
   @Input()
   public closeSection?: EventEmitter<string>;
@@ -177,6 +177,10 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
       },
       { emitEvent: false }
     );
+
+    if (!this.editable) {
+      this.form.disable({ emitEvent: false });
+    }
   }
 
   public onExpandSection(): void {

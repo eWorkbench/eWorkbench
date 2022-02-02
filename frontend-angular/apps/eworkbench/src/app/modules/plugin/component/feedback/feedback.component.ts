@@ -25,10 +25,10 @@ interface FormFeedback {
 })
 export class PluginFeedbackComponent {
   @Input()
-  public id!: string;
+  public id?: string;
 
   @Input()
-  public type = 'feedback';
+  public type? = 'feedback';
 
   @Output()
   public canceled = new EventEmitter<boolean>();
@@ -54,10 +54,10 @@ export class PluginFeedbackComponent {
 
   private get feedback(): PluginFeedbackPayload {
     return {
-      pluginPk: this.id,
+      pluginPk: this.id!,
       subject: this.subject,
       message: this.f.message.value ?? '',
-      type: this.type,
+      type: this.type!,
     };
   }
 

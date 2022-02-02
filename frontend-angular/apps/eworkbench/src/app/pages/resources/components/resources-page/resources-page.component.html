@@ -69,10 +69,10 @@
           >
             <span class="text-sm mr-2"
               >{{ t('filterHeader.createdBy') }}{{ ' '
-              }}{{ getFilterSelectedUser.pk === currentUser.pk ? t('filterHeader.createdBy.myself') : '' }}</span
+              }}{{ getFilterSelectedUser.pk === currentUser?.pk ? t('filterHeader.createdBy.myself') : '' }}</span
             >
             <eworkbench-user-details
-              *ngIf="getFilterSelectedUser.pk !== currentUser.pk"
+              *ngIf="getFilterSelectedUser.pk !== currentUser?.pk"
               class="inline-block mr-2"
               [user]="getFilterSelectedUser"
               [active]="false"
@@ -184,9 +184,9 @@
                   class="custom-control-input"
                   name="filter-user-radio"
                   id="filter-user-radio-2"
-                  [value]="currentUser.pk"
+                  [value]="currentUser?.pk"
                   [formControl]="usersControl"
-                  (change)="onUserFilterRadioMyself($event.target.checked)"
+                  (change)="onUserFilterRadioMyself($event.target?.checked)"
                 />
                 <label for="filter-user-radio-2" class="custom-control-label font-normal leading-6">{{
                   t('filter-menu.myself.label')
@@ -198,7 +198,7 @@
                   class="custom-control-input"
                   name="filter-user-radio"
                   id="filter-user-radio-3"
-                  (change)="showUserFilter = $event.target.checked"
+                  (change)="showUserFilter = $event.target?.checked"
                 />
                 <label for="filter-user-radio-3" class="custom-control-label font-normal leading-6">{{
                   t('filter-menu.chooseAUser.label')
@@ -313,17 +313,17 @@
 </div>
 
 <ng-template #nameCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="[showSidebar ? '.' : '' + '/resources', row.pk]">{{ row.name }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #typeCellTemplate let-row>
   <eworkbench-resource-type [type]="row.type"></eworkbench-resource-type>
 </ng-template>
 <ng-template #descriptionCellTemplate let-row>
-  <eworkbench-ellipsis-element maxWidth="350">
+  <div ellipsis="350" [tooltip]="row.description | stripHTML" containerClass="tooltip-sm" [delay]="500">
     {{ row.description | stripHTML }}
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #createdByCellTemplate let-row>
   <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>

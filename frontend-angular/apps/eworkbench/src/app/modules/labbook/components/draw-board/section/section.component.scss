@@ -8,6 +8,10 @@
 :host {
   display: block;
 
+  .ewb-input:disabled {
+    color: #fff;
+  }
+
   .element {
     background-color: #fff;
 

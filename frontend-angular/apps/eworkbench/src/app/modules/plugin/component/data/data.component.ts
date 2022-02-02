@@ -16,16 +16,16 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 })
 export class PluginDataComponent implements OnInit {
   @Input()
-  public authUrl!: string;
+  public authUrl?: string;
 
   @Input()
-  public dataPicture?: string;
+  public dataPicture?: string | null;
 
   @Input()
-  public pluginLogo!: string;
+  public pluginLogo?: string | null;
 
   @Input()
-  public pluginTitle!: string;
+  public pluginTitle?: string | null;
 
   @Input()
   public refresh?: EventEmitter<boolean>;
@@ -51,6 +51,6 @@ export class PluginDataComponent implements OnInit {
   }
 
   public safeAuthURL(): SafeResourceUrl {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(this.authUrl);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.authUrl!);
   }
 }

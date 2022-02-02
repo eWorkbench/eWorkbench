@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-const jestPresetAngularSerializers = require('jest-preset-angular/build/serializers');
-
 module.exports = {
   displayName: 'table-view',
   preset: '../../jest.preset.js',
@@ -16,5 +14,12 @@ module.exports = {
     },
   },
   coverageDirectory: '../../coverage/libs/table-view',
-  snapshotSerializers: jestPresetAngularSerializers,
+  transform: {
+    '^.+\\.(ts|js|html)$': 'jest-preset-angular',
+  },
+  snapshotSerializers: [
+    'jest-preset-angular/build/serializers/no-ng-attributes',
+    'jest-preset-angular/build/serializers/ng-snapshot',
+    'jest-preset-angular/build/serializers/html-comment',
+  ],
 };

@@ -1,12 +1,20 @@
 {
   "root": true,
   "ignorePatterns": ["!**/*"],
-  "extends": ["@anexia/eslint-config-marine/prettier/node", "@anexia/eslint-config-marine/prettier/angular"],
-  "parserOptions": {
-    "project": "./tsconfig.*?.json"
-  },
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "extends": ["@anexia/eslint-config-marine/prettier/node", "@anexia/eslint-config-marine/prettier/angular"],
+      "rules": {
+        "@typescript-eslint/no-unsafe-argument": 0
+      }
+    },
+    {
+      "files": ["*.html"],
+      "extends": ["@anexia/eslint-config-marine/prettier/angular"]
+    }
+  ],
   "rules": {
-    "prettier/prettier": [2, {}, { "usePrettierrc": true }],
-    "@typescript-eslint/no-unsafe-argument": 0
+    "prettier/prettier": [2, {}, { "usePrettierrc": true }]
   }
 }

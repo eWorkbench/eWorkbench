@@ -7,7 +7,7 @@
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
       {{
-        duplicate ? t('appointments.newModal.duplicate.header', { title: initialState.title }) : t('appointments.newModal.create.header')
+        duplicate ? t('appointments.newModal.duplicate.header', { title: initialState?.title }) : t('appointments.newModal.create.header')
       }}
     </div>
     <div slot="body">

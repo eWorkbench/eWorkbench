@@ -352,7 +352,7 @@
               <ng-container slot="body">
                 <div class="mb-4">
                   <eworkbench-metadata
-                    [selectedParameters]="initialState?.metadata"
+                    [selectedParameters]="initialState?.metadata ?? []"
                     [editable]="privileges?.edit"
                     [loading]="loading"
                     [refresh]="refreshMetadata"
@@ -384,7 +384,6 @@
                   [service]="tasksService"
                   [changesId]="id"
                   [refresh]="refreshChanges"
-                  [users]="initialState?.attending_users"
                 ></eworkbench-recent-changes>
               </ng-container>
             </eworkbench-details-collapse-element>

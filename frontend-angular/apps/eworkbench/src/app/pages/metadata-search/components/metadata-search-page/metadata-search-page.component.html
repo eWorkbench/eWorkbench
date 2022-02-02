@@ -64,9 +64,9 @@
 </ng-container>
 
 <ng-template #titleCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.display" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="[row.content_type_model | formatContentTypeModel: 'routerBaseLink', row.pk]">{{ row.display }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #typeCellTemplate let-row>{{ row.content_type_model | formatContentTypeModel }}</ng-template>
 <ng-template #createdByCellTemplate let-row>

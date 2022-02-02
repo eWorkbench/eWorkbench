@@ -7,7 +7,7 @@
   <div
     cdkDropList
     [cdkDropListData]="checklistObjects"
-    [cdkDropListOrientation]="dropListOrientation"
+    [cdkDropListOrientation]="$any(dropListOrientation)"
     (cdkDropListDropped)="onElementDrop($event)"
   >
     <div #checkboxElements cdkDropListGroup>

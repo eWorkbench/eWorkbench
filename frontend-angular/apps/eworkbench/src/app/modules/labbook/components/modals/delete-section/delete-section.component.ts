@@ -12,6 +12,7 @@ import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
+import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 interface FormDelete {
@@ -99,9 +100,9 @@ export class DeleteLabBookSectionElementModalComponent implements OnInit {
     const childElements = this.section?.child_elements ?? [];
 
     Promise.all([
-      ...childElements.map(elementId => {
-        return this.labBooksService.deleteElement(this.labBookId, elementId).pipe(untilDestroyed(this)).toPromise();
-      }),
+      ...childElements.map(elementId =>
+        lastValueFrom(this.labBooksService.deleteElement(this.labBookId, elementId).pipe(untilDestroyed(this)))
+      ),
     ]).then(
       /* istanbul ignore next */ () =>
         this.deleteSectionElement(this.translocoService.translate('labBook.deleteSectionModal.removed.toastr.success'))
@@ -129,26 +130,27 @@ export class DeleteLabBookSectionElementModalComponent implements OnInit {
             .subscribe(
               /* istanbul ignore next */ labBookElements => {
                 Promise.all([
-                  ...labBookElements.map(element => {
-                    return this.labBooksService
-                      .patchElement(this.labBookId, element.pk, {
-                        ...element,
-                        position_y: maxYPosition + element.position_y,
+                  ...labBookElements.map(element =>
+                    lastValueFrom(
+                      this.labBooksService
+                        .patchElement(this.labBookId, element.pk, {
+                          ...element,
+                          position_y: maxYPosition + element.position_y,
+                        })
+                        .pipe(untilDestroyed(this))
+                    )
+                  ),
+                ]).then(() => {
+                  lastValueFrom(
+                    this.labBookSectionsService
+                      .patch(this.elementId, {
+                        pk: this.elementId,
+                        child_elements: [],
                       })
                       .pipe(untilDestroyed(this))
-                      .toPromise();
-                  }),
-                ]).then(() => {
-                  this.labBookSectionsService
-                    .patch(this.elementId, {
-                      pk: this.elementId,
-                      child_elements: [],
-                    })
-                    .pipe(untilDestroyed(this))
-                    .toPromise()
-                    .then(() => {
-                      this.deleteSectionElement(this.translocoService.translate('labBook.deleteSectionModal.moved.toastr.success'), true);
-                    });
+                  ).then(() => {
+                    this.deleteSectionElement(this.translocoService.translate('labBook.deleteSectionModal.moved.toastr.success'), true);
+                  });
                 });
               }
             );

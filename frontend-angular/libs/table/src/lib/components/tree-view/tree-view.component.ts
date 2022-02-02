@@ -115,6 +115,7 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
     if (this.service) {
       this.loadData();
     } else {
+      this.firstDataLoaded = false;
       this.data.forEach(d => {
         d.expanded = false;
         d.level = 0;
@@ -248,6 +249,7 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
 
   public loadData(append = false, httpParams?: HttpParams): void {
     if (this.service) {
+      this.firstDataLoaded = false;
       this.loading = true;
       this.cdr.markForCheck();
 

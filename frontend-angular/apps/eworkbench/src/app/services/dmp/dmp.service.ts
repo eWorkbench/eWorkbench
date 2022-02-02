@@ -194,4 +194,8 @@ export class DMPService
   public deleteRelation(id: string, relationId: string): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}/`);
   }
+
+  public duplicate(id: string): Observable<DMP> {
+    return this.httpClient.post<DMP>(`${this.apiUrl}${id}/duplicate/`, { pk: id });
+  }
 }

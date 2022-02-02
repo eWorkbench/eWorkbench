@@ -11,10 +11,13 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from eric.kanban_boards.models import KanbanBoard, KanbanBoardColumnTaskAssignment, KanbanBoardColumn
-from eric.labbooks.models import LabBookChildElement, LabBook
+from eric.labbooks.models import LabBookChildElement, LabBook, LabbookSection
+from eric.pictures.models import Picture
+from eric.plugins.models import PluginInstance
 from eric.projects.models import ElementLock
 from eric.relations.models import Relation
 from eric.search.models import FTSMixin
+from eric.shared_elements.models import Note, File
 
 logger = logging.Logger(__name__)
 
@@ -345,6 +348,64 @@ def labbook_child_element_changed(instance, *args, **kwargs):
                     'model_name': model_name,
                     'model_pk': str(instance.lab_book.pk),
                     'id': str(instance.pk)
+                }
+            }
+        ))
+
+    else:
+        print("labbook_child_element_changed: Channel Layer is not available, not sending...")
+
+
+@receiver(post_save, sender=Note)
+@receiver(post_save, sender=Picture)
+@receiver(post_save, sender=File)
+@receiver(post_save, sender=PluginInstance)
+@receiver(post_save, sender=LabbookSection)
+@receiver(post_delete, sender=Note)
+@receiver(post_delete, sender=Picture)
+@receiver(post_delete, sender=File)
+@receiver(post_delete, sender=PluginInstance)
+@receiver(post_delete, sender=LabbookSection)
+def labbook_child_element_object_changed(instance, *args, **kwargs):
+    """
+    :param instance: the child element object that is being changed
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    print("In @post_save of labbook_child_element_object_changed: a child element object has changed")
+
+    # Check if this object is a LabBook child element
+    child_element = LabBookChildElement.objects.editable().filter(
+        child_object_content_type=instance.get_content_type(),
+        child_object_id=instance.pk
+    ).first()
+
+    if not child_element:
+        return
+
+    # get current channel
+    channel_layer = get_channel_layer()
+
+    # check if channel layer is available (e.g., in unit tests this is not available)
+    if channel_layer and child_element.lab_book:
+        model_name = LabBook.__name__.lower()
+
+        room_group_name = "elements_{model_name}_{model_pk}".format(
+            model_name=model_name, model_pk=child_element.lab_book.pk
+        )
+
+        print("Sending a notification that a child element object has changed to {}".format(room_group_name))
+
+        # notify this channel that this element has changed
+        transaction.on_commit(lambda: async_to_sync(channel_layer.group_send)(
+            room_group_name,
+            {
+                'type': 'labbook_child_element_changed',
+                'message': {
+                    'model_name': model_name,
+                    'model_pk': str(child_element.lab_book.pk),
+                    'id': str(child_element.pk)
                 }
             }
         ))

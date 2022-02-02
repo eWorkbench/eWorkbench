@@ -57,7 +57,7 @@ export class TaskCardComponent implements OnInit {
   public labels: Label[] = [];
 
   @Input()
-  public userSettings = {};
+  public userSettings: Record<string, any> = {};
 
   @Output()
   public removed = new EventEmitter<string>();

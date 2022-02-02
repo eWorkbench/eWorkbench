@@ -2,6 +2,6 @@
   "extends": ["plugin:cypress/recommended", "../../.eslintrc.json"],
   "ignorePatterns": ["!**/*"],
   "parserOptions": {
-    "project": ["apps/eworkbench-e2e/tsconfig.*?.json"]
+    "project": ["./tsconfig(.*)?.json"]
   }
 }

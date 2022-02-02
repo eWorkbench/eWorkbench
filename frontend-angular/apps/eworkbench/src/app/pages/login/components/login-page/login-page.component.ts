@@ -9,6 +9,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService, PageTitleService } from '@app/services';
 import { UserState } from '@app/stores/user';
+import { EmailDetected } from '@app/validators/email-detected.validator';
 import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -32,7 +33,7 @@ export class LoginPageComponent implements OnInit {
   public loading = false;
 
   public form = this.fb.group<FormLogin>({
-    username: [null, Validators.required],
+    username: [null, [Validators.required, EmailDetected()]],
     password: [null, Validators.required],
   });
 
@@ -49,7 +50,7 @@ export class LoginPageComponent implements OnInit {
     private readonly titleService: Title
   ) {}
 
-  private get f(): FormGroup<FormLogin>['controls'] {
+  public get f(): FormGroup<FormLogin>['controls'] {
     /* istanbul ignore next */
     return this.form.controls;
   }

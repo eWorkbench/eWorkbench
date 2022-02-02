@@ -105,15 +105,6 @@ class NotesTest(APITestCase, AuthenticationMixin, UserMixin, NoteMixin, Projects
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # at the same time, user1 should NOT be able to create a project for project2
-        response = self.rest_create_note(self.token3, self.project2.pk,
-                                         "Test Note", "Test Description",
-                                         HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertIn(response.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_403_FORBIDDEN])
-
-        # there should only be one note
-        self.assertEquals(Note.objects.all().count(), 1, msg="There should be one note")
-
         # now give the user the global add_note permission
         self.user3.user_permissions.add(self.add_note_without_project_permission)
 
@@ -217,17 +208,6 @@ class NotesTest(APITestCase, AuthenticationMixin, UserMixin, NoteMixin, Projects
         self.assertEquals(decoded['pk'], str(note.pk))
         self.assertEquals(decoded['subject'], "Test Note")
         self.assertEqual(note.subject, "Test Note")
-
-        ########
-        # create a note for project2 (should not work, as user1 does not have access to project2)
-        ########
-        response = self.rest_create_note(self.token1, self.project2.pk,
-                                         "Test Note", "Test Description",
-                                         HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
-
-        # there should still only be two Notes in the database
-        self.assertEquals(Note.objects.all().count(), 2, msg="There should be two Notes")
 
         # and there should be two Notes "viewable" by the current user
         response = self.rest_get_notes(self.token1, HTTP_USER_AGENT, REMOTE_ADDR)

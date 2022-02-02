@@ -16,6 +16,7 @@ import { LabBookModule } from '@app/modules/labbook/labbook.module';
 import { LinkModule } from '@app/modules/link/link.module';
 import { LoadingModule } from '@app/modules/loading/loading.module';
 import { LockModule } from '@app/modules/lock/lock.module';
+import { MetadataModule } from '@app/modules/metadata/metadata.module';
 import { ProjectModule } from '@app/modules/project/project.module';
 import { CustomControlErrorComponent } from '@app/modules/shared/control-error/control-error.component';
 import { SharedModule } from '@app/modules/shared/shared.module';
@@ -95,6 +96,7 @@ import { ProjectsPageRoutingModule } from './projects-page-routing.module';
     FavoritesModule,
     LabBookModule,
     CommentModule,
+    MetadataModule,
   ],
 })
 export class ProjectsPageModule {}

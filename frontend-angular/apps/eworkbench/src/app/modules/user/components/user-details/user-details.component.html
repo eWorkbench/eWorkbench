@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <ng-container *ngIf="user">
     <ng-container *ngIf="user?.userprofile">
-      <ng-container *ngIf="user?.userprofile.anonymized">
+      <ng-container *ngIf="user?.userprofile?.anonymized">
         <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
           <eworkbench-user-avatar
             [user]="user"
@@ -21,7 +21,7 @@
           </div>
         </div>
       </ng-container>
-      <ng-container *ngIf="!user?.userprofile.anonymized">
+      <ng-container *ngIf="!user?.userprofile?.anonymized">
         <ng-container
           *ngIf="user?.userprofile?.first_name && user?.userprofile?.last_name; then userTemplate; else usernameTemplate"
         ></ng-container>

@@ -109,7 +109,7 @@
                     <button
                       type="button"
                       class="btn btn-sm bg-transparent text-left"
-                      [authDownload]="{ url: initialState?.download, fileName: initialState?.original_filename }"
+                      [authDownload]="{ url: initialState?.download!, fileName: initialState?.original_filename! }"
                     >
                       <eworkbench-icon className="wb-download" class="mr-1"></eworkbench-icon>
                       <span class="btn-link">{{ initialState?.name }}</span>
@@ -138,7 +138,7 @@
                 </div>
 
                 <div class="mb-4">
-                  <ng-container *ngIf="privileges.fullAccess">
+                  <ng-container *ngIf="privileges?.fullAccess">
                     <eworkbench-form-input
                       for="storage"
                       [label]="t('file.details.storage.label')"
@@ -189,7 +189,7 @@
                     </ng-container>
                   </ng-container>
 
-                  <ng-container *ngIf="!privileges.fullAccess">
+                  <ng-container *ngIf="!privileges?.fullAccess">
                     <label>{{ t('file.details.storage.label') }}</label>
                     <div class="flex align-items-center gap-3">
                       <ng-container *ngIf="initialState?.directory">
@@ -201,12 +201,12 @@
                           ></eworkbench-icon>
                           <ng-container *ngIf="storagePrivileges?.view">
                             <a [routerLink]="['/storages', getStorageIdForDirectory(initialState.directory_id)]"
-                              ><ng-container *ngIf="initialState.directory.is_virtual_root">{{
-                                initialState.directory.display
+                              ><ng-container *ngIf="initialState.directory?.is_virtual_root">{{
+                                initialState.directory?.display
                               }}</ng-container
-                              ><ng-container *ngIf="!initialState.directory.is_virtual_root"
+                              ><ng-container *ngIf="!initialState.directory?.is_virtual_root"
                                 >{{ getStorageNameForDirectory(initialState.directory_id) }} |
-                                {{ initialState.directory.display }}</ng-container
+                                {{ initialState.directory?.display }}</ng-container
                               ></a
                             >
                           </ng-container>
@@ -312,7 +312,7 @@
               <ng-container slot="body">
                 <div class="mb-4">
                   <eworkbench-metadata
-                    [selectedParameters]="initialState?.metadata"
+                    [selectedParameters]="initialState?.metadata ?? []"
                     [editable]="privileges?.edit"
                     [loading]="loading"
                     [refresh]="refreshMetadata"
@@ -344,7 +344,6 @@
                   [service]="filesService"
                   [changesId]="id"
                   [refresh]="refreshChanges"
-                  [users]="initialState?.attending_users"
                 ></eworkbench-recent-changes>
               </ng-container>
             </eworkbench-details-collapse-element>

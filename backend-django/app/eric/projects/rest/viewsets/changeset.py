@@ -11,6 +11,7 @@ from django_userforeignkey.request import get_current_user
 from eric.core.models.abstract import parse_parameters_for_workbench_models, WorkbenchEntityMixin, \
     get_all_workbench_models
 from eric.core.rest.viewsets import BaseAuthenticatedReadOnlyModelViewSet
+from eric.labbooks.models import LabBookChildElement, LabBook
 from eric.projects.models import ProjectRoleUserAssignment
 from eric.projects.rest.serializers.changeset import ChangeSetSerializer, SimpleChangeSetSerializer
 
@@ -58,9 +59,29 @@ class GenericChangeSetViewSet(BaseAuthenticatedReadOnlyModelViewSet):
         if not hasattr(self, 'parent_object') or not self.parent_object:
             return ChangeSet.objects.none()
 
-        return ChangeSet.objects.filter(
-            object_type=self.parent_object.get_content_type(),
+        model_content_type = self.parent_object.get_content_type()
+
+        # build a conditions list, where we will add more conditions with "OR"
+        conditions = Q(
+            object_type=model_content_type,
             object_uuid=self.parent_object.pk
+        )
+
+        # if the model is a LabBook then include all child elements into the change history
+        if model_content_type == LabBook.get_content_type():
+            child_elements = LabBookChildElement.objects.all().filter(
+                lab_book=self.parent_object
+            )
+
+            for child_element in child_elements:
+                # add conditions to existing conditions with OR
+                conditions = conditions | Q(
+                    object_type=child_element.child_object_content_type,
+                    object_uuid=child_element.child_object_id
+                )
+
+        return ChangeSet.objects.filter(
+            conditions
         ).select_related(
             'user', 'user__userprofile', 'object_type'
         ).prefetch_related(
@@ -111,17 +132,15 @@ class ChangeSetViewSet(BaseAuthenticatedReadOnlyModelViewSet):
 
         # temporary fix: load ChangeSets for single models only, to avoid excessive performance hits
         # TODO: Fix underlying performance problem. Suspect #1: .prefetch_related('change_records')
-        if len(workbench_models) <= 0 or len(workbench_models) > 1:
+        if len(workbench_models) != 1:
             return ChangeSet.objects.none()
 
         # iterate over search models
         for model in workbench_models:
-            object_ids = model.objects.viewable()
-
             # add conditions to existing conditions with OR
             conditions = conditions | Q(
                 object_type=model.get_content_type(),
-                object_uuid__in=object_ids
+                object_uuid__in=model.objects.viewable()
             )
 
         # query changesets with above conditions

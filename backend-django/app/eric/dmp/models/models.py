@@ -79,6 +79,7 @@ class Dmp(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMix
         max_length=128,
         verbose_name=_("title of the dmp")
     )
+
     status = models.CharField(
         max_length=5,
         choices=DMP_STATUS_CHOICES,
@@ -186,6 +187,52 @@ class Dmp(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMix
                 data.save()
 
         Metadata.restore_all_from_entity(self, metadata.get("metadata"))
+
+    def duplicate(self, *args, **kwargs):
+        """
+        Duplicates the DMP and removes all non-relevant variables (such as Django ChangeSet __original_data__)
+        """
+
+        from django.forms import model_to_dict
+        dmp_dict = model_to_dict(self)
+
+        old_dmp_pk = kwargs['old_dmp_pk']
+        del kwargs['old_dmp_pk']
+
+        # duplicated DMP should not be soft deleted even if the original project is
+        del dmp_dict['deleted']
+
+        # variables are generated automatically
+        del dmp_dict['version_number']
+        del dmp_dict['fts_language']
+
+        # updates the DMP dict (e.g. name or parent pk should be changed in the duplicated object)
+        dmp_dict.update(kwargs)
+
+        # related projects will be added separately after the duplicated DMP has been saved
+        del dmp_dict['projects']
+
+        # create a new project object and save it
+        new_dmp_object = Dmp(**dmp_dict)
+        new_dmp_object.save()
+        new_dmp_object.projects.set(kwargs.get('projects', []))
+
+        # Duplicate all answers too. Firstly, we must find all for data fields for the old DMP.
+        # After that we must somehow map the old data field PK to the new one. However, this is not possible.
+        # The DMP for data fields will be automatically created by a post_save handler, so we don't have access to
+        # the PKs. But since this is a duplication, we can map the type, the name and the ordering. Actually, mapping
+        # the ordering should be enough but we don't know if the ordering of the old DMP was correct. The additional
+        # mapping of type and name helps with that matter if the fields would have had the same ordering number.
+        for old_data in DmpFormData.objects.viewable().filter(dmp__pk=old_dmp_pk):
+            new_data = DmpFormData.objects.get(
+                dmp__pk=new_dmp_object.pk, type=old_data.type, name=old_data.name, ordering=old_data.ordering
+            )
+
+            if new_data:
+                new_data.value = old_data.value
+                new_data.save()
+
+        return new_dmp_object
 
 
 @receiver(post_save, sender=Dmp)
@@ -317,20 +364,24 @@ class DmpFormData(BaseModel, OrderingModelMixin, ChangeSetMixIn, RevisionModelMi
         default=uuid.uuid4,
         editable=False
     )
+
     value = HTMLField(
         verbose_name=_("value of the dmp form data"),
         blank=True
     )
+
     name = models.CharField(
         max_length=128,
         verbose_name=_("name of the dmp form data")
     )
+
     type = models.CharField(
         max_length=5,
         verbose_name=_("type of the dmp form data"),
         choices=DmpFormField.DMP_FORM_FIELD_CHOICES,
         default=DmpFormField.TEXTFIELD
     )
+
     infotext = models.TextField(
         verbose_name=_("infotext of the dmp form data")
     )

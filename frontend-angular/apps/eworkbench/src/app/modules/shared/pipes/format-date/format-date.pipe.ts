@@ -11,7 +11,7 @@ import { format, parseISO } from 'date-fns';
 })
 export class FormatDatePipe implements PipeTransform {
   public transform(
-    value?: string,
+    value?: string | null,
     withTime = true,
     formatDayString = 'yyyy-MM-dd',
     formatTimeString = "HH':'mm",

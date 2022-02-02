@@ -16,7 +16,7 @@
           </alert>
         </div>
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+        <form [formGroup]="$any(form)" (ngSubmit)="onSubmit()" errorTailor>
           <div class="mb-4">
             <label for="name-modal">
               {{ t('metadata.newModal.name.label') }}

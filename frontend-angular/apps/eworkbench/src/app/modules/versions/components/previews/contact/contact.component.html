@@ -93,7 +93,7 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="contact?.metadata.length">
+      <div class="mb-4" *ngIf="contact?.metadata?.length">
         <label for="metadata-modal">{{ t('contact.details.metadata.label') }}</label>
         <ng-container *ngFor="let field of contact?.metadata">
           <div class="mb-2">

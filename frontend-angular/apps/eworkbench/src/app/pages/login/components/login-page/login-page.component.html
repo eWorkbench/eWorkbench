@@ -12,6 +12,7 @@
         <label for="username">
           {{ t('login.username.label') }}
           <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
+          {{ t('login.username2.label') }}
         </label>
         <input
           type="text"
@@ -21,6 +22,9 @@
           name="username"
           [placeholder]="t('login.username.placeholder')"
         />
+        <div *ngIf="f.username.errors?.emaildetected" class="control-error">
+          <a [routerLink]="['/faq']">{{ t('login.username.cantRemember') }}</a>
+        </div>
       </div>
       <div class="mb-4">
         <label for="password">
@@ -37,8 +41,8 @@
         />
       </div>
       <div class="float-right">
-        <a [routerLink]="['/forgot-password']">
-          <button type="button" class="btn ewb-button-big ewb-button-none mr-2">{{ t('login.forgotPassword') }}</button>
+        <a class="mr-2" [routerLink]="['/forgot-password']">
+          <button type="button" class="btn ewb-button-big ewb-button-none">{{ t('login.forgotPassword') }}</button>
         </a>
         <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
           {{ t('login.confirm') }}

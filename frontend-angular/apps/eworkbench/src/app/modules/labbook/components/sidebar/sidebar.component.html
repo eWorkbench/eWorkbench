@@ -14,6 +14,7 @@
           [tooltip]="t('labBook.sidebar.add.note.tooltip')"
           containerClass="tooltip-sm"
           placement="right"
+          [disabled]="!editable"
           (click)="onOpenNewNoteElementModal()"
         >
           <eworkbench-icon className="wb-comment"></eworkbench-icon>
@@ -26,6 +27,7 @@
           [tooltip]="t('labBook.sidebar.add.sketch.tooltip')"
           containerClass="tooltip-sm"
           placement="right"
+          [disabled]="!editable"
           (click)="onOpenSketchModal()"
         >
           <eworkbench-icon className="wb-pen"></eworkbench-icon>
@@ -38,6 +40,7 @@
           [tooltip]="t('labBook.sidebar.add.picture.tooltip')"
           containerClass="tooltip-sm"
           placement="right"
+          [disabled]="!editable"
           (click)="onOpenNewPictureElementModal()"
         >
           <eworkbench-icon className="wb-image"></eworkbench-icon>
@@ -50,6 +53,7 @@
           [tooltip]="t('labBook.sidebar.add.file.tooltip')"
           containerClass="tooltip-sm"
           placement="right"
+          [disabled]="!editable"
           (click)="onOpenNewFileElementModal()"
         >
           <eworkbench-icon className="wb-files"></eworkbench-icon>
@@ -62,6 +66,7 @@
           [tooltip]="t('labBook.sidebar.add.plugin.tooltip')"
           containerClass="tooltip-sm"
           placement="right"
+          [disabled]="!editable"
           (click)="onOpenNewPluginElementModal()"
         >
           <eworkbench-icon className="wb-plugin"></eworkbench-icon>
@@ -74,6 +79,7 @@
           [tooltip]="t('labBook.sidebar.add.import.tooltip')"
           containerClass="tooltip-sm"
           placement="right"
+          [disabled]="!editable"
           (click)="onOpenImportModal()"
         >
           <eworkbench-icon className="wb-copy"></eworkbench-icon>
@@ -86,6 +92,7 @@
           [tooltip]="t('labBook.sidebar.add.section.tooltip')"
           containerClass="tooltip-sm"
           placement="right"
+          [disabled]="!editable"
           (click)="onOpenNewSectionModal()"
         >
           <eworkbench-icon className="wb-bars"></eworkbench-icon>

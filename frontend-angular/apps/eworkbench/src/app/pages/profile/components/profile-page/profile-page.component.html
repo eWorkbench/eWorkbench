@@ -5,8 +5,6 @@
 
 <eworkbench-header [title]="title"></eworkbench-header>
 
-<eworkbench-page-skeleton *ngIf="!initialState"></eworkbench-page-skeleton>
-
 <ng-container *ngIf="initialState">
   <ng-container *transloco="let t">
     <main>
@@ -26,7 +24,7 @@
             <angular-cropper
               #avatarCropper
               [cropperOptions]="avatarCropperConfig"
-              (export)="onExportAvatar($event)"
+              (export)="onExportAvatar()"
               [imageUrl]="newAvatar"
             ></angular-cropper>
             <div class="my-3">

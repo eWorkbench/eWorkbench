@@ -65,6 +65,23 @@
             ></tab>
             <tab
               [heading]="
+                dmpRelations.value.length
+                  ? t('link.newModal.tabHeading.dmpSelected', { count: dmpRelations.value.length })
+                  : t('link.newModal.tabHeading.dmp')
+              "
+              id="shared_elements.dmp"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showDMPSearch"
+                [listColumns]="dmpListColumns"
+                [baseModel]="baseModel"
+                [service]="dmpsService"
+                [formArray]="dmpRelations"
+                [newContent]="refreshDMPs"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
                 fileRelations.value.length
                   ? t('link.newModal.tabHeading.fileSelected', { count: fileRelations.value.length })
                   : t('link.newModal.tabHeading.file')
@@ -95,6 +112,23 @@
                 [service]="labBooksService"
                 [formArray]="labBookRelations"
                 [newContent]="refreshLabBooks"
+              ></eworkbench-search-content
+            ></tab>
+            <tab
+              [heading]="
+                pictureRelations.value.length
+                  ? t('link.newModal.tabHeading.pictureSelected', { count: pictureRelations.value.length })
+                  : t('link.newModal.tabHeading.picture')
+              "
+              id="shared_elements.picture"
+              (selectTab)="onSelectTab($event)"
+              ><eworkbench-search-content
+                *ngIf="showPictureSearch"
+                [listColumns]="pictureListColumns"
+                [baseModel]="baseModel"
+                [service]="picturesService"
+                [formArray]="pictureRelations"
+                [newContent]="refreshPictures"
               ></eworkbench-search-content
             ></tab>
             <tab
@@ -234,11 +268,35 @@
 <ng-template #contactLastNameCellTemplate let-row>
   {{ row.last_name }}
 </ng-template>
+<ng-template #dmpTitleCellTemplate let-row>
+  {{ row.display }}
+</ng-template>
 <ng-template #fileNameCellTemplate let-row>
   {{ row.name }}
 </ng-template>
 <ng-template #labBookTitleCellTemplate let-row>
   {{ row.title }}
+</ng-template>
+<ng-template #pictureTitleCellTemplate let-row>
+  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+    {{ row.title }}
+  </div>
+</ng-template>
+<ng-template #pictureTitleCellTemplate let-row>
+  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+    {{ row.title }}
+  </div>
+</ng-template>
+<ng-template #picturePreviewCellTemplate let-row>
+  <img
+    class="h-10"
+    [popover]="pictureDetailsPopover"
+    [popoverContext]="{ src: row.download_rendered_image }"
+    containerClass="ewb-popover"
+    triggers="mouseenter:mouseleave"
+    [src]="row.download_rendered_image"
+    alt="Preview image"
+  />
 </ng-template>
 <ng-template #pluginInstanceTitleCellTemplate let-row>
   {{ row.title }}
@@ -251,9 +309,9 @@
 </ng-template>
 <ng-template #taskIdCellTemplate let-row>#{{ row.task_id }}</ng-template>
 <ng-template #taskTitleCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     {{ row.title }}
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #taskPriorityCellTemplate let-row>
   <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
@@ -265,7 +323,11 @@
   {{ row.title }}
 </ng-template>
 <ng-template #noteSubjectCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.subject" containerClass="tooltip-sm" [delay]="500">
     {{ row.subject }}
-  </eworkbench-ellipsis-element>
+  </div>
+</ng-template>
+
+<ng-template #pictureDetailsPopover let-src="src">
+  <img class="h-48" [src]="src" alt="Preview image" />
 </ng-template>

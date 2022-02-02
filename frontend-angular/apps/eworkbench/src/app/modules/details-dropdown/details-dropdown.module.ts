@@ -19,12 +19,19 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { LoadingModule } from '../loading/loading.module';
 import { DetailsDropdownComponent } from './components/details-dropdown/details-dropdown.component';
+import { DuplicateDMPModalComponent } from './components/modals/duplicate-dmp/duplicate.component';
 import { DuplicateProjectModalComponent } from './components/modals/duplicate-project/duplicate.component';
 import { PrivilegesModalComponent } from './components/modals/privileges/privileges.component';
 import { ShareModalComponent } from './components/modals/share/share.component';
 
 @NgModule({
-  declarations: [DetailsDropdownComponent, PrivilegesModalComponent, ShareModalComponent, DuplicateProjectModalComponent],
+  declarations: [
+    DetailsDropdownComponent,
+    PrivilegesModalComponent,
+    ShareModalComponent,
+    DuplicateProjectModalComponent,
+    DuplicateDMPModalComponent,
+  ],
   imports: [
     CommonModule,
     RouterModule,
@@ -39,6 +46,12 @@ import { ShareModalComponent } from './components/modals/share/share.component';
     TooltipModule.forRoot(),
     IconsModule,
   ],
-  exports: [DetailsDropdownComponent, PrivilegesModalComponent, ShareModalComponent, DuplicateProjectModalComponent],
+  exports: [
+    DetailsDropdownComponent,
+    PrivilegesModalComponent,
+    ShareModalComponent,
+    DuplicateProjectModalComponent,
+    DuplicateDMPModalComponent,
+  ],
 })
 export class DetailsDropdownModule {}

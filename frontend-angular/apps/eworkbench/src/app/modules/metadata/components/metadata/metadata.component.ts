@@ -31,7 +31,7 @@ export class MetadataComponent implements OnInit {
   public loading = true;
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Input()
   public selectedParameters: Metadata[] = [];
@@ -88,6 +88,10 @@ export class MetadataComponent implements OnInit {
 
           if (autoSelect) {
             this.onAdd(autoSelect);
+          }
+
+          if (!this.editable) {
+            this.parametersFormControl.disable();
           }
 
           this.loading = false;

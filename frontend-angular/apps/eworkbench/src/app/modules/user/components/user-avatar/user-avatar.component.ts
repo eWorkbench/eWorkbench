@@ -15,7 +15,7 @@ import { TranslocoService } from '@ngneat/transloco';
 })
 export class UserAvatarComponent {
   @Input()
-  public user?: User;
+  public user?: User | null;
 
   @Input()
   public chip = false;
@@ -37,7 +37,7 @@ export class UserAvatarComponent {
     return this.scale === 1 ? 0 : (this.baseSize * this.scale - this.baseSize) / 2;
   }
 
-  public getFirstLetter(text: string | null): string {
+  public getFirstLetter(text?: string | null): string {
     return text ? text.slice(0, 1) : '';
   }
 }

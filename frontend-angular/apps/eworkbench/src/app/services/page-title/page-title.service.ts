@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, isObservable, Observable } from 'rxjs';
+import { BehaviorSubject, isObservable, lastValueFrom, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -29,7 +29,7 @@ export class PageTitleService {
 
   public async set(newTitle: string | Observable<any>): Promise<void> {
     if (isObservable(newTitle)) {
-      const title = await newTitle.toPromise();
+      const title = await lastValueFrom(newTitle);
       return this.title$.next(title);
     }
 

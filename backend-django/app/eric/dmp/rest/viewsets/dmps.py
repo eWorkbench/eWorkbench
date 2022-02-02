@@ -9,7 +9,9 @@ from django.db.models import Prefetch
 from django.contrib.contenttypes.models import ContentType
 from django_changeset.models import ChangeSet
 from django.template.loader import render_to_string
+from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponse
+from rest_framework.response import Response
 
 from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn
 from eric.dmp.rest.filters import DmpFilter
@@ -31,6 +33,26 @@ class DmpViewSet(
 
     ordering_fields = ('title', 'dmp_form', 'status', 'created_at', 'created_by', 'last_modified_at',
                        'last_modified_by')
+
+    @action(detail=True, methods=['POST'])
+    def duplicate(self, request, format=None, *args, **kwargs):
+        """
+        Duplicates the DMP with all its answers.
+        """
+        dmp_object = Dmp.objects.viewable().get(pk=kwargs['pk'])
+
+        # Duplicates the DMP and changes the name to "Copy of" + DMP title
+        duplicated_dmp = dmp_object.duplicate(
+            title=_("Copy of") + f" {dmp_object.title}",
+            status=Dmp.NEW,
+            dmp_form=dmp_object.dmp_form,
+            projects=dmp_object.projects.all().values_list("pk", flat=True),
+            old_dmp_pk=dmp_object.pk,
+        )
+
+        serializer = self.get_serializer(duplicated_dmp)
+
+        return Response(serializer.data)
 
     def get_queryset(self):
         """

@@ -14,7 +14,7 @@ import { EditorComponent } from '@tinymce/tinymce-angular';
 })
 export class WysiwygEditorComponent implements ControlValueAccessor, OnInit, AfterViewInit {
   @Input()
-  public id?: string;
+  public id!: string;
 
   @Input()
   public maxHeight: number | false = 500;

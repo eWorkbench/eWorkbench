@@ -23,7 +23,7 @@
               id="title"
               name="title"
               [placeholder]="t('taskBoard.newColumnModal.title.placeholder')"
-              [autoFocus]
+              autoFocus
             />
           </div>
           <div class="mb-4">
@@ -37,7 +37,7 @@
               id="color"
               name="color"
               [placeholder]="t('taskBoard.newColumnModal.color.placeholder')"
-              [colorPicker]="f.color.value"
+              [colorPicker]="f.color.value!"
               [value]="f.color.value"
               (colorPickerChange)="f.color.setValue($event); f.color.markAsDirty()"
               cpOutputFormat="rgba"

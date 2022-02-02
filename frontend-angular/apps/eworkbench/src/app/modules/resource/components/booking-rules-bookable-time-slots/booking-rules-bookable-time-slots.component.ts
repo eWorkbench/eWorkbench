@@ -41,7 +41,7 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit, A
   public rule!: BookingRuleBookableTimeSlots | null;
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Input()
   public loading = false;
@@ -210,7 +210,7 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit, A
       !this.f.friday.value &&
       !this.f.saturday.value &&
       !this.f.sunday.value &&
-      this.editable
+      Boolean(this.editable)
     );
   }
 

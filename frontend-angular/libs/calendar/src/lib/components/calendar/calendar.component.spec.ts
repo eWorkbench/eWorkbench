@@ -105,7 +105,7 @@ describe('CalendarComponent', () => {
 
   it('should call onDatesSet()', () => {
     const onDatesSetSpy = jest.spyOn(spectator.component, 'onDatesSet');
-    spectator.component.onDatesSet(event);
+    spectator.component.onDatesSet(event as unknown as Event);
     expect(onDatesSetSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -122,7 +122,7 @@ describe('CalendarComponent', () => {
       jsEvent: null,
       view: event.view,
     };
-    spectator.component.onSelect(expected);
+    spectator.component.onSelect(expected as unknown as Event);
     expect(onSelectSpy).toHaveBeenCalledWith(expected);
     expect(onSelectSpy).toHaveBeenCalledTimes(1);
   });

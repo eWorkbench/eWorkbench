@@ -10,7 +10,7 @@
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
+        <form [formGroup]="form" (ngSubmit)="onSubmit($event)" errorTailor>
           <div class="mb-4">
             <label for="title-modal">
               {{ t('picture.sketchModal.title.label') }}

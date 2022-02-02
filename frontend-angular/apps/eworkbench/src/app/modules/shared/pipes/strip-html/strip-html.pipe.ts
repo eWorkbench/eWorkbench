@@ -9,7 +9,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'stripHTML',
 })
 export class StripHTMLPipe implements PipeTransform {
-  public transform(value?: string): string {
+  public transform(value?: string | null): string {
     return value ? String(value).replace(/<[^>]+>/gm, '') : '';
   }
 }

@@ -65,12 +65,12 @@
             {{ formatFieldName(change.field_name) }}
             <ng-container *ngFor="let field of change.old_value">
               <div class="bg-danger p-2">
-                {{ metadataParameters[field.fields.field]?.display }}
+                {{ metadataParameters?.[field.fields.field]?.display }}
                 <eworkbench-metadata-field
                   [uuid]="field.fields.field"
                   [id]="field.fields.field"
-                  [baseType]="metadataParameters[field.fields.field]?.base_type"
-                  [typeSettings]="metadataParameters[field.fields.field]?.type_settings"
+                  [baseType]="metadataParameters?.[field.fields.field]?.base_type"
+                  [typeSettings]="metadataParameters?.[field.fields.field]?.type_settings"
                   [values]="field.fields.values"
                   [editable]="false"
                 ></eworkbench-metadata-field>
@@ -78,12 +78,12 @@
             </ng-container>
             <ng-container *ngFor="let field of change.new_value">
               <div class="bg-success p-2">
-                {{ metadataParameters[field.fields.field]?.display }}
+                {{ metadataParameters?.[field.fields.field]?.display }}
                 <eworkbench-metadata-field
                   [uuid]="field.fields.field"
                   [id]="field.fields.field"
-                  [baseType]="metadataParameters[field.fields.field]?.base_type"
-                  [typeSettings]="metadataParameters[field.fields.field]?.type_settings"
+                  [baseType]="metadataParameters?.[field.fields.field]?.base_type"
+                  [typeSettings]="metadataParameters?.[field.fields.field]?.type_settings"
                   [values]="field.fields.values"
                   [editable]="false"
                 ></eworkbench-metadata-field>
@@ -196,7 +196,7 @@
               <span class="mr-2">{{ t('recentChanges.createDetailsWasSetTo') }}</span>
               <eworkbench-recent-changes-users
                 class="inline-block"
-                [users]="users"
+                [users]="users ?? []"
                 [value]="change.new_value"
                 *ngIf="change.new_value"
               ></eworkbench-recent-changes-users>
@@ -206,7 +206,7 @@
               <span class="mr-2">{{ t('recentChanges.changeDetailsWasChangedFrom') }}</span>
               <eworkbench-recent-changes-users
                 class="inline-block"
-                [users]="users"
+                [users]="users ?? []"
                 [value]="change.old_value"
                 *ngIf="change.old_value"
               ></eworkbench-recent-changes-users>
@@ -214,7 +214,7 @@
               <span class="mr-2">{{ t('recentChanges.changeDetailsWasChangedTo') }}</span>
               <eworkbench-recent-changes-users
                 class="inline-block"
-                [users]="users"
+                [users]="users ?? []"
                 [value]="change.new_value"
                 *ngIf="change.new_value"
               ></eworkbench-recent-changes-users>

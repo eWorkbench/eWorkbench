@@ -46,19 +46,9 @@
 
                 <div
                   *ngIf="getFilterSelectedProject"
-                  class="
-                    bg-tum-primary
-                    hover:bg-tum-primary-hover
-                    text-white
-                    py-0.5
-                    px-2.5
-                    rounded-full
-                    inline-flex
-                    justify-between
-                    items-center
-                  "
+                  class="bg-tum-primary hover:bg-tum-primary-hover text-white py-0.5 px-2.5 rounded-full inline-flex justify-between items-center"
                 >
-                  <span class="text-sm mr-2">{{ getFilterSelectedProject.display }}</span>
+                  <span class="text-sm mr-2">{{ getFilterSelectedProject?.display }}</span>
                   <button
                     type="button"
                     class="btn ewb-button-small text-white"
@@ -133,7 +123,6 @@
             [open]="true"
             [miniTop]="true"
             [activeFilters]="filtersChanged"
-            [savedFilters]="savedFilters"
             [rememberFilters]="false"
             (resetFilters)="onResetFilters()"
           >
@@ -163,9 +152,9 @@
                       class="custom-control-input"
                       name="filter-user-radio-backlog"
                       id="filter-user-radio-backlog-2"
-                      [value]="currentUser.pk"
+                      [value]="currentUser?.pk"
                       [formControl]="usersControl"
-                      (change)="onUserFilterRadioMyself($event.target.checked)"
+                      (change)="onUserFilterRadioMyself($event.target?.checked)"
                     />
                     <label for="filter-user-radio-backlog-2" class="custom-control-label font-normal leading-6">
                       {{ t('filter-menu.myself.label') }}
@@ -177,7 +166,7 @@
                       class="custom-control-input"
                       name="filter-user-radio-backlog"
                       id="filter-user-radio-backlog-3"
-                      (change)="showUserFilter = $event.target.checked"
+                      (change)="showUserFilter = $event.target?.checked"
                     />
                     <label for="filter-user-radio-backlog-3" class="custom-control-label font-normal leading-6">
                       {{ t('filter-menu.chooseAUser.label') }}
@@ -264,9 +253,9 @@
                       class="custom-control-input"
                       name="filter-assignee-radio-backlog"
                       id="filter-assignee-radio-backlog-2"
-                      [value]="currentUser.pk"
+                      [value]="currentUser?.pk"
                       [formControl]="assigneesControl"
-                      (change)="onUserFilterRadioMyselfAssignees($event.target.checked)"
+                      (change)="onUserFilterRadioMyselfAssignees($event.target?.checked)"
                     />
                     <label for="filter-assignee-radio-backlog-2" class="custom-control-label font-normal leading-6">
                       {{ t('filter-menu.myself.label') }}
@@ -278,7 +267,7 @@
                       class="custom-control-input"
                       name="filter-assignee-radio-backlog"
                       id="filter-assignee-radio-backlog-3"
-                      (change)="showAssigneesFilter = $event.target.checked"
+                      (change)="showAssigneesFilter = $event.target?.checked"
                     />
                     <label for="filter-assignee-radio-backlog-3" class="custom-control-label font-normal leading-6">
                       {{ t('filter-menu.chooseAUser.label') }}
@@ -533,9 +522,9 @@
   <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
 </ng-template>
 <ng-template #titleCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/tasks', row.pk]" target="_blank">{{ row.title }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #stateCellTemplate let-row>
   <eworkbench-task-state [state]="row.state"></eworkbench-task-state>

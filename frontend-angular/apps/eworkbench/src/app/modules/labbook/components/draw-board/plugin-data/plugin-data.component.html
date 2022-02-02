@@ -21,7 +21,7 @@
           </eworkbench-form-input>
         </div>
         <div class="ml-2 self-center">
-          <button type="button" class="btn ewb-button-big square-md ewb-button-none cursor-move drag-handle mr-2">
+          <button type="button" class="btn ewb-button-big square-md ewb-button-none cursor-move drag-handle mr-2" *ngIf="editable">
             <eworkbench-icon className="wb-arrow-cross"></eworkbench-icon>
           </button>
           <eworkbench-labbook-element-dropdown
@@ -33,6 +33,7 @@
             [initialState]="initialState"
             routerBaseLink="/plugin-data"
             [privileges]="privileges"
+            [labBookEditable]="editable"
             (removed)="onRemove($event)"
             (moved)="onMove($event)"
           ></eworkbench-labbook-element-dropdown>
@@ -49,8 +50,8 @@
       <eworkbench-plugin-data
         [authUrl]="initialState?.auth_url"
         [dataPicture]="initialState?.picture"
-        [pluginLogo]="initialState?.plugin_details.logo"
-        [pluginTitle]="initialState?.plugin_details.title"
+        [pluginLogo]="initialState?.plugin_details?.logo"
+        [pluginTitle]="initialState?.plugin_details?.title"
         [refresh]="refreshResetValue"
       ></eworkbench-plugin-data>
     </div>
@@ -68,10 +69,10 @@
             <ng-container *ngIf="!element.num_relations">
               {{ t('labBook.drawBoard.element.footer.linkWith') }}
             </ng-container>
-            <ng-container *ngIf="element.num_relations === 1">
+            <ng-container *ngIf="element.num_relations && element.num_relations === 1">
               {{ t('labBook.drawBoard.element.footer.link', { count: element.num_relations }) }}
             </ng-container>
-            <ng-container *ngIf="element.num_relations > 1">
+            <ng-container *ngIf="element.num_relations && element.num_relations > 1">
               {{ t('labBook.drawBoard.element.footer.links', { count: element.num_relations }) }}
             </ng-container>
           </button>
@@ -81,10 +82,10 @@
           <ng-container *ngIf="!element.num_related_comments">
             {{ t('labBook.drawBoard.element.footer.createComment') }}
           </ng-container>
-          <ng-container *ngIf="element.num_related_comments === 1">
+          <ng-container *ngIf="element.num_related_comments && element.num_related_comments === 1">
             {{ t('labBook.drawBoard.element.footer.comment', { count: element.num_related_comments }) }}
           </ng-container>
-          <ng-container *ngIf="element.num_related_comments > 1">
+          <ng-container *ngIf="element.num_related_comments && element.num_related_comments > 1">
             {{ t('labBook.drawBoard.element.footer.comments', { count: element.num_related_comments }) }}
           </ng-container>
         </button>

@@ -13,8 +13,8 @@ export interface CalendarDayHeaderFormat {
 }
 
 export interface CalendarSlotInterval {
-  hours?: number;
-  minutes?: number;
+  hours?: number | null;
+  minutes?: number | null;
 }
 
 export interface CalendarDateFormat {

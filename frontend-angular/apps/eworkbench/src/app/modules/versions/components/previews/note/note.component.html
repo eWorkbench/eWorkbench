@@ -38,7 +38,7 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="note?.metadata.length">
+      <div class="mb-4" *ngIf="note?.metadata?.length">
         <label for="metadata-modal">{{ t('note.details.metadata.label') }}</label>
         <ng-container *ngFor="let field of note?.metadata">
           <div class="mb-2">

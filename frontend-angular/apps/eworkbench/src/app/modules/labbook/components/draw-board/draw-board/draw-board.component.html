@@ -9,6 +9,7 @@
       <eworkbench-labbook-sidebar
         [id]="id"
         [projects]="projects"
+        [editable]="editable"
         (created)="onAddElement($event)"
         (refresh)="onRefreshGrid($event)"
       ></eworkbench-labbook-sidebar>
@@ -18,6 +19,7 @@
         class="mb-4"
         [id]="id"
         [projects]="projects"
+        [editable]="editable"
         (created)="onAddElement($event)"
       ></eworkbench-labbook-search-bar>
       <eworkbench-labbook-draw-board-grid
@@ -25,6 +27,7 @@
         [id]="id"
         [created]="created"
         [refresh]="refresh"
+        [editable]="editable"
       ></eworkbench-labbook-draw-board-grid>
     </div>
   </div>

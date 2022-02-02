@@ -22,10 +22,10 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class LabBookPreviewComponent implements OnInit {
   @Input()
-  public id!: string;
+  public id?: string;
 
   @Input()
-  public version!: string;
+  public version?: string;
 
   @Input()
   public versionInProgress?: number | null;
@@ -65,7 +65,7 @@ export class LabBookPreviewComponent implements OnInit {
 
   public initDetails(): void {
     this.labBooksService
-      .previewVersion(this.id, this.version)
+      .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ (labBook: LabBook) => {
@@ -110,7 +110,7 @@ export class LabBookPreviewComponent implements OnInit {
     this.loading = true;
 
     this.labBooksService
-      .restoreVersion(this.id, this.version, Boolean(this.versionInProgress))
+      .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ () => {

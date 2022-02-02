@@ -6,7 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      {{ duplicate ? t('task.newTaskModal.duplicate.header', { title: initialState.title }) : t('task.newTaskModal.create.header') }}
+      {{ duplicate ? t('task.newTaskModal.duplicate.header', { title: initialState?.title }) : t('task.newTaskModal.create.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">
@@ -23,7 +23,7 @@
               id="title-modal"
               name="title-modal"
               [placeholder]="t('task.newTaskModal.title.placeholder')"
-              [autoFocus]
+              autoFocus
             />
           </div>
           <div class="mb-4">

@@ -105,15 +105,6 @@ class CommentsTest(APITestCase, AuthenticationMixin, UserMixin, CommentMixin, Pr
                                             HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # at the same time, user1 should NOT be able to create a project for project2
-        response = self.rest_create_comment(self.token3, self.project2.pk,
-                                            "Test Description",
-                                            HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertIn(response.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_403_FORBIDDEN])
-
-        # there should only be one comment
-        self.assertEquals(Comment.objects.all().count(), 1, msg="There should be one comment")
-
         # now give the user the global add_comment permission
         self.user3.user_permissions.add(self.add_comment_without_project_permission)
 
@@ -213,17 +204,6 @@ class CommentsTest(APITestCase, AuthenticationMixin, UserMixin, CommentMixin, Pr
         comment = Comment.objects.get(pk=decoded['pk'])
         # verify that the comment object was stored and returned properly
         self.assertEquals(decoded['pk'], str(comment.pk))
-
-        ########
-        # create a comment for project2 (should not work, as user1 does not have access to project2)
-        ########
-        response = self.rest_create_comment(self.token1, self.project2.pk,
-                                            "Test Description",
-                                            HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
-
-        # there should still only be two Comments in the database
-        self.assertEquals(Comment.objects.all().count(), 2, msg="There should be two Comments")
 
         # and there should be two Comments "viewable" by the current user
         response = self.rest_get_comments(self.token1, HTTP_USER_AGENT, REMOTE_ADDR)

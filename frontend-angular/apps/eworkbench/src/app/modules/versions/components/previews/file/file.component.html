@@ -34,7 +34,7 @@
           <button
             type="button"
             class="btn btn-sm bg-transparent"
-            [authDownload]="{ url: file?.download, fileName: file?.original_filename }"
+            [authDownload]="{ url: file?.download!, fileName: file?.original_filename! }"
           >
             <eworkbench-icon className="wb-download" class="mr-1"></eworkbench-icon>
             <span class="btn-link">{{ file?.name }}</span>
@@ -86,7 +86,7 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="file?.metadata.length">
+      <div class="mb-4" *ngIf="file?.metadata?.length">
         <label for="metadata-modal">{{ t('file.details.metadata.label') }}</label>
         <ng-container *ngFor="let field of file?.metadata">
           <div class="mb-2">

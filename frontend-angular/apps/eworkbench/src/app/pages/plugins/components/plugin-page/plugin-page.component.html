@@ -39,7 +39,7 @@
   <ng-container *transloco="let t">
     <div [class.with-sidebar]="showSidebar">
       <aside *ngIf="showSidebar">
-        <eworkbench-project-sidebar [sidebarItem]="sidebarItem"></eworkbench-project-sidebar>
+        <eworkbench-project-sidebar></eworkbench-project-sidebar>
       </aside>
       <main>
         <ng-container *ngIf="initialState?.deleted">
@@ -74,7 +74,7 @@
                   <div class="mb-4">
                     <label>{{ t('plugin.details.type.label') }}</label>
                     <div>
-                      <a href (click)="onOpenPluginDetailsModal($event)">{{ initialState?.plugin_details.title }}</a>
+                      <a href (click)="onOpenPluginDetailsModal($event)">{{ initialState?.plugin_details?.title }}</a>
                     </div>
                   </div>
                   <div class="mb-4">
@@ -152,7 +152,7 @@
                 <ng-container slot="body">
                   <div class="mb-4">
                     <eworkbench-metadata
-                      [selectedParameters]="initialState?.metadata"
+                      [selectedParameters]="initialState?.metadata ?? []"
                       [editable]="privileges?.edit"
                       [loading]="loading"
                       [refresh]="refreshMetadata"
@@ -188,7 +188,6 @@
                     [service]="pluginInstancesService"
                     [changesId]="id"
                     [refresh]="refreshChanges"
-                    [users]="initialState?.attending_users"
                   ></eworkbench-recent-changes>
                 </ng-container>
               </eworkbench-details-collapse-element>
@@ -235,8 +234,8 @@
         <eworkbench-plugin-data
           [authUrl]="initialState?.auth_url"
           [dataPicture]="initialState?.picture"
-          [pluginLogo]="initialState?.plugin_details.logo"
-          [pluginTitle]="initialState?.plugin_details.title"
+          [pluginLogo]="initialState?.plugin_details?.logo"
+          [pluginTitle]="initialState?.plugin_details?.title"
           [refresh]="refreshResetValue"
         ></eworkbench-plugin-data>
       </main>

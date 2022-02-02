@@ -39,7 +39,7 @@ export class ResourceBookingRulesDurationComponent implements OnInit {
   public rule!: BookingRuleDuration | null;
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Input()
   public loading = false;

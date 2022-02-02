@@ -43,7 +43,7 @@
               id="remember-filter"
               name="remember-filter"
               [checked]="savedFilters"
-              (change)="saveFilters.emit($event.target.checked)"
+              (change)="saveFilters.emit($event.target?.checked)"
             />
             <label for="remember-filter" class="custom-control-label font-normal leading-5">
               {{ t('filterSidebar.remember.label') }}

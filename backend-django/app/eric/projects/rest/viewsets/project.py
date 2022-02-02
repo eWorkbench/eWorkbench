@@ -56,7 +56,7 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
 
     serializer_class = ProjectSerializerExtended
     filterset_class = ProjectFilter
-    search_fields = ()
+    search_fields = ('name', 'description',)
     ordering_fields = ['pk', 'name', 'start_date', 'stop_date']
 
     @action(detail=True, methods=['POST'])
@@ -71,7 +71,10 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
         # duplicates the project
         # change name to "Copy of" + project name
         # the duplicated project can not be a sub project so set parent_project_id to NONE if it was set
-        duplicated_project = project_object.duplicate(name=_("Copy of ") + project_object.name, parent_project_id=None)
+        duplicated_project = project_object.duplicate(
+            name=_("Copy of") + f" {project_object.name}",
+            parent_project_id=None
+        )
 
         dict_duplicated_project_pk = dict()
         dict_duplicated_project_pk[original_project_pk] = duplicated_project.pk

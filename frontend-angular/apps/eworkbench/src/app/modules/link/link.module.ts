@@ -18,6 +18,7 @@ import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { AlertModule } from 'ngx-bootstrap/alert';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { PopoverModule } from 'ngx-bootstrap/popover';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { CommentModule } from '../comment/comment.module';
@@ -55,6 +56,7 @@ import { SearchContentComponent } from './components/search-content/search-conte
     AlertModule.forRoot(),
     CommentModule,
     SkeletonsModule,
+    PopoverModule.forRoot(),
   ],
   exports: [LinkComponent, LinkListComponent],
 })

@@ -42,7 +42,7 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="pluginInstance?.metadata.length">
+      <div class="mb-4" *ngIf="pluginInstance?.metadata?.length">
         <label for="metadata-modal">{{ t('plugin.details.metadata.label') }}</label>
         <ng-container *ngFor="let field of pluginInstance?.metadata">
           <div class="mb-2">

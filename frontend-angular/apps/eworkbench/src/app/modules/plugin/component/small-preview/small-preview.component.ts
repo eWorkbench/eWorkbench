@@ -16,5 +16,5 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 })
 export class PluginSmallPreviewComponent {
   @Input()
-  public plugin!: PluginDetails;
+  public plugin?: PluginDetails;
 }

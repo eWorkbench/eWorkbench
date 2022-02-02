@@ -32,6 +32,9 @@ export class LabBookDrawBoardElementComponent {
   public section?: string;
 
   @Input()
+  public editable? = false;
+
+  @Input()
   public closeSection?: EventEmitter<string>;
 
   @Input()

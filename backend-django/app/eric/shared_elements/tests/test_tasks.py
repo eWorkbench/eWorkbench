@@ -110,18 +110,6 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
                                          HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # at the same time, user2 should NOT be able to create a task for project2 (as user3 does not have access to project2)
-        response = self.rest_create_task(self.token3, self.project2.pk,
-                                         "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
-                                         datetime.now() + timedelta(days=30),
-                                         self.user3.pk,
-                                         HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
-
-        # there should only be one task
-        self.assertEquals(Task.objects.all().count(), 1, msg="There should be one task")
-
         # now give the user the global add_task permission
         self.user3.user_permissions.add(self.add_task_without_project_permission)
 
@@ -237,20 +225,6 @@ class TasksTest(APITestCase, AuthenticationMixin, UserMixin, TaskMixin, Projects
         self.assertEquals(decoded['pk'], str(task.pk))
         self.assertEquals(decoded['title'], "Test Task")
         self.assertEqual(task.title, "Test Task")
-
-        ########
-        # create a task for project2 (should not work, as user1 does not have access to project2)
-        ########
-        response = self.rest_create_task(self.token1, self.project2.pk,
-                                         "Test Task", "Test Description",
-                                         Task.TASK_STATE_NEW, Task.TASK_PRIORITY_HIGH, datetime.now(),
-                                         datetime.now() + timedelta(days=30),
-                                         self.user1.pk,
-                                         HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
-
-        # there should still only be two Tasks in the database
-        self.assertEquals(Task.objects.all().count(), 2, msg="There should be two Tasks")
 
         # and there should be two Tasks "viewable" by the current user
         response = self.rest_get_tasks(self.token1, HTTP_USER_AGENT, REMOTE_ADDR)

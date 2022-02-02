@@ -22,7 +22,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import pdfjs from 'pdfjs-dist';
 import { PDFPageProxy } from 'pdfjs-dist/types/display/api';
-import { from, of, Subject } from 'rxjs';
+import { from, lastValueFrom, of, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, mergeMap, switchMap } from 'rxjs/operators';
 
 declare global {
@@ -289,15 +289,15 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
             this.convertTiffModalRef = this.modalService.open(ConvertTiffModalComponent, {
               closeButton: false,
             });
-            shouldConvert = await this.convertTiffModalRef.afterClosed$.toPromise();
+            shouldConvert = await lastValueFrom(this.convertTiffModalRef.afterClosed$);
           }
 
           if (skipTiffDialog || shouldConvert) {
             const tiffFile: any = await fetch(URL.createObjectURL(files[0])).then(res => res.blob());
-            const blob = await this.picturesService
-              .convertTiff(`${environment.apiUrl}/convert_tiff_to_png/`, { file: tiffFile })
-              .toPromise();
-            files = [new File([blob!], `${files[0].name as string}.png`)];
+            const blob = await lastValueFrom(
+              this.picturesService.convertTiff(`${environment.apiUrl}/convert_tiff_to_png/`, { file: tiffFile })
+            );
+            files = [new File([blob], `${files[0].name as string}.png`)];
           } else {
             return this.modalRef.close();
           }

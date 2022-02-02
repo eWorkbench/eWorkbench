@@ -27,7 +27,7 @@ from eric.notifications.models import NotificationConfiguration, Notification
 from eric.projects.models import Project, ProjectRoleUserAssignment, Role, ElementLock
 from eric.projects.models import UserStorageLimit, MyUser
 from eric.relations.models import Relation
-from eric.shared_elements.models import Metadata, Comment
+from eric.shared_elements.models import Metadata, Comment, File
 from eric.site_preferences.models import options as site_preferences
 
 logger = logging.getLogger('eric.projects.models.handlers')
@@ -278,6 +278,10 @@ def check_workbench_element_relation_with_projects(sender, instance, action, mod
     if model != Project:
         return
 
+    # We temporarily must deactivate all permission checks for files because of SITUMEWB-819
+    if instance.__class__ == File:
+        return
+
     user = get_current_user()
 
     # first of all, check if the object is editable by the current user
@@ -290,26 +294,18 @@ def check_workbench_element_relation_with_projects(sender, instance, action, mod
     # to fetch a fresh result from the DB, instead of a cached result
     projects = Project.objects.viewable(cache_id=uuid.uuid4()).filter(pk__in=project_pk_set)
 
-    # verify that all supplied project PKs are also viewable by the current user
-    if len(project_pk_set) != len(projects):
-        # not all projects are viewable, the user is trying to do something that is not allowed:
-        # - the user is trying to remove a project that the user does not have access to
-        # - the user is trying to add a project that the user does not have access to
-        raise ValidationError({
-            'projects': ValidationError(
-                _('You can not add or remove projects that you do not have access to'),
-                params={'projects': instance.projects},
-                code='invalid'
-            )
-        })
-
-    # so far we know that the user is allowed to edit the project and that the projects that are being added or removed
-    # are viewable by the current user
-
-    # Now we need to find out whether the current user has the change_project permission for the current instance
-    if not instance.__class__.objects.filter(pk=instance.pk).related_project_attribute_editable().exists():
-        # user is not allowed to change the projects attribute of the current instance
-        raise PermissionDenied
+    # TODO: We must change the following permission checks as we run into several logic errors all the time.
+    # We don't need to check if the user has specific permissions on all linked projects. It's satisfying enough to have
+    # specific permissions on only one linked project as it overrules all the other ones.
+    #
+    # The problem of running into permission errors occurs if e.g. a user uploads a file to a storage which inherits
+    # permissions from multiple projects. Although permission checks are disabled they can still throw PermissionDenied
+    # errors if you link more than one project or use a parent/child project. Use this setup to reproduce this behavior:
+    #
+    # Project A by User A -> set User B as Observer
+    # Project B by User A (Project A is the parent project for Project B) -> set User B as Project Member
+    # Storage A by User A with linked projects Project A and Project B -> User B can't upload although he should be able
+    # to because he is Project Member in Project B but not in Project A.
 
     if action == 'pre_add':
         # pre add: verify that the user has the permission to create a new instance of within the projects
@@ -606,7 +602,7 @@ def send_new_comment_notification_to_project_members(sender, instance, created, 
     """
 
     # check if the left content type is a comment and the right content type is a project
-    if instance.left_content_type != Comment.get_content_type() and \
+    if instance.left_content_type != Comment.get_content_type() or \
        instance.right_content_type != Project.get_content_type():
         return
 

@@ -305,7 +305,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.columns = [...this.columns];
   }
 
-  public openBacklogModal(column: string): void {
+  public openBacklogModal(column?: string): void {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(BacklogModalComponent, {
       closeButton: false,
@@ -316,7 +316,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
-  public openNewTaskModal(column: string): void {
+  public openNewTaskModal(column?: string): void {
     /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewTaskModalComponent, {
       closeButton: false,

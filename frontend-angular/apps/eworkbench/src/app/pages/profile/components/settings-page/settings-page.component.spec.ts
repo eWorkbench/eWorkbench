@@ -94,6 +94,7 @@ describe('SettingsPageComponent', () => {
           confirmationPromptDeleteColumn: new FormControl(false),
           confirmationPromptTrashElementFromDetailView: new FormControl(false),
           confirmationPromptDuplicateProject: new FormControl(false),
+          confirmationPromptDuplicateDMP: new FormControl(false),
           confirmationPromptRemoveElementFromLabbook: new FormControl(false),
           confirmationPromptTrashAndDeleteElementFromLabbook: new FormControl(false),
         }),
@@ -206,6 +207,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.confirmationPromptDeleteColumn.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptTrashElementFromDetailView.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptDuplicateProject.value).toBe(false);
+      expect(spectator.component.form.controls.confirmationPromptDuplicateDMP.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptRemoveElementFromLabbook.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptTrashAndDeleteElementFromLabbook.value).toBe(false);
 
@@ -224,6 +226,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.confirmationPromptDeleteColumn.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptTrashElementFromDetailView.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptDuplicateProject.value).toBe(true);
+      expect(spectator.component.form.controls.confirmationPromptDuplicateDMP.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptRemoveElementFromLabbook.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptTrashAndDeleteElementFromLabbook.value).toBe(true);
     });
@@ -261,6 +264,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.confirmationPromptDeleteColumn.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptTrashElementFromDetailView.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptDuplicateProject.value).toBe(false);
+      expect(spectator.component.form.controls.confirmationPromptDuplicateDMP.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptRemoveElementFromLabbook.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptTrashAndDeleteElementFromLabbook.value).toBe(false);
 
@@ -288,6 +292,7 @@ describe('SettingsPageComponent', () => {
         confirmationPromptDeleteColumn: true,
         confirmationPromptTrashElementFromDetailView: true,
         confirmationPromptDuplicateProject: true,
+        confirmationPromptDuplicateDMP: true,
         confirmationPromptRemoveElementFromLabbook: true,
         confirmationPromptTrashAndDeleteElementFromLabbook: true,
       });
@@ -338,6 +343,7 @@ describe('SettingsPageComponent', () => {
           confirmationPromptDeleteColumn: new FormControl(true),
           confirmationPromptTrashElementFromDetailView: new FormControl(true),
           confirmationPromptDuplicateProject: new FormControl(true),
+          confirmationPromptDuplicateDMP: new FormControl(true),
           confirmationPromptRemoveElementFromLabbook: new FormControl(true),
           confirmationPromptTrashAndDeleteElementFromLabbook: new FormControl(true),
         }),
@@ -451,6 +457,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.confirmationPromptDeleteColumn.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptTrashElementFromDetailView.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptDuplicateProject.value).toBe(true);
+      expect(spectator.component.form.controls.confirmationPromptDuplicateDMP.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptRemoveElementFromLabbook.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptTrashAndDeleteElementFromLabbook.value).toBe(true);
 
@@ -469,6 +476,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.confirmationPromptDeleteColumn.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptTrashElementFromDetailView.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptDuplicateProject.value).toBe(false);
+      expect(spectator.component.form.controls.confirmationPromptDuplicateDMP.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptRemoveElementFromLabbook.value).toBe(false);
       expect(spectator.component.form.controls.confirmationPromptTrashAndDeleteElementFromLabbook.value).toBe(false);
     });
@@ -506,6 +514,7 @@ describe('SettingsPageComponent', () => {
       expect(spectator.component.form.controls.confirmationPromptDeleteColumn.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptTrashElementFromDetailView.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptDuplicateProject.value).toBe(true);
+      expect(spectator.component.form.controls.confirmationPromptDuplicateDMP.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptRemoveElementFromLabbook.value).toBe(true);
       expect(spectator.component.form.controls.confirmationPromptTrashAndDeleteElementFromLabbook.value).toBe(true);
 
@@ -533,6 +542,7 @@ describe('SettingsPageComponent', () => {
         confirmationPromptDeleteColumn: false,
         confirmationPromptTrashElementFromDetailView: false,
         confirmationPromptDuplicateProject: false,
+        confirmationPromptDuplicateDMP: false,
         confirmationPromptRemoveElementFromLabbook: false,
         confirmationPromptTrashAndDeleteElementFromLabbook: false,
       });

@@ -105,10 +105,10 @@
           <div slot="body">
             <eworkbench-table-view
               [columns]="tasksListColumns"
-              [data]="dashboard.tasks"
+              [data]="dashboard.tasks ?? []"
               [columnHeader]="false"
               class="table-small"
-              [class.mb-5]="dashboard.tasks.length"
+              [class.mb-5]="dashboard.tasks?.length"
             ></eworkbench-table-view>
           </div>
         </eworkbench-dashboard-element>
@@ -134,7 +134,7 @@
           <div slot="body">
             <eworkbench-table-view
               [columns]="projectsListColumns"
-              [data]="dashboard.projects"
+              [data]="dashboard.projects ?? []"
               [columnHeader]="false"
               class="table-small"
             ></eworkbench-table-view>
@@ -159,7 +159,7 @@
           <div slot="body">
             <eworkbench-table-view
               [columns]="filesListColumns"
-              [data]="dashboard.files"
+              [data]="dashboard.files ?? []"
               [columnHeader]="false"
               class="table-small"
             ></eworkbench-table-view>
@@ -185,7 +185,7 @@
           <div slot="body">
             <eworkbench-table-view
               [columns]="contactsListColumns"
-              [data]="dashboard.contacts"
+              [data]="dashboard.contacts ?? []"
               [columnHeader]="false"
               class="table-small"
             ></eworkbench-table-view>
@@ -211,7 +211,7 @@
           <div slot="body">
             <eworkbench-table-view
               [columns]="resourcesListColumns"
-              [data]="dashboard.resources"
+              [data]="dashboard.resources ?? []"
               [columnHeader]="false"
               class="table-small"
             ></eworkbench-table-view>
@@ -236,7 +236,7 @@
           <div slot="body">
             <eworkbench-table-view
               [columns]="dmpsListColumns"
-              [data]="dashboard.dmps"
+              [data]="dashboard.dmps ?? []"
               [columnHeader]="false"
               class="table-small"
             ></eworkbench-table-view>
@@ -290,9 +290,9 @@
 </ng-template>
 
 <ng-template #taskTitleCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="300">
+  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/tasks', row.pk]">{{ row.title }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #taskPriorityCellTemplate let-row>
   <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
@@ -307,9 +307,9 @@
 </ng-template>
 
 <ng-template #fileNameCellTemplate let-row>
-  <eworkbench-ellipsis-element maxWidth="350">
+  <div ellipsis="350" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/files', row.pk]">{{ row.name }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #fileSizeCellTemplate let-row>
   {{ row.file_size | formatFileSize }}
@@ -335,7 +335,7 @@
   <eworkbench-resource-type [type]="row.type"></eworkbench-resource-type>
 </ng-template>
 <ng-template #resourceDescriptionCellTemplate let-row>
-  <eworkbench-ellipsis-element maxWidth="150">{{ row.description | stripHTML }}</eworkbench-ellipsis-element>
+  <div ellipsis="150" [tooltip]="row.description | stripHTML" containerClass="tooltip-sm">{{ row.description | stripHTML }}</div>
 </ng-template>
 
 <ng-template #dmpTitleCellTemplate let-row>

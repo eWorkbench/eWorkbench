@@ -35,9 +35,5 @@
       "@eworkbench/picture-editor": ["libs/picture-editor/src/index.ts"]
     }
   },
-  "angularCompilerOptions": {
-    "skipTemplateCodegen": true,
-    "enableResourceInlining": true
-  },
   "exclude": ["node_modules", "tmp"]
 }

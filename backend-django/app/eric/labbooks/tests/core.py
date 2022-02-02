@@ -198,6 +198,15 @@ class LabBookMixin:
             HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
 
+    def rest_unlock_labbook(self, auth_token, labbook_pk, HTTP_USER_AGENT, REMOTE_ADDR):
+        """ Wrapper for unlocking a labbook via REST API """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+
+        return self.client.post(
+            '/api/labbooks/{pk}/unlock/'.format(pk=labbook_pk),
+            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
+
     def rest_update_labbook_project(self, auth_token, labbook_pk, project_pks, HTTP_USER_AGENT, REMOTE_ADDR):
         """
         Wrapper for updating the project of a labbook

@@ -4,11 +4,5 @@
  */
 
 const nxPreset = require('@nrwl/jest/preset');
-const jestAngularPreset = require('jest-preset-angular/presets');
 
-module.exports = {
-  ...nxPreset,
-  ...jestAngularPreset.defaults,
-  collectCoverage: true,
-  coverageReporters: ['text', 'lcov'],
-};
+module.exports = { ...nxPreset };

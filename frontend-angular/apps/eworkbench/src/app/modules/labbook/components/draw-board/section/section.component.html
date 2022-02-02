@@ -42,7 +42,7 @@
             />
           </eworkbench-form-input>
         </div>
-        <div class="ml-2 self-center" *ngIf="!readonly">
+        <div class="ml-2 self-center">
           <button
             type="button"
             class="btn ewb-button-big square-md ewb-button-none text-red-600 cursor-move drag-handle mr-2"
@@ -60,7 +60,12 @@
       </div>
     </div>
     <div class="body" *ngIf="expanded">
-      <eworkbench-labbook-draw-board-grid #drawBoardGrid [id]="id" [section]="element.child_object_id"></eworkbench-labbook-draw-board-grid>
+      <eworkbench-labbook-draw-board-grid
+        #drawBoardGrid
+        [id]="id"
+        [section]="element.child_object_id"
+        [editable]="editable"
+      ></eworkbench-labbook-draw-board-grid>
     </div>
   </form>
 </ng-container>

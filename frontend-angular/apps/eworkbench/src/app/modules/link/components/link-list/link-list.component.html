@@ -31,8 +31,8 @@
 </ng-container>
 
 <ng-template #titleCellTemplate let-row>
-  <eworkbench-ellipsis-element [maxWidth]="190">
-    <ng-container *ngIf="row.right_object_id === id">
+  <ng-container *ngIf="row.right_object_id === id">
+    <div ellipsis="190" [tooltip]="row.left_content_object.display" containerClass="tooltip-sm" [delay]="500">
       <eworkbench-icon
         [className]="row.left_content_object.content_type_model | formatContentTypeModel: 'icon'"
         class="mr-2"
@@ -41,8 +41,10 @@
         [routerLink]="[row.left_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.left_content_object.pk]"
         >{{ row.left_content_object.display }}</a
       >
-    </ng-container>
-    <ng-container *ngIf="row.left_object_id === id && row.right_object_id !== id">
+    </div>
+  </ng-container>
+  <ng-container *ngIf="row.left_object_id === id && row.right_object_id !== id">
+    <div ellipsis="190" [tooltip]="row.right_content_object.display" containerClass="tooltip-sm" [delay]="500">
       <eworkbench-icon
         [className]="row.right_content_object.content_type_model | formatContentTypeModel: 'icon'"
         class="mr-2"
@@ -51,8 +53,8 @@
         [routerLink]="[row.right_content_object.content_type_model | formatContentTypeModel: 'routerBaseLink', row.right_content_object.pk]"
         >{{ row.right_content_object.display }}</a
       >
-    </ng-container>
-  </eworkbench-ellipsis-element>
+    </div>
+  </ng-container>
 </ng-template>
 <ng-template #typeCellTemplate let-row>
   <ng-container *ngIf="row.right_object_id === id">

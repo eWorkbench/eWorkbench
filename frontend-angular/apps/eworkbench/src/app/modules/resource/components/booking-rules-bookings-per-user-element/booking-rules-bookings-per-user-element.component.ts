@@ -31,7 +31,7 @@ export class ResourceBookingRulesBookingsPerUserElementComponent implements OnIn
   public loading = false;
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Input()
   public refresh?: EventEmitter<boolean>;

@@ -69,10 +69,10 @@ export class ResourceBookingCalendarComponent implements OnInit {
   public resource!: Resource;
 
   @Input()
-  public interval = 30;
+  public interval?: number | null = 30;
 
   @Input()
-  public onSubmit?: EventEmitter<boolean>;
+  public onSubmit?: EventEmitter<any>;
 
   @Output()
   public changed = new EventEmitter<any>();
@@ -253,7 +253,7 @@ export class ResourceBookingCalendarComponent implements OnInit {
 
   public onOpenResourceBookingModalWithInterval(): void {
     const currentDate = new Date();
-    const nextStartMinute = Math.ceil(currentDate.getMinutes() / this.interval) * this.interval;
+    const nextStartMinute = Math.ceil(currentDate.getMinutes() / this.interval!) * this.interval!;
 
     const start = set(parseISO(currentDate.toISOString()), {
       hours: currentDate.getHours(),
@@ -262,7 +262,7 @@ export class ResourceBookingCalendarComponent implements OnInit {
     }).toISOString();
     const end = set(parseISO(currentDate.toISOString()), {
       hours: currentDate.getHours(),
-      minutes: nextStartMinute + this.interval,
+      minutes: nextStartMinute + this.interval!,
       seconds: 0,
     }).toISOString();
 

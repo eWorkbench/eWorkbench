@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+@import 'colors';
+@import 'variables';
+
 :host {
   display: block;
 
@@ -11,5 +14,22 @@
     display: flex;
     flex-direction: column;
     margin: 0 auto;
+  }
+
+  .control-error {
+    width: 100%;
+    margin-left: 5px;
+    margin-top: 3.5px;
+    font-size: $font-size-sm;
+    color: $invalid-border-color;
+
+    a {
+      color: $invalid-border-color;
+      text-decoration: underline;
+
+      &:visited {
+        color: $invalid-border-color;
+      }
+    }
   }
 }

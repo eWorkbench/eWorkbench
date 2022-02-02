@@ -12,6 +12,7 @@ from rest_framework_nested.serializers import NestedHyperlinkedIdentityField
 
 from eric.core.rest.serializers import BaseModelSerializer, HyperlinkedToListField, HyperlinkedQueryToListField, \
     BaseModelWithCreatedBySerializer, PublicUserSerializer, BaseModelWithCreatedByAndSoftDeleteSerializer
+from eric.metadata.rest.serializers import EntityMetadataSerializer, EntityMetadataSerializerMixin
 from eric.projects.models import Project, ProjectRoleUserAssignment, Role
 from eric.projects.models import UserStorageLimit
 from eric.projects.rest.serializers.changeset import ChangeSetSerializer, ChangeRecordSerializer
@@ -118,7 +119,7 @@ class ProjectBreadcrumbSerializer(BaseModelSerializer):
         fields = ('name',)
 
 
-class ProjectSerializerExtended(BaseModelWithCreatedByAndSoftDeleteSerializer):
+class ProjectSerializerExtended(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin):
     """ Serializer for Project, setting created_by and created_at to read_only """
     # url for ACL-list
     acls = HyperlinkedToListField(
@@ -184,6 +185,12 @@ class ProjectSerializerExtended(BaseModelWithCreatedByAndSoftDeleteSerializer):
 
     project_tree = MinimalisticProjectSerializer(read_only=True, many=True)
 
+    metadata = EntityMetadataSerializer(
+        read_only=False,
+        many=True,
+        required=False,
+    )
+
     class Meta:
         model = Project
         fields = (
@@ -201,13 +208,27 @@ class ProjectSerializerExtended(BaseModelWithCreatedByAndSoftDeleteSerializer):
             'url',
             'resources',
             'project_tree',
-            'is_favourite'
+            'is_favourite',
+            'metadata',
         )
         read_only_fields = (
             'created_by', 'created_at',
             'current_users_project_permissions_list',
             'project_tree',
         )
+
+    @transaction.atomic
+    def create(self, validated_data):
+        metadata_list = self.pop_metadata(validated_data)
+        instance = super(ProjectSerializerExtended, self).create(validated_data)
+        self.create_metadata(metadata_list, instance)
+        return instance
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        metadata_list = self.pop_metadata(validated_data)
+        self.update_metadata(metadata_list, instance)
+        return super(ProjectSerializerExtended, self).update(instance, validated_data)
 
     def get_tasks_status(self, instance):
         """

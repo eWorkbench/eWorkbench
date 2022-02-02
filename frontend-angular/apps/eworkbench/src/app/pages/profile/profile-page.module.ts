@@ -54,6 +54,7 @@ import { ProfilePageRoutingModule } from './profile-page-routing.module';
     SkeletonsModule,
     UserModule,
     TooltipModule.forRoot(),
+    SkeletonsModule,
   ],
 })
 export class ProfilePageModule {}

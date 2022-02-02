@@ -311,6 +311,8 @@ class Project(MPTTModel, BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin
         related_name='sub_projects'
     )
 
+    metadata = MetadataRelation()
+
     def delete(self, *args, **kwargs):
         BaseModel.delete(self, *args, **kwargs)
         with transaction.atomic():

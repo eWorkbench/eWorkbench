@@ -23,13 +23,13 @@ interface FormAnswers {
 })
 export class MetadataFieldComponent implements OnInit {
   @Input()
-  public baseType!: string;
+  public baseType?: string;
 
   @Input()
-  public uuid!: string;
+  public uuid?: string;
 
   @Input()
-  public id!: string;
+  public id?: string;
 
   @Input()
   public values?: any;
@@ -38,7 +38,7 @@ export class MetadataFieldComponent implements OnInit {
   public typeSettings?: MetadataFieldTypeSettings;
 
   @Input()
-  public editable = false;
+  public editable? = false;
 
   @Input()
   public cancelChanges = new EventEmitter<Metadata>();
@@ -137,7 +137,7 @@ export class MetadataFieldComponent implements OnInit {
     if (this.baseType === 'checkbox') {
       this.answers.push(this.fb.control(values ? values.value : false));
       if (values?.value) {
-        this.selectedValues.push(this.id);
+        this.selectedValues.push(this.id!);
       }
     } else if (this.baseType === 'selection' && answers) {
       answers.map(answer => this.answers.push(this.fb.control(answer) as any));
@@ -305,7 +305,7 @@ export class MetadataFieldComponent implements OnInit {
       // return value for any other type in format: { value: 'V' }
       let answer = answers[0];
 
-      if (['decimal', 'decimal_number', 'currency'].includes(this.baseType, 0)) {
+      if (['decimal', 'decimal_number', 'currency'].includes(this.baseType!, 0)) {
         answer = Number(answer);
       } else if (this.baseType === 'date') {
         answer = answer || null;

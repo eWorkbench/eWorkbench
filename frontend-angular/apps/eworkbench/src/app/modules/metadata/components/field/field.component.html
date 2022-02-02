@@ -13,9 +13,9 @@
             class="custom-control-input"
             [id]="'checkbox.' + uuid + '.' + i"
             [name]="'checkbox.' + uuid + '.' + i"
-            [checked]="selectedValues.includes(baseType === 'checkbox' ? id : answers.controls[i].value)"
+            [checked]="selectedValues.includes($any(baseType === 'checkbox' ? id : answers.controls[i].value))"
             [disabled]="!editable"
-            (click)="onChanged(baseType === 'checkbox' ? id : answers.controls[i].value)"
+            (click)="onChanged($any(baseType === 'checkbox' ? id : answers.controls[i].value))"
           />
           <label class="custom-control-label font-normal" [for]="'checkbox.' + uuid + '.' + i"></label>
         </div>
@@ -30,7 +30,7 @@
             [value]="answers.controls[i].value"
             [checked]="singleSelected === answers.controls[i].value"
             [disabled]="!editable"
-            (click)="onChanged(answers.controls[i].value)"
+            (click)="onChanged($any(answers.controls[i].value))"
           />
           <label class="custom-control-label" [for]="'options.' + uuid + '.' + i"></label>
         </div>
@@ -52,7 +52,7 @@
             [formControl]="answer"
             [id]="'answer-' + uuid + '-' + i"
             [name]="'answer-' + uuid + '-' + i"
-            [readonly]="readonly"
+            [readonly]="readonly || !editable"
             (change)="onChanged()"
           />
           <div class="input-group-append" *ngIf="baseType === 'percentage'">

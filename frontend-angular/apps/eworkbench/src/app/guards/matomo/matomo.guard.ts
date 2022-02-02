@@ -16,6 +16,8 @@ export class MatomoGuard implements CanActivate {
 
   public canActivate(_: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     if (!isDevMode() && environment.tracking) {
+      this.matomoTracker.deleteCookies();
+      this.matomoTracker.disableCookies();
       this.matomoTracker.setReferrerUrl(location.href);
       this.matomoTracker.setCustomUrl(state.url);
       this.matomoTracker.setDocumentTitle(`${document.domain}/${document.title}`);

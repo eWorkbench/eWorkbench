@@ -36,7 +36,7 @@
               id="color"
               name="color"
               [placeholder]="t('taskBoard.columnDetailsModal.color.placeholder')"
-              [colorPicker]="f.color.value"
+              [colorPicker]="f.color.value!"
               [value]="f.color.value"
               (colorPickerChange)="f.color.setValue($event); f.color.markAsDirty()"
               cpOutputFormat="rgba"

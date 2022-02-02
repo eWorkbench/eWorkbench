@@ -6,7 +6,7 @@
 import { Component, Input, ChangeDetectorRef, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { TranslocoService } from '@ngneat/transloco';
-import { TableViewComponent } from '@eworkbench/table';
+import { TableViewComponent, TreeViewComponent } from '@eworkbench/table';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -24,7 +24,7 @@ export class RestoreButtonComponent {
   public service!: any;
 
   @Input()
-  public tableView?: TableViewComponent;
+  public tableView?: TableViewComponent | TreeViewComponent;
 
   @Output()
   public restored = new EventEmitter<boolean>();

@@ -33,19 +33,19 @@
               labelForId="parent-modal"
               name="parent-modal"
               [placeholder]="t('storages.editFolder.parent.placeholder')"
-              [items]="storage?.sub_directories"
+              [items]="storage?.sub_directories ?? []"
               bindLabel="name"
               bindValue="pk"
             >
               <ng-template ng-label-tmp let-item="item">
                 <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
-                }}{{ item.is_virtual_root ? storage.title : item.display }}
+                }}{{ item.is_virtual_root ? storage?.title : item.display }}
               </ng-template>
 
               <ng-template ng-option-tmp let-item="item">
                 <div [style.padding-left.px]="item.is_virtual_root ? 0 : 10">
                   <eworkbench-icon [className]="item.is_virtual_root ? 'wb-storages' : 'wb-folder'"></eworkbench-icon>{{ ' '
-                  }}{{ item.is_virtual_root ? storage.title : item.display }}
+                  }}{{ item.is_virtual_root ? storage?.title : item.display }}
                 </div>
               </ng-template>
             </ng-select>

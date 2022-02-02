@@ -155,6 +155,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
         this.loadData();
       }
     } else {
+      this.firstDataLoaded = false;
       const slice = this.data.slice(this.offset, this.page * this.paginationSize);
       this.total = this.data.length;
       this.firstDataLoaded = true;
@@ -246,6 +247,7 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
 
   public loadData(append = false, httpParams?: HttpParams): void {
     if (this.service) {
+      this.firstDataLoaded = false;
       this.loading = true;
       this.cdr.markForCheck();
 

@@ -16,9 +16,9 @@
     <div class="bottom">
       <div class="title">
         <h1>
-          <eworkbench-ellipsis-element [maxWidth]="600">
+          <div ellipsis="600" [tooltip]="title" containerClass="tooltip-sm" [delay]="500">
             {{ title }}
-          </eworkbench-ellipsis-element>
+          </div>
         </h1>
       </div>
       <div class="search">

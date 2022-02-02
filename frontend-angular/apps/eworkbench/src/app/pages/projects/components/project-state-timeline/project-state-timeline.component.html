@@ -22,9 +22,9 @@
 </ng-container>
 
 <ng-template #nameCellTemplate let-row>
-  <eworkbench-ellipsis-element class="inline-flex" [maxWidth]="300">
+  <div class="inline-flex" ellipsis="300" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/projects', row.pk]">{{ row.name }}</a>
-  </eworkbench-ellipsis-element>
+  </div>
 </ng-template>
 <ng-template #progressCellTemplate let-row>
   <ng-container *transloco="let t">
