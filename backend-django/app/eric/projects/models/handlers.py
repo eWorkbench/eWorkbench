@@ -20,7 +20,7 @@ from django_changeset.models import ChangeSet, ChangeRecord
 from django_rest_multitokenauth.signals import post_auth
 from django_userforeignkey.request import get_current_user, get_current_request
 
-from eric.core.models import LockMixin, permission_checks_disabled
+from eric.core.models import LockMixin, permission_checks_disabled, disable_permission_checks
 from eric.core.models.abstract import SoftDeleteMixin
 from eric.core.models.utils import get_permission_name
 from eric.notifications.models import NotificationConfiguration, Notification
@@ -590,9 +590,10 @@ def populate_project_fts_parent_index(instance, *args, **kwargs):
 
     # populate the project parent's FTS index with the `SearchVector` containing the
     # rendered search document
-    if instance.parent_project:
-        instance.parent_project.fts_index = instance.parent_project._get_search_vector()
-        instance.parent_project.save()
+    with disable_permission_checks(Project):
+        if instance.parent_project:
+            instance.parent_project.fts_index = instance.parent_project._get_search_vector()
+            instance.parent_project.save()
 
 
 @receiver(post_save, sender=Relation)
