@@ -23,6 +23,7 @@
               id="title-modal"
               name="title-modal"
               [placeholder]="t('picture.newModal.title.placeholder')"
+              autoFocus
             />
           </div>
           <div class="mb-4">
@@ -118,11 +119,27 @@
           </div>
 
           <div class="modal-footer p-0 mt-5">
-            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+            <button
+              *ngIf="form.dirty"
+              type="button"
+              class="btn ewb-button-big ewb-button-secondary mr-2"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
               {{ t('picture.newModal.cancel') }}
             </button>
-            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+            <button *ngIf="form.dirty" type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
               {{ t('picture.newModal.create') }}
+            </button>
+
+            <button
+              *ngIf="!form.dirty"
+              type="button"
+              class="btn ewb-button-big ewb-button-primary"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
+              {{ t('picture.newModal.close') }}
             </button>
           </div>
         </form>

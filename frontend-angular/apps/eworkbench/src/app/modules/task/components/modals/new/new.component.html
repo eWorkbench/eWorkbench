@@ -215,6 +215,21 @@
             <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
           </div>
 
+          <div class="mb-4" *ngIf="duplicate">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="duplicateMetadata"
+                name="duplicateMetadata"
+                formControlName="duplicateMetadata"
+              />
+              <label class="custom-control-label font-normal" for="duplicateMetadata">{{
+                t('task.newTaskModal.duplicateMetadata.label')
+              }}</label>
+            </div>
+          </div>
+
           <div class="modal-footer p-0 mt-5">
             <button
               *ngIf="form.dirty || duplicate"

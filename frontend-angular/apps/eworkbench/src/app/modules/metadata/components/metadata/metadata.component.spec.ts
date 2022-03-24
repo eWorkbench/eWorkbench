@@ -10,11 +10,13 @@ import { LoadingComponent } from '@app/modules/loading/components/loading/loadin
 import { LoadingModule } from '@app/modules/loading/loading.module';
 import { getTranslocoModule } from '@app/transloco-testing.module';
 import { FormsModule } from '@eworkbench/forms';
+import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { DialogRef } from '@ngneat/dialog';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
 import { cloneDeep } from 'lodash';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { MetadataFieldHelperComponent } from '../field-helper/field-helper.component';
@@ -38,6 +40,8 @@ describe('MetadataComponent', () => {
       LoadingModule,
       ModalsModule,
       DragDropModule,
+      IconsModule,
+      TooltipModule.forRoot(),
     ],
     providers: [
       mockProvider(DialogRef, {

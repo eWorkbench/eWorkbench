@@ -109,9 +109,13 @@
                         [placeholder]="t('metadata.newModal.answers.placeholder')"
                       />
                     </div>
-                    <button type="button" class="btn ewb-button-big ewb-button-secondary" [disabled]="loading" (click)="onRemoveAnswer(i)">
-                      <eworkbench-icon className="wb-remove"></eworkbench-icon>
-                    </button>
+                    <span
+                      class="align-self-center cursor-pointer ml-2"
+                      [tooltip]="t('formInput.remove.tooltip')"
+                      containerClass="tooltip-sm"
+                      (click)="onRemoveAnswer(i)"
+                      ><eworkbench-icon className="wb-remove"></eworkbench-icon
+                    ></span>
                   </div>
                 </div>
                 <button type="button" class="btn ewb-button-big ewb-button-primary" [disabled]="loading" (click)="onAddAnswer()">

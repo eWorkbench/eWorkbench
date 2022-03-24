@@ -209,6 +209,11 @@ class KanbanBoardViewSet(
             if not new_board:
                 raise NotFound
 
+            try:
+                duplicate_metadata = bool(self.request.GET.get("duplicate_metadata", False))
+            except ValueError:
+                duplicate_metadata = False
+
             # delete all auto-generated columns first
             columns = KanbanBoardColumn.objects.filter(kanban_board__pk=new_board.pk)
             for column in columns:
@@ -237,6 +242,8 @@ class KanbanBoardViewSet(
                     )
                     new_task.labels.set(task.labels.all())
                     new_task.projects.set(new_board.projects.all())
+                    if duplicate_metadata:
+                        new_task.metadata.set(task.metadata.all())
 
                     # duplicate checklist items for this task
                     checklists = TaskCheckList.objects.filter(task__pk=task.pk)

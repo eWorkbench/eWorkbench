@@ -18,16 +18,19 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
+import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBookSectionsService, LabBooksService, WebSocketService } from '@app/services';
 import { environment } from '@environments/environment';
-import { LabBookElement, LabBookElementEvent, LabBookElementPayload } from '@eworkbench/types';
+import { LabBookElement, LabBookElementEvent, LabBookElementPayload, ModalCallback } from '@eworkbench/types';
+import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { GridsterComponent, GridsterConfig, GridsterItem } from 'angular-gridster2';
 import { of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { gridsterConfig } from '../../../config/gridster-config';
 import { LabBookDrawBoardElementComponent } from '../element/element.component';
+import { LabBookPendingChangesModalComponent } from '../modals/pending-changes/pending-changes.component';
 
 interface ElementRemoval {
   id: string;
@@ -85,9 +88,12 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
 
   public queuedSocketRefreshes = false;
 
+  public modalRef?: DialogRef;
+
   public constructor(
     public readonly labBooksService: LabBooksService,
     public readonly labBookSectionsService: LabBookSectionsService,
+    private readonly modalService: DialogService,
     private readonly cdr: ChangeDetectorRef,
     private readonly translocoService: TranslocoService,
     private readonly websocketService: WebSocketService
@@ -404,6 +410,25 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
   }
 
   public onExpandSection(id: string): void {
+    if (!this.expandedSection || !this.pendingChanges()) {
+      this.switchSectionStates(id);
+      return;
+    }
+
+    /* istanbul ignore next */
+    this.modalRef = this.modalService.open(LabBookPendingChangesModalComponent, {
+      closeButton: false,
+      data: { id },
+    });
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.switchSectionStates(id);
+      }
+    });
+  }
+
+  public switchSectionStates(id: string): void {
     this.expandedSection = id;
     this.closeSection.next(id);
   }

@@ -27,6 +27,7 @@ interface FormContact {
   phone: string | null;
   company: string | null;
   projects: string[];
+  duplicateMetadata: boolean;
 }
 
 @UntilDestroy()
@@ -68,6 +69,7 @@ export class NewContactModalComponent implements OnInit {
     phone: [null],
     company: [null],
     projects: [[]],
+    duplicateMetadata: [true],
   });
 
   public constructor(
@@ -95,6 +97,7 @@ export class NewContactModalComponent implements OnInit {
       company: this.f.company.value ?? '',
       projects: this.f.projects.value,
       notes: this.notes,
+      metadata: this.duplicate && this.f.duplicateMetadata.value ? this.initialState?.metadata : [],
     };
   }
 

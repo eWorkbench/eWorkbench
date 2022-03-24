@@ -21,6 +21,7 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
+import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, DrivesService, FilesService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
@@ -39,7 +40,6 @@ interface FormFile {
   title: string | null;
   name: string | null;
   storage: string | null;
-  description: string | null;
   projects: string[];
 }
 
@@ -114,7 +114,6 @@ export class FilePageComponent implements OnInit, OnDestroy {
     title: [null, [Validators.required]],
     name: [null, [Validators.required]],
     storage: [null],
-    description: [null],
     projects: [[]],
   });
 
@@ -156,11 +155,14 @@ export class FilePageComponent implements OnInit, OnDestroy {
     return { ownUser: false, user: null };
   }
 
+  public get descriptionTranslationKey(): string {
+    return this.initialState?.description ? 'file.details.description.edit' : 'file.details.description.add';
+  }
+
   private get file(): Omit<FilePayload, 'path'> {
     const payload: Omit<FilePayload, 'path'> = {
       title: this.f.title.value!,
       name: this.f.name.value!,
-      description: this.f.description.value ?? '',
       projects: this.f.projects.value,
       metadata: this.metadata!,
     };
@@ -317,7 +319,6 @@ export class FilePageComponent implements OnInit, OnDestroy {
                 title: file.title,
                 name: file.name,
                 storage: file.directory_id,
-                description: file.description,
                 projects: file.projects,
               },
               { emitEvent: false }
@@ -542,6 +543,31 @@ export class FilePageComponent implements OnInit, OnDestroy {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
       }
+    });
+  }
+
+  public onOpenDescriptionModal(): void {
+    this.filesService.lock(this.id).pipe(take(1)).subscribe();
+    this.modalRef = this.modalService.open(DescriptionModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        description: this.initialState?.description ?? '',
+        descriptionKey: 'description',
+        service: this.filesService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.initialState = { ...callback.data };
+        this.form.markAsPristine();
+        this.refreshChanges.next(true);
+        this.refreshResetValue.next(true);
+      }
+      this.filesService.unlock(this.id).pipe(take(1)).subscribe();
     });
   }
 

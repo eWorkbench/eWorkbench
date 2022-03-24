@@ -195,10 +195,24 @@
             </eworkbench-project-element>
 
             <eworkbench-project-element elementName="description" [labelText]="t('project.details.element.description')">
+              <ng-container slot="actions">
+                <button
+                  *ngIf="!form.disabled"
+                  type="button"
+                  class="btn ewb-button-regular ewb-button-outline mr-2"
+                  (click)="onOpenDescriptionModal()"
+                  [disabled]="loading"
+                >
+                  {{ t(descriptionTranslationKey) }}
+                </button>
+              </ng-container>
               <ng-container slot="body">
-                <eworkbench-form-input for="description" [loading]="loading" [onSubmit]="refreshResetValue">
-                  <eworkbench-wysiwyg-editor [id]="'description'" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
-                </eworkbench-form-input>
+                <div
+                  class="description-container"
+                  *ngIf="initialState.description; else noDescription"
+                  [innerHTML]="initialState.description | safeHTML"
+                ></div>
+                <ng-template #noDescription>{{ t('project.details.description.noDescription') }}</ng-template>
               </ng-container>
             </eworkbench-project-element>
 

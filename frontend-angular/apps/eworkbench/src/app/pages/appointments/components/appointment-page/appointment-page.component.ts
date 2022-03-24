@@ -13,6 +13,7 @@ import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { NewAppointmentModalComponent } from '@app/modules/appointment/components/modals/new/new.component';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
+import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import {
@@ -52,7 +53,6 @@ import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from '
 interface FormAppointment {
   title: string | null;
   location: string | null;
-  description: string | null;
   projects: string[];
   dateGroup: DateGroup;
   attendees: number[];
@@ -137,7 +137,6 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
   public form: FormGroup<FormAppointment> = this.fb.group({
     title: [null, [Validators.required]],
     location: [null],
-    description: [null],
     projects: [[]],
     dateGroup: [{ start: null, end: null, fullDay: false }],
     attendees: [[]],
@@ -187,6 +186,10 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     return { ownUser: false, user: null };
   }
 
+  public get descriptionTranslationKey(): string {
+    return this.initialState?.text ? 'appointment.details.description.edit' : 'appointment.details.description.add';
+  }
+
   private get appointment(): AppointmentPayload {
     let dateTimeStart = null;
     if (this.f.dateGroup.value.start) {
@@ -209,7 +212,6 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     const appointment = {
       title: this.f.title.value ?? '',
       location: this.f.location.value ?? '',
-      text: this.f.description.value ?? '',
       projects: this.f.projects.value,
       date_time_start: dateTimeStart,
       date_time_end: dateTimeEnd,
@@ -455,7 +457,6 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
                 attendees: appointment.attending_users_pk,
                 attendingContacts: appointment.attending_contacts_pk,
                 location: appointment.location,
-                description: appointment.text,
                 projects: appointment.projects,
                 dateGroup: {
                   start: appointment.date_time_start,
@@ -655,6 +656,31 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
       }
+    });
+  }
+
+  public onOpenDescriptionModal(): void {
+    this.appointmentsService.lock(this.id).pipe(take(1)).subscribe();
+    this.modalRef = this.modalService.open(DescriptionModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        description: this.initialState?.text ?? '',
+        descriptionKey: 'text',
+        service: this.appointmentsService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.initialState = { ...callback.data };
+        this.form.markAsPristine();
+        this.refreshChanges.next(true);
+        this.refreshResetValue.next(true);
+      }
+      this.appointmentsService.unlock(this.id).pipe(take(1)).subscribe();
     });
   }
 

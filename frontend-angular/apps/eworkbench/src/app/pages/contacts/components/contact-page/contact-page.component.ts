@@ -12,6 +12,7 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
+import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, ContactsService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
@@ -33,7 +34,6 @@ interface FormContact {
   email: string | null;
   phone: string | null;
   company: string | null;
-  description: string | null;
   projects: string[];
 }
 
@@ -97,7 +97,6 @@ export class ContactPageComponent implements OnInit, OnDestroy {
     email: [null, [Validators.email]],
     phone: null,
     company: null,
-    description: null,
     projects: [[]],
   });
 
@@ -136,6 +135,10 @@ export class ContactPageComponent implements OnInit, OnDestroy {
     return { ownUser: false, user: null };
   }
 
+  public get descriptionTranslationKey(): string {
+    return this.initialState?.notes ? 'contact.details.description.edit' : 'contact.details.description.add';
+  }
+
   private get contact(): ContactPayload {
     return {
       academic_title: this.f.academicTitle.value ?? '',
@@ -144,7 +147,6 @@ export class ContactPageComponent implements OnInit, OnDestroy {
       email: this.f.email.value ?? '',
       phone: this.f.phone.value ?? '',
       company: this.f.company.value ?? '',
-      notes: this.f.description.value ?? '',
       projects: this.f.projects.value,
       metadata: this.metadata!,
     };
@@ -283,7 +285,6 @@ export class ContactPageComponent implements OnInit, OnDestroy {
                 email: contact.email,
                 phone: contact.phone,
                 company: contact.company,
-                description: contact.notes,
                 projects: contact.projects,
               },
               { emitEvent: false }
@@ -468,6 +469,31 @@ export class ContactPageComponent implements OnInit, OnDestroy {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
       }
+    });
+  }
+
+  public onOpenDescriptionModal(): void {
+    this.contactsService.lock(this.id).pipe(take(1)).subscribe();
+    this.modalRef = this.modalService.open(DescriptionModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        description: this.initialState?.notes ?? '',
+        descriptionKey: 'notes',
+        service: this.contactsService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.initialState = { ...callback.data };
+        this.form.markAsPristine();
+        this.refreshChanges.next(true);
+        this.refreshResetValue.next(true);
+      }
+      this.contactsService.unlock(this.id).pipe(take(1)).subscribe();
     });
   }
 

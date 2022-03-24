@@ -14,6 +14,20 @@
           <div class="mb-4">
             {{ t('detailsDropdown.duplicateDMPModal.confirmationMessage') }}
           </div>
+          <div class="mb-4">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="duplicateMetadata"
+                name="duplicateMetadata"
+                formControlName="duplicateMetadata"
+              />
+              <label class="custom-control-label font-normal" for="duplicateMetadata">{{
+                t('detailsDropdown.duplicateDMPModal.duplicateMetadata.label')
+              }}</label>
+            </div>
+          </div>
 
           <div class="modal-footer p-0 mt-5">
             <span class="mr-3">

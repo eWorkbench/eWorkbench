@@ -15,6 +15,7 @@ import { ToastrService } from 'ngx-toastr';
 import { switchMap, take } from 'rxjs/operators';
 
 interface FormDuplicate {
+  duplicateMetadata: boolean;
   doNotShowMessageAgain: boolean;
 }
 
@@ -35,6 +36,7 @@ export class DuplicateProjectModalComponent {
   public state = ModalState.Unchanged;
 
   public form = this.fb.group<FormDuplicate>({
+    duplicateMetadata: [true],
     doNotShowMessageAgain: [false],
   });
 
@@ -61,7 +63,7 @@ export class DuplicateProjectModalComponent {
     this.loading = true;
 
     this.projectsService
-      .duplicate(this.id)
+      .duplicate(this.id, this.f.duplicateMetadata.value)
       .pipe(untilDestroyed(this))
       .subscribe(
         /* istanbul ignore next */ project => {

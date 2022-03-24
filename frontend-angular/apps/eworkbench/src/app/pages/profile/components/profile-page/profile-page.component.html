@@ -119,6 +119,30 @@
           </div>
 
           <div class="mb-4">
+            <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+              <label for="username" slot="label">
+                {{ t('profile.username') }}
+                <eworkbench-icon
+                  className="wb-locked"
+                  class="cursor-help"
+                  [tooltip]="t('profile.ldapLocked.tooltip')"
+                  container="body"
+                  containerClass="tooltip-sm"
+                ></eworkbench-icon>
+              </label>
+              <input
+                type="text"
+                class="form-control ewb-input"
+                id="username"
+                formControlName="username"
+                name="username"
+                [placeholder]="t('profile.username')"
+                slot="input"
+              />
+            </eworkbench-form-input>
+          </div>
+
+          <div class="mb-4">
             <label for="employee-affiliation">
               {{ t('profile.employeeAffiliation') }}
               <eworkbench-icon

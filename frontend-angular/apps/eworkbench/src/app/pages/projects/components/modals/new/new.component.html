@@ -23,6 +23,7 @@
               id="name-modal"
               name="name-modal"
               [placeholder]="t('project.newModal.name.placeholder')"
+              autoFocus
             />
           </div>
           <div class="mb-4">
@@ -93,16 +94,37 @@
           </div>
 
           <div class="modal-footer p-0 mt-5">
-            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+            <button
+              *ngIf="form.dirty || duplicate"
+              type="button"
+              class="btn ewb-button-big ewb-button-secondary mr-2"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
               {{ t('project.newModal.cancel') }}
             </button>
-            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+            <button
+              *ngIf="form.dirty || duplicate"
+              type="submit"
+              class="btn ewb-button-big ewb-button-primary"
+              [disabled]="loading || form.invalid"
+            >
               <ng-container *ngIf="duplicate">{{
                 newSubproject ? t('project.newModal.subproject.duplicate') : t('project.newModal.project.duplicate')
               }}</ng-container>
               <ng-container *ngIf="!duplicate">{{
                 newSubproject ? t('project.newModal.subproject.create') : t('project.newModal.project.create')
               }}</ng-container>
+            </button>
+
+            <button
+              *ngIf="!form.dirty && !duplicate"
+              type="button"
+              class="btn ewb-button-big ewb-button-primary"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
+              {{ t('project.newModal.close') }}
             </button>
           </div>
         </form>

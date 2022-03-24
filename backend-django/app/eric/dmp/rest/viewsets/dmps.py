@@ -40,6 +40,7 @@ class DmpViewSet(
         Duplicates the DMP with all its answers.
         """
         dmp_object = Dmp.objects.viewable().get(pk=kwargs['pk'])
+        duplicate_metadata = request.data.get('duplicate_metadata', False)
 
         # Duplicates the DMP and changes the name to "Copy of" + DMP title
         duplicated_dmp = dmp_object.duplicate(
@@ -47,6 +48,7 @@ class DmpViewSet(
             status=Dmp.NEW,
             dmp_form=dmp_object.dmp_form,
             projects=dmp_object.projects.all().values_list("pk", flat=True),
+            metadata=dmp_object.metadata.all() if duplicate_metadata else None,
             old_dmp_pk=dmp_object.pk,
         )
 

@@ -41,13 +41,16 @@ class FAQQuestionAndAnswerAdmin(admin.ModelAdmin):
 
     fields = (
         'question',
+        'slug',
         'answer',
         'ordering',
         'category',
         'public',
     )
+
     list_display = (
         'question',
+        'slug',
         'answer',
         'category',
         'public',
@@ -55,12 +58,15 @@ class FAQQuestionAndAnswerAdmin(admin.ModelAdmin):
         'last_modified_at',
         'ordering',
     )
+
     search_fields = (
         'question',
         'answer',
         'category__title',
         'category__slug',
     )
+
+    prepopulated_fields = {"slug": ("question",)}
 
     # allow copy of an object
     save_as = True

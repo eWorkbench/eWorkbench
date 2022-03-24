@@ -150,7 +150,7 @@ export class ProjectsService implements TableViewService, TreeViewService {
     return this.httpClient.delete<void>(`${this.apiUrl}${id}/relations/${relationId}/`);
   }
 
-  public duplicate(id: string): Observable<Project> {
-    return this.httpClient.post<Project>(`${this.apiUrl}${id}/duplicate/`, { pk: id });
+  public duplicate(id: string, duplicateMetadata: boolean): Observable<Project> {
+    return this.httpClient.post<Project>(`${this.apiUrl}${id}/duplicate/`, { pk: id, duplicate_metadata: duplicateMetadata });
   }
 }

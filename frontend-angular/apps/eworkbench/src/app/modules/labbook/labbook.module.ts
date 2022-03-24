@@ -35,6 +35,7 @@ import { LabBookDrawBoardComponent } from './components/draw-board/draw-board/dr
 import { LabBookDrawBoardElementComponent } from './components/draw-board/element/element.component';
 import { LabBookDrawBoardFileComponent } from './components/draw-board/file/file.component';
 import { LabBookDrawBoardGridComponent } from './components/draw-board/grid/grid.component';
+import { LabBookPendingChangesModalComponent } from './components/draw-board/modals/pending-changes/pending-changes.component';
 import { LabBookDrawBoardNoteComponent } from './components/draw-board/note/note.component';
 import { LabBookDrawBoardPermissionDeniedComponent } from './components/draw-board/permission-denied/permission-denied.component';
 import { LabBookDrawBoardPictureComponent } from './components/draw-board/picture/picture.component';
@@ -81,6 +82,7 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     LabBookSearchBarComponent,
     NewLabBookSketchModalComponent,
     LabBookDrawBoardPermissionDeniedComponent,
+    LabBookPendingChangesModalComponent,
   ],
   imports: [
     CommonModule,
@@ -116,6 +118,8 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     PictureModule,
     CommentModule,
     PictureEditorModule,
+    ModalsModule,
+    LoadingModule,
   ],
   exports: [
     LabBookSidebarComponent,
@@ -142,6 +146,7 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     LabBookSearchBarComponent,
     NewLabBookSketchModalComponent,
     LabBookDrawBoardPermissionDeniedComponent,
+    LabBookPendingChangesModalComponent,
   ],
 })
 export class LabBookModule {}

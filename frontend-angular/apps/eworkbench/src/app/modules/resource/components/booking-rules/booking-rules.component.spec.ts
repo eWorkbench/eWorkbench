@@ -111,7 +111,7 @@ describe('ResourceBookingRulesComponent', () => {
   it('should call onRemove()', () => {
     expect(spectator.component.bookableTimeSlots).toBeUndefined();
     spectator.component.onRemove('booking_rule_bookable_hours');
-    expect(spectator.component.bookableTimeSlots).toBeNull();
+    expect(spectator.component.bookableTimeSlots).toEqual([]);
 
     expect(spectator.component.minimumDuration).toBeUndefined();
     spectator.component.onRemove('booking_rule_minimum_duration');
@@ -141,12 +141,9 @@ describe('ResourceBookingRulesComponent', () => {
   });
 
   it('should call onChanged()', () => {
-    expect(spectator.component.bookingRules.booking_rule_bookable_hours).toBeNull();
+    expect(spectator.component.bookingRules.booking_rule_bookable_hours).toEqual([]);
     spectator.component.onChanged(mockBookingRuleBookableTimeSlotsPayload);
-    expect(spectator.component.bookingRules.booking_rule_bookable_hours).toEqual({
-      id: mockBookingRuleBookableTimeSlotsPayload.id,
-      ...mockBookingRuleBookableTimeSlotsPayload.values,
-    });
+    expect(spectator.component.bookingRules.booking_rule_bookable_hours).toEqual(mockBookingRuleBookableTimeSlotsPayload.values);
 
     expect(spectator.component.bookingRules.booking_rule_minimum_duration).toBeNull();
     spectator.component.onChanged(mockBookingRuleMinimumDurationPayload);
@@ -195,7 +192,7 @@ describe('ResourceBookingRulesComponent', () => {
 
   it('should call setInitialState()', () => {
     spectator.component.setInitialState();
-    expect(spectator.component.initialState.booking_rule_bookable_hours).toEqual(null);
+    expect(spectator.component.initialState.booking_rule_bookable_hours).toEqual([]);
     expect(spectator.component.initialState.booking_rule_bookings_per_user).toEqual([]);
     expect(spectator.component.initialState.booking_rule_minimum_duration).toEqual(null);
     expect(spectator.component.initialState.booking_rule_maximum_duration).toEqual(null);
@@ -217,7 +214,7 @@ describe('ResourceBookingRulesComponent', () => {
     expect(spectator.component.showNoBookingRulesNotice()).toBe(true);
 
     spectator.setInput({
-      bookableTimeSlots: null,
+      bookableTimeSlots: [],
       bookingsPerUser: [],
       minimumDuration: null,
       maximumDuration: null,
@@ -239,7 +236,7 @@ describe('ResourceBookingRulesComponent', () => {
     expect(spectator.component.showNoBookingRulesNotice()).toBe(false);
 
     spectator.setInput({
-      bookableTimeSlots: null,
+      bookableTimeSlots: [],
       bookingsPerUser: mockBookingRuleBookingsPerUser,
       minimumDuration: null,
       maximumDuration: null,
@@ -250,7 +247,7 @@ describe('ResourceBookingRulesComponent', () => {
     expect(spectator.component.showNoBookingRulesNotice()).toBe(false);
 
     spectator.setInput({
-      bookableTimeSlots: null,
+      bookableTimeSlots: [],
       bookingsPerUser: [],
       minimumDuration: mockBookingDuration,
       maximumDuration: null,
@@ -261,7 +258,7 @@ describe('ResourceBookingRulesComponent', () => {
     expect(spectator.component.showNoBookingRulesNotice()).toBe(false);
 
     spectator.setInput({
-      bookableTimeSlots: null,
+      bookableTimeSlots: [],
       bookingsPerUser: [],
       minimumDuration: null,
       maximumDuration: mockBookingDuration,
@@ -272,7 +269,7 @@ describe('ResourceBookingRulesComponent', () => {
     expect(spectator.component.showNoBookingRulesNotice()).toBe(false);
 
     spectator.setInput({
-      bookableTimeSlots: null,
+      bookableTimeSlots: [],
       bookingsPerUser: [],
       minimumDuration: null,
       maximumDuration: null,
@@ -283,7 +280,7 @@ describe('ResourceBookingRulesComponent', () => {
     expect(spectator.component.showNoBookingRulesNotice()).toBe(false);
 
     spectator.setInput({
-      bookableTimeSlots: null,
+      bookableTimeSlots: [],
       bookingsPerUser: [],
       minimumDuration: null,
       maximumDuration: null,
@@ -294,7 +291,7 @@ describe('ResourceBookingRulesComponent', () => {
     expect(spectator.component.showNoBookingRulesNotice()).toBe(false);
 
     spectator.setInput({
-      bookableTimeSlots: null,
+      bookableTimeSlots: [],
       bookingsPerUser: [],
       minimumDuration: null,
       maximumDuration: null,

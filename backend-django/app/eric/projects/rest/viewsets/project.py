@@ -67,13 +67,15 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
 
         project_object = Project.objects.viewable().get(pk=kwargs['pk'])
         original_project_pk = project_object.pk
+        duplicate_metadata = request.data.get('duplicate_metadata', False)
 
         # duplicates the project
         # change name to "Copy of" + project name
         # the duplicated project can not be a sub project so set parent_project_id to NONE if it was set
         duplicated_project = project_object.duplicate(
             name=_("Copy of") + f" {project_object.name}",
-            parent_project_id=None
+            parent_project_id=None,
+            metadata=project_object.metadata.all() if duplicate_metadata else None,
         )
 
         dict_duplicated_project_pk = dict()
@@ -84,10 +86,12 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
         tasks = Task.objects.viewable().filter(projects__in=[original_project_pk])
         if tasks:
             for task in tasks:
-                task.duplicate(projects=[duplicated_project])
+                duplicated_task = task.duplicate(projects=[duplicated_project])
+                if duplicate_metadata:
+                    duplicated_task.metadata.set(task.metadata.all())
 
         # duplicate sub projects
-        Project.duplicate_sub_projects(dict_duplicated_project_pk)
+        Project.duplicate_sub_projects(dict_duplicated_project_pk, duplicate_metadata)
 
         serializer = self.get_serializer(duplicated_project)
 

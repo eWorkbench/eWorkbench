@@ -11,7 +11,7 @@
           <button type="button" class="btn ewb-button-big ewb-button-none text-white" (click)="onExpandSection()" *ngIf="!expanded">
             <eworkbench-icon className="wb-bold-chevron-right"></eworkbench-icon>
           </button>
-          <button type="button" class="btn ewb-button-big ewb-button-none text-white" (click)="onCollapseSection()" *ngIf="expanded">
+          <button type="button" class="btn ewb-button-big ewb-button-none text-white" (click)="onCollapseSection(false)" *ngIf="expanded">
             <eworkbench-icon className="wb-bold-chevron-down"></eworkbench-icon>
           </button>
         </div>

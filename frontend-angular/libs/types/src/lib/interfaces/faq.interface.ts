@@ -16,4 +16,5 @@ export interface FAQ {
   public: boolean;
   ordering: number;
   category: FAQCategory;
+  slug: string;
 }

@@ -3,7 +3,17 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBooksService } from '@app/services';
 import { DatePickerConfig, LabBookElement, LabBookElementEvent, ModalCallback } from '@eworkbench/types';
@@ -14,6 +24,8 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import flatpickr from 'flatpickr';
 import { take } from 'rxjs/operators';
 import { NewLabBookSectionElementModalComponent } from '../../modals/new/section/new.component';
+import { LabBookDrawBoardElementComponent } from '../element/element.component';
+import { LabBookPendingChangesModalComponent } from '../modals/pending-changes/pending-changes.component';
 
 interface FormSearch {
   startDate: string | null;
@@ -28,6 +40,9 @@ interface FormSearch {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LabBookSearchBarComponent implements AfterViewInit {
+  @ViewChildren('elementComponent')
+  public elements?: QueryList<LabBookDrawBoardElementComponent>;
+
   @Input()
   public id!: string;
 
@@ -51,6 +66,8 @@ export class LabBookSearchBarComponent implements AfterViewInit {
   public loading = false;
 
   public modalRef?: DialogRef;
+
+  public expandedSection?: string;
 
   public datePickerConfig: DatePickerConfig = {
     dateFormat: 'Y-m-d',
@@ -158,11 +175,41 @@ export class LabBookSearchBarComponent implements AfterViewInit {
   }
 
   public onExpandSection(id: string): void {
+    if (!this.expandedSection || !this.pendingChanges()) {
+      this.switchSectionStates(id);
+      return;
+    }
+
+    /* istanbul ignore next */
+    this.modalRef = this.modalService.open(LabBookPendingChangesModalComponent, {
+      closeButton: false,
+      data: { id },
+    });
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.switchSectionStates(id);
+      }
+    });
+  }
+
+  public switchSectionStates(id: string): void {
+    this.expandedSection = id;
     this.close.next(id);
   }
 
   public onReset(): void {
     this.form.patchValue({ startDate: null, endDate: null });
     this.onSetFilter();
+  }
+
+  public pendingChanges(): boolean {
+    for (const element of this.elements ?? []) {
+      if (element.pendingChanges()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

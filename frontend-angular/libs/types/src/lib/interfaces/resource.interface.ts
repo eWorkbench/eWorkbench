@@ -60,7 +60,7 @@ export interface Resource {
   last_modified_at: string;
   terms_of_use_pdf: string | null;
   created_by: User;
-  booking_rule_bookable_hours: BookingRuleBookableTimeSlots | null;
+  booking_rule_bookable_hours: BookingRuleBookableTimeSlots[];
   booking_rule_bookings_per_user: BookingRuleBookingsPerUser[];
   booking_rule_minimum_duration: BookingRuleDuration | null;
   booking_rule_maximum_duration: BookingRuleDuration | null;
@@ -86,13 +86,7 @@ export interface BookingRuleBookingsPerUser {
 
 export interface BookingRuleBookableTimeSlots {
   id?: string | null;
-  monday: boolean;
-  tuesday: boolean;
-  wednesday: boolean;
-  thursday: boolean;
-  friday: boolean;
-  saturday: boolean;
-  sunday: boolean;
+  weekday: string | null;
   full_day: boolean;
   time_start: string | null;
   time_end: string | null;
@@ -102,11 +96,11 @@ export interface BookingRulePayload {
   id?: string | null;
   uuid?: string | null;
   rule: string;
-  values: BookingRuleBookableTimeSlots | BookingRuleBookingsPerUser[] | BookingRuleBookingsPerUser | BookingRuleDuration | null;
+  values: BookingRuleBookableTimeSlots[] | BookingRuleBookingsPerUser[] | BookingRuleBookingsPerUser | BookingRuleDuration | null;
 }
 
 export interface BookingRulesPayload {
-  booking_rule_bookable_hours: BookingRuleBookableTimeSlots | null;
+  booking_rule_bookable_hours: BookingRuleBookableTimeSlots[];
   booking_rule_bookings_per_user: BookingRuleBookingsPerUser[];
   booking_rule_minimum_duration: BookingRuleDuration | null;
   booking_rule_maximum_duration: BookingRuleDuration | null;

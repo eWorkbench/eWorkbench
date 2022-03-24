@@ -14,7 +14,7 @@ export interface ContactPayload {
   email: string;
   phone: string;
   company: string;
-  notes: string;
+  notes?: string;
   projects: string[];
   metadata?: Metadata[];
 }

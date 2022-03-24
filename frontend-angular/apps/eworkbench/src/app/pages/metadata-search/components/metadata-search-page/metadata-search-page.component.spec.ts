@@ -16,6 +16,7 @@ import { mockMetadataSearchResults, mockPageTitle } from '@eworkbench/mocks';
 import { TableModule } from '@eworkbench/table';
 import { MetadataSearchRequestData } from '@eworkbench/types';
 import { createComponentFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { of } from 'rxjs';
 import { MetadataSearchPageComponent } from './metadata-search-page.component';
 import { mockChangedSearchParameter } from './mocks/changed-search-parameter';
@@ -35,6 +36,7 @@ describe('MetadataSearchPageComponent', () => {
       SharedModule,
       UserModule,
       HttpClientModule,
+      TooltipModule.forRoot(),
     ],
     providers: [
       mockProvider(MetadataService, {

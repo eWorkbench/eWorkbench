@@ -217,7 +217,7 @@ describe('ProjectsService', () => {
   });
 
   it('should duplicate a project', () => {
-    spectator.service.duplicate(pk).subscribe(data => {
+    spectator.service.duplicate(pk, false).subscribe(data => {
       expect(data).toEqual(mockProject);
     });
     spectator.expectOne(`${spectator.service.apiUrl}${pk}/duplicate/`, HttpMethod.POST);

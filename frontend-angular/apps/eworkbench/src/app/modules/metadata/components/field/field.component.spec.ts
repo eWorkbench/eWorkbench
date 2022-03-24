@@ -37,7 +37,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(1);
-    expect(spectator.component.readonly).toBe(false);
   });
 
   it('should call initField() with checkbox (without a value) as base type', () => {
@@ -49,7 +48,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(1);
-    expect(spectator.component.readonly).toBe(false);
   });
 
   it('should call initField() with selection (without answers) as base type', () => {
@@ -65,7 +63,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(1);
-    expect(spectator.component.readonly).toBe(false);
   });
 
   it('should call initField() with selection (with answers) as base type', () => {
@@ -84,7 +81,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(3);
-    expect(spectator.component.readonly).toBe(true);
   });
 
   it('should call initField() with selection (with answers but without a value) as base type', () => {
@@ -99,7 +95,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(3);
-    expect(spectator.component.readonly).toBe(true);
   });
 
   it('should call initField() with checkbox selection (without answers) as base type', () => {
@@ -115,7 +110,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(1);
-    expect(spectator.component.readonly).toBe(false);
   });
 
   it('should call initField() with checkbox selection as base type', () => {
@@ -134,7 +128,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(3);
-    expect(spectator.component.readonly).toBe(true);
   });
 
   it('should call initField() with fraction as base type', () => {
@@ -150,7 +143,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(2);
-    expect(spectator.component.readonly).toBe(false);
   });
 
   it('should call initField() with gps as base type', () => {
@@ -166,7 +158,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(2);
-    expect(spectator.component.readonly).toBe(false);
   });
 
   it('should call initField() with date as base type', () => {
@@ -181,7 +172,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(1);
-    expect(spectator.component.readonly).toBe(false);
     expect(spectator.component.datepicker).toBe(true);
   });
 
@@ -197,7 +187,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(1);
-    expect(spectator.component.readonly).toBe(false);
     expect(spectator.component.datepicker).toBe(true);
   });
 
@@ -213,7 +202,6 @@ describe('MetadataFieldComponent', () => {
     spectator.component.initField();
     spectator.component.onChanged();
     expect(spectator.component.answers.controls.length).toBe(1);
-    expect(spectator.component.readonly).toBe(false);
     expect(spectator.component.datepicker).toBe(true);
   });
 

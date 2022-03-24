@@ -375,11 +375,25 @@
             </eworkbench-details-collapse-element>
 
             <eworkbench-details-collapse-element [labelText]="t('appointment.details.element.description')">
+              <ng-container slot="actions">
+                <button
+                  *ngIf="!form.disabled"
+                  type="button"
+                  class="btn ewb-button-regular ewb-button-outline"
+                  (click)="onOpenDescriptionModal()"
+                  [disabled]="loading"
+                >
+                  {{ t(descriptionTranslationKey) }}
+                </button>
+              </ng-container>
               <ng-container slot="body">
                 <div class="mb-4">
-                  <eworkbench-form-input for="description" [loading]="loading" [onSubmit]="refreshResetValue">
-                    <eworkbench-wysiwyg-editor [id]="'description'" formControlName="description" slot="input"></eworkbench-wysiwyg-editor>
-                  </eworkbench-form-input>
+                  <div
+                    class="description-container"
+                    *ngIf="initialState.text; else noDescription"
+                    [innerHTML]="initialState.text | safeHTML"
+                  ></div>
+                  <ng-template #noDescription>{{ t('appointment.details.description.noDescription') }}</ng-template>
                 </div>
               </ng-container>
             </eworkbench-details-collapse-element>
@@ -448,7 +462,7 @@
               <ng-container slot="actions">
                 <button
                   type="button"
-                  class="btn ewb-button-regular ewb-button-outline mr-2"
+                  class="btn ewb-button-regular ewb-button-outline"
                   (click)="onOpenNewCommentModal()"
                   [disabled]="loading"
                 >

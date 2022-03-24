@@ -44,6 +44,7 @@ interface FormTask {
   description: string | null;
   projects: string[];
   labels: string[];
+  duplicateMetadata: boolean;
 }
 
 @UntilDestroy()
@@ -116,6 +117,7 @@ export class NewTaskModalComponent implements OnInit {
     description: [null],
     projects: [[]],
     labels: [[]],
+    duplicateMetadata: [true],
   });
 
   public constructor(
@@ -170,6 +172,7 @@ export class NewTaskModalComponent implements OnInit {
       priority: this.f.priority.value ?? 'NORM',
       state: this.f.state.value ?? 'NEW',
       description: this.f.description.value ?? '',
+      metadata: this.duplicate && this.f.duplicateMetadata.value ? this.initialState?.metadata : [],
     };
 
     // The property 'reminder_datetime' must not exist if remind_assignees field contains null values

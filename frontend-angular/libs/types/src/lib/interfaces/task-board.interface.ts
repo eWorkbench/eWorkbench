@@ -12,6 +12,7 @@ export interface TaskBoardPayload {
   projects?: string[];
   background_color?: string;
   kanban_board_columns?: TaskBoardColumn[];
+  duplicateMetadata?: boolean;
 }
 
 export interface TaskBoard {

@@ -9,7 +9,7 @@ import { User } from './user.interface';
 export interface LabBookPayload {
   title: string;
   projects: string[];
-  description: string;
+  description?: string;
   is_template: boolean;
   metadata?: Metadata[];
 }

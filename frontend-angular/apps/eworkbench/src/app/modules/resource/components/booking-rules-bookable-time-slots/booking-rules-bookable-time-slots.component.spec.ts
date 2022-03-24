@@ -53,37 +53,23 @@ describe('ResourceBookingRulesBookableTimeSlotsComponent', () => {
   });
 
   it('should convert rule to values', () => {
-    let ruleValues = spectator.component.convertRuleToValues('0 00:00:00');
-    expect(ruleValues.days).toBe(0);
-    expect(ruleValues.duration).toBe('00:00');
+    let time = spectator.component.convertRuleToValues('0 00:00:00');
+    expect(time).toBe('00:00');
 
-    ruleValues = spectator.component.convertRuleToValues('1 01:23:00');
-    expect(ruleValues.days).toBe(1);
-    expect(ruleValues.duration).toBe('01:23');
+    time = spectator.component.convertRuleToValues('1 01:23:00');
+    expect(time).toBe('01:23');
 
-    ruleValues = spectator.component.convertRuleToValues('04:56:00');
-    expect(ruleValues.days).toBe(0);
-    expect(ruleValues.duration).toBe('04:56');
+    time = spectator.component.convertRuleToValues('04:56:00');
+    expect(time).toBe('04:56');
 
-    ruleValues = spectator.component.convertRuleToValues(null);
-    expect(ruleValues.days).toBe(0);
-    expect(ruleValues.duration).toBe('00:00');
+    time = spectator.component.convertRuleToValues(null);
+    expect(time).toBe(null);
   });
 
   it('should push changes', () => {
     const pushChangesSpy = jest.spyOn(spectator.component, 'pushChanges');
     spectator.component.pushChanges();
     expect(pushChangesSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('should call patchFormValues()', () => {
-    const patchFormValuesSpy = jest.spyOn(spectator.component, 'patchFormValues');
-    spectator.component.patchFormValues();
-    expect(patchFormValuesSpy).toHaveBeenCalledTimes(1);
-
-    spectator.setInput({ rule: null });
-    spectator.component.patchFormValues();
-    expect(patchFormValuesSpy).toHaveBeenCalledTimes(2);
   });
 
   it('should call onRemove()', () => {
@@ -101,104 +87,96 @@ describe('ResourceBookingRulesBookableTimeSlotsComponent', () => {
   it('should call showNoBookingRulesNotice()', () => {
     spectator.setInput({ editable: true });
 
-    spectator.component.form.patchValue({
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: false,
-      saturday: false,
-      sunday: false,
-    });
-    expect(spectator.component.daySelectionInvalid()).toBe(true);
+    spectator.component.form.patchValue({});
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(true));
 
     spectator.component.form.patchValue({
-      monday: true,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: false,
-      saturday: false,
-      sunday: false,
+      monday: { checked: true },
+      tuesday: { checked: false },
+      wednesday: { checked: false },
+      thursday: { checked: false },
+      friday: { checked: false },
+      saturday: { checked: false },
+      sunday: { checked: false },
     });
-    expect(spectator.component.daySelectionInvalid()).toBe(false);
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(false));
 
     spectator.component.form.patchValue({
-      monday: false,
-      tuesday: true,
-      wednesday: false,
-      thursday: false,
-      friday: false,
-      saturday: false,
-      sunday: false,
+      monday: { checked: false },
+      tuesday: { checked: true },
+      wednesday: { checked: false },
+      thursday: { checked: false },
+      friday: { checked: false },
+      saturday: { checked: false },
+      sunday: { checked: false },
     });
-    expect(spectator.component.daySelectionInvalid()).toBe(false);
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(false));
 
     spectator.component.form.patchValue({
-      monday: false,
-      tuesday: false,
-      wednesday: true,
-      thursday: false,
-      friday: false,
-      saturday: false,
-      sunday: false,
+      monday: { checked: false },
+      tuesday: { checked: false },
+      wednesday: { checked: true },
+      thursday: { checked: false },
+      friday: { checked: false },
+      saturday: { checked: false },
+      sunday: { checked: false },
     });
-    expect(spectator.component.daySelectionInvalid()).toBe(false);
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(false));
 
     spectator.component.form.patchValue({
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: true,
-      friday: false,
-      saturday: false,
-      sunday: false,
+      monday: { checked: false },
+      tuesday: { checked: false },
+      wednesday: { checked: false },
+      thursday: { checked: true },
+      friday: { checked: false },
+      saturday: { checked: false },
+      sunday: { checked: false },
     });
-    expect(spectator.component.daySelectionInvalid()).toBe(false);
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(false));
 
     spectator.component.form.patchValue({
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: true,
-      saturday: false,
-      sunday: false,
+      monday: { checked: false },
+      tuesday: { checked: false },
+      wednesday: { checked: false },
+      thursday: { checked: false },
+      friday: { checked: true },
+      saturday: { checked: false },
+      sunday: { checked: false },
     });
-    expect(spectator.component.daySelectionInvalid()).toBe(false);
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(false));
 
     spectator.component.form.patchValue({
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: false,
-      saturday: true,
-      sunday: false,
+      monday: { checked: false },
+      tuesday: { checked: false },
+      wednesday: { checked: false },
+      thursday: { checked: false },
+      friday: { checked: false },
+      saturday: { checked: true },
+      sunday: { checked: false },
     });
-    expect(spectator.component.daySelectionInvalid()).toBe(false);
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(false));
 
     spectator.component.form.patchValue({
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: false,
-      saturday: false,
-      sunday: true,
+      monday: { checked: false },
+      tuesday: { checked: false },
+      wednesday: { checked: false },
+      thursday: { checked: false },
+      friday: { checked: false },
+      saturday: { checked: false },
+      sunday: { checked: true },
     });
-    expect(spectator.component.daySelectionInvalid()).toBe(false);
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(false));
 
     spectator.component.form.patchValue({
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: false,
-      saturday: false,
-      sunday: false,
+      monday: { checked: false },
+      tuesday: { checked: false },
+      wednesday: { checked: false },
+      thursday: { checked: false },
+      friday: { checked: false },
+      saturday: { checked: false },
+      sunday: { checked: false },
     });
     spectator.setInput({ editable: false });
-    expect(spectator.component.daySelectionInvalid()).toBe(false);
+    spectator.component.invalidDaySelection$.subscribe(invalidDaySelection => expect(invalidDaySelection).toBe(true));
   });
 });

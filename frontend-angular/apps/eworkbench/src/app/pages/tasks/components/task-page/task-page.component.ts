@@ -13,6 +13,7 @@ import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { NewLabelModalComponent } from '@app/modules/label/component/modals/new/new.component';
+import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { NewTaskModalComponent } from '@app/modules/task/components/modals/new/new.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
@@ -51,7 +52,6 @@ interface FormTask {
   priority: string | null;
   state: string | null;
   checklist: TaskChecklist[];
-  description: string | null;
   labels: string[];
   projects: string[];
 }
@@ -139,7 +139,6 @@ export class TaskPageComponent implements OnInit, OnDestroy {
     priority: [null],
     state: [null],
     checklist: [[]],
-    description: [null],
     labels: [[]],
     projects: [[]],
   });
@@ -182,6 +181,10 @@ export class TaskPageComponent implements OnInit, OnDestroy {
     return { ownUser: false, user: null };
   }
 
+  public get descriptionTranslationKey(): string {
+    return this.initialState?.description ? 'task.details.description.edit' : 'task.details.description.add';
+  }
+
   private get task(): TaskPayload {
     let dateTimeStart = null;
     if (this.f.dateGroup.value.start) {
@@ -211,7 +214,6 @@ export class TaskPageComponent implements OnInit, OnDestroy {
       full_day: this.f.dateGroup.value.fullDay,
       priority: (this.f.priority.value as Task['priority'] | null) ?? 'NORM',
       state: (this.f.state.value as Task['state'] | null) ?? 'NEW',
-      description: this.f.description.value ?? '',
       projects: this.f.projects.value,
       checklist_items: this.f.checklist.value,
       labels: this.f.labels.value,
@@ -425,7 +427,6 @@ export class TaskPageComponent implements OnInit, OnDestroy {
                 priority: task.priority,
                 state: task.state,
                 checklist: task.checklist_items,
-                description: task.description,
                 labels: task.labels,
                 projects: task.projects,
               },
@@ -687,6 +688,31 @@ export class TaskPageComponent implements OnInit, OnDestroy {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
       }
+    });
+  }
+
+  public onOpenDescriptionModal(): void {
+    this.tasksService.lock(this.id).pipe(take(1)).subscribe();
+    this.modalRef = this.modalService.open(DescriptionModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        description: this.initialState?.description ?? '',
+        descriptionKey: 'description',
+        service: this.tasksService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.initialState = { ...callback.data };
+        this.form.markAsPristine();
+        this.refreshChanges.next(true);
+        this.refreshResetValue.next(true);
+      }
+      this.tasksService.unlock(this.id).pipe(take(1)).subscribe();
     });
   }
 

@@ -24,6 +24,7 @@ interface FormProfile {
   academicTitle: string | null;
   firstName: string | null;
   lastName: string | null;
+  username: string | null;
   employeeAffiliation: string[];
   studentAffiliation: string[];
   country: string | null;
@@ -81,6 +82,7 @@ export class ProfilePageComponent implements OnInit {
     academicTitle: null,
     firstName: null,
     lastName: null,
+    username: { value: null, disabled: true },
     employeeAffiliation: this.fb.array([]),
     studentAffiliation: this.fb.array([]),
     country: null,
@@ -183,6 +185,7 @@ export class ProfilePageComponent implements OnInit {
               academicTitle: user.userprofile.academic_title,
               firstName: user.userprofile.first_name,
               lastName: user.userprofile.last_name,
+              username: user.username,
               country: user.userprofile.country,
               phone: user.userprofile.phone,
               email: user.email,

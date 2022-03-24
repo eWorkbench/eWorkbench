@@ -30,7 +30,7 @@ export class ResourceBookingRulesComponent implements OnInit {
   public bookingRulesBookingsPerUser?: ResourceBookingRulesBookingsPerUserComponent;
 
   @Input()
-  public bookableTimeSlots?: BookingRuleBookableTimeSlots | null;
+  public bookableTimeSlots?: BookingRuleBookableTimeSlots[];
 
   @Input()
   public bookingsPerUser?: BookingRuleBookingsPerUser[];
@@ -72,7 +72,7 @@ export class ResourceBookingRulesComponent implements OnInit {
   public rulesFormControl = new FormControl();
 
   public bookingRules: BookingRulesPayload = {
-    booking_rule_bookable_hours: null,
+    booking_rule_bookable_hours: [],
     booking_rule_bookings_per_user: [],
     booking_rule_minimum_duration: null,
     booking_rule_maximum_duration: null,
@@ -82,7 +82,7 @@ export class ResourceBookingRulesComponent implements OnInit {
   };
 
   public initialState: BookingRulesPayload = {
-    booking_rule_bookable_hours: null,
+    booking_rule_bookable_hours: [],
     booking_rule_bookings_per_user: [],
     booking_rule_minimum_duration: null,
     booking_rule_maximum_duration: null,
@@ -102,7 +102,7 @@ export class ResourceBookingRulesComponent implements OnInit {
     /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.bookingRules = {
-        booking_rule_bookable_hours: null,
+        booking_rule_bookable_hours: [],
         booking_rule_bookings_per_user: [],
         booking_rule_minimum_duration: null,
         booking_rule_maximum_duration: null,
@@ -123,7 +123,7 @@ export class ResourceBookingRulesComponent implements OnInit {
 
   public setInitialState(resource?: Resource): void {
     this.initialState = {
-      booking_rule_bookable_hours: resource?.booking_rule_bookable_hours ?? this.bookableTimeSlots ?? null,
+      booking_rule_bookable_hours: resource?.booking_rule_bookable_hours ?? this.bookableTimeSlots ?? [],
       booking_rule_bookings_per_user: resource?.booking_rule_bookings_per_user ?? this.bookingsPerUser ?? [],
       booking_rule_minimum_duration: resource?.booking_rule_minimum_duration ?? this.minimumDuration ?? null,
       booking_rule_maximum_duration: resource?.booking_rule_maximum_duration ?? this.maximumDuration ?? null,
@@ -137,21 +137,7 @@ export class ResourceBookingRulesComponent implements OnInit {
     const rule = bookingRule.rule;
 
     if (rule === 'booking_rule_bookable_hours') {
-      const values = bookingRule.values as BookingRuleBookableTimeSlots;
-
-      this.bookingRules.booking_rule_bookable_hours = {
-        id: bookingRule.id!,
-        monday: values.monday,
-        tuesday: values.tuesday,
-        wednesday: values.wednesday,
-        thursday: values.thursday,
-        friday: values.friday,
-        saturday: values.saturday,
-        sunday: values.sunday,
-        full_day: values.full_day,
-        time_start: values.time_start!,
-        time_end: values.time_end!,
-      };
+      this.bookingRules.booking_rule_bookable_hours = bookingRule.values as BookingRuleBookableTimeSlots[];
     } else if (rule === 'booking_rule_bookings_per_user') {
       this.bookingRules.booking_rule_bookings_per_user = bookingRule.values as BookingRuleBookingsPerUser[];
     } else if (rule === 'booking_rule_minimum_duration') {
@@ -193,18 +179,50 @@ export class ResourceBookingRulesComponent implements OnInit {
     const rule = this.rulesFormControl.value;
 
     if (rule === 'booking_rule_bookable_hours') {
-      this.bookableTimeSlots = {
-        monday: false,
-        tuesday: false,
-        wednesday: false,
-        thursday: false,
-        friday: false,
-        saturday: false,
-        sunday: false,
-        full_day: true,
-        time_start: '00:00:00',
-        time_end: '00:00:00',
-      };
+      this.bookableTimeSlots = [
+        {
+          weekday: 'MON',
+          full_day: true,
+          time_start: null,
+          time_end: null,
+        },
+        {
+          weekday: 'TUE',
+          full_day: true,
+          time_start: null,
+          time_end: null,
+        },
+        {
+          weekday: 'WED',
+          full_day: true,
+          time_start: null,
+          time_end: null,
+        },
+        {
+          weekday: 'THU',
+          full_day: true,
+          time_start: null,
+          time_end: null,
+        },
+        {
+          weekday: 'FRI',
+          full_day: true,
+          time_start: null,
+          time_end: null,
+        },
+        {
+          weekday: 'SAT',
+          full_day: true,
+          time_start: null,
+          time_end: null,
+        },
+        {
+          weekday: 'SUN',
+          full_day: true,
+          time_start: null,
+          time_end: null,
+        },
+      ];
     } else if (rule === 'booking_rule_minimum_duration') {
       this.minimumDuration = {
         duration: '0 00:00:00',
@@ -242,7 +260,7 @@ export class ResourceBookingRulesComponent implements OnInit {
   public updateRulesSelection(): void {
     const rules: DropdownElement[] = [];
 
-    if (!this.bookableTimeSlots) {
+    if (!this.bookableTimeSlots?.length) {
       rules.push({
         value: 'booking_rule_bookable_hours',
         label: this.translocoService.translate('resources.bookingRules.bookableTimeSlots.label'),
@@ -300,7 +318,7 @@ export class ResourceBookingRulesComponent implements OnInit {
 
   public onRemove(rule: string): void {
     if (rule === 'booking_rule_bookable_hours') {
-      this.bookableTimeSlots = null;
+      this.bookableTimeSlots = [];
     } else if (rule === 'booking_rule_minimum_duration') {
       this.minimumDuration = null;
     } else if (rule === 'booking_rule_maximum_duration') {
@@ -355,7 +373,7 @@ export class ResourceBookingRulesComponent implements OnInit {
 
   public showNoBookingRulesNotice(): boolean {
     return (
-      !this.bookableTimeSlots &&
+      !this.bookableTimeSlots?.length &&
       !this.bookingsPerUser?.length &&
       !this.minimumDuration &&
       !this.maximumDuration &&

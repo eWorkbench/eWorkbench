@@ -5,4 +5,10 @@
 
 :host {
   display: block;
+
+  .icon-label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
 }

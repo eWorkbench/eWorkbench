@@ -22,4 +22,15 @@
       gap: 35px;
     }
   }
+
+  ::ng-deep.description-container {
+    overflow-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
 }

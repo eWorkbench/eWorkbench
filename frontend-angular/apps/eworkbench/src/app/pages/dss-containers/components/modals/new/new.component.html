@@ -23,6 +23,7 @@
               id="name-modal"
               name="name-modal"
               [placeholder]="t('dssContainer.newModal.name.placeholder')"
+              autoFocus
             />
           </div>
           <div class="mb-4">
@@ -92,11 +93,27 @@
             </ng-select>
           </div>
           <div class="modal-footer p-0 mt-5">
-            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+            <button
+              *ngIf="form.dirty"
+              type="button"
+              class="btn ewb-button-big ewb-button-secondary mr-2"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
               {{ t('dssContainer.newModal.cancel') }}
             </button>
-            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+            <button *ngIf="form.dirty" type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
               {{ t('dssContainer.newModal.create') }}
+            </button>
+
+            <button
+              *ngIf="!form.dirty"
+              type="button"
+              class="btn ewb-button-big ewb-button-primary"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
+              {{ t('dssContainer.newModal.close') }}
             </button>
           </div>
         </form>

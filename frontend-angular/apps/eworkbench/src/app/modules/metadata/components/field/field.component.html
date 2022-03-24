@@ -39,11 +39,11 @@
         <div class="input-group" *ngIf="!datepicker">
           <div class="input-group-prepend">
             <ng-container *ngIf="baseType === 'gps'">
-              <span class="input-group-text ewb-input" *ngIf="i === 0">X</span>
-              <span class="input-group-text ewb-input" *ngIf="i === 1">Y</span>
+              <span class="input-group-text ewb-input" [class.border-0]="!editable" *ngIf="i === 0">X</span>
+              <span class="input-group-text ewb-input" [class.border-0]="!editable" *ngIf="i === 1">Y</span>
             </ng-container>
             <ng-container *ngIf="baseType === 'currency' && typeSettings?.symbol">
-              <span class="input-group-text ewb-input">{{ typeSettings?.symbol }}</span>
+              <span class="input-group-text ewb-input" [class.border-0]="!editable">{{ typeSettings?.symbol }}</span>
             </ng-container>
           </div>
           <input
@@ -52,11 +52,11 @@
             [formControl]="answer"
             [id]="'answer-' + uuid + '-' + i"
             [name]="'answer-' + uuid + '-' + i"
-            [readonly]="readonly || !editable"
+            [placeholder]="labels[i] || ''"
             (change)="onChanged()"
           />
           <div class="input-group-append" *ngIf="baseType === 'percentage'">
-            <span class="input-group-text ewb-input">%</span>
+            <span class="input-group-text ewb-input" [class.border-0]="!editable">%</span>
           </div>
         </div>
         <eworkbench-form-date-input
@@ -65,6 +65,7 @@
           [inputId]="'answer-' + uuid + '-' + i"
           [inputName]="'answer-' + uuid + '-' + i"
           [datePickerConfig]="datetimePickerConfig"
+          [placeholder]="labels[i] || ''"
           (change)="onChanged()"
         ></eworkbench-form-date-input>
       </div>

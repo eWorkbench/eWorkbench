@@ -29,6 +29,7 @@ import { take } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import { DeleteLabBookSectionElementModalComponent } from '../../modals/delete-section/delete-section.component';
 import { LabBookDrawBoardGridComponent } from '../grid/grid.component';
+import { LabBookPendingChangesModalComponent } from '../modals/pending-changes/pending-changes.component';
 
 interface FormSection {
   date: string | null;
@@ -151,10 +152,13 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
 
     /* istanbul ignore next */
     this.closeSection?.subscribe((id: string) => {
-      if (id !== this.element.child_object_id) {
+      if (id === this.element.child_object_id) {
+        this.expanded = true;
+      } else {
         this.onCollapseSection();
-        this.cdr.markForCheck();
       }
+
+      this.cdr.markForCheck();
     });
 
     this.patchFormValues();
@@ -184,12 +188,27 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
   }
 
   public onExpandSection(): void {
-    this.expanded = true;
     this.expand.emit(this.element.child_object_id);
   }
 
-  public onCollapseSection(): void {
-    this.expanded = false;
+  public onCollapseSection(skipChecks = true): void {
+    if (skipChecks || !this.pendingChanges()) {
+      this.expanded = false;
+      return;
+    }
+
+    /* istanbul ignore next */
+    this.modalRef = this.modalService.open(LabBookPendingChangesModalComponent, {
+      closeButton: false,
+      data: { id: this.element.child_object_id },
+    });
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.expanded = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   public onSubmit(): void {

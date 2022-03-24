@@ -18,5 +18,16 @@
     .checklist-pb {
       padding-bottom: 37px;
     }
+
+    .description-container {
+      overflow-wrap: break-word;
+      max-height: 200px;
+      overflow-y: auto;
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+    }
   }
 }

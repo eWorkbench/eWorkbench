@@ -12,6 +12,7 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
+import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { BacklogModalComponent } from '@app/modules/task-board/components/modals/backlog/backlog.component';
 import { NewTaskBoardColumnModalComponent } from '@app/modules/task-board/components/modals/new-column/new-column.component';
@@ -42,7 +43,6 @@ import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from '
 
 interface FormTaskBoard {
   title: string | null;
-  description: string | null;
   projects: string[];
 }
 
@@ -147,7 +147,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
 
   public form: FormGroup<FormTaskBoard> = this.fb.group({
     title: [null, [Validators.required]],
-    description: [null],
     projects: [[]],
   });
 
@@ -188,10 +187,13 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     return { ownUser: false, user: null };
   }
 
+  public get descriptionTranslationKey(): string {
+    return this.initialState?.description ? 'taskBoard.details.description.edit' : 'taskBoard.details.description.add';
+  }
+
   private get taskBoard(): TaskBoardPayload {
     return {
       title: this.f.title.value!,
-      description: this.f.description.value ?? '',
       projects: this.f.projects.value,
     };
   }
@@ -800,7 +802,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     this.form.patchValue(
       {
         title: board.title,
-        description: board.description,
         projects: board.projects,
       },
       { emitEvent: false }
@@ -1072,6 +1073,31 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
       }
+    });
+  }
+
+  public onOpenDescriptionModal(): void {
+    this.taskBoardsService.lock(this.id).pipe(take(1)).subscribe();
+    this.modalRef = this.modalService.open(DescriptionModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        description: this.initialState?.description ?? '',
+        descriptionKey: 'description',
+        service: this.taskBoardsService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.initialState = { ...callback.data };
+        this.form.markAsPristine();
+        this.refreshChanges.next(true);
+        this.refreshResetValue.next(true);
+      }
+      this.taskBoardsService.unlock(this.id).pipe(take(1)).subscribe();
     });
   }
 

@@ -33,6 +33,7 @@ interface FormAppointment {
   description: string | null;
   projects: string[];
   createFor: string | null;
+  duplicateMetadata: boolean;
 }
 
 @UntilDestroy()
@@ -106,6 +107,7 @@ export class NewAppointmentModalComponent implements OnInit {
     description: [null],
     projects: [[]],
     createFor: [null],
+    duplicateMetadata: [true],
   });
 
   public constructor(
@@ -164,6 +166,7 @@ export class NewAppointmentModalComponent implements OnInit {
       text: this.f.description.value ?? '',
       title: this.f.title.value ?? '',
       create_for: this.f.createFor.value ?? '',
+      metadata: this.duplicate && this.f.duplicateMetadata.value ? this.initialState?.metadata : [],
     };
 
     // The property 'scheduled_notification_writable' must not exist if timedelta fields contain null values

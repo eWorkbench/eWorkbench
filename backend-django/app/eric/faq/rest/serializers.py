@@ -37,6 +37,7 @@ class FAQQuestionAndAnswerSerializer(serializers.ModelSerializer):
             'public',
             'ordering',
             'category',
+            'slug',
         )
         read_only_fields = (
             'question',
@@ -44,4 +45,5 @@ class FAQQuestionAndAnswerSerializer(serializers.ModelSerializer):
             'public',
             'ordering',
             'category',
+            'slug',
         )

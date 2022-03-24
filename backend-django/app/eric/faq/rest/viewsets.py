@@ -11,7 +11,7 @@ from eric.faq.rest.serializers import FAQQuestionAndAnswerSerializer
 class FAQQuestionAndAnswerViewSet(BaseAuthenticatedModelViewSet):
     serializer_class = FAQQuestionAndAnswerSerializer
     filterset_class = FAQQuestionAndAnswerFilter
-    search_fields = ('question', 'answer', 'category__title', 'category__slug')
+    search_fields = ('question', 'answer', 'slug', 'category__title', 'category__slug')
     ordering_fields = ('ordering',)
     permission_classes = ()
     http_method_names = ('get', 'head', 'options',)

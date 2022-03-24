@@ -4,6 +4,7 @@
 #
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django_userforeignkey.request import get_current_request
@@ -45,13 +46,7 @@ class ResourceBookingRuleBookableHoursSerializer(serializers.ModelSerializer):
         model = ResourceBookingRuleBookableHours
         fields = (
             'id',
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
-            'saturday',
-            'sunday',
+            'weekday',
             'time_start',
             'time_end',
             'full_day',
@@ -178,7 +173,7 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
 
     booking_rule_minimum_duration = ResourceBookingRuleMinimumDurationSerializer(required=False, allow_null=True)
     booking_rule_maximum_duration = ResourceBookingRuleMaximumDurationSerializer(required=False, allow_null=True)
-    booking_rule_bookable_hours = ResourceBookingRuleBookableHoursSerializer(required=False, allow_null=True)
+    booking_rule_bookable_hours = ResourceBookingRuleBookableHoursSerializer(required=False, allow_null=True, many=True)
     booking_rule_minimum_time_before = ResourceBookingRuleMinimumTimeBeforeSerializer(required=False, allow_null=True)
     booking_rule_maximum_time_before = ResourceBookingRuleMaximumTimeBeforeSerializer(required=False, allow_null=True)
     booking_rule_time_between = ResourceBookingRuleTimeBetweenSerializer(required=False, allow_null=True)
@@ -190,6 +185,16 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
     download_terms_of_use = serializers.SerializerMethodField(
         read_only=True
     )
+
+    def validate(self, data):
+        if hasattr(data, 'booking_rule_bookable_hours'):
+            for item in data['booking_rule_bookable_hours']:
+                if not item['full_day']:
+                    if item['time_start'] is None or item['time_end'] is None:
+                        raise ValidationError(
+                            f'The Time start field and the Time end field is required'
+                        )
+        return data
 
     @staticmethod
     def get_download_terms_of_use(obj):
@@ -317,19 +322,14 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
 
         # now create booking_rule_bookable_hours
         if booking_rule_bookable_hours:
-            ResourceBookingRuleBookableHours.objects.create(
-                monday=booking_rule_bookable_hours['monday'],
-                tuesday=booking_rule_bookable_hours['tuesday'],
-                wednesday=booking_rule_bookable_hours['wednesday'],
-                thursday=booking_rule_bookable_hours['thursday'],
-                friday=booking_rule_bookable_hours['friday'],
-                saturday=booking_rule_bookable_hours['saturday'],
-                sunday=booking_rule_bookable_hours['sunday'],
-                time_start=booking_rule_bookable_hours['time_start'],
-                time_end=booking_rule_bookable_hours['time_end'],
-                full_day=booking_rule_bookable_hours['full_day'],
-                resource=instance
-            )
+            for item in booking_rule_bookable_hours:
+                ResourceBookingRuleBookableHours.objects.create(
+                    weekday=item['weekday'],
+                    time_start=booking_rule_bookable_hours['time_start'],
+                    time_end=booking_rule_bookable_hours['time_end'],
+                    full_day=booking_rule_bookable_hours['full_day'],
+                    resource=instance
+                )
 
         self.create_metadata(metadata_list, instance)
 
@@ -398,33 +398,23 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
         if not validated_data or 'booking_rule_bookable_hours' not in validated_data:
             return validated_data
 
-        booking_rule_data = validated_data.pop('booking_rule_bookable_hours')
+        booking_rule_data_list = validated_data.pop('booking_rule_bookable_hours')
 
-        try:
-            booking_rule = ResourceBookingRuleBookableHours.objects.get(
-                resource__pk=instance.pk
-            )
+        ResourceBookingRuleBookableHours.objects.filter(
+            resource__pk=instance.pk
+        ).delete()
 
-            if booking_rule_data is None:
-                booking_rule.delete()
-            else:
-                booking_rule.monday = booking_rule_data['monday']
-                booking_rule.tuesday = booking_rule_data['tuesday']
-                booking_rule.wednesday = booking_rule_data['wednesday']
-                booking_rule.thursday = booking_rule_data['thursday']
-                booking_rule.friday = booking_rule_data['friday']
-                booking_rule.saturday = booking_rule_data['saturday']
-                booking_rule.sunday = booking_rule_data['sunday']
-                booking_rule.time_start = booking_rule_data['time_start']
-                booking_rule.time_end = booking_rule_data['time_end']
-                booking_rule.full_day = booking_rule_data['full_day']
-                booking_rule.save()
-        except ObjectDoesNotExist:
-            if booking_rule_data is not None:
-                ResourceBookingRuleBookableHours.objects.create(
+        if booking_rule_data_list is not None:
+            for booking_rule_data in booking_rule_data_list:
+                new_booking_rule = ResourceBookingRuleBookableHours(
+                    weekday=booking_rule_data['weekday'],
+                    time_start=booking_rule_data['time_start'],
+                    time_end=booking_rule_data['time_end'],
+                    full_day=booking_rule_data['full_day'],
                     resource=instance,
-                    **booking_rule_data
                 )
+                new_booking_rule.clean()
+                new_booking_rule.save()
 
         return validated_data
 

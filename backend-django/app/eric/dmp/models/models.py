@@ -195,6 +195,7 @@ class Dmp(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMix
 
         from django.forms import model_to_dict
         dmp_dict = model_to_dict(self)
+        metadata = kwargs.get('metadata', [])
 
         old_dmp_pk = kwargs['old_dmp_pk']
         del kwargs['old_dmp_pk']
@@ -211,11 +212,14 @@ class Dmp(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMix
 
         # related projects will be added separately after the duplicated DMP has been saved
         del dmp_dict['projects']
+        del dmp_dict['metadata']
 
         # create a new project object and save it
         new_dmp_object = Dmp(**dmp_dict)
         new_dmp_object.save()
         new_dmp_object.projects.set(kwargs.get('projects', []))
+        if metadata:
+            new_dmp_object.metadata.set(metadata)
 
         # Duplicate all answers too. Firstly, we must find all for data fields for the old DMP.
         # After that we must somehow map the old data field PK to the new one. However, this is not possible.

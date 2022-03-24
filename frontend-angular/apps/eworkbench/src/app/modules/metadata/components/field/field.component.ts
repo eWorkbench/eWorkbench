@@ -38,6 +38,9 @@ export class MetadataFieldComponent implements OnInit {
   public typeSettings?: MetadataFieldTypeSettings;
 
   @Input()
+  public label?: string | null;
+
+  @Input()
   public editable? = false;
 
   @Input()
@@ -82,11 +85,11 @@ export class MetadataFieldComponent implements OnInit {
 
   public datetimeMask = '0000-M0-d0 Hh:m0';
 
-  public readonly = false;
-
   public form = this.fb.group<FormAnswers>({
     answers: this.fb.array([]),
   });
+
+  public labels: string[] = [];
 
   public customInputSelectedControl = this.fb.control<boolean>(false);
 
@@ -135,13 +138,12 @@ export class MetadataFieldComponent implements OnInit {
     }
 
     if (this.baseType === 'checkbox') {
-      this.answers.push(this.fb.control(values ? values.value : false));
+      this.answers.push(this.fb.control({ value: values ? values.value : false, disabled: !this.editable }));
       if (values?.value) {
         this.selectedValues.push(this.id!);
       }
     } else if (this.baseType === 'selection' && answers) {
-      answers.map(answer => this.answers.push(this.fb.control(answer) as any));
-      this.readonly = true;
+      answers.map(answer => this.answers.push(this.fb.control({ value: answer, disabled: true }) as any));
 
       if (values) {
         if (isCheckbox) {
@@ -160,21 +162,50 @@ export class MetadataFieldComponent implements OnInit {
 
         if (this.isNotFinal()) {
           this.customInputControl.patchValue(values.custom_input, { emitEvent: false });
+          if (!this.editable) {
+            this.customInputControl.disable();
+          }
         }
       }
     } else if (this.baseType === 'fraction') {
       ['numerator', 'denominator'].map(
-        /* istanbul ignore next*/ field =>
-          this.answers.push(this.fb.control(values ? values[field] : '', [Validators.pattern(/^[-+]?[1-9]\d*$/)]))
+        /* istanbul ignore next*/ field => {
+          this.answers.push(
+            this.fb.control(
+              {
+                value: values ? values[field] : '',
+                disabled: !this.editable,
+              },
+              [Validators.pattern(/^[-+]?[1-9]\d*$/)]
+            )
+          );
+          this.labels.push(this.translocoService.translate(`metadata.field.fraction.${field}.label`));
+        }
       );
     } else if (this.baseType === 'gps') {
       // x coordinate
-      this.answers.push(this.fb.control(values ? values.x : '', [Validators.pattern(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$/)]));
+      this.answers.push(
+        this.fb.control(
+          {
+            value: values ? values.x : '',
+            disabled: !this.editable,
+          },
+          [Validators.pattern(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$/)]
+        )
+      );
+      this.labels.push(this.translocoService.translate('metadata.field.gps.x.label'));
 
       // y coordinate
       this.answers.push(
-        this.fb.control(values ? values.y : '', [Validators.pattern(/^[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/)])
+        this.fb.control(
+          {
+            value: values ? values.y : '',
+            disabled: !this.editable,
+          },
+          [Validators.pattern(/^[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/)]
+        )
       );
+      this.labels.push(this.translocoService.translate('metadata.field.gps.y.label'));
     } else if (this.baseType === 'time') {
       this.datetimePickerConfig = this.timePickerConfig;
       this.datepicker = true;
@@ -185,14 +216,18 @@ export class MetadataFieldComponent implements OnInit {
       }
 
       // 24h time format with an optional leading zero
-      this.answers.push(this.fb.control(value, [Validators.pattern(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)]) as any);
+      this.answers.push(
+        this.fb.control({ value, disabled: !this.editable }, [Validators.pattern(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)]) as any
+      );
+      this.labels.push(this.label ?? '');
     } else {
       if (this.baseType === 'date') {
         this.datetimePickerConfig = this.datePickerConfig;
         this.datepicker = true;
       }
 
-      this.answers.push(this.fb.control(values ? values.value : ''));
+      this.answers.push(this.fb.control({ value: values ? values.value : '', disabled: !this.editable }));
+      this.labels.push(this.label ?? '');
     }
   }
 

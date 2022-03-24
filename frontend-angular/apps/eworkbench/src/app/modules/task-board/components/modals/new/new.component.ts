@@ -20,8 +20,9 @@ import { catchError, debounceTime, mergeMap, switchMap } from 'rxjs/operators';
 interface FormTaskBoard {
   title: string | null;
   description: string | null;
-  duplicate_tasks: boolean;
+  duplicateTasks: boolean;
   projects: string[];
+  duplicateMetadata: boolean;
 }
 
 @UntilDestroy()
@@ -51,8 +52,9 @@ export class NewTaskBoardModalComponent implements OnInit {
   public form = this.fb.group<FormTaskBoard>({
     title: [null, [Validators.required]],
     description: [null],
-    duplicate_tasks: [false],
+    duplicateTasks: [false],
     projects: [[]],
+    duplicateMetadata: [true],
   });
 
   public constructor(
@@ -77,7 +79,7 @@ export class NewTaskBoardModalComponent implements OnInit {
         description: this.f.description.value ?? '',
         projects: this.f.projects.value,
         background_color: this.initialState.background_color!,
-        kanban_board_columns: this.f.duplicate_tasks.value ? [] : this.initialState.kanban_board_columns!,
+        kanban_board_columns: this.f.duplicateTasks.value ? [] : this.initialState.kanban_board_columns!,
       };
     }
 
@@ -167,8 +169,11 @@ export class NewTaskBoardModalComponent implements OnInit {
     this.loading = true;
 
     let params = new HttpParams();
-    if (this.f.duplicate_tasks.value && this.duplicate) {
-      params = params.set('duplicate_tasks_from_board', this.duplicate.toString());
+    if (this.duplicate && this.f.duplicateTasks.value) {
+      params = params.set('duplicate_tasks_from_board', this.duplicate);
+      if (this.f.duplicateMetadata.value) {
+        params = params.set('duplicate_metadata', this.f.duplicateMetadata.value.toString());
+      }
     }
 
     this.taskBoardsService

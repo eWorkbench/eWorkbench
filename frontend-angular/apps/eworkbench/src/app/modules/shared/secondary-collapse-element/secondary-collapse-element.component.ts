@@ -3,7 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, TemplateRef } from '@angular/core';
+
+interface CollapseData {
+  id: string;
+  collapsed: boolean;
+}
 
 @Component({
   selector: 'eworkbench-secondary-collapse-element',
@@ -11,7 +16,10 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, TemplateRef } 
   styleUrls: ['./secondary-collapse-element.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SecondaryCollapseElementComponent {
+export class SecondaryCollapseElementComponent implements OnInit {
+  @Input()
+  public id?: string;
+
   @Input()
   public labelText?: string;
 
@@ -34,10 +42,25 @@ export class SecondaryCollapseElementComponent {
   public center = true;
 
   @Input()
-  public toggled = new EventEmitter<boolean>();
+  public collapse = new EventEmitter<string>();
+
+  @Output()
+  public toggled = new EventEmitter<CollapseData>();
+
+  public constructor(private readonly cdr: ChangeDetectorRef) {}
+
+  public ngOnInit(): void {
+    /* istanbul ignore next */
+    this.collapse.subscribe((event: string) => {
+      if (event !== this.id) {
+        this.collapsed = true;
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   public onToggleCollapse(): void {
     this.collapsed = !this.collapsed;
-    this.toggled.emit(this.collapsed);
+    this.toggled.emit({ id: this.id ?? '', collapsed: this.collapsed });
   }
 }

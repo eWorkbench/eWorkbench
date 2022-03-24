@@ -5,7 +5,10 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CMSService } from '@app/stores/cms/services/cms.service';
+import { UserService } from '@app/stores/user';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { BehaviorSubject } from 'rxjs';
+import { filter, shareReplay, switchMap, take } from 'rxjs/operators';
 
 @UntilDestroy()
 @Component({
@@ -16,7 +19,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 })
 export class FilterSidebarComponent implements OnInit {
   @Input()
-  public open = false;
+  public set open(value: boolean) {
+    this.open$.next(value);
+  }
 
   @Input()
   public activeFilters = false;
@@ -38,12 +43,47 @@ export class FilterSidebarComponent implements OnInit {
 
   public cmsMessageShown = false;
 
-  public constructor(private readonly cmsService: CMSService, private readonly cdr: ChangeDetectorRef) {}
+  private readonly user$ = this.userService.get().pipe(shareReplay(1));
+
+  public readonly open$ = new BehaviorSubject<boolean>(false);
+
+  public constructor(
+    private readonly cmsService: CMSService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly userService: UserService
+  ) {}
 
   public ngOnInit(): void {
     this.cmsService.get$.pipe(untilDestroyed(this)).subscribe(({ maintenance }) => {
       this.cmsMessageShown = maintenance.visible;
       this.cdr.markForCheck();
     });
+
+    this.user$.pipe(take(1)).subscribe(user => {
+      const open = user.userprofile.ui_settings.filter_sidebar?.open;
+      this.open$.next(open ?? false);
+    });
+  }
+
+  public toggleSidebar(open: boolean): void {
+    this.open$.next(open);
+    this.user$
+      .pipe(
+        filter(Boolean),
+        switchMap(user => {
+          return this.userService.changeSettings({
+            userprofile: {
+              ui_settings: {
+                ...user.userprofile.ui_settings,
+                filter_sidebar: {
+                  open: open,
+                },
+              },
+            },
+          });
+        }),
+        take(1)
+      )
+      .subscribe();
   }
 }

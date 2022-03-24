@@ -6,12 +6,7 @@
 <ng-container *transloco="let t">
   <eworkbench-modal [modalFooter]="false">
     <div slot="header">
-      <ng-container *ngIf="step === 1">
-        {{ t('labBook.newFileElementModal.headerStep1') }}
-      </ng-container>
-      <ng-container *ngIf="step === 2">
-        {{ t('labBook.newFileElementModal.headerStep2') }}
-      </ng-container>
+      {{ t('labBook.newFileElementModal.header') }}
     </div>
     <div slot="body">
       <eworkbench-loading [loading]="loading">

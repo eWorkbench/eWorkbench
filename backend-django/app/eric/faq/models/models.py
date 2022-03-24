@@ -6,6 +6,9 @@ import uuid
 
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django_changeset.models import RevisionModelMixin
 
@@ -65,7 +68,7 @@ class FAQCategory(BaseModel, OrderingModelMixin):
     )
 
     def __str__(self):
-        return self.slug
+        return self.title
 
 
 class FAQQuestionAndAnswer(BaseModel, ChangeSetMixIn, RevisionModelMixin, OrderingModelMixin, FTSMixin):
@@ -104,6 +107,13 @@ class FAQQuestionAndAnswer(BaseModel, ChangeSetMixIn, RevisionModelMixin, Orderi
         related_name="faq_questions_and_answers"
     )
 
+    slug = models.SlugField(
+        max_length=512,
+        unique=True,
+        db_index=True,
+        verbose_name=_("Unique slug for linking to this question"),
+    )
+
     public = models.BooleanField(
         verbose_name=_("Whether this FAQ question and answer is public"),
         default=False,
@@ -112,3 +122,14 @@ class FAQQuestionAndAnswer(BaseModel, ChangeSetMixIn, RevisionModelMixin, Orderi
 
     def __str__(self):
         return self.question
+
+
+@receiver(pre_save, sender=FAQQuestionAndAnswer)
+def set_faq_slug(instance, *args, **kwargs):
+    """
+    If for some reason a question is missing a slug, automatically set one
+    :param instance:
+    :return:
+    """
+    if not instance.slug:
+        instance.slug = slugify(instance.question)

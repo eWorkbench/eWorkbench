@@ -1,5 +1,43 @@
 # Changelog
 
+
+## Version 2.9.3 - March 2022
+- [SITUMEWB-841,SITUMEWB-842] Changes to info text for projects in resources
+
+## Version 2.9.2 - March 2022
+- [SITUMEWB-829] Fix resource bookable hours validation
+- [SITUMEWB-850] Fix save details with changed description
+- [SITUMEWB-841] Change projects field info text in resource details
+- [SITUMEWB-842] Change projects field info text in resource dialog
+- [SITUMEWB-857,SITUMEWB-858] Changes to dynamic metadata appearance
+
+## Version 2.9.1 - March 2022
+- [SITUMEWB-857,SITUMEWB-858] Fixed visualization of dynamic metadata when not in edit mode
+- [SITUMEWB-848] Fix filterbar settings
+- [SITUMEWB-841] Fix tooltip color
+- [SITUMEWB-829] Fix resource bookable time slots time picker
+- [SITUMEWB-842] Add projects field info tooltip in resource dialogs
+- [SITUMEWB-850] Fix enchanced description editor
+
+## Version 2.9 - March 2022
+- [SITUMEWB-605] wsgidav initial
+- [SITUMEWB-833] Implemented slugs for FAQ
+- [SITUMEWB-787] Implemented possibility to duplicate metadata
+- [SITUMEWB-829] Refactor resource booking rule bookable hours
+- [SITUMEWB-859] change contact email address
+- [SITUMEWB-830] Fix scrollbar on storage chip
+- [SITUMEWB-*] Fix ellipsis in header
+- [SITUMEWB-817] Username in profile
+- [SITUMEWB-820] Changed text for back button on Error 404 page
+- [SITUMEWB-823] Fixed wording and behavior for new modals
+- [SITUMEWB-682] Implemented unsaved changes notification for LabBook sections
+- [SITUMEWB-850] Enhanced description editor
+- [SITUMEWB-848] Add global settings for filterbar
+- [SITUMEWB-841] Add info icon to projects in resource detail view
+
+## Version 2.8.4 - February 2022
+- [SITUMEWB-826] fix permissions in hierarchical projects
+
 ## Version 2.8.3 - February 2022
 - [SITUMEWB-*] Fix matomo tracking
 

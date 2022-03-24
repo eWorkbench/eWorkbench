@@ -16,33 +16,25 @@ import {
 export const mockBookingRuleBookableTimeSlotsPayload: BookingRulePayload = {
   id: 'a9eee3f0-d38d-42d1-bbb4-e4b29ee95751',
   rule: 'booking_rule_bookable_hours',
-  values: {
-    monday: true,
-    tuesday: true,
-    wednesday: true,
-    thursday: true,
-    friday: true,
-    saturday: false,
-    sunday: false,
+  values: [
+    {
+      weekday: 'MON',
+      time_start: '06:00',
+      time_end: '18:00',
+      full_day: false,
+    },
+  ],
+};
+
+export const mockBookingRuleTimeSlots: BookingRuleBookableTimeSlots[] = [
+  {
+    id: 'a9eee3f0-d38d-42d1-bbb4-e4b29ee95751',
+    weekday: 'MON',
     time_start: '06:00',
     time_end: '18:00',
     full_day: false,
   },
-};
-
-export const mockBookingRuleTimeSlots: BookingRuleBookableTimeSlots = {
-  id: 'a9eee3f0-d38d-42d1-bbb4-e4b29ee95751',
-  monday: true,
-  tuesday: true,
-  wednesday: true,
-  thursday: true,
-  friday: true,
-  saturday: false,
-  sunday: false,
-  time_start: '06:00',
-  time_end: '18:00',
-  full_day: false,
-};
+];
 
 export const mockBookingRuleMinimumDurationPayload: BookingRulePayload = {
   id: 'a9eee3f0-d38d-42d1-bbb4-e4b29ee95751',
@@ -132,7 +124,7 @@ export const mockBookingRulePerUserMonth: BookingRuleBookingsPerUser = {
 };
 
 export const mockBookingRulesPayload: BookingRulesPayload = {
-  booking_rule_bookable_hours: null,
+  booking_rule_bookable_hours: [],
   booking_rule_bookings_per_user: [],
   booking_rule_minimum_duration: null,
   booking_rule_maximum_duration: null,

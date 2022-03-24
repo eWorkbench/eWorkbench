@@ -65,7 +65,7 @@ This is only used as a reference for you, so it can be any text not longer than 
 
 <h2>Remove DSS Containers</h2>
 
-<p>Please contact a workbench admin to remove DSS Containers (eric@ub.tum.de). Meanwhile set the container to Read Only and Import List, so no files can be updated and no new files will be imported.</p>
+<p>Please contact a workbench admin to remove DSS Containers (workbench@ub.tum.de). Meanwhile set the container to Read Only and Import List, so no files can be updated and no new files will be imported.</p>
 """
 
 DETAIL_TEXT = """
@@ -119,7 +119,7 @@ Failures in the project setting task while importing will not prevent imports. P
   <span style="color:#16a085">&quot;96a9500e-bbe8-4a4f-a946-ce61f617d609&quot;</span><span style="color:#89ca78">
 </span>],</pre>
 
-<p>The <strong>metadata_fields</strong> list can contain json objects containing the id and values of existing Metadata Fields in the workbench. For the moment, please ask eric@ub.tum.de for the id of relevant Metadata Fields.</p>
+<p>The <strong>metadata_fields</strong> list can contain json objects containing the id and values of existing Metadata Fields in the workbench. For the moment, please ask workbench@ub.tum.de for the id of relevant Metadata Fields.</p>
 
 <p>A full example of a metadata.json file containing examples of all types of Metadada Fields can look something like this:</p>
 

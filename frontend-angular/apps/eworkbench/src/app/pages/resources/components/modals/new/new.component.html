@@ -23,6 +23,7 @@
               formControlName="name"
               name="name"
               [placeholder]="t('resource.newModal.name.placeholder')"
+              autoFocus
             />
           </div>
           <div class="mb-4">
@@ -188,7 +189,14 @@
             <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description"></eworkbench-wysiwyg-editor>
           </div>
           <div class="mb-4">
-            <label for="projects-modal">{{ t('resource.newModal.projects.label') }}</label>
+            <div class="icon-label">
+              <label for="projects-modal">{{ t('resource.newModal.projects.label') }}</label>
+              <eworkbench-icon
+                className="wb-info"
+                containerClass="tooltip-sm"
+                [tooltip]="t('resource.newModal.projects.info')"
+              ></eworkbench-icon>
+            </div>
             <ng-select
               class="ewb-select"
               formControlName="projects"
@@ -238,6 +246,20 @@
               >
             </div>
           </div>
+          <div class="mb-4" *ngIf="duplicate">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
+                id="duplicateMetadata"
+                name="duplicateMetadata"
+                formControlName="duplicateMetadata"
+              />
+              <label class="custom-control-label font-normal" for="duplicateMetadata">{{
+                t('resource.newModal.duplicateMetadata.label')
+              }}</label>
+            </div>
+          </div>
           <div class="mb-4">
             <div class="custom-control custom-checkbox">
               <input
@@ -256,11 +278,32 @@
           </div>
 
           <div class="modal-footer p-0 mt-5">
-            <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+            <button
+              *ngIf="form.dirty || duplicate"
+              type="button"
+              class="btn ewb-button-big ewb-button-secondary mr-2"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
               {{ t('resource.newModal.cancel') }}
             </button>
-            <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+            <button
+              *ngIf="form.dirty || duplicate"
+              type="submit"
+              class="btn ewb-button-big ewb-button-primary"
+              [disabled]="loading || form.invalid"
+            >
               {{ duplicate ? t('resource.newModal.duplicate') : t('resource.newModal.create') }}
+            </button>
+
+            <button
+              *ngIf="!form.dirty && !duplicate"
+              type="button"
+              class="btn ewb-button-big ewb-button-primary"
+              (click)="modalRef.close()"
+              [disabled]="loading"
+            >
+              {{ t('resource.newModal.close') }}
             </button>
           </div>
         </form>

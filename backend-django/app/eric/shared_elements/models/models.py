@@ -30,7 +30,6 @@ from django_changeset.models.mixins import CreatedModifiedByMixIn
 from django_cleanhtmlfield.fields import HTMLField
 from django_userforeignkey.request import get_current_user
 
-
 from eric.base64_image_extraction.models import ExtractedImage
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
 from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin, \
@@ -41,7 +40,8 @@ from eric.dss.models.models import get_upload_to_path, dss_storage
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
-from eric.projects.models import FileSystemStorageLimitByUser, Project, MyUser, Resource
+from eric.projects.models import FileSystemStorageLimitByUser, Project, MyUser, Resource, \
+    ResourceBookingRuleBookableHours
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
 from eric.shared_elements.models.managers import ContactManager, NoteManager, FileManager, TaskManager, \
@@ -415,6 +415,7 @@ class DynamicStorageFieldFile(FieldFile):
     attr_class for DynamicStorageFileField
     This class checks if the instance is a dss File or not and sets the storage to be used accordingly.
     """
+
     def __init__(self, instance, field, name):
         super(DynamicStorageFieldFile, self).__init__(
             instance, field, name
@@ -1628,7 +1629,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             })
 
     @staticmethod
-    def check_bookable_weekdays_and_times(bookable_days, bookable_times, date_time_start, date_time_end):
+    def check_bookable_weekdays_and_times(bookable_time, date_time_start, date_time_end):
         """
         Check if the weekdays and times are bookable
         raise ValidationError on the times
@@ -1637,8 +1638,9 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         start_time = localtime(date_time_start).time()
         end_time = localtime(date_time_end).time()
         zero_time = time(0, 0, 0)
+        zero_end_time = time(23, 59, 59)
 
-        if localtime(date_time_start).isoweekday() not in bookable_days:
+        if not bookable_time:
             raise ValidationError({
                 'resource': ValidationError(
                     _('This resource cannot be booked on this day'),
@@ -1646,8 +1648,8 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
                 ),
             })
 
-        if not bookable_times.time_start == zero_time and not bookable_times.time_end == zero_time:
-            if start_time < bookable_times.time_start or start_time > bookable_times.time_end:
+        if not bookable_time.time_start == zero_time and not bookable_time.time_end == zero_end_time:
+            if start_time < bookable_time.time_start or start_time > bookable_time.time_end:
                 raise ValidationError({
                     'resource': ValidationError(
                         _('The start time is outside the bookable times'),
@@ -1655,16 +1657,8 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
                     ),
                 })
 
-        if localtime(date_time_end).isoweekday() not in bookable_days:
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('This resource cannot be booked on this day'),
-                    code='invalid'
-                ),
-            })
-
-        if not bookable_times.time_start == zero_time and not bookable_times.time_end == zero_time:
-            if end_time < bookable_times.time_start or end_time > bookable_times.time_end:
+        if not bookable_time.time_start == zero_time and not bookable_time.time_end == zero_end_time:
+            if end_time < bookable_time.time_start or end_time > bookable_time.time_end:
                 raise ValidationError({
                     'resource': ValidationError(
                         _('The end time is outside the bookable times'),
@@ -1685,6 +1679,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         start_time = localtime(date_time_start).time()
         end_time = localtime(date_time_end).time()
         zero_time = time(0, 0, 0)
+        zero_end_time = time(23, 59, 59)
 
         # only check if the start date is different to the end date
         if start_date == end_date:
@@ -1710,15 +1705,25 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         # here we find times that are in between start date and end date that are not bookable
         # logically if start and end times exist and the days are different (the if 1 level higher) there must
         # be times that are not bookable
-        if not bookable_times.time_start == zero_time and not bookable_times.time_end == zero_time:
-            if start_time and end_time:
-                raise ValidationError({
-                    'resource': ValidationError(
-                        _('There are times between the start date and the end date that are not bookable '
-                          'for this resource'),
-                        code='invalid'
-                    )
-                })
+        valid = True
+        for i, bookable_time in enumerate(bookable_times):
+            if i == 0:
+                if bookable_time.time_start > start_time or not bookable_time.time_end == zero_end_time:
+                    valid = False
+            elif i == len(bookable_times) - 1:
+                if not bookable_time.time_start == zero_time or bookable_time.time_end < end_time:
+                    valid = False
+            elif not bookable_time.time_start == zero_time and not bookable_time.time_end == zero_end_time:
+                if start_time and end_time:
+                    valid = False
+        if not valid:
+            raise ValidationError({
+                'resource': ValidationError(
+                    _('There are times between the start date and the end date that are not bookable '
+                      'for this resource'),
+                    code='invalid'
+                )
+            })
 
     def validate_resource_booking_rule_bookable_hours(self):
         """
@@ -1727,24 +1732,36 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         :return:
         """
         try:
-            bookable_times = self.resource.booking_rule_bookable_hours
+            bookable_hours = ResourceBookingRuleBookableHours.objects.filter(resource=self.resource)
         except AttributeError:
-            bookable_times = None
+            bookable_hours = None
 
-        if not bookable_times:
+        if not bookable_hours:
             return
+
+        bookable_time = None
 
         # build days list with datetime.isoweekday() (Monday is 1 and Sunday is 7) where the value is True
         weekdays = {
-            'monday': 1, 'tuesday': 2, 'wednesday': 3, 'thursday': 4, 'friday': 5, 'saturday': 6, 'sunday': 7
+            'MON': 1, 'TUE': 2, 'WED': 3, 'THU': 4, 'FRI': 5, 'SAT': 6, 'SUN': 7
         }
         bookable_days = []
-        for day, day_value in weekdays.items():
-            if getattr(bookable_times, day):
-                bookable_days.append(day_value)
+        bookable_times = []
+        time_start_weekday = localtime(self.date_time_start).isoweekday()
+        time_end_weekday = localtime(self.date_time_end).isoweekday()
+        for item in bookable_hours:
+            weekday = weekdays.get(item.weekday)
+            if weekday:
+                bookable_days.append(weekday)
+            if time_start_weekday == weekday:
+                bookable_time = item
+            if time_start_weekday <= weekday <= time_end_weekday:
+                bookable_times.append(item)
+
+        bookable_times.sort(key=lambda element: weekdays.get(element.weekday))
 
         # check if the weekdays and times are bookable
-        self.check_bookable_weekdays_and_times(bookable_days, bookable_times, self.date_time_start, self.date_time_end)
+        self.check_bookable_weekdays_and_times(bookable_time, self.date_time_start, self.date_time_end)
 
         # find days and times that are in between start date and end date that are not bookable
         self.check_if_bookable_for_period(bookable_days, bookable_times, self.date_time_start, self.date_time_end)

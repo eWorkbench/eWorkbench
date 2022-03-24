@@ -1,0 +1,33 @@
+<html>
+<head></head>
+
+<body>
+<h1>Index of {{ resource.get_escaped_path }}</h1>
+<table>
+<tr>
+    <th>Name</th>
+    <th>Created</th>
+    <th>Last modified</th>
+    <th>Size</th>
+</tr>
+<tr><th colspan="4"><hr></th></tr>
+<tr>
+    <td colspan="4">
+        {# link to parent directory #}
+        <a href="{{ parent_directory_url }}">Parent Directory</a>
+    </td>
+</tr>
+{% for child in resource.get_children %}
+<tr>
+    <td><a href="{{ base_url }}{{ child.get_escaped_path }}">{{ child.displayname }}</a></td>
+    <td align="right">{{ child.get_created|date:"d-M-Y H:i" }}</td>
+    <td align="right">{{ child.get_modified|date:"d-M-Y H:i" }}</td>
+    <td align="right">{{ child.getcontentlength|filesizeformat }}</td>
+</tr>
+{% endfor %}
+<tr><th colspan="4"><hr></th></tr>
+</table>
+<p>Powered by WsgiDav - <a href="https://github.com/mar10/wsgidav">https://github.com/mar10/wsgidav</a></p>
+</body>
+</html>
+

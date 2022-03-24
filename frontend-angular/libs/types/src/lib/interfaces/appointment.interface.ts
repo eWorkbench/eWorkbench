@@ -61,7 +61,7 @@ export interface AppointmentPayload {
   metadata?: Metadata[];
   projects: string[];
   resource_pk?: string | null;
-  text: string;
+  text?: string;
   title: string;
   scheduled_notification_writable?: {
     active: boolean;

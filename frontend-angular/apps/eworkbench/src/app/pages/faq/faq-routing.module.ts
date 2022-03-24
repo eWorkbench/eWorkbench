@@ -14,6 +14,10 @@ const routes: Routes = [
     path: '',
     component: FAQPageComponent,
   },
+  {
+    path: ':id',
+    component: FAQPageComponent,
+  },
 ];
 
 @NgModule({

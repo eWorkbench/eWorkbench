@@ -3,31 +3,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Validators } from '@angular/forms';
-import { BookingRuleBookableTimeSlots, BookingRulePayload, DatePickerConfig } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { BookingRuleBookableTimeSlots, BookingRulePayload } from '@eworkbench/types';
+import { FormBuilder, FormControl, FormGroup } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
-import flatpickr from 'flatpickr';
-
-interface FormBookableTimeSlots {
-  monday: boolean;
-  tuesday: boolean;
-  wednesday: boolean;
-  thursday: boolean;
-  friday: boolean;
-  saturday: boolean;
-  sunday: boolean;
-  fullDay: boolean;
-  timeStart: string | null;
-  timeEnd: string | null;
-}
-
-interface RuleValues {
-  days: number;
-  duration: string;
-}
+import { FormBookableTimeSlot } from '../../interfaces/form-bookable-time-slot';
+import { FormBookableTimeSlots } from '../../interfaces/form-bookable-time-slots';
 
 @UntilDestroy()
 @Component({
@@ -36,9 +20,9 @@ interface RuleValues {
   styleUrls: ['./booking-rules-bookable-time-slots.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit, AfterViewInit {
+export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit {
   @Input()
-  public rule!: BookingRuleBookableTimeSlots | null;
+  public rule!: BookingRuleBookableTimeSlots[];
 
   @Input()
   public editable? = false;
@@ -60,30 +44,33 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit, A
 
   public ruleKey = 'booking_rule_bookable_hours';
 
-  public uuid = uuidv4();
-
-  public timePickerConfig: DatePickerConfig = {
-    dateFormat: 'H:i',
-    enableTime: true,
-    minuteIncrement: 1,
-    noCalendar: true,
-    time_24hr: true,
+  public weekdays = {
+    MON: 'monday',
+    TUE: 'tuesday',
+    WED: 'wednesday',
+    THU: 'thursday',
+    FRI: 'friday',
+    SAT: 'saturday',
+    SUN: 'sunday',
   };
 
-  public form = this.fb.group<FormBookableTimeSlots>({
-    monday: [false],
-    tuesday: [false],
-    wednesday: [false],
-    thursday: [false],
-    friday: [false],
-    saturday: [false],
-    sunday: [false],
-    fullDay: [true],
-    timeStart: ['08:00', [Validators.required]],
-    timeEnd: ['10:00', [Validators.required]],
-  });
+  public uuid = uuidv4();
 
-  public constructor(private readonly fb: FormBuilder) {}
+  public form!: FormGroup<FormBookableTimeSlots>;
+
+  public monday!: FormGroup<FormBookableTimeSlot>;
+  public tuesday!: FormGroup<FormBookableTimeSlot>;
+  public wednesday!: FormGroup<FormBookableTimeSlot>;
+  public thursday!: FormGroup<FormBookableTimeSlot>;
+  public friday!: FormGroup<FormBookableTimeSlot>;
+  public saturday!: FormGroup<FormBookableTimeSlot>;
+  public sunday!: FormGroup<FormBookableTimeSlot>;
+
+  public invalidDaySelection$!: Observable<boolean>;
+
+  public invalidTimeSelection$!: Observable<boolean>;
+
+  public constructor(private readonly fb: FormBuilder, private readonly cdr: ChangeDetectorRef) {}
 
   public get f(): FormGroup<FormBookableTimeSlots>['controls'] {
     /* istanbul ignore next */
@@ -91,79 +78,92 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit, A
   }
 
   public ngOnInit(): void {
-    this.patchFormValues();
-
     /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.pushChanges();
     });
-  }
 
-  public ngAfterViewInit(): void {
-    const timeStartValues = this.convertRuleToValues(this.rule?.time_start);
-    const timeEndValues = this.convertRuleToValues(this.rule?.time_end);
-
-    flatpickr(`#timeStart${this.uuid}`, {
-      ...this.timePickerConfig,
-      defaultDate: timeStartValues.duration,
-    });
-    flatpickr(`#timeEnd${this.uuid}`, {
-      ...this.timePickerConfig,
-      defaultDate: timeEndValues.duration,
-    });
-  }
-
-  public patchFormValues(): void {
-    const timeStartValues = this.convertRuleToValues(this.rule?.time_start);
-    const timeEndValues = this.convertRuleToValues(this.rule?.time_end);
-
-    this.form.patchValue({
-      monday: this.rule?.monday ?? false,
-      tuesday: this.rule?.tuesday ?? false,
-      wednesday: this.rule?.wednesday ?? false,
-      thursday: this.rule?.thursday ?? false,
-      friday: this.rule?.friday ?? false,
-      saturday: this.rule?.saturday ?? false,
-      sunday: this.rule?.sunday ?? false,
-      fullDay: this.rule?.full_day ?? true,
-      timeStart: timeStartValues.duration,
-      timeEnd: timeEndValues.duration,
+    this.monday = this.createTimeSlotFormGroup('MON', 'monday');
+    this.tuesday = this.createTimeSlotFormGroup('TUE', 'tuesday');
+    this.wednesday = this.createTimeSlotFormGroup('WED', 'wednesday');
+    this.thursday = this.createTimeSlotFormGroup('THU', 'thursday');
+    this.friday = this.createTimeSlotFormGroup('FRI', 'friday');
+    this.saturday = this.createTimeSlotFormGroup('SAT', 'saturday');
+    this.sunday = this.createTimeSlotFormGroup('SUN', 'sunday');
+    this.form = new FormGroup<FormBookableTimeSlots>({
+      monday: this.monday,
+      tuesday: this.tuesday,
+      wednesday: this.wednesday,
+      thursday: this.thursday,
+      friday: this.friday,
+      saturday: this.saturday,
+      sunday: this.sunday,
     });
 
-    if (!this.editable) {
-      this.f.monday.disable();
-      this.f.tuesday.disable();
-      this.f.wednesday.disable();
-      this.f.thursday.disable();
-      this.f.friday.disable();
-      this.f.saturday.disable();
-      this.f.sunday.disable();
-      this.f.fullDay.disable();
-      this.f.timeStart.disable();
-      this.f.timeEnd.disable();
-    }
+    this.invalidDaySelection$ = this.form.value$.pipe(
+      map(
+        form =>
+          !Boolean(
+            form.monday.checked ||
+              form.tuesday.checked ||
+              form.wednesday.checked ||
+              form.thursday.checked ||
+              form.friday.checked ||
+              form.saturday.checked ||
+              form.sunday.checked
+          )
+      )
+    );
+
+    this.invalidTimeSelection$ = this.form.value$.pipe(
+      map(form =>
+        Boolean(
+          form.monday.invalidTimeSelection ||
+            form.tuesday.invalidTimeSelection ||
+            form.wednesday.invalidTimeSelection ||
+            form.thursday.invalidTimeSelection ||
+            form.friday.invalidTimeSelection ||
+            form.saturday.invalidTimeSelection ||
+            form.sunday.invalidTimeSelection
+        )
+      ),
+      tap(() => setTimeout(() => this.cdr.detectChanges(), 100))
+    );
   }
 
-  public convertRuleToValues(rule?: string | null): RuleValues {
-    let days = 0;
-    let duration = '00:00';
+  public getExistingRule(weekday: string): BookingRuleBookableTimeSlots | undefined {
+    return this.rule.filter(element => element.weekday === weekday)[0];
+  }
+
+  public createTimeSlotFormGroup(weekday: string, translationKey: string): FormGroup<FormBookableTimeSlot> {
+    const existingRule = this.getExistingRule(weekday);
+    const timeStart = this.convertRuleToValues(existingRule?.time_start);
+    const timeEnd = this.convertRuleToValues(existingRule?.time_end);
+    return new FormGroup<FormBookableTimeSlot>({
+      checked: new FormControl(existingRule ? true : false),
+      weekday: new FormControl(weekday),
+      weekdayTranslationKey: new FormControl(translationKey),
+      fullDay: new FormControl(existingRule?.full_day ?? true),
+      timeStart: new FormControl(timeStart),
+      timeEnd: new FormControl(timeEnd),
+      invalidTimeSelection: new FormControl(false),
+    });
+  }
+
+  public convertRuleToValues(rule?: string | null): string | null {
+    let duration = null;
 
     if (rule) {
       const splitValues = rule.split(' ');
 
       if (splitValues.length > 1) {
-        days = Number(splitValues[0]);
         duration = this.convertTimeToHoursMinutes(splitValues[1]);
       } else {
-        days = 0;
         duration = this.convertTimeToHoursMinutes(splitValues[0]);
       }
     }
 
-    return {
-      days,
-      duration,
-    };
+    return duration;
   }
 
   public convertTimeToHoursMinutes(time: string): string {
@@ -171,67 +171,49 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit, A
   }
 
   public pushChanges(): void {
-    const fullDay = this.f.fullDay.value;
-    const timeStart = this.f.timeStart.value ?? '00:00';
-    const timeEnd = this.f.timeEnd.value ?? '00:00';
+    const values: BookingRuleBookableTimeSlots[] = [];
+
+    this.addTimeSlot(values, 'monday');
+    this.addTimeSlot(values, 'tuesday');
+    this.addTimeSlot(values, 'wednesday');
+    this.addTimeSlot(values, 'thursday');
+    this.addTimeSlot(values, 'friday');
+    this.addTimeSlot(values, 'saturday');
+    this.addTimeSlot(values, 'sunday');
 
     this.changed.emit({
-      id: this.rule!.id!,
       rule: this.ruleKey,
-      values: {
-        monday: this.f.monday.value,
-        tuesday: this.f.tuesday.value,
-        wednesday: this.f.wednesday.value,
-        thursday: this.f.thursday.value,
-        friday: this.f.friday.value,
-        saturday: this.f.saturday.value,
-        sunday: this.f.sunday.value,
-        full_day: this.f.fullDay.value,
-        time_start: fullDay ? '00:00:00' : `${timeStart}:00`,
-        time_end: fullDay ? '23:59:59' : `${timeEnd}:00`,
-      },
+      values,
     });
   }
 
+  public addTimeSlot(values: BookingRuleBookableTimeSlots[], controlKey: string): void {
+    const formBookableTimeSlot = this.form.getControl(controlKey).value as FormBookableTimeSlot;
+
+    if (formBookableTimeSlot.timeStart === '') {
+      formBookableTimeSlot.timeStart = null;
+    }
+
+    if (formBookableTimeSlot.timeEnd === '') {
+      formBookableTimeSlot.timeEnd = null;
+    }
+
+    if (formBookableTimeSlot.checked) {
+      values.push({
+        full_day: formBookableTimeSlot.fullDay,
+        weekday: formBookableTimeSlot.weekday,
+        time_start: formBookableTimeSlot.fullDay ? '00:00:00' : formBookableTimeSlot.timeStart,
+        time_end: formBookableTimeSlot.fullDay ? '23:59:59' : formBookableTimeSlot.timeEnd,
+      });
+    }
+  }
+
   public onRemove(): void {
+    this.form.reset();
     this.remove.emit(this.ruleKey);
   }
 
   public onSetChanged(): void {
     this.setChanged.emit(true);
-  }
-
-  public daySelectionInvalid(): boolean {
-    return (
-      !this.f.monday.value &&
-      !this.f.tuesday.value &&
-      !this.f.wednesday.value &&
-      !this.f.thursday.value &&
-      !this.f.friday.value &&
-      !this.f.saturday.value &&
-      !this.f.sunday.value &&
-      Boolean(this.editable)
-    );
-  }
-
-  public timeSelectionInvalid(): boolean {
-    if (!this.editable) {
-      return false;
-    }
-
-    const fullDay = this.f.fullDay.value;
-    const timeStart = this.f.timeStart.value;
-    const timeEnd = this.f.timeEnd.value;
-
-    if (fullDay) {
-      return false;
-    } else if (!timeStart || !timeEnd) {
-      return true;
-    }
-
-    const timeStartNumber = Number(timeStart.replace(':', ''));
-    const timeEndNumber = Number(timeEnd.replace(':', ''));
-
-    return timeStartNumber >= timeEndNumber;
   }
 }

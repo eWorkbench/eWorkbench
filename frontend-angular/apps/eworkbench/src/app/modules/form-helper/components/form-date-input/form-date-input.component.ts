@@ -22,6 +22,9 @@ export class FormDateInputComponent implements ControlValueAccessor, AfterViewIn
   public inputName!: string;
 
   @Input()
+  public placeholder = '';
+
+  @Input()
   public datePickerConfig!: DatePickerConfig;
 
   @Input()

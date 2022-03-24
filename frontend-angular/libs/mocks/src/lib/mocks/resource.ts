@@ -22,7 +22,7 @@ export const mockResource: Resource = {
   location: '',
   contact: '',
   url: 'http://rewriteqa.tum.anx-cus.net/api/resources/47a42a8c-4bc9-48c2-8d4b-ec272c8e5dd0/',
-  booking_rule_bookable_hours: null,
+  booking_rule_bookable_hours: [],
   booking_rule_time_between: null,
   version_number: 1,
   user_availability_selected_user_pks: [],

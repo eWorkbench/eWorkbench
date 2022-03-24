@@ -1,0 +1,60 @@
+/**
+ * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+@import 'variables';
+@import 'colors';
+
+:host {
+  form {
+    display: grid;
+    gap: 16px;
+    height: 40px;
+
+    @media (max-width: 991px) {
+      grid-template-areas:
+        'day full-day'
+        'time-inputs time-inputs';
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid $border-color;
+      padding-top: 3px;
+      padding-bottom: 3px;
+      height: auto;
+    }
+
+    @media (min-width: $breakpoint-lg) {
+      grid-template-areas: 'day full-day time-inputs';
+      grid-template-columns: 150px 150px 1fr;
+    }
+
+    .custom-control custom-checkbox {
+      grid-area: day;
+    }
+
+    .booking-rules-bookable-time-slots-full-day {
+      grid-area: full-day;
+    }
+
+    div {
+      align-self: center;
+    }
+
+    .booking-rules-bookable-time-slots-times {
+      grid-area: time-inputs;
+      display: grid;
+      grid-template-columns: 1fr 1fr 50px;
+      gap: 16px;
+
+      label {
+        display: inline-block;
+        margin-right: 0.5rem;
+      }
+
+      input {
+        display: inline-block;
+        width: auto;
+      }
+    }
+  }
+}

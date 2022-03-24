@@ -42,7 +42,7 @@ DSS_SETTINGS = {
     'MOUNT_PATH': '/dss',
     'METADATA_FILE_NAME': 'metadata.json',
     'CHECK_MOUNT_STATUS': True,
-    'ERROR_EMAIL_RECEIVER_CLIENT': 'eric@ub.tum.de',
+    'ERROR_EMAIL_RECEIVER_CLIENT': 'workbench@ub.tum.de',
     'ERROR_EMAIL_RECEIVER_INTERNAL': 'cus-tum.eworkbench@anx.dev',
     'CHECK_GLOBUS_RABBITMQ_QUEUE': False,
     'GLOBUS_RABBITMQ_HOST': '',
@@ -100,7 +100,6 @@ INSTALLED_APPS = [
     'rangefilter',
 
     # CalDav
-    'djangodav',
     'djradicale',
 
     # Eric

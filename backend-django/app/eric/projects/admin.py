@@ -252,6 +252,7 @@ class ResourceBookingRuleBookableHoursInline(admin.TabularInline):
     model = ResourceBookingRuleBookableHours
     verbose_name = _('Resource Booking Rule Bookable Hours')
     verbose_name_plural = _('Resource Booking Rules Bookable Hours')
+    extra = 1
 
 
 class ResourceBookingRuleMinimumTimeBeforeInline(admin.TabularInline):

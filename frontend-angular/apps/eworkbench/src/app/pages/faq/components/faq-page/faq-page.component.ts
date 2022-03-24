@@ -3,12 +3,19 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Location, ViewportScroller } from '@angular/common';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
 import { FAQService, PageTitleService } from '@app/services';
 import { FAQ, FAQCategory } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+
+interface CollapseData {
+  id: string;
+  collapsed: boolean;
+}
 
 @UntilDestroy()
 @Component({
@@ -19,6 +26,8 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 export class FAQPageComponent implements OnInit {
   public title = '';
 
+  public id = this.route.snapshot.paramMap.get('id')!;
+
   public faq: FAQ[] = [];
 
   public categories: FAQCategory[] = [];
@@ -27,8 +36,15 @@ export class FAQPageComponent implements OnInit {
 
   public loading = true;
 
+  public defaultOpened?: string = undefined;
+
+  public collapse = new EventEmitter<string>();
+
   public constructor(
     private readonly faqService: FAQService,
+    private readonly location: Location,
+    private readonly route: ActivatedRoute,
+    private readonly scroller: ViewportScroller,
     private readonly translocoService: TranslocoService,
     private readonly pageTitleService: PageTitleService,
     private readonly titleService: Title
@@ -39,6 +55,7 @@ export class FAQPageComponent implements OnInit {
     this.initDetails();
     this.initPageTitle();
     this.pageTitleService.set(this.title);
+    this.defaultOpened = this.id;
   }
 
   public initTranslations(): void {
@@ -68,6 +85,10 @@ export class FAQPageComponent implements OnInit {
           });
 
           this.loading = false;
+
+          setTimeout(() => {
+            this.scrollToQuestion(this.id);
+          }, 1);
         }
       );
   }
@@ -79,5 +100,22 @@ export class FAQPageComponent implements OnInit {
       .subscribe(title => {
         this.titleService.setTitle(title);
       });
+  }
+
+  public onHandleCollapses(data: CollapseData): void {
+    this.defaultOpened = undefined;
+    this.collapse.next(data.id);
+    if (data.collapsed) {
+      this.location.replaceState(`/faq`);
+    } else {
+      this.location.replaceState(`/faq/${data.id}`);
+    }
+  }
+
+  public scrollToQuestion(id: string): void {
+    const scrollContainer = document.getElementById('faq-scroll-container');
+    const scrollElement = document.getElementById(`faq-${id}`);
+    const offsetTop = (scrollElement?.offsetTop ?? 0) - (scrollContainer?.offsetTop ?? 0);
+    this.scroller.scrollToPosition([0, offsetTop]);
   }
 }

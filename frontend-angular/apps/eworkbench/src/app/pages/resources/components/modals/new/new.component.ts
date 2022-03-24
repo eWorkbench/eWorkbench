@@ -31,6 +31,7 @@ interface FormResource {
   projects: string[];
   ownerAgreement: boolean;
   termsOfUsePDF: File | string | null;
+  duplicateMetadata: boolean;
 }
 
 @UntilDestroy()
@@ -82,6 +83,7 @@ export class NewResourceModalComponent implements OnInit {
     projects: [[]],
     ownerAgreement: [false],
     termsOfUsePDF: [null],
+    duplicateMetadata: [true],
   });
 
   public constructor(
@@ -114,6 +116,7 @@ export class NewResourceModalComponent implements OnInit {
         : [],
       user_availability_selected_user_pks: this.f.userAvailabilitySelectedUsers.value,
       projects: this.f.projects.value,
+      metadata: this.duplicate && this.f.duplicateMetadata.value ? this.initialState?.metadata : [],
     };
   }
 

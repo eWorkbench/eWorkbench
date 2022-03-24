@@ -2,19 +2,18 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.conf.urls import url, include
+from django.conf.urls import url
 
-from djangodav.acls import FullAcl, ReadOnlyAcl
-from djangodav.locks import DummyLock
+from eric.webdav.wsgidav_acls import FullAcl, ReadOnlyAcl
+from eric.webdav.wsgidav_locks import DummyLock
 
 from eric.projects.views import IsAuthenticatedViews
-from eric.webdav.resources import MyDriveDavResource, MyDriveListResource, MyProjectListResource, AuthFsDavView
-
+from eric.webdav.resources2 import MyDriveDavResource, MyDriveListResource, MyProjectListResource, AuthFsDavView
 
 urlpatterns = [
     url(r'auth/', IsAuthenticatedViews.as_view(), name='is-authenticated'),
 
-    # todo: implement ElementLock instead of DummyLock
+    # todo MFI: implement ElementLock instead of DummyLock
     # List all drives (read only)
     url(r'^d/$',
         AuthFsDavView.as_view(resource_class=MyDriveListResource, lock_class=DummyLock, acl_class=ReadOnlyAcl),

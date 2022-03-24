@@ -22,6 +22,7 @@ import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { RemoveResourcePDFModalComponent } from '@app/modules/resource/components/modals/remove-pdf/remove-pdf.component';
+import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, PageTitleService, ProjectsService, ResourcesService, UserGroupsService, WebSocketService } from '@app/services';
@@ -53,7 +54,6 @@ interface FormResource {
   contact: string | null;
   responsibleUnit: string | null;
   location: string | null;
-  description: string | null;
   userAvailability: 'GLB' | 'USR' | 'PRJ';
   userAvailabilitySelectedUserGroups: string | null;
   userAvailabilitySelectedUsers: number[] | null;
@@ -140,7 +140,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
     contact: [null],
     responsibleUnit: [null],
     location: [null],
-    description: [null],
     userAvailability: ['PRJ', [Validators.required]],
     userAvailabilitySelectedUserGroups: [null],
     userAvailabilitySelectedUsers: [[]],
@@ -188,6 +187,10 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
     return { ownUser: false, user: null };
   }
 
+  public get descriptionTranslationKey(): string {
+    return this.initialState?.description ? 'resource.details.description.edit' : 'resource.details.description.add';
+  }
+
   private get resource(): ResourcePayload {
     this.refreshBookingRules.next(true);
 
@@ -197,7 +200,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       contact: this.f.contact.value ?? '',
       responsible_unit: this.f.responsibleUnit.value ?? '',
       location: this.f.location.value ?? '',
-      description: this.f.description.value ?? '',
       user_availability: this.f.userAvailability.value,
       user_availability_selected_user_group_pks: this.f.userAvailabilitySelectedUserGroups.value
         ? [Number(this.f.userAvailabilitySelectedUserGroups.value)]
@@ -419,7 +421,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
                 contact: resource.contact,
                 responsibleUnit: resource.responsible_unit,
                 location: resource.location,
-                description: resource.description,
                 userAvailability: resource.user_availability,
                 userAvailabilitySelectedUserGroups: resource.user_availability_selected_user_group_pks?.length
                   ? resource.user_availability_selected_user_group_pks[0].toString()
@@ -659,6 +660,31 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
       }
+    });
+  }
+
+  public onOpenDescriptionModal(): void {
+    this.resourcesService.lock(this.id).pipe(take(1)).subscribe();
+    this.modalRef = this.modalService.open(DescriptionModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        description: this.initialState?.description ?? '',
+        descriptionKey: 'description',
+        service: this.resourcesService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.initialState = { ...callback.data };
+        this.form.markAsPristine();
+        this.refreshChanges.next(true);
+        this.refreshResetValue.next(true);
+      }
+      this.resourcesService.unlock(this.id).pipe(take(1)).subscribe();
     });
   }
 

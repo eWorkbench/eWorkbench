@@ -1,0 +1,69 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="formGroupSubject$ | async as formGroup">
+    <form [formGroup]="formGroup">
+      <div class="custom-control custom-checkbox">
+        <input
+          class="custom-control-input"
+          type="checkbox"
+          [id]="weekdayUuid$ | async"
+          [name]="weekdayUuid$ | async"
+          [readonly]="loading"
+          formControlName="checked"
+        />
+        <label class="custom-control-label font-normal" [for]="weekdayUuid$ | async">{{ t(weekdayTranslationKey$ | async) }}</label>
+      </div>
+      <ng-container *ngIf="isChecked$ | async">
+        <div class="booking-rules-bookable-time-slots-full-day">
+          <div class="custom-control custom-checkbox">
+            <input
+              class="custom-control-input"
+              type="checkbox"
+              formControlName="fullDay"
+              [id]="'fullDay' + (weekdayUuid$ | async)"
+              [name]="'fullDay' + (weekdayUuid$ | async)"
+              [readonly]="loading"
+            />
+            <label class="custom-control-label font-normal" [for]="'fullDay' + (weekdayUuid$ | async)">{{
+              t('resources.bookingRulesBookableTimeSlots.fullDay.label')
+            }}</label>
+          </div>
+        </div>
+        <div class="booking-rules-bookable-time-slots-times" *ngIf="(fullDay$ | async) === false">
+          <div>
+            <label [for]="'timeStart.' + uuid">
+              {{ t('resources.bookingRulesBookableTimeSlots.timeStart.label') }}
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              [class.is-invalid]="invalidTimeSelection$ | async"
+              formControlName="timeStart"
+              [id]="'timeStart' + uuid"
+              [name]="'timeStart.' + uuid"
+              [placeholder]="t('resources.bookingRulesBookableTimeSlots.timeStart.placeholder')"
+            />
+          </div>
+          <div>
+            <label [for]="'timeEnd.' + uuid">
+              {{ t('resources.bookingRulesBookableTimeSlots.timeEnd.label') }}
+            </label>
+            <input
+              type="text"
+              class="form-control ewb-input"
+              [class.is-invalid]="invalidTimeSelection$ | async"
+              formControlName="timeEnd"
+              [id]="'timeEnd' + uuid"
+              [name]="'timeEnd.' + uuid"
+              [placeholder]="t('resources.bookingRulesBookableTimeSlots.timeEnd.placeholder')"
+            />
+          </div>
+        </div>
+      </ng-container>
+    </form>
+  </ng-container>
+</ng-container>

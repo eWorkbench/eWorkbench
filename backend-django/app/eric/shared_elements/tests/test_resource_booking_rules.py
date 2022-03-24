@@ -189,6 +189,20 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
             second=00,
             microsecond=00,
         )
+        self.date_time_next_saturday = localtime(self.get_date_for_next_weekday(self.now + timedelta(days=7), 5))
+        self.date_time_start_next_saturday_15 = self.date_time_next_saturday.replace(
+            hour=15,
+            minute=00,
+            second=00,
+            microsecond=00,
+        )
+        self.date_time_next_sunday = localtime(self.get_date_for_next_weekday(self.now + timedelta(days=7), 6))
+        self.date_time_start_next_sunday_09 = self.date_time_next_sunday.replace(
+            hour=9,
+            minute=00,
+            second=00,
+            microsecond=00,
+        )
 
     def test_resourcebooking_validate_booking_rule_minimum_duration(self):
         ResourceBookingRuleMinimumDuration.objects.create(
@@ -254,15 +268,44 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
 
     def test_resourcebooking_validate_booking_rule_bookable_hours(self):
         ResourceBookingRuleBookableHours.objects.create(
-            monday=True,
-            tuesday=False,
-            wednesday=True,
-            thursday=True,
-            friday=True,
-            saturday=False,
-            sunday=False,
+            weekday='MON',
             time_start="09:00:00",
             time_end="15:00:00",
+            resource=self.resource1,
+        )
+
+        ResourceBookingRuleBookableHours.objects.create(
+            weekday='WED',
+            time_start="09:00:00",
+            time_end="15:00:00",
+            resource=self.resource1,
+        )
+
+        ResourceBookingRuleBookableHours.objects.create(
+            weekday='THU',
+            time_start="09:00:00",
+            time_end="15:00:00",
+            resource=self.resource1,
+        )
+
+        ResourceBookingRuleBookableHours.objects.create(
+            weekday='FRI',
+            time_start="10:00:00",
+            time_end="15:00:00",
+            resource=self.resource1,
+        )
+
+        ResourceBookingRuleBookableHours.objects.create(
+            weekday='SAT',
+            time_start="10:00:00",
+            time_end="23:59:59",
+            resource=self.resource1,
+        )
+
+        ResourceBookingRuleBookableHours.objects.create(
+            weekday='SUN',
+            time_start="00:00:00",
+            time_end="08:00:00",
             resource=self.resource1,
         )
 
@@ -317,6 +360,21 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
             title='Appointment',
             date_time_start=self.date_time_end_next_wednesday_14,
             date_time_end=self.date_time_end_next_friday_14,
+            resource_pk=self.resource1.pk,
+            **HTTP_INFO
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(json.loads(response.content.decode())["resource"][0],
+                         'There are times between the start date and the end date that are not bookable '
+                         'for this resource')
+        self.assertEquals(Meeting.objects.all().count(), 0, msg="There should be zero resourcebookings")
+
+        response = self.rest_create_resource_booking(
+            auth_token=self.token1,
+            title='Appointment',
+            date_time_start=self.date_time_start_next_saturday_15,
+            date_time_end=self.date_time_start_next_sunday_09,
             resource_pk=self.resource1.pk,
             **HTTP_INFO
         )

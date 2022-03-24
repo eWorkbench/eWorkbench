@@ -10,12 +10,7 @@
         {{ t('plugin.detailsModal.header') }}
       </ng-container>
       <ng-container *ngIf="!pluginDetails">
-        <ng-container *ngIf="step === 1">
-          {{ t('labBook.newPluginElementModal.headerStep1') }}
-        </ng-container>
-        <ng-container *ngIf="step === 2">
-          {{ t('labBook.newPluginElementModal.headerStep2') }}
-        </ng-container>
+        {{ t('labBook.newPluginElementModal.header') }}
       </ng-container>
       <div class="float-right" *ngIf="!pluginDetails">
         {{ t('labBook.newPluginElementModal.steps', { step: step, maxSteps: 2 }) }}

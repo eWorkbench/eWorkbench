@@ -421,12 +421,21 @@ class Project(MPTTModel, BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin
         del project_dict['tree_id']
         del project_dict['level']
 
+        metadata = kwargs.get('metadata', None)
+        try:
+            del kwargs['metadata']
+        except KeyError:
+            pass
+
         # updates the project dict (e.g. name or parent pk should be changed in the duplicated object)
         project_dict.update(kwargs)
 
         # create a new project object and save it
         new_project_object = Project(**project_dict)
         new_project_object.save()
+
+        if metadata:
+            new_project_object.metadata.set(metadata)
 
         return new_project_object
 
@@ -598,7 +607,7 @@ class Project(MPTTModel, BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin
         return Project.objects.filter(pk=pk).first().get_descendants(include_self=False).values_list('pk', flat=True)
 
     @staticmethod
-    def duplicate_sub_projects(parent_pk_dict):
+    def duplicate_sub_projects(parent_pk_dict, duplicate_metadata=False):
         """
         Duplicates the whole project tree based on a list of parent primary keys.
         When the method is called from project viewset, the list has only one entry which is the top of the project
@@ -624,7 +633,10 @@ class Project(MPTTModel, BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin
 
                     # duplicate the sub project
                     # change the parent project pk to the pk of the new parent (Because it was duplicated as well)
-                    duplicated_sub_project = sub_project.duplicate(parent_project_id=parent_pk_dict[original_parent_pk])
+                    duplicated_sub_project = sub_project.duplicate(
+                        parent_project_id=parent_pk_dict[original_parent_pk],
+                        metadata=sub_project.metadata.all() if duplicate_metadata else None,
+                    )
 
                     dict_pk[sub_project_original_pk] = duplicated_sub_project.pk
 
@@ -634,6 +646,8 @@ class Project(MPTTModel, BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin
                     if tasks:
                         for task in tasks:
                             duplicated_task = task.duplicate(projects=[duplicated_sub_project])
+                            if duplicate_metadata:
+                                duplicated_task.metadata.set(task.metadata.all())
 
             # duplicate sub projects of the sub projects
             Project.duplicate_sub_projects(dict_pk)
@@ -1274,9 +1288,30 @@ class ResourceBookingRuleMaximumDuration(models.Model):
 class ResourceBookingRuleBookableHours(models.Model):
     """ Booking rule for bookable hours """
 
+    # define weekdays
+    MONDAY = "MON"
+    TUESDAY = "TUE"
+    WEDNESDAY = "WED"
+    THURSDAY = "THU"
+    FRIDAY = "FRI"
+    SATURDAY = "SAT"
+    SUNDAY = "SUN"
+
+    # define weekday choices
+    WEEKDAY_CHOICES = (
+        (MONDAY, _("Monday")),
+        (TUESDAY, _("Tuesday")),
+        (WEDNESDAY, _("Wednesday")),
+        (THURSDAY, _("Thursday")),
+        (FRIDAY, _("Friday")),
+        (SATURDAY, _("Saturday")),
+        (SUNDAY, _("Sunday")),
+    )
+
     class Meta:
         verbose_name = _("Resource booking rule bookable hours")
         verbose_name_plural = _("Resource booking rules bookable hours")
+        unique_together = ('weekday', 'resource')
 
     id = models.UUIDField(
         primary_key=True,
@@ -1284,47 +1319,21 @@ class ResourceBookingRuleBookableHours(models.Model):
         editable=False
     )
 
-    monday = models.BooleanField(
-        verbose_name=_("Monday"),
-        default=False,
-    )
-
-    tuesday = models.BooleanField(
-        verbose_name=_("Tuesday"),
-        default=False,
-    )
-
-    wednesday = models.BooleanField(
-        verbose_name=_("Wednesday"),
-        default=False,
-    )
-
-    thursday = models.BooleanField(
-        verbose_name=_("Thursday"),
-        default=False,
-    )
-
-    friday = models.BooleanField(
-        verbose_name=_("Friday"),
-        default=False,
-    )
-
-    saturday = models.BooleanField(
-        verbose_name=_("Saturday"),
-        default=False,
-    )
-
-    sunday = models.BooleanField(
-        verbose_name=_("Sunday"),
-        default=False,
+    weekday = models.CharField(
+        max_length=3,
+        choices=WEEKDAY_CHOICES,
+        default=MONDAY,
+        verbose_name=_("Weekday"),
     )
 
     time_start = models.TimeField(
-        verbose_name=_("Time start")
+        verbose_name=_("Time start"),
+        null=True,
     )
 
     time_end = models.TimeField(
-        verbose_name=_("Time end")
+        verbose_name=_("Time end"),
+        null=True,
     )
 
     full_day = models.BooleanField(
@@ -1333,7 +1342,7 @@ class ResourceBookingRuleBookableHours(models.Model):
         verbose_name=_("full day")
     )
 
-    resource = models.OneToOneField(
+    resource = models.ForeignKey(
         'projects.Resource',
         on_delete=models.CASCADE,
         verbose_name=_("Booked resource"),

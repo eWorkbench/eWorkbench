@@ -23,6 +23,7 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { FavoritesModule } from '../favorites/favorites.module';
 import { AllResourceBookingsComponent } from './components/all-bookings/all-bookings.component';
 import { ResourceBookingCalendarComponent } from './components/booking-calendar/booking-calendar.component';
+import { ResourceBookingRulesBookableTimeSlotInputComponent } from './components/booking-rules-bookable-time-slot-input/booking-rules-bookable-time-slot-input.component';
 import { ResourceBookingRulesBookableTimeSlotsComponent } from './components/booking-rules-bookable-time-slots/booking-rules-bookable-time-slots.component';
 import { ResourceBookingRulesBookingsPerUserElementComponent } from './components/booking-rules-bookings-per-user-element/booking-rules-bookings-per-user-element.component';
 import { ResourceBookingRulesBookingsPerUserComponent } from './components/booking-rules-bookings-per-user/booking-rules-bookings-per-user.component';
@@ -38,6 +39,7 @@ import { ResourceTypeComponent } from './components/resource-type/resource-type.
     ResourceBookingRulesComponent,
     ResourceBookingRulesDurationComponent,
     ResourceBookingRulesBookableTimeSlotsComponent,
+    ResourceBookingRulesBookableTimeSlotInputComponent,
     ResourceBookingRulesBookingsPerUserComponent,
     ResourceBookingRulesBookingsPerUserElementComponent,
     MyResourceBookingsComponent,

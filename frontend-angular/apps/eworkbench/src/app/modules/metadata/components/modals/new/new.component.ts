@@ -221,6 +221,8 @@ export class NewMetadataFieldComponent implements OnInit {
   }
 
   public onRemoveAnswer(element: number): void {
-    this.answers.removeAt(element);
+    if (!this.loading) {
+      this.answers.removeAt(element);
+    }
   }
 }

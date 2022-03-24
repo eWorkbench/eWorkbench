@@ -24,6 +24,7 @@ interface FormFile {
   storage: string | null;
   description: string | null;
   projects: string[];
+  duplicateMetadata: boolean;
 }
 
 @UntilDestroy()
@@ -61,6 +62,7 @@ export class NewFileModalComponent implements OnInit {
     storage: [null],
     description: [null],
     projects: [[]],
+    duplicateMetadata: [true],
   });
 
   public constructor(
@@ -212,7 +214,13 @@ export class NewFileModalComponent implements OnInit {
 
     this.filesService
       .add(this.file)
-      .pipe(untilDestroyed(this))
+      .pipe(
+        untilDestroyed(this),
+        switchMap(file => {
+          const metadata = this.duplicate && this.f.duplicateMetadata.value ? this.initialState?.metadata : [];
+          return metadata?.length ? this.filesService.patch(file.pk, { metadata }).pipe(untilDestroyed(this)) : of(file);
+        })
+      )
       .subscribe(
         /* istanbul ignore next */ file => {
           this.state = ModalState.Changed;

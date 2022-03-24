@@ -10,6 +10,7 @@ class FAQQuestionAndAnswerFilter(BaseFilter):
     class Meta:
         model = FAQQuestionAndAnswer
         fields = {
+            'slug': BaseFilter.FOREIGNKEY_COMPERATORS,
             'category__slug': BaseFilter.FOREIGNKEY_COMPERATORS,
             'public': BaseFilter.FOREIGNKEY_COMPERATORS,
             'category__public': BaseFilter.FOREIGNKEY_COMPERATORS,

@@ -31,7 +31,6 @@ djangorestframework-xml==2.0.*
 djangorestframework==3.11.*
 drf-nested-routers==0.91.*
 git+https://github.com/anx-bhagmann/djradicale
-git+https://github.com/anx-ckreuzberger/djangodav@updates
 django-changeset==1.0.0
 django-dbsettings==1.1.*
 gitdb==4.0.*
@@ -55,3 +54,4 @@ zipstream==1.1.*
 pyyaml==5.3.*
 drf-yasg==1.17.*
 pika==1.1.0
+WsgiDAV==4.0.*

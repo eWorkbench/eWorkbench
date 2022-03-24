@@ -12,6 +12,7 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
+import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { AuthService, PageTitleService, ProjectsService, TasksService, WebSocketService } from '@app/services';
 import { UserStore } from '@app/stores/user';
@@ -42,7 +43,6 @@ interface FormProject {
   title: string | null;
   dateGroup: DateGroup;
   state: string | null;
-  description: string | null;
   parentProject: string | null;
 }
 
@@ -115,7 +115,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
     title: [null, [Validators.required]],
     dateGroup: [{ start: null, end: null, fullDay: true }],
     state: [null],
-    description: [null],
     parentProject: [null],
   });
 
@@ -139,6 +138,10 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
   public get f(): FormGroup<FormProject>['controls'] {
     /* istanbul ignore next */
     return this.form.controls;
+  }
+
+  public get descriptionTranslationKey(): string {
+    return this.initialState?.description ? 'project.details.description.edit' : 'project.details.description.add';
   }
 
   private get project(): ProjectPayload {
@@ -165,7 +168,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       start_date: dateTimeStart,
       stop_date: dateTimeEnd,
       project_state: (this.f.state.value as Project['project_state'] | null) ?? 'INIT',
-      description: this.f.description.value ?? '',
       parent_project: this.f.parentProject.value,
       metadata: this.metadata!,
     };
@@ -222,7 +224,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
                 title: project.name,
                 dateGroup: { start: project.start_date, end: project.stop_date, fullDay: true },
                 state: project.project_state,
-                description: project.description!,
                 parentProject: project.parent_project,
               },
               { emitEvent: false }
@@ -467,6 +468,30 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
+      }
+    });
+  }
+
+  public onOpenDescriptionModal(): void {
+    this.modalRef = this.modalService.open(DescriptionModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        description: this.initialState?.description ?? '',
+        descriptionKey: 'description',
+        service: this.projectsService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.initialState = { ...callback.data };
+        this.form.markAsPristine();
+        this.refreshChanges.next(true);
+        this.refreshResetValue.next(true);
+        this.cdr.markForCheck();
       }
     });
   }

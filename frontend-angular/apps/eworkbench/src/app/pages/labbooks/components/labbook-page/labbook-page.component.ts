@@ -23,6 +23,7 @@ import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { LabBookDrawBoardComponent } from '@app/modules/labbook/components/draw-board/draw-board/draw-board.component';
+import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, LabBooksService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
@@ -40,7 +41,6 @@ import { NewLabBookModalComponent } from '../modals/new/new.component';
 interface FormLabBook {
   title: string | null;
   isTemplate: boolean;
-  description: string | null;
   projects: string[];
 }
 
@@ -101,7 +101,6 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
   public form: FormGroup<FormLabBook> = this.fb.group({
     title: [null, [Validators.required]],
     isTemplate: [false],
-    description: [null],
     projects: [[]],
   });
 
@@ -140,11 +139,14 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
     return { ownUser: false, user: null };
   }
 
+  public get descriptionTranslationKey(): string {
+    return this.initialState?.description ? 'labBook.details.description.edit' : 'labBook.details.description.add';
+  }
+
   private get labBook(): LabBookPayload {
     return {
       title: this.f.title.value!,
       is_template: this.f.isTemplate.value,
-      description: this.f.description.value ?? '',
       projects: this.f.projects.value,
       metadata: this.metadata!,
     };
@@ -276,7 +278,6 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
               {
                 title: labBook.title,
                 isTemplate: labBook.is_template,
-                description: labBook.description,
                 projects: labBook.projects,
               },
               { emitEvent: false }
@@ -471,6 +472,31 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
       }
+    });
+  }
+
+  public onOpenDescriptionModal(): void {
+    this.labBooksService.lock(this.id).pipe(take(1)).subscribe();
+    this.modalRef = this.modalService.open(DescriptionModalComponent, {
+      closeButton: false,
+      width: '912px',
+      data: {
+        id: this.id,
+        description: this.initialState?.description ?? '',
+        descriptionKey: 'description',
+        service: this.labBooksService,
+      },
+    });
+
+    /* istanbul ignore next */
+    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
+      if (callback?.state === ModalState.Changed) {
+        this.initialState = { ...callback.data };
+        this.form.markAsPristine();
+        this.refreshChanges.next(true);
+        this.refreshResetValue.next(true);
+      }
+      this.labBooksService.unlock(this.id).pipe(take(1)).subscribe();
     });
   }
 
