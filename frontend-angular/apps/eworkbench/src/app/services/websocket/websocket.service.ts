@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -8,7 +6,7 @@
 import { Injectable } from '@angular/core';
 import { UserService } from '@app/stores/user';
 import { environment } from '@environments/environment';
-import { WebSocketElementPayload } from '@eworkbench/types';
+import type { WebSocketElementPayload } from '@eworkbench/types';
 import { Subject } from 'rxjs';
 import { webSocket } from 'rxjs/webSocket';
 

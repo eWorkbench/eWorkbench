@@ -11,7 +11,7 @@ import { CMSSettings, CMSStore } from '../stores/cms.store';
 export class CMSQuery extends Query<CMSSettings> {
   public cms$ = this.select(state => state);
 
-  public constructor(protected store: CMSStore) {
+  public constructor(protected override store: CMSStore) {
     super(store);
   }
 }

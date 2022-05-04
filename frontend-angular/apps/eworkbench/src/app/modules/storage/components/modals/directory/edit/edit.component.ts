@@ -7,15 +7,15 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DrivesService } from '@app/services';
-import { Directory, DirectoryPayload, Drive } from '@eworkbench/types';
+import type { Directory, DirectoryPayload, Drive } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 
 interface FormDirectory {
-  title: string | null;
+  title: FormControl<string | null>;
   parent: string | null;
 }
 
@@ -36,8 +36,8 @@ export class EditStorageDirectoryModalComponent implements OnInit {
   public state = ModalState.Unchanged;
 
   public form = this.fb.group<FormDirectory>({
-    title: [null, [Validators.required]],
-    parent: [null],
+    title: this.fb.control(null, Validators.required),
+    parent: null,
   });
 
   public constructor(
@@ -49,7 +49,7 @@ export class EditStorageDirectoryModalComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FormDirectory>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -81,7 +81,7 @@ export class EditStorageDirectoryModalComponent implements OnInit {
         .patchDirectory(this.initialState.drive_id, this.initialState.pk, this.directory)
         .pipe(untilDestroyed(this))
         .subscribe(
-          /* istanbul ignore next */ directory => {
+          directory => {
             this.state = ModalState.Changed;
             this.modalRef.close({ state: this.state, data: { newContent: directory } });
             this.translocoService
@@ -91,7 +91,7 @@ export class EditStorageDirectoryModalComponent implements OnInit {
                 this.toastrService.success(success);
               });
           },
-          /* istanbul ignore next */ () => {
+          () => {
             this.loading = false;
             this.cdr.markForCheck();
           }

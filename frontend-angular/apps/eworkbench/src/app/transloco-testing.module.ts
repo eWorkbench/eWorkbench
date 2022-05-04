@@ -1,22 +1,20 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { TranslocoTestingModule, TranslocoConfig } from '@ngneat/transloco';
+import type { ModuleWithProviders } from '@angular/core';
 import en from '@assets/i18n/en.json';
-import { ModuleWithProviders } from '@angular/core';
+import { TranslocoTestingModule, TranslocoConfig } from '@ngneat/transloco';
 
 export function getTranslocoModule(config: Partial<TranslocoConfig> = {}): ModuleWithProviders<TranslocoTestingModule> {
-  return TranslocoTestingModule.withLangs(
-    { en },
-    {
+  return TranslocoTestingModule.forRoot({
+    langs: { en },
+    translocoConfig: {
       availableLangs: ['en'],
       defaultLang: 'en',
       reRenderOnLangChange: true,
       ...config,
-    }
-  );
+    },
+  });
 }

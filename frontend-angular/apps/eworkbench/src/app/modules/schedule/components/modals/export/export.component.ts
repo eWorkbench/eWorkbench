@@ -39,11 +39,11 @@ export class ExportModalComponent implements OnInit {
       .export()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ exportLink => {
+        exportLink => {
           this.iCalExportUrl = exportLink.url;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.cdr.markForCheck();
         }
       );

@@ -7,48 +7,48 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Title } from '@angular/platform-browser';
 import { NotificationConfigurationService, PageTitleService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import { NotificationConfiguration, ProfileDialogSettings, User, UserProfileInfo } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { NotificationConfiguration, ProfileDialogSettings, User, UserProfileInfo } from '@eworkbench/types';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { switchMap, take } from 'rxjs/operators';
 
 interface FormSettings {
-  notificationAppointments: boolean;
-  NOTIFICATION_CONF_MEETING_USER_CHANGED: boolean;
-  NOTIFICATION_CONF_MEETING_CHANGED: boolean;
-  NOTIFICATION_CONF_MEETING_RELATION_CHANGED: boolean;
-  NOTIFICATION_CONF_MEETING_REMINDER: boolean;
-  MAIL_CONF_MEETING_CONFIRMATION: boolean;
+  notificationAppointments: FormControl<boolean>;
+  NOTIFICATION_CONF_MEETING_USER_CHANGED: FormControl<boolean>;
+  NOTIFICATION_CONF_MEETING_CHANGED: FormControl<boolean>;
+  NOTIFICATION_CONF_MEETING_RELATION_CHANGED: FormControl<boolean>;
+  NOTIFICATION_CONF_MEETING_REMINDER: FormControl<boolean>;
+  MAIL_CONF_MEETING_CONFIRMATION: FormControl<boolean>;
 
-  notificationTasks: boolean;
-  NOTIFICATION_CONF_TASK_USER_CHANGED: boolean;
-  NOTIFICATION_CONF_TASK_CHANGED: boolean;
-  NOTIFICATION_CONF_TASK_RELATION_CHANGED: boolean;
+  notificationTasks: FormControl<boolean>;
+  NOTIFICATION_CONF_TASK_USER_CHANGED: FormControl<boolean>;
+  NOTIFICATION_CONF_TASK_CHANGED: FormControl<boolean>;
+  NOTIFICATION_CONF_TASK_RELATION_CHANGED: FormControl<boolean>;
 
-  notificationProjects: boolean;
-  NOTIFICATION_CONF_PROJECT_USER_CHANGED: boolean;
-  NOTIFICATION_CONF_PROJECT_CHANGED: boolean;
-  NOTIFICATION_CONF_PROJECT_COMMENT: boolean;
+  notificationProjects: FormControl<boolean>;
+  NOTIFICATION_CONF_PROJECT_USER_CHANGED: FormControl<boolean>;
+  NOTIFICATION_CONF_PROJECT_CHANGED: FormControl<boolean>;
+  NOTIFICATION_CONF_PROJECT_COMMENT: FormControl<boolean>;
 
-  notificationDSS: boolean;
-  NOTIFICATION_DSS_IMPORT_IN_PROGRESS: boolean;
-  NOTIFICATION_DSS_IMPORT_FINISHED: boolean;
-  NOTIFICATION_DSS_IMPORT_FAILED: boolean;
+  notificationDSS: FormControl<boolean>;
+  NOTIFICATION_DSS_IMPORT_IN_PROGRESS: FormControl<boolean>;
+  NOTIFICATION_DSS_IMPORT_FINISHED: FormControl<boolean>;
+  NOTIFICATION_DSS_IMPORT_FAILED: FormControl<boolean>;
 
-  confirmationPrompts: boolean;
-  confirmationPromptRemoveDirectory: boolean;
-  confirmationPromptTrashFile: boolean;
-  confirmationPromptConvertTiff: boolean;
-  confirmationPromptLeaveProject: boolean;
-  confirmationPromptMoveElementOutOfSection: boolean;
-  confirmationPromptTrashElementFromDeleteMenu: boolean;
-  confirmationPromptDeleteColumn: boolean;
-  confirmationPromptTrashElementFromDetailView: boolean;
-  confirmationPromptDuplicateProject: boolean;
-  confirmationPromptDuplicateDMP: boolean;
-  confirmationPromptRemoveElementFromLabbook: boolean;
-  confirmationPromptTrashAndDeleteElementFromLabbook: boolean;
+  confirmationPrompts: FormControl<boolean>;
+  confirmationPromptRemoveDirectory: FormControl<boolean>;
+  confirmationPromptTrashFile: FormControl<boolean>;
+  confirmationPromptConvertTiff: FormControl<boolean>;
+  confirmationPromptLeaveProject: FormControl<boolean>;
+  confirmationPromptMoveElementOutOfSection: FormControl<boolean>;
+  confirmationPromptTrashElementFromDeleteMenu: FormControl<boolean>;
+  confirmationPromptDeleteColumn: FormControl<boolean>;
+  confirmationPromptTrashElementFromDetailView: FormControl<boolean>;
+  confirmationPromptDuplicateProject: FormControl<boolean>;
+  confirmationPromptDuplicateDMP: FormControl<boolean>;
+  confirmationPromptRemoveElementFromLabbook: FormControl<boolean>;
+  confirmationPromptTrashAndDeleteElementFromLabbook: FormControl<boolean>;
 }
 
 @UntilDestroy()
@@ -72,41 +72,41 @@ export class SettingsPageComponent implements OnInit {
   public initialStateUser?: User;
 
   public form = this.fb.group<FormSettings>({
-    notificationAppointments: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_MEETING_USER_CHANGED: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_MEETING_CHANGED: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_MEETING_RELATION_CHANGED: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_MEETING_REMINDER: [{ value: false, disabled: this.loading }],
-    MAIL_CONF_MEETING_CONFIRMATION: [{ value: false, disabled: this.loading }],
+    notificationAppointments: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_MEETING_USER_CHANGED: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_MEETING_CHANGED: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_MEETING_RELATION_CHANGED: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_MEETING_REMINDER: this.fb.control({ value: false, disabled: this.loading }),
+    MAIL_CONF_MEETING_CONFIRMATION: this.fb.control({ value: false, disabled: this.loading }),
 
-    notificationTasks: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_TASK_USER_CHANGED: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_TASK_CHANGED: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_TASK_RELATION_CHANGED: [{ value: false, disabled: this.loading }],
+    notificationTasks: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_TASK_USER_CHANGED: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_TASK_CHANGED: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_TASK_RELATION_CHANGED: this.fb.control({ value: false, disabled: this.loading }),
 
-    notificationProjects: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_PROJECT_USER_CHANGED: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_PROJECT_CHANGED: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_CONF_PROJECT_COMMENT: [{ value: false, disabled: this.loading }],
+    notificationProjects: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_PROJECT_USER_CHANGED: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_PROJECT_CHANGED: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_CONF_PROJECT_COMMENT: this.fb.control({ value: false, disabled: this.loading }),
 
-    notificationDSS: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_DSS_IMPORT_IN_PROGRESS: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_DSS_IMPORT_FINISHED: [{ value: false, disabled: this.loading }],
-    NOTIFICATION_DSS_IMPORT_FAILED: [{ value: false, disabled: this.loading }],
+    notificationDSS: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_DSS_IMPORT_IN_PROGRESS: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_DSS_IMPORT_FINISHED: this.fb.control({ value: false, disabled: this.loading }),
+    NOTIFICATION_DSS_IMPORT_FAILED: this.fb.control({ value: false, disabled: this.loading }),
 
-    confirmationPrompts: [{ value: false, disabled: this.loading }],
-    confirmationPromptRemoveDirectory: [{ value: false, disabled: this.loading }],
-    confirmationPromptTrashFile: [{ value: false, disabled: this.loading }],
-    confirmationPromptConvertTiff: [{ value: false, disabled: this.loading }],
-    confirmationPromptLeaveProject: [{ value: false, disabled: this.loading }],
-    confirmationPromptMoveElementOutOfSection: [{ value: false, disabled: this.loading }],
-    confirmationPromptTrashElementFromDeleteMenu: [{ value: false, disabled: this.loading }],
-    confirmationPromptDeleteColumn: [{ value: false, disabled: this.loading }],
-    confirmationPromptTrashElementFromDetailView: [{ value: false, disabled: this.loading }],
-    confirmationPromptDuplicateProject: [{ value: false, disabled: this.loading }],
-    confirmationPromptDuplicateDMP: [{ value: false, disabled: this.loading }],
-    confirmationPromptRemoveElementFromLabbook: [{ value: false, disabled: this.loading }],
-    confirmationPromptTrashAndDeleteElementFromLabbook: [{ value: false, disabled: this.loading }],
+    confirmationPrompts: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptRemoveDirectory: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptTrashFile: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptConvertTiff: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptLeaveProject: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptMoveElementOutOfSection: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptTrashElementFromDeleteMenu: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptDeleteColumn: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptTrashElementFromDetailView: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptDuplicateProject: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptDuplicateDMP: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptRemoveElementFromLabbook: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptTrashAndDeleteElementFromLabbook: this.fb.control({ value: false, disabled: this.loading }),
   });
 
   public constructor(
@@ -120,8 +120,7 @@ export class SettingsPageComponent implements OnInit {
     private readonly titleService: Title
   ) {}
 
-  private get f(): FormGroup<FormSettings>['controls'] {
-    /* istanbul ignore next */
+  private get f() {
     return this.form.controls;
   }
 
@@ -200,7 +199,7 @@ export class SettingsPageComponent implements OnInit {
     this.initTranslations();
     this.initDetails();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -209,7 +208,7 @@ export class SettingsPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -220,7 +219,7 @@ export class SettingsPageComponent implements OnInit {
       .get()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ config => {
+        config => {
           this.initialStateNotifications = { ...config };
           this.notificationsPk = config.pk;
 
@@ -233,7 +232,7 @@ export class SettingsPageComponent implements OnInit {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -243,7 +242,7 @@ export class SettingsPageComponent implements OnInit {
       .get()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ user => {
+        user => {
           this.initialStateUser = { ...user };
 
           const userSettings = user.userprofile.ui_settings;
@@ -327,7 +326,7 @@ export class SettingsPageComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -336,13 +335,10 @@ export class SettingsPageComponent implements OnInit {
     this.userService
       .getUserProfileInfo()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */
-        userProfileInfo => {
-          this.userProfileInfo = userProfileInfo;
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(userProfileInfo => {
+        this.userProfileInfo = userProfileInfo;
+        this.cdr.markForCheck();
+      });
   }
 
   public initPageTitle(): void {
@@ -364,14 +360,14 @@ export class SettingsPageComponent implements OnInit {
       .put(this.notificationConfiguration)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ config => {
+        config => {
           this.notificationsPk = config.pk;
           this.onToggleParentEmailNotificationCheckboxes();
           this.updateStore();
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -389,8 +385,8 @@ export class SettingsPageComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(user => {
-          return this.userService.changeSettings({
+        switchMap(user =>
+          this.userService.changeSettings({
             userprofile: {
               ui_settings: {
                 ...user.userprofile.ui_settings,
@@ -400,16 +396,16 @@ export class SettingsPageComponent implements OnInit {
                 },
               },
             },
-          });
-        })
+          })
+        )
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.onToggleParentDialogSettingsCheckbox();
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

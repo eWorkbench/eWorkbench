@@ -13,20 +13,20 @@ import { CommentsComponent } from '@app/modules/comment/components/comments/comm
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { AuthService, NotesService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
-import { Lock, Metadata, ModalCallback, Note, NotePayload, Privileges, Project, User } from '@eworkbench/types';
+import type { Lock, Metadata, ModalCallback, Note, NotePayload, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, of, Subject } from 'rxjs';
-import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/operators';
+import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 import { NewNoteModalComponent } from '../modals/new/new.component';
 
 interface FormNote {
-  subject: string | null;
+  subject: FormControl<string | null>;
   content: string | null;
-  projects: string[];
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -80,10 +80,10 @@ export class NotePageComponent implements OnInit, OnDestroy {
 
   public projectInput$ = new Subject<string>();
 
-  public form: FormGroup<FormNote> = this.fb.group<FormNote>({
-    subject: [null, [Validators.required]],
+  public form = this.fb.group<FormNote>({
+    subject: this.fb.control(null, Validators.required),
     content: null,
-    projects: [[]],
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -102,12 +102,11 @@ export class NotePageComponent implements OnInit, OnDestroy {
     private readonly modalService: DialogService
   ) {}
 
-  public get f(): FormGroup<FormNote>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -116,7 +115,6 @@ export class NotePageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -130,7 +128,6 @@ export class NotePageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -138,25 +135,21 @@ export class NotePageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'note', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id) {
-          if (this.lockUser.user && !this.lockUser.ownUser) {
-            this.modified = true;
-          } else {
-            this.modified = false;
-          }
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.element_changed?.model_pk === this.id) {
+        if (this.lockUser.user && !this.lockUser.ownUser) {
+          this.modified = true;
+        } else {
+          this.modified = false;
+        }
+        this.cdr.detectChanges();
+      }
+    });
 
     this.initSidebar();
     this.initSearchInput();
@@ -172,6 +165,7 @@ export class NotePageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
+        skip(1),
         debounceTime(500),
         switchMap(() => {
           this.cdr.markForCheck();
@@ -190,14 +184,12 @@ export class NotePageComponent implements OnInit, OnDestroy {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
@@ -207,29 +199,25 @@ export class NotePageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -250,64 +238,60 @@ export class NotePageComponent implements OnInit, OnDestroy {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const note = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const note = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                subject: note.subject,
-                content: note.content,
-                projects: note.projects,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              subject: note.subject,
+              content: note.content,
+              projects: note.projects,
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
+              }),
+              switchMap(() => of(privilegesData))
+            );
           }
-        )
+
+          return of(privilegesData);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const note = privilegesData.data;
           const privileges = privilegesData.privileges;
 
           this.detailsTitle = note.display;
-          this.pageTitleService.set(note.display);
+          void this.pageTitleService.set(note.display);
 
           this.initialState = { ...note };
           this.privileges = { ...privileges };
@@ -320,9 +304,9 @@ export class NotePageComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -341,13 +325,13 @@ export class NotePageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.note)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ note => {
+        note => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.notesService.unlock(this.id);
           }
 
           this.detailsTitle = note.display;
-          this.pageTitleService.set(note.display);
+          void this.pageTitleService.set(note.display);
 
           this.initialState = { ...note };
           this.form.markAsPristine();
@@ -366,7 +350,7 @@ export class NotePageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -378,7 +362,7 @@ export class NotePageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -412,7 +396,6 @@ export class NotePageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();

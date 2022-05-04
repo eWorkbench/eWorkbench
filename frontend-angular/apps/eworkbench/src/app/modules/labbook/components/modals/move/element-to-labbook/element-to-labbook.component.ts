@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBookSectionsService, LabBooksService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import { LabBookElement, ModalCallback } from '@eworkbench/types';
+import type { LabBookElement, ModalCallback } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -44,7 +44,7 @@ export class MoveLabBookElementToLabBookModalComponent {
   public state = ModalState.Unchanged;
 
   public form = this.fb.group<FormRemove>({
-    doNotShowMessageAgain: [false],
+    doNotShowMessageAgain: false,
   });
 
   public constructor(
@@ -59,8 +59,7 @@ export class MoveLabBookElementToLabBookModalComponent {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormRemove>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -70,8 +69,8 @@ export class MoveLabBookElementToLabBookModalComponent {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(user => {
-          return this.userService.changeSettings({
+        switchMap(user =>
+          this.userService.changeSettings({
             userprofile: {
               ui_settings: {
                 ...user.userprofile.ui_settings,
@@ -81,20 +80,18 @@ export class MoveLabBookElementToLabBookModalComponent {
                 },
               },
             },
-          });
-        })
+          })
+        )
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('trash.deleteModal.toastr.success.doNotShowMessageAgainUpdated')
-            .pipe(untilDestroyed(this))
-            .subscribe(doNotShowMessageAgainUpdated => {
-              this.toastrService.success(doNotShowMessageAgainUpdated);
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('trash.deleteModal.toastr.success.doNotShowMessageAgainUpdated')
+          .pipe(untilDestroyed(this))
+          .subscribe(doNotShowMessageAgainUpdated => {
+            this.toastrService.success(doNotShowMessageAgainUpdated);
+          });
+      });
   }
 
   public onSubmit(): void {
@@ -108,40 +105,34 @@ export class MoveLabBookElementToLabBookModalComponent {
       .getElements(this.labBookId, this.sectionId)
       .pipe(
         untilDestroyed(this),
-        switchMap(
-          /* istanbul ignore next */ elements => {
-            // 2. Filter elements of the section and patch it with the selected element removed
-            const childElements = elements.filter(element => element.pk !== this.elementId).map(element => element.pk);
+        switchMap(elements => {
+          // 2. Filter elements of the section and patch it with the selected element removed
+          const childElements = elements.filter(element => element.pk !== this.elementId).map(element => element.pk);
 
-            return this.labBookSectionsService
-              .patch(this.sectionId, {
-                pk: this.sectionId,
-                child_elements: [...childElements],
-              })
-              .pipe(untilDestroyed(this));
-          }
+          return this.labBookSectionsService
+            .patch(this.sectionId, {
+              pk: this.sectionId,
+              child_elements: [...childElements],
+            })
+            .pipe(untilDestroyed(this));
+        }),
+        switchMap(() =>
+          // 3. Get all elements of main LabBook grid to calculate the new Y position in the next step
+          this.labBooksService.getElements(this.labBookId).pipe(untilDestroyed(this))
         ),
-        switchMap(
-          /* istanbul ignore next */ () => {
-            // 3. Get all elements of main LabBook grid to calculate the new Y position in the next step
-            return this.labBooksService.getElements(this.labBookId).pipe(untilDestroyed(this));
-          }
-        ),
-        switchMap(
-          /* istanbul ignore next */ elements => {
-            // 4. Calculate and patch the new Y position for formerly removed element from the section
-            const filteredElements = elements.filter(element => element.pk !== this.elementId);
+        switchMap(elements => {
+          // 4. Calculate and patch the new Y position for formerly removed element from the section
+          const filteredElements = elements.filter(element => element.pk !== this.elementId);
 
-            return this.labBooksService
-              .patchElement(this.labBookId, this.elementId, {
-                position_y: this.getMaxYPosition(filteredElements),
-              })
-              .pipe(untilDestroyed(this));
-          }
-        )
+          return this.labBooksService
+            .patchElement(this.labBookId, this.elementId, {
+              position_y: this.getMaxYPosition(filteredElements),
+            })
+            .pipe(untilDestroyed(this));
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state, data: { id: this.elementId, gridReload: false } });
           this.translocoService
@@ -151,7 +142,7 @@ export class MoveLabBookElementToLabBookModalComponent {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

@@ -6,9 +6,9 @@
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ProjectsService } from '@app/services';
-import { GanttChartItem } from '@eworkbench/gantt-chart';
+import type { GanttChartItem } from '@eworkbench/gantt-chart';
 import { TableColumn, TreeViewComponent } from '@eworkbench/table';
-import { Project } from '@eworkbench/types';
+import type { Project } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { switchMap } from 'rxjs/operators';
@@ -96,7 +96,7 @@ export class ProjectStateTimelineComponent implements OnInit {
         })
       )
       .subscribe(
-        /* istanbul ignore next */ result => {
+        result => {
           const projects: Project[] = [...result.data];
 
           projects.forEach(project => {
@@ -122,7 +122,7 @@ export class ProjectStateTimelineComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

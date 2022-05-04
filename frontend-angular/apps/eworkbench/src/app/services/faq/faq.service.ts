@@ -6,8 +6,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { DjangoAPI, FAQ } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { DjangoAPI, FAQ } from '@eworkbench/types';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -20,12 +20,10 @@ export class FAQService {
 
   public get(params = new HttpParams()): Observable<{ total: number; data: FAQ[] }> {
     return this.httpClient.get<DjangoAPI<FAQ[]>>(this.apiUrl, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 }

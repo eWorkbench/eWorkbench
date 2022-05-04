@@ -6,14 +6,14 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, Self, ViewChild } from '@angular/core';
 import { NgControl, Validators } from '@angular/forms';
-import { TaskChecklist } from '@eworkbench/types';
+import type { TaskChecklist } from '@eworkbench/types';
 import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { v4 as uuidv4 } from 'uuid';
 
 interface FormAnswers {
-  checkboxes: boolean[];
-  titles: string[];
+  checkboxes: FormArray<boolean[]>;
+  titles: FormArray<string[]>;
 }
 
 @UntilDestroy()
@@ -36,8 +36,9 @@ export class TaskChecklistComponent implements AfterViewInit {
 
   public checklistObjects: TaskChecklist[] = [];
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public onChange: any = () => {};
-
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public onTouch: any = () => {};
 
   public uniqueHash = uuidv4();
@@ -62,11 +63,11 @@ export class TaskChecklistComponent implements AfterViewInit {
   }
 
   public get checkboxes(): FormArray<boolean> {
-    return this.form.get('checkboxes') as FormArray<boolean>;
+    return this.form.get('checkboxes') as any;
   }
 
   public get titles(): FormArray<string> {
-    return this.form.get('titles') as FormArray<string>;
+    return this.form.get('titles') as any;
   }
 
   public get value(): TaskChecklist[] {
@@ -182,8 +183,10 @@ export class TaskChecklistComponent implements AfterViewInit {
     }
 
     const checkboxes = [...this.checkboxes.controls].map(control => control.value);
+    // @ts-expect-error
     this.checkboxes.controls[to].patchValue(checkboxes[from]);
     for (let i = from; i !== to; i += delta) {
+      // @ts-expect-error
       this.checkboxes.controls[i].patchValue(checkboxes[i + delta]);
     }
 

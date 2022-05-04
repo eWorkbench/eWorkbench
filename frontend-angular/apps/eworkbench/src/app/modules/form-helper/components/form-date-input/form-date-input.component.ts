@@ -5,7 +5,7 @@
 
 import { AfterViewInit, ChangeDetectionStrategy, Component, Input, Self } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { DatePickerConfig } from '@eworkbench/types';
+import type { DatePickerConfig } from '@eworkbench/types';
 import flatpickr from 'flatpickr';
 
 @Component({
@@ -30,7 +30,9 @@ export class FormDateInputComponent implements ControlValueAccessor, AfterViewIn
   @Input()
   public disabled?: boolean = false;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public onChanged: any = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public onTouched: any = () => {};
 
   public constructor(@Self() public readonly ngControl: NgControl) {
@@ -40,7 +42,7 @@ export class FormDateInputComponent implements ControlValueAccessor, AfterViewIn
   public ngAfterViewInit(): void {
     flatpickr(`#${this.inputId}`, {
       ...this.datePickerConfig,
-      onChange: (selectedDate, dateStr) => {
+      onChange: (_, dateStr) => {
         this.writeValue(dateStr);
       },
     });

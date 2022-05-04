@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { TasksService } from '@app/services';
-import { Label, ModalCallback } from '@eworkbench/types';
+import type { Label, ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { take } from 'rxjs/operators';
@@ -45,19 +45,17 @@ export class LabelsComponent {
       return;
     }
 
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(EditLabelModalComponent, {
       closeButton: false,
       data: {
         label,
       },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onModalClose(callback?: ModalCallback): void {
-    /* istanbul ignore next */
     if (callback?.state === ModalState.Changed) {
       if (callback.data) {
         const labels = [...this.labels.filter(label => label.pk !== callback.data.pk), callback.data];
@@ -75,7 +73,7 @@ export class LabelsComponent {
       this.tasksService
         .patch(this.id, { labels: labelsPayload })
         .pipe(untilDestroyed(this))
-        .subscribe(/* istanbul ignore next */ () => this.labelChange.emit(labels));
+        .subscribe(() => this.labelChange.emit(labels));
     } else {
       this.labelChange.emit(labels);
     }

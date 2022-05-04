@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { FormGroup } from '@angular/forms';
+import type { FormGroup } from '@angular/forms';
 
 export function MustMatch(controlName: string, matchingControlName: string) {
   return (formGroup: FormGroup) => {
@@ -14,7 +14,6 @@ export function MustMatch(controlName: string, matchingControlName: string) {
       return;
     }
 
-    /* istanbul ignore next */
     if (control.value !== matchingControl.value) {
       matchingControl.setErrors({ mustmatch: true });
       return;

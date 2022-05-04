@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectsService, RolesService } from '@app/services';
 import { UserService } from '@app/stores/user';
-import { ProjectMember, ProjectMemberPayload, ProjectPrivileges, Role, User } from '@eworkbench/types';
-import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { ProjectMember, ProjectMemberPayload, ProjectPrivileges, Role, User } from '@eworkbench/types';
+import { DialogRef } from '@ngneat/dialog';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { of, Subject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
@@ -43,7 +43,7 @@ export class NewProjectMemberModalComponent implements OnInit {
   public roles: Role[] = [];
 
   public form = this.fb.group<FormProjectMember>({
-    assignee: [null],
+    assignee: null,
   });
 
   public constructor(
@@ -52,12 +52,10 @@ export class NewProjectMemberModalComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly projectsService: ProjectsService,
     private readonly userService: UserService,
-    private readonly rolesService: RolesService,
-    private readonly modalService: DialogService
+    private readonly rolesService: RolesService
   ) {}
 
-  public get f(): FormGroup<FormProjectMember>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -74,35 +72,30 @@ export class NewProjectMemberModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          const selectedUsers = this.users.map(user => user.user_pk);
-          const filteredUsers = users.filter(user => !selectedUsers.includes(user.pk!));
-          if (filteredUsers.length) {
-            this.assignees = [...filteredUsers];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        const selectedUsers = this.users.map(user => user.user_pk);
+        const filteredUsers = users.filter(user => !selectedUsers.includes(user.pk!));
+        if (filteredUsers.length) {
+          this.assignees = [...filteredUsers];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.rolesService
       .get()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ roles => {
-          this.loading = false;
-          this.roles = [...roles];
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(roles => {
+        this.loading = false;
+        this.roles = [...roles];
+        this.cdr.markForCheck();
+      });
   }
 
   public openExternalUserModal(id: string, event?: Event): void {
-    /* istanbul ignore next */
     event?.preventDefault();
-    /* istanbul ignore next */
+
     this.state = ModalState.Unchanged;
     this.modalRef.close({ state: this.state, data: { external: id } });
   }
@@ -117,11 +110,11 @@ export class NewProjectMemberModalComponent implements OnInit {
       .addMember(this.id, this.projectMember)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

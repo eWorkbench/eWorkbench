@@ -6,7 +6,7 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { ExternalUserPayload, User, UserProfileInfo } from '@eworkbench/types';
+import type { ExternalUserPayload, User, UserProfileInfo } from '@eworkbench/types';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { UserQuery } from '../queries/user.query';
@@ -29,22 +29,20 @@ export class UserService {
   }
 
   private set(user: User | null, token: string | null): Observable<unknown> {
-    /* istanbul ignore next */
     if (token) {
       localStorage.setItem('token', token);
-      /* istanbul ignore next */
     } else {
       localStorage.removeItem('token');
     }
-    /* istanbul ignore next */
-    return this.userStore.update(/* istanbul ignore next */ () => ({ user, token, loggedIn: Boolean(user) }));
+
+    return this.userStore.update(() => ({ user, token, loggedIn: Boolean(user) }));
   }
 
   public login(username: string, password: string): Observable<UserState> {
     return this.httpClient.post<{ token: string }>(`${environment.apiUrl}/auth/login/`, { username, password }).pipe(
-      map(/* istanbul ignore next */ res => res.token),
-      switchMap(/* istanbul ignore next */ (token: string) => this.check(token)),
-      catchError(/* istanbul ignore next */ (error: HttpErrorResponse) => throwError(error))
+      map(res => res.token),
+      switchMap((token: string) => this.check(token)),
+      catchError((error: HttpErrorResponse) => throwError(error))
     );
   }
 
@@ -60,9 +58,9 @@ export class UserService {
         },
       })
       .pipe(
-        map(/* istanbul ignore next */ user => this.set(user, token)),
-        switchMap(/* istanbul ignore next */ () => this.get$),
-        catchError(/* istanbul ignore next */ (error: HttpErrorResponse) => throwError(error))
+        map(user => this.set(user, token)),
+        switchMap(() => this.get$),
+        catchError((error: HttpErrorResponse) => throwError(error))
       );
   }
 

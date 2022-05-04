@@ -19,8 +19,8 @@ import {
 } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { TableSortDirection } from '../../enums/table-sort-direction.enum';
-import { TableColumn } from '../../interfaces/table-column.interface';
-import { TableSortChangedEvent } from '../../interfaces/table-sort-changed-event.interface';
+import type { TableColumn } from '../../interfaces/table-column.interface';
+import type { TableSortChangedEvent } from '../../interfaces/table-sort-changed-event.interface';
 
 @Component({
   selector: 'eworkbench-table-view',
@@ -155,7 +155,6 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
         this.loadData();
       }
     } else {
-      this.firstDataLoaded = false;
       const slice = this.data.slice(this.offset, this.page * this.paginationSize);
       this.total = this.data.length;
       this.firstDataLoaded = true;
@@ -247,7 +246,6 @@ export class TableViewComponent implements OnInit, OnChanges, OnDestroy {
 
   public loadData(append = false, httpParams?: HttpParams): void {
     if (this.service) {
-      this.firstDataLoaded = false;
       this.loading = true;
       this.cdr.markForCheck();
 

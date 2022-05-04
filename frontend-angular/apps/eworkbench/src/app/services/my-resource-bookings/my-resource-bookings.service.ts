@@ -6,9 +6,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { TableViewService } from '@eworkbench/table';
-import { ExportLink, ExportService, ResourceBooking } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { TableViewService } from '@eworkbench/table';
+import type { ExportLink, ExportService, ResourceBooking } from '@eworkbench/types';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -21,12 +21,10 @@ export class MyResourceBookingsService implements TableViewService, ExportServic
 
   public getList(params = new HttpParams()): Observable<{ total: number; data: ResourceBooking[] }> {
     return this.httpClient.get<ResourceBooking[]>(this.apiUrl, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.length,
-          data,
-        })
-      )
+      map(data => ({
+        total: data.length,
+        data,
+      }))
     );
   }
 

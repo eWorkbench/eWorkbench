@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { NotificationConfiguration } from '@eworkbench/types';
+import type { NotificationConfiguration } from '@eworkbench/types';
 
 export const mockNotificationConfiguration: NotificationConfiguration = {
   allowed_notifications: ['NOTIFICATION_CONF_MEETING_USER_CHANGED', 'NOTIFICATION_CONF_MEETING_RELATION_CHANGED'],

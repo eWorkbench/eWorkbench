@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { UserDetailsModalComponent } from '../modals/user-details/user-details.component';
 

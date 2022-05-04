@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -21,15 +19,14 @@ import {
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBookSectionsService, LabBooksService, WebSocketService } from '@app/services';
 import { environment } from '@environments/environment';
-import { LabBookElement, LabBookElementEvent, LabBookElementPayload, ModalCallback } from '@eworkbench/types';
+import type { LabBookElement, LabBookElementEvent, LabBookElementPayload, ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { GridsterComponent, GridsterConfig, GridsterItem } from 'angular-gridster2';
+import type { GridsterComponent, GridsterConfig, GridsterItem } from 'angular-gridster2';
 import { of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { gridsterConfig } from '../../../config/gridster-config';
-import { LabBookDrawBoardElementComponent } from '../element/element.component';
+import type { LabBookDrawBoardElementComponent } from '../element/element.component';
 import { LabBookPendingChangesModalComponent } from '../modals/pending-changes/pending-changes.component';
 
 interface ElementRemoval {
@@ -95,40 +92,34 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
     public readonly labBookSectionsService: LabBookSectionsService,
     private readonly modalService: DialogService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly translocoService: TranslocoService,
     private readonly websocketService: WebSocketService
   ) {}
 
   public ngOnInit(): void {
     this.websocketService.subscribe([{ model: 'labbook', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.labbook_child_element_changed?.model_pk === this.id) {
-          // Sadly, we need a timeout here because the logic for the LabBook operations is
-          // mainly in the frontend and the backend sends a socket request when the first
-          // API request (in the browser of another user) resolved. But we really should wait
-          // for all API calls which we can't, because we don't know what's going on in another
-          // browser. If the logic moves to the backend, we can remove the timeout.
-          if (this.socketRefreshTimeout) {
-            clearTimeout(this.socketRefreshTimeout);
-          }
-
-          this.socketRefreshTimeout = setTimeout(() => this.softReload(), environment.labBookSocketRefreshInterval);
-        } else if (data.element_relations_changed) {
-          this.refreshElementRelations.next(data.element_relations_changed);
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.labbook_child_element_changed?.model_pk === this.id) {
+        // Sadly, we need a timeout here because the logic for the LabBook operations is
+        // mainly in the frontend and the backend sends a socket request when the first
+        // API request (in the browser of another user) resolved. But we really should wait
+        // for all API calls which we can't, because we don't know what's going on in another
+        // browser. If the logic moves to the backend, we can remove the timeout.
+        if (this.socketRefreshTimeout) {
+          clearTimeout(this.socketRefreshTimeout);
         }
+
+        this.socketRefreshTimeout = setTimeout(() => this.softReload(), environment.labBookSocketRefreshInterval);
+      } else if (data.element_relations_changed) {
+        this.refreshElementRelations.next(data.element_relations_changed);
       }
-    );
+    });
 
     this.initDetails();
 
-    /* istanbul ignore next */
     this.created?.subscribe((event: LabBookElementEvent) => {
       this.addElement(event);
     });
 
-    /* istanbul ignore next */
     this.refresh?.subscribe((reload: boolean) => {
       if (reload) {
         this.reload();
@@ -145,13 +136,13 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
       .getElements(this.id, this.section)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBookElements => {
+        labBookElements => {
           labBookElements.forEach(element => this.drawBoardElements.push(...this.convertToGridItems([element])));
 
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -185,46 +176,42 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
     getSectionElements$
       .pipe(
         untilDestroyed(this),
-        switchMap(
-          /* istanbul ignore next */ elements => {
-            if (addToSection) {
-              sectionElements = [...elements];
-            }
-
-            const element: LabBookElementPayload = {
-              child_object_content_type: event.childObjectContentType,
-              child_object_id: event.childObjectId,
-              position_x: 0,
-              position_y: event.position === 'top' ? 0 : this.getMaxYPosition(sectionElements, addToSection),
-              width: 20,
-              height: this.getNewElementHeight(event.childObjectContentTypeModel),
-            };
-
-            return this.labBooksService.addElement(this.id, element).pipe(untilDestroyed(this));
+        switchMap(elements => {
+          if (addToSection) {
+            sectionElements = [...elements];
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ labBookElement => {
-            if (addToLabBook) {
-              return of(labBookElement);
-            }
 
-            sectionElements ??= [];
+          const element: LabBookElementPayload = {
+            child_object_content_type: event.childObjectContentType,
+            child_object_id: event.childObjectId,
+            position_x: 0,
+            position_y: event.position === 'top' ? 0 : this.getMaxYPosition(sectionElements, addToSection),
+            width: 20,
+            height: event.height ?? this.getNewElementHeight(event.childObjectContentTypeModel),
+          };
 
-            return this.labBookSectionsService
-              .patch(event.parentElement, {
-                pk: event.parentElement,
-                child_elements: [...sectionElements.map(e => e.pk), labBookElement.pk],
-              })
-              .pipe(
-                untilDestroyed(this),
-                map(/* istanbul ignore next */ () => labBookElement)
-              );
+          return this.labBooksService.addElement(this.id, element).pipe(untilDestroyed(this));
+        }),
+        switchMap(labBookElement => {
+          if (addToLabBook) {
+            return of(labBookElement);
           }
-        )
+
+          sectionElements ??= [];
+
+          return this.labBookSectionsService
+            .patch(event.parentElement, {
+              pk: event.parentElement,
+              child_elements: [...sectionElements.map(e => e.pk), labBookElement.pk],
+            })
+            .pipe(
+              untilDestroyed(this),
+              map(() => labBookElement)
+            );
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ labBookElement => {
+        labBookElement => {
           const newGridElement: GridsterItem = {
             label: labBookElement.display,
             x: labBookElement.position_x,
@@ -259,7 +246,7 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -284,11 +271,11 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
         .updateAllElements(this.id, elementsPayload)
         .pipe(untilDestroyed(this))
         .subscribe(
-          /* istanbul ignore next */ () => {
+          () => {
             this.loading = false;
             this.cdr.markForCheck();
           },
-          /* istanbul ignore next */ () => {
+          () => {
             this.loading = false;
             this.cdr.markForCheck();
           }
@@ -346,67 +333,59 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
     this.labBooksService
       .getElements(this.id, this.section)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ labBookElements => {
-          const oldDrawBoardElements = [...this.drawBoardElements];
-          const newdrawBoardElements: GridsterItem[] = this.convertToGridItems(labBookElements);
+      .subscribe(labBookElements => {
+        const oldDrawBoardElements = [...this.drawBoardElements];
+        const newdrawBoardElements: GridsterItem[] = this.convertToGridItems(labBookElements);
 
-          // Remove deleted elements
-          const elementsToRemove = oldDrawBoardElements.filter((oldField: GridsterItem) => {
-            return !newdrawBoardElements.some((newField: GridsterItem) => {
-              return oldField.element.pk === newField.element.pk;
-            });
-          });
-          elementsToRemove.forEach(element => {
-            for (let index = this.drawBoardElements.length - 1; index >= 0; index--) {
-              const drawBoardElement = this.drawBoardElements[index];
-              if (drawBoardElement.element.pk === element.element.pk) {
-                this.drawBoardElements.splice(index, 1);
-              }
+        // Remove deleted elements
+        const elementsToRemove = oldDrawBoardElements.filter(
+          (oldField: GridsterItem) => !newdrawBoardElements.some((newField: GridsterItem) => oldField.element.pk === newField.element.pk)
+        );
+        elementsToRemove.forEach(element => {
+          for (let index = this.drawBoardElements.length - 1; index >= 0; index--) {
+            const drawBoardElement = this.drawBoardElements[index];
+            if (drawBoardElement.element.pk === element.element.pk) {
+              this.drawBoardElements.splice(index, 1);
             }
-          });
-
-          // Update existing elements
-          newdrawBoardElements
-            .filter((newField: GridsterItem) => {
-              return oldDrawBoardElements.some((oldField: GridsterItem) => {
-                return newField.element.pk === oldField.element.pk;
-              });
-            })
-            .forEach(element => {
-              this.drawBoardElements.forEach((drawBoardElement, index) => {
-                if (drawBoardElement.element.pk === element.element.pk) {
-                  this.drawBoardElements[index].x = element.x;
-                  this.drawBoardElements[index].y = element.y;
-                  this.drawBoardElements[index].cols = element.cols;
-                  this.drawBoardElements[index].rows = element.rows;
-                }
-              });
-            });
-
-          // We must tell the options that we changed them even though we didn't. This way Gridster will
-          // check the changed properties of items and visually apply them. This is important if we move
-          // or resize items. As long as Gridster won't implement better support we need this workaround.
-          this.options.api?.optionsChanged?.();
-
-          // Add new elements
-          const elementsToAdd = newdrawBoardElements.filter((newField: GridsterItem) => {
-            return !oldDrawBoardElements.some((oldField: GridsterItem) => {
-              return newField.element.pk === oldField.element.pk;
-            });
-          });
-          this.drawBoardElements = [...this.drawBoardElements, ...elementsToAdd];
-
-          this.socketLoading = false;
-          this.socketRefreshTimeout = undefined;
-          this.cdr.markForCheck();
-
-          if (this.queuedSocketRefreshes) {
-            this.queuedSocketRefreshes = false;
-            this.softReload();
           }
+        });
+
+        // Update existing elements
+        newdrawBoardElements
+          .filter((newField: GridsterItem) =>
+            oldDrawBoardElements.some((oldField: GridsterItem) => newField.element.pk === oldField.element.pk)
+          )
+          .forEach(element => {
+            this.drawBoardElements.forEach((drawBoardElement, index) => {
+              if (drawBoardElement.element.pk === element.element.pk) {
+                this.drawBoardElements[index].x = element.x;
+                this.drawBoardElements[index].y = element.y;
+                this.drawBoardElements[index].cols = element.cols;
+                this.drawBoardElements[index].rows = element.rows;
+              }
+            });
+          });
+
+        // We must tell the options that we changed them even though we didn't. This way Gridster will
+        // check the changed properties of items and visually apply them. This is important if we move
+        // or resize items. As long as Gridster won't implement better support we need this workaround.
+        this.options.api?.optionsChanged?.();
+
+        // Add new elements
+        const elementsToAdd = newdrawBoardElements.filter(
+          (newField: GridsterItem) => !oldDrawBoardElements.some((oldField: GridsterItem) => newField.element.pk === oldField.element.pk)
+        );
+        this.drawBoardElements = [...this.drawBoardElements, ...elementsToAdd];
+
+        this.socketLoading = false;
+        this.socketRefreshTimeout = undefined;
+        this.cdr.markForCheck();
+
+        if (this.queuedSocketRefreshes) {
+          this.queuedSocketRefreshes = false;
+          this.softReload();
         }
-      );
+      });
   }
 
   public onExpandSection(id: string): void {
@@ -415,12 +394,11 @@ export class LabBookDrawBoardGridComponent implements OnInit, OnDestroy {
       return;
     }
 
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(LabBookPendingChangesModalComponent, {
       closeButton: false,
       data: { id },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.switchSectionStates(id);

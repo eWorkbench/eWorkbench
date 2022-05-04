@@ -8,9 +8,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBooksService, ProjectsService } from '@app/services';
-import { LabBook, Project } from '@eworkbench/types';
+import type { LabBook, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -18,10 +18,10 @@ import { from, of, Subject } from 'rxjs';
 import { catchError, debounceTime, mergeMap, switchMap } from 'rxjs/operators';
 
 interface FormLabBook {
-  title: string | null;
+  title: FormControl<string | null>;
   isTemplate: boolean;
   description: string | null;
-  projects: string[];
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -49,10 +49,10 @@ export class NewLabBookModalComponent implements OnInit {
   public projectInput$ = new Subject<string>();
 
   public form = this.fb.group<FormLabBook>({
-    title: [null, [Validators.required]],
-    isTemplate: [false],
-    description: [null],
-    projects: [[]],
+    title: this.fb.control(null, Validators.required),
+    isTemplate: false,
+    description: null,
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -65,8 +65,7 @@ export class NewLabBookModalComponent implements OnInit {
     private readonly translocoService: TranslocoService
   ) {}
 
-  public get f(): FormGroup<FormLabBook>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -89,29 +88,25 @@ export class NewLabBookModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public patchFormValues(): void {
@@ -126,7 +121,6 @@ export class NewLabBookModalComponent implements OnInit {
         { emitEvent: false }
       );
 
-      /* istanbul ignore next */
       if (this.initialState.projects.length) {
         from(this.initialState.projects)
           .pipe(
@@ -134,20 +128,18 @@ export class NewLabBookModalComponent implements OnInit {
             mergeMap(id =>
               this.projectsService.get(id).pipe(
                 untilDestroyed(this),
-                catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-                })
+                catchError(() =>
+                  of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+                )
               )
             )
           )
-          .subscribe(
-            /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project]
-                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-              this.cdr.markForCheck();
-            }
-          );
+          .subscribe(project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          });
       }
     }
   }
@@ -162,7 +154,7 @@ export class NewLabBookModalComponent implements OnInit {
       .add(this.labBook)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBook => {
+        labBook => {
           this.state = ModalState.Changed;
           this.modalRef.close({
             state: this.state,
@@ -176,7 +168,7 @@ export class NewLabBookModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

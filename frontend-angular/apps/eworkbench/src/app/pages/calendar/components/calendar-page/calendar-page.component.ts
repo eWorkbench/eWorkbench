@@ -36,9 +36,17 @@ import {
 } from '@app/services';
 import { DateService } from '@app/services/date/date.service';
 import { UserService, UserStore } from '@app/stores/user';
-import { CalendarCustomButtons } from '@eworkbench/calendar';
-import { Appointment, CalendarAccessPrivileges, ModalCallback, Project, Resource, Task, User } from '@eworkbench/types';
-import { DateSelectArg, DatesSetArg, EventClickArg, EventContentArg, EventHoveringArg, EventInput, MountArg } from '@fullcalendar/angular';
+import type { CalendarCustomButtons } from '@eworkbench/calendar';
+import type { Appointment, CalendarAccessPrivileges, ModalCallback, Project, Resource, Task, User } from '@eworkbench/types';
+import type {
+  DateSelectArg,
+  DatesSetArg,
+  EventClickArg,
+  EventContentArg,
+  EventHoveringArg,
+  EventInput,
+  MountArg,
+} from '@fullcalendar/angular';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -198,7 +206,6 @@ export class CalendarPageComponent implements OnInit {
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
       this.currentUser = state.user;
 
-      /* istanbul ignore next */
       if (this.currentUser) {
         this.params = this.params.set('show_meetings_for', this.currentUser.pk!.toString());
       }
@@ -210,7 +217,7 @@ export class CalendarPageComponent implements OnInit {
     this.initSearchInput();
     this.initDetails();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -219,7 +226,7 @@ export class CalendarPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -228,137 +235,119 @@ export class CalendarPageComponent implements OnInit {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.projectsControl.setValue(params.projectId);
-            this.project = params.projectId;
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.projectsControl.setValue(params.projectId);
+          this.project = params.projectId;
+          this.cdr.markForCheck();
+        });
       }
     });
   }
 
   public initSearch(project = false): void {
-    this.projectsControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const queryParams = new URLSearchParams(window.location.search);
+    this.projectsControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const queryParams = new URLSearchParams(window.location.search);
 
-        if (value) {
-          this.params = this.params.set('projects_recursive', value);
-          this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
-          if (!project) {
-            queryParams.set('projects', value);
-            history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
-          }
-          return;
-        }
-
-        this.params = this.params.delete('projects_recursive');
+      if (value) {
+        this.params = this.params.set('projects_recursive', value);
         this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
         if (!project) {
-          queryParams.delete('projects');
+          queryParams.set('projects', value);
           history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
         }
+        return;
       }
-    );
 
-    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const queryParams = new URLSearchParams(window.location.search);
-
-        if (value) {
-          this.params = this.params.set('search', value);
-          this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
-          queryParams.set('search', value);
-          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
-          return;
-        }
-
-        this.params = this.params.delete('search');
-        this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
-        queryParams.delete('search');
+      this.params = this.params.delete('projects_recursive');
+      this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+      if (!project) {
+        queryParams.delete('projects');
         history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
       }
-    );
+    });
 
-    this.myAppointmentsCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value && this.currentUser) {
-          this.params = this.params.set('show_meetings_for', this.currentUser.pk!.toString());
-          this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
-          return;
-        }
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const queryParams = new URLSearchParams(window.location.search);
 
-        this.params = this.params.delete('show_meetings_for');
+      if (value) {
+        this.params = this.params.set('search', value);
         this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+        queryParams.set('search', value);
+        history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        return;
       }
-    );
 
-    this.myTasksCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (!value) {
-          this.params = this.params.set('show_tasks', String(Number(value)));
-          this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
-          return;
-        }
+      this.params = this.params.delete('search');
+      this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+      queryParams.delete('search');
+      history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+    });
 
-        this.params = this.params.delete('show_tasks');
+    this.myAppointmentsCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value && this.currentUser) {
+        this.params = this.params.set('show_meetings_for', this.currentUser.pk!.toString());
         this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+        return;
       }
-    );
 
-    this.route.queryParamMap.pipe(untilDestroyed(this), take(1)).subscribe(
-      /* istanbul ignore next */ queryParams => {
-        const projects = queryParams.get('projects');
-        const search = queryParams.get('search');
+      this.params = this.params.delete('show_meetings_for');
+      this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+    });
 
-        if (projects && !project) {
-          this.projectsService
-            .get(projects)
-            .pipe(untilDestroyed(this))
-            .subscribe(
-              /* istanbul ignore next */ project => {
-                this.projects = [...this.projects, project];
-                this.cdr.markForCheck();
-              }
-            );
-          this.projectsControl.setValue(projects);
-        }
-
-        if (search) {
-          this.searchControl.setValue(search);
-        }
+    this.myTasksCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (!value) {
+        this.params = this.params.set('show_tasks', String(Number(value)));
+        this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+        return;
       }
-    );
 
-    this.selectedUsersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ users => {
-        this.params = this.params.delete('show_meetings_for');
-        if (this.currentUser) {
-          this.params = this.params.append('show_meetings_for', this.currentUser.pk!.toString());
-        }
+      this.params = this.params.delete('show_tasks');
+      this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+    });
 
-        if (users.length) {
-          users.forEach(userPk => {
-            this.params = this.params.append('show_meetings_for', userPk.toString());
+    this.route.queryParamMap.pipe(untilDestroyed(this), take(1)).subscribe(queryParams => {
+      const projects = queryParams.get('projects');
+      const search = queryParams.get('search');
+
+      if (projects && !project) {
+        this.projectsService
+          .get(projects)
+          .pipe(untilDestroyed(this))
+          .subscribe(project => {
+            this.projects = [...this.projects, project];
+            this.cdr.markForCheck();
           });
-          this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
-          return;
-        }
-
-        this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+        this.projectsControl.setValue(projects);
       }
-    );
 
-    this.selectedResourcesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ () => {
-        this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+      if (search) {
+        this.searchControl.setValue(search);
       }
-    );
+    });
+
+    this.selectedUsersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(users => {
+      this.params = this.params.delete('show_meetings_for');
+      if (this.currentUser) {
+        this.params = this.params.append('show_meetings_for', this.currentUser.pk!.toString());
+      }
+
+      if (users.length) {
+        users.forEach(userPk => {
+          this.params = this.params.append('show_meetings_for', userPk.toString());
+        });
+        this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+        return;
+      }
+
+      this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+    });
+
+    this.selectedResourcesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(() => {
+      this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
+    });
   }
 
   public initSearchInput(): void {
@@ -366,72 +355,62 @@ export class CalendarPageComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input, this.currentUser?.pk) : of([])))
+        switchMap(input => (input ? this.userService.search(input, this.currentUser?.pk) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.users = this.getUnusedUsers(users);
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.users = this.getUnusedUsers(users);
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.resourcesInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.resourcesService.search(input) : of([...this.favoriteResources])))
+        switchMap(input => (input ? this.resourcesService.search(input) : of([...this.favoriteResources])))
       )
-      .subscribe(
-        /* istanbul ignore next */ resources => {
-          this.resources = this.getUnusedResources([...resources].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite)));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(resources => {
+        this.resources = this.getUnusedResources([...resources].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite)));
+        this.cdr.markForCheck();
+      });
 
     this.projectsInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.resourcesService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ resources => {
-          if (resources.data.length) {
-            this.favoriteResources = [...resources.data];
-            this.resources = [...this.resources, ...this.favoriteResources]
-              .filter((value, index, array) => array.map(resource => resource.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(resources => {
+        if (resources.data.length) {
+          this.favoriteResources = [...resources.data];
+          this.resources = [...this.resources, ...this.favoriteResources]
+            .filter((value, index, array) => array.map(resource => resource.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -448,11 +427,11 @@ export class CalendarPageComponent implements OnInit {
       .getList()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ calendarAccessPrivileges => {
+        calendarAccessPrivileges => {
           this.calendarAccessPrivileges = calendarAccessPrivileges[0];
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.cdr.markForCheck();
         }
       );
@@ -513,7 +492,6 @@ export class CalendarPageComponent implements OnInit {
             event.end = this.dateService.fixFullDay(event.end);
           }
 
-          /* istanbul ignore next */
           this.calendar.addEvent(event);
         });
       });
@@ -546,7 +524,6 @@ export class CalendarPageComponent implements OnInit {
               event.end = this.dateService.fixFullDay(event.end);
             }
 
-            /* istanbul ignore next */
             this.calendar.addEvent(event);
           });
         });
@@ -558,7 +535,6 @@ export class CalendarPageComponent implements OnInit {
       const userStoreValue = this.userStore.getValue();
       const userSetting = 'SkipDialog-LeaveProject';
 
-      /* istanbul ignore next */
       const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
       if (skipLeaveDialog) {
@@ -568,7 +544,7 @@ export class CalendarPageComponent implements OnInit {
       this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -580,13 +556,12 @@ export class CalendarPageComponent implements OnInit {
   }
 
   public openExportModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(ExportModalComponent, { closeButton: false });
   }
 
   public openNewModal(startDate?: string, endDate?: string, allDay?: boolean): void {
     const initialState = this.project ? { projects: [this.project] } : null;
-    /* istanbul ignore next */
+
     this.modalRef = this.modalService.open(NewAppointmentModalComponent, {
       closeButton: false,
       data: {
@@ -596,7 +571,7 @@ export class CalendarPageComponent implements OnInit {
         initialState: initialState,
       },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
@@ -609,13 +584,12 @@ export class CalendarPageComponent implements OnInit {
         data: this.calendarAccessPrivileges,
       },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed && callback.data) {
-      /* istanbul ignore next */
       if (callback.data?.event) {
         this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
       }
@@ -638,16 +612,19 @@ export class CalendarPageComponent implements OnInit {
   }
 
   public onEventClicked(event: EventClickArg): void {
-    /* istanbul ignore next */
     event.jsEvent.preventDefault();
 
-    /* istanbul ignore next */
     if (event.event.url) {
-      this.router.navigate([event.event.url]);
+      void this.router.navigate([event.event.url]);
     }
   }
 
   public onEventDidMount(event: MountArg<EventContentArg>): void {
+    // Avoid popovers on events that just indicate that a specific time range is not bookable
+    if (event.event.display === 'inverse-background') {
+      return;
+    }
+
     const projectableNodes = Array.from(event.el.childNodes);
 
     const compRef = this.popoverFactory.create(this.injector, [projectableNodes], event.el);

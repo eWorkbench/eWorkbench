@@ -5,13 +5,13 @@
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { PicturesService } from '@app/services';
+import { UserService, UserStore } from '@app/stores/user';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap, take } from 'rxjs/operators';
-import { UserService, UserStore } from '@app/stores/user';
 
 interface FormConvertTiff {
   doNotShowMessageAgain: boolean;
@@ -26,7 +26,7 @@ interface FormConvertTiff {
 })
 export class ConvertTiffModalComponent {
   public form = this.fb.group<FormConvertTiff>({
-    doNotShowMessageAgain: [false],
+    doNotShowMessageAgain: false,
   });
 
   public constructor(
@@ -39,8 +39,7 @@ export class ConvertTiffModalComponent {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormConvertTiff>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -50,8 +49,8 @@ export class ConvertTiffModalComponent {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(user => {
-          return this.userService.changeSettings({
+        switchMap(user =>
+          this.userService.changeSettings({
             userprofile: {
               ui_settings: {
                 ...user.userprofile.ui_settings,
@@ -61,19 +60,17 @@ export class ConvertTiffModalComponent {
                 },
               },
             },
-          });
-        })
+          })
+        )
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('picture.convertTiffModal.toastr.success.doNotShowMessageAgainUpdated')
-            .pipe(untilDestroyed(this))
-            .subscribe(doNotShowMessageAgainUpdated => {
-              this.toastrService.success(doNotShowMessageAgainUpdated);
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('picture.convertTiffModal.toastr.success.doNotShowMessageAgainUpdated')
+          .pipe(untilDestroyed(this))
+          .subscribe(doNotShowMessageAgainUpdated => {
+            this.toastrService.success(doNotShowMessageAgainUpdated);
+          });
+      });
   }
 }

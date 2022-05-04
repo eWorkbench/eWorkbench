@@ -1,0 +1,23 @@
+{
+  "projectType": "library",
+  "root": "libs/skeletons",
+  "sourceRoot": "libs/skeletons/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/skeletons"],
+      "options": {
+        "jestConfig": "libs/skeletons/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["libs/skeletons/**/*.ts", "libs/skeletons/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

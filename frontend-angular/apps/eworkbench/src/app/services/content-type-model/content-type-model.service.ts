@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { ContentTypeModelItem, ContentTypeModels } from '@eworkbench/types';
+import type { ContentTypeModelItem, ContentTypeModels } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 
 @Injectable({

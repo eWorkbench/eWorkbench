@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { KanbanTask } from './task.interface';
+import type { KanbanTask } from './task.interface';
 
 export interface TaskBoardColumn {
-  color: string;
+  color?: string;
   content_type?: number;
   content_type_model?: string;
   display?: string;

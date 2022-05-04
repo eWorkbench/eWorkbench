@@ -3,14 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+const { getJestProjects } = require('@nrwl/jest');
+
 module.exports = {
-  projects: [
-    '<rootDir>/apps/eworkbench',
-    '<rootDir>/libs/calendar',
-    '<rootDir>/libs/gantt-chart',
-    '<rootDir>/libs/modals',
-    '<rootDir>/libs/picture-editor',
-    '<rootDir>/libs/table',
-    '<rootDir>/libs/wysiwyg-editor',
-  ],
+  projects: getJestProjects(),
 };

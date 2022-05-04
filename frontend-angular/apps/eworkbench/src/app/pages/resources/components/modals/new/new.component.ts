@@ -7,11 +7,10 @@ import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { ProjectsService, ResourcesService, UserGroupsService } from '@app/services';
-import { UserService } from '@app/stores/user';
-import { DropdownElement, Project, Resource, ResourcePayload, User } from '@eworkbench/types';
+import { ProjectsService, ResourcesService } from '@app/services';
+import type { DropdownElement, Project, Resource, ResourcePayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -19,16 +18,13 @@ import { from, of, Subject } from 'rxjs';
 import { catchError, debounceTime, mergeMap, switchMap } from 'rxjs/operators';
 
 interface FormResource {
-  name: string | null;
-  type: 'ROOM' | 'LABEQ' | 'OFFEQ' | 'ITRES';
+  name: FormControl<string | null>;
+  type: FormControl<'ROOM' | 'LABEQ' | 'OFFEQ' | 'ITRES'>;
   contact: string | null;
   responsibleUnit: string | null;
   location: string | null;
   description: string | null;
-  userAvailability: 'GLB' | 'USR' | 'PRJ';
-  userAvailabilitySelectedUserGroups: string | null;
-  userAvailabilitySelectedUsers: number[] | null;
-  projects: string[];
+  projects: FormControl<string[]>;
   ownerAgreement: boolean;
   termsOfUsePDF: File | string | null;
   duplicateMetadata: boolean;
@@ -48,10 +44,6 @@ export class NewResourceModalComponent implements OnInit {
 
   public duplicate?: string = this.modalRef.data?.duplicate;
 
-  public userAvailabilitySelectedUsers: User[] = [];
-
-  public userAvailabilitySelectedUsersInput$ = new Subject<string>();
-
   public loading = false;
 
   public state = ModalState.Unchanged;
@@ -66,24 +58,17 @@ export class NewResourceModalComponent implements OnInit {
 
   public types: DropdownElement[] = [];
 
-  public userAvailabilityChoices: DropdownElement[] = [];
-
-  public userAvailabilitySelectedUserGroupsChoices: DropdownElement[] = [];
-
   public form = this.fb.group<FormResource>({
-    name: [null, [Validators.required]],
-    type: ['ROOM', [Validators.required]],
-    contact: [null],
-    responsibleUnit: [null],
-    location: [null],
-    description: [null],
-    userAvailability: ['PRJ', [Validators.required]],
-    userAvailabilitySelectedUserGroups: [null],
-    userAvailabilitySelectedUsers: [[]],
-    projects: [[]],
-    ownerAgreement: [false],
-    termsOfUsePDF: [null],
-    duplicateMetadata: [true],
+    name: this.fb.control(null, Validators.required),
+    type: this.fb.control('ROOM', Validators.required),
+    contact: null,
+    responsibleUnit: null,
+    location: null,
+    description: null,
+    projects: this.fb.control([]),
+    ownerAgreement: false,
+    termsOfUsePDF: null,
+    duplicateMetadata: true,
   });
 
   public constructor(
@@ -92,13 +77,11 @@ export class NewResourceModalComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
     private readonly translocoService: TranslocoService,
-    private readonly userService: UserService,
     private readonly toastrService: ToastrService,
-    private readonly projectsService: ProjectsService,
-    private readonly userGroupsService: UserGroupsService
+    private readonly projectsService: ProjectsService
   ) {}
 
-  public get f(): FormGroup<FormResource>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -110,11 +93,6 @@ export class NewResourceModalComponent implements OnInit {
       responsible_unit: this.f.responsibleUnit.value ?? '',
       location: this.f.location.value ?? '',
       description: this.f.description.value ?? '',
-      user_availability: this.f.userAvailability.value,
-      user_availability_selected_user_group_pks: this.f.userAvailabilitySelectedUserGroups.value
-        ? [Number(this.f.userAvailabilitySelectedUserGroups.value)]
-        : [],
-      user_availability_selected_user_pks: this.f.userAvailabilitySelectedUsers.value,
       projects: this.f.projects.value,
       metadata: this.duplicate && this.f.duplicateMetadata.value ? this.initialState?.metadata : [],
     };
@@ -122,7 +100,6 @@ export class NewResourceModalComponent implements OnInit {
 
   public ngOnInit(): void {
     this.initTranslations();
-    this.initDetails();
     this.initSearchInput();
     this.patchFormValues();
   }
@@ -150,91 +127,37 @@ export class NewResourceModalComponent implements OnInit {
             label: resources.type.ITResource,
           },
         ];
-
-        this.userAvailabilityChoices = [
-          {
-            value: 'GLB',
-            label: resources.userAvailability.global,
-          },
-          {
-            value: 'PRJ',
-            label: resources.userAvailability.project,
-          },
-          {
-            value: 'USR',
-            label: resources.userAvailability.user,
-          },
-        ];
       });
   }
 
-  public initDetails(): void {
-    this.userGroupsService
-      .get()
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ userGroups => {
-          this.userAvailabilitySelectedUserGroupsChoices = userGroups.map(group => ({
-            value: group.pk.toString(),
-            label: group.name,
-          }));
-          this.cdr.markForCheck();
-        },
-        /* istanbul ignore next */ () => {
-          this.cdr.markForCheck();
-        }
-      );
-  }
-
   public initSearchInput(): void {
-    this.userAvailabilitySelectedUsersInput$
-      .pipe(
-        untilDestroyed(this),
-        debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
-      )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.userAvailabilitySelectedUsers = [...users];
-            this.cdr.markForCheck();
-          }
-        }
-      );
-
     this.projectInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public patchFormValues(): void {
     if (this.initialState) {
-      this.userAvailabilitySelectedUsers = this.initialState.user_availability_selected_users;
-
       this.form.patchValue(
         {
           name: this.initialState.name,
@@ -242,18 +165,12 @@ export class NewResourceModalComponent implements OnInit {
           responsibleUnit: this.initialState.responsible_unit,
           contact: this.initialState.contact,
           location: this.initialState.location,
-          userAvailability: this.initialState.user_availability,
-          userAvailabilitySelectedUserGroups: this.initialState.user_availability_selected_user_group_pks?.length
-            ? this.initialState.user_availability_selected_user_group_pks[0].toString()
-            : null,
-          userAvailabilitySelectedUsers: this.initialState.user_availability_selected_user_pks,
           description: this.initialState.description,
           projects: this.initialState.projects,
         },
         { emitEvent: false }
       );
 
-      /* istanbul ignore next */
       if (this.initialState.projects.length) {
         from(this.initialState.projects)
           .pipe(
@@ -261,20 +178,18 @@ export class NewResourceModalComponent implements OnInit {
             mergeMap(id =>
               this.projectsService.get(id).pipe(
                 untilDestroyed(this),
-                catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-                })
+                catchError(() =>
+                  of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+                )
               )
             )
           )
-          .subscribe(
-            /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project]
-                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-              this.cdr.markForCheck();
-            }
-          );
+          .subscribe(project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          });
       }
     }
   }
@@ -289,18 +204,16 @@ export class NewResourceModalComponent implements OnInit {
       .add(this.resource)
       .pipe(
         untilDestroyed(this),
-        switchMap(
-          /* istanbul ignore next */ resource => {
-            if (this.f.termsOfUsePDF.dirty && /* istanbul ignore next */ this.f.termsOfUsePDF.value) {
-              return this.resourcesService.changeTermsOfUsePDF(resource.pk, this.f.termsOfUsePDF.value).pipe(untilDestroyed(this));
-            }
-
-            return of(resource);
+        switchMap(resource => {
+          if (this.f.termsOfUsePDF.dirty && this.f.termsOfUsePDF.value) {
+            return this.resourcesService.changeTermsOfUsePDF(resource.pk, this.f.termsOfUsePDF.value).pipe(untilDestroyed(this));
           }
-        )
+
+          return of(resource);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ resource => {
+        resource => {
           this.state = ModalState.Changed;
           this.modalRef.close({
             state: this.state,
@@ -313,7 +226,7 @@ export class NewResourceModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -321,9 +234,8 @@ export class NewResourceModalComponent implements OnInit {
   }
 
   public onUploadPDF(event: Event): void {
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -332,10 +244,5 @@ export class NewResourceModalComponent implements OnInit {
       };
       reader.readAsBinaryString(files[0]);
     }
-  }
-
-  public changeUserAvailabilitySelectedUsers(userAvailabilitySelectedUsers: User[]): void {
-    this.userAvailabilitySelectedUsers = [...userAvailabilitySelectedUsers];
-    this.cdr.markForCheck();
   }
 }

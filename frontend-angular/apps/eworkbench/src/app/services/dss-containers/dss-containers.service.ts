@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { TableViewService } from '@eworkbench/table';
-import {
+import type { TableViewService } from '@eworkbench/table';
+import type {
   DjangoAPI,
   DssContainer,
   DssContainerPayload,
@@ -14,7 +14,7 @@ import {
   RecentChanges,
   RecentChangesService,
 } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { PrivilegesService } from '../privileges/privileges.service';
 
@@ -30,28 +30,25 @@ export class DssContainersService implements TableViewService, RecentChangesServ
 
   public getList(params = new HttpParams()): Observable<{ total: number; data: DssContainer[] }> {
     return this.httpClient.get<DjangoAPI<DssContainer[]>>(this.apiUrl, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 
   public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<DssContainer>> {
     return this.httpClient.get<DssContainer>(`${this.apiUrl}${id}/`, { params }).pipe(
-      switchMap(
-        /* istanbul ignore next */ task =>
-          this.getUserPrivileges(id, userId, task.deleted).pipe(
-            map(privileges => {
-              const privilegesData: PrivilegesData<DssContainer> = {
-                privileges,
-                data: task,
-              };
-              return privilegesData;
-            })
-          )
+      switchMap(task =>
+        this.getUserPrivileges(id, userId, task.deleted).pipe(
+          map(privileges => {
+            const privilegesData: PrivilegesData<DssContainer> = {
+              privileges,
+              data: task,
+            };
+            return privilegesData;
+          })
+        )
       )
     );
   }
@@ -71,7 +68,7 @@ export class DssContainersService implements TableViewService, RecentChangesServ
   public getUserPrivileges(id: string, userId: number, deleted: boolean): Observable<Privileges> {
     return this.httpClient
       .get<PrivilegesApi>(`${this.apiUrl}${id}/privileges/${userId}/`)
-      .pipe(map(/* istanbul ignore next */ privileges => this.privilegesService.transform(privileges, deleted)));
+      .pipe(map(privileges => this.privilegesService.transform(privileges, deleted)));
   }
 
   public addUserPrivileges(id: string, userId: number): Observable<PrivilegesApi> {
@@ -92,15 +89,11 @@ export class DssContainersService implements TableViewService, RecentChangesServ
   }
 
   public deleteUserPrivileges(id: string, userId: number): Observable<PrivilegesApi[]> {
-    return this.httpClient
-      .delete(`${this.apiUrl}${id}/privileges/${userId}/`)
-      .pipe(switchMap(/* istanbul ignore next */ () => this.getPrivilegesList(id)));
+    return this.httpClient.delete(`${this.apiUrl}${id}/privileges/${userId}/`).pipe(switchMap(() => this.getPrivilegesList(id)));
   }
 
   public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
-    return this.httpClient
-      .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
-      .pipe(map(/* istanbul ignore next */ data => data.results));
+    return this.httpClient.get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params }).pipe(map(data => data.results));
   }
 
   public lock(id: string, params = new HttpParams()): Observable<void> {

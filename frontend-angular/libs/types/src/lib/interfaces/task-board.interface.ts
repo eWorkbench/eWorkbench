@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { TaskBoardColumn } from './task-board-column.interface';
-import { TaskUser } from './task-user.interface';
+import type { TaskBoardColumn } from './task-board-column.interface';
+import type { TaskUser } from './task-user.interface';
 
 export interface TaskBoardPayload {
   title?: string;

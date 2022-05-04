@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.postgres.fields.jsonb import KeyTextTransform, KeyTransform
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_datetime, parse_date
 from django.utils.timezone import localtime
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
@@ -175,6 +175,9 @@ class MetadataFormatter:
 
             elif base_type == MetadataField.BASE_TYPE_DATE:
                 return date_short(localtime(parse_datetime(value)))
+
+            elif base_type == MetadataField.BASE_TYPE_REAL_DATE:
+                return date_short(localtime(parse_date(value)))
 
             elif base_type == MetadataField.BASE_TYPE_CHECKBOX:
                 return _('Yes') if value else _('No')

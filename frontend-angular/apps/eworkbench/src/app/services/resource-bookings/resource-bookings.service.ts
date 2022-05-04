@@ -6,8 +6,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { Appointment } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { Appointment } from '@eworkbench/types';
+import type { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

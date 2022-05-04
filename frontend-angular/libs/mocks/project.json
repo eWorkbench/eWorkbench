@@ -1,0 +1,23 @@
+{
+  "projectType": "library",
+  "root": "libs/mocks",
+  "sourceRoot": "libs/mocks/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/mocks"],
+      "options": {
+        "jestConfig": "libs/mocks/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["libs/mocks/**/*.ts", "libs/mocks/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

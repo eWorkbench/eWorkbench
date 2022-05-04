@@ -144,36 +144,13 @@
                 id="remindAttending-modal"
                 name="remindAttending-modal"
               />
-              <label class="custom-control-label font-normal" for="remindAttending-modal">{{
-                t('appointments.editModal.remindAttending.label')
-              }}</label>
+              <label class="custom-control-label" for="remindAttending-modal">
+                {{ t('appointments.editModal.remindAttending.label') }}
+              </label>
             </div>
           </div>
-          <div class="mb-4" *ngIf="f.scheduledNotificationActive.value">
-            <div class="flex items-center">
-              <div class="flex-fill mr-3">
-                <input
-                  type="text"
-                  class="form-control ewb-input"
-                  formControlName="scheduledNotificationTimedeltaValue"
-                  id="reminderValue-modal"
-                  name="reminderValue-modal"
-                />
-              </div>
-              <div class="flex-fill mr-3">
-                <ng-select
-                  class="ewb-select"
-                  formControlName="scheduledNotificationTimedeltaUnit"
-                  labelForId="reminderUnit-modal"
-                  name="reminderUnit-modal"
-                  [items]="remindAttendingUnits"
-                  bindLabel="label"
-                  bindValue="value"
-                  dropdownPosition="top"
-                ></ng-select>
-              </div>
-              <div class="flex-fill">{{ t('appointments.editModal.remindAttending.prior') }}</div>
-            </div>
+          <div *ngIf="f.scheduledNotificationActive.value">
+            <eworkbench-form-time-group formControlName="timeGroup" slot="input"></eworkbench-form-time-group>
           </div>
           <div class="mb-4">
             <label for="description-modal">{{ t('appointments.editModal.description.label') }}</label>

@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    void this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
 
@@ -39,11 +39,11 @@ export class AuthGuard implements CanActivate {
         }
 
         const token = localStorage.getItem('token');
-        /* istanbul ignore next */
+
         if (token) {
           return this.userService.check(token).pipe(
             take(1),
-            map(/* istanbul ignore next */ (user: UserState) => this.navigate(user.loggedIn, state))
+            map((user: UserState) => this.navigate(user.loggedIn, state))
           );
         }
 

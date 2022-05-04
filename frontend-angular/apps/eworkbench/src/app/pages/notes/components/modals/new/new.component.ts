@@ -8,9 +8,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { NotesService, ProjectsService } from '@app/services';
-import { Note, NotePayload, Project } from '@eworkbench/types';
+import type { Note, NotePayload, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -18,9 +18,9 @@ import { from, of, Subject } from 'rxjs';
 import { catchError, debounceTime, mergeMap, switchMap } from 'rxjs/operators';
 
 interface FormNote {
-  subject: string | null;
+  subject: FormControl<string | null>;
   content: string | null;
-  projects: string[];
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -43,10 +43,10 @@ export class NewNoteModalComponent implements OnInit {
 
   public projectInput$ = new Subject<string>();
 
-  public form: FormGroup<FormNote> = this.fb.group<FormNote>({
-    subject: [null, [Validators.required]],
+  public form = this.fb.group<FormNote>({
+    subject: this.fb.control(null, Validators.required),
     content: null,
-    projects: [[]],
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -59,7 +59,7 @@ export class NewNoteModalComponent implements OnInit {
     private readonly projectsService: ProjectsService
   ) {}
 
-  public get f(): FormGroup<FormNote>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -81,29 +81,25 @@ export class NewNoteModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public patchFormValues(): void {
@@ -117,7 +113,6 @@ export class NewNoteModalComponent implements OnInit {
         { emitEvent: false }
       );
 
-      /* istanbul ignore next */
       if (this.initialState.projects.length) {
         from(this.initialState.projects)
           .pipe(
@@ -125,20 +120,18 @@ export class NewNoteModalComponent implements OnInit {
             mergeMap(id =>
               this.projectsService.get(id).pipe(
                 untilDestroyed(this),
-                catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-                })
+                catchError(() =>
+                  of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+                )
               )
             )
           )
-          .subscribe(
-            /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project]
-                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-              this.cdr.markForCheck();
-            }
-          );
+          .subscribe(project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          });
       }
     }
   }
@@ -153,7 +146,7 @@ export class NewNoteModalComponent implements OnInit {
       .add(this.note)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ note => {
+        note => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state, data: { newContent: note }, navigate: ['/notes', note.pk] });
           this.translocoService
@@ -163,7 +156,7 @@ export class NewNoteModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

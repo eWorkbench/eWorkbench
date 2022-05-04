@@ -1,5 +1,0 @@
-# <%= dasherize(name) %>
-
-## Running unit tests
-
-Run `npx nx test <%= dasherize(name) %>` to execute the unit tests.

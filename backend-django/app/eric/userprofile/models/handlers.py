@@ -189,7 +189,10 @@ def password_reset_token_created(sender, reset_password_token, *args, **kwargs):
         to=[reset_password_token.user.email]
     )
     msg.attach_alternative(email_html_message, "text/html")
-    msg.send()
+    try:
+        msg.send()
+    except Exception as exc:
+        LDAP_LOGGER.exception(exc)
 
 
 @receiver(post_save)

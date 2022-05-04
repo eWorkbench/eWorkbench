@@ -4,7 +4,7 @@
  */
 
 import { Pipe, PipeTransform } from '@angular/core';
-import { Directory } from '@eworkbench/types';
+import type { Directory } from '@eworkbench/types';
 
 @Pipe({
   name: 'createTree',

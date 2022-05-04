@@ -48,7 +48,7 @@ export class FavoriteButtonComponent {
       .add(this.id!, this.contentType!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.favorited = true;
           this.loading = false;
           this.translocoService
@@ -59,7 +59,7 @@ export class FavoriteButtonComponent {
             });
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
         }
       );
@@ -75,7 +75,7 @@ export class FavoriteButtonComponent {
       .delete(this.id!, this.contentType!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.favorited = false;
           this.loading = false;
           this.translocoService
@@ -86,7 +86,7 @@ export class FavoriteButtonComponent {
             });
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
         }
       );

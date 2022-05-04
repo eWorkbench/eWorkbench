@@ -17,7 +17,7 @@ import {
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DrivesService, FilesService } from '@app/services';
 import { UserStore } from '@app/stores/user';
-import { Directory, Drive, File, FilePayload, ModalCallback } from '@eworkbench/types';
+import type { Directory, Drive, File, FilePayload, ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -71,7 +71,6 @@ export class SubdirectoryElementComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.initDetails();
     });
@@ -115,12 +114,11 @@ export class SubdirectoryElementComponent implements OnInit {
   }
 
   public onOpenNewDirectoryModal(directory: Directory): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewStorageDirectoryModalComponent, {
       closeButton: false,
       data: { storage: this.storage, parent: directory },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.storage.sub_directories = [...this.storage.sub_directories, callback.data.newContent];
@@ -130,12 +128,11 @@ export class SubdirectoryElementComponent implements OnInit {
   }
 
   public onOpenEditDirectoryModal(directory: Directory): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(EditStorageDirectoryModalComponent, {
       closeButton: false,
       data: { storage: this.storage, initialState: directory },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         const directories: Directory[] = [...this.storage.sub_directories];
@@ -150,7 +147,7 @@ export class SubdirectoryElementComponent implements OnInit {
 
   public onOpenDeleteDirectoryModal(directory: Directory): void {
     const userStoreValue = this.userStore.getValue();
-    /* istanbul ignore next */
+
     const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-RemoveDirectory']);
 
     if (skipTrashDialog) {
@@ -160,7 +157,7 @@ export class SubdirectoryElementComponent implements OnInit {
         closeButton: false,
         data: { storage: this.storage, directory: directory },
       });
-      /* istanbul ignore next */
+
       this.modalRef.afterClosed$
         .pipe(untilDestroyed(this), take(1))
         .subscribe((callback: ModalCallback) => this.onModalClose(directory, callback));
@@ -169,7 +166,6 @@ export class SubdirectoryElementComponent implements OnInit {
 
   public onModalClose(directory: Directory, callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
-      /* istanbul ignore next */
       const directories: Directory[] = [...this.storage.sub_directories];
       const index = directories.findIndex(item => item.pk === directory.pk);
       directories.splice(index, 1);
@@ -188,7 +184,7 @@ export class SubdirectoryElementComponent implements OnInit {
       .deleteDirectory(this.storage.pk, directoryId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           const directories: Directory[] = [...this.storage.sub_directories];
           const index = directories.findIndex(item => item.pk === directoryId);
           directories.splice(index, 1);
@@ -203,7 +199,7 @@ export class SubdirectoryElementComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -211,13 +207,12 @@ export class SubdirectoryElementComponent implements OnInit {
   }
 
   public onOpenAddFileModal(directory: Directory): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(AddFileModalComponent, {
       closeButton: false,
       width: '1000px',
       data: { directory: directory },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.files = [...this.files, callback.data.file];
@@ -234,9 +229,8 @@ export class SubdirectoryElementComponent implements OnInit {
     }
     this.loading = true;
 
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -255,7 +249,7 @@ export class SubdirectoryElementComponent implements OnInit {
           .add(filePayload)
           .pipe(untilDestroyed(this))
           .subscribe(
-            /* istanbul ignore next */ file => {
+            file => {
               this.loading = false;
               this.files.push(file);
               this.cdr.markForCheck();
@@ -268,7 +262,7 @@ export class SubdirectoryElementComponent implements OnInit {
                   this.toastrService.success(success);
                 });
             },
-            /* istanbul ignore next */ () => {
+            () => {
               this.loading = false;
               this.cdr.markForCheck();
             }

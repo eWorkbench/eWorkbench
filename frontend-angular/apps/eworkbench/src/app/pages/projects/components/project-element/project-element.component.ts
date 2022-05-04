@@ -53,36 +53,32 @@ export class ProjectElementComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(
-          /* istanbul ignore next */ state => {
-            const currentUser = state.user;
+        switchMap(state => {
+          const currentUser = state.user;
 
-            return this.userService.changeSettings({
-              userprofile: {
-                ui_settings: {
-                  ...currentUser?.userprofile.ui_settings,
-                  projects_elements: {
-                    ...currentUser?.userprofile.ui_settings?.projects_elements,
-                    [this.elementName]: {
-                      collapsed: this.collapsed,
-                    },
+          return this.userService.changeSettings({
+            userprofile: {
+              ui_settings: {
+                ...currentUser?.userprofile.ui_settings,
+                projects_elements: {
+                  ...currentUser?.userprofile.ui_settings?.projects_elements,
+                  [this.elementName]: {
+                    collapsed: this.collapsed,
                   },
                 },
               },
-            });
-          }
-        )
+            },
+          });
+        })
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('project.details.elements.toastr.success.updated')
-            .pipe(untilDestroyed(this))
-            .subscribe(updated => {
-              this.toastrService.success(updated);
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('project.details.elements.toastr.success.updated')
+          .pipe(untilDestroyed(this))
+          .subscribe(updated => {
+            this.toastrService.success(updated);
+          });
+      });
   }
 }

@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CMSQuery, CMSSettings, CMSSettingsMaintenance, CMSStore } from '@app/stores/cms';
 import { environment } from '@environments/environment';
-import { CMSJsonResponse, OSSLicense } from '@eworkbench/types';
+import type { CMSJsonResponse, OSSLicense } from '@eworkbench/types';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 
@@ -26,31 +26,28 @@ export class CMSService {
   }
 
   public set(settings: CMSSettings): Observable<unknown> {
-    /* istanbul ignore next */
-    return this.cmsStore.update(/* istanbul ignore next */ () => settings);
+    return this.cmsStore.update(() => settings);
   }
 
   public maintenance(): Observable<CMSSettingsMaintenance> {
     return this.get$.pipe(
       take(1),
-      switchMap(
-        /* istanbul ignore next */ settings => {
-          if (settings.maintenance.text) {
-            return of(settings.maintenance);
-          }
-
-          return this.httpClient.get<CMSJsonResponse>(`${this.apiUrl}json/maintenance/`).pipe(
-            map(maintenanceSettings => {
-              const maintenance = { text: maintenanceSettings.text, visible: maintenanceSettings.public };
-              this.set({
-                ...settings,
-                maintenance: { ...maintenance },
-              });
-              return maintenance;
-            })
-          );
+      switchMap(settings => {
+        if (settings.maintenance.text) {
+          return of(settings.maintenance);
         }
-      )
+
+        return this.httpClient.get<CMSJsonResponse>(`${this.apiUrl}json/maintenance/`).pipe(
+          map(maintenanceSettings => {
+            const maintenance = { text: maintenanceSettings.text, visible: maintenanceSettings.public };
+            this.set({
+              ...settings,
+              maintenance: { ...maintenance },
+            });
+            return maintenance;
+          })
+        );
+      })
     );
   }
 

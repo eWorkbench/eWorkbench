@@ -1,11 +1,9 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { LabBookSection, LabBookSectionPayload } from '@eworkbench/types';
+import type { LabBookSection, LabBookSectionPayload } from '@eworkbench/types';
 import { mockUser } from './user';
 
 export const mockLabBookSectionPayload: LabBookSectionPayload = {

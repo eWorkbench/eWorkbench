@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import type { HttpParams } from '@angular/common/http';
+import type { Observable } from 'rxjs';
 
 export interface LockService {
-  lock(id: string, params?: HttpParams): Observable<void>;
-  unlock(id: string, params?: HttpParams): Observable<void>;
+  lock: (id: string, params?: HttpParams) => Observable<void>;
+  unlock: (id: string, params?: HttpParams) => Observable<void>;
 }

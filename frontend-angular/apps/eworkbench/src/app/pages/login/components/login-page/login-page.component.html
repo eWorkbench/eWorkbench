@@ -23,7 +23,7 @@
           [placeholder]="t('login.username.placeholder')"
         />
         <div *ngIf="f.username.errors?.emaildetected" class="control-error">
-          <a [routerLink]="['/faq']">{{ t('login.username.cantRemember') }}</a>
+          <a [routerLink]="['/faq', 'how-can-i-log-in']" target="_blank">{{ t('login.username.cantRemember') }}</a>
         </div>
       </div>
       <div class="mb-4">

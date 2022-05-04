@@ -1,0 +1,47 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="flex gap-4 mb-4">
+    <div class="inline-block">
+      <label [for]="'reminderValue' + uniqueHash">
+        {{ t('formTimeGroup.reminderValue.label') }}
+        <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
+      </label>
+      <input
+        type="text"
+        class="form-control ewb-input"
+        [formControl]="f.time"
+        [id]="'reminderValue' + uniqueHash"
+        [name]="'reminderValue' + uniqueHash"
+        [placeholder]="t('formTimeGroup.reminderValue.placeholder')"
+        autocomplete="off"
+        (change)="emitChanges()"
+      />
+    </div>
+    <div class="inline-block">
+      <label [for]="'reminderUnit' + uniqueHash">
+        {{ t('formTimeGroup.reminderUnit.label') }}
+        <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
+      </label>
+      <div class="flex items-center">
+        <div class="flex-fill mr-3">
+          <ng-select
+            class="ewb-select"
+            [formControl]="f.unit"
+            [labelForId]="'reminderUnit' + uniqueHash"
+            [name]="'reminderUnit' + uniqueHash"
+            [placeholder]="t('formTimeGroup.reminderUnit.placeholder')"
+            [items]="remindAttendingUnits"
+            bindLabel="label"
+            bindValue="value"
+            (change)="emitChanges()"
+          ></ng-select>
+        </div>
+        <div class="flex-fill">{{ t('formTimeGroup.remindAttending.prior') }}</div>
+      </div>
+    </div>
+  </div>
+</ng-container>

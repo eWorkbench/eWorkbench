@@ -1,11 +1,16 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { DjangoAPI, PluginDetails, PluginFeedbackPayload, PluginInstance, PluginInstancePayload, RecentChanges } from '@eworkbench/types';
+import type {
+  DjangoAPI,
+  PluginDetails,
+  PluginFeedbackPayload,
+  PluginInstance,
+  PluginInstancePayload,
+  RecentChanges,
+} from '@eworkbench/types';
 import { mockMetadata } from './metadata';
 import { mockUser } from './user';
 
@@ -30,6 +35,7 @@ export const mockPluginDetails: PluginDetails = {
   download_placeholder_picture:
     'http://workbench.local:8000/api/plugins/f76b6f87-1076-4ce8-8150-3ac928118845/picture.png/?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwYXRoIjoiL2FwaS9wbHVnaW5zL2Y3NmI2Zjg3LTEwNzYtNGNlOC04MTUwLTNhYzkyODExODg0NS9waWN0dXJlLnBuZy8iLCJ1c2VyIjoxNTAsImp3dF92ZXJpZmljYXRpb25fdG9rZW4iOiIzYzEyM2JmMjNjNjM0MTQwOWMxMTUyYWQ3MWRmNTA0MSIsImV4cCI6MTYxMTI0NDM1M30.vMxpJvVexw4tFz8cEjlF1OSchQXXtyogdrg2FXGqLBU',
   is_accessible: true,
+  iframe_height: 500,
 };
 
 export const mockPluginInstancePayload: PluginInstancePayload = {

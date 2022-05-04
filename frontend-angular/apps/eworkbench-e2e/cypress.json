@@ -3,10 +3,17 @@
   "fixturesFolder": "./src/fixtures",
   "integrationFolder": "./src/integration",
   "modifyObstructiveCode": false,
-  "pluginsFile": "./src/plugins/index",
   "supportFile": "./src/support/index.ts",
+  "pluginsFile": false,
   "video": true,
   "videosFolder": "../../dist/cypress/apps/eworkbench-e2e/videos",
   "screenshotsFolder": "../../dist/cypress/apps/eworkbench-e2e/screenshots",
-  "chromeWebSecurity": false
+  "chromeWebSecurity": false,
+  "defaultCommandTimeout": 30000,
+  "requestTimeout": 30000,
+  "animationDistanceThreshold": 1,
+  "retries": {
+    "runMode": 3,
+    "openMode": 3
+  }
 }

@@ -4,8 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewChildren } from '@angular/core';
-import { LabBookElement } from '@eworkbench/types';
-import { TranslocoService } from '@ngneat/transloco';
+import type { LabBookElement } from '@eworkbench/types';
 
 interface ElementRemoval {
   id: string;
@@ -48,8 +47,6 @@ export class LabBookDrawBoardElementComponent {
 
   @Output()
   public expand = new EventEmitter<string>();
-
-  public constructor(private readonly translocoService: TranslocoService) {}
 
   public onRemove(event: ElementRemoval): void {
     this.removed.emit(event);

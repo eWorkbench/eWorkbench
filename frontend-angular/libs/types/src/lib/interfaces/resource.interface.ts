@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Metadata } from './metadata.interface';
-import { UserGroup } from './user-group.interface';
-import { User } from './user.interface';
+import type { Metadata } from './metadata.interface';
+import type { UserGroup } from './user-group.interface';
+import type { User } from './user.interface';
 
 export interface ResourcePayload {
   name?: string | null;
@@ -15,9 +15,6 @@ export interface ResourcePayload {
   responsible_unit?: string | null;
   location?: string | null;
   description?: string | null;
-  user_availability?: 'GLB' | 'USR' | 'PRJ';
-  user_availability_selected_user_group_pks?: number[] | null;
-  user_availability_selected_user_pks?: number[] | null;
   booking_rule_bookable_hours?: BookingRuleBookableTimeSlots | null;
   booking_rule_bookings_per_user?: BookingRuleBookingsPerUser[];
   booking_rule_minimum_duration?: BookingRuleDuration | null;
@@ -36,23 +33,21 @@ export interface Resource {
   contact: string;
   url: string;
   version_number: number;
-  user_availability_selected_user_pks: number[] | null;
   branch_library: string;
   content_type: number;
   name: string;
   type: 'ROOM' | 'LABEQ' | 'OFFEQ' | 'ITRES';
   description: string;
   metadata: Metadata[];
-  user_availability: 'GLB' | 'USR' | 'PRJ';
-  user_availability_selected_user_group_pks: number[] | null;
+  general_usage_setting: '1' | '2' | null;
+  usage_setting_selected_user_group_pks: number[] | null;
   download_terms_of_use: string;
   last_modified_by: User;
   study_room: boolean;
   created_at: string;
-  user_availability_selected_user_groups: UserGroup[];
+  usage_setting_selected_user_groups: UserGroup[];
   responsible_unit: string;
   deleted: boolean;
-  user_availability_selected_users: User[];
   display: string;
   pk: string;
   content_type_model: string;

@@ -8,9 +8,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { FormControl } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { MetadataService } from '@app/services';
-import { DropdownElement, Metadata, MetadataField, ModalCallback } from '@eworkbench/types';
+import type { DropdownElement, Metadata, MetadataField, ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { take } from 'rxjs/operators';
 import { NewMetadataFieldComponent } from '../modals/new/new.component';
@@ -56,7 +55,6 @@ export class MetadataComponent implements OnInit {
 
   public constructor(
     private readonly metadataService: MetadataService,
-    private readonly translocoService: TranslocoService,
     private readonly modalService: DialogService,
     private readonly cdr: ChangeDetectorRef
   ) {}
@@ -64,7 +62,6 @@ export class MetadataComponent implements OnInit {
   public ngOnInit(): void {
     this.initMetadata();
 
-    /* istanbul ignore next */
     this.refresh?.subscribe(() => {
       this.hideButtons();
     });
@@ -75,7 +72,7 @@ export class MetadataComponent implements OnInit {
       .getFields()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ fields => {
+        fields => {
           const parametersData: ParametersData = {};
           const parameters: DropdownElement[] = [];
 
@@ -97,7 +94,7 @@ export class MetadataComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -191,12 +188,11 @@ export class MetadataComponent implements OnInit {
   }
 
   public openNewModal(name?: string): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewMetadataFieldComponent, {
       closeButton: false,
       data: { name },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 

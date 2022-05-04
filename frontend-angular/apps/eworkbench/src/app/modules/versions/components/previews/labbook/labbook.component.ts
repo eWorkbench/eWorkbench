@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBooksService, ProjectsService } from '@app/services';
-import { LabBook, ModalCallback, Project } from '@eworkbench/types';
+import type { LabBook, ModalCallback, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -68,7 +68,7 @@ export class LabBookPreviewComponent implements OnInit {
       .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (labBook: LabBook) => {
+        (labBook: LabBook) => {
           this.labBook = { ...labBook };
 
           this.isTemplateFormControl.patchValue(labBook.is_template, { emitEvent: false });
@@ -84,7 +84,7 @@ export class LabBookPreviewComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -113,7 +113,7 @@ export class LabBookPreviewComponent implements OnInit {
       .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -123,7 +123,7 @@ export class LabBookPreviewComponent implements OnInit {
               this.toastrService.success(versionRestored);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

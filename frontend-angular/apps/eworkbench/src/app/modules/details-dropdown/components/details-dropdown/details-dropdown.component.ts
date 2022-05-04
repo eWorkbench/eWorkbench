@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DeleteModalComponent } from '@app/modules/trash/components/modals/delete/delete.component';
 import { UserStore } from '@app/stores/user';
-import { DMP, ExportLink, ModalCallback, Privileges, Project } from '@eworkbench/types';
+import type { DMP, ExportLink, ModalCallback, Privileges, Project } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -100,13 +100,12 @@ export class DetailsDropdownComponent implements OnInit {
   }
 
   public onOpenPrivilegesModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(PrivilegesModalComponent, {
       closeButton: false,
       width: '600px',
       data: { service: this.service, id: this.id, data: this.initialState },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
@@ -120,12 +119,12 @@ export class DetailsDropdownComponent implements OnInit {
       .export(this.id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (exportLink: ExportLink) => {
+        (exportLink: ExportLink) => {
           window.open(exportLink.url, '_blank');
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -136,7 +135,6 @@ export class DetailsDropdownComponent implements OnInit {
     const userStoreValue = this.userStore.getValue();
     const userSetting = 'SkipDialog-TrashElementFromDetailView';
 
-    /* istanbul ignore next */
     const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
     if (skipTrashDialog) {
@@ -146,7 +144,7 @@ export class DetailsDropdownComponent implements OnInit {
         closeButton: false,
         data: { id: this.id, service: this.service, userSetting },
       });
-      /* istanbul ignore next */
+
       this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
     }
   }
@@ -161,8 +159,8 @@ export class DetailsDropdownComponent implements OnInit {
       .delete(id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
-          this.router.navigate(this.redirectDestination ?? /* istanbul ignore next */ ['/']);
+        () => {
+          void this.router.navigate(this.redirectDestination ?? ['/']);
           this.translocoService
             .selectTranslate('trashElement.toastr.success')
             .pipe(untilDestroyed(this))
@@ -170,7 +168,7 @@ export class DetailsDropdownComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
         }
       );
@@ -186,8 +184,8 @@ export class DetailsDropdownComponent implements OnInit {
       .restore(this.id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
-          this.router.navigate(this.redirectDestination ?? /* istanbul ignore next */ ['/']);
+        () => {
+          void this.router.navigate(this.redirectDestination ?? ['/']);
           this.translocoService
             .selectTranslate('restoreElement.toastr.success')
             .pipe(untilDestroyed(this))
@@ -195,20 +193,19 @@ export class DetailsDropdownComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
         }
       );
   }
 
   public onOpenNewModal(initialState?: any, duplicate?: string): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(this.newModalComponent, {
       closeButton: false,
       enableClose: this.backdropClose,
       data: { service: this.service, duplicate, initialState },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
@@ -216,7 +213,6 @@ export class DetailsDropdownComponent implements OnInit {
     const userStoreValue = this.userStore.getValue();
 
     if (this.initialState.content_type_model === 'projects.project') {
-      /* istanbul ignore next */
       const skipDuplicateDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-DuplicateProject']);
 
       if (skipDuplicateDialog) {
@@ -226,11 +222,10 @@ export class DetailsDropdownComponent implements OnInit {
           closeButton: false,
           data: { id: this.id },
         });
-        /* istanbul ignore next */
+
         this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
       }
     } else if (this.initialState.content_type_model === 'dmp.dmp') {
-      /* istanbul ignore next */
       const skipDuplicateDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-DuplicateDMP']);
 
       if (skipDuplicateDialog) {
@@ -240,7 +235,7 @@ export class DetailsDropdownComponent implements OnInit {
           closeButton: false,
           data: { id: this.id },
         });
-        /* istanbul ignore next */
+
         this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
       }
     } else {
@@ -249,7 +244,6 @@ export class DetailsDropdownComponent implements OnInit {
   }
 
   public onOpenShareModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(ShareModalComponent, {
       closeButton: false,
       data: { id: this.id, service: this.service },
@@ -258,9 +252,9 @@ export class DetailsDropdownComponent implements OnInit {
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.navigate) {
-      this.router.navigate(callback.navigate);
+      void this.router.navigate(callback.navigate);
     } else if (callback?.state === ModalState.Changed) {
-      this.router.navigate(this.redirectDestination ?? /* istanbul ignore next */ ['/']);
+      void this.router.navigate(this.redirectDestination ?? ['/']);
     }
   }
 
@@ -274,8 +268,8 @@ export class DetailsDropdownComponent implements OnInit {
       .duplicate(id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (project: Project) => {
-          this.router.navigate(['/projects', project.pk]);
+        (project: Project) => {
+          void this.router.navigate(['/projects', project.pk]);
           this.translocoService
             .selectTranslate('project.duplicate.toastr.success')
             .pipe(untilDestroyed(this))
@@ -283,7 +277,7 @@ export class DetailsDropdownComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
         }
       );
@@ -299,8 +293,8 @@ export class DetailsDropdownComponent implements OnInit {
       .duplicate(id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (dmp: DMP) => {
-          this.router.navigate(['/dmps', dmp.pk]);
+        (dmp: DMP) => {
+          void this.router.navigate(['/dmps', dmp.pk]);
           this.translocoService
             .selectTranslate('dmp.duplicate.toastr.success')
             .pipe(untilDestroyed(this))
@@ -308,7 +302,7 @@ export class DetailsDropdownComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
         }
       );

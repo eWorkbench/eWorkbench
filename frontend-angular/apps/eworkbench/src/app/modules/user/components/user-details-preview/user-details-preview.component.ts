@@ -4,8 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { User } from '@eworkbench/types';
-import { TranslocoService } from '@ngneat/transloco';
+import type { User } from '@eworkbench/types';
 
 @Component({
   selector: 'eworkbench-user-details-preview',
@@ -16,6 +15,4 @@ import { TranslocoService } from '@ngneat/transloco';
 export class UserDetailsPreviewModalComponent {
   @Input()
   public user!: User;
-
-  public constructor(private readonly translocoService: TranslocoService) {}
 }

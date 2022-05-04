@@ -51,7 +51,7 @@ export class ResetPasswordPageComponent implements OnInit {
   public ngOnInit(): void {
     this.initTranslations();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -60,7 +60,7 @@ export class ResetPasswordPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -83,7 +83,7 @@ export class ResetPasswordPageComponent implements OnInit {
       .confirm({ password: this.f.password.value, token: this.token })
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.form.reset();
           this.form.clearValidators();
@@ -92,7 +92,7 @@ export class ResetPasswordPageComponent implements OnInit {
           });
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

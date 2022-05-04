@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()

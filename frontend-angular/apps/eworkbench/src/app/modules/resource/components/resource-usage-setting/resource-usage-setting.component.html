@@ -1,0 +1,21 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <ng-container *ngIf="usageSetting === '2'">
+    <eworkbench-icon className="wb-globe" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label">{{ t('resources.generalUsageSetting.global') }}</ng-container>
+  </ng-container>
+  <ng-container *ngIf="usageSetting === '1'">
+    <eworkbench-icon className="wb-user-group" [class.mr-1]="label"></eworkbench-icon>
+    <ng-container *ngIf="label"
+      >{{ t('resources.generalUsageSetting.group') }}
+      <span *ngIf="userGroups?.length"> | {{ userGroups! | formatUserGroupNames }}</span></ng-container
+    >
+  </ng-container>
+  <ng-container *ngIf="showNullValueString && !usageSetting">
+    <ng-container *ngIf="label">{{ t('resources.generalUsageSetting.notSet') }}</ng-container>
+  </ng-container>
+</ng-container>

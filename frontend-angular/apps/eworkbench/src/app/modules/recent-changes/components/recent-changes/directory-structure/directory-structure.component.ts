@@ -4,7 +4,6 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { isEqual } from 'lodash';
 
@@ -38,7 +37,7 @@ export class RecentChangesDirectoryStructureComponent implements OnInit {
 
   public newStructure: RecentChangesDirectoryStructure[] = [];
 
-  public constructor(private readonly translocoService: TranslocoService, private readonly cdr: ChangeDetectorRef) {}
+  public constructor(private readonly cdr: ChangeDetectorRef) {}
 
   public ngOnInit(): void {
     this.initDetails();
@@ -51,17 +50,9 @@ export class RecentChangesDirectoryStructureComponent implements OnInit {
     const oldFields = oldValue.map(change => change.fields);
     const newFields = newValue.map(change => change.fields);
 
-    this.oldStructure = oldFields.filter((oldField: any) => {
-      return !newFields.some((newField: any) => {
-        return isEqual(oldField, newField);
-      });
-    });
+    this.oldStructure = oldFields.filter((oldField: any) => !newFields.some((newField: any) => isEqual(oldField, newField)));
 
-    this.newStructure = newFields.filter((newField: any) => {
-      return !oldFields.some((oldField: any) => {
-        return isEqual(newField, oldField);
-      });
-    });
+    this.newStructure = newFields.filter((newField: any) => !oldFields.some((oldField: any) => isEqual(newField, oldField)));
 
     this.cdr.markForCheck();
   }

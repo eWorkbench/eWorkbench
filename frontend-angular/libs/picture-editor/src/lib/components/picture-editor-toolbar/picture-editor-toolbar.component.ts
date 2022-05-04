@@ -7,7 +7,7 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, View
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { cloneDeep } from 'lodash';
 import { PictureEditorTool } from '../../enums/picture-editor-tool.enum';
-import { SaveSketchEvent } from '../../interfaces/save-sketch-event.interface';
+import type { SaveSketchEvent } from '../../interfaces/save-sketch-event.interface';
 
 declare global {
   interface Window {

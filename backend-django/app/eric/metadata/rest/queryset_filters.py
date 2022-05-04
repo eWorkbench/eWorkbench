@@ -5,7 +5,7 @@
 from abc import abstractmethod
 from django.contrib.postgres.fields.jsonb import KeyTransform, KeyTextTransform
 from django.db.models import F, Q, Value, ExpressionWrapper, FloatField
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_datetime, parse_date
 
 from eric.metadata.models.models import MetadataField
 from eric.metadata.rest.errors import InvalidFieldInputError, InvalidOperatorError
@@ -166,6 +166,7 @@ class SelectionFilterMethod(MetadataQuerySetFilterMethod):
             return queryset.filter(values__single_selected=single_selected)
 
 
+# this is actually the Filter for Datetime not Date, which is found in RealDateFilterMethod
 class DateFilterMethod(MetadataQuerySetFilterMethod):
     def filter(self, queryset, values, operator):
         date = values.get('value', None)
@@ -200,6 +201,41 @@ class DateFilterMethod(MetadataQuerySetFilterMethod):
         elif operator == '>=':
             # Using Q to filter for a greater value OR an exact match using the truncated input value.
             return queryset.filter(Q(values__value__gt=date_value) | Q(values__value__startswith=date_value_truncated))
+
+        else:
+            raise InvalidOperatorError()
+
+
+class RealDateFilterMethod(MetadataQuerySetFilterMethod):
+    def filter(self, queryset, values, operator):
+        date = values.get('value', None)
+        if date is None:
+            raise InvalidFieldInputError()
+
+        try:
+            date_value = parse_date(date).isoformat()
+        except (ValueError, TypeError):
+            raise InvalidFieldInputError()
+
+        if operator == '=':
+            # Exact match when the value in the db starts with the truncated input value.
+            return queryset.filter(values__value__startswith=date_value)
+
+        elif operator == '<':
+            # This works as before. The string comparison stops at the latest when a lower minute value is found.
+            return queryset.filter(values__value__lt=date_value)
+
+        elif operator == '<=':
+            # Using Q to filter for a lower value OR an exact match using the truncated input value.
+            return queryset.filter(Q(values__value__lt=date_value) | Q(values__value__startswith=date_value))
+
+        elif operator == '>':
+            # Excluding the truncated input value to avoid exact (=) matches.
+            return queryset.filter(values__value__gt=date_value).exclude(values__value__startswith=date_value)
+
+        elif operator == '>=':
+            # Using Q to filter for a greater value OR an exact match using the truncated input value.
+            return queryset.filter(Q(values__value__gt=date_value) | Q(values__value__startswith=date_value))
 
         else:
             raise InvalidOperatorError()
@@ -245,6 +281,9 @@ class MetadataQuerySetFilter:
 
         elif base_type == MetadataField.BASE_TYPE_DATE:
             self.method = DateFilterMethod()
+
+        elif base_type == MetadataField.BASE_TYPE_REAL_DATE:
+            self.method = RealDateFilterMethod()
 
         elif base_type == MetadataField.BASE_TYPE_CHECKBOX:
             self.method = BooleanFilterMethod()

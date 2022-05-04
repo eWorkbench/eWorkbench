@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { PluginInstancesService, ProjectsService } from '@app/services';
-import { ModalCallback, PluginInstance, Project } from '@eworkbench/types';
+import type { ModalCallback, PluginInstance, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -66,7 +66,7 @@ export class PluginDataPreviewComponent implements OnInit {
       .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ pluginInstance => {
+        pluginInstance => {
           this.pluginInstance = { ...pluginInstance };
 
           this.loadProjects(pluginInstance.projects);
@@ -76,7 +76,7 @@ export class PluginDataPreviewComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -105,7 +105,7 @@ export class PluginDataPreviewComponent implements OnInit {
       .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -115,7 +115,7 @@ export class PluginDataPreviewComponent implements OnInit {
               this.toastrService.success(versionRestored);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

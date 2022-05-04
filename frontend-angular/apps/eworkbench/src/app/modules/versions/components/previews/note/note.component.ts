@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { NotesService, ProjectsService } from '@app/services';
-import { ModalCallback, Note, Project } from '@eworkbench/types';
+import type { ModalCallback, Note, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -66,7 +66,7 @@ export class NotePreviewComponent implements OnInit {
       .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (note: Note) => {
+        (note: Note) => {
           this.note = { ...note };
 
           this.contentFormControl.patchValue(note.content, { emitEvent: false });
@@ -79,7 +79,7 @@ export class NotePreviewComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -108,7 +108,7 @@ export class NotePreviewComponent implements OnInit {
       .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -118,7 +118,7 @@ export class NotePreviewComponent implements OnInit {
               this.toastrService.success(versionRestored);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

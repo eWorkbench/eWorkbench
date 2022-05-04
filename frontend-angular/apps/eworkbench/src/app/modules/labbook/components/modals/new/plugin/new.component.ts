@@ -7,18 +7,19 @@ import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
+import { gridsterConfig } from '@app/modules/labbook/config/gridster-config';
 import { LabBooksService, PluginInstancesService, PluginsService } from '@app/services';
-import { DropdownElement, LabBookElementEvent, ModalCallback, PluginDetails, PluginInstancePayload } from '@eworkbench/types';
+import type { DropdownElement, LabBookElementEvent, ModalCallback, PluginDetails, PluginInstancePayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, skip } from 'rxjs/operators';
 
 interface FormElement {
-  parentElement: string | null;
-  position: 'top' | 'bottom';
+  parentElement: FormControl<string | null>;
+  position: FormControl<'top' | 'bottom'>;
 }
 
 @UntilDestroy()
@@ -61,8 +62,8 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
   public position: DropdownElement[] = [];
 
   public form = this.fb.group<FormElement>({
-    parentElement: ['labBook', [Validators.required]],
-    position: ['bottom', [Validators.required]],
+    parentElement: this.fb.control('labBook', Validators.required),
+    position: this.fb.control('bottom', Validators.required),
   });
 
   public constructor(
@@ -76,8 +77,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormElement>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -121,20 +121,18 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
   }
 
   public initSearch(): void {
-    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.set('search', value);
-          this.initPlugins();
-          this.cdr.markForCheck();
-          return;
-        }
-
-        this.params = this.params.delete('search');
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.set('search', value);
         this.initPlugins();
         this.cdr.markForCheck();
+        return;
       }
-    );
+
+      this.params = this.params.delete('search');
+      this.initPlugins();
+      this.cdr.markForCheck();
+    });
   }
 
   public initDetails(): void {
@@ -142,7 +140,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
       .getElements(this.labBookId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBookElements => {
+        labBookElements => {
           const sections: DropdownElement[] = [];
 
           labBookElements.map(element => {
@@ -158,7 +156,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -174,13 +172,13 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
       .get(this.params)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ plugins => {
+        plugins => {
           this.plugins = [...plugins];
           this.loading = false;
           this.onlyPluginsWithAccess.enable();
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.onlyPluginsWithAccess.enable();
           this.cdr.markForCheck();
@@ -198,7 +196,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
       .add(this.pluginInstance)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ pluginInstance => {
+        pluginInstance => {
           this.state = ModalState.Changed;
           const event: LabBookElementEvent = {
             childObjectId: pluginInstance.pk,
@@ -206,6 +204,10 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
             childObjectContentTypeModel: pluginInstance.content_type_model,
             parentElement: this.element.parentElement,
             position: this.element.position,
+            // Calculated height for element container is calculated as follows:
+            // Height of 1 for the header + height of 1 for the footer + configured iframe height for plugin content divided by row height incl. row margin
+            // rounded up to the next integer.
+            height: 2 + Math.ceil(pluginInstance.plugin_details.iframe_height / (gridsterConfig.fixedRowHeight! + gridsterConfig.margin!)),
           };
           this.modalRef.close({ state: this.state, data: event });
           this.translocoService
@@ -215,7 +217,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

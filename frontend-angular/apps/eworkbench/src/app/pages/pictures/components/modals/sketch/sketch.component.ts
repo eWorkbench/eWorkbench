@@ -8,10 +8,10 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { PicturesService, ProjectsService } from '@app/services';
-import { SaveSketchEvent } from '@eworkbench/picture-editor';
-import { Project, SketchPayload } from '@eworkbench/types';
+import type { SaveSketchEvent } from '@eworkbench/picture-editor';
+import type { Project, SketchPayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -19,12 +19,12 @@ import { of, Subject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 
 interface FormSketch {
-  title: string | null;
+  title: FormControl<string | null>;
   height: number | null;
   width: number | null;
   rendered_image: globalThis.File | Blob | string | null;
   shapes_image: globalThis.File | Blob | string | null;
-  projects: string[];
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -46,12 +46,12 @@ export class SketchPictureModalComponent implements OnInit {
   public projectInput$ = new Subject<string>();
 
   public form = this.fb.group<FormSketch>({
-    title: [null, [Validators.required]],
-    height: [null],
-    width: [null],
-    rendered_image: [null],
-    shapes_image: [null],
-    projects: [[]],
+    title: this.fb.control(null, Validators.required),
+    height: null,
+    width: null,
+    rendered_image: null,
+    shapes_image: null,
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -64,7 +64,7 @@ export class SketchPictureModalComponent implements OnInit {
     private readonly projectsService: ProjectsService
   ) {}
 
-  public get f(): FormGroup<FormSketch>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -88,29 +88,25 @@ export class SketchPictureModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public onSubmit(event: SaveSketchEvent): void {
@@ -128,7 +124,7 @@ export class SketchPictureModalComponent implements OnInit {
       .add(this.picture)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ file => {
+        file => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state, navigate: ['/pictures', file.pk] });
           this.translocoService
@@ -138,7 +134,7 @@ export class SketchPictureModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

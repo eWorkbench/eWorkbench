@@ -1,0 +1,23 @@
+{
+  "projectType": "library",
+  "root": "libs/types",
+  "sourceRoot": "libs/types/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/types"],
+      "options": {
+        "jestConfig": "libs/types/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["libs/types/**/*.ts", "libs/types/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

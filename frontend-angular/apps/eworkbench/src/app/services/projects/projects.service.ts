@@ -6,8 +6,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { TableViewService, TreeViewService } from '@eworkbench/table';
-import {
+import type { TableViewService, TreeViewService } from '@eworkbench/table';
+import type {
   DjangoAPI,
   Project,
   ProjectMember,
@@ -18,7 +18,7 @@ import {
   RelationPayload,
   RelationPutPayload,
 } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -29,14 +29,12 @@ export class ProjectsService implements TableViewService, TreeViewService {
 
   public constructor(private readonly httpClient: HttpClient) {}
 
-  public getList(params: HttpParams): Observable<{ total: number; data: Project[] }> {
+  public getList(params?: HttpParams): Observable<{ total: number; data: Project[] }> {
     return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 
@@ -44,12 +42,10 @@ export class ProjectsService implements TableViewService, TreeViewService {
     const httpParams = params.set('parent_project', childrenOf);
 
     return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 
@@ -57,12 +53,10 @@ export class ProjectsService implements TableViewService, TreeViewService {
     const httpParams = params.set('parents_of', parentsOf);
 
     return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 
@@ -70,12 +64,10 @@ export class ProjectsService implements TableViewService, TreeViewService {
     const httpParams = params.set('recursive_parent', recursiveParent);
 
     return this.httpClient.get<DjangoAPI<Project[]>>(this.apiUrl, { params: httpParams }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 
@@ -104,7 +96,7 @@ export class ProjectsService implements TableViewService, TreeViewService {
 
     return this.httpClient
       .get<DjangoAPI<Project[]>>(`${environment.apiUrl}/projects/`, { params: httpParams })
-      .pipe(map(/* istanbul ignore next */ data => data.results));
+      .pipe(map(data => data.results));
   }
 
   public add(project: ProjectPayload, params = new HttpParams()): Observable<Project> {
@@ -129,12 +121,10 @@ export class ProjectsService implements TableViewService, TreeViewService {
 
   public getRelations(id: string, params = new HttpParams()): Observable<{ total: number; data: Relation[] }> {
     return this.httpClient.get<DjangoAPI<Relation[]>>(`${this.apiUrl}${id}/relations/`, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 

@@ -6,9 +6,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBookSectionsService, LabBooksService } from '@app/services';
-import { LabBookSection } from '@eworkbench/types';
+import type { LabBookSection } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -40,7 +40,7 @@ export class DeleteLabBookSectionElementModalComponent implements OnInit {
   public loading = true;
 
   public form = this.fb.group<FormDelete>({
-    childElements: ['remove'],
+    childElements: 'remove',
   });
 
   public constructor(
@@ -53,8 +53,7 @@ export class DeleteLabBookSectionElementModalComponent implements OnInit {
     private readonly labBookSectionsService: LabBookSectionsService
   ) {}
 
-  public get f(): FormGroup<FormDelete>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -67,14 +66,14 @@ export class DeleteLabBookSectionElementModalComponent implements OnInit {
       .get(this.elementId)
       .pipe(
         untilDestroyed(this),
-        map(/* istanbul ignore next */ labBookSection => (this.section = labBookSection))
+        map(labBookSection => (this.section = labBookSection))
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -99,14 +98,11 @@ export class DeleteLabBookSectionElementModalComponent implements OnInit {
   public removeChildElements(): void {
     const childElements = this.section?.child_elements ?? [];
 
-    Promise.all([
+    void Promise.all([
       ...childElements.map(elementId =>
         lastValueFrom(this.labBooksService.deleteElement(this.labBookId, elementId).pipe(untilDestroyed(this)))
       ),
-    ]).then(
-      /* istanbul ignore next */ () =>
-        this.deleteSectionElement(this.translocoService.translate('labBook.deleteSectionModal.removed.toastr.success'))
-    );
+    ]).then(() => this.deleteSectionElement(this.translocoService.translate('labBook.deleteSectionModal.removed.toastr.success')));
   }
 
   public moveChildElements(): void {
@@ -123,39 +119,37 @@ export class DeleteLabBookSectionElementModalComponent implements OnInit {
         })
       )
       .subscribe(
-        /* istanbul ignore next */ maxYPosition => {
+        maxYPosition => {
           this.labBooksService
             .getElements(this.labBookId, this.elementId)
             .pipe(untilDestroyed(this))
-            .subscribe(
-              /* istanbul ignore next */ labBookElements => {
-                Promise.all([
-                  ...labBookElements.map(element =>
-                    lastValueFrom(
-                      this.labBooksService
-                        .patchElement(this.labBookId, element.pk, {
-                          ...element,
-                          position_y: maxYPosition + element.position_y,
-                        })
-                        .pipe(untilDestroyed(this))
-                    )
-                  ),
-                ]).then(() => {
+            .subscribe(labBookElements => {
+              void Promise.all([
+                ...labBookElements.map(element =>
                   lastValueFrom(
-                    this.labBookSectionsService
-                      .patch(this.elementId, {
-                        pk: this.elementId,
-                        child_elements: [],
+                    this.labBooksService
+                      .patchElement(this.labBookId, element.pk, {
+                        ...element,
+                        position_y: maxYPosition + element.position_y,
                       })
                       .pipe(untilDestroyed(this))
-                  ).then(() => {
-                    this.deleteSectionElement(this.translocoService.translate('labBook.deleteSectionModal.moved.toastr.success'), true);
-                  });
+                  )
+                ),
+              ]).then(() => {
+                void lastValueFrom(
+                  this.labBookSectionsService
+                    .patch(this.elementId, {
+                      pk: this.elementId,
+                      child_elements: [],
+                    })
+                    .pipe(untilDestroyed(this))
+                ).then(() => {
+                  this.deleteSectionElement(this.translocoService.translate('labBook.deleteSectionModal.moved.toastr.success'), true);
                 });
-              }
-            );
+              });
+            });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -167,12 +161,12 @@ export class DeleteLabBookSectionElementModalComponent implements OnInit {
       .deleteElement(this.labBookId, this.sectionId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state, data: { gridReload: Boolean(gridReload) } });
           this.toastrService.success(message);
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

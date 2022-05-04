@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { PluginDetails } from '@eworkbench/types';
+import type { PluginDetails } from '@eworkbench/types';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()

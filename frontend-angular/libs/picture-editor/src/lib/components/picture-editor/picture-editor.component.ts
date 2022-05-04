@@ -22,8 +22,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { ResizeEvent } from 'angular-resizable-element';
-import { SaveSketchEvent } from '../../interfaces/save-sketch-event.interface';
+import type { ResizeEvent } from 'angular-resizable-element';
+import type { SaveSketchEvent } from '../../interfaces/save-sketch-event.interface';
 import { scriptLoader } from '../../util/script-loader';
 
 declare global {

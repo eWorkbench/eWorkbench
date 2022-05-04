@@ -15,6 +15,10 @@
             {{ t('trash.deleteModal.confirmationMessage') }}
           </div>
 
+          <div class="mb-4" *ngIf="isProject">
+            {{ t('trash.deleteModal.projectConfirmationMessage') }}
+          </div>
+
           <div class="modal-footer p-0 mt-5">
             <span class="mr-3">
               <div class="custom-control custom-checkbox">

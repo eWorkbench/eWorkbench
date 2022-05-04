@@ -199,16 +199,12 @@ class ChangeRecordAdmin(admin.ModelAdmin):
     )
 
 
-def make_user_availability_global(modeladmin, request, queryset):
-    queryset.update(user_availability=Resource.GLOBAL)
+def make_general_usage_setting_global(modeladmin, request, queryset):
+    queryset.update(general_usage_setting=Resource.GLOBAL)
 
 
-def make_user_availability_project(modeladmin, request, queryset):
-    queryset.update(user_availability=Resource.PROJECT)
-
-
-def make_user_availability_users(modeladmin, request, queryset):
-    queryset.update(user_availability=Resource.SELECTED_USERS)
+def make_general_usage_setting_groups(modeladmin, request, queryset):
+    queryset.update(general_usage_setting=Resource.SELECTED_GROUPS)
 
 
 def make_type_room(modeladmin, request, queryset):
@@ -227,9 +223,8 @@ def make_type_itres(modeladmin, request, queryset):
     queryset.update(type=Resource.IT_RESOURCE)
 
 
-make_user_availability_global.short_description = _("Make selected resources available global")
-make_user_availability_project.short_description = _("Make selected resources available for projects")
-make_user_availability_users.short_description = _("Make selected resources available for selected users")
+make_general_usage_setting_global.short_description = _("Make selected resources available global")
+make_general_usage_setting_groups.short_description = _("Make selected resources available for selected groups")
 make_type_room.short_description = _("Make selected resources type ROOM")
 make_type_labeq.short_description = _("Make selected resources type LAB_EQUIPMENT")
 make_type_offeq.short_description = _("Make selected resources type OFFICE_EQUIPMENT")
@@ -295,7 +290,7 @@ class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     )
     list_filter = (
         ('type', ChoiceDropdownFilter),
-        ('user_availability', ChoiceDropdownFilter),
+        ('general_usage_setting', ChoiceDropdownFilter),
         ('location', DropdownFilter),
         is_null_filter('study_room_info', 'Is Study Room'),
     )
@@ -319,15 +314,14 @@ class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         ModelPrivilegeInline,
     )
     actions = [
-        make_user_availability_global,
-        make_user_availability_project,
-        make_user_availability_users,
+        make_general_usage_setting_global,
+        make_general_usage_setting_groups,
         make_type_room,
         make_type_labeq,
         make_type_offeq,
         make_type_itres,
     ]
-    autocomplete_fields = ('projects', 'user_availability_selected_users', 'user_availability_selected_user_groups',)
+    autocomplete_fields = ('projects', 'usage_setting_selected_user_groups',)
 
 
 @admin.register(UserStorageLimit)

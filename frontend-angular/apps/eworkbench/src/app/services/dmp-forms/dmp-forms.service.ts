@@ -6,8 +6,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { DMPForm } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { DMPForm } from '@eworkbench/types';
+import type { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

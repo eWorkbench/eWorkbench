@@ -6,9 +6,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { TableViewService } from '@eworkbench/table';
-import { DjangoAPI, KanbanTask, Task } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { TableViewService } from '@eworkbench/table';
+import type { DjangoAPI, KanbanTask, Task } from '@eworkbench/types';
+import type { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
 @Injectable({
@@ -19,22 +19,19 @@ export class TasksBacklogService implements TableViewService {
 
   public constructor(private readonly httpClient: HttpClient) {}
 
-  public getList(params: HttpParams, id: string): Observable<{ total: number; data: Task[] }> {
-    return this.httpClient.get<KanbanTask[]>(`${this.apiUrl}kanbanboards/${id}/tasks/`).pipe(
-      switchMap(
-        /* istanbul ignore next */ tasks =>
-          this.httpClient
-            .get<DjangoAPI<Task[]>>(`${this.apiUrl}tasks/`, {
-              params: params.set('id', tasks.map(/* istanbul ignore next */ task => task.task_id).join(',')),
-            })
-            .pipe(
-              map(
-                /* istanbul ignore next */ data => ({
-                  total: data.count,
-                  data: data.results,
-                })
-              )
-            )
+  public getList(params: HttpParams, id?: string): Observable<{ total: number; data: Task[] }> {
+    return this.httpClient.get<KanbanTask[]>(`${this.apiUrl}kanbanboards/${id!}/tasks/`).pipe(
+      switchMap(tasks =>
+        this.httpClient
+          .get<DjangoAPI<Task[]>>(`${this.apiUrl}tasks/`, {
+            params: params.set('id', tasks.map(task => task.task_id).join(',')),
+          })
+          .pipe(
+            map(data => ({
+              total: data.count,
+              data: data.results,
+            }))
+          )
       )
     );
   }

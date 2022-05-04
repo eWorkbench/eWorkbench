@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -35,8 +35,8 @@ export class DescriptionModalComponent implements OnInit {
 
   public state = ModalState.Unchanged;
 
-  public form: FormGroup<FormDescription> = this.fb.group<FormDescription>({
-    content: [null],
+  public form = this.fb.group<FormDescription>({
+    content: null,
   });
 
   public constructor(
@@ -47,7 +47,7 @@ export class DescriptionModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormDescription>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -90,7 +90,7 @@ export class DescriptionModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

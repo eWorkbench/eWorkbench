@@ -43,14 +43,13 @@ export class PasswordPageComponent implements OnInit {
   ) {}
 
   private get f(): FormGroup['controls'] {
-    /* istanbul ignore next */
     return this.form.controls;
   }
 
   public ngOnInit(): void {
     this.initTranslations();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -59,7 +58,7 @@ export class PasswordPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -82,7 +81,7 @@ export class PasswordPageComponent implements OnInit {
       .changePassword(this.f.password.value)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.form.reset();
           this.form.clearValidators();
@@ -98,7 +97,7 @@ export class PasswordPageComponent implements OnInit {
               this.toastrService.success(passwordChanged);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

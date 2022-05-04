@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ContentTypeModels } from './content-type-model.interface';
-import { User } from './user.interface';
+import type { ContentTypeModels } from './content-type-model.interface';
+import type { User } from './user.interface';
 
 export interface Notification {
   content_type: number;

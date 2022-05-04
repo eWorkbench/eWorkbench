@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DrivesService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import { Directory, Drive } from '@eworkbench/types';
+import type { Directory, Drive } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -36,7 +36,7 @@ export class DeleteStorageDirectoryModalComponent {
   public state = ModalState.Unchanged;
 
   public form = this.fb.group<FormDelete>({
-    doNotShowMessageAgain: [false],
+    doNotShowMessageAgain: false,
   });
 
   public constructor(
@@ -50,8 +50,7 @@ export class DeleteStorageDirectoryModalComponent {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FormDelete>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -65,7 +64,7 @@ export class DeleteStorageDirectoryModalComponent {
       .deleteDirectory(this.storage!.pk, this.directory!.pk)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -75,7 +74,7 @@ export class DeleteStorageDirectoryModalComponent {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -88,8 +87,8 @@ export class DeleteStorageDirectoryModalComponent {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(user => {
-          return this.userService.changeSettings({
+        switchMap(user =>
+          this.userService.changeSettings({
             userprofile: {
               ui_settings: {
                 ...user.userprofile.ui_settings,
@@ -99,19 +98,17 @@ export class DeleteStorageDirectoryModalComponent {
                 },
               },
             },
-          });
-        })
+          })
+        )
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('trash.deleteModal.toastr.success.doNotShowMessageAgainUpdated')
-            .pipe(untilDestroyed(this))
-            .subscribe(doNotShowMessageAgainUpdated => {
-              this.toastrService.success(doNotShowMessageAgainUpdated);
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('trash.deleteModal.toastr.success.doNotShowMessageAgainUpdated')
+          .pipe(untilDestroyed(this))
+          .subscribe(doNotShowMessageAgainUpdated => {
+            this.toastrService.success(doNotShowMessageAgainUpdated);
+          });
+      });
   }
 }

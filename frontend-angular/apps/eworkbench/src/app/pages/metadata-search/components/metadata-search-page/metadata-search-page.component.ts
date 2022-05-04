@@ -7,8 +7,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, Template
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { MetadataService, PageTitleService } from '@app/services';
-import { TableColumn } from '@eworkbench/table';
-import {
+import type { TableColumn } from '@eworkbench/table';
+import type {
   DropdownElement,
   MetadataChangedSearchParameter,
   MetadataField,
@@ -71,12 +71,10 @@ export class MetadataSearchPageComponent implements OnInit {
   ) {}
 
   private get f(): FormGroup['controls'] {
-    /* istanbul ignore next */
     return this.form.controls;
   }
 
   public get parameters(): FormArray {
-    /* istanbul ignore next */
     return this.form.get('parameters') as FormArray;
   }
 
@@ -84,7 +82,7 @@ export class MetadataSearchPageComponent implements OnInit {
     this.initTranslations();
     this.initDetails();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -93,7 +91,7 @@ export class MetadataSearchPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
 
     this.translocoService
@@ -198,7 +196,7 @@ export class MetadataSearchPageComponent implements OnInit {
       .getFields()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ fields => {
+        fields => {
           const parametersData: MetadataSearchParameters = {};
           const parameters: DropdownElement[] = [];
 
@@ -212,7 +210,7 @@ export class MetadataSearchPageComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -238,13 +236,13 @@ export class MetadataSearchPageComponent implements OnInit {
       .search(this.buildSearchRequestData())
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (data: any) => {
+        (data: any) => {
           this.results = data;
           this.searchRequest = true;
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

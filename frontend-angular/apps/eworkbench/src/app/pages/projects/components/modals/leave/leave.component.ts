@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { UserService, UserStore } from '@app/stores/user';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -25,7 +25,7 @@ interface FormLeaveProject {
 })
 export class LeaveProjectModalComponent {
   public form = this.fb.group<FormLeaveProject>({
-    doNotShowMessageAgain: [false],
+    doNotShowMessageAgain: false,
   });
 
   public constructor(
@@ -37,8 +37,7 @@ export class LeaveProjectModalComponent {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormLeaveProject>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -48,8 +47,8 @@ export class LeaveProjectModalComponent {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(user => {
-          return this.userService.changeSettings({
+        switchMap(user =>
+          this.userService.changeSettings({
             userprofile: {
               ui_settings: {
                 ...user.userprofile.ui_settings,
@@ -59,19 +58,17 @@ export class LeaveProjectModalComponent {
                 },
               },
             },
-          });
-        })
+          })
+        )
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('project.leaveModal.toastr.success.doNotShowMessageAgainUpdated')
-            .pipe(untilDestroyed(this))
-            .subscribe(doNotShowMessageAgainUpdated => {
-              this.toastrService.success(doNotShowMessageAgainUpdated);
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('project.leaveModal.toastr.success.doNotShowMessageAgainUpdated')
+          .pipe(untilDestroyed(this))
+          .subscribe(doNotShowMessageAgainUpdated => {
+            this.toastrService.success(doNotShowMessageAgainUpdated);
+          });
+      });
   }
 }

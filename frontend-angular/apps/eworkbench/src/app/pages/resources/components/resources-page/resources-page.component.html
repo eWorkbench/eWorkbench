@@ -330,8 +330,8 @@
 <ng-template #contactCellTemplate let-row>
   <a href="mailto:{{ row.contact }}">{{ row.contact }}</a>
 </ng-template>
-<ng-template #userAvailabilityCellTemplate let-row>
-  <eworkbench-resource-availability [availability]="row.user_availability"></eworkbench-resource-availability>
+<ng-template #generalUsageSettingCellTemplate let-row>
+  <eworkbench-resource-usage-setting [usageSetting]="row.general_usage_setting"></eworkbench-resource-usage-setting>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
   <ng-container *transloco="let t">

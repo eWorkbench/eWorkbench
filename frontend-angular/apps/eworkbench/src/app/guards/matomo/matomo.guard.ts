@@ -4,9 +4,9 @@
  */
 
 import { Injectable, isDevMode } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
-import { MatomoTracker } from 'ngx-matomo-v9';
+import type { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
 import { environment } from '@environments/environment';
+import { MatomoTracker } from 'ngx-matomo-v9';
 
 @Injectable({
   providedIn: 'root',

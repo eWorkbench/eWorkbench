@@ -9,8 +9,8 @@ import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AppointmentsService, AuthService, ContactsService, ProjectsService, SearchService, WebSocketService } from '@app/services';
 import { UserService } from '@app/stores/user';
-import { CalendarEvent } from '@eworkbench/calendar';
-import {
+import type { CalendarEvent } from '@eworkbench/calendar';
+import type {
   Appointment,
   AppointmentPayload,
   Contact,
@@ -20,10 +20,11 @@ import {
   Privileges,
   Project,
   Resource,
+  TimeGroup,
   User,
 } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { set } from 'date-fns';
@@ -32,17 +33,16 @@ import { from, of, Subject } from 'rxjs';
 import { catchError, debounceTime, map, mergeMap, skip, switchMap } from 'rxjs/operators';
 
 interface FormAppointment {
-  title: string | null;
-  dateGroup: DateGroup;
+  title: FormControl<string | null>;
+  dateGroup: FormControl<DateGroup>;
   resource: string | null;
   location: string | null;
-  attendees: number[];
-  attendingContacts: string[];
+  attendees: FormControl<number[]>;
+  attendingContacts: FormControl<string[]>;
   scheduledNotificationActive: boolean;
-  scheduledNotificationTimedeltaValue: number | null;
-  scheduledNotificationTimedeltaUnit: 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | null;
+  timeGroup: FormControl<TimeGroup>;
   description: string | null;
-  projects: string[];
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -94,17 +94,16 @@ export class EditAppointmentModalComponent implements OnInit {
   public lock: Lock | null = null;
 
   public form = this.fb.group<FormAppointment>({
-    title: [null, [Validators.required]],
-    dateGroup: [{ start: null, end: null, fullDay: false }],
-    resource: [null],
-    location: [null],
-    attendees: [[]],
-    attendingContacts: [[]],
-    scheduledNotificationActive: [false],
-    scheduledNotificationTimedeltaValue: [null],
-    scheduledNotificationTimedeltaUnit: [null],
-    description: [null],
-    projects: [[]],
+    title: this.fb.control(null, Validators.required),
+    dateGroup: this.fb.control({ start: null, end: null, fullDay: false }),
+    resource: null,
+    location: null,
+    attendees: this.fb.control([]),
+    attendingContacts: this.fb.control([]),
+    scheduledNotificationActive: false,
+    timeGroup: this.fb.control({ time: null, unit: null }),
+    description: null,
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -122,13 +121,11 @@ export class EditAppointmentModalComponent implements OnInit {
     private readonly searchService: SearchService
   ) {}
 
-  public get f(): FormGroup<FormAppointment>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -137,7 +134,6 @@ export class EditAppointmentModalComponent implements OnInit {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -170,8 +166,8 @@ export class EditAppointmentModalComponent implements OnInit {
       projects: this.f.projects.value,
       scheduled_notification_writable: {
         active: this.f.scheduledNotificationActive.value,
-        timedelta_value: this.f.scheduledNotificationTimedeltaValue.value,
-        timedelta_unit: this.f.scheduledNotificationTimedeltaUnit.value,
+        timedelta_value: this.f.timeGroup.value.time,
+        timedelta_unit: this.f.timeGroup.value.unit,
       },
       text: this.f.description.value ?? '',
       title: this.f.title.value ?? '',
@@ -179,7 +175,7 @@ export class EditAppointmentModalComponent implements OnInit {
 
     // The property 'scheduled_notification_writable' must not exist if timedelta fields contain null values
     if (!this.f.scheduledNotificationActive.value) {
-      // @ts-ignore
+      // @ts-expect-error
       delete appointment.scheduled_notification_writable;
     }
 
@@ -192,25 +188,21 @@ export class EditAppointmentModalComponent implements OnInit {
     });
 
     this.websocketService.subscribe([{ model: 'meeting', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id) {
-          if (this.lockUser.user && !this.lockUser.ownUser) {
-            this.modified = true;
-          } else {
-            this.modified = false;
-          }
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.element_changed?.model_pk === this.id) {
+        if (this.lockUser.user && !this.lockUser.ownUser) {
+          this.modified = true;
+        } else {
+          this.modified = false;
+        }
+        this.cdr.detectChanges();
+      }
+    });
 
     this.initTranslations();
     this.initSearchInput();
@@ -254,72 +246,62 @@ export class EditAppointmentModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.assignees = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.assignees = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.contactsInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
+        switchMap(input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
       )
-      .subscribe(
-        /* istanbul ignore next */ contacts => {
-          this.contacts = [...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(contacts => {
+        this.contacts = [...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.contactsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ contacts => {
-          if (contacts.data.length) {
-            this.favoriteContacts = [...contacts.data];
-            this.contacts = [...this.contacts, ...this.favoriteContacts]
-              .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(contacts => {
+        if (contacts.data.length) {
+          this.favoriteContacts = [...contacts.data];
+          this.contacts = [...this.contacts, ...this.favoriteContacts]
+            .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initDetails(formChanges = true): void {
@@ -331,73 +313,71 @@ export class EditAppointmentModalComponent implements OnInit {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const appointment = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const appointment = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                title: appointment.title,
-                dateGroup: {
-                  start: appointment.date_time_start,
-                  end: appointment.date_time_end,
-                  fullDay: appointment.full_day,
-                },
-                resource: appointment.resource_pk,
-                location: appointment.location,
-                attendees: appointment.attending_users_pk,
-                attendingContacts: appointment.attending_contacts_pk,
-                description: appointment.text,
-                projects: appointment.projects,
-                scheduledNotificationActive: Boolean(appointment.scheduled_notification?.active),
-                scheduledNotificationTimedeltaValue: appointment.scheduled_notification?.timedelta_value,
-                scheduledNotificationTimedeltaUnit: appointment.scheduled_notification?.timedelta_unit,
+          this.form.patchValue(
+            {
+              title: appointment.title,
+              dateGroup: {
+                start: appointment.date_time_start,
+                end: appointment.date_time_end,
+                fullDay: appointment.full_day,
               },
-              { emitEvent: false }
-            );
+              resource: appointment.resource_pk,
+              location: appointment.location,
+              attendees: appointment.attending_users_pk,
+              attendingContacts: appointment.attending_contacts_pk,
+              description: appointment.text,
+              projects: appointment.projects,
+              scheduledNotificationActive: Boolean(appointment.scheduled_notification?.active),
+              timeGroup: {
+                time: appointment.scheduled_notification?.timedelta_value,
+                unit: appointment.scheduled_notification?.timedelta_unit,
+              },
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            this.f.resource.disable({ emitEvent: false });
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          this.f.resource.disable({ emitEvent: false });
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
+              }),
+              switchMap(() => of(privilegesData))
+            );
           }
-        )
+
+          return of(privilegesData);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const appointment = privilegesData.data;
           const privileges = privilegesData.privileges;
 
@@ -417,7 +397,7 @@ export class EditAppointmentModalComponent implements OnInit {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -434,7 +414,7 @@ export class EditAppointmentModalComponent implements OnInit {
       .patch(this.id, this.appointment)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ appointment => {
+        appointment => {
           this.state = ModalState.Changed;
           const event: CalendarEvent = {
             id: appointment.pk,
@@ -451,7 +431,7 @@ export class EditAppointmentModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -468,7 +448,7 @@ export class EditAppointmentModalComponent implements OnInit {
       .delete(this.id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ appointment => {
+        appointment => {
           this.state = ModalState.Changed;
           const event: CalendarEvent = {
             id: appointment.pk,
@@ -482,7 +462,7 @@ export class EditAppointmentModalComponent implements OnInit {
               this.toastrService.success(deleted);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

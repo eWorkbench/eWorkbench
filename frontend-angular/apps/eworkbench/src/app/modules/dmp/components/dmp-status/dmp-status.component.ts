@@ -4,7 +4,6 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -20,6 +19,4 @@ export class DMPStatusComponent {
 
   @Input()
   public label = true;
-
-  public constructor(private readonly translocoService: TranslocoService) {}
 }

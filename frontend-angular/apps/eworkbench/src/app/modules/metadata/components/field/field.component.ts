@@ -5,13 +5,13 @@
 
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { DatePickerConfig, Metadata, MetadataFieldSearchConfig, MetadataFieldTypeSettings } from '@eworkbench/types';
-import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { DatePickerConfig, Metadata, MetadataFieldSearchConfig, MetadataFieldTypeSettings } from '@eworkbench/types';
+import { FormArray, FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 interface FormAnswers {
-  answers: boolean[] | string[];
+  answers: FormArray<boolean | string | number | null>;
 }
 
 // TODO: Inputs should be formatted respecting the thousands separator and decimals
@@ -105,24 +105,22 @@ export class MetadataFieldComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  private get f(): FormGroup['controls'] {
+  private get f() {
     return this.form.controls;
   }
 
   public get answers(): FormArray<string | boolean> {
-    return this.form.get('answers') as FormArray<string | boolean>;
+    return this.form.get('answers') as any;
   }
 
   public ngOnInit(): void {
     this.initField();
     this.onChanged();
 
-    /* istanbul ignore next */
     this.cancelChanges.pipe(untilDestroyed(this)).subscribe(event => {
       this.resetField(event);
     });
 
-    /* istanbul ignore next */
     this.customInputSelectedControl.value$.pipe(untilDestroyed(this)).subscribe(() => {
       this.onChanged();
     });
@@ -282,6 +280,7 @@ export class MetadataFieldComponent implements OnInit {
 
         // return value for checkboxes in format: { answers: [{ answer: 'A1', selected: true }, { answer: 'A2' }]}
         config = {
+          // @ts-expect-error
           answers: answers.map((answer: string) => ({
             answer,
             selected: Boolean(this.selectedValues.includes(answer, 0)),
@@ -297,6 +296,7 @@ export class MetadataFieldComponent implements OnInit {
 
         // return value for radio buttons in format: { answers: [{ answer: 'A1' }, { answer: 'A2' }], single_selected: 'A1' }
         config = {
+          // @ts-expect-error
           answers: answers.map((answer: string) => ({
             answer,
           })),
@@ -326,7 +326,7 @@ export class MetadataFieldComponent implements OnInit {
       const answer = answers[0];
       let returnValue;
 
-      if (answer) {
+      if (answer && typeof answer === 'string') {
         const time = answer.split(':');
         returnValue = Number(time[0]) * 60 + Number(time[1]);
       } else {
@@ -343,7 +343,7 @@ export class MetadataFieldComponent implements OnInit {
       if (['decimal', 'decimal_number', 'currency'].includes(this.baseType!, 0)) {
         answer = Number(answer);
       } else if (this.baseType === 'date') {
-        answer = answer || null;
+        answer = answer ?? null;
       }
 
       this.changed.emit({

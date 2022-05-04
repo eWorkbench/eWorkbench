@@ -11,7 +11,7 @@ import { UserStore, UserState } from '../stores/user.store';
 export class UserQuery extends Query<UserState> {
   public user$ = this.select(state => state);
 
-  public constructor(protected store: UserStore) {
+  public constructor(protected override store: UserStore) {
     super(store);
   }
 }

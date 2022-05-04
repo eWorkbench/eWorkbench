@@ -42,6 +42,10 @@ class GenericConfiguration(dbsettings.Group):
         help_text=_("Time in minutes for an element to be locked"),
         default=3
     )
+    element_lock_webdav_time_in_minutes = dbsettings.IntegerValue(
+        help_text=_("Time in minutes for a webdav element to be locked"),
+        default=90
+    )
     extracted_images_rate_limit = dbsettings.TextValue(
         help_text=_('Rate limit for throttling API requests in format "requests/interval", e.g. "100/min"'),
         default='100/min'

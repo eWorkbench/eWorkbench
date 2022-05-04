@@ -27,22 +27,22 @@ import {
   WebSocketService,
 } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import {
+import type {
   Appointment,
   AppointmentPayload,
   Contact,
   DateGroup,
-  DropdownElement,
   Lock,
   Metadata,
   ModalCallback,
   Privileges,
   Project,
   Resource,
+  TimeGroup,
   User,
 } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { set } from 'date-fns';
@@ -51,16 +51,15 @@ import { from, Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 
 interface FormAppointment {
-  title: string | null;
+  title: FormControl<string | null>;
   location: string | null;
-  projects: string[];
-  dateGroup: DateGroup;
-  attendees: number[];
-  attendingContacts: string[];
+  projects: FormControl<string[]>;
+  dateGroup: FormControl<DateGroup>;
+  attendees: FormControl<number[]>;
+  attendingContacts: FormControl<string[]>;
   resource: string | null;
   scheduledNotificationActive: boolean;
-  scheduledNotificationTimedeltaValue: number | null;
-  scheduledNotificationTimedeltaUnit: 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | null;
+  timeGroup: FormControl<TimeGroup>;
 }
 
 @UntilDestroy()
@@ -132,19 +131,16 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
 
   public newModalComponent = NewAppointmentModalComponent;
 
-  public remindAttendingUnits: DropdownElement[] = [];
-
-  public form: FormGroup<FormAppointment> = this.fb.group({
-    title: [null, [Validators.required]],
-    location: [null],
-    projects: [[]],
-    dateGroup: [{ start: null, end: null, fullDay: false }],
-    attendees: [[]],
-    attendingContacts: [[]],
-    resource: [null],
-    scheduledNotificationActive: [false],
-    scheduledNotificationTimedeltaValue: [null],
-    scheduledNotificationTimedeltaUnit: [null],
+  public form = this.fb.group<FormAppointment>({
+    title: this.fb.control(null, Validators.required),
+    location: null,
+    projects: this.fb.control([]),
+    dateGroup: this.fb.control({ start: null, end: null, fullDay: false }),
+    attendees: this.fb.control([]),
+    attendingContacts: this.fb.control([]),
+    resource: null,
+    scheduledNotificationActive: false,
+    timeGroup: this.fb.control({ time: null, unit: null }),
   });
 
   public constructor(
@@ -168,12 +164,11 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormAppointment>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -182,7 +177,6 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -221,15 +215,15 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       resource_pk: this.f.resource.value,
       scheduled_notification_writable: {
         active: this.f.scheduledNotificationActive.value,
-        timedelta_value: this.f.scheduledNotificationTimedeltaValue.value,
-        timedelta_unit: this.f.scheduledNotificationTimedeltaUnit.value,
+        timedelta_value: this.f.timeGroup.value.time,
+        timedelta_unit: this.f.timeGroup.value.unit,
       },
       metadata: this.metadata!,
     };
 
     // The property 'scheduled_notification_writable' must not exist if timedelta fields contain null values
     if (!this.f.scheduledNotificationActive.value) {
-      // @ts-ignore
+      // @ts-expect-error
       delete appointment.scheduled_notification_writable;
     }
 
@@ -237,7 +231,6 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -245,27 +238,22 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'meeting', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id) {
-          if (this.lockUser.user && !this.lockUser.ownUser) {
-            this.modified = true;
-          } else {
-            this.modified = false;
-          }
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
 
-    this.initTranslations();
+      if (data.element_changed?.model_pk === this.id) {
+        if (this.lockUser.user && !this.lockUser.ownUser) {
+          this.modified = true;
+        } else {
+          this.modified = false;
+        }
+        this.cdr.detectChanges();
+      }
+    });
+
     this.initSidebar();
     this.initSearchInput();
     this.initDetails();
@@ -276,25 +264,11 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
     this.websocketService.unsubscribe();
   }
 
-  public initTranslations(): void {
-    this.translocoService
-      .selectTranslateObject('appointment.details.remindAttendingUnits')
-      .pipe(untilDestroyed(this))
-      .subscribe(remindAttendingUnits => {
-        this.remindAttendingUnits = [
-          { value: 'MINUTE', label: remindAttendingUnits.minutes },
-          { value: 'HOUR', label: remindAttendingUnits.hours },
-          { value: 'DAY', label: remindAttendingUnits.days },
-          { value: 'WEEK', label: remindAttendingUnits.weeks },
-        ];
-      });
-  }
-
   public initFormChanges(): void {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
-        skip(2),
+        skip(3),
         debounceTime(500),
         switchMap(() => {
           if (!this.lock?.locked) {
@@ -312,14 +286,12 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
@@ -329,100 +301,86 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.assignees = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.assignees = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.contactsInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
+        switchMap(input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
       )
-      .subscribe(
-        /* istanbul ignore next */ contacts => {
-          this.contacts = [...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(contacts => {
+        this.contacts = [...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.resourceInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.resourcesService.search(input) : of([...this.favoriteResources])))
+        switchMap(input => (input ? this.resourcesService.search(input) : of([...this.favoriteResources])))
       )
-      .subscribe(
-        /* istanbul ignore next */ resources => {
-          this.resources = [...resources].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(resources => {
+        this.resources = [...resources].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.contactsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ contacts => {
-          if (contacts.data.length) {
-            this.favoriteContacts = [...contacts.data];
-            this.contacts = [...this.contacts, ...this.favoriteContacts]
-              .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(contacts => {
+        if (contacts.data.length) {
+          this.favoriteContacts = [...contacts.data];
+          this.contacts = [...this.contacts, ...this.favoriteContacts]
+            .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.resourcesService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ resources => {
-          if (resources.data.length) {
-            this.favoriteResources = [...resources.data];
-            this.resources = [...this.resources, ...this.favoriteResources]
-              .filter((value, index, array) => array.map(resource => resource.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(resources => {
+        if (resources.data.length) {
+          this.favoriteResources = [...resources.data];
+          this.resources = [...this.resources, ...this.favoriteResources]
+            .filter((value, index, array) => array.map(resource => resource.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -443,73 +401,71 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const appointment = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const appointment = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.detailsTitle = appointment.display;
-            this.pageTitleService.set(appointment.display);
+          this.detailsTitle = appointment.display;
+          void this.pageTitleService.set(appointment.display);
 
-            this.form.patchValue(
-              {
-                title: appointment.title,
-                attendees: appointment.attending_users_pk,
-                attendingContacts: appointment.attending_contacts_pk,
-                location: appointment.location,
-                projects: appointment.projects,
-                dateGroup: {
-                  start: appointment.date_time_start,
-                  end: appointment.date_time_end,
-                  fullDay: appointment.full_day,
-                },
-                resource: appointment.resource_pk,
-                scheduledNotificationActive: Boolean(appointment.scheduled_notification?.active),
-                scheduledNotificationTimedeltaValue: appointment.scheduled_notification?.timedelta_value,
-                scheduledNotificationTimedeltaUnit: appointment.scheduled_notification?.timedelta_unit,
+          this.form.patchValue(
+            {
+              title: appointment.title,
+              attendees: appointment.attending_users_pk,
+              attendingContacts: appointment.attending_contacts_pk,
+              location: appointment.location,
+              projects: appointment.projects,
+              dateGroup: {
+                start: appointment.date_time_start,
+                end: appointment.date_time_end,
+                fullDay: appointment.full_day,
               },
-              { emitEvent: false }
-            );
+              resource: appointment.resource_pk,
+              scheduledNotificationActive: Boolean(appointment.scheduled_notification?.active),
+              timeGroup: {
+                time: appointment.scheduled_notification?.timedelta_value,
+                unit: appointment.scheduled_notification?.timedelta_unit,
+              },
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
+              }),
+              switchMap(() => of(privilegesData))
+            );
           }
-        )
+
+          return of(privilegesData);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const appointment = privilegesData.data;
           const privileges = privilegesData.privileges;
 
@@ -533,9 +489,9 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -554,13 +510,13 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.appointment)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ appointment => {
+        appointment => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.appointmentsService.unlock(this.id);
           }
 
           this.detailsTitle = appointment.display;
-          this.pageTitleService.set(appointment.display);
+          void this.pageTitleService.set(appointment.display);
 
           this.initialState = { ...appointment };
           this.form.markAsPristine();
@@ -579,7 +535,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -591,7 +547,6 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       const userStoreValue = this.userStore.getValue();
       const userSetting = 'SkipDialog-LeaveProject';
 
-      /* istanbul ignore next */
       const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
       if (skipLeaveDialog) {
@@ -601,7 +556,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -617,7 +572,7 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -651,7 +606,6 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
@@ -672,7 +626,6 @@ export class AppointmentPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.initialState = { ...callback.data };

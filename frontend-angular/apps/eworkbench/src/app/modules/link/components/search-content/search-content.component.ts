@@ -4,20 +4,10 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
 import { AuthService } from '@app/services/auth/auth.service';
 import { TableColumn, TableViewComponent } from '@eworkbench/table';
-import { RelationPayload, User } from '@eworkbench/types';
+import type { RelationPayload, User } from '@eworkbench/types';
 import { FormArray, FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { debounceTime, skip } from 'rxjs/operators';
@@ -66,14 +56,9 @@ export class SearchContentComponent implements OnInit {
 
   public selectedContent: string[] = [];
 
-  public constructor(
-    private readonly cdr: ChangeDetectorRef,
-    private readonly authService: AuthService,
-    private readonly fb: FormBuilder
-  ) {}
+  public constructor(private readonly authService: AuthService, private readonly fb: FormBuilder) {}
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.newContent?.pipe(untilDestroyed(this)).subscribe(newContent => {
       this.tableView.loadData(false, this.params);
       this.onChangeSelection({ target: { checked: true } }, newContent);
@@ -83,20 +68,18 @@ export class SearchContentComponent implements OnInit {
       this.currentUser = state.user;
     });
 
-    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.delete('recently_modified_by_me');
-          this.params = this.params.set('search', value);
-        } else {
-          if (this.currentUser?.pk) {
-            this.params = this.params.set('recently_modified_by_me', this.currentUser.pk.toString());
-          }
-          this.params = this.params.delete('search');
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.delete('recently_modified_by_me');
+        this.params = this.params.set('search', value);
+      } else {
+        if (this.currentUser?.pk) {
+          this.params = this.params.set('recently_modified_by_me', this.currentUser.pk.toString());
         }
-        this.tableView.loadData(false, this.params);
+        this.params = this.params.delete('search');
       }
-    );
+      this.tableView.loadData(false, this.params);
+    });
 
     this.allListColumns = [
       {
@@ -130,7 +113,7 @@ export class SearchContentComponent implements OnInit {
       };
 
       this.selectedContent.push(row.pk);
-      this.formArray.push(this.fb.control(relation));
+      this.formArray.push(this.fb.control(relation) as any);
     } else {
       const index: number = this.selectedContent.indexOf(row.pk);
       if (index !== -1) {

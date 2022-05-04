@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { NotificationsService } from '@app/services/notifications/notifications.service';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Notification } from '@eworkbench/types';
 import { HttpParams } from '@angular/common/http';
-import { DialogService } from '@ngneat/dialog';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NotificationsModalComponent } from '@app/modules/notification/components/modals/notifications/notifications.component';
+import { NotificationsService } from '@app/services/notifications/notifications.service';
+import type { Notification } from '@eworkbench/types';
+import { DialogService } from '@ngneat/dialog';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
 @Component({
@@ -54,7 +54,6 @@ export class GlobalNotificationsComponent implements OnInit {
   }
 
   public onOpenNotificationsModal(): void {
-    /* istanbul ignore next */
     this.modalService.open(NotificationsModalComponent, {
       closeButton: false,
       width: '1200px',

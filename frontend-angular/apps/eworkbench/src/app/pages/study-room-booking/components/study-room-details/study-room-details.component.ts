@@ -5,22 +5,19 @@
 
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { DropdownElement, Metadata, Project, Resource, User } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { DropdownElement, Metadata, Project, Resource } from '@eworkbench/types';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 interface FormResource {
-  name: string | null;
-  type: 'ROOM' | 'LABEQ' | 'OFFEQ' | 'ITRES';
+  name: FormControl<string | null>;
+  type: FormControl<'ROOM' | 'LABEQ' | 'OFFEQ' | 'ITRES'>;
   contact: string | null;
   responsibleUnit: string | null;
   location: string | null;
   description: string | null;
-  userAvailability: 'GLB' | 'USR' | 'PRJ';
-  userAvailabilitySelectedUserGroups: string | null;
-  userAvailabilitySelectedUsers: number[] | null;
-  projects: string[];
+  projects: FormControl<string[]>;
   termsOfUsePDF: File | string | null;
 }
 
@@ -37,8 +34,6 @@ export class StudyRoomDetailsComponent implements OnInit {
 
   public editable? = false;
 
-  public userAvailabilitySelectedUsers: User[] = [];
-
   public projects: Project[] = [];
 
   public metadata?: Metadata[];
@@ -49,23 +44,20 @@ export class StudyRoomDetailsComponent implements OnInit {
 
   public userAvailabilitySelectedUserGroupsChoices: DropdownElement[] = [];
 
-  public form: FormGroup<FormResource> = this.fb.group({
-    name: [null, [Validators.required]],
-    type: ['ROOM', [Validators.required]],
-    contact: [null],
-    responsibleUnit: [null],
-    location: [null],
-    description: [null],
-    userAvailability: ['PRJ', [Validators.required]],
-    userAvailabilitySelectedUserGroups: [null],
-    userAvailabilitySelectedUsers: [[]],
-    projects: [[]],
-    termsOfUsePDF: [null],
+  public form = this.fb.group<FormResource>({
+    name: this.fb.control(null, Validators.required),
+    type: this.fb.control('ROOM', Validators.required),
+    contact: null,
+    responsibleUnit: null,
+    location: null,
+    description: null,
+    projects: this.fb.control([]),
+    termsOfUsePDF: null,
   });
 
   public constructor(private readonly fb: FormBuilder, private readonly translocoService: TranslocoService) {}
 
-  public get f(): FormGroup<FormResource>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -97,21 +89,6 @@ export class StudyRoomDetailsComponent implements OnInit {
             label: resources.type.ITResource,
           },
         ];
-
-        this.userAvailabilityChoices = [
-          {
-            value: 'GLB',
-            label: resources.userAvailability.global,
-          },
-          {
-            value: 'PRJ',
-            label: resources.userAvailability.project,
-          },
-          {
-            value: 'USR',
-            label: resources.userAvailability.user,
-          },
-        ];
       });
   }
 
@@ -124,11 +101,6 @@ export class StudyRoomDetailsComponent implements OnInit {
         responsibleUnit: this.initialState.responsible_unit,
         location: this.initialState.location,
         description: this.initialState.description,
-        userAvailability: this.initialState.user_availability,
-        userAvailabilitySelectedUserGroups: this.initialState.user_availability_selected_user_group_pks?.length
-          ? this.initialState.user_availability_selected_user_group_pks[0].toString()
-          : null,
-        userAvailabilitySelectedUsers: this.initialState.user_availability_selected_user_pks,
         projects: this.initialState.projects,
         termsOfUsePDF: this.initialState.terms_of_use_pdf,
       },

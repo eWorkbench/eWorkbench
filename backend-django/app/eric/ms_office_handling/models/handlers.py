@@ -110,7 +110,7 @@ def handle_edited_ms_office_file(instance, user):
     original_file = get_original_file(instance, user)
     if original_file:
         # lock the original as it is being edited now
-        original_file.lock()
+        original_file.lock(webdav=True)
 
 
 def handle_saved_ms_office_file(instance, extension_query):

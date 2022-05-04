@@ -256,7 +256,7 @@ def send_dss_notifications_for_import_finished():
     notifications:
         import finished (count of dss_files, dss_storages) - for curator and user
     """
-    delta = 60 * 5  # 5 minutes
+    delta = 60 * 30  # 30 minutes
     files_to_import_paths = DSSFilesToImport.objects.filter(
         imported=True,
         import_in_progress=False,
@@ -327,7 +327,7 @@ def send_dss_notifications_for_failed_imports():
     notifications:
         errors - for curator and email to ERROR_EMAIL_RECEIVER_CLIENT
     """
-    delta = 60 * 6  # 6 minutes
+    delta = 60 * 35  # 35 minutes
     files_to_import_paths = DSSFilesToImport.objects.filter(
         imported=False,
         import_attempts__gte=4,

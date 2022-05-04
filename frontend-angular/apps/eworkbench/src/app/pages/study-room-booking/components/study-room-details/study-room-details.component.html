@@ -75,94 +75,8 @@
           />
         </div>
         <div class="mb-4">
-          <label for="userAvailability">{{ t('resource.details.userAvailability.label') }}</label>
-          <ng-select
-            class="ewb-select"
-            formControlName="userAvailability"
-            labelForId="userAvailability"
-            name="userAvailability"
-            [placeholder]="t('resource.details.userAvailability.placeholder')"
-            [items]="userAvailabilityChoices"
-            bindLabel="label"
-            bindValue="value"
-          >
-            <ng-template ng-label-tmp let-item="item">
-              <ng-container [ngTemplateOutlet]="userAvailabilityTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
-            </ng-template>
-            <ng-template ng-option-tmp let-item="item">
-              <ng-container [ngTemplateOutlet]="userAvailabilityTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
-            </ng-template>
-            <ng-template #userAvailabilityTemplate let-item="item">
-              <eworkbench-resource-availability [availability]="item.value"></eworkbench-resource-availability>
-            </ng-template>
-          </ng-select>
-        </div>
-        <div class="mb-4" *ngIf="f.userAvailability.value !== 'GLB'">
-          <label for="userAvailabilitySelectedUserGroups">{{ t('resource.details.userAvailabilitySelectedUserGroups.label') }}</label>
-          <ng-select
-            class="ewb-select"
-            formControlName="userAvailabilitySelectedUserGroups"
-            labelForId="userAvailabilitySelectedUserGroups"
-            name="userAvailabilitySelectedUserGroups"
-            [placeholder]="t('resource.details.userAvailabilitySelectedUserGroups.placeholder')"
-            [items]="userAvailabilitySelectedUserGroupsChoices"
-            bindLabel="label"
-            bindValue="value"
-          >
-          </ng-select>
-        </div>
-        <div class="mb-4" *ngIf="f.userAvailability.value !== 'GLB'">
-          <label for="userAvailabilitySelectedUsers">{{ t('resource.details.userAvailabilitySelectedUsers.label') }}</label>
-          <ng-select
-            #select
-            class="ewb-select"
-            formControlName="userAvailabilitySelectedUsers"
-            labelForId="userAvailabilitySelectedUsers"
-            name="userAvailabilitySelectedUsers"
-            [placeholder]="t('resource.details.userAvailabilitySelectedUsers.placeholder')"
-            [multiple]="true"
-            [items]="userAvailabilitySelectedUsers"
-            bindLabel="username"
-            bindValue="pk"
-          >
-            <ng-template ng-label-tmp let-item="item" let-clear="clear">
-              <div class="flex items-center user-option">
-                <eworkbench-user-details
-                  class="inline-block mr-1"
-                  [user]="item"
-                  [chip]="true"
-                  (click)="select.isOpen = false"
-                ></eworkbench-user-details>
-                <span class="sub-text">{{ item.email }}</span>
-                <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-              </div>
-            </ng-template>
-
-            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-              <div class="user-dropdown-option">
-                <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
-                <div>
-                  <ng-container *ngIf="item?.userprofile.anonymized">
-                    <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
-                  </ng-container>
-                  <ng-container *ngIf="!item?.userprofile.anonymized">
-                    <ng-container
-                      *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
-                    ></ng-container>
-                  </ng-container>
-
-                  <ng-template #userTemplate>
-                    <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
-                  </ng-template>
-                  <ng-template #usernameTemplate>
-                    <span [ngOptionHighlight]="search">{{ item?.username }}</span>
-                  </ng-template>
-
-                  <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
+          <label for="generalUsageSetting">{{ t('resource.details.generalUsageSetting.label') }}</label>
+          <eworkbench-resource-usage-setting [usageSetting]="initialState.general_usage_setting"></eworkbench-resource-usage-setting>
         </div>
         <div class="mb-4" *ngIf="initialState?.description">
           <label for="description">{{ t('resource.details.element.description') }}</label>
@@ -176,19 +90,20 @@
       <div>
         <div class="mb-4" *ngIf="initialState?.created_by">
           <label for="created-by">{{ t('resource.details.createdBy.label') }}</label>
-          <eworkbench-user-details id="created-by" [user]="initialState?.created_by"></eworkbench-user-details>
-        </div>
-        <div class="mb-4" *ngIf="initialState?.created_at">
-          <label for="created-at">{{ t('resource.details.createdAt.label') }}</label>
-          <div id="created-at">{{ initialState?.created_at | formatDate }}</div>
+          <div class="flex items-center space-x-1">
+            <eworkbench-user-details id="created-by" class="inline-block" [user]="initialState?.created_by"></eworkbench-user-details>
+            <span> | </span>
+            <span id="created-at">{{ initialState?.created_at | formatDate }}</span>
+          </div>
         </div>
         <div class="mb-4" *ngIf="initialState?.last_modified_by">
           <label for="last-modified-by">{{ t('resource.details.lastModifiedBy.label') }}</label>
-          <eworkbench-user-details id="last-modified-by" [user]="initialState?.last_modified_by"></eworkbench-user-details>
-        </div>
-        <div class="mb-4" *ngIf="initialState?.last_modified_at">
-          <label for="last-modified-at">{{ t('resource.details.lastModifiedAt.label') }}</label>
-          <div id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</div>
+          <div class="flex items-center space-x-1">
+            <eworkbench-user-details id="last-modified-by" class="inline-block" [user]="initialState?.last_modified_by">
+            </eworkbench-user-details>
+            <span> | </span>
+            <span id="last-modified-at">{{ initialState?.last_modified_at | formatDate }}</span>
+          </div>
         </div>
         <div class="mb-4" *ngIf="projects.length">
           <label for="projects">{{ t('resource.details.projects.label') }}</label>

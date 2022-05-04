@@ -125,11 +125,11 @@ class LockableViewSetMixIn(object):
     """
 
     @action(detail=True, methods=['POST'])
-    def lock(self, request, pk=None):
+    def lock(self, request, pk=None, webdav=False):
         """ Locks the element for other users. """
 
         obj = self.get_object()
-        element_lock = obj.lock()
+        element_lock = obj.lock(webdav=webdav)
 
         return Response(
             ElementLockSerializer(element_lock).data

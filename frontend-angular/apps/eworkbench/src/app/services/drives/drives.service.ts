@@ -6,8 +6,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { TableViewService } from '@eworkbench/table';
-import {
+import type { TableViewService } from '@eworkbench/table';
+import type {
   Directory,
   DirectoryPayload,
   DjangoAPI,
@@ -25,7 +25,7 @@ import {
   RelationPayload,
   RelationPutPayload,
 } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { PrivilegesService } from '../privileges/privileges.service';
 
@@ -38,9 +38,7 @@ export class DrivesService implements TableViewService, RecentChangesService, Ex
   public constructor(private readonly httpClient: HttpClient, private readonly privilegesService: PrivilegesService) {}
 
   public getList(params: HttpParams = new HttpParams()): Observable<{ total: number; data: Drive[] }> {
-    return this.httpClient
-      .get<DjangoAPI<Drive[]>>(this.apiUrl, { params })
-      .pipe(map(/* istanbul ignore next */ data => ({ total: data.count, data: data.results })));
+    return this.httpClient.get<DjangoAPI<Drive[]>>(this.apiUrl, { params }).pipe(map(data => ({ total: data.count, data: data.results })));
   }
 
   public add(drive: DrivePayload, params = new HttpParams()): Observable<Drive> {
@@ -49,17 +47,16 @@ export class DrivesService implements TableViewService, RecentChangesService, Ex
 
   public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<Drive>> {
     return this.httpClient.get<Drive>(`${this.apiUrl}${id}/`, { params }).pipe(
-      switchMap(
-        /* istanbul ignore next */ drive =>
-          this.getUserPrivileges(id, userId, drive.deleted).pipe(
-            map(privileges => {
-              const privilegesData: PrivilegesData<Drive> = {
-                privileges,
-                data: drive,
-              };
-              return privilegesData;
-            })
-          )
+      switchMap(drive =>
+        this.getUserPrivileges(id, userId, drive.deleted).pipe(
+          map(privileges => {
+            const privilegesData: PrivilegesData<Drive> = {
+              privileges,
+              data: drive,
+            };
+            return privilegesData;
+          })
+        )
       )
     );
   }
@@ -77,9 +74,7 @@ export class DrivesService implements TableViewService, RecentChangesService, Ex
   }
 
   public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
-    return this.httpClient
-      .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
-      .pipe(map(/* istanbul ignore next */ data => data.results));
+    return this.httpClient.get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params }).pipe(map(data => data.results));
   }
 
   public getPrivilegesList(id: string): Observable<PrivilegesApi[]> {
@@ -89,7 +84,7 @@ export class DrivesService implements TableViewService, RecentChangesService, Ex
   public getUserPrivileges(id: string, userId: number, deleted: boolean): Observable<Privileges> {
     return this.httpClient
       .get<PrivilegesApi>(`${this.apiUrl}${id}/privileges/${userId}/`)
-      .pipe(map(/* istanbul ignore next */ privileges => this.privilegesService.transform(privileges, deleted)));
+      .pipe(map(privileges => this.privilegesService.transform(privileges, deleted)));
   }
 
   public addUserPrivileges(id: string, userId: number): Observable<PrivilegesApi> {
@@ -110,9 +105,7 @@ export class DrivesService implements TableViewService, RecentChangesService, Ex
   }
 
   public deleteUserPrivileges(id: string, userId: number): Observable<PrivilegesApi[]> {
-    return this.httpClient
-      .delete(`${this.apiUrl}${id}/privileges/${userId}/`)
-      .pipe(switchMap(/* istanbul ignore next */ () => this.getPrivilegesList(id)));
+    return this.httpClient.delete(`${this.apiUrl}${id}/privileges/${userId}/`).pipe(switchMap(() => this.getPrivilegesList(id)));
   }
 
   public addDirectory(id: string, directory: DirectoryPayload): Observable<Directory> {
@@ -133,12 +126,10 @@ export class DrivesService implements TableViewService, RecentChangesService, Ex
 
   public getRelations(id: string, params = new HttpParams()): Observable<{ total: number; data: Relation[] }> {
     return this.httpClient.get<DjangoAPI<Relation[]>>(`${this.apiUrl}${id}/relations/`, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 

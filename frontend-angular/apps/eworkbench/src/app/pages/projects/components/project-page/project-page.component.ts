@@ -16,7 +16,7 @@ import { DescriptionModalComponent } from '@app/modules/shared/modals/descriptio
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { AuthService, PageTitleService, ProjectsService, TasksService, WebSocketService } from '@app/services';
 import { UserStore } from '@app/stores/user';
-import {
+import type {
   DateGroup,
   DropdownElement,
   Metadata,
@@ -28,7 +28,7 @@ import {
   User,
 } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { set } from 'date-fns';
@@ -40,8 +40,8 @@ import { NewProjectModalComponent } from '../modals/new/new.component';
 import { StateTimelineModalComponent } from '../modals/state-timeline/state-timeline.component';
 
 interface FormProject {
-  title: string | null;
-  dateGroup: DateGroup;
+  title: FormControl<string | null>;
+  dateGroup: FormControl<DateGroup>;
   state: string | null;
   parentProject: string | null;
 }
@@ -111,11 +111,11 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
     inviteExternalUsers: false,
   };
 
-  public form: FormGroup<FormProject> = this.fb.group({
-    title: [null, [Validators.required]],
-    dateGroup: [{ start: null, end: null, fullDay: true }],
-    state: [null],
-    parentProject: [null],
+  public form = this.fb.group<FormProject>({
+    title: this.fb.control(null, Validators.required),
+    dateGroup: this.fb.control({ start: null, end: null, fullDay: true }),
+    state: null,
+    parentProject: null,
   });
 
   public constructor(
@@ -135,8 +135,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormProject>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -174,7 +173,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -214,88 +212,84 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       .get(this.id)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ project => {
-            const projectPermissionsList = project.current_users_project_permissions_list;
-            const userStoreValue = this.userStore.getValue();
+        map(project => {
+          const projectPermissionsList = project.current_users_project_permissions_list;
+          const userStoreValue = this.userStore.getValue();
 
-            this.form.patchValue(
-              {
-                title: project.name,
-                dateGroup: { start: project.start_date, end: project.stop_date, fullDay: true },
-                state: project.project_state,
-                parentProject: project.parent_project,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              title: project.name,
+              dateGroup: { start: project.start_date, end: project.stop_date, fullDay: true },
+              state: project.project_state,
+              parentProject: project.parent_project,
+            },
+            { emitEvent: false }
+          );
 
-            if (projectPermissionsList.includes('projects.change_project')) {
-              this.privileges = {
-                fullAccess: true,
-                view: true,
-                edit: true,
-                delete: true,
-                trash: true,
-                restore: true,
-              };
-            } else {
-              this.form.disable({ emitEvent: false });
-            }
-
-            this.projectPrivileges = {
-              editRoles: projectPermissionsList.includes('projects.change_projectroleuserassignment'),
-              deleteRoles: projectPermissionsList.includes('projects.delete_projectroleuserassignment'),
-              addRoles: projectPermissionsList.includes('projects.add_projectroleuserassignment'),
-              viewRoles: projectPermissionsList.includes('projects.view_projectroleuserassignment'),
-              inviteExternalUsers: Boolean(userStoreValue.user?.permissions?.includes('projects.invite_external_user')),
+          if (projectPermissionsList.includes('projects.change_project')) {
+            this.privileges = {
+              fullAccess: true,
+              view: true,
+              edit: true,
+              delete: true,
+              trash: true,
+              restore: true,
             };
-
-            return project;
+          } else {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ project => {
-            if (project.parent_project) {
-              return this.projectsService
-                .get(project.parent_project)
-                .pipe(
-                  untilDestroyed(this),
-                  catchError(() => {
-                    return of({
-                      pk: project.parent_project,
-                      name: this.translocoService.translate('formInput.unknownProject'),
-                      is_favourite: false,
-                    } as Project);
-                  })
+
+          this.projectPrivileges = {
+            editRoles: projectPermissionsList.includes('projects.change_projectroleuserassignment'),
+            deleteRoles: projectPermissionsList.includes('projects.delete_projectroleuserassignment'),
+            addRoles: projectPermissionsList.includes('projects.add_projectroleuserassignment'),
+            viewRoles: projectPermissionsList.includes('projects.view_projectroleuserassignment'),
+            inviteExternalUsers: Boolean(userStoreValue.user?.permissions?.includes('projects.invite_external_user')),
+          };
+
+          return project;
+        }),
+        switchMap(project => {
+          if (project.parent_project) {
+            return this.projectsService
+              .get(project.parent_project)
+              .pipe(
+                untilDestroyed(this),
+                catchError(() =>
+                  of({
+                    pk: project.parent_project,
+                    name: this.translocoService.translate('formInput.unknownProject'),
+                    is_favourite: false,
+                  } as Project)
                 )
-                .pipe(
-                  map(project => {
-                    this.parentProject = [...this.parentProject, project]
-                      .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                      .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                    this.cdr.markForCheck();
-                  }),
-                  switchMap(() => of(project))
-                );
-            }
-
-            return of(project);
+              )
+              .pipe(
+                map(project => {
+                  this.parentProject = [...this.parentProject, project]
+                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                  this.cdr.markForCheck();
+                }),
+                switchMap(() => of(project))
+              );
           }
-        )
+
+          return of(project);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ project => {
+        project => {
           this.title = project.display;
-          this.pageTitleService.set(project.display);
+          void this.pageTitleService.set(project.display);
 
           this.initialState = { ...project };
 
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -309,29 +303,25 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.parentProject = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.parentProject = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.parentProject = [...this.parentProject, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.parentProject = [...this.parentProject, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -353,21 +343,19 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.project)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ project => {
-            this.title = project.display;
-            this.pageTitleService.set(project.display);
+        map(project => {
+          this.title = project.display;
+          void this.pageTitleService.set(project.display);
 
-            this.initialState = { ...project };
-            this.form.markAsPristine();
-            this.refreshVersions.next(true);
-            this.refreshChanges.next(true);
-            this.refreshMetadata.next(true);
-          }
-        )
+          this.initialState = { ...project };
+          this.form.markAsPristine();
+          this.refreshVersions.next(true);
+          this.refreshChanges.next(true);
+          this.refreshMetadata.next(true);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.refreshResetValue.next(true);
           this.cdr.markForCheck();
@@ -378,7 +366,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -390,7 +378,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -405,7 +393,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
     const userStoreValue = this.userStore.getValue();
     const userSetting = 'SkipDialog-LeaveProject';
 
-    /* istanbul ignore next */
     const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
     if (skipLeaveDialog) {
@@ -415,7 +402,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
     this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
       closeButton: false,
     });
-    /* istanbul ignore next */
+
     return this.modalRef.afterClosed$.pipe(
       untilDestroyed(this),
       take(1),
@@ -436,7 +423,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
@@ -449,7 +435,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
@@ -464,7 +449,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
@@ -484,7 +468,6 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.initialState = { ...callback.data };
@@ -498,7 +481,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.navigate) {
-      this.router.navigate(callback.navigate);
+      void this.router.navigate(callback.navigate);
     }
   }
 

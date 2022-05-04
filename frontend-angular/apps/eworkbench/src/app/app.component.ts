@@ -4,8 +4,8 @@
  */
 
 import { Component, isDevMode, OnInit } from '@angular/core';
-import { MatomoInjector } from 'ngx-matomo-v9';
 import { environment } from '@environments/environment';
+import { MatomoInjector } from 'ngx-matomo-v9';
 import { WebSocketService } from './services';
 
 @Component({

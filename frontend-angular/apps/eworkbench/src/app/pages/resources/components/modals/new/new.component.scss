@@ -6,6 +6,17 @@
 :host {
   display: block;
 
+  .modal-footer {
+    justify-content: space-between;
+
+    .footer-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
+
   .icon-label {
     display: flex;
     align-items: center;

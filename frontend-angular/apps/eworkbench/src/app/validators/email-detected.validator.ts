@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { AbstractControl, ValidatorFn } from '@angular/forms';
+import type { AbstractControl, ValidatorFn } from '@angular/forms';
 
 export function EmailDetected(): ValidatorFn {
   return (control: AbstractControl) => {

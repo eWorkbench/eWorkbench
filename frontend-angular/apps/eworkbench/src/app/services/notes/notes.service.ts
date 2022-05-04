@@ -7,8 +7,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { PrivilegesService } from '@app/services/privileges/privileges.service';
 import { environment } from '@environments/environment';
-import { TableViewService } from '@eworkbench/table';
-import {
+import type { TableViewService } from '@eworkbench/table';
+import type {
   DjangoAPI,
   ExportLink,
   ExportService,
@@ -28,7 +28,7 @@ import {
   Version,
   VersionsService,
 } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
 @Injectable({
@@ -43,12 +43,10 @@ export class NotesService
 
   public getList(params = new HttpParams()): Observable<{ total: number; data: Note[] }> {
     return this.httpClient.get<DjangoAPI<Note[]>>(this.apiUrl, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 
@@ -58,17 +56,16 @@ export class NotesService
 
   public get(id: string, userId: number, params = new HttpParams()): Observable<PrivilegesData<Note>> {
     return this.httpClient.get<Note>(`${this.apiUrl}${id}/`, { params }).pipe(
-      switchMap(
-        /* istanbul ignore next */ note =>
-          this.getUserPrivileges(id, userId, note.deleted).pipe(
-            map(privileges => {
-              const privilegesData: PrivilegesData<Note> = {
-                privileges,
-                data: note,
-              };
-              return privilegesData;
-            })
-          )
+      switchMap(note =>
+        this.getUserPrivileges(id, userId, note.deleted).pipe(
+          map(privileges => {
+            const privilegesData: PrivilegesData<Note> = {
+              privileges,
+              data: note,
+            };
+            return privilegesData;
+          })
+        )
       )
     );
   }
@@ -80,7 +77,7 @@ export class NotesService
   public getUserPrivileges(id: string, userId: number, deleted: boolean): Observable<Privileges> {
     return this.httpClient
       .get<PrivilegesApi>(`${this.apiUrl}${id}/privileges/${userId}/`)
-      .pipe(map(/* istanbul ignore next */ privileges => this.privilegesService.transform(privileges, deleted)));
+      .pipe(map(privileges => this.privilegesService.transform(privileges, deleted)));
   }
 
   public addUserPrivileges(id: string, userId: number): Observable<PrivilegesApi> {
@@ -101,9 +98,7 @@ export class NotesService
   }
 
   public deleteUserPrivileges(id: string, userId: number): Observable<PrivilegesApi[]> {
-    return this.httpClient
-      .delete(`${this.apiUrl}${id}/privileges/${userId}/`)
-      .pipe(switchMap(/* istanbul ignore next */ () => this.getPrivilegesList(id)));
+    return this.httpClient.delete(`${this.apiUrl}${id}/privileges/${userId}/`).pipe(switchMap(() => this.getPrivilegesList(id)));
   }
 
   public delete(id: string, params = new HttpParams()): Observable<Note> {
@@ -119,15 +114,11 @@ export class NotesService
   }
 
   public history(id: string, params = new HttpParams()): Observable<RecentChanges[]> {
-    return this.httpClient
-      .get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params })
-      .pipe(map(/* istanbul ignore next */ data => data.results));
+    return this.httpClient.get<DjangoAPI<RecentChanges[]>>(`${this.apiUrl}${id}/history/`, { params }).pipe(map(data => data.results));
   }
 
   public versions(id: string, params = new HttpParams()): Observable<Version[]> {
-    return this.httpClient
-      .get<DjangoAPI<Version[]>>(`${this.apiUrl}${id}/versions/`, { params })
-      .pipe(map(/* istanbul ignore next */ data => data.results));
+    return this.httpClient.get<DjangoAPI<Version[]>>(`${this.apiUrl}${id}/versions/`, { params }).pipe(map(data => data.results));
   }
 
   // TODO: needs proper interface for return type, maybe with a generic?
@@ -142,11 +133,7 @@ export class NotesService
   public restoreVersion(id: string, version: string, versionInProgress: boolean): Observable<Note> {
     if (versionInProgress) {
       return this.addVersion(id).pipe(
-        switchMap(
-          /* istanbul ignore next */ () => {
-            return this.httpClient.post<Note>(`${this.apiUrl}${id}/versions/${version}/restore/`, { pk: id });
-          }
-        )
+        switchMap(() => this.httpClient.post<Note>(`${this.apiUrl}${id}/versions/${version}/restore/`, { pk: id }))
       );
     }
 
@@ -167,12 +154,10 @@ export class NotesService
 
   public getRelations(id: string, params = new HttpParams()): Observable<{ total: number; data: Relation[] }> {
     return this.httpClient.get<DjangoAPI<Relation[]>>(`${this.apiUrl}${id}/relations/`, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => ({
-          total: data.count,
-          data: data.results,
-        })
-      )
+      map(data => ({
+        total: data.count,
+        data: data.results,
+      }))
     );
   }
 

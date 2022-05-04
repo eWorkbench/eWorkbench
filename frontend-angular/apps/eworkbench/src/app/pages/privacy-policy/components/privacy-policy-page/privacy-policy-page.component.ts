@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { PageTitleService } from '@app/services';
 import { CMSService } from '@app/stores/cms/services/cms.service';
-import { CMSJsonResponse } from '@eworkbench/types';
+import type { CMSJsonResponse } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -35,7 +35,7 @@ export class PrivacyPolicyPageComponent implements OnInit {
     this.initTranslations();
     this.initDetails();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -44,7 +44,7 @@ export class PrivacyPolicyPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -52,14 +52,12 @@ export class PrivacyPolicyPageComponent implements OnInit {
     this.cmsService
       .getPrivacyPolicy()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ result => {
-          if (result.public) {
-            this.cmsText = result;
-          }
-          this.loading = false;
+      .subscribe(result => {
+        if (result.public) {
+          this.cmsText = result;
         }
-      );
+        this.loading = false;
+      });
   }
 
   public initPageTitle(): void {

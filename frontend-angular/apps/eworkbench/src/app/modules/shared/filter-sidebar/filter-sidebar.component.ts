@@ -70,8 +70,8 @@ export class FilterSidebarComponent implements OnInit {
     this.user$
       .pipe(
         filter(Boolean),
-        switchMap(user => {
-          return this.userService.changeSettings({
+        switchMap(user =>
+          this.userService.changeSettings({
             userprofile: {
               ui_settings: {
                 ...user.userprofile.ui_settings,
@@ -80,8 +80,8 @@ export class FilterSidebarComponent implements OnInit {
                 },
               },
             },
-          });
-        }),
+          })
+        ),
         take(1)
       )
       .subscribe();

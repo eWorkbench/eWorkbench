@@ -4,8 +4,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { ProjectSidebarModelItem, ProjectSidebarModels } from '@eworkbench/types';
-import { TranslocoService } from '@ngneat/transloco';
+import type { ProjectSidebarModelItem, ProjectSidebarModels } from '@eworkbench/types';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +12,7 @@ import { TranslocoService } from '@ngneat/transloco';
 export class ProjectsSidebarModelService {
   public readonly models: Record<ProjectSidebarModels, ProjectSidebarModelItem | null>;
 
-  public constructor(private readonly translocoService: TranslocoService) {
+  public constructor() {
     this.models = {
       'sidebar.overview': {
         modelName: 'overview',

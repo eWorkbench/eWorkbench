@@ -8,14 +8,14 @@ import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectsService, RolesService } from '@app/services';
 import { UserService } from '@app/stores/user';
-import { ExternalUserPayload, Role } from '@eworkbench/types';
+import type { ExternalUserPayload, Role } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { switchMap } from 'rxjs/operators';
 
 interface FormExternalUser {
-  email: string | null;
+  email: FormControl<string | null>;
   message: string | null;
 }
 
@@ -36,8 +36,8 @@ export class ExternalUserModalComponent implements OnInit {
   public roles: Role[] = [];
 
   public form = this.fb.group<FormExternalUser>({
-    email: [null, [Validators.required]],
-    message: [null],
+    email: this.fb.control(null, Validators.required),
+    message: null,
   });
 
   public constructor(
@@ -49,8 +49,7 @@ export class ExternalUserModalComponent implements OnInit {
     private readonly rolesService: RolesService
   ) {}
 
-  public get f(): FormGroup<FormExternalUser>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -65,13 +64,11 @@ export class ExternalUserModalComponent implements OnInit {
     this.rolesService
       .get()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ roles => {
-          this.loading = false;
-          this.roles = [...roles];
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(roles => {
+        this.loading = false;
+        this.roles = [...roles];
+        this.cdr.markForCheck();
+      });
   }
 
   public onSubmit(): void {
@@ -93,11 +90,11 @@ export class ExternalUserModalComponent implements OnInit {
         )
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

@@ -5,8 +5,8 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { TableSortDirection } from '../../enums/table-sort-direction.enum';
-import { TableSortChangedEvent } from '../../interfaces/table-sort-changed-event.interface';
-import { TableColumn } from '../../interfaces/table-column.interface';
+import type { TableColumn } from '../../interfaces/table-column.interface';
+import type { TableSortChangedEvent } from '../../interfaces/table-sort-changed-event.interface';
 
 @Component({
   selector: 'eworkbench-table-sort',

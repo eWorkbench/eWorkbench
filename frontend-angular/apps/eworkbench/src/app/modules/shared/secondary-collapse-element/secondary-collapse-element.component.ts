@@ -50,7 +50,6 @@ export class SecondaryCollapseElementComponent implements OnInit {
   public constructor(private readonly cdr: ChangeDetectorRef) {}
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.collapse.subscribe((event: string) => {
       if (event !== this.id) {
         this.collapsed = true;

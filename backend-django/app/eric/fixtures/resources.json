@@ -10,8 +10,7 @@
       "responsible_unit": "Prof. Mustermann",
       "location": "The tiny Room around the corner",
       "contact": "7869867/9870980\r\nemail@example.com",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -26,7 +25,7 @@
       "location": "Everywhere",
       "contact": "The Doctor or Missy",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -40,8 +39,7 @@
       "responsible_unit": "Aquaman",
       "location": "B01/103",
       "contact": "0657657/987987",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -56,7 +54,7 @@
       "location": "B02/103",
       "contact": "IT Chief",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -71,7 +69,7 @@
       "location": "58th and Broadway",
       "contact": "Happy",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -86,7 +84,7 @@
       "location": "Room 42",
       "contact": "Prof. Mustermann",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -100,8 +98,7 @@
       "responsible_unit": "Colson",
       "location": "The Air.",
       "contact": "Shield",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -116,7 +113,7 @@
       "location": "Gallifrey",
       "contact": "The Master",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -130,8 +127,7 @@
       "responsible_unit": "Prof. Mustermann",
       "location": "The tiny Room around the corner",
       "contact": "7869867/9870980\r\nemail@example.com",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -146,7 +142,7 @@
       "location": "Everywhere",
       "contact": "The Doctor or Missy",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -160,8 +156,7 @@
       "responsible_unit": "Aquaman",
       "location": "B01/103",
       "contact": "0657657/987987",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -176,7 +171,7 @@
       "location": "B02/103",
       "contact": "IT Chief",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -191,7 +186,7 @@
       "location": "58th and Broadway",
       "contact": "Happy",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -206,7 +201,7 @@
       "location": "Room 42",
       "contact": "Prof. Mustermann",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -220,8 +215,7 @@
       "responsible_unit": "Colson",
       "location": "The Air.",
       "contact": "Shield",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -236,7 +230,7 @@
       "location": "Gallifrey",
       "contact": "The Master",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -250,8 +244,7 @@
       "responsible_unit": "Prof. Mustermann",
       "location": "The tiny Room around the corner",
       "contact": "7869867/9870980\r\nemail@example.com",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -266,7 +259,7 @@
       "location": "Everywhere",
       "contact": "The Doctor or Missy",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -280,8 +273,7 @@
       "responsible_unit": "Aquaman",
       "location": "B01/103",
       "contact": "0657657/987987",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -296,7 +288,7 @@
       "location": "B02/103",
       "contact": "IT Chief",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -311,7 +303,7 @@
       "location": "58th and Broadway",
       "contact": "Happy",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -326,7 +318,7 @@
       "location": "Room 42",
       "contact": "Prof. Mustermann",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -340,8 +332,7 @@
       "responsible_unit": "Colson",
       "location": "The Air.",
       "contact": "Shield",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -356,7 +347,7 @@
       "location": "Gallifrey",
       "contact": "The Master",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -370,8 +361,7 @@
       "responsible_unit": "Prof. Mustermann",
       "location": "The tiny Room around the corner",
       "contact": "7869867/9870980\r\nemail@example.com",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -386,7 +376,7 @@
       "location": "Everywhere",
       "contact": "The Doctor or Missy",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -400,8 +390,7 @@
       "responsible_unit": "Aquaman",
       "location": "B01/103",
       "contact": "0657657/987987",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -416,7 +405,7 @@
       "location": "B02/103",
       "contact": "IT Chief",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -431,7 +420,7 @@
       "location": "58th and Broadway",
       "contact": "Happy",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -446,7 +435,7 @@
       "location": "Room 42",
       "contact": "Prof. Mustermann",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -460,8 +449,7 @@
       "responsible_unit": "Colson",
       "location": "The Air.",
       "contact": "Shield",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -476,7 +464,7 @@
       "location": "Gallifrey",
       "contact": "The Master",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -490,8 +478,7 @@
       "responsible_unit": "Prof. Mustermann",
       "location": "The tiny Room around the corner",
       "contact": "7869867/9870980\r\nemail@example.com",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -506,7 +493,7 @@
       "location": "Everywhere",
       "contact": "The Doctor or Missy",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -520,8 +507,7 @@
       "responsible_unit": "Aquaman",
       "location": "B01/103",
       "contact": "0657657/987987",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -536,7 +522,7 @@
       "location": "B02/103",
       "contact": "IT Chief",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -551,7 +537,7 @@
       "location": "58th and Broadway",
       "contact": "Happy",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -566,7 +552,7 @@
       "location": "Room 42",
       "contact": "Prof. Mustermann",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -580,8 +566,7 @@
       "responsible_unit": "Colson",
       "location": "The Air.",
       "contact": "Shield",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -596,7 +581,7 @@
       "location": "Gallifrey",
       "contact": "The Master",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -610,8 +595,7 @@
       "responsible_unit": "Prof. Mustermann",
       "location": "The tiny Room around the corner",
       "contact": "7869867/9870980\r\nemail@example.com",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -626,7 +610,7 @@
       "location": "Everywhere",
       "contact": "The Doctor or Missy",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -640,8 +624,7 @@
       "responsible_unit": "Aquaman",
       "location": "B01/103",
       "contact": "0657657/987987",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -656,7 +639,7 @@
       "location": "B02/103",
       "contact": "IT Chief",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -671,7 +654,7 @@
       "location": "58th and Broadway",
       "contact": "Happy",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   },
   {
@@ -686,7 +669,7 @@
       "location": "Room 42",
       "contact": "Prof. Mustermann",
       "terms_of_use_pdf": "",
-      "user_availability": "USR"
+      "general_usage_setting": "1"
     }
   },
   {
@@ -700,8 +683,7 @@
       "responsible_unit": "Colson",
       "location": "The Air.",
       "contact": "Shield",
-      "terms_of_use_pdf": "",
-      "user_availability": "PRJ"
+      "terms_of_use_pdf": ""
     }
   },
   {
@@ -716,7 +698,7 @@
       "location": "Gallifrey",
       "contact": "The Master",
       "terms_of_use_pdf": "",
-      "user_availability": "GLB"
+      "general_usage_setting": "2"
     }
   }
 ]

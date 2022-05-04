@@ -75,9 +75,8 @@ export class PictureEditorDetailsDropdownComponent implements OnInit {
   }
 
   public onUploadBackgroundImage(event: Event): void {
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = async () => {

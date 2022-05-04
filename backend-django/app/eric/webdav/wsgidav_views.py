@@ -6,6 +6,7 @@ import os
 import re
 
 from django.core.exceptions import PermissionDenied, ValidationError
+from django_userforeignkey.request import get_current_user
 
 try:
     # Python 2.7
@@ -264,7 +265,7 @@ class DavView(TemplateView):
 
                     return response
                 else:
-                    # try to read the resource and return it in response
+                    # try to read the resource and return it in response+
                     response.streaming_content = self.resource.read()
         elif not head:
             # not a head request, and not an object -> render index.html
@@ -272,6 +273,9 @@ class DavView(TemplateView):
 
         # set last modified field of response, so browsers and other tools can properly handle caching
         response['Last-Modified'] = self.resource.getlastmodified
+
+        # lock the File on opening it
+        self.resource.obj.lock(webdav=True)
 
         return response
 
@@ -503,7 +507,17 @@ class DavView(TemplateView):
         else:
             locktype = locktype_obj.xpath('local-name()')
 
-        token = self.lock_class(self.resource).acquire(lockscope, locktype, depth, timeout, owner)
+        # token = self.lock_class(self.resource).acquire(lockscope, locktype, depth, timeout, owner)
+        token = self.lock_class.acquire(
+            url=self.resource,
+            lock_type=locktype,
+            lock_scope=lockscope,
+            lock_depth=depth,
+            lock_owner=owner,
+            timeout=timeout,
+            principal=self.resource,
+            token_list=[],
+        )
         if not token:
             return HttpResponseLocked('Already locked')
 

@@ -5,9 +5,8 @@
 
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { PluginDetails } from '@eworkbench/types';
-import { DialogRef } from '@ngneat/dialog';
-import { TranslocoService } from '@ngneat/transloco';
+import type { PluginDetails } from '@eworkbench/types';
+import type { DialogRef } from '@ngneat/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -30,11 +29,7 @@ export class PluginDetailsDropdownComponent implements OnInit {
 
   public detailsCollapsed = true;
 
-  public constructor(
-    private readonly translocoService: TranslocoService,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly breakpointObserver: BreakpointObserver
-  ) {}
+  public constructor(private readonly cdr: ChangeDetectorRef, private readonly breakpointObserver: BreakpointObserver) {}
 
   public ngOnInit(): void {
     this.breakpointObserver

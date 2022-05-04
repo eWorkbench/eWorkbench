@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 
 export interface SearchResult {
   content_type_model: string;

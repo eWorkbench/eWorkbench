@@ -43,7 +43,7 @@ export class RemoveResourcePDFModalComponent {
       .patch(this.id, { terms_of_use_pdf: null })
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -53,7 +53,7 @@ export class RemoveResourcePDFModalComponent {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

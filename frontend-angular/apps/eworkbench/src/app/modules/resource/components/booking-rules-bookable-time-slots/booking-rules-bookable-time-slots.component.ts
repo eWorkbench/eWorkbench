@@ -4,14 +4,14 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BookingRuleBookableTimeSlots, BookingRulePayload } from '@eworkbench/types';
-import { FormBuilder, FormControl, FormGroup } from '@ngneat/reactive-forms';
+import type { BookingRuleBookableTimeSlots, BookingRulePayload } from '@eworkbench/types';
+import { FormControl, FormGroup } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
-import { FormBookableTimeSlot } from '../../interfaces/form-bookable-time-slot';
-import { FormBookableTimeSlots } from '../../interfaces/form-bookable-time-slots';
+import type { FormBookableTimeSlot } from '../../interfaces/form-bookable-time-slot';
+import type { FormBookableTimeSlots } from '../../interfaces/form-bookable-time-slots';
 
 @UntilDestroy()
 @Component({
@@ -58,27 +58,25 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit {
 
   public form!: FormGroup<FormBookableTimeSlots>;
 
-  public monday!: FormGroup<FormBookableTimeSlot>;
-  public tuesday!: FormGroup<FormBookableTimeSlot>;
-  public wednesday!: FormGroup<FormBookableTimeSlot>;
-  public thursday!: FormGroup<FormBookableTimeSlot>;
-  public friday!: FormGroup<FormBookableTimeSlot>;
-  public saturday!: FormGroup<FormBookableTimeSlot>;
-  public sunday!: FormGroup<FormBookableTimeSlot>;
+  public monday!: FormGroup<any>;
+  public tuesday!: FormGroup<any>;
+  public wednesday!: FormGroup<any>;
+  public thursday!: FormGroup<any>;
+  public friday!: FormGroup<any>;
+  public saturday!: FormGroup<any>;
+  public sunday!: FormGroup<any>;
 
   public invalidDaySelection$!: Observable<boolean>;
 
   public invalidTimeSelection$!: Observable<boolean>;
 
-  public constructor(private readonly fb: FormBuilder, private readonly cdr: ChangeDetectorRef) {}
+  public constructor(private readonly cdr: ChangeDetectorRef) {}
 
-  public get f(): FormGroup<FormBookableTimeSlots>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.pushChanges();
     });
@@ -90,7 +88,7 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit {
     this.friday = this.createTimeSlotFormGroup('FRI', 'friday');
     this.saturday = this.createTimeSlotFormGroup('SAT', 'saturday');
     this.sunday = this.createTimeSlotFormGroup('SUN', 'sunday');
-    this.form = new FormGroup<FormBookableTimeSlots>({
+    this.form = new FormGroup<any>({
       monday: this.monday,
       tuesday: this.tuesday,
       wednesday: this.wednesday,
@@ -139,7 +137,7 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit {
     const existingRule = this.getExistingRule(weekday);
     const timeStart = this.convertRuleToValues(existingRule?.time_start);
     const timeEnd = this.convertRuleToValues(existingRule?.time_end);
-    return new FormGroup<FormBookableTimeSlot>({
+    return new FormGroup<any>({
       checked: new FormControl(existingRule ? true : false),
       weekday: new FormControl(weekday),
       weekdayTranslationKey: new FormControl(translationKey),
@@ -188,7 +186,8 @@ export class ResourceBookingRulesBookableTimeSlotsComponent implements OnInit {
   }
 
   public addTimeSlot(values: BookingRuleBookableTimeSlots[], controlKey: string): void {
-    const formBookableTimeSlot = this.form.getControl(controlKey).value as FormBookableTimeSlot;
+    // @ts-expect-error
+    const formBookableTimeSlot = this.f[controlKey].value as FormBookableTimeSlot;
 
     if (formBookableTimeSlot.timeStart === '') {
       formBookableTimeSlot.timeStart = null;

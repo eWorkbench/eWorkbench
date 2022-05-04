@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import type { HttpParams } from '@angular/common/http';
+import type { Observable } from 'rxjs';
 
 export interface TableViewService {
-  getList(params: HttpParams, customId?: string): Observable<{ total: number; data: any[] }>;
+  getList: (params: HttpParams, customId?: string) => Observable<{ total: number; data: any[] }>;
 }

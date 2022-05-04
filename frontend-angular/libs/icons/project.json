@@ -1,0 +1,23 @@
+{
+  "projectType": "library",
+  "root": "libs/icons",
+  "sourceRoot": "libs/icons/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/icons"],
+      "options": {
+        "jestConfig": "libs/icons/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["libs/icons/**/*.ts", "libs/icons/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

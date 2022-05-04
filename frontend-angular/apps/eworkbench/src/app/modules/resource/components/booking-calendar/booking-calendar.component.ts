@@ -7,7 +7,6 @@ import { HttpParams } from '@angular/common/http';
 import {
   ApplicationRef,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
   ComponentRef,
@@ -23,11 +22,11 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { EditAppointmentModalComponent } from '@app/modules/appointment/components/modals/edit/edit.component';
 import { NewAppointmentModalComponent } from '@app/modules/appointment/components/modals/new/new.component';
 import { ExportModalComponent } from '@app/modules/schedule/components/modals/export/export.component';
-import { AuthService, ResourceBookingsService } from '@app/services';
+import { AuthService, ResourceBookingsService, ResourcesService } from '@app/services';
 import { DateService } from '@app/services/date/date.service';
-import { CalendarCustomButtons } from '@eworkbench/calendar';
-import { Appointment, ModalCallback, Resource, User } from '@eworkbench/types';
-import {
+import type { CalendarCustomButtons } from '@eworkbench/calendar';
+import type { Appointment, ModalCallback, Resource, User } from '@eworkbench/types';
+import type {
   DateSelectArg,
   DatesSetArg,
   EventClickArg,
@@ -42,6 +41,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { format, parseISO, set } from 'date-fns';
 import { CalendarComponent } from 'libs/calendar/src/lib/components/calendar/calendar.component';
 import { CalendarPopoverWrapperComponent } from 'libs/calendar/src/lib/components/popover/popover.component';
+import { clone } from 'lodash';
 import { take } from 'rxjs/operators';
 
 @UntilDestroy()
@@ -110,7 +110,7 @@ export class ResourceBookingCalendarComponent implements OnInit {
 
   public constructor(
     public readonly resourceBookingsService: ResourceBookingsService,
-    private readonly cdr: ChangeDetectorRef,
+    public readonly resourcesService: ResourcesService,
     private readonly dateService: DateService,
     private readonly modalService: DialogService,
     private readonly authService: AuthService,
@@ -137,6 +137,27 @@ export class ResourceBookingCalendarComponent implements OnInit {
     this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
   }
 
+  public mapWeekdayNumber(weekday: string | null): number {
+    switch (weekday) {
+      case 'MON':
+        return 1;
+      case 'TUE':
+        return 2;
+      case 'WED':
+        return 3;
+      case 'THU':
+        return 4;
+      case 'FRI':
+        return 5;
+      case 'SAT':
+        return 6;
+      case 'SUN':
+        return 0;
+      default:
+        return -1;
+    }
+  }
+
   public getBookings(rangeStart: Date, rangeEnd: Date): void {
     const renderRangeStart = rangeStart.toISOString();
     const renderRangeEnd = rangeEnd.toISOString();
@@ -145,34 +166,67 @@ export class ResourceBookingCalendarComponent implements OnInit {
 
     const params = new HttpParams().set('start_date__lte', renderRangeEnd).set('end_date__gte', renderRangeStart);
 
+    // map time slots to week days
+    const timeSlots: Record<number, { start: string; end: string }> = {};
+    this.resource.booking_rule_bookable_hours.forEach(rule => {
+      timeSlots[this.mapWeekdayNumber(rule.weekday)] = {
+        start: rule.full_day || !rule.time_start ? '00:00:00' : rule.time_start,
+        end: rule.full_day || !rule.time_end ? '24:00:00' : rule.time_end,
+      };
+    });
+
+    const currentDay = clone(rangeStart);
+    do {
+      const day = currentDay.getDay();
+      if (day in timeSlots) {
+        const dayStart = timeSlots[day].start.split(':');
+        const dayEnd = timeSlots[day].end.split(':');
+
+        this.calendar.addEvent({
+          groupId: 'bookableTimeSlots',
+          start: set(currentDay, {
+            hours: Number(dayStart[0]),
+            minutes: Number(dayStart[1]),
+            seconds: Number(dayStart[2]),
+          }).toISOString(),
+          end: set(currentDay, {
+            hours: Number(dayEnd[0]),
+            minutes: Number(dayEnd[1]),
+            seconds: Number(dayEnd[2]),
+          }).toISOString(),
+          display: 'inverse-background',
+          backgroundColor: '#e0e0e0',
+        });
+      }
+
+      currentDay.setDate(currentDay.getDate() + 1);
+    } while (currentDay.toDateString() !== rangeEnd.toDateString());
+
     this.resourceBookingsService
       .getAll(this.resource.pk, params)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ appointments => {
-          appointments.forEach(appointment => {
-            // Infamous hack for full day handling of backend with 23:59:59.999 end dates. End date will be moved to T+1 0:00:00.000.
-            if (appointment.full_day && appointment.date_time_end) {
-              appointment.date_time_end = this.dateService.fixFullDay(appointment.date_time_end);
-            }
+      .subscribe(appointments => {
+        appointments.forEach(appointment => {
+          // Infamous hack for full day handling of backend with 23:59:59.999 end dates. End date will be moved to T+1 0:00:00.000.
+          if (appointment.full_day && appointment.date_time_end) {
+            appointment.date_time_end = this.dateService.fixFullDay(appointment.date_time_end);
+          }
 
-            /* istanbul ignore next */
-            this.calendar.addEvent({
-              id: appointment.pk,
-              title: appointment.title,
-              start: appointment.date_time_start!,
-              end: appointment.date_time_end!,
-              allDay: appointment.full_day,
-              textColor: this.getBookingColor(appointment).textColor!,
-              borderColor: this.getBookingColor(appointment).backgroundColor!,
-              backgroundColor: this.getBookingColor(appointment).backgroundColor!,
-              extendedProps: {
-                ...appointment,
-              },
-            });
+          this.calendar.addEvent({
+            id: appointment.pk,
+            title: appointment.title,
+            start: appointment.date_time_start!,
+            end: appointment.date_time_end!,
+            allDay: appointment.full_day,
+            textColor: this.getBookingColor(appointment).textColor!,
+            borderColor: this.getBookingColor(appointment).backgroundColor!,
+            backgroundColor: this.getBookingColor(appointment).backgroundColor!,
+            extendedProps: {
+              ...appointment,
+            },
           });
-        }
-      );
+        });
+      });
   }
 
   public getBookingColor(appointment: Appointment): {
@@ -203,16 +257,19 @@ export class ResourceBookingCalendarComponent implements OnInit {
   }
 
   public onEventClicked(event: EventClickArg): void {
-    /* istanbul ignore next */
     const eventId = event.event._def.publicId;
 
-    /* istanbul ignore next */
     if (eventId && eventId !== 'ANONYMOUS') {
       this.openResourceBookingDetailsModal(eventId);
     }
   }
 
   public onEventDidMount(event: MountArg<EventContentArg>): void {
+    // Avoid popovers on events that just indicate that a specific time range is not bookable
+    if (event.event.display === 'inverse-background') {
+      return;
+    }
+
     const projectableNodes = Array.from(event.el.childNodes);
 
     const compRef = this.popoverFactory.create(this.injector, [projectableNodes], event.el);
@@ -247,7 +304,6 @@ export class ResourceBookingCalendarComponent implements OnInit {
   }
 
   public openExportModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(ExportModalComponent, { closeButton: false });
   }
 
@@ -288,7 +344,6 @@ export class ResourceBookingCalendarComponent implements OnInit {
           },
         });
 
-        /* istanbul ignore next */
         this.modalRef.afterClosed$
           .pipe(untilDestroyed(this), take(1))
           .subscribe((callback: { state: ModalState; event: any }) => this.onResourceBookingModalClose(callback));
@@ -301,7 +356,6 @@ export class ResourceBookingCalendarComponent implements OnInit {
       data: { id },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$
       .pipe(untilDestroyed(this), take(1))
       .subscribe((callback: { state: ModalState; event: any }) => this.onResourceBookingModalClose(callback));
@@ -309,7 +363,6 @@ export class ResourceBookingCalendarComponent implements OnInit {
 
   public onResourceBookingModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
-      /* istanbul ignore next */
       this.refreshAppointments(this.activeRangeStart, this.activeRangeEnd);
     }
   }

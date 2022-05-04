@@ -5,15 +5,15 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { BookingRuleBookingsPerUser, BookingRulePayload, DropdownElement } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { BookingRuleBookingsPerUser, BookingRulePayload, DropdownElement } from '@eworkbench/types';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { v4 as uuidv4 } from 'uuid';
 
 interface FormBooking {
-  count: number | null;
-  unit: 'DAY' | 'WEEK' | 'MONTH' | null;
+  count: FormControl<number | null>;
+  unit: FormControl<'DAY' | 'WEEK' | 'MONTH' | null>;
 }
 
 @UntilDestroy()
@@ -57,19 +57,17 @@ export class ResourceBookingRulesBookingsPerUserElementComponent implements OnIn
   public units: DropdownElement[] = [];
 
   public form = this.fb.group<FormBooking>({
-    count: [null, [Validators.required]],
-    unit: [null, [Validators.required]],
+    count: this.fb.control(null, Validators.required),
+    unit: this.fb.control(null, Validators.required),
   });
 
   public constructor(private readonly fb: FormBuilder, private readonly translocoService: TranslocoService) {}
 
-  public get f(): FormGroup<FormBooking>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.pushChanges();
     });

@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabelsService, ProjectsService, TasksService } from '@app/services';
-import { DropdownElement, Label, ModalCallback, Project, Task, TaskChecklist, User } from '@eworkbench/types';
+import type { DropdownElement, Label, ModalCallback, Project, Task, TaskChecklist, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -115,7 +115,7 @@ export class TaskPreviewComponent implements OnInit {
       .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (task: Task) => {
+        (task: Task) => {
           this.task = { ...task };
 
           this.assignees = task.assigned_users;
@@ -152,7 +152,7 @@ export class TaskPreviewComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -176,27 +176,23 @@ export class TaskPreviewComponent implements OnInit {
       .get()
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ labels => {
-            selectedLabels.forEach(label => {
-              labels.forEach(apiLabel => {
-                if (label === apiLabel.pk) {
-                  if (this.labels.length) {
-                    this.labels = [...this.labels, apiLabel];
-                  } else {
-                    this.labels = [apiLabel];
-                  }
+        map(labels => {
+          selectedLabels.forEach(label => {
+            labels.forEach(apiLabel => {
+              if (label === apiLabel.pk) {
+                if (this.labels.length) {
+                  this.labels = [...this.labels, apiLabel];
+                } else {
+                  this.labels = [apiLabel];
                 }
-              });
+              }
             });
-          }
-        )
+          });
+        })
       )
-      .subscribe(
-        /* istanbul ignore next */ () => {
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(() => {
+        this.cdr.markForCheck();
+      });
   }
 
   public onRestoreVersion(): void {
@@ -209,7 +205,7 @@ export class TaskPreviewComponent implements OnInit {
       .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -219,7 +215,7 @@ export class TaskPreviewComponent implements OnInit {
               this.toastrService.success(versionRestored);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

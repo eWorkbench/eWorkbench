@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { TableColumn } from './table-column.interface';
+import type { TableColumn } from './table-column.interface';
 
 export type TableColumnChangedEvent = Omit<TableColumn, 'cellTemplate'>[];

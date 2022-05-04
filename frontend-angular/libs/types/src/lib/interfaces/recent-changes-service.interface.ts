@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { RecentChanges } from './recent-changes.interface';
+import type { HttpParams } from '@angular/common/http';
+import type { Observable } from 'rxjs';
+import type { RecentChanges } from './recent-changes.interface';
 
 export interface RecentChangesService {
-  history(id: string, params?: HttpParams): Observable<RecentChanges[]>;
+  history: (id: string, params?: HttpParams) => Observable<RecentChanges[]>;
 }

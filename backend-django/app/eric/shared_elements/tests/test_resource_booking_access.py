@@ -297,7 +297,8 @@ class MyResourceBookingAccessTest(
         self.superuser, self.superuser_token = self.create_user_and_log_in(username='superuser', is_superuser=True)
 
         with FakeRequest(), FakeRequestUser(self.superuser):
-            self.resource1 = Resource.objects.create(name='Test Resource 1', description='Test', type=Resource.ROOM)
+            self.resource1 = Resource.objects.create(name='Test Resource 1', description='Test', type=Resource.ROOM,
+                                                     general_usage_setting=Resource.GLOBAL)
 
     def test_can_see_own_bookings(self):
         # user1 creates some resource bookings

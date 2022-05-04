@@ -40,11 +40,8 @@
       <eworkbench-trash-notice></eworkbench-trash-notice>
     </ng-container>
 
+    <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="taskBoardsService"></eworkbench-lock>
     <eworkbench-overview-collapse-element class="mb-4" [collapsed]="true">
-      <ng-container *ngIf="initialState?.deleted">
-        <eworkbench-trash-notice></eworkbench-trash-notice>
-      </ng-container>
-      <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="taskBoardsService"></eworkbench-lock>
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="task-board-details" errorTailor>
         <div>
           <eworkbench-details-collapse-element [labelText]="t('taskBoard.details.element.details')">

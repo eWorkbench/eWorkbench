@@ -6,8 +6,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { UserStore } from '@app/stores/user';
-import { TableViewComponent, TreeViewComponent } from '@eworkbench/table';
-import { ModalCallback } from '@eworkbench/types';
+import type { TableViewComponent, TreeViewComponent } from '@eworkbench/table';
+import type { ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -60,7 +60,7 @@ export class TrashButtonComponent {
       .delete(id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.tableView?.loadData();
           this.loading = false;
           this.deleted.emit();
@@ -71,7 +71,7 @@ export class TrashButtonComponent {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
         }
       );
@@ -79,7 +79,7 @@ export class TrashButtonComponent {
 
   public onDelete(id: string): void {
     const userStoreValue = this.userStore.getValue();
-    /* istanbul ignore next */
+
     const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[this.skipDialogKey]);
 
     if (skipTrashDialog) {
@@ -89,14 +89,13 @@ export class TrashButtonComponent {
         closeButton: false,
         data: { id: this.id, service: this.service, userSetting: this.skipDialogKey },
       });
-      /* istanbul ignore next */
+
       this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
     }
   }
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
-      /* istanbul ignore next */
       this.tableView?.loadData();
       this.deleted.emit();
     }

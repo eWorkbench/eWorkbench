@@ -5,7 +5,7 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { ModalCallback } from '@eworkbench/types';
+import type { ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { take } from 'rxjs/operators';
@@ -35,7 +35,6 @@ export class LinkComponent {
   public constructor(private readonly modalService: DialogService) {}
 
   public openNewLinkModal(contentType: string): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLinkModalComponent, {
       closeButton: false,
       width: '1200px',
@@ -45,13 +44,12 @@ export class LinkComponent {
         service: this.service,
       },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
-      /* istanbul ignore next */
       this.refreshLinkList.next(true);
     }
   }

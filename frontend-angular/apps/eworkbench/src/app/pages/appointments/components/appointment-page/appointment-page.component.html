@@ -252,6 +252,25 @@
                   </eworkbench-form-input>
                 </div>
                 <div class="mb-4">
+                  <eworkbench-form-input for="remindAttending" [loading]="loading" [onSubmit]="refreshResetValue">
+                    <div class="custom-control custom-checkbox" slot="input">
+                      <input
+                        class="custom-control-input"
+                        type="checkbox"
+                        formControlName="scheduledNotificationActive"
+                        id="remindAttending"
+                        name="remindAttending"
+                      />
+                      <label class="custom-control-label" for="remindAttending">{{ t('appointment.details.remindAttending.label') }}</label>
+                    </div>
+                  </eworkbench-form-input>
+                </div>
+                <div *ngIf="f.scheduledNotificationActive.value">
+                  <eworkbench-form-input [loading]="loading" [onSubmit]="refreshResetValue">
+                    <eworkbench-form-time-group formControlName="timeGroup" slot="input"></eworkbench-form-time-group>
+                  </eworkbench-form-input>
+                </div>
+                <div class="mb-4">
                   <eworkbench-form-input
                     for="projects"
                     [label]="t('appointment.details.projects.label')"
@@ -288,66 +307,6 @@
                         <div class="ng-option">{{ t('formInput.select.noMatch') }}</div>
                       </ng-template>
                     </ng-select>
-                  </eworkbench-form-input>
-                </div>
-                <div class="mb-4">
-                  <eworkbench-form-input for="remindAttending" [loading]="loading" [onSubmit]="refreshResetValue">
-                    <div class="custom-control custom-checkbox" slot="input">
-                      <input
-                        class="custom-control-input"
-                        type="checkbox"
-                        formControlName="scheduledNotificationActive"
-                        id="remindAttending"
-                        name="remindAttending"
-                      />
-                      <label class="custom-control-label" for="remindAttending">{{ t('appointment.details.remindAttending.label') }}</label>
-                    </div>
-                  </eworkbench-form-input>
-                </div>
-                <div class="mb-4" *ngIf="f.scheduledNotificationActive.value">
-                  <eworkbench-form-input
-                    for="reminderValue"
-                    [label]="t('appointment.details.reminderValue.label')"
-                    [loading]="loading"
-                    [onSubmit]="refreshResetValue"
-                    [required]="true"
-                  >
-                    <input
-                      type="text"
-                      class="form-control ewb-input"
-                      id="reminderValue"
-                      formControlName="scheduledNotificationTimedeltaValue"
-                      name="reminderValue"
-                      [placeholder]="t('appointment.details.reminderValue.placeholder')"
-                      slot="input"
-                    />
-                  </eworkbench-form-input>
-                </div>
-                <div class="mb-4" *ngIf="f.scheduledNotificationActive.value">
-                  <eworkbench-form-input
-                    for="reminderUnit"
-                    [label]="t('appointment.details.reminderUnit.label')"
-                    [loading]="loading"
-                    [onSubmit]="refreshResetValue"
-                    [required]="true"
-                  >
-                    <div class="flex items-center" slot="input">
-                      <div class="flex-fill mr-3">
-                        <ng-select
-                          class="ewb-select"
-                          formControlName="scheduledNotificationTimedeltaUnit"
-                          labelForId="reminderUnit"
-                          name="reminderUnit"
-                          [placeholder]="t('appointment.details.reminderUnit.placeholder')"
-                          [items]="remindAttendingUnits"
-                          bindLabel="label"
-                          bindValue="value"
-                          slot="input"
-                        >
-                        </ng-select>
-                      </div>
-                      <div class="flex-fill">{{ t('appointment.details.remindAttending.prior') }}</div>
-                    </div>
                   </eworkbench-form-input>
                 </div>
                 <div class="mb-4">

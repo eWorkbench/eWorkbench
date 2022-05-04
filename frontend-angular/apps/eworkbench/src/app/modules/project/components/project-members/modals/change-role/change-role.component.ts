@@ -5,7 +5,6 @@
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { DialogRef } from '@ngneat/dialog';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -16,5 +15,5 @@ import { UntilDestroy } from '@ngneat/until-destroy';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangeProjectMemberRoleModalComponent {
-  public constructor(public readonly modalRef: DialogRef, private readonly translocoService: TranslocoService) {}
+  public constructor(public readonly modalRef: DialogRef) {}
 }

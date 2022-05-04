@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { PluginDetails } from '@eworkbench/types';
+import type { PluginDetails } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { UntilDestroy } from '@ngneat/until-destroy';
 

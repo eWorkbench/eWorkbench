@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DMPService, ProjectsService } from '@app/services';
-import { DMP, DMPFormData, DropdownElement, ModalCallback, Project } from '@eworkbench/types';
+import type { DMP, DMPFormData, DropdownElement, ModalCallback, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -93,7 +93,7 @@ export class DMPPreviewComponent implements OnInit {
       .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (dmp: DMP) => {
+        (dmp: DMP) => {
           this.dmp = { ...dmp };
 
           this.statusFormControl.patchValue(dmp.status, { emitEvent: false });
@@ -108,7 +108,7 @@ export class DMPPreviewComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -137,7 +137,7 @@ export class DMPPreviewComponent implements OnInit {
       .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -147,7 +147,7 @@ export class DMPPreviewComponent implements OnInit {
               this.toastrService.success(versionRestored);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

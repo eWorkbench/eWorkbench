@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { AuthService, MenuModelService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import { MenuModelItem, MenuModels } from '@eworkbench/types';
+import type { MenuModelItem, MenuModels } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BsDropdownDirective } from 'ngx-bootstrap/dropdown';
@@ -68,35 +68,29 @@ export class OrderedMenuComponent implements OnInit, AfterViewInit {
   ) {}
 
   public ngOnInit(): void {
-    this.authService.user$.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ state => {
-        const menuModels = Object.keys(this.menuModelService.models) as MenuModels[];
-        const menuModelsUISettings = (state.user?.userprofile.ui_settings?.ordered_menu ?? []) as MenuModels[];
+    this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
+      const menuModels = Object.keys(this.menuModelService.models) as MenuModels[];
+      const menuModelsUISettings = (state.user?.userprofile.ui_settings?.ordered_menu ?? []) as MenuModels[];
 
-        this.elements = [...menuModels];
+      this.elements = [...menuModels];
+      this.savedOrderedElements = [...this.elements];
+
+      // We must check if menu items have been added or removed from the service models and update the UI setting in the user's profile
+      if (menuModelsUISettings.length) {
+        const itemsToRemove = menuModelsUISettings.filter(
+          (settingsField: MenuModels) => !menuModels.some((modelField: MenuModels) => settingsField === modelField)
+        );
+        const itemsToAdd = menuModels.filter(
+          (modelField: MenuModels) => !menuModelsUISettings.some((settingsField: MenuModels) => modelField === settingsField)
+        );
+        this.elements = [...menuModelsUISettings.filter(element => !itemsToRemove.includes(element)), ...itemsToAdd];
         this.savedOrderedElements = [...this.elements];
 
-        // We must check if menu items have been added or removed from the service models and update the UI setting in the user's profile
-        if (menuModelsUISettings.length) {
-          const itemsToRemove = menuModelsUISettings.filter((settingsField: MenuModels) => {
-            return !menuModels.some((modelField: MenuModels) => {
-              return settingsField === modelField;
-            });
-          });
-          const itemsToAdd = menuModels.filter((modelField: MenuModels) => {
-            return !menuModelsUISettings.some((settingsField: MenuModels) => {
-              return modelField === settingsField;
-            });
-          });
-          this.elements = [...menuModelsUISettings.filter(element => !itemsToRemove.includes(element)), ...itemsToAdd];
-          this.savedOrderedElements = [...this.elements];
-
-          if (itemsToRemove.length || itemsToAdd.length) {
-            this.saveMenu(false);
-          }
+        if (itemsToRemove.length || itemsToAdd.length) {
+          this.saveMenu(false);
         }
       }
-    );
+    });
   }
 
   public ngAfterViewInit(): void {
@@ -185,35 +179,31 @@ export class OrderedMenuComponent implements OnInit, AfterViewInit {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(
-          /* istanbul ignore next */ state => {
-            const currentUser = state.user;
+        switchMap(state => {
+          const currentUser = state.user;
 
-            return this.userService.changeSettings({
-              userprofile: {
-                ui_settings: {
-                  ...currentUser?.userprofile.ui_settings,
-                  ordered_menu: [...new Set(this.elements)],
-                },
+          return this.userService.changeSettings({
+            userprofile: {
+              ui_settings: {
+                ...currentUser?.userprofile.ui_settings,
+                ordered_menu: [...new Set(this.elements)],
               },
-            });
-          }
-        )
+            },
+          });
+        })
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('menu.toastr.success.updated')
-            .pipe(untilDestroyed(this))
-            .subscribe(updated => {
-              if (notification) {
-                this.toastrService.success(updated);
-              }
-              this.savedOrderedElements = [...new Set(this.elements)];
-              this.cancelEditMenu();
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('menu.toastr.success.updated')
+          .pipe(untilDestroyed(this))
+          .subscribe(updated => {
+            if (notification) {
+              this.toastrService.success(updated);
+            }
+            this.savedOrderedElements = [...new Set(this.elements)];
+            this.cancelEditMenu();
+          });
+      });
   }
 }

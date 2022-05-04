@@ -17,4 +17,4 @@ class ElementLockSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ElementLock
-        fields = ('pk', 'locked_at', 'locked_by', 'content_type', 'object_id', 'locked_until', )
+        fields = ('pk', 'locked_at', 'locked_by', 'content_type', 'object_id', 'webdav_lock', 'locked_until', )

@@ -6,8 +6,8 @@
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ContentTypeModelService, SearchService } from '@app/services';
-import { ContentTypeModels } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { ContentTypeModels } from '@eworkbench/types';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BsDropdownDirective } from 'ngx-bootstrap/dropdown';
 import { debounceTime, skip } from 'rxjs/operators';
@@ -53,21 +53,21 @@ export class GlobalSearchComponent implements OnInit {
   public results: any[] = [];
 
   public form = this.fb.group<FromSearch>({
-    search: [null],
-    appointment: [false],
-    note: [false],
-    contact: [false],
-    dmp: [false],
-    dss: [false],
-    file: [false],
-    labbook: [false],
-    picture: [false],
-    plugin: [false],
-    project: [false],
-    resource: [false],
-    drive: [false],
-    task: [false],
-    taskboard: [false],
+    search: null,
+    appointment: false,
+    note: false,
+    contact: false,
+    dmp: false,
+    dss: false,
+    file: false,
+    labbook: false,
+    picture: false,
+    plugin: false,
+    project: false,
+    resource: false,
+    drive: false,
+    task: false,
+    taskboard: false,
   });
 
   public constructor(
@@ -77,8 +77,7 @@ export class GlobalSearchComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FromSearch>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -87,11 +86,9 @@ export class GlobalSearchComponent implements OnInit {
   }
 
   public initSearch(): void {
-    this.f.search.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ () => {
-        this.search();
-      }
-    );
+    this.f.search.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(() => {
+      this.search();
+    });
   }
 
   public get searchText(): string | null {
@@ -119,14 +116,12 @@ export class GlobalSearchComponent implements OnInit {
       this.searchService
         .search(this.searchText, this.params)
         .pipe(untilDestroyed(this))
-        .subscribe(
-          /* istanbul ignore next */ results => {
-            this.results = [...results];
-            this.loading = false;
-            this.dropdown.show();
-            this.cdr.markForCheck();
-          }
-        );
+        .subscribe(results => {
+          this.results = [...results];
+          this.loading = false;
+          this.dropdown.show();
+          this.cdr.markForCheck();
+        });
     } else {
       this.results = [];
     }

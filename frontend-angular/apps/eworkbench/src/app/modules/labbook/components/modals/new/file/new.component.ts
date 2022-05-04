@@ -8,9 +8,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, On
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DrivesService, FilesService, LabBooksService, ProjectsService } from '@app/services';
-import { Directory, DropdownElement, FilePayload, LabBookElementEvent, ModalCallback, Project } from '@eworkbench/types';
+import type { Directory, DropdownElement, FilePayload, LabBookElementEvent, ModalCallback, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -18,14 +18,14 @@ import { from, of, Subject } from 'rxjs';
 import { catchError, debounceTime, map, mergeMap, switchMap } from 'rxjs/operators';
 
 interface FormElement {
-  parentElement: string | null;
-  position: 'top' | 'bottom';
-  title: string | null;
+  parentElement: FormControl<string | null>;
+  position: FormControl<'top' | 'bottom'>;
+  title: FormControl<string | null>;
   name: string | null;
-  file: globalThis.File | string | null;
+  file: FormControl<globalThis.File | string | null>;
   storage: string | null;
   description: string | null;
-  projects: string[];
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -64,14 +64,14 @@ export class NewLabBookFileElementModalComponent implements OnInit {
   public filePlaceholder = this.translocoService.translate('file.newModal.file.placeholder');
 
   public form = this.fb.group<FormElement>({
-    parentElement: ['labBook', [Validators.required]],
-    position: ['bottom', [Validators.required]],
-    title: [null, [Validators.required]],
-    name: [null],
-    file: [null, [Validators.required]],
-    storage: [null],
-    description: [null],
-    projects: [[]],
+    parentElement: this.fb.control('labBook', Validators.required),
+    position: this.fb.control('bottom', Validators.required),
+    title: this.fb.control(null, Validators.required),
+    name: null,
+    file: this.fb.control(null, Validators.required),
+    storage: null,
+    description: null,
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -86,8 +86,7 @@ export class NewLabBookFileElementModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormElement>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -137,29 +136,25 @@ export class NewLabBookFileElementModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initDetails(): void {
@@ -186,7 +181,7 @@ export class NewLabBookFileElementModalComponent implements OnInit {
       .getElements(this.labBookId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBookElements => {
+        labBookElements => {
           const sections: DropdownElement[] = [];
 
           labBookElements.map(element => {
@@ -202,7 +197,7 @@ export class NewLabBookFileElementModalComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -210,7 +205,6 @@ export class NewLabBookFileElementModalComponent implements OnInit {
   }
 
   public patchFormValues(): void {
-    /* istanbul ignore next */
     if (this.projectsList.length) {
       from(this.projectsList)
         .pipe(
@@ -218,20 +212,18 @@ export class NewLabBookFileElementModalComponent implements OnInit {
           mergeMap(id =>
             this.projectsService.get(id).pipe(
               untilDestroyed(this),
-              catchError(() => {
-                return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-              })
+              catchError(() =>
+                of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+              )
             )
           )
         )
-        .subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        .subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
     }
 
     this.form.patchValue(
@@ -243,9 +235,8 @@ export class NewLabBookFileElementModalComponent implements OnInit {
   }
 
   public onUpload(event: Event): void {
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -268,7 +259,7 @@ export class NewLabBookFileElementModalComponent implements OnInit {
       .add(this.file)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ file => {
+        file => {
           this.state = ModalState.Changed;
           const event: LabBookElementEvent = {
             childObjectId: file.pk,
@@ -285,7 +276,7 @@ export class NewLabBookFileElementModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

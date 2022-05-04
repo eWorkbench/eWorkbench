@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { Validators } from '@angular/forms';
 import { CommentsModalComponent } from '@app/modules/comment/components/modals/comments/comments.component';
 import { AuthService, FilesService, LabBooksService, WebSocketService } from '@app/services';
-import { File, FilePayload, LabBookElement, Lock, Privileges, User } from '@eworkbench/types';
+import type { File, FilePayload, LabBookElement, Lock, Privileges, User } from '@eworkbench/types';
 import { DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -21,7 +21,7 @@ interface ElementRemoval {
 }
 
 interface FormFile {
-  title: string | null;
+  title: FormControl<string | null>;
   description: string | null;
 }
 
@@ -68,9 +68,9 @@ export class LabBookDrawBoardFileComponent implements OnInit {
 
   public refreshResetValue = new EventEmitter<boolean>();
 
-  public form: FormGroup<FormFile> = this.fb.group<FormFile>({
-    title: [null, [Validators.required]],
-    description: [null],
+  public form = this.fb.group<FormFile>({
+    title: this.fb.control(null, Validators.required),
+    description: null,
   });
 
   public constructor(
@@ -85,12 +85,11 @@ export class LabBookDrawBoardFileComponent implements OnInit {
     private readonly modalService: DialogService
   ) {}
 
-  public get f(): FormGroup<FormFile>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -99,7 +98,6 @@ export class LabBookDrawBoardFileComponent implements OnInit {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -119,17 +117,13 @@ export class LabBookDrawBoardFileComponent implements OnInit {
     this.initPrivileges();
 
     this.websocketService.subscribe([{ model: 'file', pk: this.initialState!.pk }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.initialState!.pk) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.initialState!.pk) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+    });
 
-    /* istanbul ignore next */
     this.refreshElementRelations?.subscribe((event: { model_name: string; model_pk: string }) => {
       if (event.model_name === 'file' && event.model_pk === this.initialState!.pk) {
         this.refreshElementRelationsCounter();
@@ -157,18 +151,16 @@ export class LabBookDrawBoardFileComponent implements OnInit {
     this.filesService
       .get(this.initialState!.pk, this.currentUser.pk)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ privilegesData => {
-          const privileges = privilegesData.privileges;
-          this.privileges = { ...privileges };
+      .subscribe(privilegesData => {
+        const privileges = privilegesData.privileges;
+        this.privileges = { ...privileges };
 
-          if (!this.privileges.edit) {
-            this.form.disable({ emitEvent: false });
-          }
-
-          this.cdr.markForCheck();
+        if (!this.privileges.edit) {
+          this.form.disable({ emitEvent: false });
         }
-      );
+
+        this.cdr.markForCheck();
+      });
   }
 
   public onSubmit(): void {
@@ -181,7 +173,7 @@ export class LabBookDrawBoardFileComponent implements OnInit {
       .patch(this.initialState!.pk, this.file)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ file => {
+        file => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.filesService.unlock(this.initialState!.pk);
           }
@@ -199,7 +191,7 @@ export class LabBookDrawBoardFileComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -219,7 +211,6 @@ export class LabBookDrawBoardFileComponent implements OnInit {
   }
 
   public onOpenCommentsModal(): void {
-    /* istanbul ignore next */
     this.modalService.open(CommentsModalComponent, {
       closeButton: false,
       width: '912px',
@@ -231,12 +222,10 @@ export class LabBookDrawBoardFileComponent implements OnInit {
     this.labBooksService
       .getElement(this.id, this.element.pk)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ element => {
-          this.element.num_related_comments = element.num_related_comments!;
-          this.element.num_relations = element.num_relations!;
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(element => {
+        this.element.num_related_comments = element.num_related_comments!;
+        this.element.num_relations = element.num_relations!;
+        this.cdr.markForCheck();
+      });
   }
 }

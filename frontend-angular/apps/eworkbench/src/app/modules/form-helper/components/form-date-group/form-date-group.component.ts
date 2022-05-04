@@ -5,12 +5,12 @@
 
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, Self } from '@angular/core';
 import { NgControl, Validators } from '@angular/forms';
-import { DateGroup, DatePickerConfig } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { DateGroup, DatePickerConfig } from '@eworkbench/types';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { format, parseISO, set } from 'date-fns';
 import flatpickr from 'flatpickr';
-import { Instance } from 'flatpickr/dist/types/instance';
+import type { Instance } from 'flatpickr/dist/types/instance';
 import { v4 as uuidv4 } from 'uuid';
 
 interface FormDateGroup {
@@ -62,9 +62,10 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
     end: null,
   };
 
-  public onChange: any = () => {};
-
-  public onTouch: any = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public onChanged: any = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public onTouched: any = () => {};
 
   public readonly dateFormat = 'yyyy-MM-dd';
 
@@ -92,10 +93,10 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
 
   public viewInitialized = false;
 
-  public form: FormGroup<FormDateGroup> = this.fb.group({
-    start: [null],
-    end: [null],
-    fullDay: [false],
+  public form = this.fb.group<FormDateGroup>({
+    start: null,
+    end: null,
+    fullDay: false,
   });
 
   public fullDayToggleTriggered = false;
@@ -110,7 +111,7 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
     this.ngControl.valueAccessor = this;
   }
 
-  public get f(): FormGroup<FormDateGroup>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -123,8 +124,8 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
     this._value = value;
     this.setInitialValue(value);
 
-    this.onChange(value);
-    this.onTouch(value);
+    this.onChanged(value);
+    this.onTouched(value);
 
     this.form.patchValue(
       {
@@ -155,14 +156,11 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
   }
 
   public ngAfterViewInit(): void {
-    /* istanbul ignore next */
-    this.f.fullDay.value$.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ fullDay => {
-        this.setFullDayToggleTriggered(fullDay);
-        this.value.fullDay = fullDay;
-        this.formatDates();
-      }
-    );
+    this.f.fullDay.value$.pipe(untilDestroyed(this)).subscribe(fullDay => {
+      this.setFullDayToggleTriggered(fullDay);
+      this.value.fullDay = fullDay;
+      this.formatDates();
+    });
 
     this.setDatePicker();
     this.viewInitialized = true;
@@ -173,14 +171,14 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
   public setDatePicker(): void {
     this.startDatePicker = flatpickr(`#startDate${this.uniqueHash}`, {
       ...this.datePickerConfig,
-      onChange: (selectedDate, dateStr) => {
+      onChange: (_, dateStr) => {
         this.f.start.setValue(dateStr);
         this.onRefreshDateValues();
       },
     }) as Instance;
     this.endDatePicker = flatpickr(`#endDate${this.uniqueHash}`, {
       ...this.datePickerConfig,
-      onChange: (selectedDate, dateStr) => {
+      onChange: (_, dateStr) => {
         this.f.end.setValue(dateStr);
         this.onRefreshDateValues();
       },
@@ -188,11 +186,11 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
   }
 
   public registerOnChange(fn: any): void {
-    this.onChange = fn;
+    this.onChanged = fn;
   }
 
   public registerOnTouched(fn: any): void {
-    this.onTouch = fn;
+    this.onTouched = fn;
   }
 
   public writeValue(value: DateGroup): void {
@@ -213,8 +211,8 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
       this.form.disable();
     }
 
-    this.onChange(this.value);
-    this.onTouch(this.value);
+    this.onChanged(this.value);
+    this.onTouched(this.value);
     this.cdr.detectChanges();
   }
 
@@ -222,8 +220,8 @@ export class FormDateGroupComponent implements OnInit, AfterViewInit {
     this.value.start = this.f.start.value;
     this.value.end = this.f.end.value;
 
-    this.onChange(this.value);
-    this.onTouch(this.value);
+    this.onChanged(this.value);
+    this.onTouched(this.value);
   }
 
   public formatDates(): void {

@@ -124,11 +124,9 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
             'contact',
             'terms_of_use_pdf',
             'projects',
-            'user_availability',
-            'user_availability_selected_users',
-            'user_availability_selected_user_pks',
-            'user_availability_selected_user_groups',
-            'user_availability_selected_user_group_pks',
+            'general_usage_setting',
+            'usage_setting_selected_user_groups',
+            'usage_setting_selected_user_group_pks',
             'created_by',
             'created_at',
             'last_modified_by',
@@ -149,18 +147,10 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
 
     projects = ProjectPrimaryKeyRelatedField(many=True, required=False)
 
-    user_availability_selected_users = PublicUserSerializer(read_only=True, many=True)
-    user_availability_selected_user_pks = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        source='user_availability_selected_users',
-        many=True,
-        required=False
-    )
-
-    user_availability_selected_user_groups = PublicUserGroupSerializer(read_only=True, many=True)
-    user_availability_selected_user_group_pks = serializers.PrimaryKeyRelatedField(
+    usage_setting_selected_user_groups = PublicUserGroupSerializer(read_only=True, many=True)
+    usage_setting_selected_user_group_pks = serializers.PrimaryKeyRelatedField(
         queryset=Group.objects.all(),
-        source='user_availability_selected_user_groups',
+        source='usage_setting_selected_user_groups',
         many=True,
         required=False
     )
@@ -209,13 +199,10 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
     def create(self, validated_data):
         """
         Override create method of ResourceSerializer such that we can handle sub-serializers for
-         - user_availability_selected_users
          - metadata
         :param validated_data: validated data of the serializer
         :return: Resource
         """
-        user_availability_selected_users = None
-        user_availability_selected_user_groups = None
         booking_rule_minimum_duration = None
         booking_rule_maximum_duration = None
         booking_rule_minimum_time_before = None
@@ -225,14 +212,6 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
         booking_rule_bookable_hours = None
 
         metadata_list = self.pop_metadata(validated_data)
-
-        # get user_availability_selected_users from validated data (if it is available)
-        if 'user_availability_selected_users' in validated_data:
-            user_availability_selected_users = validated_data.pop('user_availability_selected_users')
-
-        # get user_availability_selected_user_groups from validated data (if it is available)
-        if 'user_availability_selected_user_groups' in validated_data:
-            user_availability_selected_user_groups = validated_data.pop('user_availability_selected_user_groups')
 
         # get booking_rule_minimum_duration from validated data (if it is available)
         if 'booking_rule_minimum_duration' in validated_data:
@@ -264,16 +243,6 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
 
         # create the resource using ResourceSerializer
         instance = super(ResourceSerializer, self).create(validated_data)
-
-        # now create user_availability_selected_users
-        if user_availability_selected_users:
-            for user in user_availability_selected_users:
-                instance.user_availability_selected_users.add(user)
-
-        # now create user_availability_selected_user_groups
-        if user_availability_selected_user_groups:
-            for user_group in user_availability_selected_user_groups:
-                instance.user_availability_selected_user_groups.add(user_group)
 
         # create the booking rules and add them to the instance
         # now create booking_rule_minimum_duration
@@ -446,55 +415,10 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
 
         return validated_data
 
-    @staticmethod
-    def update_user_availability_selected_users(instance, user_availability_selected_users):
-        """
-        Updates the user availability of selected users
-        :param instance: the instance that is being updated
-        :param user_availability_selected_users: selected users
-        :return: instance
-        """
-        currently_selected_users = instance.user_availability_selected_users.all()
-        users_to_remove = set(currently_selected_users).difference(user_availability_selected_users)
-        users_to_add = set(user_availability_selected_users).difference(set(currently_selected_users))
-
-        # handle user_availability_selected_users that need to be removed
-        for user in users_to_remove:
-            instance.user_availability_selected_users.remove(user)
-
-        # handle user_availability_selected_users that need to be added
-        for user in users_to_add:
-            instance.user_availability_selected_users.add(user)
-
-        return instance
-
-    @staticmethod
-    def update_user_availability_selected_user_groups(instance, user_availability_selected_user_groups):
-        """
-        Updates the user availability of selected user groups
-        :param instance: the instance that is being updated
-        :param user_availability_selected_user_groups: selected user groups
-        :return: instance
-        """
-        currently_selected_user_groups = instance.user_availability_selected_user_groups.all()
-        user_groups_to_remove = set(currently_selected_user_groups).difference(user_availability_selected_user_groups)
-        user_groups_to_add = set(user_availability_selected_user_groups).difference(set(currently_selected_user_groups))
-
-        # handle user_availability_selected_user_groups that need to be removed
-        for user_group in user_groups_to_remove:
-            instance.user_availability_selected_user_groups.remove(user_group)
-
-        # handle user_availability_selected_user_groups that need to be added
-        for user_group in user_groups_to_add:
-            instance.user_availability_selected_user_groups.add(user_group)
-
-        return instance
-
     @transaction.atomic
     def update(self, instance, validated_data):
         """
         Override update method of ResourceSerializer such that we can handle sub-serializers for
-        - user_availability_selected_users
         - metadata
         :param instance: the instance that is being updated
         :param validated_data: validated data of the serializer
@@ -505,18 +429,6 @@ class ResourceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMe
         validated_data = self.handle_booking_rules_with_duration(instance, validated_data)
         validated_data = self.handle_booking_rules_for_bookable_hours(instance, validated_data)
         validated_data = self.handle_booking_rules_for_bookings_per_user(instance, validated_data)
-
-        if 'user_availability_selected_users' in validated_data:
-            user_availability_selected_users = validated_data.pop('user_availability_selected_users')
-            instance = self.update_user_availability_selected_users(instance, user_availability_selected_users)
-
-        # get user_availability_selected_user_groups from validated data (if it is available)
-        if 'user_availability_selected_user_groups' in validated_data:
-            user_availability_selected_user_groups = validated_data.pop('user_availability_selected_user_groups')
-            instance = self.update_user_availability_selected_user_groups(
-                instance,
-                user_availability_selected_user_groups
-            )
 
         self.update_metadata(metadata_list, instance)
 

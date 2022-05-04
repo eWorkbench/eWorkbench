@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Directory } from './directory.interface';
-import { Metadata } from './metadata.interface';
-import { User } from './user.interface';
+import type { Directory } from './directory.interface';
+import type { Metadata } from './metadata.interface';
+import type { User } from './user.interface';
 
 export interface FilePayload {
   title: string;

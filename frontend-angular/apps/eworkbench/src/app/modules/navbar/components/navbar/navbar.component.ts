@@ -8,7 +8,7 @@ import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AppVersionService, AuthService } from '@app/services';
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { filter } from 'rxjs/operators';
 
@@ -90,11 +90,11 @@ export class NavbarComponent implements OnInit {
       .get()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ version => {
+        version => {
           this.version = version;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.cdr.markForCheck();
         }
       );
@@ -102,13 +102,13 @@ export class NavbarComponent implements OnInit {
 
   public onLogout(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    void this.router.navigate(['/login']);
   }
 
   public getUserName(): string | undefined {
     if (!this.currentUser) {
       return 'Profile';
-    } else if (this.currentUser.userprofile.first_name && /* istanbul ignore next */ this.currentUser.userprofile.last_name) {
+    } else if (this.currentUser.userprofile.first_name && this.currentUser.userprofile.last_name) {
       return `${this.currentUser.userprofile.first_name} ${this.currentUser.userprofile.last_name}`;
     }
     return this.currentUser.username;

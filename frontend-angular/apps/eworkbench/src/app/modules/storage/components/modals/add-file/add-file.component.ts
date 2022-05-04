@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, Template
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService, FilesService } from '@app/services';
 import { TableColumn, TableViewComponent } from '@eworkbench/table';
-import { Directory, User, File } from '@eworkbench/types';
+import type { Directory, User, File } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -104,20 +104,18 @@ export class AddFileModalComponent implements OnInit {
   }
 
   public initSearch(): void {
-    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.delete('recently_modified_by_me');
-          this.params = this.params.set('search', value);
-        } else {
-          if (this.currentUser?.pk) {
-            this.params = this.params.set('recently_modified_by_me', this.currentUser.pk.toString());
-          }
-          this.params = this.params.delete('search');
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.delete('recently_modified_by_me');
+        this.params = this.params.set('search', value);
+      } else {
+        if (this.currentUser?.pk) {
+          this.params = this.params.set('recently_modified_by_me', this.currentUser.pk.toString());
         }
-        this.tableView.loadData(false, this.params);
+        this.params = this.params.delete('search');
       }
-    );
+      this.tableView.loadData(false, this.params);
+    });
   }
 
   public get file(): any {
@@ -142,7 +140,7 @@ export class AddFileModalComponent implements OnInit {
         .patch(this.selectedFile.pk, this.file)
         .pipe(untilDestroyed(this))
         .subscribe(
-          /* istanbul ignore next */ file => {
+          file => {
             this.state = ModalState.Changed;
             this.modalRef.close({ state: this.state, data: { file: file } });
             this.translocoService
@@ -152,7 +150,7 @@ export class AddFileModalComponent implements OnInit {
                 this.toastrService.success(success);
               });
           },
-          /* istanbul ignore next */ () => {
+          () => {
             this.loading = false;
             this.cdr.markForCheck();
           }

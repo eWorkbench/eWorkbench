@@ -7,9 +7,9 @@ import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ContactsService, SearchService } from '@app/services';
-import { Contact, ContactPayload } from '@eworkbench/types';
+import type { Contact, ContactPayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormArray, FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -18,20 +18,20 @@ import { debounceTime, switchMap } from 'rxjs/operators';
 
 interface FormMergeDuplicates {
   baseContact: any;
-  mergeContacts: (string | null)[];
-  academicTitles: string[];
+  mergeContacts: FormArray<(string | null)[]>;
+  academicTitles: FormArray<string[]>;
   academicTitleIndex: number;
-  firstNames: string[];
+  firstNames: FormArray<string[]>;
   firstNameIndex: number;
-  lastNames: string[];
+  lastNames: FormArray<string[]>;
   lastNameIndex: number;
-  emails: string[];
+  emails: FormArray<string[]>;
   emailIndex: number;
-  phones: string[];
+  phones: FormArray<string[]>;
   phoneIndex: number;
-  companies: string[];
+  companies: FormArray<string[]>;
   companyIndex: number;
-  notes: string[];
+  notes: FormArray<string[]>;
   noteIndex: number;
 }
 
@@ -62,7 +62,8 @@ export class MergeDuplicatesModalComponent implements OnInit {
   public refreshFields = new EventEmitter<boolean>();
 
   public form = this.fb.group<FormMergeDuplicates>({
-    baseContact: [null],
+    baseContact: null,
+    // @ts-expect-error
     mergeContacts: this.fb.array([null]),
     academicTitles: this.fb.array([]),
     academicTitleIndex: 0,
@@ -99,33 +100,28 @@ export class MergeDuplicatesModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
+        switchMap(input => (input ? this.searchService.contacts(input) : of([...this.favoriteContacts])))
       )
-      .subscribe(
-        /* istanbul ignore next */ contacts => {
-          this.contacts = this.getUnusedContacts([...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite)));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(contacts => {
+        this.contacts = this.getUnusedContacts([...contacts].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite)));
+        this.cdr.markForCheck();
+      });
 
     this.contactsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ contacts => {
-          if (contacts.data.length) {
-            this.favoriteContacts = [...contacts.data];
-            this.contacts = [...this.contacts, ...this.favoriteContacts]
-              .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(contacts => {
+        if (contacts.data.length) {
+          this.favoriteContacts = [...contacts.data];
+          this.contacts = [...this.contacts, ...this.favoriteContacts]
+            .filter((value, index, array) => array.map(contact => contact.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
-  public get f(): FormGroup<FormMergeDuplicates>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -134,11 +130,11 @@ export class MergeDuplicatesModalComponent implements OnInit {
   }
 
   public get mergeContacts(): FormArray<string | null> {
-    return this.form.get('mergeContacts') as FormArray<string | null>;
+    return this.form.get('mergeContacts') as any;
   }
 
   public get academicTitles(): FormArray<string> {
-    return this.form.get('academicTitles') as FormArray<string>;
+    return this.form.get('academicTitles') as any;
   }
 
   public get academicTitleIndex(): number {
@@ -150,7 +146,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
   }
 
   public get firstNames(): FormArray<string> {
-    return this.form.get('firstNames') as FormArray<string>;
+    return this.form.get('firstNames') as any;
   }
 
   public get firstNameIndex(): number {
@@ -162,7 +158,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
   }
 
   public get lastNames(): FormArray<string> {
-    return this.form.get('lastNames') as FormArray<string>;
+    return this.form.get('lastNames') as any;
   }
 
   public get lastNameIndex(): number {
@@ -174,7 +170,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
   }
 
   public get emails(): FormArray<string> {
-    return this.form.get('emails') as FormArray<string>;
+    return this.form.get('emails') as any;
   }
 
   public get emailIndex(): number {
@@ -186,7 +182,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
   }
 
   public get phones(): FormArray<string> {
-    return this.form.get('phones') as FormArray<string>;
+    return this.form.get('phones') as any;
   }
 
   public get phoneIndex(): number {
@@ -198,7 +194,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
   }
 
   public get companies(): FormArray<string> {
-    return this.form.get('companies') as FormArray<string>;
+    return this.form.get('companies') as any;
   }
 
   public get companyIndex(): number {
@@ -210,7 +206,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
   }
 
   public get notes(): FormArray<string> {
-    return this.form.get('notes') as FormArray<string>;
+    return this.form.get('notes') as any;
   }
 
   public get noteIndex(): number {
@@ -320,6 +316,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
       contacts.push(this.selectedBaseContact);
       this.contacts = contacts;
       this.cdr.detectChanges();
+      // @ts-expect-error
       this.mergeContacts.at(index).setValue(this.selectedBaseContact.pk);
       this.selectedMergeContacts[index] = this.selectedBaseContact;
       this.removeContactFields(index + 1);
@@ -354,7 +351,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
         return Promise.resolve({} as Contact);
       }),
     ]).then(
-      /* istanbul ignore next */ () => {
+      () => {
         this.state = ModalState.Changed;
         this.modalRef.close({ state: this.state });
         this.translocoService
@@ -364,7 +361,7 @@ export class MergeDuplicatesModalComponent implements OnInit {
             this.toastrService.success(success);
           });
       },
-      /* istanbul ignore next */ () => {
+      () => {
         this.loading = false;
         this.cdr.markForCheck();
       }

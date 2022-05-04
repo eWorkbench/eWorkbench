@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -18,13 +16,13 @@ import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
 import { AlertModule } from 'ngx-bootstrap/alert';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { FormHelperModule } from '../form-helper/form-helper.module';
-import { LoadingModule } from '../loading/loading.module';
 import { MetadataFieldHelperComponent } from './components/field-helper/field-helper.component';
 import { MetadataFieldComponent } from './components/field/field.component';
 import { MetadataComponent } from './components/metadata/metadata.component';
 import { NewMetadataFieldComponent } from './components/modals/new/new.component';
 import { MetadataSearchParameterComponent } from './components/search-parameter/search-parameter.component';
+import { FormHelperModule } from '../form-helper/form-helper.module';
+import { LoadingModule } from '../loading/loading.module';
 
 @NgModule({
   declarations: [

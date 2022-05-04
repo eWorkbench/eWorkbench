@@ -5,9 +5,10 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
+import { ProjectsService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -36,7 +37,7 @@ export class DeleteModalComponent {
   public state = ModalState.Unchanged;
 
   public form = this.fb.group<FormDelete>({
-    doNotShowMessageAgain: [false],
+    doNotShowMessageAgain: false,
   });
 
   public constructor(
@@ -49,9 +50,12 @@ export class DeleteModalComponent {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FormDelete>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
+  }
+
+  public get isProject(): boolean {
+    return this.service instanceof ProjectsService;
   }
 
   public onSubmit(): void {
@@ -64,7 +68,7 @@ export class DeleteModalComponent {
       .delete(this.id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -74,7 +78,7 @@ export class DeleteModalComponent {
               this.toastrService.success(elementTrashed);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -102,16 +106,14 @@ export class DeleteModalComponent {
           });
         })
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('trash.deleteModal.toastr.success.doNotShowMessageAgainUpdated')
-            .pipe(untilDestroyed(this))
-            .subscribe(doNotShowMessageAgainUpdated => {
-              this.toastrService.success(doNotShowMessageAgainUpdated);
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('trash.deleteModal.toastr.success.doNotShowMessageAgainUpdated')
+          .pipe(untilDestroyed(this))
+          .subscribe(doNotShowMessageAgainUpdated => {
+            this.toastrService.success(doNotShowMessageAgainUpdated);
+          });
+      });
   }
 }

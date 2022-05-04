@@ -14,14 +14,14 @@ import { ConvertTiffModalComponent } from '@app/pages/pictures/components/modals
 import { LabBooksService, PicturesService, ProjectsService } from '@app/services';
 import { UserStore } from '@app/stores/user';
 import { environment } from '@environments/environment';
-import { DropdownElement, LabBookElementEvent, ModalCallback, PicturePayload, Project } from '@eworkbench/types';
+import type { DropdownElement, LabBookElementEvent, ModalCallback, PicturePayload, Project } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
-import pdfjs from 'pdfjs-dist';
-import { PDFPageProxy } from 'pdfjs-dist/types/display/api';
+import type pdfjs from 'pdfjs-dist';
+import type { PDFPageProxy } from 'pdfjs-dist/types/display/api';
 import { from, lastValueFrom, of, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, mergeMap, switchMap } from 'rxjs/operators';
 
@@ -32,15 +32,15 @@ declare global {
 }
 
 interface FormElement {
-  parentElement: string | null;
-  position: 'top' | 'bottom';
-  title: string | null;
+  parentElement: FormControl<string | null>;
+  position: FormControl<'top' | 'bottom'>;
+  title: FormControl<string | null>;
   height: number | null;
   width: number | null;
   aspectRatio: number | null;
   keepAspectRatio: boolean;
-  file: globalThis.File | Blob | string | null;
-  projects: string[];
+  file: FormControl<globalThis.File | Blob | string | null>;
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -83,15 +83,15 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
   public convertTiffModalRef?: DialogRef;
 
   public form = this.fb.group<FormElement>({
-    parentElement: ['labBook', [Validators.required]],
-    position: ['bottom', [Validators.required]],
-    title: [null, [Validators.required]],
-    height: [null],
-    width: [null],
-    aspectRatio: [null],
-    keepAspectRatio: [true],
-    file: [null, [Validators.required]],
-    projects: [[]],
+    parentElement: this.fb.control('labBook', Validators.required),
+    position: this.fb.control('bottom', Validators.required),
+    title: this.fb.control(null, Validators.required),
+    height: null,
+    width: null,
+    aspectRatio: null,
+    keepAspectRatio: true,
+    file: this.fb.control(null, Validators.required),
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -109,8 +109,7 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
     @Inject(DOCUMENT) private readonly document: Document
   ) {}
 
-  public get f(): FormGroup<FormElement>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -154,6 +153,7 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
   }
 
   public ngAfterViewInit(): void {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     scriptLoader(this.document, 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.min.js', () => {});
   }
 
@@ -176,29 +176,25 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initDetails(): void {
@@ -206,7 +202,7 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
       .getElements(this.labBookId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBookElements => {
+        labBookElements => {
           const sections: DropdownElement[] = [];
 
           labBookElements.map(element => {
@@ -222,7 +218,7 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -230,7 +226,6 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
   }
 
   public patchFormValues(): void {
-    /* istanbul ignore next */
     if (this.projectsList.length) {
       from(this.projectsList)
         .pipe(
@@ -238,20 +233,18 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
           mergeMap(id =>
             this.projectsService.get(id).pipe(
               untilDestroyed(this),
-              catchError(() => {
-                return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-              })
+              catchError(() =>
+                of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+              )
             )
           )
         )
-        .subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        .subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
     }
 
     this.form.patchValue(
@@ -263,10 +256,8 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
   }
 
   public onUpload(event: Event): void {
-    /* istanbul ignore next */
     let files = (event.target as HTMLInputElement).files as any;
 
-    /* istanbul ignore next */
     if (files.length) {
       const reader = new FileReader();
       reader.onload = async () => {
@@ -281,7 +272,6 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
           const userStoreValue = this.userStore.getValue();
           const userSetting = 'SkipDialog-ConvertTiff';
 
-          /* istanbul ignore next */
           const skipTiffDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
           let shouldConvert = false;
 
@@ -337,7 +327,7 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
       .add(this.picture)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ picture => {
+        picture => {
           this.state = ModalState.Changed;
           const event: LabBookElementEvent = {
             childObjectId: picture.pk,
@@ -354,7 +344,7 @@ export class NewLabBookPictureElementModalComponent implements OnInit, AfterView
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

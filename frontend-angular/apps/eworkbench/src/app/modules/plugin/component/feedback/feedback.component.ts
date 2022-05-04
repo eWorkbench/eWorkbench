@@ -5,8 +5,8 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { PluginsService } from '@app/services';
-import { PluginFeedbackPayload } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { PluginFeedbackPayload } from '@eworkbench/types';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -35,9 +35,9 @@ export class PluginFeedbackComponent {
 
   public loading = false;
 
-  public form: FormGroup<FormFeedback> = this.fb.group<FormFeedback>({
-    subject: [null],
-    message: [null],
+  public form = this.fb.group<FormFeedback>({
+    subject: null,
+    message: null,
   });
 
   public constructor(
@@ -48,7 +48,7 @@ export class PluginFeedbackComponent {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormFeedback>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -79,12 +79,12 @@ export class PluginFeedbackComponent {
       .feedback(this.feedback)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.toastrMessage();
           this.loading = false;
           this.onCancel();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

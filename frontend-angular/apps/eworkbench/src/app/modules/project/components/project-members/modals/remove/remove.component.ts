@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService, ProjectsService, RolesService } from '@app/services';
-import { ProjectMember, Role, User } from '@eworkbench/types';
+import type { ProjectMember, Role, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -46,13 +46,11 @@ export class RemoveProjectMemberModalComponent implements OnInit {
     this.rolesService
       .get()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ roles => {
-          this.loading = false;
-          this.roles = [...roles];
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(roles => {
+        this.loading = false;
+        this.roles = [...roles];
+        this.cdr.markForCheck();
+      });
   }
 
   public onInactive(): void {
@@ -68,11 +66,11 @@ export class RemoveProjectMemberModalComponent implements OnInit {
       })
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -89,11 +87,11 @@ export class RemoveProjectMemberModalComponent implements OnInit {
       .deleteMember(this.projectId, this.member.pk)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

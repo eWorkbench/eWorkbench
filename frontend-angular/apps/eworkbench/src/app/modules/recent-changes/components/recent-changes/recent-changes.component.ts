@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MetadataService } from '@app/services';
 import { TableColumn, TableViewComponent } from '@eworkbench/table';
-import { MetadataField, RecentChanges, RecentChangesChangeRecord, User } from '@eworkbench/types';
+import type { MetadataField, RecentChanges, RecentChangesChangeRecord, User } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { cloneDeep } from 'lodash';
@@ -60,7 +60,6 @@ export class RecentChangesComponent implements OnInit {
     this.initTranslations();
     this.getChanges();
 
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.getChanges();
     });
@@ -91,70 +90,56 @@ export class RecentChangesComponent implements OnInit {
       .getFields()
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ fields => {
-            const metadataParameters: MetadataParameters = {};
+        map(fields => {
+          const metadataParameters: MetadataParameters = {};
 
-            fields.map(field => {
-              metadataParameters[field.pk!] = field;
-            });
-            this.metadataParameters = metadataParameters;
-          }
-        ),
-        switchMap(
-          /* istanbul ignore next */ () => {
-            return this.service?.history(this.changesId).pipe(
-              untilDestroyed(this),
-              map(
-                /* istanbul ignore next */ (recentChanges: RecentChanges[]) => {
-                  const changes: RecentChanges[] = [];
-                  let changeRecords: RecentChangesChangeRecord[];
+          fields.map(field => {
+            metadataParameters[field.pk!] = field;
+          });
+          this.metadataParameters = metadataParameters;
+        }),
+        switchMap(() =>
+          this.service?.history(this.changesId).pipe(
+            untilDestroyed(this),
+            map((recentChanges: RecentChanges[]) => {
+              const changes: RecentChanges[] = [];
+              let changeRecords: RecentChangesChangeRecord[];
 
-                  recentChanges.forEach(change => {
-                    changeRecords = [];
+              recentChanges.forEach(change => {
+                changeRecords = [];
 
-                    change.change_records.forEach(record => {
-                      if (record.field_name === 'metadata') {
-                        const oldValue = record.old_value ? this.parseJSON(cloneDeep(record.old_value)) : [];
-                        const newValue = record.new_value ? this.parseJSON(cloneDeep(record.new_value)) : [];
+                change.change_records.forEach(record => {
+                  if (record.field_name === 'metadata') {
+                    const oldValue = record.old_value ? this.parseJSON(cloneDeep(record.old_value)) : [];
+                    const newValue = record.new_value ? this.parseJSON(cloneDeep(record.new_value)) : [];
 
-                        changeRecords.push({
-                          field_name: record.field_name,
-                          old_value: oldValue.filter((oldField: any) => {
-                            return !newValue.some((newField: any) => {
-                              return oldField.pk === newField.pk;
-                            });
-                          }),
-                          new_value: newValue.filter((newField: any) => {
-                            return !oldValue.some((oldField: any) => {
-                              return newField.pk === oldField.pk;
-                            });
-                          }),
-                        });
-                      } else {
-                        changeRecords.push({ ...record });
-                      }
+                    changeRecords.push({
+                      field_name: record.field_name,
+                      old_value: oldValue.filter((oldField: any) => !newValue.some((newField: any) => oldField.pk === newField.pk)),
+                      new_value: newValue.filter((newField: any) => !oldValue.some((oldField: any) => newField.pk === oldField.pk)),
                     });
+                  } else {
+                    changeRecords.push({ ...record });
+                  }
+                });
 
-                    changes.push({
-                      ...change,
-                      change_records: [...changeRecords],
-                    });
-                  });
+                changes.push({
+                  ...change,
+                  change_records: [...changeRecords],
+                });
+              });
 
-                  this.data = changes;
-                }
-              )
-            );
-          }
+              this.data = changes;
+            })
+          )
         )
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -197,8 +182,8 @@ export class RecentChangesComponent implements OnInit {
       !this.isTaskStateField(contentTypeModel, fieldName) &&
       !this.isTaskPriorityField(contentTypeModel, fieldName) &&
       !this.isResourceTypeField(contentTypeModel, fieldName) &&
-      !this.isResourceAvailabilityField(contentTypeModel, fieldName) &&
-      !this.isResourceAvailabilitySelectedUserGroupsField(contentTypeModel, fieldName)
+      !this.isResourceGeneralUsageSettingField(contentTypeModel, fieldName) &&
+      !this.isResourceUsageSettingSelectedUserGroupsField(contentTypeModel, fieldName)
     );
   }
 
@@ -255,7 +240,7 @@ export class RecentChangesComponent implements OnInit {
   }
 
   public isUserField(fieldName: string): boolean {
-    return ['attending_users', 'assigned_users', 'responsible_users', 'user_availability_selected_users'].includes(fieldName);
+    return ['attending_users', 'assigned_users', 'responsible_users'].includes(fieldName);
   }
 
   public isProjectField(fieldName: string): boolean {
@@ -274,11 +259,11 @@ export class RecentChangesComponent implements OnInit {
     return contentTypeModel === 'resource' && fieldName === 'type';
   }
 
-  public isResourceAvailabilityField(contentTypeModel: string, fieldName: string): boolean {
-    return contentTypeModel === 'resource' && fieldName === 'user_availability';
+  public isResourceGeneralUsageSettingField(contentTypeModel: string, fieldName: string): boolean {
+    return contentTypeModel === 'resource' && fieldName === 'general_usage_setting';
   }
 
-  public isResourceAvailabilitySelectedUserGroupsField(contentTypeModel: string, fieldName: string): boolean {
-    return contentTypeModel === 'resource' && fieldName === 'user_availability_selected_user_groups';
+  public isResourceUsageSettingSelectedUserGroupsField(contentTypeModel: string, fieldName: string): boolean {
+    return contentTypeModel === 'resource' && fieldName === 'usage_setting_selected_user_groups';
   }
 }

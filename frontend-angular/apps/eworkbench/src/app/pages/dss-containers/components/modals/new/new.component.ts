@@ -7,18 +7,18 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DssContainersService } from '@app/services';
-import { DropdownElement, DssContainer, DssContainerPayload } from '@eworkbench/types';
+import type { DropdownElement, DssContainer, DssContainerPayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 
 interface FormDssContainer {
-  name: string | null;
-  path: string | null;
-  readWriteSetting: DssContainerPayload['read_write_setting'];
-  importOption: DssContainerPayload['import_option'];
+  name: FormControl<string | null>;
+  path: FormControl<string | null>;
+  readWriteSetting: FormControl<DssContainerPayload['read_write_setting']>;
+  importOption: FormControl<DssContainerPayload['import_option']>;
 }
 
 @UntilDestroy()
@@ -40,10 +40,10 @@ export class NewDssContainerModalComponent implements OnInit {
   public importOptions: DropdownElement[] = [];
 
   public form = this.fb.group<FormDssContainer>({
-    name: [null, [Validators.required]],
-    path: [null, [Validators.required]],
-    readWriteSetting: ['RO', [Validators.required]],
-    importOption: ['ION', [Validators.required]],
+    name: this.fb.control(null, Validators.required),
+    path: this.fb.control(null, Validators.required),
+    readWriteSetting: this.fb.control('RO', Validators.required),
+    importOption: this.fb.control('ION', Validators.required),
   });
 
   public constructor(
@@ -55,8 +55,7 @@ export class NewDssContainerModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormDssContainer>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -141,7 +140,7 @@ export class NewDssContainerModalComponent implements OnInit {
       .add(this.dssContainer)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ dssContainer => {
+        dssContainer => {
           this.state = ModalState.Changed;
           this.modalRef.close({
             state: this.state,
@@ -150,7 +149,7 @@ export class NewDssContainerModalComponent implements OnInit {
           });
           this.toastrService.success(this.translocoService.translate('dssContainer.newModal.toastr.success'));
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

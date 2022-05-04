@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AuthService } from '@app/services';
-import { Drive, User } from '@eworkbench/types';
+import type { Drive, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { TranslocoService } from '@ngneat/transloco';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 
 interface Details {

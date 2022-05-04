@@ -4,8 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { User } from '@eworkbench/types';
-import { TranslocoService } from '@ngneat/transloco';
+import type { User } from '@eworkbench/types';
 
 @Component({
   selector: 'eworkbench-user-avatar',
@@ -30,8 +29,6 @@ export class UserAvatarComponent {
   public scale = 1;
 
   private readonly baseSize = 25;
-
-  public constructor(private readonly translocoService: TranslocoService) {}
 
   public get margin(): number {
     return this.scale === 1 ? 0 : (this.baseSize * this.scale - this.baseSize) / 2;

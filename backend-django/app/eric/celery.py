@@ -29,15 +29,15 @@ app.conf.beat_schedule = {
     },
     'send-dss-notifications-for-import-in-progress': {
         'task': 'eric.dss.tasks.send_dss_notifications_for_import_in_progress',
-        'schedule': 60 * 4,  # 4 minutes
+        'schedule': 60 * 25,  # 25 minutes
     },
     'send-dss-notifications-for-import-finished': {
         'task': 'eric.dss.tasks.send_dss_notifications_for_import_finished',
-        'schedule': 60 * 5,  # 5 minutes
+        'schedule': 60 * 30,  # 30 minutes
     },
     'send-dss-notifications-for-failed-imports': {
         'task': 'eric.dss.tasks.send_dss_notifications_for_failed_imports',
-        'schedule': 60 * 6,  # 6 minutes
+        'schedule': 60 * 35,  # 35 minutes
     },
     'globus_message_queue_consumer': {
         'task': 'eric.dss.tasks.globus_message_queue_consumer',

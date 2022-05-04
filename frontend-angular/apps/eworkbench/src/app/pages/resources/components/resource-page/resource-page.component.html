@@ -49,14 +49,8 @@
           <eworkbench-trash-notice></eworkbench-trash-notice>
         </ng-container>
 
+        <eworkbench-lock [id]="id" [lock]="lock" [lockUser]="lockUser" [modified]="modified" [service]="resourcesService"></eworkbench-lock>
         <eworkbench-overview-collapse-element class="mb-4" [collapsed]="true">
-          <eworkbench-lock
-            [id]="id"
-            [lock]="lock"
-            [lockUser]="lockUser"
-            [modified]="modified"
-            [service]="resourcesService"
-          ></eworkbench-lock>
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="resource" enctype="multipart/form-data" errorTailor>
             <div>
               <eworkbench-details-collapse-element [labelText]="t('resource.details.element.details')">
@@ -166,129 +160,22 @@
                     </eworkbench-form-input>
                   </div>
                   <div class="mb-4">
-                    <eworkbench-form-input
-                      for="userAvailability"
-                      [label]="t('resource.details.userAvailability.label')"
-                      [loading]="loading"
-                      [onSubmit]="refreshResetValue"
-                    >
-                      <ng-select
-                        class="ewb-select"
-                        formControlName="userAvailability"
-                        labelForId="userAvailability"
-                        name="userAvailability"
-                        [placeholder]="t('resource.details.userAvailability.placeholder')"
-                        [items]="userAvailabilityChoices"
-                        bindLabel="label"
-                        bindValue="value"
-                        slot="input"
-                      >
-                        <ng-template ng-label-tmp let-item="item">
-                          <ng-container
-                            [ngTemplateOutlet]="userAvailabilityTemplate"
-                            [ngTemplateOutletContext]="{ item: item }"
-                          ></ng-container>
-                        </ng-template>
-                        <ng-template ng-option-tmp let-item="item">
-                          <ng-container
-                            [ngTemplateOutlet]="userAvailabilityTemplate"
-                            [ngTemplateOutletContext]="{ item: item }"
-                          ></ng-container>
-                        </ng-template>
-                        <ng-template #userAvailabilityTemplate let-item="item">
-                          <eworkbench-resource-availability [availability]="item.value"></eworkbench-resource-availability>
-                        </ng-template>
-                      </ng-select>
-                    </eworkbench-form-input>
-                  </div>
-                  <div class="mb-4" *ngIf="f.userAvailability.value !== 'GLB'">
-                    <eworkbench-form-input
-                      for="userAvailabilitySelectedUserGroups"
-                      [label]="t('resource.details.userAvailabilitySelectedUserGroups.label')"
-                      [loading]="loading"
-                      [onSubmit]="refreshResetValue"
-                    >
-                      <ng-select
-                        class="ewb-select"
-                        formControlName="userAvailabilitySelectedUserGroups"
-                        labelForId="userAvailabilitySelectedUserGroups"
-                        name="userAvailabilitySelectedUserGroups"
-                        [placeholder]="t('resource.details.userAvailabilitySelectedUserGroups.placeholder')"
-                        [items]="userAvailabilitySelectedUserGroupsChoices"
-                        bindLabel="label"
-                        bindValue="value"
-                        slot="input"
-                      >
-                      </ng-select>
-                    </eworkbench-form-input>
-                  </div>
-                  <div class="mb-4" *ngIf="f.userAvailability.value !== 'GLB'">
-                    <eworkbench-form-input
-                      for="userAvailabilitySelectedUsers"
-                      [label]="t('resource.details.userAvailabilitySelectedUsers.label')"
-                      [loading]="loading"
-                      [onSubmit]="refreshResetValue"
-                    >
-                      <ng-select
-                        #select
-                        class="ewb-select"
-                        formControlName="userAvailabilitySelectedUsers"
-                        labelForId="userAvailabilitySelectedUsers"
-                        name="userAvailabilitySelectedUsers"
-                        [placeholder]="t('resource.details.userAvailabilitySelectedUsers.placeholder')"
-                        [multiple]="true"
-                        [typeahead]="userAvailabilitySelectedUsersInput$"
-                        [items]="userAvailabilitySelectedUsers"
-                        bindLabel="username"
-                        bindValue="pk"
-                        (change)="changeUserAvailabilitySelectedUsers($event)"
-                        slot="input"
-                      >
-                        <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                          <div class="flex items-center user-option">
-                            <eworkbench-user-details
-                              class="inline-block mr-1"
-                              [user]="item"
-                              [chip]="true"
-                              (click)="select.isOpen = false"
-                            ></eworkbench-user-details>
-                            <span class="sub-text">{{ item.email }}</span>
-                            <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-                          </div>
-                        </ng-template>
-
-                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                          <div class="user-dropdown-option">
-                            <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
-                            <div>
-                              <ng-container *ngIf="item?.userprofile.anonymized">
-                                <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
-                              </ng-container>
-                              <ng-container *ngIf="!item?.userprofile.anonymized">
-                                <ng-container
-                                  *ngIf="
-                                    item?.userprofile.first_name && item?.userprofile.last_name;
-                                    then userTemplate;
-                                    else usernameTemplate
-                                  "
-                                ></ng-container>
-                              </ng-container>
-
-                              <ng-template #userTemplate>
-                                <span [ngOptionHighlight]="search"
-                                  >{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span
-                                >
-                              </ng-template>
-                              <ng-template #usernameTemplate>
-                                <span [ngOptionHighlight]="search">{{ item?.username }}</span>
-                              </ng-template>
-
-                              <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
-                            </div>
-                          </div>
-                        </ng-template>
-                      </ng-select>
-                    </eworkbench-form-input>
+                    <div class="icon-label">
+                      <label for="generalUsageSetting">{{ t('resource.details.generalUsageSetting.label') }}</label>
+                      <eworkbench-icon
+                        className="wb-info"
+                        containerClass="tooltip-sm"
+                        [tooltip]="t('resource.details.generalUsageSetting.info')"
+                      ></eworkbench-icon>
+                    </div>
+                    <eworkbench-resource-usage-setting
+                      [usageSetting]="initialState.general_usage_setting"
+                      [userGroups]="initialState.usage_setting_selected_user_groups"
+                      [showNullValueString]="true"
+                    ></eworkbench-resource-usage-setting>
+                    <a class="mr-3" [routerLink]="['/faq', 'who-can-use-a-given-resource']" target="_blank">
+                      {{ t('resource.details.provideToOtherUsers') }}
+                    </a>
                   </div>
                   <div class="mb-4">
                     <eworkbench-form-input for="projects" [loading]="loading" [onSubmit]="refreshResetValue">
@@ -499,7 +386,6 @@
                     [service]="resourcesService"
                     [changesId]="id"
                     [refresh]="refreshChanges"
-                    [users]="initialState?.user_availability_selected_users"
                   ></eworkbench-recent-changes>
                 </ng-container>
               </eworkbench-details-collapse-element>

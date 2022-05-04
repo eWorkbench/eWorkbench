@@ -73,5 +73,8 @@ class MailSender(LogProcessor):
             to=LOG_MAIL_RECEIVERS,
         )
 
-        sent_count = msg.send()
-        LOGGER.info(f'Sent {sent_count} log mails')
+        try:
+            sent_count = msg.send()
+            LOGGER.info(f'Sent {sent_count} log mails')
+        except Exception as exc:
+            LOGGER.exception(exc)

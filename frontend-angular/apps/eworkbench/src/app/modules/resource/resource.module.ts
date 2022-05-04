@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -20,7 +18,6 @@ import { ModalsModule } from '@eworkbench/modals';
 import { TableModule } from '@eworkbench/table';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { FavoritesModule } from '../favorites/favorites.module';
 import { AllResourceBookingsComponent } from './components/all-bookings/all-bookings.component';
 import { ResourceBookingCalendarComponent } from './components/booking-calendar/booking-calendar.component';
 import { ResourceBookingRulesBookableTimeSlotInputComponent } from './components/booking-rules-bookable-time-slot-input/booking-rules-bookable-time-slot-input.component';
@@ -31,8 +28,10 @@ import { ResourceBookingRulesDurationComponent } from './components/booking-rule
 import { ResourceBookingRulesComponent } from './components/booking-rules/booking-rules.component';
 import { RemoveResourcePDFModalComponent } from './components/modals/remove-pdf/remove-pdf.component';
 import { MyResourceBookingsComponent } from './components/my-bookings/my-bookings.component';
-import { ResourceAvailabilityComponent } from './components/resource-availability/resource-availability.component';
 import { ResourceTypeComponent } from './components/resource-type/resource-type.component';
+import { ResourceUsageSettingComponent } from './components/resource-usage-setting/resource-usage-setting.component';
+import { FormatUserGroupNamesPipe } from './pipes/user-group-names/user-group-names.pipe';
+import { FavoritesModule } from '../favorites/favorites.module';
 
 @NgModule({
   declarations: [
@@ -46,8 +45,9 @@ import { ResourceTypeComponent } from './components/resource-type/resource-type.
     RemoveResourcePDFModalComponent,
     ResourceBookingCalendarComponent,
     ResourceTypeComponent,
-    ResourceAvailabilityComponent,
+    ResourceUsageSettingComponent,
     AllResourceBookingsComponent,
+    FormatUserGroupNamesPipe,
   ],
   imports: [
     CommonModule,
@@ -76,7 +76,7 @@ import { ResourceTypeComponent } from './components/resource-type/resource-type.
     RemoveResourcePDFModalComponent,
     ResourceBookingCalendarComponent,
     ResourceTypeComponent,
-    ResourceAvailabilityComponent,
+    ResourceUsageSettingComponent,
     AllResourceBookingsComponent,
   ],
 })

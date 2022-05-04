@@ -26,10 +26,10 @@ import { PluginInstancesService } from '@app/services/plugin-instances/plugin-in
 import { ProjectsService } from '@app/services/projects/projects.service';
 import { TaskBoardsService } from '@app/services/task-board/task-board.service';
 import { TasksService } from '@app/services/tasks/tasks.service';
-import { TableColumn } from '@eworkbench/table';
-import { ModalCallback, RelationPayload } from '@eworkbench/types';
+import type { TableColumn } from '@eworkbench/table';
+import type { ModalCallback, RelationPayload } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormArray, FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { TabDirective, TabsetComponent } from 'ngx-bootstrap/tabs';
@@ -38,18 +38,18 @@ import { lastValueFrom } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 interface FormRelations {
-  appointmentRelations: RelationPayload[];
-  noteRelations: RelationPayload[];
-  contactRelations: RelationPayload[];
-  dmpRelations: RelationPayload[];
-  fileRelations: RelationPayload[];
-  labBookRelations: RelationPayload[];
-  pictureRelations: RelationPayload[];
-  pluginInstanceRelations: RelationPayload[];
-  projectRelations: RelationPayload[];
-  driveRelations: RelationPayload[];
-  taskRelations: RelationPayload[];
-  taskBoardRelations: RelationPayload[];
+  appointmentRelations: FormArray<RelationPayload[]>;
+  noteRelations: FormArray<RelationPayload[]>;
+  contactRelations: FormArray<RelationPayload[]>;
+  dmpRelations: FormArray<RelationPayload[]>;
+  fileRelations: FormArray<RelationPayload[]>;
+  labBookRelations: FormArray<RelationPayload[]>;
+  pictureRelations: FormArray<RelationPayload[]>;
+  pluginInstanceRelations: FormArray<RelationPayload[]>;
+  projectRelations: FormArray<RelationPayload[]>;
+  driveRelations: FormArray<RelationPayload[]>;
+  taskRelations: FormArray<RelationPayload[]>;
+  taskBoardRelations: FormArray<RelationPayload[]>;
 }
 
 @UntilDestroy()
@@ -607,8 +607,7 @@ export class NewLinkModalComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  public get f(): FormGroup<FormRelations>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -638,51 +637,51 @@ export class NewLinkModalComponent implements OnInit {
   }
 
   public get appointmentRelations(): FormArray<RelationPayload> {
-    return this.form.get('appointmentRelations') as FormArray<RelationPayload>;
+    return this.form.get('appointmentRelations') as any;
   }
 
   public get noteRelations(): FormArray<RelationPayload> {
-    return this.form.get('noteRelations') as FormArray<RelationPayload>;
+    return this.form.get('noteRelations') as any;
   }
 
   public get contactRelations(): FormArray<RelationPayload> {
-    return this.form.get('contactRelations') as FormArray<RelationPayload>;
+    return this.form.get('contactRelations') as any;
   }
 
   public get dmpRelations(): FormArray<RelationPayload> {
-    return this.form.get('dmpRelations') as FormArray<RelationPayload>;
+    return this.form.get('dmpRelations') as any;
   }
 
   public get fileRelations(): FormArray<RelationPayload> {
-    return this.form.get('fileRelations') as FormArray<RelationPayload>;
+    return this.form.get('fileRelations') as any;
   }
 
   public get labBookRelations(): FormArray<RelationPayload> {
-    return this.form.get('labBookRelations') as FormArray<RelationPayload>;
+    return this.form.get('labBookRelations') as any;
   }
 
   public get pictureRelations(): FormArray<RelationPayload> {
-    return this.form.get('pictureRelations') as FormArray<RelationPayload>;
+    return this.form.get('pictureRelations') as any;
   }
 
   public get pluginInstanceRelations(): FormArray<RelationPayload> {
-    return this.form.get('pluginInstanceRelations') as FormArray<RelationPayload>;
+    return this.form.get('pluginInstanceRelations') as any;
   }
 
   public get projectRelations(): FormArray<RelationPayload> {
-    return this.form.get('projectRelations') as FormArray<RelationPayload>;
+    return this.form.get('projectRelations') as any;
   }
 
   public get driveRelations(): FormArray<RelationPayload> {
-    return this.form.get('driveRelations') as FormArray<RelationPayload>;
+    return this.form.get('driveRelations') as any;
   }
 
   public get taskRelations(): FormArray<RelationPayload> {
-    return this.form.get('taskRelations') as FormArray<RelationPayload>;
+    return this.form.get('taskRelations') as any;
   }
 
   public get taskBoardRelations(): FormArray<RelationPayload> {
-    return this.form.get('taskBoardRelations') as FormArray<RelationPayload>;
+    return this.form.get('taskBoardRelations') as any;
   }
 
   public showSearch(contentType?: string): void {
@@ -790,7 +789,7 @@ export class NewLinkModalComponent implements OnInit {
     Promise.all([
       ...this.relations.map(relation => lastValueFrom(this.service.addRelation(this.baseModel.pk, relation).pipe(untilDestroyed(this)))),
     ]).then(
-      /* istanbul ignore next */ () => {
+      () => {
         this.state = ModalState.Changed;
         this.modalRef.close({ state: this.state });
         this.translocoService
@@ -800,7 +799,7 @@ export class NewLinkModalComponent implements OnInit {
             this.toastrService.success(success);
           });
       },
-      /* istanbul ignore next */ () => {
+      () => {
         // TODO: Better error handling, if possible.
         this.state = ModalState.Changed;
         this.modalRef.close({ state: this.state });
@@ -809,12 +808,11 @@ export class NewLinkModalComponent implements OnInit {
   }
 
   public onOpenNewContentModal(): void {
-    /* istanbul ignore next */
     this.newContentModalRef = this.modalService.open(this.newContentModal, {
       closeButton: false,
       enableClose: false,
     });
-    /* istanbul ignore next */
+
     this.newContentModalRef.afterClosed$
       .pipe(untilDestroyed(this), take(1))
       .subscribe((callback: ModalCallback) => this.onNewContentModalClose(callback));

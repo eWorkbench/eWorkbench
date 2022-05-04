@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
-import { ModalCallback, Version } from '@eworkbench/types';
+import type { ModalCallback, Version } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 

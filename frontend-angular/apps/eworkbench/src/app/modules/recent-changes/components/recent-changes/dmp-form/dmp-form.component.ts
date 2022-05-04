@@ -5,7 +5,7 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { DMPFormsService } from '@app/services/dmp-forms/dmp-forms.service';
-import { DMPForm } from '@eworkbench/types';
+import type { DMPForm } from '@eworkbench/types';
 import { UntilDestroy } from '@ngneat/until-destroy';
 import { map } from 'rxjs/operators';
 

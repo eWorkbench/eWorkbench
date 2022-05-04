@@ -6,8 +6,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { DjangoAPI, Notification } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { DjangoAPI, Notification } from '@eworkbench/types';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -26,16 +26,14 @@ export class NotificationsService {
 
   public getList(params = new HttpParams()): Observable<{ total: number; data: Notification[] }> {
     return this.httpClient.get<DjangoAPI<Notification[]>>(this.apiUrl, { params }).pipe(
-      map(
-        /* istanbul ignore next */ data => {
-          this.notifications = [...data.results];
+      map(data => {
+        this.notifications = [...data.results];
 
-          return {
-            total: data.count,
-            data: data.results,
-          };
-        }
-      )
+        return {
+          total: data.count,
+          data: data.results,
+        };
+      })
     );
   }
 

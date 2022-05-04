@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -15,11 +13,11 @@ import { ModalsModule } from '@eworkbench/modals';
 import { TableModule } from '@eworkbench/table';
 import { AlertModule } from 'ngx-bootstrap/alert';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { LoadingModule } from '../loading/loading.module';
 import { DeleteModalComponent } from './components/modals/delete/delete.component';
 import { TrashNoticeComponent } from './components/notice/notice.component';
 import { RestoreButtonComponent } from './components/restore-button/restore-button.component';
 import { TrashButtonComponent } from './components/trash-button/trash-button.component';
+import { LoadingModule } from '../loading/loading.module';
 
 @NgModule({
   declarations: [TrashButtonComponent, RestoreButtonComponent, DeleteModalComponent, TrashNoticeComponent],
@@ -37,5 +35,4 @@ import { TrashButtonComponent } from './components/trash-button/trash-button.com
   ],
   exports: [TrashButtonComponent, RestoreButtonComponent, DeleteModalComponent, TrashNoticeComponent],
 })
-/* istanbul ignore next */
 export class TrashModule {}

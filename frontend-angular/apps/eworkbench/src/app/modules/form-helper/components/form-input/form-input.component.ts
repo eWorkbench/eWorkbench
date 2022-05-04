@@ -48,7 +48,6 @@ export class FormInputComponent implements AfterViewInit {
   public ngAfterViewInit(): void {
     this.reset();
 
-    /* istanbul ignore next */
     this.onSubmit?.pipe(untilDestroyed(this)).subscribe(() => this.reset());
   }
 

@@ -8,7 +8,7 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { DMPService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -36,8 +36,8 @@ export class DuplicateDMPModalComponent {
   public state = ModalState.Unchanged;
 
   public form = this.fb.group<FormDuplicate>({
-    duplicateMetadata: [true],
-    doNotShowMessageAgain: [false],
+    duplicateMetadata: true,
+    doNotShowMessageAgain: false,
   });
 
   public constructor(
@@ -51,8 +51,7 @@ export class DuplicateDMPModalComponent {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FormDuplicate>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -66,7 +65,7 @@ export class DuplicateDMPModalComponent {
       .duplicate(this.id, this.f.duplicateMetadata.value)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ dmp => {
+        dmp => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state, navigate: ['/dmps', dmp.pk] });
           this.translocoService
@@ -76,7 +75,7 @@ export class DuplicateDMPModalComponent {
               this.toastrService.success(message);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -89,8 +88,8 @@ export class DuplicateDMPModalComponent {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(user => {
-          return this.userService.changeSettings({
+        switchMap(user =>
+          this.userService.changeSettings({
             userprofile: {
               ui_settings: {
                 ...user.userprofile.ui_settings,
@@ -100,19 +99,17 @@ export class DuplicateDMPModalComponent {
                 },
               },
             },
-          });
-        })
+          })
+        )
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('detailsDropdown.duplicateDMPModal.toastr.success.doNotShowMessageAgainUpdated')
-            .pipe(untilDestroyed(this))
-            .subscribe(doNotShowMessageAgainUpdated => {
-              this.toastrService.success(doNotShowMessageAgainUpdated);
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('detailsDropdown.duplicateDMPModal.toastr.success.doNotShowMessageAgainUpdated')
+          .pipe(untilDestroyed(this))
+          .subscribe(doNotShowMessageAgainUpdated => {
+            this.toastrService.success(doNotShowMessageAgainUpdated);
+          });
+      });
   }
 }

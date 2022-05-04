@@ -11,7 +11,7 @@ import { RecentChangesModalComponent } from '@app/modules/recent-changes/compone
 import { UserDetailsModalComponent } from '@app/modules/user/components/modals/user-details/user-details.component';
 import { UsersListModalComponent } from '@app/modules/user/components/modals/users-list/users-list.component';
 import { AuthService, TaskBoardsService, TasksService, WebSocketService } from '@app/services';
-import { KanbanTask, Label, Task, User } from '@eworkbench/types';
+import type { KanbanTask, Label, Task, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -92,14 +92,11 @@ export class TaskCardComponent implements OnInit {
     });
 
     this.websocketService.subscribe([{ model: 'task', pk: this.task.task_id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_relations_changed?.model_pk === this.task.task_id) {
-          this.refreshElementRelationsCounter();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_relations_changed?.model_pk === this.task.task_id) {
+        this.refreshElementRelationsCounter();
       }
-    );
+    });
 
     this.initTranslations();
   }
@@ -145,7 +142,6 @@ export class TaskCardComponent implements OnInit {
   }
 
   public openRecentChangesModal(id: string): void {
-    /* istanbul ignore next */
     this.modalService.open(RecentChangesModalComponent, {
       closeButton: false,
       data: { service: this.tasksService, id },
@@ -153,12 +149,10 @@ export class TaskCardComponent implements OnInit {
   }
 
   public openUserModal(user: User): void {
-    /* istanbul ignore next */
     this.modalService.open(UserDetailsModalComponent, { closeButton: false, data: { user } });
   }
 
   public openMoreModal(users: User[]): void {
-    /* istanbul ignore next */
     this.modalService.open(UsersListModalComponent, { closeButton: false, data: { users: users } });
   }
 
@@ -171,10 +165,9 @@ export class TaskCardComponent implements OnInit {
       .get(kanbanTask.task_id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(/* istanbul ignore next */ privilegesData => privilegesData.data)
+        map(privilegesData => privilegesData.data)
       )
       .subscribe(task => {
-        /* istanbul ignore next */
         this.modalService.open(CommentsModalComponent, {
           closeButton: false,
           width: '912px',
@@ -184,7 +177,6 @@ export class TaskCardComponent implements OnInit {
   }
 
   public openPrivilegesModal(task: Task): void {
-    /* istanbul ignore next */
     this.modalService.open(PrivilegesModalComponent, {
       closeButton: false,
       data: { service: this.tasksService, id: task.pk, data: task },
@@ -222,15 +214,13 @@ export class TaskCardComponent implements OnInit {
     this.taskBoardsService
       .getTasks(this.taskBoardId)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ tasks => {
-          const task = tasks.filter(task => task.task_id === this.task.task_id);
-          if (task.length) {
-            this.task.num_related_comments = task[0].num_related_comments;
-            this.task.num_relations = task[0].num_relations!;
-            this.cdr.markForCheck();
-          }
+      .subscribe(tasks => {
+        const task = tasks.filter(task => task.task_id === this.task.task_id);
+        if (task.length) {
+          this.task.num_related_comments = task[0].num_related_comments;
+          this.task.num_relations = task[0].num_relations!;
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 }

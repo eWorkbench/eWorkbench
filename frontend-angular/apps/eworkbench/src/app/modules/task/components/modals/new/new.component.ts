@@ -11,7 +11,7 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { NewLabelModalComponent } from '@app/modules/label/component/modals/new/new.component';
 import { LabelsService, ProjectsService, TasksBacklogService, TasksService } from '@app/services';
 import { UserService } from '@app/stores/user';
-import {
+import type {
   DateGroup,
   DropdownElement,
   Label,
@@ -24,7 +24,7 @@ import {
   User,
 } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { set } from 'date-fns';
@@ -33,17 +33,17 @@ import { from, of, Subject } from 'rxjs';
 import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/operators';
 
 interface FormTask {
-  title: string | null;
-  assignees: number[];
-  scheduledNotificationActive: boolean;
-  scheduledNotificationTime: DateGroup;
-  dateGroup: DateGroup;
-  priority: TaskPayload['priority'] | null;
-  state: TaskPayload['state'] | null;
-  checklist: TaskChecklist[];
+  title: FormControl<string | null>;
+  assignees: FormControl<number[]>;
+  scheduledNotificationActive: FormControl<boolean>;
+  scheduledNotificationTime: FormControl<DateGroup>;
+  dateGroup: FormControl<DateGroup>;
+  priority: FormControl<TaskPayload['priority'] | null>;
+  state: FormControl<TaskPayload['state'] | null>;
+  checklist: FormControl<TaskChecklist[]>;
   description: string | null;
-  projects: string[];
-  labels: string[];
+  projects: FormControl<string[]>;
+  labels: FormControl<string[]>;
   duplicateMetadata: boolean;
 }
 
@@ -106,18 +106,18 @@ export class NewTaskModalComponent implements OnInit {
   };
 
   public form = this.fb.group<FormTask>({
-    title: [null, [Validators.required]],
-    assignees: [[]],
-    scheduledNotificationActive: [{ value: false, disabled: true }],
-    scheduledNotificationTime: [{ start: null, end: null, fullDay: false }],
-    dateGroup: [{ start: null, end: null, fullDay: false }],
-    priority: ['NORM', [Validators.required]],
-    state: ['NEW', [Validators.required]],
-    checklist: [[]],
-    description: [null],
-    projects: [[]],
-    labels: [[]],
-    duplicateMetadata: [true],
+    title: this.fb.control(null, Validators.required),
+    assignees: this.fb.control([]),
+    scheduledNotificationActive: this.fb.control({ value: false, disabled: true }),
+    scheduledNotificationTime: this.fb.control({ start: null, end: null, fullDay: false }),
+    dateGroup: this.fb.control({ start: null, end: null, fullDay: false }),
+    priority: this.fb.control('NORM', Validators.required),
+    state: this.fb.control('NEW', Validators.required),
+    checklist: this.fb.control([]),
+    description: null,
+    projects: this.fb.control([]),
+    labels: this.fb.control([]),
+    duplicateMetadata: true,
   });
 
   public constructor(
@@ -134,8 +134,7 @@ export class NewTaskModalComponent implements OnInit {
     private readonly labelsService: LabelsService
   ) {}
 
-  public get f(): FormGroup<FormTask>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -177,7 +176,7 @@ export class NewTaskModalComponent implements OnInit {
 
     // The property 'reminder_datetime' must not exist if remind_assignees field contains null values
     if (!this.f.scheduledNotificationActive.value) {
-      // @ts-ignore
+      // @ts-expect-error
       delete task.reminder_datetime;
     }
 
@@ -239,44 +238,38 @@ export class NewTaskModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.assignees = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.assignees = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public patchFormValues(): void {
@@ -336,23 +329,21 @@ export class NewTaskModalComponent implements OnInit {
           .get()
           .pipe(
             untilDestroyed(this),
-            map(
-              /* istanbul ignore next */ labels => {
-                this.initialState!.labels.forEach(label => {
-                  labels.forEach(apiLabel => {
-                    if (label === apiLabel.pk) {
-                      if (this.labels.length) {
-                        this.labels = [...this.labels, apiLabel];
-                        this.cdr.markForCheck();
-                      } else {
-                        this.labels = [apiLabel];
-                        this.cdr.markForCheck();
-                      }
+            map(labels => {
+              this.initialState!.labels.forEach(label => {
+                labels.forEach(apiLabel => {
+                  if (label === apiLabel.pk) {
+                    if (this.labels.length) {
+                      this.labels = [...this.labels, apiLabel];
+                      this.cdr.markForCheck();
+                    } else {
+                      this.labels = [apiLabel];
+                      this.cdr.markForCheck();
                     }
-                  });
+                  }
                 });
-              }
-            )
+              });
+            })
           )
           .subscribe(() => this.cdr.markForCheck());
       }
@@ -365,20 +356,18 @@ export class NewTaskModalComponent implements OnInit {
             mergeMap(id =>
               this.projectsService.get(id).pipe(
                 untilDestroyed(this),
-                catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-                })
+                catchError(() =>
+                  of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+                )
               )
             )
           )
-          .subscribe(
-            /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project]
-                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-              this.cdr.markForCheck();
-            }
-          );
+          .subscribe(project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          });
       }
     }
   }
@@ -389,23 +378,19 @@ export class NewTaskModalComponent implements OnInit {
     }
     this.loading = true;
 
-    /* istanbul ignore next */
     if (this.column) {
       this.tasksService
         .add(this.task)
         .pipe(
           untilDestroyed(this),
-          switchMap(
-            /* istanbul ignore next */ task =>
-              this.tasksBacklogService.addTasks(this.taskBoardId!, [{ task_id: task.pk, kanban_board_column: this.column }])
-          )
+          switchMap(task => this.tasksBacklogService.addTasks(this.taskBoardId!, [{ task_id: task.pk, kanban_board_column: this.column }]))
         )
         .subscribe(
-          /* istanbul ignore next */ () => {
+          () => {
             this.state = ModalState.Changed;
             this.modalRef.close({ state: this.state });
           },
-          /* istanbul ignore next */ () => {
+          () => {
             this.loading = false;
             this.cdr.markForCheck();
           }
@@ -415,7 +400,7 @@ export class NewTaskModalComponent implements OnInit {
         .add(this.task)
         .pipe(untilDestroyed(this))
         .subscribe(
-          /* istanbul ignore next */ task => {
+          task => {
             this.state = ModalState.Changed;
             this.modalRef.close({
               state: this.state,
@@ -429,7 +414,7 @@ export class NewTaskModalComponent implements OnInit {
                 this.toastrService.success(success);
               });
           },
-          /* istanbul ignore next */ () => {
+          () => {
             this.loading = false;
             this.cdr.markForCheck();
           }
@@ -438,9 +423,8 @@ export class NewTaskModalComponent implements OnInit {
   }
 
   public openLabelsModal(): void {
-    /* istanbul ignore next */
     this.modal = this.modalService.open(NewLabelModalComponent, { closeButton: false });
-    /* istanbul ignore next */
+
     this.modal.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 

@@ -1,11 +1,9 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { DjangoAPI, LabBook, LabBookElement, LabBookPayload, Note, PluginInstance, RecentChanges, Version } from '@eworkbench/types';
+import type { DjangoAPI, LabBook, LabBookElement, LabBookPayload, Note, PluginInstance, RecentChanges, Version } from '@eworkbench/types';
 import { mockNote } from './note';
 import { mockPluginInstance } from './plugin';
 import { mockUser } from './user';

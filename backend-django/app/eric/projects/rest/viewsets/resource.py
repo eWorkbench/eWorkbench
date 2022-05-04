@@ -21,7 +21,7 @@ class ResourceViewSet(BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, D
     search_fields = ()
 
     ordering_fields = ('name', 'type', 'description', 'location', 'created_by', 'contact', 'responsible_unit',
-                       'user_availability',)
+                       'general_usage_setting',)
 
     def get_queryset(self):
         """

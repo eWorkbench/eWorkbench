@@ -124,7 +124,7 @@ class TestProjectMembers(APITestCase, CommonTestMixin, AuthenticationMixin, Proj
                 'name': "Test Resource",
                 'description': "<p>Some <b>Resource</b> Description</p>",
                 'resource_type':  Resource.ROOM,
-                'user_availability': Resource.GLOBAL,
+                'general_usage_setting': Resource.GLOBAL,
                 'project_pks': self.project1.pk
             },
             {

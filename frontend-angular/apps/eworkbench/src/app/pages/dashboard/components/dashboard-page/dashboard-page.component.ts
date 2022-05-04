@@ -28,9 +28,17 @@ import { NewProjectModalComponent } from '@app/pages/projects/components/modals/
 import { NewResourceModalComponent } from '@app/pages/resources/components/modals/new/new.component';
 import { AuthService, DashboardService, MyScheduleService, PageTitleService } from '@app/services';
 import { DateService } from '@app/services/date/date.service';
-import { TableColumn } from '@eworkbench/table';
-import { Appointment, Dashboard, ModalCallback, Task, User } from '@eworkbench/types';
-import { DateSelectArg, DatesSetArg, EventClickArg, EventContentArg, EventHoveringArg, EventInput, MountArg } from '@fullcalendar/angular';
+import type { TableColumn } from '@eworkbench/table';
+import type { Appointment, Dashboard, ModalCallback, Task, User } from '@eworkbench/types';
+import type {
+  DateSelectArg,
+  DatesSetArg,
+  EventClickArg,
+  EventContentArg,
+  EventHoveringArg,
+  EventInput,
+  MountArg,
+} from '@fullcalendar/angular';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -39,7 +47,7 @@ import { format, set } from 'date-fns';
 import { CalendarComponent } from 'libs/calendar/src/lib/components/calendar/calendar.component';
 import { CalendarPopoverWrapperComponent } from 'libs/calendar/src/lib/components/popover/popover.component';
 import { debounceTime, skip, take } from 'rxjs/operators';
-import { DeepPartial } from 'utility-types';
+import type { DeepPartial } from 'utility-types';
 
 @UntilDestroy()
 @Component({
@@ -175,7 +183,6 @@ export class DashboardPageComponent implements OnInit {
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
       this.currentUser = state.user;
 
-      /* istanbul ignore next */
       if (this.currentUser) {
         this.params = this.params.set('show_meetings_for', this.currentUser.pk!.toString());
       }
@@ -297,7 +304,7 @@ export class DashboardPageComponent implements OnInit {
     this.initDetails();
     this.initSearch();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -306,7 +313,7 @@ export class DashboardPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -315,12 +322,12 @@ export class DashboardPageComponent implements OnInit {
       .get()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ dashboard => {
+        dashboard => {
           this.dashboard = { ...dashboard };
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -328,31 +335,27 @@ export class DashboardPageComponent implements OnInit {
   }
 
   public initSearch(): void {
-    this.myAppointmentsCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value && this.currentUser) {
-          this.params = this.params.set('show_meetings_for', this.currentUser.pk!.toString());
-          this.getMySchedules(this.activeRangeStart, this.activeRangeEnd);
-          return;
-        }
-
-        this.params = this.params.delete('show_meetings_for');
+    this.myAppointmentsCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value && this.currentUser) {
+        this.params = this.params.set('show_meetings_for', this.currentUser.pk!.toString());
         this.getMySchedules(this.activeRangeStart, this.activeRangeEnd);
+        return;
       }
-    );
 
-    this.myTasksCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (!value) {
-          this.params = this.params.set('show_tasks', String(Number(value)));
-          this.getMySchedules(this.activeRangeStart, this.activeRangeEnd);
-          return;
-        }
+      this.params = this.params.delete('show_meetings_for');
+      this.getMySchedules(this.activeRangeStart, this.activeRangeEnd);
+    });
 
-        this.params = this.params.delete('show_tasks');
+    this.myTasksCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (!value) {
+        this.params = this.params.set('show_tasks', String(Number(value)));
         this.getMySchedules(this.activeRangeStart, this.activeRangeEnd);
+        return;
       }
-    );
+
+      this.params = this.params.delete('show_tasks');
+      this.getMySchedules(this.activeRangeStart, this.activeRangeEnd);
+    });
   }
 
   public initPageTitle(): void {
@@ -406,7 +409,6 @@ export class DashboardPageComponent implements OnInit {
             event.end = this.dateService.fixFullDay(event.end);
           }
 
-          /* istanbul ignore next */
           this.calendar.addEvent(event);
         });
       });
@@ -437,7 +439,6 @@ export class DashboardPageComponent implements OnInit {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$
       .pipe(untilDestroyed(this), take(1))
       .subscribe((callback: { state: ModalState; event: any }) => this.onAppointmentModalClose(callback));
@@ -445,7 +446,6 @@ export class DashboardPageComponent implements OnInit {
 
   public onAppointmentModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
-      /* istanbul ignore next */
       const event = callback.data?.event;
       if (event) {
         // Infamous hack for full day handling of backend with 23:59:59.999 end dates. End date will be moved to T+1 0:00:00.000.
@@ -470,64 +470,61 @@ export class DashboardPageComponent implements OnInit {
   }
 
   public onOpenNewFileModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewFileModalComponent, { closeButton: false });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenNewContactModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewContactModalComponent, { closeButton: false });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenNewTaskModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewTaskModalComponent, { closeButton: false, enableClose: false });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenNewResourceModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewResourceModalComponent, { closeButton: false });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenNewDMPModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewDMPModalComponent, { closeButton: false });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenNewProjectModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewProjectModalComponent, { closeButton: false });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.navigate) {
-      this.router.navigate(callback.navigate);
+      void this.router.navigate(callback.navigate);
     }
   }
 
   public onEventClicked(event: EventClickArg): void {
-    /* istanbul ignore next */
     event.jsEvent.preventDefault();
 
-    /* istanbul ignore next */
     if (event.event.url) {
-      this.router.navigate([event.event.url]);
+      void this.router.navigate([event.event.url]);
     }
   }
 
   public onEventDidMount(event: MountArg<EventContentArg>): void {
+    // Avoid popovers on events that just indicate that a specific time range is not bookable
+    if (event.event.display === 'inverse-background') {
+      return;
+    }
+
     const projectableNodes = Array.from(event.el.childNodes);
 
     const compRef = this.popoverFactory.create(this.injector, [projectableNodes], event.el);

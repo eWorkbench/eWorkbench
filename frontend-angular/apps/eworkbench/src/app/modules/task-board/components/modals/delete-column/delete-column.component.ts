@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/
 import { ModalState } from '@app/enums/modal-state.enum';
 import { TaskBoardsService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import { TaskBoardColumn } from '@eworkbench/types';
+import type { TaskBoardColumn } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -38,7 +38,7 @@ export class DeleteColumnModalComponent {
   public loading = false;
 
   public form = this.fb.group<FormDelete>({
-    doNotShowMessageAgain: [false],
+    doNotShowMessageAgain: false,
   });
 
   public constructor(
@@ -52,8 +52,7 @@ export class DeleteColumnModalComponent {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FormDelete>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -65,23 +64,21 @@ export class DeleteColumnModalComponent {
 
     let order = 1;
     const columns: TaskBoardColumn[] = this.columns
-      .filter(/* istanbul ignore next */ (col: TaskBoardColumn) => col.pk !== this.column.pk)
-      .map(
-        /* istanbul ignore next */ (col: TaskBoardColumn) => {
-          col.ordering = order++;
-          return col;
-        }
-      );
+      .filter((col: TaskBoardColumn) => col.pk !== this.column.pk)
+      .map((col: TaskBoardColumn) => {
+        col.ordering = order++;
+        return col;
+      });
 
     this.taskBoardsService
       .moveColumn(this.taskBoardId, columns)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -94,8 +91,8 @@ export class DeleteColumnModalComponent {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(user => {
-          return this.userService.changeSettings({
+        switchMap(user =>
+          this.userService.changeSettings({
             userprofile: {
               ui_settings: {
                 ...user.userprofile.ui_settings,
@@ -105,19 +102,17 @@ export class DeleteColumnModalComponent {
                 },
               },
             },
-          });
-        })
+          })
+        )
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('taskBoard.deleteColumnModal.toastr.success.doNotShowMessageAgainUpdated')
-            .pipe(untilDestroyed(this))
-            .subscribe(doNotShowMessageAgainUpdated => {
-              this.toastrService.success(doNotShowMessageAgainUpdated);
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('taskBoard.deleteColumnModal.toastr.success.doNotShowMessageAgainUpdated')
+          .pipe(untilDestroyed(this))
+          .subscribe(doNotShowMessageAgainUpdated => {
+            this.toastrService.success(doNotShowMessageAgainUpdated);
+          });
+      });
   }
 }

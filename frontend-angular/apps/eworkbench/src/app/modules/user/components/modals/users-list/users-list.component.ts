@@ -4,7 +4,7 @@
  */
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 
 @Component({

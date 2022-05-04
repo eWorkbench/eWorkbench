@@ -10,9 +10,9 @@ import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending
 import { PageTitleService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
 import { CropperComponent } from '@crawl/angular-cropperjs';
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormArray, FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -24,12 +24,12 @@ interface FormProfile {
   academicTitle: string | null;
   firstName: string | null;
   lastName: string | null;
-  username: string | null;
-  employeeAffiliation: string[];
-  studentAffiliation: string[];
+  username: FormControl<string | null>;
+  employeeAffiliation: FormArray<string[]>;
+  studentAffiliation: FormArray<string[]>;
   country: string | null;
   phone: string | null;
-  email: string | null;
+  email: FormControl<string | null>;
   website: string | null;
   aboutMe: string | null;
 }
@@ -82,12 +82,12 @@ export class ProfilePageComponent implements OnInit {
     academicTitle: null,
     firstName: null,
     lastName: null,
-    username: { value: null, disabled: true },
+    username: this.fb.control({ value: null, disabled: true }),
     employeeAffiliation: this.fb.array([]),
     studentAffiliation: this.fb.array([]),
     country: null,
     phone: null,
-    email: [null, [Validators.required, Validators.email]],
+    email: this.fb.control(null, [Validators.required, Validators.email]),
     website: null,
     aboutMe: null,
   });
@@ -104,8 +104,7 @@ export class ProfilePageComponent implements OnInit {
     private readonly modalService: DialogService
   ) {}
 
-  public get f(): FormGroup<FormProfile>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -114,11 +113,11 @@ export class ProfilePageComponent implements OnInit {
   }
 
   public get employeeAffiliation(): FormArray<string> {
-    return this.form.get('employeeAffiliation') as FormArray<string>;
+    return this.form.get('employeeAffiliation') as any;
   }
 
   public get studentAffiliation(): FormArray<string> {
-    return this.form.get('studentAffiliation') as FormArray<string>;
+    return this.form.get('studentAffiliation') as any;
   }
 
   private get user(): User {
@@ -147,8 +146,8 @@ export class ProfilePageComponent implements OnInit {
         country: this.f.country.value ?? '',
         first_name: this.f.firstName.value ?? '',
         last_name: this.f.lastName.value ?? '',
-        org_zug_mitarbeiter_lang: this.f.employeeAffiliation.value,
-        org_zug_student_lang: this.f.studentAffiliation.value,
+        org_zug_mitarbeiter_lang: this.f.employeeAffiliation.value as any,
+        org_zug_student_lang: this.f.studentAffiliation.value as any,
         phone: this.f.phone.value ?? '',
         website: this.f.website.value,
       },
@@ -159,7 +158,7 @@ export class ProfilePageComponent implements OnInit {
     this.initTranslations();
     this.initDetails();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -168,7 +167,7 @@ export class ProfilePageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -179,7 +178,7 @@ export class ProfilePageComponent implements OnInit {
       .get()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ user => {
+        user => {
           this.form.patchValue(
             {
               academicTitle: user.userprofile.academic_title,
@@ -215,7 +214,7 @@ export class ProfilePageComponent implements OnInit {
           this.disableFieldsForLDAPUser();
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -252,7 +251,7 @@ export class ProfilePageComponent implements OnInit {
       .put(this.user)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ user => {
+        user => {
           this.initialState = { ...user };
 
           this.avatar = user.userprofile.avatar!;
@@ -276,7 +275,7 @@ export class ProfilePageComponent implements OnInit {
               this.toastrService.success(profileUpdated);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -288,7 +287,7 @@ export class ProfilePageComponent implements OnInit {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -326,14 +325,12 @@ export class ProfilePageComponent implements OnInit {
   }
 
   public onSaveAvatar(): void {
-    /* istanbul ignore next */
     this.avatarCropper.exportCanvas();
   }
 
   public onExportAvatar(): void {
-    /* istanbul ignore next */
     this.avatar = this.avatarCropper.cropper.getCroppedCanvas().toDataURL('image/jpeg', 0.7);
-    /* istanbul ignore next */
+
     this.avatarCropper.cropper.getCroppedCanvas().toBlob(
       (blob: Blob | null) => {
         if (blob) {
@@ -366,14 +363,13 @@ export class ProfilePageComponent implements OnInit {
       'image/jpeg',
       0.7
     );
-    /* istanbul ignore next */
+
     this.onCancelAvatarChange();
   }
 
   public onUploadAvatar(event: Event): void {
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       this.fileToBase64(files[0]).subscribe(data => {
         this.newAvatar = data as string;

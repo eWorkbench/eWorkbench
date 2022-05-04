@@ -83,6 +83,11 @@ class Plugin(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         blank=True,
     )
 
+    iframe_height = models.IntegerField(
+        default=250,
+        verbose_name=_("Height of the iframe element in pixel")
+    )
+
     logo = models.ImageField(
         verbose_name=_("A logo for the plugin"),
         upload_to=UploadToPathAndRename('plugin_logos'),

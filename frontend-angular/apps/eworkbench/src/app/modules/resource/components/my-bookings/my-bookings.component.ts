@@ -11,7 +11,7 @@ import { NewAppointmentModalComponent } from '@app/modules/appointment/component
 import { AuthService, MyResourceBookingsService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TableSortChangedEvent, TableViewComponent } from '@eworkbench/table';
-import { Appointment, ExportLink, ModalCallback, ResourceBooking, User } from '@eworkbench/types';
+import type { Appointment, ExportLink, ModalCallback, ResourceBooking, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -96,13 +96,10 @@ export class MyResourceBookingsComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    this.authService.user$.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ state => {
-        this.currentUser = state.user;
-      }
-    );
+    this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
+      this.currentUser = state.user;
+    });
 
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.tableView.loadData();
     });
@@ -251,22 +248,20 @@ export class MyResourceBookingsComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(
-          /* istanbul ignore next */ user => {
-            const currentUser = user;
-            return this.userService.changeSettings({
-              userprofile: {
-                ui_settings: {
-                  ...currentUser.userprofile.ui_settings,
-                  tables: {
-                    ...currentUser.userprofile.ui_settings?.tables,
-                    resourcebookings: settings,
-                  },
+        switchMap(user => {
+          const currentUser = user;
+          return this.userService.changeSettings({
+            userprofile: {
+              ui_settings: {
+                ...currentUser.userprofile.ui_settings,
+                tables: {
+                  ...currentUser.userprofile.ui_settings?.tables,
+                  resourcebookings: settings,
                 },
               },
-            });
-          }
-        )
+            },
+          });
+        })
       )
       .subscribe();
   }
@@ -277,22 +272,20 @@ export class MyResourceBookingsComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(
-          /* istanbul ignore next */ user => {
-            const currentUser = user;
-            return this.userService.changeSettings({
-              userprofile: {
-                ui_settings: {
-                  ...currentUser.userprofile.ui_settings,
-                  tables_sort: {
-                    ...currentUser.userprofile.ui_settings?.tables_sort,
-                    resourcebookings: event,
-                  },
+        switchMap(user => {
+          const currentUser = user;
+          return this.userService.changeSettings({
+            userprofile: {
+              ui_settings: {
+                ...currentUser.userprofile.ui_settings,
+                tables_sort: {
+                  ...currentUser.userprofile.ui_settings?.tables_sort,
+                  resourcebookings: event,
                 },
               },
-            });
-          }
-        )
+            },
+          });
+        })
       )
       .subscribe();
   }
@@ -307,12 +300,12 @@ export class MyResourceBookingsComponent implements OnInit {
       .export(id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (exportLink: ExportLink) => {
+        (exportLink: ExportLink) => {
           window.open(exportLink.url, '_blank');
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -326,17 +319,15 @@ export class MyResourceBookingsComponent implements OnInit {
     this.loading = true;
 
     const idList: string[] = [];
-    this.tableView.data.map(
-      /* istanbul ignore next */ (row: ResourceBooking) => {
-        idList.push(row.pk);
-      }
-    );
+    this.tableView.data.map((row: ResourceBooking) => {
+      idList.push(row.pk);
+    });
 
     this.myResourceBookingsService
       .exportMany(idList)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (data: Blob) => {
+        (data: Blob) => {
           const blob = new Blob([data], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
 
@@ -354,7 +345,7 @@ export class MyResourceBookingsComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -362,7 +353,6 @@ export class MyResourceBookingsComponent implements OnInit {
   }
 
   public onOpenResourceBookingModal(appointment: Appointment): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewAppointmentModalComponent, {
       closeButton: false,
       data: {
@@ -374,7 +364,6 @@ export class MyResourceBookingsComponent implements OnInit {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$
       .pipe(untilDestroyed(this), take(1))
       .subscribe((callback: { state: ModalState; event: any }) => this.onResourceBookingModalClose(callback));

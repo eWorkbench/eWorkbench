@@ -4,10 +4,10 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { AuthService, PrivilegesService } from '@app/services';
+import { AuthService } from '@app/services';
 import { UserService } from '@app/stores/user';
-import { TableColumn } from '@eworkbench/table';
-import { Privileges, PrivilegesApi, User } from '@eworkbench/types';
+import type { TableColumn } from '@eworkbench/table';
+import type { Privileges, PrivilegesApi, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -70,7 +70,6 @@ export class PrivilegesModalComponent implements OnInit {
   public constructor(
     public readonly modalRef: DialogRef,
     private readonly fb: FormBuilder,
-    private readonly privilegesService: PrivilegesService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly translocoService: TranslocoService,
@@ -124,31 +123,27 @@ export class PrivilegesModalComponent implements OnInit {
       .getUserPrivileges(this.id, this.currentUser?.pk, this.data.deleted)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ (privileges: Privileges) => {
-            this.userPrivileges = { ...privileges };
-            this.readonly = !privileges.fullAccess;
-            this.cdr.markForCheck();
-          }
-        ),
-        switchMap(() => {
-          return this.service.getPrivilegesList(this.id).pipe(
+        map((privileges: Privileges) => {
+          this.userPrivileges = { ...privileges };
+          this.readonly = !privileges.fullAccess;
+          this.cdr.markForCheck();
+        }),
+        switchMap(() =>
+          this.service.getPrivilegesList(this.id).pipe(
             untilDestroyed(this),
-            map(
-              /* istanbul ignore next */ (privileges: PrivilegesApi[]) => {
-                this.privileges = [...privileges];
-                privileges.map(privilege => (this.initialPrivileges[privilege.user_pk] = cloneDeep(privilege)));
-              }
-            )
-          );
-        })
+            map((privileges: PrivilegesApi[]) => {
+              this.privileges = [...privileges];
+              privileges.map(privilege => (this.initialPrivileges[privilege.user_pk] = cloneDeep(privilege)));
+            })
+          )
+        )
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -156,16 +151,14 @@ export class PrivilegesModalComponent implements OnInit {
   }
 
   public initSearch(): void {
-    this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.addUser(value);
-        }
-
-        this.usersControl.patchValue(null);
-        this.cdr.markForCheck();
+    this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.addUser(value);
       }
-    );
+
+      this.usersControl.patchValue(null);
+      this.cdr.markForCheck();
+    });
   }
 
   public initSearchInput(): void {
@@ -173,18 +166,16 @@ export class PrivilegesModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          const selectedUsers = this.privileges.map(privilege => privilege.user_pk);
-          const filteredUsers = users.filter(user => !selectedUsers.includes(user.pk!));
-          if (filteredUsers.length) {
-            this.users = [...filteredUsers];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        const selectedUsers = this.privileges.map(privilege => privilege.user_pk);
+        const filteredUsers = users.filter(user => !selectedUsers.includes(user.pk!));
+        if (filteredUsers.length) {
+          this.users = [...filteredUsers];
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public addUser(userId: string): void {
@@ -205,7 +196,7 @@ export class PrivilegesModalComponent implements OnInit {
         })
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.users = [];
           this.loading = false;
           this.cdr.markForCheck();
@@ -216,7 +207,7 @@ export class PrivilegesModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -242,7 +233,7 @@ export class PrivilegesModalComponent implements OnInit {
           .putUserPrivileges(this.id, privilege.user_pk, privilege)
           .pipe(untilDestroyed(this))
           .subscribe(
-            /* istanbul ignore next */ (p: PrivilegesApi) => {
+            (p: PrivilegesApi) => {
               privilege.full_access_privilege = p.full_access_privilege;
               privilege.view_privilege = p.view_privilege;
               privilege.edit_privilege = p.edit_privilege;
@@ -259,7 +250,7 @@ export class PrivilegesModalComponent implements OnInit {
                   this.toastrService.success(success);
                 });
             },
-            /* istanbul ignore next */ () => {
+            () => {
               this.loading = false;
               this.cdr.markForCheck();
             }
@@ -333,7 +324,7 @@ export class PrivilegesModalComponent implements OnInit {
       .putUserPrivileges(this.id, userId, restorePrivileges)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (privileges: PrivilegesApi) => {
+        (privileges: PrivilegesApi) => {
           const currentPrivileges = cloneDeep(this.privileges);
           currentPrivileges.map(privilege => {
             if (privilege.user_pk === userId) {
@@ -356,7 +347,7 @@ export class PrivilegesModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -373,7 +364,7 @@ export class PrivilegesModalComponent implements OnInit {
       .deleteUserPrivileges(this.id, userId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (privileges: PrivilegesApi[]) => {
+        (privileges: PrivilegesApi[]) => {
           this.privileges = [...privileges];
 
           this.loading = false;
@@ -385,7 +376,7 @@ export class PrivilegesModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

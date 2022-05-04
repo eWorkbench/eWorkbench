@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import type { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from '@app/services';
-import { UserState } from '@app/stores/user';
+import type { UserState } from '@app/stores/user';
 import { environment } from '@environments/environment';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 
 @Injectable()

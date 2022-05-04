@@ -16,22 +16,22 @@ import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, DMPService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
 import { UserStore } from '@app/stores/user';
-import { DMP, DMPPayload, DropdownElement, Lock, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
+import type { DMP, DMPPayload, DropdownElement, Lock, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as mime from 'mime';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, of, Subject } from 'rxjs';
-import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/operators';
+import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 import { NewDMPModalComponent } from '../modals/new/new.component';
 
 interface FormDMP {
-  title: string | null;
-  status: 'NEW' | 'PROG' | 'FIN';
-  projects: string[];
-  formData: string[];
+  title: FormControl<string | null>;
+  status: FormControl<'NEW' | 'PROG' | 'FIN'>;
+  projects: FormControl<string[]>;
+  formData: FormArray<string[]>;
 }
 
 @UntilDestroy()
@@ -89,10 +89,10 @@ export class DMPPageComponent implements OnInit, OnDestroy {
 
   public status: DropdownElement[] = [];
 
-  public form: FormGroup<FormDMP> = this.fb.group({
-    title: [null, [Validators.required]],
-    status: ['NEW', [Validators.required]],
-    projects: [[]],
+  public form = this.fb.group<FormDMP>({
+    title: this.fb.control(null, Validators.required),
+    status: this.fb.control('NEW', Validators.required),
+    projects: this.fb.control([]),
     formData: this.fb.array([]),
   });
 
@@ -118,11 +118,10 @@ export class DMPPageComponent implements OnInit, OnDestroy {
   }
 
   public get formData(): FormArray<string> {
-    return this.form.get('formData') as FormArray<string>;
+    return this.form.get('formData') as any;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -131,7 +130,6 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -151,7 +149,6 @@ export class DMPPageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -159,25 +156,21 @@ export class DMPPageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'dmp', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id) {
-          if (this.lockUser.user && !this.lockUser.ownUser) {
-            this.modified = true;
-          } else {
-            this.modified = false;
-          }
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.element_changed?.model_pk === this.id) {
+        if (this.lockUser.user && !this.lockUser.ownUser) {
+          this.modified = true;
+        } else {
+          this.modified = false;
+        }
+        this.cdr.detectChanges();
+      }
+    });
 
     this.initTranslations();
     this.initSidebar();
@@ -194,6 +187,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
+        skip(2),
         debounceTime(500),
         switchMap(() => {
           if (!this.lock?.locked) {
@@ -233,14 +227,12 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
@@ -250,29 +242,25 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -293,71 +281,67 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const dmp = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const dmp = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                title: dmp.title,
-                status: dmp.status,
-                projects: dmp.projects,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              title: dmp.title,
+              status: dmp.status,
+              projects: dmp.projects,
+            },
+            { emitEvent: false }
+          );
 
-            this.onClearFormData();
-            dmp.dmp_form_data.forEach(formData => {
-              this.formData.push(this.fb.control(formData.value));
-            });
+          this.onClearFormData();
+          dmp.dmp_form_data.forEach(formData => {
+            this.formData.push(this.fb.control(formData.value));
+          });
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            } else if (dmp.status === 'FIN' && dmp.created_by.pk !== this.currentUser!.pk) {
-              this.f.status.disable();
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
+          } else if (dmp.status === 'FIN' && dmp.created_by.pk !== this.currentUser!.pk) {
+            this.f.status.disable();
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
+              }),
+              switchMap(() => of(privilegesData))
+            );
           }
-        )
+
+          return of(privilegesData);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const dmp = privilegesData.data;
           const privileges = privilegesData.privileges;
 
           this.detailsTitle = dmp.display;
-          this.pageTitleService.set(dmp.display);
+          void this.pageTitleService.set(dmp.display);
 
           this.initialState = { ...dmp };
           this.privileges = { ...privileges };
@@ -370,9 +354,9 @@ export class DMPPageComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -391,13 +375,13 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.dmp)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ dmp => {
+        dmp => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.dmpService.unlock(this.id);
           }
 
           this.detailsTitle = dmp.display;
-          this.pageTitleService.set(dmp.display);
+          void this.pageTitleService.set(dmp.display);
 
           this.initialState = { ...dmp };
           this.form.markAsPristine();
@@ -420,7 +404,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -432,7 +416,6 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       const userStoreValue = this.userStore.getValue();
       const userSetting = 'SkipDialog-LeaveProject';
 
-      /* istanbul ignore next */
       const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
       if (skipLeaveDialog) {
@@ -442,7 +425,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -458,7 +441,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -492,7 +475,6 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
@@ -531,7 +513,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
       .exportAsType(this.id, type)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (data: Blob) => {
+        (data: Blob) => {
           const mimeType = mime.getType(type) ?? 'application/octet-stream';
           const blob = new Blob([data], { type: mimeType });
           const url = window.URL.createObjectURL(blob);
@@ -550,7 +532,7 @@ export class DMPPageComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

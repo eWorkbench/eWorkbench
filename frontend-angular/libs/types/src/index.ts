@@ -56,6 +56,7 @@ export * from './lib/interfaces/task-board-column.interface';
 export * from './lib/interfaces/task-board.interface';
 export * from './lib/interfaces/task-user.interface';
 export * from './lib/interfaces/task.interface';
+export * from './lib/interfaces/time-group.interface';
 export * from './lib/interfaces/user-group.interface';
 export * from './lib/interfaces/user-profile-info.interface';
 export * from './lib/interfaces/user.interface';

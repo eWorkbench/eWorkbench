@@ -87,106 +87,15 @@
             />
           </div>
           <div class="mb-4">
-            <label for="userAvailability-modal">
-              {{ t('resource.newModal.userAvailability.label') }}
-              <eworkbench-form-asterisk class="inline-block"></eworkbench-form-asterisk>
-            </label>
-            <ng-select
-              class="ewb-select"
-              formControlName="userAvailability"
-              labelForId="userAvailability-modal"
-              name="userAvailability"
-              [placeholder]="t('resource.newModal.userAvailability.placeholder')"
-              [items]="userAvailabilityChoices"
-              [clearable]="false"
-              bindLabel="label"
-              bindValue="value"
-            >
-              <ng-template ng-label-tmp let-item="item">
-                <ng-container [ngTemplateOutlet]="userAvailabilityTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
-              </ng-template>
-              <ng-template ng-option-tmp let-item="item">
-                <ng-container [ngTemplateOutlet]="userAvailabilityTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-container>
-              </ng-template>
-              <ng-template #userAvailabilityTemplate let-item="item">
-                <eworkbench-resource-availability [availability]="item.value"></eworkbench-resource-availability>
-              </ng-template>
-            </ng-select>
-          </div>
-          <div class="mb-4" *ngIf="f.userAvailability.value !== 'GLB'">
-            <label for="userAvailabilitySelectedUserGroups-modal">{{
-              t('resource.newModal.userAvailabilitySelectedUserGroups.label')
-            }}</label>
-            <ng-select
-              class="ewb-select"
-              formControlName="userAvailabilitySelectedUserGroups"
-              labelForId="userAvailabilitySelectedUserGroups-modal"
-              name="userAvailabilitySelectedUserGroups"
-              [placeholder]="t('resource.newModal.userAvailabilitySelectedUserGroups.placeholder')"
-              [items]="userAvailabilitySelectedUserGroupsChoices"
-              bindLabel="label"
-              bindValue="value"
-            >
-            </ng-select>
-          </div>
-          <div class="mb-4" *ngIf="f.userAvailability.value !== 'GLB'">
-            <label for="userAvailabilitySelectedUsers-modal">{{ t('resource.newModal.userAvailabilitySelectedUsers.label') }}</label>
-            <ng-select
-              #select
-              class="ewb-select"
-              formControlName="userAvailabilitySelectedUsers"
-              labelForId="userAvailabilitySelectedUsers-modal"
-              name="userAvailabilitySelectedUsers"
-              [placeholder]="t('resource.newModal.userAvailabilitySelectedUsers.placeholder')"
-              [multiple]="true"
-              [typeahead]="userAvailabilitySelectedUsersInput$"
-              [items]="userAvailabilitySelectedUsers"
-              bindLabel="username"
-              bindValue="pk"
-              (change)="changeUserAvailabilitySelectedUsers($event)"
-            >
-              <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                <div class="flex items-center user-option">
-                  <eworkbench-user-details
-                    class="inline-block mr-1"
-                    [user]="item"
-                    [chip]="true"
-                    (click)="select.isOpen = false"
-                  ></eworkbench-user-details>
-                  <span class="sub-text">{{ item.email }}</span>
-                  <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
-                </div>
-              </ng-template>
-
-              <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                <div class="user-dropdown-option">
-                  <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
-                  <div>
-                    <ng-container *ngIf="item?.userprofile.anonymized">
-                      <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
-                    </ng-container>
-                    <ng-container *ngIf="!item?.userprofile.anonymized">
-                      <ng-container
-                        *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
-                      ></ng-container>
-                    </ng-container>
-
-                    <ng-template #userTemplate>
-                      <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
-                    </ng-template>
-                    <ng-template #usernameTemplate>
-                      <span [ngOptionHighlight]="search">{{ item?.username }}</span>
-                    </ng-template>
-
-                    <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
-                  </div>
-                </div>
-              </ng-template>
-            </ng-select>
-          </div>
-          <div class="mb-4">
-            <label for="description-modal">{{ t('resource.newModal.description.label') }}</label>
-            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description"></eworkbench-wysiwyg-editor>
+            <div class="icon-label">
+              <label for="generalUsageSetting">{{ t('resource.newModal.generalUsageSetting.label') }}</label>
+              <eworkbench-icon
+                className="wb-info"
+                containerClass="tooltip-sm"
+                [tooltip]="t('resource.newModal.generalUsageSetting.info')"
+              ></eworkbench-icon>
+            </div>
+            <eworkbench-resource-usage-setting [showNullValueString]="true"></eworkbench-resource-usage-setting>
           </div>
           <div class="mb-4">
             <div class="icon-label">
@@ -246,6 +155,12 @@
               >
             </div>
           </div>
+          <hr />
+          <div class="mb-4">
+            <label for="description-modal">{{ t('resource.newModal.description.label') }}</label>
+            <eworkbench-wysiwyg-editor [id]="'description-modal'" formControlName="description"></eworkbench-wysiwyg-editor>
+          </div>
+          <hr />
           <div class="mb-4" *ngIf="duplicate">
             <div class="custom-control custom-checkbox">
               <input
@@ -278,33 +193,38 @@
           </div>
 
           <div class="modal-footer p-0 mt-5">
-            <button
-              *ngIf="form.dirty || duplicate"
-              type="button"
-              class="btn ewb-button-big ewb-button-secondary mr-2"
-              (click)="modalRef.close()"
-              [disabled]="loading"
-            >
-              {{ t('resource.newModal.cancel') }}
-            </button>
-            <button
-              *ngIf="form.dirty || duplicate"
-              type="submit"
-              class="btn ewb-button-big ewb-button-primary"
-              [disabled]="loading || form.invalid"
-            >
-              {{ duplicate ? t('resource.newModal.duplicate') : t('resource.newModal.create') }}
-            </button>
+            <a class="mr-3" [routerLink]="['/faq', 'who-can-use-a-given-resource']" target="_blank">
+              {{ t('resource.newModal.provideToOtherUsers') }}
+            </a>
+            <div class="footer-buttons">
+              <button
+                *ngIf="form.dirty || duplicate"
+                type="button"
+                class="btn ewb-button-big ewb-button-secondary mr-2"
+                (click)="modalRef.close()"
+                [disabled]="loading"
+              >
+                {{ t('resource.newModal.cancel') }}
+              </button>
+              <button
+                *ngIf="form.dirty || duplicate"
+                type="submit"
+                class="btn ewb-button-big ewb-button-primary"
+                [disabled]="loading || form.invalid"
+              >
+                {{ duplicate ? t('resource.newModal.duplicate') : t('resource.newModal.create') }}
+              </button>
 
-            <button
-              *ngIf="!form.dirty && !duplicate"
-              type="button"
-              class="btn ewb-button-big ewb-button-primary"
-              (click)="modalRef.close()"
-              [disabled]="loading"
-            >
-              {{ t('resource.newModal.close') }}
-            </button>
+              <button
+                *ngIf="!form.dirty && !duplicate"
+                type="button"
+                class="btn ewb-button-big ewb-button-primary"
+                (click)="modalRef.close()"
+                [disabled]="loading"
+              >
+                {{ t('resource.newModal.close') }}
+              </button>
+            </div>
           </div>
         </form>
       </eworkbench-loading>

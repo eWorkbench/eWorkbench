@@ -1,11 +1,9 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { DropdownElement } from '@eworkbench/types';
+import type { DropdownElement } from '@eworkbench/types';
 
 export const mockTypes: DropdownElement[] = [
   { value: '27b398b6-c7b4-4746-98db-4e527d8b1919', label: 'Active' },

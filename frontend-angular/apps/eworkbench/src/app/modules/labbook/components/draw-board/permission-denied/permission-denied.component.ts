@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { LabBookElement } from '@eworkbench/types';
+import type { LabBookElement } from '@eworkbench/types';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 interface ElementRemoval {

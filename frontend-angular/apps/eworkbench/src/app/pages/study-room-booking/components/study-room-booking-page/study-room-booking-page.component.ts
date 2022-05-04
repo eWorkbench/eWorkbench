@@ -7,8 +7,8 @@ import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { AuthService, PageTitleService, ResourcesService } from '@app/services';
-import { DropdownElement, Privileges, Resource, User } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { DropdownElement, Privileges, Resource, User } from '@eworkbench/types';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -56,8 +56,7 @@ export class StudyRoomBookingPageComponent implements OnInit {
     private readonly titleService: Title
   ) {}
 
-  public get f(): FormGroup<FormStudyRoomBookings>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -69,7 +68,7 @@ export class StudyRoomBookingPageComponent implements OnInit {
 
     this.initTranslations();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -78,7 +77,7 @@ export class StudyRoomBookingPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
 
     this.translocoService
@@ -124,14 +123,14 @@ export class StudyRoomBookingPageComponent implements OnInit {
         .getList(this.params)
         .pipe(untilDestroyed(this))
         .subscribe(
-          /* istanbul ignore next */ resources => {
+          resources => {
             this.studyRooms = [...resources.data];
             this.loading = false;
             this.form.enable({ emitEvent: false });
             this.form.patchValue({ studyRoom: null }, { emitEvent: false });
             this.cdr.markForCheck();
           },
-          /* istanbul ignore next */ () => {
+          () => {
             this.loading = false;
             this.cdr.markForCheck();
           }
@@ -156,14 +155,14 @@ export class StudyRoomBookingPageComponent implements OnInit {
         .getUserPrivileges(resource.pk, this.currentUser.pk!, false)
         .pipe(untilDestroyed(this))
         .subscribe(
-          /* istanbul ignore next */ privileges => {
+          privileges => {
             this.selectedStudyRoom = resource;
             this.privileges = { ...privileges };
             this.loading = false;
             this.form.enable({ emitEvent: false });
             this.cdr.markForCheck();
           },
-          /* istanbul ignore next */ () => {
+          () => {
             this.loading = false;
             this.cdr.markForCheck();
           }

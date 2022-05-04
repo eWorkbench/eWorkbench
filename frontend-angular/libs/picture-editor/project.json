@@ -1,0 +1,23 @@
+{
+  "projectType": "library",
+  "root": "libs/picture-editor",
+  "sourceRoot": "libs/picture-editor/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/picture-editor"],
+      "options": {
+        "jestConfig": "libs/picture-editor/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["libs/picture-editor/**/*.ts", "libs/picture-editor/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

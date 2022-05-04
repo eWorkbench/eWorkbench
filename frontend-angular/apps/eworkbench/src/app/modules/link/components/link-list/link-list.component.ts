@@ -9,7 +9,15 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { SitePreferencesService } from '@app/services';
 import { AuthService } from '@app/services/auth/auth.service';
 import { TableColumn, TableViewComponent } from '@eworkbench/table';
-import { ContentTypeModels, DropdownElement, ModalCallback, Relation, RelationPutPayload, SitePreferences, User } from '@eworkbench/types';
+import type {
+  ContentTypeModels,
+  DropdownElement,
+  ModalCallback,
+  Relation,
+  RelationPutPayload,
+  SitePreferences,
+  User,
+} from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -82,7 +90,6 @@ export class LinkListComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.tableView.loadData();
     });
@@ -190,14 +197,12 @@ export class LinkListComponent implements OnInit {
     this.sitePreferencesService
       .get()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ (preferences: SitePreferences) => {
-          this.params = this.params.set('without_content_type', preferences.content_types['shared_elements.comment']);
-          this.contentTypes = preferences.content_types;
-          this.initialLoading = false;
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe((preferences: SitePreferences) => {
+        this.params = this.params.set('without_content_type', preferences.content_types['shared_elements.comment']);
+        this.contentTypes = preferences.content_types;
+        this.initialLoading = false;
+        this.cdr.markForCheck();
+      });
   }
 
   public onChangeFilterContentType(element?: DropdownElement): void {
@@ -223,18 +228,15 @@ export class LinkListComponent implements OnInit {
     this.service
       .putRelation(this.id, relation.pk, relation)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */
-        (result: Relation) => {
-          const toastMsg = result.private
-            ? this.translocoService.translate('linkList.private.toastr.success')
-            : this.translocoService.translate('linkList.public.toastr.success');
+      .subscribe((result: Relation) => {
+        const toastMsg = result.private
+          ? this.translocoService.translate('linkList.private.toastr.success')
+          : this.translocoService.translate('linkList.public.toastr.success');
 
-          this.loading = false;
-          this.cdr.markForCheck();
-          this.toastrService.success(toastMsg);
-        }
-      );
+        this.loading = false;
+        this.cdr.markForCheck();
+        this.toastrService.success(toastMsg);
+      });
   }
 
   public onOpenDeleteModal(relation: Relation): void {
@@ -242,7 +244,7 @@ export class LinkListComponent implements OnInit {
       closeButton: false,
       data: { service: this.service, baseModelId: this.id, relationId: relation.pk },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 

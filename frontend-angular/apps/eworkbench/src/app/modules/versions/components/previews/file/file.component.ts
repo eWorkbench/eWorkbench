@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DrivesService, FilesService, ProjectsService } from '@app/services';
-import { Directory, File, ModalCallback, Project } from '@eworkbench/types';
+import type { Directory, File, ModalCallback, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -72,7 +72,7 @@ export class FilePreviewComponent implements OnInit {
       .previewVersion(this.id!, this.version!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (file: File) => {
+        (file: File) => {
           this.file = { ...file };
 
           this.loadStorages();
@@ -89,7 +89,7 @@ export class FilePreviewComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -125,11 +125,9 @@ export class FilePreviewComponent implements OnInit {
           );
         })
       )
-      .subscribe(
-        /* istanbul ignore next */ () => {
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(() => {
+        this.cdr.markForCheck();
+      });
   }
 
   public createTree(items: any[], id = null, level = 0): any[] {
@@ -157,7 +155,7 @@ export class FilePreviewComponent implements OnInit {
       .restoreVersion(this.id!, this.version!, Boolean(this.versionInProgress))
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -167,7 +165,7 @@ export class FilePreviewComponent implements OnInit {
               this.toastrService.success(versionRestored);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

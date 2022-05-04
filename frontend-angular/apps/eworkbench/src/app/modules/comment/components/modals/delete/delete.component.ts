@@ -45,7 +45,7 @@ export class DeleteCommentModalComponent {
       .deleteRelation(this.baseModelId, this.relationId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -55,7 +55,7 @@ export class DeleteCommentModalComponent {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

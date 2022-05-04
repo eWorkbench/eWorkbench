@@ -8,16 +8,16 @@ import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { CommentsService } from '@app/services';
 import { AuthService } from '@app/services/auth/auth.service';
-import { CommentPayload, User } from '@eworkbench/types';
+import type { CommentPayload, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { v4 as uuidv4 } from 'uuid';
 
 interface FormComment {
-  content: string | null;
+  content: FormControl<string | null>;
   private: boolean | null;
 }
 
@@ -52,9 +52,9 @@ export class NewCommentModalComponent implements OnInit {
 
   public state = ModalState.Unchanged;
 
-  public form: FormGroup<FormComment> = this.fb.group<FormComment>({
-    content: [null, [Validators.required]],
-    private: [false],
+  public form = this.fb.group<FormComment>({
+    content: this.fb.control(null, Validators.required),
+    private: false,
   });
 
   public constructor(
@@ -67,7 +67,7 @@ export class NewCommentModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormComment>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -108,7 +108,7 @@ export class NewCommentModalComponent implements OnInit {
       .add(this.comment)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.form.reset();
           this.form.markAsPristine();
@@ -124,7 +124,7 @@ export class NewCommentModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

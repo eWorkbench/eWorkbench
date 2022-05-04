@@ -2,6 +2,8 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+import logging
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
@@ -28,6 +30,8 @@ from eric.metadata.models.models import Metadata, MetadataField
 from eric.metadata.rest.errors import SearchParameterError, InvalidFieldInputError, InvalidOperatorError
 from eric.metadata.rest.queryset_filters import MetadataQuerySetFilter
 from eric.metadata.rest.serializers import MetadataFieldSerializer, MetadataSerializer
+
+LOGGER = logging.getLogger(__name__)
 
 
 class MetadataViewSet(BaseAuthenticatedModelViewSet):
@@ -156,7 +160,10 @@ class MetadataFieldViewSet(BaseAuthenticatedModelViewSet):
             to=[settings.EMAIL_RECIPIENT_FOR_NEW_METADATA_FIELDS],
         )
         msg.attach_alternative(html_message, "text/html")
-        msg.send()
+        try:
+            msg.send()
+        except Exception as exc:
+            LOGGER.exception(exc)
 
 
 class MetadataSearchViewSet(CreateModelMixin, GenericViewSet):

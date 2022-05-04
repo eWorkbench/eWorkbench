@@ -797,9 +797,8 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
     def viewable(self):
         """
         Returns all elements of the model where
-        - the element has user_availability set to global
-        - the element has the current user in user_availability_selected_users
-        - the element has at least one user group of the current user in user_availability_selected_user_groups
+        - the element has general_usage_setting set to global
+        - the element has at least one user group of the current user in usage_setting_selected_user_groups
         - the element is associated to a project and the user has the view_model permission on the project (project_pks)
         - the element has the model privilege 'view' or 'full_access' for the current user
         - the element does not have a model privilege 'deny_edit' for the current user (deny_object_ids)
@@ -831,18 +830,11 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
 
         return self.filter(
             Q(
-                # all resources where user_availability is set to global
-                user_availability=Resource.GLOBAL
-            ) | Q(
-                # all resources where the current user is selected
-                user_availability_selected_users=user
+                # all resources where general_usage_setting is set to global
+                general_usage_setting=Resource.GLOBAL
             ) | Q(
                 # all resources where the user group of the current user is selected
-                user_availability_selected_user_groups__pk__in=user.groups.values_list('pk')
-            ) | Q(
-                # all resources where the current user gets permissions from a project
-                user_availability=Resource.PROJECT,
-                projects__pk__in=project_pks
+                usage_setting_selected_user_groups__pk__in=user.groups.values_list('pk')
             ) | Q(
                 # get all entities where the current user is the owner
                 model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
@@ -913,15 +905,19 @@ class ElementLockQuerySet(BaseQuerySet):
 
     def deletable(self, *args, **kwargs):
         """
-        Allow deleting a element lock if it has been locked by the current user or if the lock is older than 15 minutes
+        Allow deleting an element lock if it has been locked by the current user
         """
-        # calculate timedelta: 15 minutes from now
         timedelta = timezone.timedelta(minutes=site_preferences.element_lock_time_in_minutes)
+        timedelta_webdav = timezone.timedelta(minutes=site_preferences.element_lock_webdav_time_in_minutes)
 
         return self.filter(
             Q(
                 locked_by=get_current_user()
             ) | Q(
-                locked_at__lte=timezone.now() - timedelta
+                webdav_lock=False,
+                locked_at__lte=timezone.now() - timedelta,
+            ) | Q(
+                webdav_lock=True,
+                locked_at__lte=timezone.now() - timedelta_webdav,
             )
         )

@@ -126,7 +126,7 @@
             </ng-select>
           </div>
           <div class="mb-4">
-            <label for="attendingContacts-modal">{{ t('appointments.newModal.attendingContacts.placeholder') }}</label>
+            <label for="attendingContacts-modal">{{ t('appointments.newModal.attendingContacts.label') }}</label>
             <ng-select
               class="ewb-select"
               formControlName="attendingContacts"
@@ -166,35 +166,11 @@
                 id="remindAttending-modal"
                 name="remindAttending-modal"
               />
-              <label class="custom-control-label font-normal" for="remindAttending-modal">{{
-                t('appointments.newModal.remindAttending.label')
-              }}</label>
+              <label class="custom-control-label" for="remindAttending-modal">{{ t('appointments.newModal.remindAttending.label') }}</label>
             </div>
           </div>
-          <div class="mb-4" *ngIf="f.scheduledNotificationActive.value">
-            <div class="flex items-center">
-              <div class="flex-fill mr-3">
-                <input
-                  type="text"
-                  class="form-control ewb-input"
-                  formControlName="scheduledNotificationTimedeltaValue"
-                  id="reminderValue-modal"
-                  name="reminderValue-modal"
-                />
-              </div>
-              <div class="flex-fill mr-3">
-                <ng-select
-                  class="ewb-select"
-                  formControlName="scheduledNotificationTimedeltaUnit"
-                  labelForId="reminderUnit-modal"
-                  name="reminderUnit-modal"
-                  [items]="remindAttendingUnits"
-                  bindLabel="label"
-                  bindValue="value"
-                ></ng-select>
-              </div>
-              <div class="flex-fill">{{ t('appointments.newModal.remindAttending.prior') }}</div>
-            </div>
+          <div *ngIf="f.scheduledNotificationActive.value">
+            <eworkbench-form-time-group formControlName="timeGroup" slot="input"></eworkbench-form-time-group>
           </div>
           <div class="mb-4">
             <label for="description-modal">{{ t('appointments.newModal.description.label') }}</label>

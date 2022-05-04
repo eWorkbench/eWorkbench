@@ -6,7 +6,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { TableColumn, TableViewComponent } from '@eworkbench/table';
-import { ModalCallback, Version } from '@eworkbench/types';
+import type { ModalCallback, Version } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -82,7 +82,6 @@ export class VersionsComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.getVersions();
     });
@@ -171,7 +170,7 @@ export class VersionsComponent implements OnInit {
       ?.versions(this.versionId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ (versions: Version[]) => {
+        (versions: Version[]) => {
           this.data = [...versions];
 
           this.updateVersionInProgress();
@@ -180,7 +179,7 @@ export class VersionsComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -188,7 +187,6 @@ export class VersionsComponent implements OnInit {
   }
 
   public onPreviewModal(version: Version, versionNumber?: number): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(VersionPreviewModalComponent, {
       closeButton: false,
       data: {
@@ -198,18 +196,17 @@ export class VersionsComponent implements OnInit {
         versionInProgress: this.versionInProgress,
       },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   // TODO: Open a modal to finalize a version on every 8th change since the last version
   public onFinalizeVersionModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(FinalizeVersionModalComponent, {
       closeButton: false,
       data: { service: this.service, id: this.versionId },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 

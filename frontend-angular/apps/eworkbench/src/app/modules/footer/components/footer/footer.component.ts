@@ -5,7 +5,7 @@
 
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AuthService } from '@app/services';
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 

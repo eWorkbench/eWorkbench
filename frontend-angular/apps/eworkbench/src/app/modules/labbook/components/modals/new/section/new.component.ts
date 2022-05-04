@@ -7,16 +7,16 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, On
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBookSectionsService } from '@app/services';
-import { DropdownElement, LabBookElementEvent, LabBookSectionPayload, ModalCallback } from '@eworkbench/types';
+import type { DropdownElement, LabBookElementEvent, LabBookSectionPayload, ModalCallback } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 
 interface FormElement {
-  position: 'top' | 'bottom';
+  position: FormControl<'top' | 'bottom'>;
 }
 
 @UntilDestroy()
@@ -41,7 +41,7 @@ export class NewLabBookSectionElementModalComponent implements OnInit {
   public position: DropdownElement[] = [];
 
   public form = this.fb.group<FormElement>({
-    position: ['bottom', [Validators.required]],
+    position: this.fb.control('bottom', Validators.required),
   });
 
   public constructor(
@@ -53,8 +53,7 @@ export class NewLabBookSectionElementModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormElement>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -102,7 +101,7 @@ export class NewLabBookSectionElementModalComponent implements OnInit {
       .add(this.section)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ section => {
+        section => {
           this.state = ModalState.Changed;
           const event: LabBookElementEvent = {
             childObjectId: section.pk,
@@ -119,7 +118,7 @@ export class NewLabBookSectionElementModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

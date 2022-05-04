@@ -14,7 +14,7 @@
         [user]="lockUser.user"
         [avatar]="false"
       ></eworkbench-user-details
-      ><span *ngIf="lockUser.ownUser">you</span>. The lock will be released in less than a minute or you can
+      ><span *ngIf="lockUser.ownUser">you</span>. The lock will be released {{ lockedUntil }} or you can
       <a href class="alert-link alert-link-lock" (click)="releaseLock($event)">release the lock</a> now.
     </alert>
   </ng-container>

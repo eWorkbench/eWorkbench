@@ -7,14 +7,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { PrivilegesService } from '@app/services/privileges/privileges.service';
 import { environment } from '@environments/environment';
-import {
+import type {
   CalendarAccessPrivileges,
   CalendarAccessPrivilegesPayload,
   PermissionsService,
   Privileges,
   PrivilegesApi,
 } from '@eworkbench/types';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
 @Injectable({
@@ -45,7 +45,7 @@ export class CalendarAccessPrivilegesService implements PermissionsService {
   public getUserPrivileges(id: string, userId: number, deleted: boolean): Observable<Privileges> {
     return this.httpClient
       .get<PrivilegesApi>(`${this.apiUrl}${id}/privileges/${userId}/`)
-      .pipe(map(/* istanbul ignore next */ privileges => this.privilegesService.transform(privileges, deleted)));
+      .pipe(map(privileges => this.privilegesService.transform(privileges, deleted)));
   }
 
   public addUserPrivileges(id: string, userId: number): Observable<PrivilegesApi> {
@@ -66,8 +66,6 @@ export class CalendarAccessPrivilegesService implements PermissionsService {
   }
 
   public deleteUserPrivileges(id: string, userId: number): Observable<PrivilegesApi[]> {
-    return this.httpClient
-      .delete(`${this.apiUrl}${id}/privileges/${userId}/`)
-      .pipe(switchMap(/* istanbul ignore next */ () => this.getPrivilegesList(id)));
+    return this.httpClient.delete(`${this.apiUrl}${id}/privileges/${userId}/`).pipe(switchMap(() => this.getPrivilegesList(id)));
   }
 }

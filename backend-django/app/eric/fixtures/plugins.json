@@ -12,6 +12,7 @@
         "short_description": "A basic SVG Editor",
         "long_description": "<p>Draws svg, saves svg, views svg in a nice image and it even shows you the source of the svg. What more could you want?</p>",
         "notes": "",
+        "iframe_height": 250,
         "path": "/plugins/svg_editor/index.html",
         "user_availability": "GLB",
         "responsible_users": [

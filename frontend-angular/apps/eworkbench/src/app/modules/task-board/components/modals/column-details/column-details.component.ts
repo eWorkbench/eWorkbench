@@ -7,13 +7,13 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { TaskBoardsService } from '@app/services';
-import { TaskBoardColumn } from '@eworkbench/types';
+import type { TaskBoardColumn } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 interface FormTaskBoardColumnDetails {
-  title: string | null;
+  title: FormControl<string | null>;
   color: string | null;
 }
 
@@ -36,8 +36,8 @@ export class ColumnDetailsModalComponent implements OnInit {
   public loading = false;
 
   public form = this.fb.group<FormTaskBoardColumnDetails>({
-    title: [null, [Validators.required]],
-    color: [null],
+    title: this.fb.control(null, Validators.required),
+    color: null,
   });
 
   public constructor(
@@ -47,8 +47,7 @@ export class ColumnDetailsModalComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FormTaskBoardColumnDetails>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -77,16 +76,16 @@ export class ColumnDetailsModalComponent implements OnInit {
     }
     this.loading = true;
 
-    const columns: TaskBoardColumn[] = this.columns.filter(/* istanbul ignore next */ (col: TaskBoardColumn) => col.pk !== this.column.pk);
+    const columns: TaskBoardColumn[] = this.columns.filter((col: TaskBoardColumn) => col.pk !== this.column.pk);
     this.taskBoardsService
       .moveColumn(this.taskBoardId, [...columns, this.columnPayload])
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

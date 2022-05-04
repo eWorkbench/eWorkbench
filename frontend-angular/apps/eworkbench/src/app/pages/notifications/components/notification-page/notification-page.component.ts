@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpErrorResponse } from '@angular/common/http';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormatContentTypeModelPipe } from '@app/modules/shared/pipes/content-type-model/content-type-model.pipe';
@@ -38,13 +38,13 @@ export class NotificationPageComponent implements OnInit {
       .subscribe(
         notification => {
           const routerBaseLink = this.formatContentTypeModel.transform(notification.content_type_model, 'routerBaseLink');
-          this.router.navigate([routerBaseLink, notification.object_id]);
+          void this.router.navigate([routerBaseLink, notification.object_id]);
         },
         (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           } else {
-            this.router.navigate(['/']);
+            void this.router.navigate(['/']);
           }
         }
       );

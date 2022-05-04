@@ -2,9 +2,11 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+import logging
+import vobject
+
 from email.mime.text import MIMEText
 
-import vobject
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMessage
 from django.db.models.signals import post_save, post_delete
@@ -23,6 +25,8 @@ from eric.projects.models import Project, ProjectRoleUserAssignment
 from eric.relations.models import Relation
 from eric.shared_elements.models import Meeting, UserAttendsMeeting, Task, TaskAssignedUser, ContactAttendsMeeting
 from eric.site_preferences.models import options as site_preferences
+
+LOGGER = logging.getLogger(__name__)
 
 
 @receiver(post_save)
@@ -211,7 +215,10 @@ def create_notification_based_on_add_contact_to_meeting(sender, instance, *args,
         )
         msg.content_subtype = "html"
         msg.attach(ics_attachment)
-        msg.send()
+        try:
+            msg.send()
+        except Exception as exc:
+            LOGGER.exception(exc)
 
 
 @receiver(post_delete, sender=ContactAttendsMeeting)
@@ -232,7 +239,10 @@ def create_notification_based_on_delete_contact_from_meeting(sender, instance, *
             to=[(f"{attended_contact.first_name} {attended_contact.last_name}", attended_contact.email)],
         )
         msg.content_subtype = "html"
-        msg.send()
+        try:
+            msg.send()
+        except Exception as exc:
+            LOGGER.exception(exc)
 
 
 @receiver(post_save, sender=Task)

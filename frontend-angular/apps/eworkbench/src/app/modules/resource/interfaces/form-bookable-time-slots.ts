@@ -1,4 +1,4 @@
-import { FormBookableTimeSlot } from './form-bookable-time-slot';
+import type { FormBookableTimeSlot } from './form-bookable-time-slot';
 
 export interface FormBookableTimeSlots {
   monday: FormBookableTimeSlot;

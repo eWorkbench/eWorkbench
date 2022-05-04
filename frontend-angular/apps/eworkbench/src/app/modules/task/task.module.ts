@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -18,15 +16,15 @@ import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { TextareaAutosizeModule } from 'ngx-textarea-autosize';
+import { NewTaskModalComponent } from './components/modals/new/new.component';
+import { TaskChecklistComponent } from './components/task-checklist/task-checklist.component';
+import { TaskPriorityComponent } from './components/task-priority/task-priority.component';
+import { TaskStateComponent } from './components/task-state/task-state.component';
 import { FormHelperModule } from '../form-helper/form-helper.module';
 import { LabelModule } from '../label/label.module';
 import { LoadingModule } from '../loading/loading.module';
 import { SharedModule } from '../shared/shared.module';
 import { UserModule } from '../user/user.module';
-import { NewTaskModalComponent } from './components/modals/new/new.component';
-import { TaskChecklistComponent } from './components/task-checklist/task-checklist.component';
-import { TaskPriorityComponent } from './components/task-priority/task-priority.component';
-import { TaskStateComponent } from './components/task-state/task-state.component';
 
 @NgModule({
   declarations: [NewTaskModalComponent, TaskStateComponent, TaskPriorityComponent, TaskChecklistComponent],

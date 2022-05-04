@@ -344,7 +344,7 @@ class AppointmentConfirmationMailTest(
             auth_token=self.token1, project_pks=None,
             name='My Test Resource', description='My Test Resource Description',
             location='Somewhere over the rainbow',
-            resource_type=Resource.ROOM, user_availability=Resource.GLOBAL,
+            resource_type=Resource.ROOM, general_usage_setting=Resource.GLOBAL,
             **HTTP_INFO
         )
         self.assert_response_status(response, expected_status_code=status.HTTP_201_CREATED)

@@ -9,7 +9,7 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService, ProjectsService, TasksBacklogService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { TableColumn, TableViewComponent } from '@eworkbench/table';
-import { KanbanTask, Project, User } from '@eworkbench/types';
+import type { KanbanTask, Project, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -158,11 +158,9 @@ export class BacklogModalComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.authService.user$.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ state => {
-        this.currentUser = state.user;
-      }
-    );
+    this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
+      this.currentUser = state.user;
+    });
 
     this.initTranslations();
     this.initSearch();
@@ -227,257 +225,231 @@ export class BacklogModalComponent implements OnInit {
   }
 
   public initSearch(): void {
-    this.projectsControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.set('projects_recursive', value);
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('projects_recursive');
-          this.tableView.loadData(false, this.params);
-        }
+    this.projectsControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.set('projects_recursive', value);
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('projects_recursive');
+        this.tableView.loadData(false, this.params);
       }
-    );
+    });
 
-    this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.set('created_by', value);
-          this.tableView.loadData(false, this.params);
-          // TODO: Needs endpoint to fetch a user by its id
-          /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: value }, queryParamsHandling: 'merge' }); */
-        } else {
-          this.params = this.params.delete('created_by');
-          this.tableView.loadData(false, this.params);
-          // TODO: Needs endpoint to fetch a user by its id
-          /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: null }, queryParamsHandling: 'merge' }); */
-        }
+    this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.set('created_by', value);
+        this.tableView.loadData(false, this.params);
+        // TODO: Needs endpoint to fetch a user by its id
+        /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: value }, queryParamsHandling: 'merge' }); */
+      } else {
+        this.params = this.params.delete('created_by');
+        this.tableView.loadData(false, this.params);
+        // TODO: Needs endpoint to fetch a user by its id
+        /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { users: null }, queryParamsHandling: 'merge' }); */
       }
-    );
+    });
 
-    this.assigneesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.set('assigned_users', value);
-          this.tableView.loadData(false, this.params);
-          // TODO: Needs endpoint to fetch a user by its id
-          /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { assignees: value }, queryParamsHandling: 'merge' }); */
-        } else {
-          this.params = this.params.delete('assigned_users');
-          this.tableView.loadData(false, this.params);
-          // TODO: Needs endpoint to fetch a user by its id
-          /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { assignees: null }, queryParamsHandling: 'merge' }); */
-        }
+    this.assigneesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.set('assigned_users', value);
+        this.tableView.loadData(false, this.params);
+        // TODO: Needs endpoint to fetch a user by its id
+        /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { assignees: value }, queryParamsHandling: 'merge' }); */
+      } else {
+        this.params = this.params.delete('assigned_users');
+        this.tableView.loadData(false, this.params);
+        // TODO: Needs endpoint to fetch a user by its id
+        /* this.router.navigate(['.'], { relativeTo: this.route, queryParams: { assignees: null }, queryParamsHandling: 'merge' }); */
       }
-    );
+    });
 
-    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.set('search', value);
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('search');
-          this.tableView.loadData(false, this.params);
-        }
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.set('search', value);
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('search');
+        this.tableView.loadData(false, this.params);
       }
-    );
+    });
 
-    this.veryHighCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.params
-          .getAll('priority')?.[0]
-          .split(',')
-          .filter(/* istanbul ignore next */ params => params !== 'VHIGH');
-        if (value) {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', [...params, 'VHIGH'].join(','));
-          }
-
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', params.join(','));
-          }
-          this.tableView.loadData(false, this.params);
+    this.veryHighCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.params
+        .getAll('priority')?.[0]
+        .split(',')
+        .filter(params => params !== 'VHIGH');
+      if (value) {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', [...params, 'VHIGH'].join(','));
         }
-      }
-    );
 
-    this.highCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.params
-          .getAll('priority')?.[0]
-          .split(',')
-          .filter(/* istanbul ignore next */ params => params !== 'HIGH');
-        if (value) {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', [...params, 'HIGH'].join(','));
-          }
-
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', params.join(','));
-          }
-          this.tableView.loadData(false, this.params);
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', params.join(','));
         }
+        this.tableView.loadData(false, this.params);
       }
-    );
+    });
 
-    this.normalCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.params
-          .getAll('priority')?.[0]
-          .split(',')
-          .filter(/* istanbul ignore next */ params => params !== 'NORM');
-        if (value) {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', [...params, 'NORM'].join(','));
-          }
-
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', params.join(','));
-          }
-          this.tableView.loadData(false, this.params);
+    this.highCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.params
+        .getAll('priority')?.[0]
+        .split(',')
+        .filter(params => params !== 'HIGH');
+      if (value) {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', [...params, 'HIGH'].join(','));
         }
-      }
-    );
 
-    this.lowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.params
-          .getAll('priority')?.[0]
-          .split(',')
-          .filter(/* istanbul ignore next */ params => params !== 'LOW');
-        if (value) {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', [...params, 'LOW'].join(','));
-          }
-
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', params.join(','));
-          }
-          this.tableView.loadData(false, this.params);
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', params.join(','));
         }
+        this.tableView.loadData(false, this.params);
       }
-    );
+    });
 
-    this.veryLowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.params
-          .getAll('priority')?.[0]
-          .split(',')
-          .filter(/* istanbul ignore next */ params => params !== 'VLOW');
-        if (value) {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', [...params, 'VLOW'].join(','));
-          }
-
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('priority');
-          if (params?.length) {
-            this.params = this.params.set('priority', params.join(','));
-          }
-          this.tableView.loadData(false, this.params);
+    this.normalCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.params
+        .getAll('priority')?.[0]
+        .split(',')
+        .filter(params => params !== 'NORM');
+      if (value) {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', [...params, 'NORM'].join(','));
         }
-      }
-    );
 
-    this.newCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.params
-          .getAll('state')?.[0]
-          .split(',')
-          .filter(/* istanbul ignore next */ params => params !== 'NEW');
-        if (value) {
-          this.params = this.params.delete('state');
-          if (params?.length) {
-            this.params = this.params.set('state', [...params, 'NEW'].join(','));
-          }
-
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('state');
-          if (params?.length) {
-            this.params = this.params.set('state', params.join(','));
-          }
-          this.tableView.loadData(false, this.params);
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', params.join(','));
         }
+        this.tableView.loadData(false, this.params);
       }
-    );
+    });
 
-    this.progressCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.params
-          .getAll('state')?.[0]
-          .split(',')
-          .filter(/* istanbul ignore next */ params => params !== 'PROG');
-        if (value) {
-          this.params = this.params.delete('state');
-          if (params?.length) {
-            this.params = this.params.set('state', [...params, 'PROG'].join(','));
-          }
-
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('state');
-          if (params?.length) {
-            this.params = this.params.set('state', params.join(','));
-          }
-          this.tableView.loadData(false, this.params);
+    this.lowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.params
+        .getAll('priority')?.[0]
+        .split(',')
+        .filter(params => params !== 'LOW');
+      if (value) {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', [...params, 'LOW'].join(','));
         }
-      }
-    );
 
-    this.doneCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.params
-          .getAll('state')?.[0]
-          .split(',')
-          .filter(/* istanbul ignore next */ params => params !== 'DONE');
-        if (value) {
-          this.params = this.params.delete('state');
-          if (params?.length) {
-            this.params = this.params.set('state', [...params, 'DONE'].join(','));
-          }
-
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('state');
-          if (params?.length) {
-            this.params = this.params.set('state', params.join(','));
-          }
-          this.tableView.loadData(false, this.params);
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', params.join(','));
         }
+        this.tableView.loadData(false, this.params);
       }
-    );
+    });
 
-    this.favoritesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.set('favourite', value);
-          this.tableView.loadData(false, this.params);
-        } else {
-          this.params = this.params.delete('favourite');
-          this.tableView.loadData(false, this.params);
+    this.veryLowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.params
+        .getAll('priority')?.[0]
+        .split(',')
+        .filter(params => params !== 'VLOW');
+      if (value) {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', [...params, 'VLOW'].join(','));
         }
+
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('priority');
+        if (params?.length) {
+          this.params = this.params.set('priority', params.join(','));
+        }
+        this.tableView.loadData(false, this.params);
       }
-    );
+    });
+
+    this.newCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.params
+        .getAll('state')?.[0]
+        .split(',')
+        .filter(params => params !== 'NEW');
+      if (value) {
+        this.params = this.params.delete('state');
+        if (params?.length) {
+          this.params = this.params.set('state', [...params, 'NEW'].join(','));
+        }
+
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('state');
+        if (params?.length) {
+          this.params = this.params.set('state', params.join(','));
+        }
+        this.tableView.loadData(false, this.params);
+      }
+    });
+
+    this.progressCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.params
+        .getAll('state')?.[0]
+        .split(',')
+        .filter(params => params !== 'PROG');
+      if (value) {
+        this.params = this.params.delete('state');
+        if (params?.length) {
+          this.params = this.params.set('state', [...params, 'PROG'].join(','));
+        }
+
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('state');
+        if (params?.length) {
+          this.params = this.params.set('state', params.join(','));
+        }
+        this.tableView.loadData(false, this.params);
+      }
+    });
+
+    this.doneCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.params
+        .getAll('state')?.[0]
+        .split(',')
+        .filter(params => params !== 'DONE');
+      if (value) {
+        this.params = this.params.delete('state');
+        if (params?.length) {
+          this.params = this.params.set('state', [...params, 'DONE'].join(','));
+        }
+
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('state');
+        if (params?.length) {
+          this.params = this.params.set('state', params.join(','));
+        }
+        this.tableView.loadData(false, this.params);
+      }
+    });
+
+    this.favoritesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.set('favourite', value);
+        this.tableView.loadData(false, this.params);
+      } else {
+        this.params = this.params.delete('favourite');
+        this.tableView.loadData(false, this.params);
+      }
+    });
   }
 
   public initSearchInput(): void {
@@ -485,65 +457,56 @@ export class BacklogModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.users = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.users = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.assigneesInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.assignees = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.assignees = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectsInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.length) {
+          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public onSelected(rows: KanbanTask[]): void {
-    /* istanbul ignore next */
     if (rows.length) {
       const selected = [];
       for (const row of rows) {
@@ -631,10 +594,10 @@ export class BacklogModalComponent implements OnInit {
       .addTasks(this.taskBoardId, this.selected)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.modalRef.close({ state: this.state });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

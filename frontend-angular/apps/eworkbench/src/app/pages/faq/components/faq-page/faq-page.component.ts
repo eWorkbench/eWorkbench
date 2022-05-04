@@ -8,7 +8,7 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { FAQService, PageTitleService } from '@app/services';
-import { FAQ, FAQCategory } from '@eworkbench/types';
+import type { FAQ, FAQCategory } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
@@ -54,7 +54,7 @@ export class FAQPageComponent implements OnInit {
     this.initTranslations();
     this.initDetails();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
     this.defaultOpened = this.id;
   }
 
@@ -64,7 +64,7 @@ export class FAQPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -72,25 +72,23 @@ export class FAQPageComponent implements OnInit {
     this.faqService
       .get()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ result => {
-          this.faq = result.data;
+      .subscribe(result => {
+        this.faq = result.data;
 
-          this.categories = [...this.faq.map(item => item.category)]
-            .filter((value, index, array) => array.map(category => category.slug).indexOf(value.slug) === index)
-            .sort((a, b) => a.ordering - b.ordering);
+        this.categories = [...this.faq.map(item => item.category)]
+          .filter((value, index, array) => array.map(category => category.slug).indexOf(value.slug) === index)
+          .sort((a, b) => a.ordering - b.ordering);
 
-          this.categories.forEach(category => {
-            this.sortedFAQ[category.slug] = [...this.faq.filter(item => item.category.slug === category.slug)];
-          });
+        this.categories.forEach(category => {
+          this.sortedFAQ[category.slug] = [...this.faq.filter(item => item.category.slug === category.slug)];
+        });
 
-          this.loading = false;
+        this.loading = false;
 
-          setTimeout(() => {
-            this.scrollToQuestion(this.id);
-          }, 1);
-        }
-      );
+        setTimeout(() => {
+          this.scrollToQuestion(this.id);
+        }, 1);
+      });
   }
 
   public initPageTitle(): void {

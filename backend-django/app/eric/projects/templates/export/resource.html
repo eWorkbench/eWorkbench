@@ -35,23 +35,18 @@
 
     <p>{% trans "Location" %}: {{ instance.location }}</p>
 
-    <p>{% trans "User Availability" %}: {{ instance.get_user_availability_display }}</p>
+    <p>{% trans "General Usage Setting" %}: {{ instance.get_general_usage_setting_display }}</p>
 
-    {% if instance.user_availability_selected_users.all.count > 0 %}
-        {% if instance.user_availability == "USR" %}
+    {% if instance.usage_setting_selected_user_groups.all.count > 0 %}
+        {% if instance.general_usage_setting == "1" %}
             <p>{% trans "Assigned to" %}:
         {% else %}
             <p>{% trans "Additionally assigned to" %}:
         {% endif %}
             <ul>
-                {% for user_group in instance.user_availability_selected_user_groups.all %}
+                {% for user_group in instance.usage_setting_selected_user_groups.all %}
                     <li>
                         {% display_user_group_widget user_group %}
-                    </li>
-                {% endfor %}
-                {% for user in instance.user_availability_selected_users.all %}
-                    <li>
-                        {% display_user_widget user %}
                     </li>
                 {% endfor %}
             </ul>

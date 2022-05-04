@@ -18,9 +18,9 @@ import {
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService, LabBookSectionsService, WebSocketService } from '@app/services';
-import { DatePickerConfig, LabBookElement, LabBookSectionPayload, Lock, ModalCallback, User } from '@eworkbench/types';
+import type { DatePickerConfig, LabBookElement, LabBookSectionPayload, Lock, ModalCallback, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import flatpickr from 'flatpickr';
@@ -28,12 +28,12 @@ import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import { DeleteLabBookSectionElementModalComponent } from '../../modals/delete-section/delete-section.component';
-import { LabBookDrawBoardGridComponent } from '../grid/grid.component';
+import type { LabBookDrawBoardGridComponent } from '../grid/grid.component';
 import { LabBookPendingChangesModalComponent } from '../modals/pending-changes/pending-changes.component';
 
 interface FormSection {
-  date: string | null;
-  title: string | null;
+  date: FormControl<string | null>;
+  title: FormControl<string | null>;
 }
 
 interface ElementRemoval {
@@ -84,9 +84,9 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
 
   public modalRef?: DialogRef;
 
-  public form: FormGroup<FormSection> = this.fb.group<FormSection>({
-    date: [null, [Validators.required]],
-    title: [null, [Validators.required]],
+  public form = this.fb.group<FormSection>({
+    date: this.fb.control(null, Validators.required),
+    title: this.fb.control(null, Validators.required),
   });
 
   public datePickerConfig: DatePickerConfig = {
@@ -107,12 +107,11 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
     private readonly translocoService: TranslocoService
   ) {}
 
-  public get f(): FormGroup<FormSection>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -121,7 +120,6 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -140,17 +138,13 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
     });
 
     this.websocketService.subscribe([{ model: 'labbooksection', pk: this.element.child_object_id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.element.child_object_id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.markForCheck();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.element.child_object_id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.markForCheck();
       }
-    );
+    });
 
-    /* istanbul ignore next */
     this.closeSection?.subscribe((id: string) => {
       if (id === this.element.child_object_id) {
         this.expanded = true;
@@ -167,7 +161,7 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
   public ngAfterViewInit(): void {
     flatpickr(`#date-${this.uniqueHash}`, {
       ...this.datePickerConfig,
-      onChange: (selectedDate, dateStr) => {
+      onChange: (_, dateStr) => {
         this.f.date.setValue(dateStr);
       },
     });
@@ -197,12 +191,11 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(LabBookPendingChangesModalComponent, {
       closeButton: false,
       data: { id: this.element.child_object_id },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.expanded = false;
@@ -221,7 +214,7 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
       .patch(this.element.child_object_id, this.section)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ section => {
+        section => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.labBookSectionsService.unlock(this.element.child_object_id);
           }
@@ -239,7 +232,7 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -261,13 +254,11 @@ export class LabBookDrawBoardSectionComponent implements OnInit, AfterViewInit {
   }
 
   public onDelete(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(DeleteLabBookSectionElementModalComponent, {
       closeButton: false,
       data: { labBookId: this.id, sectionId: this.element.pk, elementId: this.element.child_object_id },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 

@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -23,14 +21,6 @@ import { AlertModule } from 'ngx-bootstrap/alert';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { CommentModule } from '../comment/comment.module';
-import { FormHelperModule } from '../form-helper/form-helper.module';
-import { LoadingModule } from '../loading/loading.module';
-import { LockModule } from '../lock/lock.module';
-import { PictureModule } from '../picture/picture.module';
-import { PluginModule } from '../plugin/plugin.module';
-import { SharedModule } from '../shared/shared.module';
-import { UserModule } from '../user/user.module';
 import { LabBookDrawBoardComponent } from './components/draw-board/draw-board/draw-board.component';
 import { LabBookDrawBoardElementComponent } from './components/draw-board/element/element.component';
 import { LabBookDrawBoardFileComponent } from './components/draw-board/file/file.component';
@@ -55,6 +45,14 @@ import { NewLabBookSectionElementModalComponent } from './components/modals/new/
 import { NewLabBookSketchModalComponent } from './components/modals/new/sketch/new.component';
 import { LabBookElementRemoveModalComponent } from './components/modals/remove/remove.component';
 import { LabBookSidebarComponent } from './components/sidebar/sidebar.component';
+import { CommentModule } from '../comment/comment.module';
+import { FormHelperModule } from '../form-helper/form-helper.module';
+import { LoadingModule } from '../loading/loading.module';
+import { LockModule } from '../lock/lock.module';
+import { PictureModule } from '../picture/picture.module';
+import { PluginModule } from '../plugin/plugin.module';
+import { SharedModule } from '../shared/shared.module';
+import { UserModule } from '../user/user.module';
 
 @NgModule({
   declarations: [
@@ -119,7 +117,6 @@ import { LabBookSidebarComponent } from './components/sidebar/sidebar.component'
     CommentModule,
     PictureEditorModule,
     ModalsModule,
-    LoadingModule,
   ],
   exports: [
     LabBookSidebarComponent,

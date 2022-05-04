@@ -5,7 +5,7 @@
 import json
 from datetime import datetime
 
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_datetime, parse_date
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from rest_framework.test import APITestCase
 
@@ -35,6 +35,7 @@ class SearchTestMixin(AuthenticationMixin, ModelPrivilegeMixin, HelperMixin, Pro
         self.text_field = self.create_field("MyText", MetadataField.BASE_TYPE_TEXT)
         self.time_field = self.create_field("MyTime", MetadataField.BASE_TYPE_TIME)
         self.date_field = self.create_field("MyDate", MetadataField.BASE_TYPE_DATE)
+        self.real_date_field = self.create_field("MyRealDate", MetadataField.BASE_TYPE_REAL_DATE)
         self.fraction_field = self.create_field("MyFraction", MetadataField.BASE_TYPE_FRACTION)
         self.checkbox_field = self.create_field("MyCheckbox", MetadataField.BASE_TYPE_CHECKBOX)
         self.selection_field = self.create_field("MySelection", MetadataField.BASE_TYPE_SELECTION)
@@ -503,6 +504,78 @@ class DateSearchTest(SearchTestMixin, APITestCase):
         # operator <=
         json_response = self.send_search_request([[
             {'field': self.date_field.pk, 'operator': '<=', 'values': {'value': parse_datetime("2018-01-01 01:01")},
+             'parameter_index': "0"},
+        ]])
+        self.assert_result_list(json_response, [self.note1, self.note2])
+
+
+class RealDateSearchTest(SearchTestMixin, APITestCase):
+    def test_simple_search(self):
+        self.patch_metadata(self.note1, [
+            {'field': self.real_date_field.pk, 'values': {'value': parse_date("2018-01-01")},
+             'parameter_index': "0"},
+        ])
+        self.patch_metadata(self.note2, [
+            {'field': self.real_date_field.pk, 'values': {'value': parse_date("2018-01-02")},
+             'parameter_index': "1"},
+        ])
+        self.patch_metadata(self.note3, [
+            {'field': self.real_date_field.pk, 'values': {'value': parse_date("2027-04-17")},
+             'parameter_index': "2"},
+        ])
+
+        # operator =
+        json_response = self.send_search_request([[
+            {'field': self.real_date_field.pk, 'operator': '=', 'values': {'value': parse_date("2018-01-01")},
+             'parameter_index': "0"},
+        ]])
+        self.assert_result_list(json_response, [self.note1])
+
+        # operator >
+        json_response = self.send_search_request([[
+            {'field': self.real_date_field.pk, 'operator': '>', 'values': {'value': parse_date("2018-01-01")},
+             'parameter_index': "0"},
+        ]])
+        self.assert_result_list(json_response, [self.note2, self.note3])
+
+        # operator >
+        json_response = self.send_search_request([[
+            {'field': self.real_date_field.pk, 'operator': '>', 'values': {'value': parse_date("2018-01-02")},
+             'parameter_index': "0"},
+        ]])
+        self.assert_result_list(json_response, [self.note3])
+
+        # operator >=
+        json_response = self.send_search_request([[
+            {'field': self.real_date_field.pk, 'operator': '>=', 'values': {'value': parse_date("2018-01-02")},
+             'parameter_index': "0"},
+        ]])
+        self.assert_result_list(json_response, [self.note2, self.note3])
+
+        # operator >=
+        json_response = self.send_search_request([[
+            {'field': self.real_date_field.pk, 'operator': '>=', 'values': {'value': parse_date("2018-01-01")},
+             'parameter_index': "0"},
+        ]])
+        self.assert_result_list(json_response, [self.note1, self.note2, self.note3])
+
+        # operator <
+        json_response = self.send_search_request([[
+            {'field': self.real_date_field.pk, 'operator': '<', 'values': {'value': parse_date("2027-04-17")},
+             'parameter_index': "0"},
+        ]])
+        self.assert_result_list(json_response, [self.note1, self.note2])
+
+        # operator <
+        json_response = self.send_search_request([[
+            {'field': self.real_date_field.pk, 'operator': '<', 'values': {'value': parse_date("2018-01-02")},
+             'parameter_index': "0"},
+        ]])
+        self.assert_result_list(json_response, [self.note1])
+
+        # operator <=
+        json_response = self.send_search_request([[
+            {'field': self.real_date_field.pk, 'operator': '<=', 'values': {'value': parse_date("2018-01-02")},
              'parameter_index': "0"},
         ]])
         self.assert_result_list(json_response, [self.note1, self.note2])

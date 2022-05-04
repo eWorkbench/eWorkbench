@@ -4,14 +4,14 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { DatePickerConfig } from '@eworkbench/types';
+import type { DatePickerConfig } from '@eworkbench/types';
 import { FormGroup } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import flatpickr from 'flatpickr';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
-import { FormBookableTimeSlot } from '../../interfaces/form-bookable-time-slot';
+import type { FormBookableTimeSlot } from '../../interfaces/form-bookable-time-slot';
 
 @UntilDestroy()
 @Component({
@@ -22,7 +22,7 @@ import { FormBookableTimeSlot } from '../../interfaces/form-bookable-time-slot';
 })
 export class ResourceBookingRulesBookableTimeSlotInputComponent implements OnInit {
   @Input()
-  public set formBookableTimeSlot(value: FormGroup) {
+  public set formBookableTimeSlot(value: FormGroup<any>) {
     this.formGroupSubject$.next(value);
   }
 
@@ -45,20 +45,26 @@ export class ResourceBookingRulesBookableTimeSlotInputComponent implements OnIni
 
   public uuid = uuidv4();
 
-  public formGroupSubject$ = new BehaviorSubject<FormGroup | null>(null);
+  public formGroupSubject$ = new BehaviorSubject<FormGroup<any> | null>(null);
 
   public readonly formGroup$ = this.formGroupSubject$.pipe(
     filter(Boolean),
     map(formGroup => formGroup as FormGroup<FormBookableTimeSlot>)
   );
 
+  // @ts-expect-error
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   public readonly weekdayUuid$ = this.formGroup$.pipe(map(formGroup => `${formGroup.controls.weekday.value}.${this.uuid}`));
 
   public readonly weekdayTranslationKey$ = this.formGroup$.pipe(
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     map(formGroup => `weekDays.${formGroup.controls.weekdayTranslationKey.value}`)
   );
 
   public readonly isChecked$ = this.formGroup$.pipe(
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     switchMap(formGroup => formGroup.controls.checked.value$),
     tap(checked => {
       if (!checked) {
@@ -68,6 +74,7 @@ export class ResourceBookingRulesBookableTimeSlotInputComponent implements OnIni
   );
 
   public readonly fullDay$ = this.formGroup$.pipe(
+    // @ts-expect-error
     switchMap(formGroup => formGroup.controls.fullDay.value$),
     tap(fullDay => {
       if (!fullDay) {
@@ -76,8 +83,12 @@ export class ResourceBookingRulesBookableTimeSlotInputComponent implements OnIni
     })
   );
 
+  // @ts-expect-error
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   public readonly timeStart$ = this.formGroup$.pipe(switchMap(formGroup => formGroup.controls.timeStart.value$));
 
+  // @ts-expect-error
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   public readonly timeEnd$ = this.formGroup$.pipe(switchMap(formGroup => formGroup.controls.timeEnd.value$));
 
   public readonly invalidTimeSelection$ = combineLatest([this.timeStart$, this.timeEnd$, this.fullDay$]).pipe(
@@ -92,7 +103,9 @@ export class ResourceBookingRulesBookableTimeSlotInputComponent implements OnIni
         return true;
       }
 
+      // @ts-expect-error
       const timeStartNumber = Number(timeStart.replace(':', ''));
+      // @ts-expect-error
       const timeEndNumber = Number(timeEnd.replace(':', ''));
 
       return timeStartNumber >= timeEndNumber;

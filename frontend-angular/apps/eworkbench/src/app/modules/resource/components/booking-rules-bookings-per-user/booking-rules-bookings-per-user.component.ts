@@ -4,7 +4,7 @@
  */
 
 import { Component, ChangeDetectionStrategy, Input, EventEmitter, Output, OnInit, ViewChildren, QueryList } from '@angular/core';
-import { BookingRuleBookingsPerUser, BookingRulePayload } from '@eworkbench/types';
+import type { BookingRuleBookingsPerUser, BookingRulePayload } from '@eworkbench/types';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { v4 as uuidv4 } from 'uuid';
 import { ResourceBookingRulesBookingsPerUserElementComponent } from '../booking-rules-bookings-per-user-element/booking-rules-bookings-per-user-element.component';
@@ -46,7 +46,6 @@ export class ResourceBookingRulesBookingsPerUserComponent implements OnInit {
   private rules: BookingRuleBookingsPerUser[] = [];
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refreshBookingRules?.pipe(untilDestroyed(this)).subscribe(() => {
       this.rules = [];
 

@@ -4,8 +4,7 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Metadata } from '@eworkbench/types';
-import { TranslocoService } from '@ngneat/transloco';
+import type { Metadata } from '@eworkbench/types';
 import { isEqual } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -40,8 +39,6 @@ export class MetadataFieldHelperComponent implements OnInit {
   public deleted = false;
 
   public hasChanged = false;
-
-  public constructor(private readonly translocoService: TranslocoService) {}
 
   public ngOnInit(): void {
     this.initFieldHelper();

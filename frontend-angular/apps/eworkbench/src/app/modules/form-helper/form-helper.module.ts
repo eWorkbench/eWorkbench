@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -13,12 +11,13 @@ import { IconsModule } from '@eworkbench/icons';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { FormAsteriskComponent } from './components/form-asterisk/form-asterisk.component';
 import { FormDateGroupComponent } from './components/form-date-group/form-date-group.component';
-import { FormInputComponent } from './components/form-input/form-input.component';
 import { FormDateInputComponent } from './components/form-date-input/form-date-input.component';
+import { FormInputComponent } from './components/form-input/form-input.component';
+import { FormTimeGroupComponent } from './components/form-time-group/form-time-group.component';
 
 @NgModule({
-  declarations: [FormInputComponent, FormAsteriskComponent, FormDateGroupComponent, FormDateInputComponent],
+  declarations: [FormInputComponent, FormAsteriskComponent, FormDateGroupComponent, FormDateInputComponent, FormTimeGroupComponent],
   imports: [CommonModule, FormsModule, IconsModule, TooltipModule.forRoot(), TranslocoRootModule],
-  exports: [FormInputComponent, FormAsteriskComponent, FormDateGroupComponent, FormDateInputComponent],
+  exports: [FormInputComponent, FormAsteriskComponent, FormDateGroupComponent, FormDateInputComponent, FormTimeGroupComponent],
 })
 export class FormHelperModule {}

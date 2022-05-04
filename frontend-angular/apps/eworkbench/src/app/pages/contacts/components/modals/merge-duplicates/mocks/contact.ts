@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Contact } from '@eworkbench/types';
+import type { Contact } from '@eworkbench/types';
 
 export const mockContact1: Contact = {
   academic_title: 'Mr.',

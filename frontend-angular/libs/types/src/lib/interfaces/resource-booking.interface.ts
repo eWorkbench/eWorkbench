@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { AppointmentScheduledNotification } from './appointment.interface';
-import { Contact } from './contact.interface';
-import { Metadata } from './metadata.interface';
-import { Project } from './project.interface';
-import { Resource } from './resource.interface';
-import { User } from './user.interface';
+import type { AppointmentScheduledNotification } from './appointment.interface';
+import type { Contact } from './contact.interface';
+import type { Metadata } from './metadata.interface';
+import type { Project } from './project.interface';
+import type { Resource } from './resource.interface';
+import type { User } from './user.interface';
 
 export interface ResourceBooking {
   attending_contacts: Contact[];
@@ -34,17 +34,13 @@ export interface ResourceBooking {
     | 'attending_users'
     | 'url'
     | 'version_number'
-    | 'user_availability_selected_user_pks'
     | 'branch_library'
     | 'description'
     | 'metadata'
-    | 'user_availability'
-    | 'user_availability_selected_user_group_pks'
+    | 'general_usage_setting'
     | 'download_terms_of_use'
     | 'study_room'
-    | 'user_availability_selected_user_groups'
     | 'deleted'
-    | 'user_availability_selected_users'
     | 'projects'
     | 'terms_of_use_pdf'
     | 'booking_rule_bookable_hours'

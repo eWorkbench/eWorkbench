@@ -1,4 +1,4 @@
-{% load i18n captureas user_widgets simple_object_display date_filters %}
+{% load i18n captureas user_widgets simple_object_display date_filters site_preferences %}
 
 {# Hint: Whitespace matters for plaintext rendering -- change with caution and test afterwards! #}
 
@@ -43,3 +43,6 @@
 </ul>
 </p>
 {% endif %}
+
+<p>{% trans "Go to the appointment page" %}: <a href="{% site_url %}appointments/{{ instance.pk }}">{{ instance.title }}</a></p>
+

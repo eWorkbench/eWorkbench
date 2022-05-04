@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Metadata } from './metadata.interface';
-import { User } from './user.interface';
+import type { Metadata } from './metadata.interface';
+import type { User } from './user.interface';
 
 export interface PluginInstancePayload {
   title: string;
@@ -32,6 +32,7 @@ export interface PluginDetails {
   logo: string;
   download_placeholder_picture: string;
   is_accessible: boolean;
+  iframe_height: number;
 }
 
 export interface PluginInstance {

@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -18,5 +16,4 @@ import { FavoriteButtonComponent } from './components/favorite-button/favorite-b
   imports: [CommonModule, RouterModule, TranslocoRootModule, IconsModule, TooltipModule.forRoot()],
   exports: [FavoriteButtonComponent],
 })
-/* istanbul ignore next */
 export class FavoritesModule {}

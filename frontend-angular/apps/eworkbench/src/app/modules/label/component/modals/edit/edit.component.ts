@@ -6,9 +6,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabelsService } from '@app/services';
-import { Label, LabelPayload } from '@eworkbench/types';
+import type { Label, LabelPayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 interface FormLabel {
@@ -31,8 +31,8 @@ export class EditLabelModalComponent implements OnInit {
   public loading = false;
 
   public form = this.fb.group<FormLabel>({
-    name: [null],
-    color: [null],
+    name: null,
+    color: null,
   });
 
   public constructor(
@@ -42,8 +42,7 @@ export class EditLabelModalComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FormLabel>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 

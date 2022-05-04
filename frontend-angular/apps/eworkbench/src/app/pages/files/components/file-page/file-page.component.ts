@@ -26,21 +26,21 @@ import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, DrivesService, FilesService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import { Directory, Drive, File, FilePayload, Lock, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
+import type { Directory, Drive, File, FilePayload, Lock, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, of, Subject } from 'rxjs';
-import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/operators';
+import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 import { NewFileModalComponent } from '../modals/new.component';
 
 interface FormFile {
-  title: string | null;
-  name: string | null;
+  title: FormControl<string | null>;
+  name: FormControl<string | null>;
   storage: string | null;
-  projects: string[];
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -110,11 +110,11 @@ export class FilePageComponent implements OnInit, OnDestroy {
   @ViewChild('uploadInput')
   public uploadInput!: ElementRef;
 
-  public form: FormGroup<FormFile> = this.fb.group({
-    title: [null, [Validators.required]],
-    name: [null, [Validators.required]],
-    storage: [null],
-    projects: [[]],
+  public form = this.fb.group<FormFile>({
+    title: this.fb.control(null, Validators.required),
+    name: this.fb.control(null, Validators.required),
+    storage: null,
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -136,13 +136,11 @@ export class FilePageComponent implements OnInit, OnDestroy {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormFile>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -151,7 +149,6 @@ export class FilePageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -175,7 +172,6 @@ export class FilePageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -183,25 +179,21 @@ export class FilePageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'file', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id) {
-          if (this.lockUser.user && !this.lockUser.ownUser) {
-            this.modified = true;
-          } else {
-            this.modified = false;
-          }
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.element_changed?.model_pk === this.id) {
+        if (this.lockUser.user && !this.lockUser.ownUser) {
+          this.modified = true;
+        } else {
+          this.modified = false;
+        }
+        this.cdr.detectChanges();
+      }
+    });
 
     this.initSidebar();
     this.initSearchInput();
@@ -217,6 +209,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
+        skip(2),
         debounceTime(500),
         switchMap(() => {
           if (!this.lock?.locked) {
@@ -234,14 +227,12 @@ export class FilePageComponent implements OnInit, OnDestroy {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
@@ -251,44 +242,38 @@ export class FilePageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.assignees = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.assignees = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -309,57 +294,53 @@ export class FilePageComponent implements OnInit, OnDestroy {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const file = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const file = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                title: file.title,
-                name: file.name,
-                storage: file.directory_id,
-                projects: file.projects,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              title: file.title,
+              name: file.name,
+              storage: file.directory_id,
+              projects: file.projects,
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
+              }),
+              switchMap(() => of(privilegesData))
+            );
           }
-        ),
+
+          return of(privilegesData);
+        }),
         switchMap(privilegesData =>
           this.drivesService.getList().pipe(
             map(drives => {
@@ -376,12 +357,12 @@ export class FilePageComponent implements OnInit, OnDestroy {
         )
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const file = privilegesData.data;
           const privileges = privilegesData.privileges;
 
           this.detailsTitle = file.display;
-          this.pageTitleService.set(file.display);
+          void this.pageTitleService.set(file.display);
 
           this.initialState = { ...file };
           this.privileges = { ...privileges };
@@ -395,9 +376,9 @@ export class FilePageComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -407,9 +388,8 @@ export class FilePageComponent implements OnInit, OnDestroy {
   }
 
   public onUpload(event: Event): void {
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -440,13 +420,13 @@ export class FilePageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.file)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ file => {
+        file => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.filesService.unlock(this.id);
           }
 
           this.detailsTitle = file.display;
-          this.pageTitleService.set(file.display);
+          void this.pageTitleService.set(file.display);
 
           this.initialState = { ...file };
           this.initDirectoryDetails();
@@ -466,7 +446,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -478,7 +458,6 @@ export class FilePageComponent implements OnInit, OnDestroy {
       const userStoreValue = this.userStore.getValue();
       const userSetting = 'SkipDialog-LeaveProject';
 
-      /* istanbul ignore next */
       const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
       if (skipLeaveDialog) {
@@ -488,7 +467,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -504,7 +483,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -538,7 +517,6 @@ export class FilePageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
@@ -559,7 +537,6 @@ export class FilePageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.initialState = { ...callback.data };
@@ -583,11 +560,9 @@ export class FilePageComponent implements OnInit, OnDestroy {
       this.initialState!.directory = directory[0];
 
       const storageId = this.getStorageIdForDirectory(this.initialState!.directory_id);
-      this.drivesService.get(storageId, this.currentUser!.pk!).subscribe(
-        /* istanbul ignore next */ privilegesData => {
-          this.storagePrivileges = privilegesData.privileges;
-        }
-      );
+      this.drivesService.get(storageId, this.currentUser!.pk!).subscribe(privilegesData => {
+        this.storagePrivileges = privilegesData.privileges;
+      });
     } else {
       const directory: any = {
         display: this.translocoService.translate('file.details.storage.unknown.label'),

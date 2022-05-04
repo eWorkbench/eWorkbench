@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService } from '@app/services';
 import { UserService, UserState } from '@app/stores/user';
-import { Contact, PrivilegesData, User } from '@eworkbench/types';
+import type { Contact, PrivilegesData, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { cloneDeep } from 'lodash';
@@ -43,8 +43,8 @@ export class ShareModalComponent implements OnInit {
 
   public userInput$ = new Subject<string>();
 
-  public form: FormGroup<FormShareContact> = this.fb.group({
-    user: [null],
+  public form = this.fb.group<FormShareContact>({
+    user: null,
   });
 
   public constructor(
@@ -57,12 +57,11 @@ export class ShareModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormShareContact>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
-  public get userPk(): number {
+  public get userPk() {
     return this.form.get('user').value;
   }
 
@@ -95,16 +94,14 @@ export class ShareModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.users = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.users = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initDetails(): void {
@@ -112,29 +109,25 @@ export class ShareModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         take(1),
-        map(
-          /* istanbul ignore next */ (state: NonNullable<UserState>) => {
-            const user = state.user!;
+        map((state: NonNullable<UserState>) => {
+          const user = state.user!;
 
-            return user;
-          }
-        ),
-        switchMap(user => {
-          return this.service.get(this.id, user.pk!).pipe(
+          return user;
+        }),
+        switchMap(user =>
+          this.service.get(this.id, user.pk!).pipe(
             untilDestroyed(this),
-            map(
-              /* istanbul ignore next */ (response: PrivilegesData<Contact>) => {
-                this.element = response.data;
-              }
-            )
-          );
-        })
+            map((response: PrivilegesData<Contact>) => {
+              this.element = response.data;
+            })
+          )
+        )
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.cdr.markForCheck();
         }
       );
@@ -150,7 +143,7 @@ export class ShareModalComponent implements OnInit {
       .share(this.baseModelClone)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -160,7 +153,7 @@ export class ShareModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

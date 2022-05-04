@@ -35,7 +35,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin, { NoEventsContentArg } from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import {
+import type {
   CalendarDateFormat,
   CalendarDayHeaderFormat,
   CalendarDayPopoverFormat,

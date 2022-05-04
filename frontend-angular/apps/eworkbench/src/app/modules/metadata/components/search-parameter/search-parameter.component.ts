@@ -5,13 +5,13 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { DropdownElement, MetadataChangedSearchParameter, MetadataField } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { DropdownElement, MetadataChangedSearchParameter, MetadataField } from '@eworkbench/types';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 
 interface FormMetadataSearch {
-  type: string;
-  operator: string;
-  combinationOperator: string;
+  type: FormControl<string>;
+  operator: FormControl<string>;
+  combinationOperator: FormControl<string>;
 }
 
 @Component({
@@ -91,14 +91,14 @@ export class MetadataSearchParameterComponent implements OnInit {
   ];
 
   public form = this.fb.group<FormMetadataSearch>({
-    type: ['', [Validators.required]],
-    operator: ['', [Validators.required]],
-    combinationOperator: ['', [Validators.required]],
+    type: this.fb.control('', Validators.required),
+    operator: this.fb.control('', Validators.required),
+    combinationOperator: this.fb.control('', Validators.required),
   });
 
   public constructor(private readonly fb: FormBuilder) {}
 
-  public get f(): FormGroup['controls'] {
+  public get f() {
     return this.form.controls;
   }
 

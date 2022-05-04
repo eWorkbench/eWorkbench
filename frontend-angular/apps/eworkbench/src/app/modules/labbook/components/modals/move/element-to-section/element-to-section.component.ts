@@ -7,16 +7,16 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, On
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBookSectionsService, LabBooksService } from '@app/services';
-import { DropdownElement, ModalCallback } from '@eworkbench/types';
+import type { DropdownElement, ModalCallback } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap } from 'rxjs/operators';
 
 interface FormSection {
-  section: string | null;
+  section: FormControl<string | null>;
 }
 
 @UntilDestroy()
@@ -41,7 +41,7 @@ export class MoveLabBookElementToSectionModalComponent implements OnInit {
   public sections: DropdownElement[] = [];
 
   public form = this.fb.group<FormSection>({
-    section: [null, [Validators.required]],
+    section: this.fb.control(null, Validators.required),
   });
 
   public constructor(
@@ -54,8 +54,7 @@ export class MoveLabBookElementToSectionModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormSection>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -68,7 +67,7 @@ export class MoveLabBookElementToSectionModalComponent implements OnInit {
       .getElements(this.labBookId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBookElements => {
+        labBookElements => {
           const sections: DropdownElement[] = [];
 
           labBookElements.map(element => {
@@ -84,7 +83,7 @@ export class MoveLabBookElementToSectionModalComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -101,7 +100,7 @@ export class MoveLabBookElementToSectionModalComponent implements OnInit {
       .getElements(this.labBookId, this.f.section.value)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ elements => {
+        elements => {
           let maxYPosition = 0;
 
           if (elements.length) {
@@ -115,18 +114,16 @@ export class MoveLabBookElementToSectionModalComponent implements OnInit {
             })
             .pipe(
               untilDestroyed(this),
-              switchMap(
-                /* istanbul ignore next */ () => {
-                  return this.labBooksService
-                    .patchElement(this.labBookId, this.elementId, {
-                      position_y: maxYPosition,
-                    })
-                    .pipe(untilDestroyed(this));
-                }
+              switchMap(() =>
+                this.labBooksService
+                  .patchElement(this.labBookId, this.elementId, {
+                    position_y: maxYPosition,
+                  })
+                  .pipe(untilDestroyed(this))
               )
             )
             .subscribe(
-              /* istanbul ignore next */ () => {
+              () => {
                 this.state = ModalState.Changed;
                 this.modalRef.close({ state: this.state, data: { id: this.elementId, gridReload: false } });
                 this.translocoService
@@ -136,13 +133,13 @@ export class MoveLabBookElementToSectionModalComponent implements OnInit {
                     this.toastrService.success(success);
                   });
               },
-              /* istanbul ignore next */ () => {
+              () => {
                 this.loading = false;
                 this.cdr.markForCheck();
               }
             );
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

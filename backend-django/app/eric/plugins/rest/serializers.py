@@ -57,6 +57,7 @@ class PluginSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMeta
             'title',
             'short_description',
             'long_description',
+            'iframe_height',
             'logo',
             'responsible_users',
             'responsible_users_pk',
@@ -65,7 +66,12 @@ class PluginSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMeta
             'download_placeholder_picture',
             'placeholder_picture_mime_type',
         )
-        read_only_fields = ('responsible_users', 'is_accessible', 'placeholder_picture_mime_type',)
+        read_only_fields = (
+            'responsible_users',
+            'is_accessible',
+            'placeholder_picture_mime_type',
+            'iframe_height',
+        )
 
 
 class PluginInstanceSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin):

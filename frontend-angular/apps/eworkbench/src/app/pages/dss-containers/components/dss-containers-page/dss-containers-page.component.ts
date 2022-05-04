@@ -11,7 +11,7 @@ import { AuthService, DssContainersService, PageTitleService } from '@app/servic
 import { CMSService } from '@app/stores/cms/services/cms.service';
 import { UserService } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TableViewComponent } from '@eworkbench/table';
-import { CMSJsonResponse, ModalCallback, User } from '@eworkbench/types';
+import type { CMSJsonResponse, ModalCallback, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -85,11 +85,9 @@ export class DssContainersPageComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    this.authService.user$.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ state => {
-        this.currentUser = state.user;
-      }
-    );
+    this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
+      this.currentUser = state.user;
+    });
 
     this.initTranslations();
     this.initDetails();
@@ -102,7 +100,7 @@ export class DssContainersPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
 
     this.translocoService
@@ -185,33 +183,29 @@ export class DssContainersPageComponent implements OnInit {
     this.cmsService
       .getDssContainerListHowTo()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ result => {
-          this.dssContainerListHowTo = result;
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(result => {
+        this.dssContainerListHowTo = result;
+        this.cdr.markForCheck();
+      });
   }
 
   public initSearch(): void {
-    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const queryParams = new URLSearchParams(window.location.search);
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const queryParams = new URLSearchParams(window.location.search);
 
-        if (value) {
-          this.params = this.params.set('search', value);
-          this.tableView.loadData(false, this.params);
-          queryParams.set('search', value);
-          history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
-          return;
-        }
-
-        this.params = this.params.delete('search');
+      if (value) {
+        this.params = this.params.set('search', value);
         this.tableView.loadData(false, this.params);
-        queryParams.delete('search');
+        queryParams.set('search', value);
         history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+        return;
       }
-    );
+
+      this.params = this.params.delete('search');
+      this.tableView.loadData(false, this.params);
+      queryParams.delete('search');
+      history.pushState(null, '', `${window.location.pathname}?${queryParams.toString()}`);
+    });
   }
 
   public onColumnsChanged(event: TableColumnChangedEvent): void {
@@ -233,36 +227,33 @@ export class DssContainersPageComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(
-          /* istanbul ignore next */ state => {
-            const currentUser = state.user;
-            return this.userService.changeSettings({
-              userprofile: {
-                ui_settings: {
-                  ...currentUser?.userprofile.ui_settings,
-                  tables: {
-                    ...currentUser?.userprofile.ui_settings?.tables,
-                    dsscontainers: settings,
-                  },
+        switchMap(state => {
+          const currentUser = state.user;
+          return this.userService.changeSettings({
+            userprofile: {
+              ui_settings: {
+                ...currentUser?.userprofile.ui_settings,
+                tables: {
+                  ...currentUser?.userprofile.ui_settings?.tables,
+                  dsscontainers: settings,
                 },
               },
-            });
-          }
-        )
+            },
+          });
+        })
       )
       .subscribe();
   }
 
   public openNewModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewDssContainerModalComponent, { closeButton: false });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.navigate) {
-      this.router.navigate(callback.navigate);
+      void this.router.navigate(callback.navigate);
     } else if (callback?.state === ModalState.Changed) {
       this.tableView.loadData();
     }

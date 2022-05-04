@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -10,6 +8,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { LeaveProjectGuard } from '@app/guards/leave-project/leave-project.guard';
 import { MatomoGuard } from '@app/guards/matomo/matomo.guard';
 import { PendingChangesGuard } from '@app/guards/pending-changes/pending-changes.guard';
+import { ProjectPageComponent } from './components/project-page/project-page.component';
+import { ProjectsPageComponent } from './components/projects-page/projects-page.component';
 import { AppointmentPageComponent } from '../appointments/components/appointment-page/appointment-page.component';
 import { AppointmentsPageComponent } from '../appointments/components/appointments-page/appointments-page.component';
 import { CalendarPageComponent } from '../calendar/components/calendar-page/calendar-page.component';
@@ -31,8 +31,6 @@ import { TaskBoardPageComponent } from '../task-boards/components/task-board-pag
 import { TaskBoardsPageComponent } from '../task-boards/components/task-boards-page/task-boards-page.component';
 import { TaskPageComponent } from '../tasks/components/task-page/task-page.component';
 import { TasksPageComponent } from '../tasks/components/tasks-page/tasks-page.component';
-import { ProjectPageComponent } from './components/project-page/project-page.component';
-import { ProjectsPageComponent } from './components/projects-page/projects-page.component';
 
 const routes: Routes = [
   {

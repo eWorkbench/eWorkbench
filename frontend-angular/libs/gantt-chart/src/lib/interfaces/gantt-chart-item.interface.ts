@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Project } from 'libs/types/src/lib/interfaces/project.interface';
+import type { Project } from 'libs/types/src/lib/interfaces/project.interface';
 
 export interface GanttChartItem {
   name: string;

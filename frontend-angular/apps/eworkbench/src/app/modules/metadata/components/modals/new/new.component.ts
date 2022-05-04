@@ -7,19 +7,19 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService, MetadataService } from '@app/services';
-import { DropdownElement, MetadataPayload, User } from '@eworkbench/types';
+import type { DropdownElement, MetadataPayload, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormArray, FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 
 interface FormMetadata {
-  name: string | null;
-  description: string | null;
+  name: FormControl<string | null>;
+  description: FormControl<string | null>;
   baseType: string | null;
   final?: boolean;
-  answers?: string[];
+  answers?: FormArray<string[]>;
   multipleSelect?: boolean;
   decimals?: number | null;
   thousandsSeparator?: boolean;
@@ -47,15 +47,15 @@ export class NewMetadataFieldComponent implements OnInit {
   public state = ModalState.Unchanged;
 
   public form = this.fb.group<FormMetadata>({
-    name: [null, [Validators.required]],
-    description: [null, [Validators.required]],
-    baseType: [null],
-    final: [false],
+    name: this.fb.control(null, Validators.required),
+    description: this.fb.control(null, Validators.required),
+    baseType: null,
+    final: false,
     answers: this.fb.array([]),
-    multipleSelect: [false],
-    decimals: [null],
-    thousandsSeparator: [false],
-    symbol: [null],
+    multipleSelect: false,
+    decimals: null,
+    thousandsSeparator: false,
+    symbol: null,
   });
 
   public constructor(
@@ -68,12 +68,12 @@ export class NewMetadataFieldComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormMetadata>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get answers(): FormArray<string> {
-    return this.form.get('answers') as FormArray<string>;
+    return this.form.get('answers') as any;
   }
 
   public get metadata(): MetadataPayload {
@@ -199,7 +199,7 @@ export class NewMetadataFieldComponent implements OnInit {
       .add(this.metadata)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ metadata => {
+        metadata => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state, data: metadata.pk });
           this.translocoService
@@ -209,7 +209,7 @@ export class NewMetadataFieldComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

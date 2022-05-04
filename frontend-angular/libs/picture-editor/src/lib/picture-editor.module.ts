@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PictureEditorComponent } from './components/picture-editor/picture-editor.component';
-import { PictureEditorToolbarComponent } from './components/picture-editor-toolbar/picture-editor-toolbar.component';
-import { PictureEditorDetailsDropdownComponent } from './components/picture-editor-details-dropdown/picture-editor-details-dropdown.component';
-import { ResizableModule } from 'angular-resizable-element';
+import { NgModule } from '@angular/core';
 import { IconsModule } from '@eworkbench/icons';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { ResizableModule } from 'angular-resizable-element';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { PictureEditorDetailsDropdownComponent } from './components/picture-editor-details-dropdown/picture-editor-details-dropdown.component';
+import { PictureEditorToolbarComponent } from './components/picture-editor-toolbar/picture-editor-toolbar.component';
+import { PictureEditorComponent } from './components/picture-editor/picture-editor.component';
 
 @NgModule({
   declarations: [PictureEditorComponent, PictureEditorToolbarComponent, PictureEditorDetailsDropdownComponent],

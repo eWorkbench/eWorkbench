@@ -1,4 +1,4 @@
-import { DjangoAPI, Relation } from '@eworkbench/types';
+import type { DjangoAPI, Relation } from '@eworkbench/types';
 import { mockAppointment } from './appointment';
 import { mockContact } from './contact';
 import { mockUser } from './user';

@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import {
+import type {
   BookingRuleBookableTimeSlots,
   BookingRuleBookingsPerUser,
   BookingRuleDuration,
@@ -99,7 +99,6 @@ export class ResourceBookingRulesComponent implements OnInit {
     this.setInitialState();
     this.updateRulesSelection();
 
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.bookingRules = {
         booking_rule_bookable_hours: [],
@@ -114,7 +113,6 @@ export class ResourceBookingRulesComponent implements OnInit {
       this.refreshBookingRules.next(true);
     });
 
-    /* istanbul ignore next */
     this.onSubmit?.pipe(untilDestroyed(this)).subscribe(resource => {
       this.setInitialState(resource);
       this.reinitializeBookingRules();

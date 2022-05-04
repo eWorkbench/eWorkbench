@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Metadata } from '@eworkbench/types';
-import { Role } from './role.interface';
-import { User } from './user.interface';
+import type { Metadata } from '@eworkbench/types';
+import type { Role } from './role.interface';
+import type { User } from './user.interface';
 
 export interface ProjectPayload {
   name: string;

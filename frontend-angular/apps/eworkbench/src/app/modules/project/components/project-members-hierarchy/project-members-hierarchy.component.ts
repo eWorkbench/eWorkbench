@@ -5,7 +5,7 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { ProjectsService } from '@app/services';
-import { ProjectMember } from '@eworkbench/types';
+import type { ProjectMember } from '@eworkbench/types';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { map } from 'rxjs/operators';
 
@@ -42,28 +42,26 @@ export class ProjectMembersHierarchyComponent implements OnInit {
       .getMembersUp(this.id)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ members => {
-            const projectMembers: ProjectMember[] = [];
-            const projectMembersRoles: Record<number, string[]> = {};
+        map(members => {
+          const projectMembers: ProjectMember[] = [];
+          const projectMembersRoles: Record<number, string[]> = {};
 
-            members.forEach(member => {
-              projectMembers.push(member);
-              projectMembersRoles[member.user_pk] ??= [];
-              projectMembersRoles[member.user_pk].push(member.role.name);
-            });
+          members.forEach(member => {
+            projectMembers.push(member);
+            projectMembersRoles[member.user_pk] ??= [];
+            projectMembersRoles[member.user_pk].push(member.role.name);
+          });
 
-            this.members = [...new Map(projectMembers.map(member => [member.user_pk, member])).values()];
-            this.memberRoles = { ...projectMembersRoles };
-          }
-        )
+          this.members = [...new Map(projectMembers.map(member => [member.user_pk, member])).values()];
+          this.memberRoles = { ...projectMembersRoles };
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

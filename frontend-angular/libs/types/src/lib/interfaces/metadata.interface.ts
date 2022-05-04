@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { User } from './user.interface';
+import type { User } from './user.interface';
 
 export interface Metadata {
   id?: string;

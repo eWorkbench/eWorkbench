@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { DialogRef, DialogService } from '@ngneat/dialog';
+import { DialogRef } from '@ngneat/dialog';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -19,5 +19,5 @@ export class StateTimelineModalComponent {
 
   public id: string = this.modalRef.data.id;
 
-  public constructor(public readonly modalRef: DialogRef, private readonly modalService: DialogService) {}
+  public constructor(public readonly modalRef: DialogRef) {}
 }

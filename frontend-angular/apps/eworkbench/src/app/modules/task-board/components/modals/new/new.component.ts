@@ -8,9 +8,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectsService, TaskBoardsService } from '@app/services';
-import { Project, TaskBoardPayload } from '@eworkbench/types';
+import type { Project, TaskBoardPayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -18,10 +18,10 @@ import { from, of, Subject } from 'rxjs';
 import { catchError, debounceTime, mergeMap, switchMap } from 'rxjs/operators';
 
 interface FormTaskBoard {
-  title: string | null;
+  title: FormControl<string | null>;
   description: string | null;
   duplicateTasks: boolean;
-  projects: string[];
+  projects: FormControl<string[]>;
   duplicateMetadata: boolean;
 }
 
@@ -50,11 +50,11 @@ export class NewTaskBoardModalComponent implements OnInit {
   public projectInput$ = new Subject<string>();
 
   public form = this.fb.group<FormTaskBoard>({
-    title: [null, [Validators.required]],
-    description: [null],
-    duplicateTasks: [false],
-    projects: [[]],
-    duplicateMetadata: [true],
+    title: this.fb.control(null, Validators.required),
+    description: null,
+    duplicateTasks: false,
+    projects: this.fb.control([]),
+    duplicateMetadata: true,
   });
 
   public constructor(
@@ -67,8 +67,7 @@ export class NewTaskBoardModalComponent implements OnInit {
     private readonly projectsService: ProjectsService
   ) {}
 
-  public get f(): FormGroup<FormTaskBoard>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -100,29 +99,25 @@ export class NewTaskBoardModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public patchFormValues(): void {
@@ -136,7 +131,6 @@ export class NewTaskBoardModalComponent implements OnInit {
         { emitEvent: false }
       );
 
-      /* istanbul ignore next */
       if (this.initialState.projects?.length) {
         from(this.initialState.projects)
           .pipe(
@@ -144,20 +138,18 @@ export class NewTaskBoardModalComponent implements OnInit {
             mergeMap(id =>
               this.projectsService.get(id).pipe(
                 untilDestroyed(this),
-                catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-                })
+                catchError(() =>
+                  of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+                )
               )
             )
           )
-          .subscribe(
-            /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project]
-                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-              this.cdr.markForCheck();
-            }
-          );
+          .subscribe(project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          });
       }
     }
   }
@@ -180,7 +172,7 @@ export class NewTaskBoardModalComponent implements OnInit {
       .create(this.taskBoard, params)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ taskBoard => {
+        taskBoard => {
           this.state = ModalState.Changed;
           this.modalRef.close({
             state: this.state,
@@ -194,7 +186,7 @@ export class NewTaskBoardModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

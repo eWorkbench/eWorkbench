@@ -1,0 +1,119 @@
+{
+  "projectType": "application",
+  "root": "apps/eworkbench",
+  "sourceRoot": "apps/eworkbench/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/eworkbench",
+        "index": "apps/eworkbench/src/index.html",
+        "main": "apps/eworkbench/src/main.ts",
+        "polyfills": "apps/eworkbench/src/polyfills.ts",
+        "tsConfig": "apps/eworkbench/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/eworkbench/src/assets",
+          {
+            "glob": "**/*.*",
+            "input": "apps/eworkbench/src/assets/plugins",
+            "output": "/plugins/"
+          },
+          {
+            "glob": "**/*.{js,css,woff}",
+            "input": "node_modules/tinymce",
+            "output": "/tinymce/"
+          },
+          {
+            "glob": "**/*.*",
+            "input": "node_modules/tinymce-formula",
+            "output": "/tinymce/plugins/tinymce-formula/"
+          },
+          {
+            "glob": "**/*.min.js",
+            "input": "node_modules/@crawl/canvas-helper/dist",
+            "output": "/canvas/"
+          },
+          {
+            "glob": "**/*.{svg,eot,woff,ttf}",
+            "input": "libs/icons/src/lib/components/icon/fonts",
+            "output": "/fonts/"
+          }
+        ],
+        "styles": ["apps/eworkbench/src/styles.scss"],
+        "stylePreprocessorOptions": {
+          "includePaths": ["apps/eworkbench/src/styles", "libs/forms/src"]
+        },
+        "scripts": [],
+        "allowedCommonJsDependencies": ["mime"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "2mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "50kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/eworkbench/src/environments/environment.ts",
+              "with": "apps/eworkbench/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "eworkbench:build:production"
+        },
+        "development": {
+          "browserTarget": "eworkbench:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "eworkbench:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/eworkbench/src/**/*.ts", "apps/eworkbench/src/**/*.html"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/eworkbench"],
+      "options": {
+        "jestConfig": "apps/eworkbench/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

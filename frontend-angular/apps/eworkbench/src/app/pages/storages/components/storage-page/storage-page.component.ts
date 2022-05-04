@@ -16,9 +16,9 @@ import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, DrivesService, DssContainersService, PageTitleService, ProjectsService } from '@app/services';
 import { UserStore } from '@app/stores/user';
-import { Drive, DrivePayload, Envelope, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
+import type { Drive, DrivePayload, Envelope, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -27,8 +27,8 @@ import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/o
 import { NewStorageModalComponent } from '../modals/new/new.component';
 
 interface FormStorage {
-  title: string | null;
-  projects: string[];
+  title: FormControl<string | null>;
+  projects: FormControl<string[]>;
   dssEnvelope: string | null;
 }
 
@@ -83,10 +83,10 @@ export class StoragePageComponent implements OnInit {
 
   public selectedDssEnvelope?: Envelope;
 
-  public form: FormGroup<FormStorage> = this.fb.group({
-    title: [null, [Validators.required]],
-    projects: [[]],
-    dssEnvelope: [null],
+  public form = this.fb.group<FormStorage>({
+    title: this.fb.control(null, Validators.required),
+    projects: this.fb.control([]),
+    dssEnvelope: null,
   });
 
   public constructor(
@@ -106,7 +106,7 @@ export class StoragePageComponent implements OnInit {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormStorage>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -120,7 +120,6 @@ export class StoragePageComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -138,14 +137,12 @@ export class StoragePageComponent implements OnInit {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
@@ -155,29 +152,25 @@ export class StoragePageComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -198,87 +191,81 @@ export class StoragePageComponent implements OnInit {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const storage = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const storage = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                title: storage.title,
-                projects: storage.projects,
-                dssEnvelope: storage.dss_envelope_id,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              title: storage.title,
+              projects: storage.projects,
+              dssEnvelope: storage.dss_envelope_id,
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
-          }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            const storage = privilegesData.data;
-
-            return this.dssContainersService.getList().pipe(
-              untilDestroyed(this),
-              map(result => {
-                const dssContainers = result.data;
-
-                dssContainers.forEach(dssContainer => {
-                  dssContainer.envelopes.forEach(envelope => {
-                    envelope.container_path = dssContainer.path;
-                    if (envelope.pk === storage.dss_envelope_id) {
-                      this.selectedDssEnvelope = { ...envelope };
-                    }
-                    this.dssEnvelopes.push(envelope);
-                  });
-                });
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
               }),
               switchMap(() => of(privilegesData))
             );
           }
-        )
+
+          return of(privilegesData);
+        }),
+        switchMap(privilegesData => {
+          const storage = privilegesData.data;
+
+          return this.dssContainersService.getList().pipe(
+            untilDestroyed(this),
+            map(result => {
+              const dssContainers = result.data;
+
+              dssContainers.forEach(dssContainer => {
+                dssContainer.envelopes.forEach(envelope => {
+                  envelope.container_path = dssContainer.path;
+                  if (envelope.pk === storage.dss_envelope_id) {
+                    this.selectedDssEnvelope = { ...envelope };
+                  }
+                  this.dssEnvelopes.push(envelope);
+                });
+              });
+            }),
+            switchMap(() => of(privilegesData))
+          );
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const storage = privilegesData.data;
           const privileges = privilegesData.privileges;
 
           this.detailsTitle = storage.display;
-          this.pageTitleService.set(storage.display);
+          void this.pageTitleService.set(storage.display);
 
           this.initialState = { ...storage };
           this.privileges = { ...privileges };
@@ -287,9 +274,9 @@ export class StoragePageComponent implements OnInit {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -308,9 +295,9 @@ export class StoragePageComponent implements OnInit {
       .patch(this.id, this.storage)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ storage => {
+        storage => {
           this.detailsTitle = storage.title;
-          this.pageTitleService.set(storage.title);
+          void this.pageTitleService.set(storage.title);
 
           this.initialState = { ...storage };
           this.form.markAsPristine();
@@ -328,7 +315,7 @@ export class StoragePageComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -340,7 +327,6 @@ export class StoragePageComponent implements OnInit {
       const userStoreValue = this.userStore.getValue();
       const userSetting = 'SkipDialog-LeaveProject';
 
-      /* istanbul ignore next */
       const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
       if (skipLeaveDialog) {
@@ -350,7 +336,7 @@ export class StoragePageComponent implements OnInit {
       this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -366,7 +352,7 @@ export class StoragePageComponent implements OnInit {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -392,7 +378,6 @@ export class StoragePageComponent implements OnInit {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();

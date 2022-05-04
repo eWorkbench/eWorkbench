@@ -192,7 +192,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             name="",
             description="Test Description",
             resource_type=Resource.ROOM,
-            user_availability=Resource.GLOBAL,
+            general_usage_setting=Resource.GLOBAL,
             **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -204,7 +204,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             name="     ",
             description="Test Description",
             resource_type=Resource.ROOM,
-            user_availability=Resource.GLOBAL,
+            general_usage_setting=Resource.GLOBAL,
             **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -227,7 +227,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
         # check that no resources have been created
         self.assertEqual(0, Resource.objects.count())
 
-    def test_user_availability(self):
+    def test_general_usage_setting(self):
         # there should be zero Resources to begin with
         self.assertEquals(Resource.objects.all().count(), 0, msg="There should be zero Resources to begin with")
 
@@ -239,7 +239,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             name="Test Resource 1",
             description="Test Description",
             resource_type=Resource.ROOM,
-            user_availability=Resource.GLOBAL,
+            general_usage_setting=Resource.GLOBAL,
             **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -250,7 +250,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             name="Test Resource 2",
             description="Test Description",
             resource_type=Resource.ROOM,
-            user_availability=Resource.GLOBAL,
+            general_usage_setting=Resource.GLOBAL,
             **HTTP_INFO
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -263,54 +263,18 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
             self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 2)
 
-        ## PROJECT
-        response = self.rest_create_resource(
-            auth_token=self.token1,
-            project_pks=self.project1.pk,
-            name="Test Resource 3",
-            description="Test Description",
-            resource_type=Resource.ROOM,
-            user_availability=Resource.PROJECT,
-            **HTTP_INFO
+        ## SELECTED GROUPS
+        resource = Resource.objects.create(
+            name='Test Resource 3',
+            description='Test',
+            type=Resource.ROOM,
+            general_usage_setting=Resource.SELECTED_GROUPS
         )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        resource3 = json.loads(response.content.decode())
-
-        # unlock resource3 with user1
-        response = self.unlock(self.token1, "resources", resource3['pk'], HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-
-        response = self.rest_get_resource(
-            self.token2, resource3['pk'], HTTP_USER_AGENT, REMOTE_ADDR
-        )
-        self.assertIn(response.status_code, [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN])
-
-        # users 1 and 3 should be able to see 3 resources now, user2 still has 2
+        resource.usage_setting_selected_user_groups.add(self.user_group)
+        # user1 and user2 should see 3 and user3 still has 2 resources
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
             self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode()))), 3)
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode()))), 2)
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 3)
-
-        # ## SELECTED_USERS
-        self.user2.user_permissions.add(self.add_resource_without_project_permission)
-        # now let's create a resource without a project but select user1 to also view
-        response4 = self.rest_create_resource(
-            auth_token=self.token2,
-            project_pks=None,
-            name="Test Resource 4",
-            description="Test Description",
-            resource_type=Resource.ROOM,
-            user_availability=Resource.SELECTED_USERS,
-            user_availability_selected_user_pks=[self.user1.pk],
-            **HTTP_INFO
-        )
-        self.assertEqual(response4.status_code, status.HTTP_201_CREATED)
-        # user1 should see 4, user2 should see 3 and user3 still has 3 resources
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode()))), 4)
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
             self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode()))), 3)
         self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 3)
+            self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 2)

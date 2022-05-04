@@ -14,9 +14,9 @@ import {
   PicturesService,
   PluginInstancesService,
 } from '@app/services';
-import { DropdownElement, LabBookElement, LabBookElementPayload } from '@eworkbench/types';
+import type { DropdownElement, LabBookElement, LabBookElementPayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -61,8 +61,8 @@ export class ImportLabBookElementsModalComponent implements OnInit {
   public totalElements = 0;
 
   public form = this.fb.group<FormImport>({
-    labBook: [null],
-    insertAll: [false],
+    labBook: null,
+    insertAll: false,
   });
 
   public constructor(
@@ -79,8 +79,7 @@ export class ImportLabBookElementsModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormImport>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -93,18 +92,16 @@ export class ImportLabBookElementsModalComponent implements OnInit {
       .getList(this.params)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ labBooks => {
-            this.labBooks = labBooks.data.map(labBook => ({ value: labBook.pk.toString(), label: labBook.display }));
-          }
-        )
+        map(labBooks => {
+          this.labBooks = labBooks.data.map(labBook => ({ value: labBook.pk.toString(), label: labBook.display }));
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -213,7 +210,7 @@ export class ImportLabBookElementsModalComponent implements OnInit {
     this.selectedLabBook = labBookId;
 
     if (labBookId) {
-      this.getElements(labBookId);
+      void this.getElements(labBookId);
     }
 
     this.form.patchValue({ labBook: null });
@@ -278,19 +275,17 @@ export class ImportLabBookElementsModalComponent implements OnInit {
   public importLabBookElement(element: LabBookElement<any>, elements?: LabBookElement<any>[]): Observable<LabBookElement<any>> {
     return this.addLabBookElement(element).pipe(
       untilDestroyed(this),
-      mergeMap(
-        /* istanbul ignore next */ newElement => {
-          const newLabBookElement: LabBookElementPayload = {
-            child_object_content_type: newElement.content_type,
-            child_object_id: newElement.pk,
-            position_x: 0,
-            position_y: this.getMaxYPosition(elements),
-            width: element.width,
-            height: element.height,
-          };
-          return this.labBooksService.addElement(this.labBookId, newLabBookElement).pipe(untilDestroyed(this));
-        }
-      )
+      mergeMap(newElement => {
+        const newLabBookElement: LabBookElementPayload = {
+          child_object_content_type: newElement.content_type,
+          child_object_id: newElement.pk,
+          position_x: 0,
+          position_y: this.getMaxYPosition(elements),
+          width: element.width,
+          height: element.height,
+        };
+        return this.labBooksService.addElement(this.labBookId, newLabBookElement).pipe(untilDestroyed(this));
+      })
     );
   }
 
@@ -302,9 +297,24 @@ export class ImportLabBookElementsModalComponent implements OnInit {
     } else if (element.child_object_content_type_model === 'plugins.plugininstance') {
       return this.pluginInstancesService.add(element.child_object).pipe(untilDestroyed(this));
     } else if (element.child_object_content_type_model === 'pictures.picture') {
-      return this.picturesService.add(element.child_object).pipe(untilDestroyed(this));
+      return this.picturesService
+        .add({
+          title: element.child_object.title,
+          width: element.child_object.width,
+          height: element.child_object.height,
+          rendered_image: element.child_object.pk,
+          background_image: element.child_object.pk,
+          shapes_image: element.child_object.pk,
+        })
+        .pipe(untilDestroyed(this));
     } else if (element.child_object_content_type_model === 'shared_elements.file') {
-      return this.filesService.add(element.child_object).pipe(untilDestroyed(this));
+      return this.filesService
+        .add({
+          title: element.child_object.title,
+          name: element.child_object.name,
+          path: element.child_object.pk,
+        })
+        .pipe(untilDestroyed(this));
     }
 
     return of();

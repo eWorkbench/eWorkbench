@@ -5,9 +5,9 @@
 
 @font-face {
   font-family: 'wb-font';
-  src: url('fonts/wb-font.eot?4ma504');
-  src: url('fonts/wb-font.eot?4ma504#iefix') format('embedded-opentype'), url('fonts/wb-font.ttf?4ma504') format('truetype'),
-    url('fonts/wb-font.woff?4ma504') format('woff'), url('fonts/wb-font.svg?4ma504#wb-font') format('svg');
+  src: url('fonts/wb-font.eot?bo03ri');
+  src: url('fonts/wb-font.eot?bo03ri#iefix') format('embedded-opentype'), url('fonts/wb-font.ttf?bo03ri') format('truetype'),
+    url('fonts/wb-font.woff?bo03ri') format('woff'), url('fonts/wb-font.svg?bo03ri#wb-font') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -438,4 +438,7 @@
 }
 .icon-wb-tex-bold:before {
   content: '\e988';
+}
+.icon-wb-user-group:before {
+  content: '\e989';
 }

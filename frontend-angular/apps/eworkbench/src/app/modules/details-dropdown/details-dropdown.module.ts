@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -17,12 +15,12 @@ import { TableModule } from '@eworkbench/table';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { LoadingModule } from '../loading/loading.module';
 import { DetailsDropdownComponent } from './components/details-dropdown/details-dropdown.component';
 import { DuplicateDMPModalComponent } from './components/modals/duplicate-dmp/duplicate.component';
 import { DuplicateProjectModalComponent } from './components/modals/duplicate-project/duplicate.component';
 import { PrivilegesModalComponent } from './components/modals/privileges/privileges.component';
 import { ShareModalComponent } from './components/modals/share/share.component';
+import { LoadingModule } from '../loading/loading.module';
 
 @NgModule({
   declarations: [

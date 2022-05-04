@@ -22,16 +22,28 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with disable_permission_checks(ElementLock):
-            # calculate timedelta: 15 minutes from now
             timedelta = timezone.timedelta(minutes=site_preferences.element_lock_time_in_minutes)
+            timedelta_webdav = timezone.timedelta(minutes=site_preferences.element_lock_webdav_time_in_minutes)
 
             element_locks = ElementLock.objects.filter(
-                # must be locked more than 15 minutes ago
-                locked_at__lte=timezone.now() - timedelta
+                locked_at__lte=timezone.now() - timedelta,
+                webdav_lock=False,
+            )
+
+            webdav_element_locks = ElementLock.objects.filter(
+                locked_at__lte=timezone.now() - timedelta_webdav,
+                webdav_lock=True,
             )
 
             if element_locks.count() > 0:
                 logger.debug("{}: Deleting {}/{} ElementLocks".format(
+                    timezone.now(),
+                    element_locks.count(),
+                    ElementLock.objects.all().count()
+                ))
+
+            if webdav_element_locks.count() > 0:
+                logger.debug("{}: Deleting {}/{} Webdav ElementLocks".format(
                     timezone.now(),
                     element_locks.count(),
                     ElementLock.objects.all().count()
@@ -43,6 +55,7 @@ class Command(BaseCommand):
             # So we clean up as much as we can, one by one, as fallback, and ignore non-deletable locks
             try:
                 element_locks.delete()
+                webdav_element_locks.delete()
             except Exception as e:
                 logger.error(e)
                 self.delete_locks_one_by_one()

@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -21,17 +19,17 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { LinkListComponent } from './components/link-list/link-list.component';
+import { LinkComponent } from './components/link/link.component';
+import { DeleteLinkComponent } from './components/modals/delete-link/delete-link.component';
+import { NewLinkModalComponent } from './components/modals/new/new.component';
+import { SearchContentComponent } from './components/search-content/search-content.component';
 import { CommentModule } from '../comment/comment.module';
 import { FormHelperModule } from '../form-helper/form-helper.module';
 import { LoadingModule } from '../loading/loading.module';
 import { SharedModule } from '../shared/shared.module';
 import { TaskModule } from '../task/task.module';
 import { UserModule } from '../user/user.module';
-import { LinkListComponent } from './components/link-list/link-list.component';
-import { LinkComponent } from './components/link/link.component';
-import { DeleteLinkComponent } from './components/modals/delete-link/delete-link.component';
-import { NewLinkModalComponent } from './components/modals/new/new.component';
-import { SearchContentComponent } from './components/search-content/search-content.component';
 
 @NgModule({
   declarations: [LinkComponent, LinkListComponent, NewLinkModalComponent, SearchContentComponent, DeleteLinkComponent],

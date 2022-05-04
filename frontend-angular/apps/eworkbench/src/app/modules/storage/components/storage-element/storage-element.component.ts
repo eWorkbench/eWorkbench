@@ -7,7 +7,7 @@ import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DrivesService, FilesService } from '@app/services';
-import { Directory, Drive, File, FilePayload, ModalCallback } from '@eworkbench/types';
+import type { Directory, Drive, File, FilePayload, ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -71,7 +71,6 @@ export class StorageElementComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh.pipe(untilDestroyed(this)).subscribe(collapsed => {
       this.collapsed = collapsed;
       if (!collapsed) {
@@ -90,18 +89,16 @@ export class StorageElementComponent implements OnInit {
   }
 
   public initSearch(): void {
-    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.params = this.params.set('search', value);
-          this.loadFiles();
-          return;
-        }
-
-        this.params = this.params.delete('search');
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.params = this.params.set('search', value);
         this.loadFiles();
+        return;
       }
-    );
+
+      this.params = this.params.delete('search');
+      this.loadFiles();
+    });
   }
 
   public onRestore(restored: boolean): void {
@@ -122,13 +119,13 @@ export class StorageElementComponent implements OnInit {
       .getList(this.params)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ result => {
+        result => {
           this.files = result.data;
           this.loading = false;
           this.cdr.detectChanges();
           this.refreshSubdirectory.next(true);
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -137,12 +134,11 @@ export class StorageElementComponent implements OnInit {
   }
 
   public onOpenNewDirectoryModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewStorageDirectoryModalComponent, {
       closeButton: false,
       data: { storage: this.storage },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.storage.sub_directories = [...this.storage.sub_directories, callback.data.newContent];
@@ -152,7 +148,6 @@ export class StorageElementComponent implements OnInit {
   }
 
   public onOpenWebDavModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(WebDavModalComponent, {
       closeButton: false,
       data: { storage: this.storage },
@@ -160,13 +155,12 @@ export class StorageElementComponent implements OnInit {
   }
 
   public onOpenAddFileModal(directory: Directory): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(AddFileModalComponent, {
       closeButton: false,
       width: '1000px',
       data: { directory: directory },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.files.push(callback.data.file);
@@ -181,9 +175,8 @@ export class StorageElementComponent implements OnInit {
     }
     this.loading = true;
 
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -202,7 +195,7 @@ export class StorageElementComponent implements OnInit {
           .add(filePayload)
           .pipe(untilDestroyed(this))
           .subscribe(
-            /* istanbul ignore next */ file => {
+            file => {
               this.files.push(file);
               this.loading = false;
               this.cdr.markForCheck();
@@ -214,7 +207,7 @@ export class StorageElementComponent implements OnInit {
                   this.toastrService.success(success);
                 });
             },
-            /* istanbul ignore next */ () => {
+            () => {
               this.loading = false;
               this.cdr.markForCheck();
             }

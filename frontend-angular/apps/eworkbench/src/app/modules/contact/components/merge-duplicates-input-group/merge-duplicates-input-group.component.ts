@@ -43,7 +43,6 @@ export class MergeDuplicatesInputGroupComponent implements OnInit {
   public constructor(public readonly translocoService: TranslocoService, private readonly cdr: ChangeDetectorRef) {}
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.cdr.markForCheck();
     });

@@ -2,6 +2,8 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+import logging
+
 from distutils import util
 
 from django.conf import settings
@@ -29,6 +31,8 @@ from eric.projects.models import MyUser
 from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, \
     LockableViewSetMixIn
 from eric.site_preferences.models import options as site_preferences
+
+LOGGER = logging.getLogger(__name__)
 
 
 class PluginViewSet(
@@ -106,7 +110,10 @@ class PluginViewSet(
             to=[context['recipient_email']]
         )
         msg.attach_alternative(email_html_message, "text/html")
-        msg.send()
+        try:
+            msg.send()
+        except Exception as exc:
+            LOGGER.exception(exc)
 
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def feedback(self, request, *args, **kwargs):

@@ -248,7 +248,10 @@ class PublicUserViewSet(BaseGenericViewSet,
             to=[email]
         )
         msg.attach_alternative(email_html_message, "text/html")
-        msg.send()
+        try:
+            msg.send()
+        except Exception as exc:
+            logger.exception(exc)
 
         # serialize the user object
         serializer = self.get_serializer(user, many=False)

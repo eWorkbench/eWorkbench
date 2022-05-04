@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { Validators } from '@angular/forms';
 import { CommentsModalComponent } from '@app/modules/comment/components/modals/comments/comments.component';
 import { AuthService, LabBooksService, PluginInstancesService, WebSocketService } from '@app/services';
-import { LabBookElement, Lock, PluginInstance, PluginInstancePayload, Privileges, User } from '@eworkbench/types';
+import type { LabBookElement, Lock, PluginInstance, PluginInstancePayload, Privileges, User } from '@eworkbench/types';
 import { DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -21,7 +21,7 @@ interface ElementRemoval {
 }
 
 interface FormPluginData {
-  title: string | null;
+  title: FormControl<string | null>;
 }
 
 @UntilDestroy()
@@ -67,8 +67,8 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
 
   public refreshResetValue = new EventEmitter<boolean>();
 
-  public form: FormGroup<FormPluginData> = this.fb.group<FormPluginData>({
-    title: [null, [Validators.required]],
+  public form = this.fb.group<FormPluginData>({
+    title: this.fb.control(null, Validators.required),
   });
 
   public constructor(
@@ -83,12 +83,11 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
     private readonly modalService: DialogService
   ) {}
 
-  public get f(): FormGroup<FormPluginData>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -97,7 +96,6 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -116,26 +114,18 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
     this.initPrivileges();
 
     this.websocketService.subscribe([{ model: 'plugininstance', pk: this.initialState!.pk }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.initialState!.pk) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (
-          data.element_changed?.model_pk === this.initialState!.pk ||
-          data.element_relations_changed?.model_pk === this.initialState!.pk
-        ) {
-          this.getDetails();
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.initialState!.pk) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
 
-    /* istanbul ignore next */
+      if (data.element_changed?.model_pk === this.initialState!.pk || data.element_relations_changed?.model_pk === this.initialState!.pk) {
+        this.getDetails();
+        this.cdr.detectChanges();
+      }
+    });
+
     this.refreshElementRelations?.subscribe((event: { model_name: string; model_pk: string }) => {
       if (event.model_name === 'plugininstance' && event.model_pk === this.initialState!.pk) {
         this.refreshElementRelationsCounter();
@@ -152,7 +142,7 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
       .get(this.initialState!.pk, this.currentUser.pk)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const pluginInstance = privilegesData.data;
           const privileges = privilegesData.privileges;
 
@@ -170,7 +160,7 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
           this.refreshResetValue.next(true);
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -196,18 +186,16 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
     this.pluginInstancesService
       .get(this.initialState!.pk, this.currentUser.pk)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ privilegesData => {
-          const privileges = privilegesData.privileges;
-          this.privileges = { ...privileges };
+      .subscribe(privilegesData => {
+        const privileges = privilegesData.privileges;
+        this.privileges = { ...privileges };
 
-          if (!this.privileges.edit) {
-            this.form.disable({ emitEvent: false });
-          }
-
-          this.cdr.markForCheck();
+        if (!this.privileges.edit) {
+          this.form.disable({ emitEvent: false });
         }
-      );
+
+        this.cdr.markForCheck();
+      });
   }
 
   public onSubmit(): void {
@@ -220,7 +208,7 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
       .patch(this.initialState!.pk, this.pluginInstance)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ pluginInstance => {
+        pluginInstance => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.pluginInstancesService.unlock(this.initialState!.pk);
           }
@@ -238,7 +226,7 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -258,7 +246,6 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
   }
 
   public onOpenCommentsModal(): void {
-    /* istanbul ignore next */
     this.modalService.open(CommentsModalComponent, {
       closeButton: false,
       width: '912px',
@@ -270,12 +257,10 @@ export class LabBookDrawBoardPluginDataComponent implements OnInit {
     this.labBooksService
       .getElement(this.id, this.element.pk)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ element => {
-          this.element.num_related_comments = element.num_related_comments!;
-          this.element.num_relations = element.num_relations!;
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(element => {
+        this.element.num_related_comments = element.num_related_comments!;
+        this.element.num_relations = element.num_relations!;
+        this.cdr.markForCheck();
+      });
   }
 }

@@ -25,9 +25,9 @@ import { RemoveResourcePDFModalComponent } from '@app/modules/resource/component
 import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
-import { AuthService, PageTitleService, ProjectsService, ResourcesService, UserGroupsService, WebSocketService } from '@app/services';
-import { UserService, UserStore } from '@app/stores/user';
-import {
+import { AuthService, PageTitleService, ProjectsService, ResourcesService, WebSocketService } from '@app/services';
+import { UserStore } from '@app/stores/user';
+import type {
   BookingRulesPayload,
   DropdownElement,
   Lock,
@@ -40,24 +40,21 @@ import {
   User,
 } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, of, Subject } from 'rxjs';
-import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/operators';
+import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 import { NewResourceModalComponent } from '../modals/new/new.component';
 
 interface FormResource {
-  name: string | null;
-  type: 'ROOM' | 'LABEQ' | 'OFFEQ' | 'ITRES';
+  name: FormControl<string | null>;
+  type: FormControl<'ROOM' | 'LABEQ' | 'OFFEQ' | 'ITRES'>;
   contact: string | null;
   responsibleUnit: string | null;
   location: string | null;
-  userAvailability: 'GLB' | 'USR' | 'PRJ';
-  userAvailabilitySelectedUserGroups: string | null;
-  userAvailabilitySelectedUsers: number[] | null;
-  projects: string[];
+  projects: FormControl<string[]>;
   termsOfUsePDF: File | string | null;
   calendarInterval: number;
 }
@@ -85,10 +82,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
   public currentUser: User | null = null;
 
   public initialState?: Resource;
-
-  public userAvailabilitySelectedUsers: User[] = [];
-
-  public userAvailabilitySelectedUsersInput$ = new Subject<string>();
 
   public metadata?: Metadata[];
 
@@ -134,18 +127,15 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
 
   public userAvailabilitySelectedUserGroupsChoices: DropdownElement[] = [];
 
-  public form: FormGroup<FormResource> = this.fb.group({
-    name: [null, [Validators.required]],
-    type: ['ROOM', [Validators.required]],
-    contact: [null],
-    responsibleUnit: [null],
-    location: [null],
-    userAvailability: ['PRJ', [Validators.required]],
-    userAvailabilitySelectedUserGroups: [null],
-    userAvailabilitySelectedUsers: [[]],
-    projects: [[]],
-    termsOfUsePDF: [null],
-    calendarInterval: [30],
+  public form = this.fb.group<FormResource>({
+    name: this.fb.control(null, Validators.required),
+    type: this.fb.control('ROOM', Validators.required),
+    contact: null,
+    responsibleUnit: null,
+    location: null,
+    projects: this.fb.control([]),
+    termsOfUsePDF: null,
+    calendarInterval: 30,
   });
 
   public updateInProgress = false;
@@ -157,24 +147,21 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
     private readonly toastrService: ToastrService,
     private readonly translocoService: TranslocoService,
     private readonly modalService: DialogService,
-    private readonly userService: UserService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly authService: AuthService,
     private readonly websocketService: WebSocketService,
     private readonly projectsService: ProjectsService,
-    private readonly userGroupsService: UserGroupsService,
     private readonly pageTitleService: PageTitleService,
     private readonly titleService: Title,
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormResource>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -183,7 +170,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -200,11 +186,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       contact: this.f.contact.value ?? '',
       responsible_unit: this.f.responsibleUnit.value ?? '',
       location: this.f.location.value ?? '',
-      user_availability: this.f.userAvailability.value,
-      user_availability_selected_user_group_pks: this.f.userAvailabilitySelectedUserGroups.value
-        ? [Number(this.f.userAvailabilitySelectedUserGroups.value)]
-        : [],
-      user_availability_selected_user_pks: this.f.userAvailabilitySelectedUsers.value,
       booking_rule_minimum_time_before: this.bookingRules?.booking_rule_minimum_time_before as any,
       booking_rule_minimum_duration: this.bookingRules?.booking_rule_minimum_duration as any,
       booking_rule_maximum_time_before: this.bookingRules?.booking_rule_maximum_time_before as any,
@@ -219,7 +200,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -227,25 +207,21 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'resource', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id) {
-          if (this.lockUser.user && !this.lockUser.ownUser) {
-            this.modified = true;
-          } else {
-            this.modified = false;
-          }
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.element_changed?.model_pk === this.id) {
+        if (this.lockUser.user && !this.lockUser.ownUser) {
+          this.modified = true;
+        } else {
+          this.modified = false;
+        }
+        this.cdr.detectChanges();
+      }
+    });
 
     this.initTranslations();
     this.initSidebar();
@@ -281,21 +257,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
             label: resources.type.ITResource,
           },
         ];
-
-        this.userAvailabilityChoices = [
-          {
-            value: 'GLB',
-            label: resources.userAvailability.global,
-          },
-          {
-            value: 'PRJ',
-            label: resources.userAvailability.project,
-          },
-          {
-            value: 'USR',
-            label: resources.userAvailability.user,
-          },
-        ];
       });
   }
 
@@ -303,6 +264,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
+        skip(2),
         debounceTime(500),
         switchMap(() => {
           this.cdr.markForCheck();
@@ -321,74 +283,40 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
 
   public initSearchInput(): void {
-    this.userAvailabilitySelectedUsersInput$
-      .pipe(
-        untilDestroyed(this),
-        debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
-      )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.userAvailabilitySelectedUsers = [...users];
-            this.cdr.markForCheck();
-          }
-        }
-      );
-
     this.projectInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
-
-    this.userGroupsService
-      .get()
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ userGroups => {
-          this.userAvailabilitySelectedUserGroupsChoices = userGroups.map(group => ({
-            value: group.pk.toString(),
-            label: group.name,
-          }));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -409,77 +337,67 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const resource = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const resource = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                name: resource.name,
-                type: resource.type,
-                contact: resource.contact,
-                responsibleUnit: resource.responsible_unit,
-                location: resource.location,
-                userAvailability: resource.user_availability,
-                userAvailabilitySelectedUserGroups: resource.user_availability_selected_user_group_pks?.length
-                  ? resource.user_availability_selected_user_group_pks[0].toString()
-                  : null,
-                userAvailabilitySelectedUsers: resource.user_availability_selected_user_pks,
-                projects: resource.projects,
-                termsOfUsePDF: resource.terms_of_use_pdf,
-                calendarInterval: resource.calendar_interval,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              name: resource.name,
+              type: resource.type,
+              contact: resource.contact,
+              responsibleUnit: resource.responsible_unit,
+              location: resource.location,
+              projects: resource.projects,
+              termsOfUsePDF: resource.terms_of_use_pdf,
+              calendarInterval: resource.calendar_interval,
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
+              }),
+              switchMap(() => of(privilegesData))
+            );
           }
-        )
+
+          return of(privilegesData);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const resource = privilegesData.data;
           const privileges = privilegesData.privileges;
 
           this.detailsTitle = resource.name;
-          this.pageTitleService.set(resource.display);
+          void this.pageTitleService.set(resource.display);
 
           this.initialState = { ...resource };
-          this.userAvailabilitySelectedUsers = [...resource.user_availability_selected_users];
           this.privileges = { ...privileges };
 
           this.loading = false;
@@ -490,9 +408,9 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -512,13 +430,13 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.resource)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ resource => {
+        resource => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.resourcesService.unlock(this.id);
           }
 
           this.detailsTitle = resource.display;
-          this.pageTitleService.set(resource.display);
+          void this.pageTitleService.set(resource.display);
 
           this.initialState = { ...resource };
           this.form.markAsPristine();
@@ -538,7 +456,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -550,7 +468,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       const userStoreValue = this.userStore.getValue();
       const userSetting = 'SkipDialog-LeaveProject';
 
-      /* istanbul ignore next */
       const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
       if (skipLeaveDialog) {
@@ -560,7 +477,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -576,7 +493,7 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -588,9 +505,8 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
   }
 
   public onUploadPDF(event: Event): void {
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -618,7 +534,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       data: { id: this.id },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$
       .pipe(untilDestroyed(this), take(1))
       .subscribe((callback: { state: ModalState }) => this.onRemoveResourcePDFModalClose(callback));
@@ -626,7 +541,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
 
   public onRemoveResourcePDFModalClose(callback?: ModalCallback): void {
     if (callback?.state === ModalState.Changed) {
-      /* istanbul ignore next */
       this.onSubmit();
     }
   }
@@ -637,11 +551,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
 
   public onUpdateBookingRules(bookingRules: BookingRulesPayload): void {
     this.bookingRules = bookingRules;
-  }
-
-  public changeUserAvailabilitySelectedUsers(userAvailabilitySelectedUsers: User[]): void {
-    this.userAvailabilitySelectedUsers = [...userAvailabilitySelectedUsers];
-    this.cdr.markForCheck();
   }
 
   public onOpenNewCommentModal(): void {
@@ -655,7 +564,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
@@ -676,7 +584,6 @@ export class ResourcePageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.initialState = { ...callback.data };

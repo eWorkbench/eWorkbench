@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Privileges, PrivilegesApi } from '@eworkbench/types';
+import type { Privileges, PrivilegesApi } from '@eworkbench/types';
 
 @Injectable({
   providedIn: 'root',

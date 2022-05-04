@@ -6,9 +6,8 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { LabBookElementEvent, ModalCallback } from '@eworkbench/types';
+import type { LabBookElementEvent, ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { take } from 'rxjs/operators';
 import { ImportLabBookElementsModalComponent } from '../../components/modals/import-elements/import-elements.component';
@@ -55,7 +54,6 @@ export class LabBookSidebarComponent implements OnInit {
   public constructor(
     private readonly breakpointObserver: BreakpointObserver,
     private readonly cdr: ChangeDetectorRef,
-    private readonly translocoService: TranslocoService,
     private readonly modalService: DialogService
   ) {}
 
@@ -96,77 +94,70 @@ export class LabBookSidebarComponent implements OnInit {
   }
 
   public onOpenNewNoteElementModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLabBookNoteElementModalComponent, {
       closeButton: false,
       data: { labBookId: this.id, projects: this.projects },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenSketchModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLabBookSketchModalComponent, {
       closeButton: false,
       width: '652px',
       data: { labBookId: this.id, projects: this.projects },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenNewPictureElementModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLabBookPictureElementModalComponent, {
       closeButton: false,
       data: { labBookId: this.id, projects: this.projects },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenNewFileElementModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLabBookFileElementModalComponent, {
       closeButton: false,
       data: { labBookId: this.id, projects: this.projects },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenNewPluginElementModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLabBookPluginElementModalComponent, {
       closeButton: false,
       width: '1200px',
       data: { labBookId: this.id, projects: this.projects },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onOpenImportModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(ImportLabBookElementsModalComponent, {
       closeButton: false,
       enableClose: false,
       data: { labBookId: this.id, projects: this.projects },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$
       .pipe(untilDestroyed(this), take(1))
       .subscribe((callback: ModalCallback) => this.onImportModalClose(callback));
   }
 
   public onOpenNewSectionModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLabBookSectionElementModalComponent, {
       closeButton: false,
       data: { projects: this.projects },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 

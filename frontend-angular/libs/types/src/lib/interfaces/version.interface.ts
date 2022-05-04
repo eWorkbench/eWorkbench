@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { DMPFormData } from './dmp.interface';
-import { User } from './user.interface';
+import type { DMPFormData } from './dmp.interface';
+import type { User } from './user.interface';
 
 // TODO: Version interfaces differ. Maybe <any> would be better in this case.
 export interface Version {

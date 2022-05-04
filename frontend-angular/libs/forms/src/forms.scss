@@ -333,7 +333,11 @@ a.ewb-button-regular {
     border-radius: 0;
     min-height: 34px;
     border-color: $border-color;
-    background-color: #ffffff;
+    background-color: #f4f4f4;
+
+    &.ng-has-value {
+      background-color: #ffffff;
+    }
 
     &:hover {
       box-shadow: none;

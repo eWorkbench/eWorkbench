@@ -6,9 +6,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { PicturesService } from '@app/services';
-import { Picture } from '@eworkbench/types';
+import type { Picture } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -23,9 +22,5 @@ export class PictureEditorModalComponent {
 
   public state = ModalState.Unchanged;
 
-  public constructor(
-    public readonly modalRef: DialogRef,
-    public readonly picturesService: PicturesService,
-    private readonly translocoService: TranslocoService
-  ) {}
+  public constructor(public readonly modalRef: DialogRef, public readonly picturesService: PicturesService) {}
 }

@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -18,13 +16,6 @@ import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
 import { AlertModule } from 'ngx-bootstrap/alert';
-import { DMPModule } from '../dmp/dmp.module';
-import { LabelModule } from '../label/label.module';
-import { LoadingModule } from '../loading/loading.module';
-import { MetadataModule } from '../metadata/metadata.module';
-import { SharedModule } from '../shared/shared.module';
-import { TaskModule } from '../task/task.module';
-import { UserModule } from '../user/user.module';
 import { FinalizeVersionModalComponent } from './components/modals/finalize/finalize.component';
 import { VersionPreviewModalComponent } from './components/modals/preview/preview.component';
 import { AppointmentPreviewComponent } from './components/previews/appointment/appointment.component';
@@ -37,6 +28,13 @@ import { PicturePreviewComponent } from './components/previews/picture/picture.c
 import { PluginDataPreviewComponent } from './components/previews/plugin-data/plugin-data.component';
 import { TaskPreviewComponent } from './components/previews/task/task.component';
 import { VersionsComponent } from './components/versions/versions.component';
+import { DMPModule } from '../dmp/dmp.module';
+import { LabelModule } from '../label/label.module';
+import { LoadingModule } from '../loading/loading.module';
+import { MetadataModule } from '../metadata/metadata.module';
+import { SharedModule } from '../shared/shared.module';
+import { TaskModule } from '../task/task.module';
+import { UserModule } from '../user/user.module';
 
 @NgModule({
   declarations: [
@@ -97,5 +95,4 @@ import { VersionsComponent } from './components/versions/versions.component';
     DMPPreviewComponent,
   ],
 })
-/* istanbul ignore next */
 export class VersionsModule {}

@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -7,14 +5,14 @@
 
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { HttpErrorResponse } from '@angular/common/http';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { NewTaskModalComponent } from '@app/modules/task/components/modals/new/new.component';
 import { AuthService, LabelsService, TaskBoardsService, WebSocketService } from '@app/services';
 import { UserState, UserStore } from '@app/stores/user';
-import {
+import type {
   KanbanTask,
   Label,
   ModalCallback,
@@ -28,7 +26,7 @@ import {
 } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { BacklogModalComponent } from '../modals/backlog/backlog.component';
 import { ColumnDetailsModalComponent } from '../modals/column-details/column-details.component';
@@ -106,7 +104,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
     });
 
-    /* istanbul ignore next */
     this.setFilter?.pipe(untilDestroyed(this)).subscribe(filter => {
       this.filter = filter;
       this.cdr.markForCheck();
@@ -123,7 +120,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.taskBoard()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loadData();
 
           this.websocketService.subscribe([{ model: 'kanbanboard', pk: this.id }]);
@@ -146,9 +143,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -161,29 +158,25 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     return this.authService.user$.pipe(
       untilDestroyed(this),
       take(1),
-      map(
-        /* istanbul ignore next */ (state: NonNullable<UserState>) => {
-          const user = state.user!;
-          this.currentUser = { ...user };
-          this.cdr.markForCheck();
+      map((state: NonNullable<UserState>) => {
+        const user = state.user!;
+        this.currentUser = { ...user };
+        this.cdr.markForCheck();
 
-          return user;
-        }
-      ),
-      switchMap(user => {
-        return this.taskBoardsService.get(this.id, user.pk!).pipe(
+        return user;
+      }),
+      switchMap(user =>
+        this.taskBoardsService.get(this.id, user.pk!).pipe(
           untilDestroyed(this),
-          map(
-            /* istanbul ignore next */ privilegesData => {
-              const privileges = privilegesData.privileges;
+          map(privilegesData => {
+            const privileges = privilegesData.privileges;
 
-              this.privileges = { ...privileges };
+            this.privileges = { ...privileges };
 
-              return privilegesData;
-            }
-          )
-        );
-      })
+            return privilegesData;
+          })
+        )
+      )
     );
   }
 
@@ -217,8 +210,8 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           column.tasks = [];
         }
       }),
-      switchMap(() => {
-        return this.tasks.pipe(
+      switchMap(() =>
+        this.tasks.pipe(
           map(task => {
             for (const data of task) {
               if (data.task.deleted) continue;
@@ -230,8 +223,8 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
             }
             return columns;
           })
-        );
-      })
+        )
+      )
     );
   }
 
@@ -300,46 +293,43 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   public onRemove(taskId: string): void {
     for (const column of this.columns) {
-      column.tasks = column.tasks?.filter(task => task.pk !== taskId) as KanbanTask[];
+      column.tasks = column.tasks?.filter(task => task.pk !== taskId);
     }
     this.columns = [...this.columns];
   }
 
   public openBacklogModal(column?: string): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(BacklogModalComponent, {
       closeButton: false,
       width: '100%',
       data: { taskBoardId: this.id, column },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public openNewTaskModal(column?: string): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewTaskModalComponent, {
       closeButton: false,
       enableClose: false,
       data: { taskBoardId: this.id, initialState: { projects: this.projects }, column },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public openColumnDetailsModal(column: TaskBoardColumn): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(ColumnDetailsModalComponent, {
       closeButton: false,
       data: { column, taskBoardId: this.id, columns: this.columns },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onRemoveColumn(column: TaskBoardColumn): void {
     const userStoreValue = this.userStore.getValue();
-    /* istanbul ignore next */
+
     const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-DeleteColumn']);
 
     if (skipTrashDialog) {
@@ -350,7 +340,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         windowClass: 'modal-danger',
         data: { column, taskBoardId: this.id, columns: this.columns },
       });
-      /* istanbul ignore next */
+
       this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
     }
   }
@@ -363,23 +353,21 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
     let order = 1;
     const columns: TaskBoardColumn[] = this.columns
-      .filter(/* istanbul ignore next */ (col: TaskBoardColumn) => col.pk !== column.pk)
-      .map(
-        /* istanbul ignore next */ (col: TaskBoardColumn) => {
-          col.ordering = order++;
-          return col;
-        }
-      );
+      .filter((col: TaskBoardColumn) => col.pk !== column.pk)
+      .map((col: TaskBoardColumn) => {
+        col.ordering = order++;
+        return col;
+      });
 
     this.taskBoardsService
       .moveColumn(this.id, columns)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

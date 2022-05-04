@@ -1,13 +1,11 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { HttpParams } from '@angular/common/http';
+import type { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ExportLink, Privileges, PrivilegesApi, RecentChanges, Relation, Version } from '@eworkbench/types';
+import type { ExportLink, Privileges, PrivilegesApi, RecentChanges, Relation, Version } from '@eworkbench/types';
 import { Observable, of } from 'rxjs';
 import { mockGenericTableViewChildDataList, mockGenericTableViewDataList } from './data';
 import { mockExportLink } from './export-link';

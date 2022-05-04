@@ -78,7 +78,7 @@ class ResourceBookingsTest(APITestCase, CommonTestMixin, AuthenticationMixin, Us
             name="Test Resource 1",
             description="Test Description",
             resource_type=Resource.ROOM,
-            user_availability=Resource.GLOBAL,
+            general_usage_setting=Resource.GLOBAL,
             **HTTP_INFO
         )
         self.resource1 = Resource.objects.get(pk=json.loads(self.resource1.content.decode())["pk"])

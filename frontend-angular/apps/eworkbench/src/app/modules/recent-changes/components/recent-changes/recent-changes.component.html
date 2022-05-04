@@ -295,45 +295,45 @@
             </ng-container>
           </ng-container>
 
-          <ng-container *ngIf="isResourceAvailabilityField(row.object_type.model, change.field_name)">
+          <ng-container *ngIf="isResourceGeneralUsageSettingField(row.object_type.model, change.field_name)">
             {{ formatFieldName(change.field_name) }}
             <ng-container *ngIf="row.changeset_type === 'I'">
               {{ t('recentChanges.createDetailsWasSetTo') }}
-              <eworkbench-resource-availability class="inline-block" [availability]="change.new_value"></eworkbench-resource-availability>
+              <eworkbench-resource-usage-setting class="inline-block" [usageSetting]="change.new_value"></eworkbench-resource-usage-setting>
             </ng-container>
             <ng-container *ngIf="row.changeset_type !== 'I'">
               {{ t('recentChanges.changeDetailsWasChangedFrom') }}
-              <eworkbench-resource-availability class="inline-block" [availability]="change.old_value"></eworkbench-resource-availability>
+              <eworkbench-resource-usage-setting class="inline-block" [usageSetting]="change.old_value"></eworkbench-resource-usage-setting>
               {{ t('recentChanges.changeDetailsWasChangedTo') }}
-              <eworkbench-resource-availability class="inline-block" [availability]="change.new_value"></eworkbench-resource-availability>
+              <eworkbench-resource-usage-setting class="inline-block" [usageSetting]="change.new_value"></eworkbench-resource-usage-setting>
             </ng-container>
           </ng-container>
 
-          <ng-container *ngIf="isResourceAvailabilitySelectedUserGroupsField(row.object_type.model, change.field_name)">
+          <ng-container *ngIf="isResourceUsageSettingSelectedUserGroupsField(row.object_type.model, change.field_name)">
             {{ formatFieldName(change.field_name) }}
             <ng-container *ngIf="row.changeset_type === 'I'">
               {{ t('recentChanges.createDetailsWasSetTo') }}
-              <eworkbench-recent-changes-resource-availability-user-groups
+              <eworkbench-recent-changes-resource-usage-setting-user-groups
                 class="inline-block"
                 [value]="change.new_value"
                 *ngIf="change.new_value"
-              ></eworkbench-recent-changes-resource-availability-user-groups>
+              ></eworkbench-recent-changes-resource-usage-setting-user-groups>
               <ng-container *ngIf="!change.new_value">'-'</ng-container>
             </ng-container>
             <ng-container *ngIf="row.changeset_type !== 'I'">
               {{ t('recentChanges.changeDetailsWasChangedFrom') }}
-              <eworkbench-recent-changes-resource-availability-user-groups
+              <eworkbench-recent-changes-resource-usage-setting-user-groups
                 class="inline-block"
                 [value]="change.old_value"
                 *ngIf="change.old_value"
-              ></eworkbench-recent-changes-resource-availability-user-groups>
+              ></eworkbench-recent-changes-resource-usage-setting-user-groups>
               <ng-container *ngIf="!change.old_value">'-'</ng-container>
               {{ t('recentChanges.changeDetailsWasChangedTo') }}
-              <eworkbench-recent-changes-resource-availability-user-groups
+              <eworkbench-recent-changes-resource-usage-setting-user-groups
                 class="inline-block"
                 [value]="change.new_value"
                 *ngIf="change.new_value"
-              ></eworkbench-recent-changes-resource-availability-user-groups>
+              ></eworkbench-recent-changes-resource-usage-setting-user-groups>
               <ng-container *ngIf="!change.new_value">'-'</ng-container>
             </ng-container>
           </ng-container>

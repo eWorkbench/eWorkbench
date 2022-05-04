@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, T
 import { CommentsState } from '@app/enums/comments-state.enum';
 import { SitePreferencesService } from '@app/services';
 import { TableColumn, TableSortDirection, TableViewComponent } from '@eworkbench/table';
-import { DropdownElement, SitePreferences } from '@eworkbench/types';
+import type { DropdownElement, SitePreferences } from '@eworkbench/types';
 import { FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -106,13 +106,11 @@ export class CommentsComponent implements OnInit {
     this.sitePreferencesService
       .get()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ (preferences: SitePreferences) => {
-          this.params = this.params.set('with_content_type', preferences.content_types['shared_elements.comment']);
-          this.initialLoading = false;
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe((preferences: SitePreferences) => {
+        this.params = this.params.set('with_content_type', preferences.content_types['shared_elements.comment']);
+        this.initialLoading = false;
+        this.cdr.markForCheck();
+      });
   }
 
   public loadComments(): void {

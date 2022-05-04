@@ -94,7 +94,9 @@ export class WysiwygEditorComponent implements ControlValueAccessor, OnInit, Aft
   @ViewChild(EditorComponent)
   public editor?: EditorComponent;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public onChanged: any = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public onTouched: any = () => {};
 
   public constructor(@Self() public readonly ngControl: NgControl, private readonly cdr: ChangeDetectorRef) {

@@ -5,8 +5,7 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { NotificationsService } from '@app/services/notifications/notifications.service';
-import { Notification } from '@eworkbench/types';
-import { TranslocoService } from '@ngneat/transloco';
+import type { Notification } from '@eworkbench/types';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -26,11 +25,7 @@ export class NotificationElementComponent {
   @Input()
   public collapsed = true;
 
-  public constructor(
-    public readonly notificationService: NotificationsService,
-    private readonly translocoService: TranslocoService,
-    private readonly cdr: ChangeDetectorRef
-  ) {}
+  public constructor(public readonly notificationService: NotificationsService, private readonly cdr: ChangeDetectorRef) {}
 
   public onRead(notification: Notification): void {
     notification.read = true;

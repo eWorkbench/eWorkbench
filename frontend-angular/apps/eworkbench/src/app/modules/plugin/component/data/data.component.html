@@ -5,5 +5,5 @@
 
 <div class="plugin-data p-2">
   <img class="max-w-full h-auto" [src]="dataPicture || pluginLogo" [alt]="pluginTitle" (click)="onActivate()" *ngIf="!active" />
-  <iframe [src]="safeAuthURL()" *ngIf="active"></iframe>
+  <iframe [src]="safeAuthURL()" [style.height.px]="pluginHeight ?? 500" *ngIf="active"></iframe>
 </div>

@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -14,7 +12,6 @@ import { IconsModule } from '@eworkbench/icons';
 import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
-import { LoadingModule } from '../loading/loading.module';
 import { CollapseElementComponent } from './collapse-element/collapse-element.component';
 import { CustomControlErrorComponent } from './control-error/control-error.component';
 import { DetailsCollapseElementComponent } from './details-collapse-element/details-collapse-element.component';
@@ -34,6 +31,7 @@ import { StripHTMLPipe } from './pipes/strip-html/strip-html.pipe';
 import { SecondaryCollapseElementComponent } from './secondary-collapse-element/secondary-collapse-element.component';
 import { CustomToastComponent } from './toastr/toastr.component';
 import { TrashedItemsFilterComponent } from './trashed-items-filter/trashed-items-filter.component';
+import { LoadingModule } from '../loading/loading.module';
 
 @NgModule({
   declarations: [

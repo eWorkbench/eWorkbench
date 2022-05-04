@@ -1,0 +1,23 @@
+{
+  "projectType": "library",
+  "root": "libs/gantt-chart",
+  "sourceRoot": "libs/gantt-chart/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/gantt-chart"],
+      "options": {
+        "jestConfig": "libs/gantt-chart/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["libs/gantt-chart/**/*.ts", "libs/gantt-chart/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

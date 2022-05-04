@@ -41,7 +41,7 @@ export class NotificationsPageComponent implements OnInit {
   public ngOnInit(): void {
     this.initTranslations();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -50,7 +50,7 @@ export class NotificationsPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
 
     this.translocoService

@@ -16,15 +16,14 @@ import {
 } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBooksService } from '@app/services';
-import { DatePickerConfig, LabBookElement, LabBookElementEvent, ModalCallback } from '@eworkbench/types';
+import type { DatePickerConfig, LabBookElement, LabBookElementEvent, ModalCallback } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
-import { TranslocoService } from '@ngneat/transloco';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import flatpickr from 'flatpickr';
 import { take } from 'rxjs/operators';
 import { NewLabBookSectionElementModalComponent } from '../../modals/new/section/new.component';
-import { LabBookDrawBoardElementComponent } from '../element/element.component';
+import type { LabBookDrawBoardElementComponent } from '../element/element.component';
 import { LabBookPendingChangesModalComponent } from '../modals/pending-changes/pending-changes.component';
 
 interface FormSearch {
@@ -77,33 +76,32 @@ export class LabBookSearchBarComponent implements AfterViewInit {
   };
 
   public form = this.fb.group<FormSearch>({
-    startDate: [null],
-    endDate: [null],
+    startDate: null,
+    endDate: null,
   });
 
   public constructor(
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
     private readonly modalService: DialogService,
-    private readonly labBooksService: LabBooksService,
-    private readonly translocoService: TranslocoService
+    private readonly labBooksService: LabBooksService
   ) {}
 
-  public get f(): FormGroup<FormSearch>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public ngAfterViewInit(): void {
     flatpickr('#startDate', {
       ...this.datePickerConfig,
-      onChange: (selectedDate, dateStr) => {
+      onChange: (_, dateStr) => {
         this.f.startDate.setValue(dateStr);
         this.onSetFilter();
       },
     });
     flatpickr('#endDate', {
       ...this.datePickerConfig,
-      onChange: (selectedDate, dateStr) => {
+      onChange: (_, dateStr) => {
         this.f.endDate.setValue(dateStr);
         this.onSetFilter();
       },
@@ -142,7 +140,7 @@ export class LabBookSearchBarComponent implements AfterViewInit {
       .getElements(this.id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBookElements => {
+        labBookElements => {
           this.sections = labBookElements.filter(element => {
             const elementDate = new Date(Date.parse(element.child_object.date));
             return element.child_object_content_type_model === 'labbooks.labbooksection' && elementDate >= start && elementDate <= end;
@@ -151,7 +149,7 @@ export class LabBookSearchBarComponent implements AfterViewInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -159,12 +157,11 @@ export class LabBookSearchBarComponent implements AfterViewInit {
   }
 
   public onOpenNewSectionModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewLabBookSectionElementModalComponent, {
       closeButton: false,
       data: { projects: this.projects },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
@@ -180,12 +177,11 @@ export class LabBookSearchBarComponent implements AfterViewInit {
       return;
     }
 
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(LabBookPendingChangesModalComponent, {
       closeButton: false,
       data: { id },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.switchSectionStates(id);

@@ -8,9 +8,9 @@ import { Validators } from '@angular/forms';
 import { CommentsModalComponent } from '@app/modules/comment/components/modals/comments/comments.component';
 import { PictureEditorModalComponent } from '@app/modules/picture/modals/editor.component';
 import { AuthService, LabBooksService, PicturesService, WebSocketService } from '@app/services';
-import { LabBookElement, Lock, Picture, PicturePayload, Privileges, User } from '@eworkbench/types';
+import type { LabBookElement, Lock, Picture, PicturePayload, Privileges, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -23,7 +23,7 @@ interface ElementRemoval {
 }
 
 interface FormPicture {
-  title: string | null;
+  title: FormControl<string | null>;
 }
 
 @UntilDestroy()
@@ -71,8 +71,8 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
 
   public refreshResetValue = new EventEmitter<boolean>();
 
-  public form: FormGroup<FormPicture> = this.fb.group<FormPicture>({
-    title: [null, [Validators.required]],
+  public form = this.fb.group<FormPicture>({
+    title: this.fb.control(null, Validators.required),
   });
 
   public constructor(
@@ -87,12 +87,11 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
     private readonly modalService: DialogService
   ) {}
 
-  public get f(): FormGroup<FormPicture>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -101,7 +100,6 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -120,17 +118,13 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
     this.initPrivileges();
 
     this.websocketService.subscribe([{ model: 'picture', pk: this.initialState!.pk }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.initialState!.pk) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.initialState!.pk) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+    });
 
-    /* istanbul ignore next */
     this.refreshElementRelations?.subscribe((event: { model_name: string; model_pk: string }) => {
       if (event.model_name === 'picture' && event.model_pk === this.initialState!.pk) {
         this.refreshElementRelationsCounter();
@@ -157,18 +151,16 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
     this.picturesService
       .get(this.initialState!.pk, this.currentUser.pk)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ privilegesData => {
-          const privileges = privilegesData.privileges;
-          this.privileges = { ...privileges };
+      .subscribe(privilegesData => {
+        const privileges = privilegesData.privileges;
+        this.privileges = { ...privileges };
 
-          if (!this.privileges.edit) {
-            this.form.disable({ emitEvent: false });
-          }
-
-          this.cdr.markForCheck();
+        if (!this.privileges.edit) {
+          this.form.disable({ emitEvent: false });
         }
-      );
+
+        this.cdr.markForCheck();
+      });
   }
 
   public onSubmit(): void {
@@ -181,7 +173,7 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
       .patch(this.initialState!.pk, this.picture)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ picture => {
+        picture => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.picturesService.unlock(this.initialState!.pk);
           }
@@ -199,7 +191,7 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -219,7 +211,6 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
   }
 
   public onOpenCommentsModal(): void {
-    /* istanbul ignore next */
     this.modalService.open(CommentsModalComponent, {
       closeButton: false,
       width: '912px',
@@ -228,20 +219,18 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
   }
 
   public onOpenPictureEditorModal(event: Event): void {
-    /* istanbul ignore next */
     event.preventDefault();
 
     if (!this.editable) {
       return;
     }
 
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(PictureEditorModalComponent, {
       closeButton: false,
       width: 'auto',
       data: { service: this.picturesService, initialState: this.initialState },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe(() => this.onModalClose());
   }
 
@@ -249,26 +238,22 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
     this.picturesService
       .get(this.initialState!.pk, this.currentUser!.pk!)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ privilegesData => {
-          const picture = privilegesData.data;
-          this.element.child_object = { ...picture };
-          this.initDetails();
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(privilegesData => {
+        const picture = privilegesData.data;
+        this.element.child_object = { ...picture };
+        this.initDetails();
+        this.cdr.markForCheck();
+      });
   }
 
   public refreshElementRelationsCounter(): void {
     this.labBooksService
       .getElement(this.id, this.element.pk)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ element => {
-          this.element.num_related_comments = element.num_related_comments!;
-          this.element.num_relations = element.num_relations!;
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(element => {
+        this.element.num_related_comments = element.num_related_comments!;
+        this.element.num_relations = element.num_relations!;
+        this.cdr.markForCheck();
+      });
   }
 }

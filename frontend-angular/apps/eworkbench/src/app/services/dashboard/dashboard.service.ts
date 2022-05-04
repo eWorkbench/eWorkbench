@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { Dashboard } from '@eworkbench/types';
+import type { Dashboard } from '@eworkbench/types';
+import type { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

@@ -5,8 +5,8 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { cloneDeep } from 'lodash';
-import { TableColumnChangedEvent } from '../../interfaces/table-column-changed-event.interface';
-import { TableColumn } from '../../interfaces/table-column.interface';
+import type { TableColumnChangedEvent } from '../../interfaces/table-column-changed-event.interface';
+import type { TableColumn } from '../../interfaces/table-column.interface';
 
 @Component({
   selector: 'eworkbench-table-manage-columns',

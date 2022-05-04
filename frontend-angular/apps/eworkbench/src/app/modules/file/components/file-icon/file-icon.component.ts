@@ -4,7 +4,6 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -17,6 +16,4 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 export class FileIconComponent {
   @Input()
   public mime!: string;
-
-  public constructor(private readonly translocoService: TranslocoService) {}
 }

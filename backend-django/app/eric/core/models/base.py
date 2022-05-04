@@ -9,6 +9,7 @@ from contextlib import contextmanager
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, IntegrityError
+from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import *
 from django.dispatch import receiver
@@ -318,8 +319,16 @@ class LockMixin:
         return ElementLock.objects.for_model(
             self.__class__, self.pk
         ).filter(
-            # must be locked within the last 15 minutes
-            locked_at__gte=timezone.now() - timezone.timedelta(minutes=site_preferences.element_lock_time_in_minutes)
+            Q(
+                locked_at__gte=timezone.now() - timezone.timedelta(
+                    minutes=site_preferences.element_lock_time_in_minutes),
+                webdav_lock=False
+            ) | Q(
+                locked_at__gte=timezone.now() - timezone.timedelta(
+                    minutes=site_preferences.element_lock_webdav_time_in_minutes),
+                webdav_lock=True
+            )
+
         )
 
     def has_lock(self):
@@ -335,7 +344,7 @@ class LockMixin:
             locked_by=get_current_user()
         ).exists()
 
-    def lock(self):
+    def lock(self, webdav=False):
         """
         Lock an element
         :return:
@@ -344,7 +353,9 @@ class LockMixin:
         lock = self.get_lock_element().first()
         # update the lock if it does exist
         if lock:
-            lock = self.update_lock(lock)
+            if lock.webdav_lock:
+                webdav = True
+            lock = self.update_lock(lock, webdav=webdav)
         # create a new one if it does not exist
         else:
             from eric.projects.models import ElementLock
@@ -352,7 +363,8 @@ class LockMixin:
             lock = ElementLock.objects.create(
                 object_id=self.pk,
                 content_type=self.get_content_type(),
-                locked_by=get_current_user()
+                locked_by=get_current_user(),
+                webdav_lock=webdav,
             )
 
         # remove all existing locks for this element
@@ -371,13 +383,14 @@ class LockMixin:
             self.__class__, self.pk
         ).delete()
 
-    def update_lock(self, lock):
+    def update_lock(self, lock, webdav=False):
         """
         Update the lock
         :return:
         """
         try:
             lock.locked_at = timezone.now()
+            lock.webdav_lock = webdav
             lock.save()
         except IntegrityError as e:
             # ticket-284549 requires some additional debugging,

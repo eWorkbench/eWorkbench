@@ -27,6 +27,7 @@ export interface LabBookElementEvent {
   childObjectContentTypeModel: string;
   parentElement: string;
   position: 'top' | 'bottom';
+  height?: number;
 }
 
 export interface LabBookElementPayload {

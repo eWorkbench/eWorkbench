@@ -386,6 +386,7 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
             raise ResponseException(HttpResponseBadRequest(_("Not uploading until the file is named")))
 
         self.obj.save()
+        self.obj.lock(webdav=True)
 
     # override this method to make sure we are creating the collection within a drive
     def create_collection_in_db(self, parent, name):
@@ -450,3 +451,4 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
         self.obj = new_obj
 
         self.obj.save(force_insert=True)
+        self.obj.lock(webdav=True)

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Metadata } from './metadata.interface';
-import { User } from './user.interface';
+import type { Metadata } from './metadata.interface';
+import type { User } from './user.interface';
 
 export interface ContactPayload {
   academic_title: string;

@@ -62,7 +62,7 @@ class StudyRoomExportMixin:
             'name': name,
             'description': 'Resource Description',
             'resource_type': resource_type,
-            'user_availability': Resource.GLOBAL,
+            'general_usage_setting': Resource.GLOBAL,
         }
 
         resource, response = self.create_resource_orm(**data)

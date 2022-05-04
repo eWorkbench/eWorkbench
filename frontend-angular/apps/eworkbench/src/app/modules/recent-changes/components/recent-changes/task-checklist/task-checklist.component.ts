@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { TaskChecklist } from '@eworkbench/types';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import type { TaskChecklist } from '@eworkbench/types';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
@@ -27,7 +27,7 @@ export class RecentChangesTaskChecklistComponent implements OnInit {
 
   public checklistControl = this.fb.control<TaskChecklist[]>([]);
 
-  public constructor(private readonly fb: FormBuilder, private readonly cdr: ChangeDetectorRef) {}
+  public constructor(private readonly fb: FormBuilder) {}
 
   public ngOnInit(): void {
     this.patchFormValues();

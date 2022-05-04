@@ -7,10 +7,10 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { Router } from '@angular/router';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { AuthService, ProjectsService, RolesService } from '@app/services';
-import { TableColumn } from '@eworkbench/table';
-import { ModalCallback, ProjectMember, ProjectPrivileges, Role, User } from '@eworkbench/types';
+import type { TableColumn } from '@eworkbench/table';
+import type { ModalCallback, ProjectMember, ProjectPrivileges, Role, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormArray, FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormArray, FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { take } from 'rxjs/operators';
 import { ChangeProjectMemberRoleModalComponent } from './modals/change-role/change-role.component';
@@ -70,8 +70,7 @@ export class ProjectMembersComponent implements OnInit {
     private readonly authService: AuthService
   ) {}
 
-  public get f(): FormGroup['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -104,38 +103,34 @@ export class ProjectMembersComponent implements OnInit {
     this.rolesService
       .get()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ roles => {
-          this.loading = false;
-          this.roles = [...roles];
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(roles => {
+        this.loading = false;
+        this.roles = [...roles];
+        this.cdr.markForCheck();
+      });
   }
 
   public initMembers(): void {
     this.projectService
       .getMembers(this.id)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ members => {
-          this.loading = false;
-          if (this.fRoles.length) {
-            this.fRoles.clear();
-          }
-          members = members.sort((a, b) => this.order.indexOf(a.role.name) - this.order.indexOf(b.role.name));
-          for (const member of members) {
-            this.fRoles.push(this.fb.control(member.role_pk));
-          }
-          this.data = [...members];
-
-          if (!this.projectPrivileges.editRoles) {
-            this.form.disable({ emitEvent: false });
-          }
-
-          this.cdr.markForCheck();
+      .subscribe(members => {
+        this.loading = false;
+        if (this.fRoles.length) {
+          this.fRoles.clear();
         }
-      );
+        members = members.sort((a, b) => this.order.indexOf(a.role.name) - this.order.indexOf(b.role.name));
+        for (const member of members) {
+          this.fRoles.push(this.fb.control(member.role_pk));
+        }
+        this.data = [...members];
+
+        if (!this.projectPrivileges.editRoles) {
+          this.form.disable({ emitEvent: false });
+        }
+
+        this.cdr.markForCheck();
+      });
   }
 
   public onExpandChange(data: ProjectMember, expanded: boolean): void {
@@ -173,38 +168,34 @@ export class ProjectMembersComponent implements OnInit {
   }
 
   public openNewProjectMemberModal(id: string, users?: ProjectMember[]): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewProjectMemberModalComponent, {
       closeButton: false,
       data: { id, users, projectPrivileges: this.projectPrivileges },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public openExternalUserModal(id: string): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(ExternalUserModalComponent, {
       closeButton: false,
       data: { id },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public openRemoveProjectMemberModal(user: User): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(RemoveProjectMemberModalComponent, {
       closeButton: false,
       data: { projectId: this.id, member: this.data.find(member => member.user_pk === user.pk) },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public openChangeProjectMemberRoleModal(user: User): void {
     if (user.pk === this.currentUser?.pk) {
-      /* istanbul ignore next */
       this.modalService.open(ChangeProjectMemberRoleModalComponent, {
         closeButton: false,
       });
@@ -213,7 +204,7 @@ export class ProjectMembersComponent implements OnInit {
 
   public onModalClose(callback?: ModalCallback): void {
     if (callback?.navigate) {
-      this.router.navigate(callback.navigate);
+      void this.router.navigate(callback.navigate);
     } else if (callback?.state === ModalState.Changed) {
       this.initMembers();
     } else if (callback?.state === ModalState.Unchanged) {

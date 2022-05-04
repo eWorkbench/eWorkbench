@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Contact } from './contact.interface';
-import { DMP } from './dmp.interface';
-import { File } from './file.interface';
-import { Project } from './project.interface';
-import { Resource } from './resource.interface';
-import { KanbanTask } from './task.interface';
+import type { Contact } from './contact.interface';
+import type { DMP } from './dmp.interface';
+import type { File } from './file.interface';
+import type { Project } from './project.interface';
+import type { Resource } from './resource.interface';
+import type { KanbanTask } from './task.interface';
 
 export interface Dashboard {
   contacts: Contact[];

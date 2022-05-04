@@ -22,7 +22,7 @@ import { TaskBoardComponent } from '@app/modules/task-board/components/task-boar
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, PageTitleService, ProjectsService, TaskBoardsService, WebSocketService } from '@app/services';
 import { UserService, UserStore } from '@app/stores/user';
-import {
+import type {
   Lock,
   ModalCallback,
   Privileges,
@@ -34,7 +34,7 @@ import {
   User,
 } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -42,8 +42,8 @@ import { from, Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 
 interface FormTaskBoard {
-  title: string | null;
-  projects: string[];
+  title: FormControl<string | null>;
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -145,9 +145,9 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
 
   private priorityFilters: string[] = ['VHIGH', 'HIGH', 'NORM', 'LOW', 'VLOW'];
 
-  public form: FormGroup<FormTaskBoard> = this.fb.group({
-    title: [null, [Validators.required]],
-    projects: [[]],
+  public form = this.fb.group<FormTaskBoard>({
+    title: this.fb.control(null, Validators.required),
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -168,13 +168,11 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormTaskBoard>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -183,7 +181,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -223,7 +220,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -231,25 +227,21 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'kanbanboard', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id) {
-          if (this.lockUser.user && !this.lockUser.ownUser) {
-            this.modified = true;
-          } else {
-            this.modified = false;
-          }
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.element_changed?.model_pk === this.id) {
+        if (this.lockUser.user && !this.lockUser.ownUser) {
+          this.modified = true;
+        } else {
+          this.modified = false;
+        }
+        this.cdr.detectChanges();
+      }
+    });
 
     this.taskBoardsService
       .getFilterSettings(this.id)
@@ -282,9 +274,9 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
           mergeMap(id =>
             this.projectsService.get(id).pipe(
               untilDestroyed(this),
-              catchError(() => {
-                return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-              })
+              catchError(() =>
+                of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+              )
             )
           ),
           map(project => {
@@ -303,6 +295,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
+        skip(1),
         debounceTime(500),
         switchMap(() => {
           this.cdr.markForCheck();
@@ -321,37 +314,91 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
 
   public initSearch(): void {
-    this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ user => {
+    this.usersControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(user => {
+      this.setFilter.next({
+        assignee: this.assigneesControl.value,
+        user,
+        project: this.projectsControl.value,
+        search: this.searchControl.value,
+        priority: this.priorityFilters,
+        state: this.stateFilters,
+        favorite: this.favoritesControl.value,
+      });
+    });
+
+    this.assigneesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(assignee => {
+      this.setFilter.next({
+        assignee,
+        user: this.usersControl.value,
+        project: this.projectsControl.value,
+        search: this.searchControl.value,
+        priority: this.priorityFilters,
+        state: this.stateFilters,
+        favorite: this.favoritesControl.value,
+      });
+    });
+
+    this.projectsControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(project => {
+      this.setFilter.next({
+        assignee: this.assigneesControl.value,
+        user: this.usersControl.value,
+        project,
+        search: this.searchControl.value,
+        priority: this.priorityFilters,
+        state: this.stateFilters,
+        favorite: this.favoritesControl.value,
+      });
+
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
+      }
+    });
+
+    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(search => {
+      this.setFilter.next({
+        assignee: this.assigneesControl.value,
+        user: this.usersControl.value,
+        project: this.projectsControl.value,
+        search,
+        priority: this.priorityFilters,
+        state: this.stateFilters,
+        favorite: this.favoritesControl.value,
+      });
+
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
+      }
+    });
+
+    this.veryHighCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.priorityFilters.filter(params => params !== 'VHIGH');
+
+      if (value) {
+        this.priorityFilters = [...params, 'VHIGH'];
         this.setFilter.next({
           assignee: this.assigneesControl.value,
-          user,
+          user: this.usersControl.value,
           project: this.projectsControl.value,
           search: this.searchControl.value,
           priority: this.priorityFilters,
           state: this.stateFilters,
           favorite: this.favoritesControl.value,
         });
-      }
-    );
-
-    this.assigneesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ assignee => {
+      } else {
+        this.priorityFilters = [...params];
         this.setFilter.next({
-          assignee,
+          assignee: this.assigneesControl.value,
           user: this.usersControl.value,
           project: this.projectsControl.value,
           search: this.searchControl.value,
@@ -360,345 +407,263 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
           favorite: this.favoritesControl.value,
         });
       }
-    );
 
-    this.projectsControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ project => {
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
+      }
+    });
+
+    this.highCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.priorityFilters.filter(params => params !== 'HIGH');
+
+      if (value) {
+        this.priorityFilters = [...params, 'HIGH'];
         this.setFilter.next({
           assignee: this.assigneesControl.value,
           user: this.usersControl.value,
-          project,
+          project: this.projectsControl.value,
           search: this.searchControl.value,
           priority: this.priorityFilters,
           state: this.stateFilters,
           favorite: this.favoritesControl.value,
         });
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
-      }
-    );
-
-    this.searchControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ search => {
+      } else {
+        this.priorityFilters = [...params];
         this.setFilter.next({
           assignee: this.assigneesControl.value,
           user: this.usersControl.value,
           project: this.projectsControl.value,
-          search,
+          search: this.searchControl.value,
           priority: this.priorityFilters,
           state: this.stateFilters,
           favorite: this.favoritesControl.value,
         });
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
       }
-    );
 
-    this.veryHighCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.priorityFilters.filter(params => params !== 'VHIGH');
-
-        if (value) {
-          this.priorityFilters = [...params, 'VHIGH'];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        } else {
-          this.priorityFilters = [...params];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
       }
-    );
+    });
 
-    this.highCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.priorityFilters.filter(params => params !== 'HIGH');
+    this.normalCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.priorityFilters.filter(params => params !== 'NORM');
 
-        if (value) {
-          this.priorityFilters = [...params, 'HIGH'];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        } else {
-          this.priorityFilters = [...params];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (value) {
+        this.priorityFilters = [...params, 'NORM'];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
+      } else {
+        this.priorityFilters = [...params];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
       }
-    );
 
-    this.normalCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.priorityFilters.filter(params => params !== 'NORM');
-
-        if (value) {
-          this.priorityFilters = [...params, 'NORM'];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        } else {
-          this.priorityFilters = [...params];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
       }
-    );
+    });
 
-    this.lowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.priorityFilters.filter(params => params !== 'LOW');
+    this.lowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.priorityFilters.filter(params => params !== 'LOW');
 
-        if (value) {
-          this.priorityFilters = [...params, 'LOW'];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        } else {
-          this.priorityFilters = [...params];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (value) {
+        this.priorityFilters = [...params, 'LOW'];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
+      } else {
+        this.priorityFilters = [...params];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
       }
-    );
 
-    this.veryLowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.priorityFilters.filter(params => params !== 'VLOW');
-
-        if (value) {
-          this.priorityFilters = [...params, 'VLOW'];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        } else {
-          this.priorityFilters = [...params];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
       }
-    );
+    });
 
-    this.newCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.stateFilters.filter(params => params !== 'NEW');
+    this.veryLowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.priorityFilters.filter(params => params !== 'VLOW');
 
-        if (value) {
-          this.stateFilters = [...params, 'NEW'];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        } else {
-          this.stateFilters = [...params];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (value) {
+        this.priorityFilters = [...params, 'VLOW'];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
+      } else {
+        this.priorityFilters = [...params];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
       }
-    );
 
-    this.progressCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.stateFilters.filter(params => params !== 'PROG');
-
-        if (value) {
-          this.stateFilters = [...params, 'PROG'];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        } else {
-          this.stateFilters = [...params];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
       }
-    );
+    });
 
-    this.doneCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        const params = this.stateFilters.filter(params => params !== 'DONE');
+    this.newCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.stateFilters.filter(params => params !== 'NEW');
 
-        if (value) {
-          this.stateFilters = [...params, 'DONE'];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        } else {
-          this.stateFilters = [...params];
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: this.favoritesControl.value,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (value) {
+        this.stateFilters = [...params, 'NEW'];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
+      } else {
+        this.stateFilters = [...params];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
       }
-    );
 
-    this.favoritesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(
-      /* istanbul ignore next */ value => {
-        if (value) {
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: value,
-          });
-        } else {
-          this.setFilter.next({
-            assignee: this.assigneesControl.value,
-            user: this.usersControl.value,
-            project: this.projectsControl.value,
-            search: this.searchControl.value,
-            priority: this.priorityFilters,
-            state: this.stateFilters,
-            favorite: null,
-          });
-        }
-
-        if (this.savedFilters) {
-          this.onSaveFilters(true);
-        }
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
       }
-    );
+    });
+
+    this.progressCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.stateFilters.filter(params => params !== 'PROG');
+
+      if (value) {
+        this.stateFilters = [...params, 'PROG'];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
+      } else {
+        this.stateFilters = [...params];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
+      }
+
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
+      }
+    });
+
+    this.doneCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      const params = this.stateFilters.filter(params => params !== 'DONE');
+
+      if (value) {
+        this.stateFilters = [...params, 'DONE'];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
+      } else {
+        this.stateFilters = [...params];
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: this.favoritesControl.value,
+        });
+      }
+
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
+      }
+    });
+
+    this.favoritesControl.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
+      if (value) {
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: value,
+        });
+      } else {
+        this.setFilter.next({
+          assignee: this.assigneesControl.value,
+          user: this.usersControl.value,
+          project: this.projectsControl.value,
+          search: this.searchControl.value,
+          priority: this.priorityFilters,
+          state: this.stateFilters,
+          favorite: null,
+        });
+      }
+
+      if (this.savedFilters) {
+        this.onSaveFilters(true);
+      }
+    });
   }
 
   public initSearchInput(): void {
@@ -706,59 +671,51 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.users = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.users = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.assigneesInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.userService.search(input) : of([])))
+        switchMap(input => (input ? this.userService.search(input) : of([])))
       )
-      .subscribe(
-        /* istanbul ignore next */ users => {
-          if (users.length) {
-            this.assignees = [...users];
-            this.cdr.markForCheck();
-          }
+      .subscribe(users => {
+        if (users.length) {
+          this.assignees = [...users];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectsInput$
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initUserSettings(): void {
@@ -813,7 +770,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
 
     this.loading = false;
 
-    this.pageTitleService.set(board.display);
+    void this.pageTitleService.set(board.display);
 
     this.initDetails(privilegesData);
     this.initUserSettings();
@@ -821,11 +778,10 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   }
 
   public openNewColumnModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(NewTaskBoardColumnModalComponent, {
       closeButton: false,
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$
       .pipe(untilDestroyed(this), take(1))
       .subscribe((callback: ModalCallback) => this.onNewColumnModalClose(callback));
@@ -841,7 +797,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.taskBoard)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.form.markAsPristine();
           this.refreshChanges.next(true);
           this.refreshLinkList.next(true);
@@ -857,7 +813,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -869,7 +825,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       const userStoreValue = this.userStore.getValue();
       const userSetting = 'SkipDialog-LeaveProject';
 
-      /* istanbul ignore next */
       const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
       if (skipLeaveDialog) {
@@ -879,7 +834,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -895,7 +850,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -913,21 +868,20 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
         .pipe(
           untilDestroyed(this),
           take(1),
-          switchMap(
-            /* istanbul ignore next */ ([filters]) =>
-              this.taskBoardsService.upsertFilterSettings(
-                this.id,
-                {
-                  ...filters,
-                  kanban_board_pk: this.id,
-                  settings: {
-                    active: true,
-                    projects: this.projectsControl.value,
-                    search: this.searchControl.value,
-                  },
+          switchMap(([filters]) =>
+            this.taskBoardsService.upsertFilterSettings(
+              this.id,
+              {
+                ...filters,
+                kanban_board_pk: this.id,
+                settings: {
+                  active: true,
+                  projects: this.projectsControl.value,
+                  search: this.searchControl.value,
                 },
-                filters?.pk
-              )
+              },
+              filters?.pk
+            )
           )
         )
         .subscribe();
@@ -937,19 +891,18 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
         .pipe(
           untilDestroyed(this),
           take(1),
-          switchMap(
-            /* istanbul ignore next */ ([filters]) =>
-              this.taskBoardsService.upsertFilterSettings(
-                this.id,
-                {
-                  ...filters,
-                  kanban_board_pk: this.id,
-                  settings: {
-                    active: false,
-                  },
+          switchMap(([filters]) =>
+            this.taskBoardsService.upsertFilterSettings(
+              this.id,
+              {
+                ...filters,
+                kanban_board_pk: this.id,
+                settings: {
+                  active: false,
                 },
-                filters?.pk
-              )
+              },
+              filters?.pk
+            )
           )
         )
         .subscribe();
@@ -1023,25 +976,23 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   }
 
   public openSettingsModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(SettingsModalComponent, {
       closeButton: false,
       enableClose: false,
       width: '620px',
       data: { taskBoard: this.initialState!, userSettings: this.userSettings },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public openBacklogModal(): void {
-    /* istanbul ignore next */
     this.modalRef = this.modalService.open(BacklogModalComponent, {
       closeButton: false,
       width: '100%',
       data: { taskBoardId: this.initialState!.pk, column: this.initialState!.kanban_board_columns[0].pk! },
     });
-    /* istanbul ignore next */
+
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
@@ -1068,7 +1019,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
@@ -1089,7 +1039,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.initialState = { ...callback.data };

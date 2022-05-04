@@ -6,7 +6,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { UserDetailsModalComponent } from '@app/modules/user/components/modals/user-details/user-details.component';
 import { AuthService } from '@app/services';
-import { Note, Relation, User } from '@eworkbench/types';
+import type { Note, Relation, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -62,18 +62,15 @@ export class CommentComponent implements OnInit {
     this.service
       .putRelation(this.comment.right_object_id, this.comment.pk, this.comment)
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */
-        (result: Relation) => {
-          const toastMsg = result.private
-            ? this.translocoService.translate('comments.private.toastr.success')
-            : this.translocoService.translate('comments.public.toastr.success');
+      .subscribe((result: Relation) => {
+        const toastMsg = result.private
+          ? this.translocoService.translate('comments.private.toastr.success')
+          : this.translocoService.translate('comments.public.toastr.success');
 
-          this.loading = false;
-          this.cdr.markForCheck();
-          this.toastrService.success(toastMsg);
-        }
-      );
+        this.loading = false;
+        this.cdr.markForCheck();
+        this.toastrService.success(toastMsg);
+      });
   }
 
   public openUserModal(): void {

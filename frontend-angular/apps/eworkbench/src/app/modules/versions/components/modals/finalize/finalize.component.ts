@@ -4,13 +4,13 @@
  */
 
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { TranslocoService } from '@ngneat/transloco';
 import { ModalState } from '@app/enums/modal-state.enum';
-import { ToastrService } from 'ngx-toastr';
-import { FormGroup, FormBuilder } from '@ngneat/reactive-forms';
-import { FinalizeVersion } from '@eworkbench/types';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import type { FinalizeVersion } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
+import { FormBuilder } from '@ngneat/reactive-forms';
+import { TranslocoService } from '@ngneat/transloco';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ToastrService } from 'ngx-toastr';
 
 interface FormFinalizeVersion {
   summary: string | null;
@@ -44,8 +44,7 @@ export class FinalizeVersionModalComponent {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  public get f(): FormGroup<FormFinalizeVersion>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -65,7 +64,7 @@ export class FinalizeVersionModalComponent {
       .addVersion(this.id, this.version)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state });
           this.translocoService
@@ -75,7 +74,7 @@ export class FinalizeVersionModalComponent {
               this.toastrService.success(versionFinalized);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

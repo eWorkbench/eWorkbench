@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { CustomButtonInput } from '@fullcalendar/angular';
+import type { CustomButtonInput } from '@fullcalendar/angular';
 
 export interface CalendarDayHeaderFormat {
   weekday?: 'short' | 'long';

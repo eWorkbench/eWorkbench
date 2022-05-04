@@ -1,12 +1,10 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Appointment, AppointmentPayload, DjangoAPI, RecentChanges, Version } from '@eworkbench/types';
-import { DateSelectArg, DatesSetArg } from '@fullcalendar/angular';
+import type { Appointment, AppointmentPayload, DjangoAPI, RecentChanges, Version } from '@eworkbench/types';
+import type { DateSelectArg, DatesSetArg } from '@fullcalendar/angular';
 import { mockUser } from './user';
 
 export const mockAppointmentPayload: AppointmentPayload = {
@@ -131,10 +129,11 @@ export const mockAppointmentDatesSetEvent: DatesSetArg = {
   start: mockAppointmentStartDate,
   startStr: mockAppointmentStartDate.toISOString(),
   timeZone: 'local',
-  // @ts-ignore
+  // @ts-expect-error
   view: {
     calendar: {} as any,
     getCurrentData: {},
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     getOption: () => {},
     title: 'July 2020',
     dateEnv: {

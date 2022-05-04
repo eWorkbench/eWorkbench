@@ -2,21 +2,28 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+import logging
+
 from django.conf import settings
 from django.core.mail import send_mail as django_send_mail
 from django.template.loader import render_to_string
 
 from eric.site_preferences.models import options as site_preferences
 
+LOGGER = logging.getLogger(__name__)
+
 
 def send_mail(subject, message, to_email, html_message=None):
-    return django_send_mail(
-        subject=f'{site_preferences.site_name}: {subject}',
-        message=message,
-        from_email=site_preferences.email_from,
-        recipient_list=[to_email],
-        html_message=html_message,
-    )
+    try:
+        return django_send_mail(
+            subject=f'{site_preferences.site_name}: {subject}',
+            message=message,
+            from_email=site_preferences.email_from,
+            recipient_list=[to_email],
+            html_message=html_message,
+        )
+    except Exception as exc:
+        LOGGER.exception(exc)
 
 
 def send_notification_mail(user, title, message, notification=None):
@@ -30,7 +37,10 @@ def send_notification_mail(user, title, message, notification=None):
     }
     html = render_to_string('email/single_notification_email.html', context)
     plaintext = render_to_string('email/single_notification_email.txt', context)
-    send_mail(subject=title, message=plaintext, html_message=html, to_email=user.email)
+    try:
+        send_mail(subject=title, message=plaintext, html_message=html, to_email=user.email)
+    except Exception as exc:
+        LOGGER.exception(exc)
 
 
 def is_user_notification_allowed(user, notification_type):

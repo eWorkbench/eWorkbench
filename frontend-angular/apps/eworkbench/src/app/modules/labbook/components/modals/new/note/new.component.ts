@@ -7,16 +7,16 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, On
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { LabBooksService, NotesService } from '@app/services';
-import { DropdownElement, LabBookElementEvent, ModalCallback, NotePayload } from '@eworkbench/types';
+import type { DropdownElement, LabBookElementEvent, ModalCallback, NotePayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 
 interface FormElement {
-  parentElement: string | null;
-  position: 'top' | 'bottom';
+  parentElement: FormControl<string | null>;
+  position: FormControl<'top' | 'bottom'>;
 }
 
 @UntilDestroy()
@@ -43,8 +43,8 @@ export class NewLabBookNoteElementModalComponent implements OnInit {
   public position: DropdownElement[] = [];
 
   public form = this.fb.group<FormElement>({
-    parentElement: ['labBook', [Validators.required]],
-    position: ['bottom', [Validators.required]],
+    parentElement: this.fb.control('labBook', Validators.required),
+    position: this.fb.control('bottom', Validators.required),
   });
 
   public constructor(
@@ -57,8 +57,7 @@ export class NewLabBookNoteElementModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormElement>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -105,7 +104,7 @@ export class NewLabBookNoteElementModalComponent implements OnInit {
       .getElements(this.labBookId)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBookElements => {
+        labBookElements => {
           const sections: DropdownElement[] = [];
 
           labBookElements.map(element => {
@@ -121,7 +120,7 @@ export class NewLabBookNoteElementModalComponent implements OnInit {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -138,7 +137,7 @@ export class NewLabBookNoteElementModalComponent implements OnInit {
       .add(this.note)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ note => {
+        note => {
           this.state = ModalState.Changed;
           const event: LabBookElementEvent = {
             childObjectId: note.pk,
@@ -155,7 +154,7 @@ export class NewLabBookNoteElementModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ModalState } from '@app/enums/modal-state.enum';
+import type { ModalState } from '@app/enums/modal-state.enum';
 
 export interface ModalCallback {
   state?: ModalState;

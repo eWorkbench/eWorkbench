@@ -1,0 +1,27 @@
+{
+  "root": "apps/eworkbench-e2e",
+  "sourceRoot": "apps/eworkbench-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/eworkbench-e2e/cypress.json",
+        "devServerTarget": "eworkbench:serve:development"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "eworkbench:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["apps/eworkbench-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["eworkbench"]
+}

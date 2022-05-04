@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -15,13 +13,13 @@ import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
+import { EditAppointmentModalComponent } from './components/modals/edit/edit.component';
+import { NewAppointmentModalComponent } from './components/modals/new/new.component';
 import { FormHelperModule } from '../form-helper/form-helper.module';
 import { LoadingModule } from '../loading/loading.module';
 import { LockModule } from '../lock/lock.module';
 import { SharedModule } from '../shared/shared.module';
 import { UserModule } from '../user/user.module';
-import { EditAppointmentModalComponent } from './components/modals/edit/edit.component';
-import { NewAppointmentModalComponent } from './components/modals/new/new.component';
 
 @NgModule({
   declarations: [NewAppointmentModalComponent, EditAppointmentModalComponent],

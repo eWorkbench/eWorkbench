@@ -14,18 +14,18 @@ import { NewCommentModalComponent } from '@app/modules/comment/components/modals
 import { PluginDetailsModalComponent } from '@app/modules/plugin/component/modals/details/details.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { AuthService, PageTitleService, PluginInstancesService, ProjectsService, WebSocketService } from '@app/services';
-import { Lock, Metadata, ModalCallback, PluginInstance, PluginInstancePayload, Privileges, Project, User } from '@eworkbench/types';
+import type { Lock, Metadata, ModalCallback, PluginInstance, PluginInstancePayload, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl, FormGroup } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, of, Subject } from 'rxjs';
-import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/operators';
+import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 
 interface FormPluginInstance {
-  title: string | null;
-  projects: string[];
+  title: FormControl<string | null>;
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -75,9 +75,9 @@ export class PluginPageComponent implements OnInit, OnDestroy {
 
   public projectInput$ = new Subject<string>();
 
-  public form: FormGroup<FormPluginInstance> = this.fb.group<FormPluginInstance>({
-    title: [null, [Validators.required]],
-    projects: [[]],
+  public form = this.fb.group<FormPluginInstance>({
+    title: this.fb.control(null, Validators.required),
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -101,7 +101,6 @@ export class PluginPageComponent implements OnInit, OnDestroy {
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -110,7 +109,6 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -123,7 +121,6 @@ export class PluginPageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -131,21 +128,17 @@ export class PluginPageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'plugininstance', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id || data.element_relations_changed?.model_pk === this.id) {
-          this.initDetails(false, true);
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.element_changed?.model_pk === this.id || data.element_relations_changed?.model_pk === this.id) {
+        this.initDetails(false, true);
+        this.cdr.detectChanges();
+      }
+    });
 
     this.initSidebar();
     this.initSearchInput();
@@ -161,6 +154,7 @@ export class PluginPageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
+        skip(1),
         debounceTime(500),
         switchMap(() => {
           if (!this.lock?.locked) {
@@ -178,14 +172,12 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
@@ -195,29 +187,25 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -238,63 +226,59 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const plugin = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const plugin = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                title: plugin.title,
-                projects: plugin.projects,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              title: plugin.title,
+              projects: plugin.projects,
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
+              }),
+              switchMap(() => of(privilegesData))
+            );
           }
-        )
+
+          return of(privilegesData);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const pluginInstance = privilegesData.data;
           const privileges = privilegesData.privileges;
 
           this.detailsTitle = pluginInstance.display;
-          this.pageTitleService.set(pluginInstance.display);
+          void this.pageTitleService.set(pluginInstance.display);
 
           this.initialState = { ...pluginInstance };
           this.privileges = { ...privileges };
@@ -311,9 +295,9 @@ export class PluginPageComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -332,13 +316,13 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.plugin)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ pluginInstance => {
+        pluginInstance => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.pluginInstancesService.unlock(this.id);
           }
 
           this.detailsTitle = pluginInstance.display;
-          this.pageTitleService.set(pluginInstance.display);
+          void this.pageTitleService.set(pluginInstance.display);
 
           this.initialState = { ...pluginInstance };
           this.form.markAsPristine();
@@ -357,7 +341,7 @@ export class PluginPageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -369,7 +353,7 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -402,7 +386,6 @@ export class PluginPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
@@ -415,10 +398,8 @@ export class PluginPageComponent implements OnInit, OnDestroy {
   }
 
   public onOpenPluginDetailsModal(event: Event): void {
-    /* istanbul ignore next */
     event.preventDefault();
 
-    /* istanbul ignore next */
     this.modalService.open(PluginDetailsModalComponent, {
       closeButton: false,
       width: '60%',

@@ -5,7 +5,7 @@
 
 import { Pipe, PipeTransform } from '@angular/core';
 import { ContentTypeModelService } from '@app/services';
-import { ContentTypeModelItem, ContentTypeModels } from '@eworkbench/types';
+import type { ContentTypeModelItem, ContentTypeModels } from '@eworkbench/types';
 
 @Pipe({
   name: 'formatContentTypeModel',

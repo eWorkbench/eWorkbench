@@ -10,7 +10,7 @@ import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { AuthService, ProjectsSidebarModelService } from '@app/services';
 import { CMSService } from '@app/stores/cms/services/cms.service';
 import { UserService, UserStore } from '@app/stores/user';
-import { ProjectSidebarModelItem, ProjectSidebarModels } from '@eworkbench/types';
+import type { ProjectSidebarModelItem, ProjectSidebarModels } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -48,33 +48,27 @@ export class ProjectSidebarComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    this.authService.user$.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ state => {
-        const menuModels = Object.keys(this.projectsSidebarModelService.models);
-        const menuModelsUISettings = (state.user?.userprofile.ui_settings?.projects_sidebar ?? []) as string[];
+    this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
+      const menuModels = Object.keys(this.projectsSidebarModelService.models);
+      const menuModelsUISettings = (state.user?.userprofile.ui_settings?.projects_sidebar ?? []) as string[];
 
-        this.elements = [...menuModels];
+      this.elements = [...menuModels];
 
-        // We must check if menu items have been added or removed from the service models and update the UI setting in the user's profile
-        if (menuModelsUISettings.length) {
-          const itemsToRemove = menuModelsUISettings.filter((settingsField: string) => {
-            return !menuModels.some((modelField: string) => {
-              return settingsField === modelField;
-            });
-          });
-          const itemsToAdd = menuModels.filter((modelField: string) => {
-            return !menuModelsUISettings.some((settingsField: string) => {
-              return modelField === settingsField;
-            });
-          });
-          this.elements = [...menuModelsUISettings.filter(element => !itemsToRemove.includes(element)), ...itemsToAdd];
+      // We must check if menu items have been added or removed from the service models and update the UI setting in the user's profile
+      if (menuModelsUISettings.length) {
+        const itemsToRemove = menuModelsUISettings.filter(
+          (settingsField: string) => !menuModels.some((modelField: string) => settingsField === modelField)
+        );
+        const itemsToAdd = menuModels.filter(
+          (modelField: string) => !menuModelsUISettings.some((settingsField: string) => modelField === settingsField)
+        );
+        this.elements = [...menuModelsUISettings.filter(element => !itemsToRemove.includes(element)), ...itemsToAdd];
 
-          if (itemsToRemove.length || itemsToAdd.length) {
-            this.save(false);
-          }
+        if (itemsToRemove.length || itemsToAdd.length) {
+          this.save(false);
         }
       }
-    );
+    });
 
     this.cmsService.get$.pipe(untilDestroyed(this)).subscribe(({ maintenance }) => {
       this.cmsMessageShown = maintenance.visible;
@@ -83,7 +77,6 @@ export class ProjectSidebarComponent implements OnInit {
   }
 
   public onSidebarDrop(event: CdkDragDrop<any>): void {
-    /* istanbul ignore next */
     moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     this.elements = [...this.elements];
   }
@@ -93,34 +86,30 @@ export class ProjectSidebarComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(
-          /* istanbul ignore next */ state => {
-            const currentUser = state.user;
+        switchMap(state => {
+          const currentUser = state.user;
 
-            return this.userService.changeSettings({
-              userprofile: {
-                ui_settings: {
-                  ...currentUser?.userprofile.ui_settings,
-                  projects_sidebar: [...this.elements],
-                },
+          return this.userService.changeSettings({
+            userprofile: {
+              ui_settings: {
+                ...currentUser?.userprofile.ui_settings,
+                projects_sidebar: [...this.elements],
               },
-            });
-          }
-        )
+            },
+          });
+        })
       )
-      .subscribe(
-        /* istanbul ignore next */ user => {
-          this.userStore.update(() => ({ user }));
-          this.translocoService
-            .selectTranslate('project.details.sidebar.toastr.success.updated')
-            .pipe(untilDestroyed(this))
-            .subscribe(updated => {
-              if (notification) {
-                this.toastrService.success(updated);
-              }
-            });
-        }
-      );
+      .subscribe(user => {
+        this.userStore.update(() => ({ user }));
+        this.translocoService
+          .selectTranslate('project.details.sidebar.toastr.success.updated')
+          .pipe(untilDestroyed(this))
+          .subscribe(updated => {
+            if (notification) {
+              this.toastrService.success(updated);
+            }
+          });
+      });
   }
 
   public getSidebarModel(model: ProjectSidebarModels | string): ProjectSidebarModelItem | null {

@@ -8,9 +8,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { DrivesService, FilesService, ProjectsService } from '@app/services';
-import { Directory, File, FilePayload, Project } from '@eworkbench/types';
+import type { Directory, File, FilePayload, Project } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
@@ -18,12 +18,12 @@ import { from, of, Subject } from 'rxjs';
 import { catchError, debounceTime, map, mergeMap, switchMap } from 'rxjs/operators';
 
 interface FormFile {
-  title: string | null;
+  title: FormControl<string | null>;
   name: string | null;
-  file: globalThis.File | string | null;
+  file: FormControl<globalThis.File | string | null>;
   storage: string | null;
   description: string | null;
-  projects: string[];
+  projects: FormControl<string[]>;
   duplicateMetadata: boolean;
 }
 
@@ -56,13 +56,13 @@ export class NewFileModalComponent implements OnInit {
   public filePlaceholder = this.translocoService.translate('file.newModal.file.placeholder');
 
   public form = this.fb.group<FormFile>({
-    title: [null, [Validators.required]],
-    name: [null],
-    file: [null, [Validators.required]],
-    storage: [null],
-    description: [null],
-    projects: [[]],
-    duplicateMetadata: [true],
+    title: this.fb.control(null, Validators.required),
+    name: null,
+    file: this.fb.control(null, Validators.required),
+    storage: null,
+    description: null,
+    projects: this.fb.control([]),
+    duplicateMetadata: true,
   });
 
   public constructor(
@@ -76,7 +76,7 @@ export class NewFileModalComponent implements OnInit {
     private readonly drivesService: DrivesService
   ) {}
 
-  public get f(): FormGroup<FormFile>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -123,29 +123,25 @@ export class NewFileModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public patchFormValues(): void {
@@ -164,7 +160,6 @@ export class NewFileModalComponent implements OnInit {
 
       this.f.file.disable({ emitEvent: false });
 
-      /* istanbul ignore next */
       if (this.initialState.projects.length) {
         from(this.initialState.projects)
           .pipe(
@@ -172,28 +167,25 @@ export class NewFileModalComponent implements OnInit {
             mergeMap(id =>
               this.projectsService.get(id).pipe(
                 untilDestroyed(this),
-                catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-                })
+                catchError(() =>
+                  of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+                )
               )
             )
           )
-          .subscribe(
-            /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project]
-                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-              this.cdr.markForCheck();
-            }
-          );
+          .subscribe(project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          });
       }
     }
   }
 
   public onUpload(event: Event): void {
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -222,7 +214,7 @@ export class NewFileModalComponent implements OnInit {
         })
       )
       .subscribe(
-        /* istanbul ignore next */ file => {
+        file => {
           this.state = ModalState.Changed;
           this.modalRef.close({
             state: this.state,
@@ -236,7 +228,7 @@ export class NewFileModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

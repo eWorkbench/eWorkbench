@@ -4,10 +4,10 @@
  */
 
 import { Component, Input, ChangeDetectorRef, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
+import type { TableViewComponent, TreeViewComponent } from '@eworkbench/table';
 import { TranslocoService } from '@ngneat/transloco';
-import { TableViewComponent, TreeViewComponent } from '@eworkbench/table';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ToastrService } from 'ngx-toastr';
 
 @UntilDestroy()
 @Component({
@@ -47,7 +47,7 @@ export class RestoreButtonComponent {
       .restore(id)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.tableView?.loadData();
           this.restored.emit(true);
           this.loading = false;
@@ -59,7 +59,7 @@ export class RestoreButtonComponent {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.restored.emit(false);
           this.loading = false;
           this.cdr.markForCheck();

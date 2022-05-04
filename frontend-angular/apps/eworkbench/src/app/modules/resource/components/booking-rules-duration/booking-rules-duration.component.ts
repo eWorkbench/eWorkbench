@@ -5,16 +5,11 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { BookingRuleDuration, BookingRulePayload, DatePickerConfig } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { BookingRuleDuration, BookingRulePayload, DatePickerConfig } from '@eworkbench/types';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import flatpickr from 'flatpickr';
 import { v4 as uuidv4 } from 'uuid';
-
-interface FormDuration {
-  days: number | null;
-  duration: string | null;
-}
 
 interface RuleValues {
   days: number;
@@ -66,20 +61,18 @@ export class ResourceBookingRulesDurationComponent implements OnInit {
     time_24hr: true,
   };
 
-  public form = this.fb.group<FormDuration>({
+  public form = this.fb.group({
     days: [0, [Validators.required]],
     duration: ['00:00', [Validators.required]],
   });
 
   public constructor(private readonly fb: FormBuilder) {}
 
-  public get f(): FormGroup<FormDuration>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.pushChanges();
     });
@@ -129,7 +122,9 @@ export class ResourceBookingRulesDurationComponent implements OnInit {
   }
 
   public pushChanges(): void {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const daysValue = this.f.days.value ?? 0;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const durationValue = this.f.duration.value ?? '00:00';
     const duration = `${daysValue} ${durationValue}:00`;
 

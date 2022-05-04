@@ -22,26 +22,26 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
-import { LabBookDrawBoardComponent } from '@app/modules/labbook/components/draw-board/draw-board/draw-board.component';
+import type { LabBookDrawBoardComponent } from '@app/modules/labbook/components/draw-board/draw-board/draw-board.component';
 import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
 import { AuthService, LabBooksService, PageTitleService, ProjectsService, WebSocketService } from '@app/services';
 import { UserStore } from '@app/stores/user';
-import { LabBook, LabBookPayload, Lock, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
+import type { LabBook, LabBookPayload, Lock, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, of, Subject } from 'rxjs';
-import { catchError, debounceTime, map, mergeMap, switchMap, take } from 'rxjs/operators';
+import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 import { NewLabBookModalComponent } from '../modals/new/new.component';
 
 interface FormLabBook {
-  title: string | null;
+  title: FormControl<string | null>;
   isTemplate: boolean;
-  projects: string[];
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -98,10 +98,10 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
 
   public projectInput$ = new Subject<string>();
 
-  public form: FormGroup<FormLabBook> = this.fb.group({
-    title: [null, [Validators.required]],
-    isTemplate: [false],
-    projects: [[]],
+  public form = this.fb.group<FormLabBook>({
+    title: this.fb.control(null, Validators.required),
+    isTemplate: false,
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -121,12 +121,11 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
     private readonly userStore: UserStore
   ) {}
 
-  public get f(): FormGroup<FormLabBook>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -135,7 +134,6 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -153,7 +151,6 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -161,21 +158,17 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'labbook', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.labbook_child_element_changed?.model_pk === this.id) {
-          this.refreshChanges.next(true);
-          this.refreshVersions.next(true);
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.labbook_child_element_changed?.model_pk === this.id) {
+        this.refreshChanges.next(true);
+        this.refreshVersions.next(true);
+      }
+    });
 
     this.initSidebar();
     this.initSearchInput();
@@ -191,6 +184,7 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
+        skip(1),
         debounceTime(500),
         switchMap(() => {
           this.cdr.markForCheck();
@@ -209,14 +203,12 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       if (params.projectId) {
         this.showSidebar = true;
 
-        this.projectsService.get(params.projectId).subscribe(
-          /* istanbul ignore next */ project => {
-            this.projects = [...this.projects, project]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
-        );
+        this.projectsService.get(params.projectId).subscribe(project => {
+          this.projects = [...this.projects, project]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
+        });
       }
     });
   }
@@ -226,29 +218,25 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public initPageTitle(): void {
@@ -269,64 +257,60 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const labBook = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const labBook = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                title: labBook.title,
-                isTemplate: labBook.is_template,
-                projects: labBook.projects,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              title: labBook.title,
+              isTemplate: labBook.is_template,
+              projects: labBook.projects,
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        ),
-        switchMap(
-          /* istanbul ignore next */ privilegesData => {
-            if (privilegesData.data.projects.length) {
-              return from(privilegesData.data.projects).pipe(
-                mergeMap(id =>
-                  this.projectsService.get(id).pipe(
-                    untilDestroyed(this),
-                    catchError(() => {
-                      return of({
-                        pk: id,
-                        name: this.translocoService.translate('formInput.unknownProject'),
-                        is_favourite: false,
-                      } as Project);
-                    })
+
+          return privilegesData;
+        }),
+        switchMap(privilegesData => {
+          if (privilegesData.data.projects.length) {
+            return from(privilegesData.data.projects).pipe(
+              mergeMap(id =>
+                this.projectsService.get(id).pipe(
+                  untilDestroyed(this),
+                  catchError(() =>
+                    of({
+                      pk: id,
+                      name: this.translocoService.translate('formInput.unknownProject'),
+                      is_favourite: false,
+                    } as Project)
                   )
-                ),
-                map(project => {
-                  this.projects = [...this.projects, project]
-                    .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                    .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-                  this.cdr.markForCheck();
-                }),
-                switchMap(() => of(privilegesData))
-              );
-            }
-
-            return of(privilegesData);
+                )
+              ),
+              map(project => {
+                this.projects = [...this.projects, project]
+                  .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+                  .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+                this.cdr.markForCheck();
+              }),
+              switchMap(() => of(privilegesData))
+            );
           }
-        )
+
+          return of(privilegesData);
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const labBook = privilegesData.data;
           const privileges = privilegesData.privileges;
 
           this.detailsTitle = labBook.display;
-          this.pageTitleService.set(labBook.display);
+          void this.pageTitleService.set(labBook.display);
 
           this.initialState = { ...labBook };
           this.privileges = { ...privileges };
@@ -339,9 +323,9 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ (error: HttpErrorResponse) => {
+        (error: HttpErrorResponse) => {
           if (error.status === 404) {
-            this.router.navigate(['/not-found']);
+            void this.router.navigate(['/not-found']);
           }
 
           this.loading = false;
@@ -360,13 +344,13 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.labBook)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ labBook => {
+        labBook => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.labBooksService.unlock(this.id);
           }
 
           this.detailsTitle = labBook.display;
-          this.pageTitleService.set(labBook.display);
+          void this.pageTitleService.set(labBook.display);
 
           this.initialState = { ...labBook };
           this.form.markAsPristine();
@@ -385,7 +369,7 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -397,7 +381,6 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       const userStoreValue = this.userStore.getValue();
       const userSetting = 'SkipDialog-LeaveProject';
 
-      /* istanbul ignore next */
       const skipLeaveDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 
       if (skipLeaveDialog) {
@@ -407,7 +390,7 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(LeaveProjectModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -433,7 +416,7 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -467,7 +450,6 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => {
       if (callback.state === ModalState.Changed) {
         this.comments.loadComments();
@@ -488,7 +470,6 @@ export class LabBookPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    /* istanbul ignore next */
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback?: ModalCallback) => {
       if (callback?.state === ModalState.Changed) {
         this.initialState = { ...callback.data };

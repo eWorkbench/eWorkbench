@@ -8,16 +8,16 @@ import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService, PageTitleService } from '@app/services';
-import { UserState } from '@app/stores/user';
+import type { UserState } from '@app/stores/user';
 import { EmailDetected } from '@app/validators/email-detected.validator';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { map, take } from 'rxjs/operators';
 
 interface FormLogin {
-  username: string | null;
-  password: string | null;
+  username: FormControl<string | null>;
+  password: FormControl<string | null>;
 }
 
 @UntilDestroy()
@@ -33,8 +33,8 @@ export class LoginPageComponent implements OnInit {
   public loading = false;
 
   public form = this.fb.group<FormLogin>({
-    username: [null, [Validators.required, EmailDetected()]],
-    password: [null, Validators.required],
+    username: this.fb.control(null, [Validators.required, EmailDetected()]),
+    password: this.fb.control(null, Validators.required),
   });
 
   private returnUrl = '/';
@@ -50,8 +50,7 @@ export class LoginPageComponent implements OnInit {
     private readonly titleService: Title
   ) {}
 
-  public get f(): FormGroup<FormLogin>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -59,21 +58,18 @@ export class LoginPageComponent implements OnInit {
     this.authService.user$.pipe(
       untilDestroyed(this),
       take(1),
-      map(
-        /* istanbul ignore next */ (user: UserState) => {
-          /* istanbul ignore next */
-          if (user.loggedIn) {
-            this.router.navigate(['/']);
-          }
+      map((user: UserState) => {
+        if (user.loggedIn) {
+          void this.router.navigate(['/']);
         }
-      )
+      })
     );
 
     this.returnUrl = this.route.snapshot.queryParams.returnUrl || this.returnUrl;
 
     this.initTranslations();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -82,7 +78,7 @@ export class LoginPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -105,10 +101,10 @@ export class LoginPageComponent implements OnInit {
       .login(this.f.username.value!, this.f.password.value!)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
-          this.router.navigate([this.returnUrl]);
+        () => {
+          void this.router.navigate([this.returnUrl]);
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

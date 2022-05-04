@@ -31,6 +31,10 @@
   --fc-today-bg-color: #{$secondary-color};
   --fc-now-indicator-color: #{$primary-color};
 
+  .fc-day-today {
+    background: inherit !important;
+  }
+
   .fc .fc-event {
     overflow: auto;
   }

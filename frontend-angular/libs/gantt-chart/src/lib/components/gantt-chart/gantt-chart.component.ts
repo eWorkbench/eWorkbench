@@ -6,9 +6,9 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { axisTop, max, min, scaleTime, ScaleTime, select, timeFormat, timeParse } from 'd3';
-import { Project } from 'libs/types/src/lib/interfaces/project.interface';
+import type { Project } from 'libs/types/src/lib/interfaces/project.interface';
 import { v4 as uuidv4 } from 'uuid';
-import { GanttChartItem } from '../../interfaces/gantt-chart-item.interface';
+import type { GanttChartItem } from '../../interfaces/gantt-chart-item.interface';
 
 @UntilDestroy()
 @Component({
@@ -54,7 +54,6 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
   public width?: number;
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.buildGantt();
     });
@@ -165,7 +164,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
       .append('text')
       .text((item: GanttChartItem) => item.startTime ?? '-')
       .attr('x', 10)
-      .attr('y', (item: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2 + 14)
+      .attr('y', (_: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2 + 14)
       .attr('font-size', 14)
       .attr('text-anchor', 'start')
       .attr('text-height', 14);
@@ -199,7 +198,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         return this.width! - this.sidePadding + 80;
       })
-      .attr('y', (item: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2 + 14)
+      .attr('y', (_: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2 + 14)
       .attr('font-size', 14)
       .attr('text-anchor', 'start')
       .attr('text-height', 14);
@@ -211,7 +210,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
       .enter()
       .append('rect')
       .attr('x', 0)
-      .attr('y', (item: GanttChartItem, i: number) => i * gap + topPadding)
+      .attr('y', (_: GanttChartItem, i: number) => i * gap + topPadding)
       .attr('width', this.width)
       .attr('height', gap)
       .attr('stroke', '#d2d2d2')
@@ -287,7 +286,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
     const innerRects = rectangles
       .append('rect')
       .attr('x', (item: GanttChartItem) => this.calculateInnerRectsX(item))
-      .attr('y', (item: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2)
+      .attr('y', (_: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2)
       .attr('width', (item: GanttChartItem) => {
         const width = this.calculateTimeWidth(item);
         return width > 0 ? width : 3;
@@ -305,7 +304,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
       .append('text')
       .text((item: GanttChartItem) => item.name)
       .attr('x', (item: GanttChartItem) => this.calculateRectsTextX(item))
-      .attr('y', (item: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2 + 14)
+      .attr('y', (_: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2 + 14)
       .attr('font-size', 11)
       .attr('text-anchor', 'middle')
       .attr('text-height', barHeight)

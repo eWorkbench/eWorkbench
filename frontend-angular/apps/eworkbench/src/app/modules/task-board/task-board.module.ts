@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -21,13 +19,6 @@ import { TranslocoService } from '@ngneat/transloco';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { FavoritesModule } from '../favorites/favorites.module';
-import { FormHelperModule } from '../form-helper/form-helper.module';
-import { LoadingModule } from '../loading/loading.module';
-import { RecentChangesModule } from '../recent-changes/recent-changes.module';
-import { SharedModule } from '../shared/shared.module';
-import { TaskModule } from '../task/task.module';
-import { UserModule } from '../user/user.module';
 import { BacklogModalComponent } from './components/modals/backlog/backlog.component';
 import { ColumnDetailsModalComponent } from './components/modals/column-details/column-details.component';
 import { DeleteColumnModalComponent } from './components/modals/delete-column/delete-column.component';
@@ -36,6 +27,13 @@ import { NewTaskBoardModalComponent } from './components/modals/new/new.componen
 import { SettingsModalComponent } from './components/modals/settings/settings.component';
 import { TaskBoardComponent } from './components/task-board/task-board.component';
 import { TaskCardComponent } from './components/task-card/task-card.component';
+import { FavoritesModule } from '../favorites/favorites.module';
+import { FormHelperModule } from '../form-helper/form-helper.module';
+import { LoadingModule } from '../loading/loading.module';
+import { RecentChangesModule } from '../recent-changes/recent-changes.module';
+import { SharedModule } from '../shared/shared.module';
+import { TaskModule } from '../task/task.module';
+import { UserModule } from '../user/user.module';
 
 @NgModule({
   declarations: [
@@ -79,7 +77,6 @@ import { TaskCardComponent } from './components/task-card/task-card.component';
     LoadingModule,
     FavoritesModule,
     TooltipModule.forRoot(),
-    SharedModule,
   ],
   exports: [
     TaskBoardComponent,

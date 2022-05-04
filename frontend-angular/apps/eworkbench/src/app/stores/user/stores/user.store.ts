@@ -5,7 +5,7 @@
 
 import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 
 export interface UserState {
   user: User | null;

@@ -10,21 +10,21 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { AuthService, DssContainersService, PageTitleService, WebSocketService } from '@app/services';
 import { CMSService } from '@app/stores/cms/services/cms.service';
-import { CMSJsonResponse, DropdownElement, DssContainer, DssContainerPayload, Lock, Privileges, User } from '@eworkbench/types';
+import type { CMSJsonResponse, DropdownElement, DssContainer, DssContainerPayload, Lock, Privileges, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of } from 'rxjs';
-import { debounceTime, map, switchMap, take } from 'rxjs/operators';
+import { debounceTime, map, skip, switchMap, take } from 'rxjs/operators';
 import { NewDssContainerModalComponent } from '../modals/new/new.component';
 
 interface FormDssContainer {
-  name: string | null;
-  path: string | null;
-  readWriteSetting: DssContainerPayload['read_write_setting'] | null;
-  importOption: DssContainerPayload['import_option'] | null;
+  name: FormControl<string | null>;
+  path: FormControl<string | null>;
+  readWriteSetting: FormControl<DssContainerPayload['read_write_setting'] | null>;
+  importOption: FormControl<DssContainerPayload['import_option'] | null>;
 }
 
 @UntilDestroy()
@@ -65,11 +65,11 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
 
   public importOptions: DropdownElement[] = [];
 
-  public form: FormGroup<FormDssContainer> = this.fb.group({
-    name: [null, [Validators.required]],
-    path: [null, [Validators.required]],
-    readWriteSetting: [null, [Validators.required]],
-    importOption: [null, [Validators.required]],
+  public form = this.fb.group<FormDssContainer>({
+    name: this.fb.control(null, Validators.required),
+    path: this.fb.control(null, Validators.required),
+    readWriteSetting: this.fb.control(null, Validators.required),
+    importOption: this.fb.control(null, Validators.required),
   });
 
   public constructor(
@@ -88,13 +88,11 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
     private readonly modalService: DialogService
   ) {}
 
-  public get f(): FormGroup<FormDssContainer>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
   public get lockUser(): { ownUser: boolean; user?: User | undefined | null } {
-    /* istanbul ignore next */
     if (this.lock) {
       if (this.lock.lock_details?.locked_by.pk === this.currentUser?.pk) {
         return { ownUser: true, user: this.lock.lock_details?.locked_by };
@@ -103,7 +101,6 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
       return { ownUser: false, user: this.lock.lock_details?.locked_by };
     }
 
-    /* istanbul ignore next */
     return { ownUser: false, user: null };
   }
 
@@ -117,7 +114,6 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
 
     this.authService.user$.pipe(untilDestroyed(this)).subscribe(state => {
@@ -125,35 +121,29 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
     });
 
     this.websocketService.subscribe([{ model: 'dsscontainer', pk: this.id }]);
-    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe(
-      /* istanbul ignore next */ (data: any) => {
-        /* istanbul ignore next */
-        if (data.element_lock_changed?.model_pk === this.id) {
-          this.lock = data.element_lock_changed;
-          this.cdr.detectChanges();
-        }
-
-        /* istanbul ignore next */
-        if (data.element_changed?.model_pk === this.id) {
-          if (this.lockUser.user && !this.lockUser.ownUser) {
-            this.modified = true;
-          } else {
-            this.modified = false;
-          }
-          this.cdr.detectChanges();
-        }
+    this.websocketService.elements.pipe(untilDestroyed(this)).subscribe((data: any) => {
+      if (data.element_lock_changed?.model_pk === this.id) {
+        this.lock = data.element_lock_changed;
+        this.cdr.detectChanges();
       }
-    );
+
+      if (data.element_changed?.model_pk === this.id) {
+        if (this.lockUser.user && !this.lockUser.ownUser) {
+          this.modified = true;
+        } else {
+          this.modified = false;
+        }
+        this.cdr.detectChanges();
+      }
+    });
 
     this.cmsService
       .getDssContainerDetailHowTo()
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ result => {
-          this.dssContainerDetailHowTo = result;
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(result => {
+        this.dssContainerDetailHowTo = result;
+        this.cdr.markForCheck();
+      });
 
     this.initTranslations();
     this.initDetails();
@@ -214,6 +204,7 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
     this.form.valueChanges
       .pipe(
         untilDestroyed(this),
+        skip(4),
         debounceTime(500),
         switchMap(() => {
           this.cdr.markForCheck();
@@ -236,36 +227,34 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
       .get(this.id, this.currentUser.pk)
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ privilegesData => {
-            const dssContainer = privilegesData.data;
-            const privileges = privilegesData.privileges;
+        map(privilegesData => {
+          const dssContainer = privilegesData.data;
+          const privileges = privilegesData.privileges;
 
-            this.form.patchValue(
-              {
-                name: dssContainer.name,
-                path: dssContainer.path,
-                readWriteSetting: dssContainer.read_write_setting,
-                importOption: dssContainer.import_option,
-              },
-              { emitEvent: false }
-            );
+          this.form.patchValue(
+            {
+              name: dssContainer.name,
+              path: dssContainer.path,
+              readWriteSetting: dssContainer.read_write_setting,
+              importOption: dssContainer.import_option,
+            },
+            { emitEvent: false }
+          );
 
-            if (!privileges.edit) {
-              this.form.disable({ emitEvent: false });
-            }
-
-            return privilegesData;
+          if (!privileges.edit) {
+            this.form.disable({ emitEvent: false });
           }
-        )
+
+          return privilegesData;
+        })
       )
       .subscribe(
-        /* istanbul ignore next */ privilegesData => {
+        privilegesData => {
           const dssContainer = privilegesData.data;
           const privileges = privilegesData.privileges;
 
           this.detailsTitle = dssContainer.display;
-          this.pageTitleService.set(dssContainer.display);
+          void this.pageTitleService.set(dssContainer.display);
 
           this.initialState = { ...dssContainer };
           this.privileges = { ...privileges };
@@ -278,7 +267,7 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
 
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -304,13 +293,13 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
       .patch(this.id, this.dssContainer)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ dssContainer => {
+        dssContainer => {
           if (this.lock?.locked && this.lockUser.ownUser) {
             this.dssContainersService.unlock(this.id);
           }
 
           this.detailsTitle = dssContainer.display;
-          this.pageTitleService.set(dssContainer.display);
+          void this.pageTitleService.set(dssContainer.display);
 
           this.initialState = { ...dssContainer };
           this.form.markAsPristine();
@@ -321,7 +310,7 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
           this.toastrService.success(this.translocoService.translate('dssContainer.details.toastr.success'));
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -333,7 +322,7 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
       this.modalRef = this.modalService.open(PendingChangesModalComponent, {
         closeButton: false,
       });
-      /* istanbul ignore next */
+
       return this.modalRef.afterClosed$.pipe(
         untilDestroyed(this),
         take(1),
@@ -350,9 +339,8 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
     }
     this.loading = true;
 
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -363,7 +351,7 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
           .importJsonPathList(paths)
           .pipe(untilDestroyed(this))
           .subscribe(
-            /* istanbul ignore next */ result => {
+            result => {
               this.loading = false;
               this.translocoService
                 .selectTranslate('dssContainer.importPathList.toastr.success', { count: result.count })
@@ -373,7 +361,7 @@ export class DssContainerPageComponent implements OnInit, OnDestroy {
                 });
               this.cdr.markForCheck();
             },
-            /* istanbul ignore next */ () => {
+            () => {
               this.loading = false;
               this.cdr.markForCheck();
             }

@@ -4,8 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { PluginDetails } from '@eworkbench/types';
-import { TranslocoService } from '@ngneat/transloco';
+import type { PluginDetails } from '@eworkbench/types';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -27,8 +26,6 @@ export class PluginPreviewComponent {
 
   @Output()
   public dropdownSelected = new EventEmitter<{ type: string; id: string }>();
-
-  public constructor(private readonly translocoService: TranslocoService) {}
 
   public onShowDetails(): void {
     this.showDetails.emit(this.plugin);

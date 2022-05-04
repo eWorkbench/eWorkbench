@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction
+from django.db.models import Q
 from django.db.models.signals import post_save, pre_save, pre_delete, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -434,8 +435,15 @@ def check_update_roles(sender, instance, *args, **kwargs):
         if ElementLock.objects.for_model(
                 instance.__class__, instance.pk
         ).filter(
-            # must be locked within the last 15 minutes
-            locked_at__gte=timezone.now() - timezone.timedelta(minutes=site_preferences.element_lock_time_in_minutes)
+            Q(
+                webdav_lock=False,
+                locked_at__gte=timezone.now() - timezone.timedelta(
+                    minutes=site_preferences.element_lock_time_in_minutes)
+            ) | Q(
+                webdav_lock=True,
+                locked_at__gte=timezone.now() - timezone.timedelta(
+                    minutes=site_preferences.element_lock_webdav_time_in_minutes)
+            )
         ).exclude(
             # ignore if the element is locked by the current user
             locked_by=get_current_user()

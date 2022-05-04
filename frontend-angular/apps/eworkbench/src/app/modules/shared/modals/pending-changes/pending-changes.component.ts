@@ -5,7 +5,6 @@
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { DialogRef } from '@ngneat/dialog';
-import { TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'eworkbench-pending-changes-modal',
@@ -14,5 +13,5 @@ import { TranslocoService } from '@ngneat/transloco';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PendingChangesModalComponent {
-  public constructor(public readonly modalRef: DialogRef, private readonly translocoService: TranslocoService) {}
+  public constructor(public readonly modalRef: DialogRef) {}
 }

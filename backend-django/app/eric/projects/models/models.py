@@ -209,8 +209,16 @@ class ElementLock(BaseModel):
         'object_id'
     )
 
+    webdav_lock = models.BooleanField(
+        verbose_name=_("Whether this lock was set while using webdav"),
+        default=False,
+        db_index=True
+    )
+
     @property
     def locked_until(self):
+        if self.webdav_lock:
+            return self.locked_at + timezone.timedelta(minutes=options.element_lock_webdav_time_in_minutes)
         return self.locked_at + timezone.timedelta(minutes=options.element_lock_time_in_minutes)
 
     def __str__(self):
@@ -1060,14 +1068,12 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
     )
 
     # define user availability types
-    GLOBAL = "GLB"
-    PROJECT = "PRJ"
-    SELECTED_USERS = "USR"
-    # define user availability choices
-    USER_AVAILABILITY_CHOICES = (
-        (GLOBAL, "Global"),
-        (PROJECT, "Only project members"),
-        (SELECTED_USERS, "Only selected users"),
+    SELECTED_GROUPS = "1"
+    GLOBAL = "2"
+    # define general usage setting choices
+    GENERAL_USAGE_SETTING_CHOICES = (
+        (SELECTED_GROUPS, _("Only selected user groups")),
+        (GLOBAL, _("Global")),
     )
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -1083,9 +1089,8 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
             'contact',
             'terms_of_use_pdf',
             'projects',
-            'user_availability',
-            'user_availability_selected_users',
-            'user_availability_selected_user_groups',
+            'general_usage_setting',
+            'usage_setting_selected_user_groups',
             'deleted',
         )
         permissions = (
@@ -1163,26 +1168,19 @@ class Resource(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixi
         blank=True
     )
 
-    user_availability = models.CharField(
+    general_usage_setting = models.CharField(
         max_length=3,
-        choices=USER_AVAILABILITY_CHOICES,
-        default=GLOBAL,
-        verbose_name=_("User availability for this resource"),
-        blank=False,
-        db_index=True
-    )
-
-    # reference to many user groups (can be 0 user groups, too)
-    user_availability_selected_user_groups = models.ManyToManyField(
-        Group,
-        verbose_name=_("The selected user groups this resource is available for"),
-        related_name="resources",
+        choices=GENERAL_USAGE_SETTING_CHOICES,
+        default=None,
+        verbose_name=_("General usage setting for this resource"),
+        null=True,
         blank=True,
     )
 
-    user_availability_selected_users = models.ManyToManyField(
-        get_user_model(),
-        verbose_name=_("The selected users this resource is available for"),
+    # reference to many user groups (can be 0 user groups, too)
+    usage_setting_selected_user_groups = models.ManyToManyField(
+        Group,
+        verbose_name=_("The selected user groups this resource is available for"),
         related_name="resources",
         blank=True,
     )

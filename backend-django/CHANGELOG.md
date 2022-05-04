@@ -1,5 +1,32 @@
 # Changelog
 
+## Version 2.10.1 - April 2022
+- [SITUMEWB-860] Time / unit display appointments
+- [SITUMEWB-838] Refactor resources general usage setting
+- [SITUMEWB-853, SITUMEWB-845] Change projects select field placeholder
+- [SITUMEWB-882] add metadata field type real_date (backend)
+
+## Version 2.10 - March 2022
+- [SITUMEWB-611] Better element locks for webdav
+- [SITUMEWB-869] added a link to the appointment page within the appointment confirmation email
+- [SITUMEWB-838] refactor resources usage settings
+- [SITUMEWB-872] increase dss mail frequency
+- [SITUMEWB-876] Implemented exception handling for SMTP errors
+- [SITUMEWB-855] Implemented variable height for plugin instances
+- [SITUMEWB-865] Fixed LabBook imports
+- [SITUMEWB-868] Study room booking consistency changes
+- [SITUMEWB-838] refactor resources user availability
+- [SITUMEWB-860] Change reminder element placement and wording
+- [SITUMEWB-840] Refactor resource modal for general usage setting
+- [SITUMEWB-839] Refactor resource details for general usage setting
+- [SITUMEWB-845] Refactor new resource modal
+- [SITUMEWB-862] Implemented special warning when deleting projects
+- [SITUMEWB-873] Upgrade dependencies and angular
+- [SITUMEWB-873] Fixes for upgraded dependencies
+- [SITUMEWB-611] Display correct lock time
+- [SITUMEWB-*] Import order and change lock duration to minutes
+- [SITUMEWB-875] Implemented FAQ link for login screen
+- [SITUMEWB-866] Implemented highlighting of non-bookable times in resources calendar
 
 ## Version 2.9.3 - March 2022
 - [SITUMEWB-841,SITUMEWB-842] Changes to info text for projects in resources

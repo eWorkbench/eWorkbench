@@ -7,15 +7,15 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { AppVersionService, ContactFormService, PageTitleService } from '@app/services';
-import { ContactFormPayload } from '@eworkbench/types';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import type { ContactFormPayload } from '@eworkbench/types';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 
 interface FormContact {
-  subject: string | null;
-  message: string | null;
+  subject: FormControl<string | null>;
+  message: FormControl<string | null>;
   [key: string]: any;
 }
 
@@ -33,8 +33,8 @@ export class ContactFormPageComponent implements OnInit {
   public loading = true;
 
   public form = this.fb.group<FormContact>({
-    subject: [null, [Validators.required]],
-    message: [null, [Validators.required]],
+    subject: this.fb.control(null, Validators.required),
+    message: this.fb.control(null, Validators.required),
   });
 
   public constructor(
@@ -48,14 +48,13 @@ export class ContactFormPageComponent implements OnInit {
     private readonly titleService: Title
   ) {}
 
-  private get f(): FormGroup['controls'] {
-    /* istanbul ignore next */
+  private get f() {
     return this.form.controls;
   }
 
   private get contact(): ContactFormPayload {
     return {
-      subject: this.f.subject.value,
+      subject: this.f.subject.value!,
       message: this.f.message.value ?? '',
       backend_version: this.backendVersion,
       browser_version: window.navigator.userAgent,
@@ -68,7 +67,7 @@ export class ContactFormPageComponent implements OnInit {
     this.initTranslations();
     this.initBackendVersion();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -77,7 +76,7 @@ export class ContactFormPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
   }
 
@@ -86,12 +85,12 @@ export class ContactFormPageComponent implements OnInit {
       .get()
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ version => {
+        version => {
           this.loading = false;
           this.backendVersion = version;
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -117,7 +116,7 @@ export class ContactFormPageComponent implements OnInit {
       .send(this.contact)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.form.reset();
           this.form.clearValidators();
@@ -132,7 +131,7 @@ export class ContactFormPageComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

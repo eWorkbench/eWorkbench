@@ -4,9 +4,10 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { formatDistanceToNowStrict } from 'date-fns';
 
 @UntilDestroy()
 @Component({
@@ -31,21 +32,22 @@ export class LockComponent {
   @Input()
   public modified = false;
 
-  public constructor(
-    public readonly translocoService: TranslocoService,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute
-  ) {}
+  public constructor(public readonly translocoService: TranslocoService, private readonly router: Router) {}
+
+  public get lockedUntil() {
+    return formatDistanceToNowStrict(new Date(this.lock.lock_details.locked_until), {
+      addSuffix: true,
+      unit: 'minute',
+    });
+  }
 
   public releaseLock(event?: Event): void {
-    /* istanbul ignore next */
     event?.preventDefault();
     this.service.unlock(this.id).pipe(untilDestroyed(this)).subscribe();
   }
 
   public refresh(event?: Event): void {
-    /* istanbul ignore next */
     event?.preventDefault();
-    this.router.navigate([this.router.url]);
+    void this.router.navigate([this.router.url]);
   }
 }

@@ -8,8 +8,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges
 import { difference } from 'lodash';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { TableSortDirection } from '../../enums/table-sort-direction.enum';
-import { TableColumn } from '../../interfaces/table-column.interface';
-import { TableSortChangedEvent } from '../../interfaces/table-sort-changed-event.interface';
+import type { TableColumn } from '../../interfaces/table-column.interface';
+import type { TableSortChangedEvent } from '../../interfaces/table-sort-changed-event.interface';
 
 @Component({
   selector: 'eworkbench-tree-view',
@@ -115,7 +115,6 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
     if (this.service) {
       this.loadData();
     } else {
-      this.firstDataLoaded = false;
       this.data.forEach(d => {
         d.expanded = false;
         d.level = 0;
@@ -249,7 +248,6 @@ export class TreeViewComponent implements OnInit, OnChanges, OnDestroy {
 
   public loadData(append = false, httpParams?: HttpParams): void {
     if (this.service) {
-      this.firstDataLoaded = false;
       this.loading = true;
       this.cdr.markForCheck();
 

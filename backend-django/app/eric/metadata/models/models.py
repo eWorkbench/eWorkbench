@@ -26,7 +26,8 @@ class MetadataField(BaseModel, CreatedModifiedByMixIn):
     BASE_TYPE_WHOLE_NUMBER = 'whole_number'
     BASE_TYPE_DECIMAL_NUMBER = 'decimal_number'
     BASE_TYPE_CURRENCY = 'currency'
-    BASE_TYPE_DATE = 'date'
+    BASE_TYPE_DATE = 'date'  # this is actually the base type for datetime, not date
+    BASE_TYPE_REAL_DATE = 'real_date'  # this is the base type for date, not datetime
     BASE_TYPE_TIME = 'time'
     BASE_TYPE_PERCENTAGE = 'percentage'
     BASE_TYPE_TEXT = 'text'
@@ -40,6 +41,7 @@ class MetadataField(BaseModel, CreatedModifiedByMixIn):
         (BASE_TYPE_DECIMAL_NUMBER, _('Decimal number')),
         (BASE_TYPE_CURRENCY, _('Currency')),
         (BASE_TYPE_DATE, _('Date')),
+        (BASE_TYPE_REAL_DATE, _('Real Date')),
         (BASE_TYPE_TIME, _('Time')),
         (BASE_TYPE_PERCENTAGE, _('Percentage')),
         (BASE_TYPE_TEXT, _('Text')),
@@ -102,6 +104,7 @@ class MetadataField(BaseModel, CreatedModifiedByMixIn):
             self.BASE_TYPE_DECIMAL_NUMBER,
             self.BASE_TYPE_CURRENCY,
             self.BASE_TYPE_DATE,
+            self.BASE_TYPE_REAL_DATE,
             self.BASE_TYPE_TIME,
             self.BASE_TYPE_PERCENTAGE,
         ]:

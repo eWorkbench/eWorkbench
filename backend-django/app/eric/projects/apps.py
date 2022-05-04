@@ -11,5 +11,3 @@ class ProjectsConfig(AppConfig):
     def ready(self):
         # import handlers here so they are registered when the application starts
         import eric.projects.models.handlers
-        # import model_privileges here so they are registered when the application starts
-        import eric.projects.models.model_privileges

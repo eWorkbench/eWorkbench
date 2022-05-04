@@ -30,7 +30,7 @@ class ResourceFiltersTest(APITestCase, CommonTestMixin, ResourceMixin):
             name=name,
             description='My Test Resource',
             resource_type=Resource.ROOM,
-            user_availability=Resource.GLOBAL,
+            general_usage_setting=Resource.GLOBAL,
         )
         self.assert_response_status(response, expected_status_code=HTTP_201_CREATED)
         return resource

@@ -7,8 +7,8 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { PageTitleService } from '@app/services';
 import { CMSService } from '@app/stores/cms/services/cms.service';
-import { TableColumn } from '@eworkbench/table';
-import { CMSJsonResponse, OSSLicense } from '@eworkbench/types';
+import type { TableColumn } from '@eworkbench/table';
+import type { CMSJsonResponse, OSSLicense } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { map, switchMap } from 'rxjs/operators';
@@ -44,7 +44,7 @@ export class LicensesPageComponent implements OnInit {
     this.initTranslations();
     this.initDetails();
     this.initPageTitle();
-    this.pageTitleService.set(this.title);
+    void this.pageTitleService.set(this.title);
   }
 
   public initTranslations(): void {
@@ -53,7 +53,7 @@ export class LicensesPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(title => {
         this.title = title;
-        this.pageTitleService.set(title);
+        void this.pageTitleService.set(title);
       });
 
     this.translocoService
@@ -83,30 +83,23 @@ export class LicensesPageComponent implements OnInit {
       .getBackendLicenses()
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ result => {
-            this.data = [...result];
-          }
-        ),
-        switchMap(
-          /* istanbul ignore next */ () =>
-            this.cmsService.getFrontendLicenses().pipe(
-              untilDestroyed(this),
-              map(
-                /* istanbul ignore next */ result => {
-                  if (result.public) {
-                    this.cmsText = result;
-                  }
-                }
-              )
-            )
+        map(result => {
+          this.data = [...result];
+        }),
+        switchMap(() =>
+          this.cmsService.getFrontendLicenses().pipe(
+            untilDestroyed(this),
+            map(result => {
+              if (result.public) {
+                this.cmsText = result;
+              }
+            })
+          )
         )
       )
-      .subscribe(
-        /* istanbul ignore next */ () => {
-          this.loading = false;
-        }
-      );
+      .subscribe(() => {
+        this.loading = false;
+      });
   }
 
   public initPageTitle(): void {

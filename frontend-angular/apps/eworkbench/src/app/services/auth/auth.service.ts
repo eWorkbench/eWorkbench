@@ -5,7 +5,7 @@
 
 import { Injectable } from '@angular/core';
 import { UserService, UserState } from '@app/stores/user';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

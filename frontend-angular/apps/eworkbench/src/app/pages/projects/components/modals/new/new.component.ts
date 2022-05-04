@@ -8,9 +8,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectsService } from '@app/services';
-import { DateGroup, DropdownElement, Project, ProjectPayload } from '@eworkbench/types';
+import type { DateGroup, DropdownElement, Project, ProjectPayload } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { set } from 'date-fns';
@@ -19,11 +19,11 @@ import { of, Subject } from 'rxjs';
 import { catchError, debounceTime, switchMap } from 'rxjs/operators';
 
 interface FormProject {
-  name: string | null;
+  name: FormControl<string | null>;
   parentProject: string | null;
-  projectState: ProjectPayload['project_state'] | null;
+  projectState: FormControl<ProjectPayload['project_state'] | null>;
   description: string | null;
-  dateGroup: DateGroup;
+  dateGroup: FormControl<DateGroup>;
 }
 
 @UntilDestroy()
@@ -55,11 +55,11 @@ export class NewProjectModalComponent implements OnInit {
   public stateItems: DropdownElement[] = [];
 
   public form = this.fb.group<FormProject>({
-    name: [null, [Validators.required]],
-    parentProject: [null],
-    description: [null],
-    projectState: ['INIT', [Validators.required]],
-    dateGroup: [{ start: null, end: null, fullDay: true }],
+    name: this.fb.control(null, Validators.required),
+    parentProject: null,
+    description: null,
+    projectState: this.fb.control('INIT', Validators.required),
+    dateGroup: this.fb.control({ start: null, end: null, fullDay: true }),
   });
 
   public constructor(
@@ -71,7 +71,7 @@ export class NewProjectModalComponent implements OnInit {
     private readonly toastrService: ToastrService
   ) {}
 
-  public get f(): FormGroup<FormProject>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -130,31 +130,27 @@ export class NewProjectModalComponent implements OnInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.length) {
-            this.projects = [...projects];
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.length) {
+          this.projects = [...projects];
+          this.cdr.markForCheck();
         }
-      );
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public patchFormValues(): void {
@@ -174,28 +170,25 @@ export class NewProjectModalComponent implements OnInit {
         { emitEvent: false }
       );
 
-      /* istanbul ignore next */
       if (this.initialState.parent_project) {
         this.projectsService
           .get(this.initialState.parent_project)
           .pipe(
             untilDestroyed(this),
-            catchError(() => {
-              return of({
+            catchError(() =>
+              of({
                 pk: this.initialState!.parent_project,
                 name: this.translocoService.translate('formInput.unknownProject'),
                 is_favourite: false,
-              } as Project);
-            })
+              } as Project)
+            )
           )
-          .subscribe(
-            /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project]
-                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-              this.cdr.markForCheck();
-            }
-          );
+          .subscribe(project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          });
       }
 
       if (this.disableProjectField) {
@@ -214,7 +207,7 @@ export class NewProjectModalComponent implements OnInit {
       .add(this.project)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ project => {
+        project => {
           this.state = ModalState.Changed;
           this.modalRef.close({
             state: this.state,
@@ -228,7 +221,7 @@ export class NewProjectModalComponent implements OnInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

@@ -1,0 +1,23 @@
+{
+  "projectType": "library",
+  "root": "libs/modals",
+  "sourceRoot": "libs/modals/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/modals"],
+      "options": {
+        "jestConfig": "libs/modals/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["libs/modals/**/*.ts", "libs/modals/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

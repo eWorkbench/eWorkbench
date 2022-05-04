@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Contact } from './contact.interface';
-import { Metadata } from './metadata.interface';
-import { User } from './user.interface';
+import type { Contact } from './contact.interface';
+import type { Metadata } from './metadata.interface';
+import type { User } from './user.interface';
 
 export interface AppointmentScheduledNotification {
   active: boolean;

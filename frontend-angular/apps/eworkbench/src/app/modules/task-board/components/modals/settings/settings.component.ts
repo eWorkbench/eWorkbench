@@ -6,9 +6,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { TaskBoardsService } from '@app/services';
-import { TaskBoard } from '@eworkbench/types';
+import type { TaskBoard } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { lastValueFrom } from 'rxjs';
@@ -41,11 +41,11 @@ export class SettingsModalComponent implements OnInit {
   public fileCleared = false;
 
   public form = this.fb.group<FormTaskBoardSettings>({
-    backgroundImage: [null],
-    backgroundColor: [null],
-    transparency: [100],
-    minimalistic: [false],
-    dayIndication: [true],
+    backgroundImage: null,
+    backgroundColor: null,
+    transparency: 100,
+    minimalistic: false,
+    dayIndication: true,
   });
 
   public constructor(
@@ -56,8 +56,7 @@ export class SettingsModalComponent implements OnInit {
     private readonly translocoService: TranslocoService
   ) {}
 
-  public get f(): FormGroup<FormTaskBoardSettings>['controls'] {
-    /* istanbul ignore next */
+  public get f() {
     return this.form.controls;
   }
 
@@ -74,9 +73,8 @@ export class SettingsModalComponent implements OnInit {
   }
 
   public onUpload(event: Event): void {
-    /* istanbul ignore next */
     const files = (event.target as HTMLInputElement).files;
-    /* istanbul ignore next */
+
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -137,18 +135,17 @@ export class SettingsModalComponent implements OnInit {
       this.taskBoardsService.getUserSettings(this.taskBoard.pk).pipe(
         untilDestroyed(this),
         take(1),
-        switchMap(
-          /* istanbul ignore next */ ([settings]) =>
-            this.taskBoardsService.upsertUserSettings(
-              this.taskBoard.pk,
-              {
-                ...settings,
-                kanban_board_pk: this.taskBoard.pk,
-                restrict_task_information: this.f.minimalistic.value,
-                day_indication: this.f.dayIndication.value,
-              },
-              settings?.pk
-            )
+        switchMap(([settings]) =>
+          this.taskBoardsService.upsertUserSettings(
+            this.taskBoard.pk,
+            {
+              ...settings,
+              kanban_board_pk: this.taskBoard.pk,
+              restrict_task_information: this.f.minimalistic.value,
+              day_indication: this.f.dayIndication.value,
+            },
+            settings?.pk
+          )
         )
       )
     );

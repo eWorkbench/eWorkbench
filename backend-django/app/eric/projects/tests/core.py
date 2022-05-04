@@ -789,14 +789,13 @@ class ResourceMixin(TestLockMixin):
             name,
             description,
             resource_type,
-            user_availability,
+            general_usage_setting,
             HTTP_USER_AGENT,
             REMOTE_ADDR,
             responsible_unit=None,
             location=None,
             contact=None,
             terms_of_use_pdf=None,
-            user_availability_selected_user_pks=None,
             booking_rule_minimum_duration=None,
             booking_rule_maximum_duration=None,
             booking_rule_bookable_hours=None,
@@ -815,7 +814,7 @@ class ResourceMixin(TestLockMixin):
             'name': name,
             'description': description,
             'type': resource_type,
-            'user_availability': user_availability,
+            'general_usage_setting': general_usage_setting,
         }
 
         if responsible_unit:
@@ -832,8 +831,6 @@ class ResourceMixin(TestLockMixin):
                 terms_of_use_pdf
             ), 'rb')
             data['terms_of_use_pdf'] = fp
-        if user_availability_selected_user_pks:
-            data['user_availability_selected_user_pks'] = user_availability_selected_user_pks
         if booking_rule_minimum_duration:
             data['booking_rule_minimum_duration'] = booking_rule_minimum_duration
         if booking_rule_maximum_duration:
@@ -896,14 +893,13 @@ class ResourceMixin(TestLockMixin):
             name,
             description,
             resource_type,
-            user_availability,
+            general_usage_setting,
             HTTP_USER_AGENT,
             REMOTE_ADDR,
             responsible_unit=None,
             location=None,
             contact=None,
             terms_of_use_pdf=None,
-            user_availability_selected_user_pks=None,
     ):
         """
         Wrapper for updating a resource via REST API
@@ -914,7 +910,7 @@ class ResourceMixin(TestLockMixin):
             'name': name,
             'description': description,
             'type': resource_type,
-            'user_availability': user_availability,
+            'general_usage_setting': general_usage_setting,
         }
 
         if responsible_unit:
@@ -931,8 +927,6 @@ class ResourceMixin(TestLockMixin):
                 terms_of_use_pdf
             ), 'rb')
             data['terms_of_use_pdf'] = fp
-        if user_availability_selected_user_pks:
-            data['user_availability_selected_user_pks'] = user_availability_selected_user_pks
 
         set_projects(data, project_pks)
 
@@ -968,7 +962,7 @@ class ResourceMixin(TestLockMixin):
             name,
             description,
             resource_type,
-            user_availability,
+            general_usage_setting,
             HTTP_USER_AGENT=HTTP_USER_AGENT,
             REMOTE_ADDR=REMOTE_ADDR,
             **kwargs,
@@ -981,7 +975,7 @@ class ResourceMixin(TestLockMixin):
             name,
             description,
             resource_type,
-            user_availability,
+            general_usage_setting,
             HTTP_USER_AGENT,
             REMOTE_ADDR,
             **kwargs,

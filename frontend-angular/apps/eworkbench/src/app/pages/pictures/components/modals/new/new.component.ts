@@ -13,14 +13,14 @@ import { scriptLoader } from '@app/modules/picture/util/script-loader';
 import { PicturesService, ProjectsService } from '@app/services';
 import { UserStore } from '@app/stores/user';
 import { environment } from '@environments/environment';
-import { Picture, PicturePayload, Project } from '@eworkbench/types';
+import type { Picture, PicturePayload, Project } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
-import { FormBuilder, FormGroup } from '@ngneat/reactive-forms';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
-import pdfjs from 'pdfjs-dist';
-import { PDFPageProxy } from 'pdfjs-dist/types/display/api';
+import type pdfjs from 'pdfjs-dist';
+import type { PDFPageProxy } from 'pdfjs-dist/types/display/api';
 import { from, lastValueFrom, of, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, mergeMap, switchMap } from 'rxjs/operators';
 import { ConvertTiffModalComponent } from '../convert-tiff/convert-tiff.component';
@@ -32,13 +32,13 @@ declare global {
 }
 
 interface FormPicture {
-  title: string | null;
+  title: FormControl<string | null>;
   height: number | null;
   width: number | null;
   aspectRatio: number | null;
   keepAspectRatio: boolean;
-  file: globalThis.File | Blob | string | null;
-  projects: string[];
+  file: FormControl<globalThis.File | Blob | string | null>;
+  projects: FormControl<string[]>;
 }
 
 @UntilDestroy()
@@ -72,13 +72,13 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
   public convertTiffModalRef?: DialogRef;
 
   public form = this.fb.group<FormPicture>({
-    title: [null, [Validators.required]],
-    height: [null],
-    width: [null],
-    aspectRatio: [null],
-    keepAspectRatio: [true],
-    file: [null, [Validators.required]],
-    projects: [[]],
+    title: this.fb.control(null, Validators.required),
+    height: null,
+    width: null,
+    aspectRatio: null,
+    keepAspectRatio: true,
+    file: this.fb.control(null, Validators.required),
+    projects: this.fb.control([]),
   });
 
   public constructor(
@@ -95,7 +95,7 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
     @Inject(DOCUMENT) private readonly document: Document
   ) {}
 
-  public get f(): FormGroup<FormPicture>['controls'] {
+  public get f() {
     return this.form.controls;
   }
 
@@ -128,6 +128,7 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
   }
 
   public ngAfterViewInit(): void {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     scriptLoader(this.document, 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.min.js', () => {});
   }
 
@@ -136,29 +137,25 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
       .pipe(
         untilDestroyed(this),
         debounceTime(500),
-        switchMap(/* istanbul ignore next */ input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
+        switchMap(input => (input ? this.projectsService.search(input) : of([...this.favoriteProjects])))
       )
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-          this.cdr.markForCheck();
-        }
-      );
+      .subscribe(projects => {
+        this.projects = [...projects].sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+        this.cdr.markForCheck();
+      });
 
     this.projectsService
       .getList(new HttpParams().set('favourite', 'true'))
       .pipe(untilDestroyed(this))
-      .subscribe(
-        /* istanbul ignore next */ projects => {
-          if (projects.data.length) {
-            this.favoriteProjects = [...projects.data];
-            this.projects = [...this.projects, ...this.favoriteProjects]
-              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-            this.cdr.markForCheck();
-          }
+      .subscribe(projects => {
+        if (projects.data.length) {
+          this.favoriteProjects = [...projects.data];
+          this.projects = [...this.projects, ...this.favoriteProjects]
+            .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+            .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+          this.cdr.markForCheck();
         }
-      );
+      });
   }
 
   public patchFormValues(): void {
@@ -182,7 +179,6 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
         );
       }
 
-      /* istanbul ignore next */
       if (this.initialState.projects.length) {
         from(this.initialState.projects)
           .pipe(
@@ -190,29 +186,25 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
             mergeMap(id =>
               this.projectsService.get(id).pipe(
                 untilDestroyed(this),
-                catchError(() => {
-                  return of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project);
-                })
+                catchError(() =>
+                  of({ pk: id, name: this.translocoService.translate('formInput.unknownProject'), is_favourite: false } as Project)
+                )
               )
             )
           )
-          .subscribe(
-            /* istanbul ignore next */ project => {
-              this.projects = [...this.projects, project]
-                .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
-                .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
-              this.cdr.markForCheck();
-            }
-          );
+          .subscribe(project => {
+            this.projects = [...this.projects, project]
+              .filter((value, index, array) => array.map(project => project.pk).indexOf(value.pk) === index)
+              .sort((a, b) => Number(b.is_favourite) - Number(a.is_favourite));
+            this.cdr.markForCheck();
+          });
       }
     }
   }
 
   public onUpload(event: Event): void {
-    /* istanbul ignore next */
     let files = (event.target as HTMLInputElement).files as any;
 
-    /* istanbul ignore next */
     if (files.length) {
       const reader = new FileReader();
       reader.onload = async () => {
@@ -227,7 +219,6 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
           const userStoreValue = this.userStore.getValue();
           const userSetting = 'SkipDialog-ConvertTiff';
 
-          /* istanbul ignore next */
           const skipTiffDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
           let shouldConvert = false;
 
@@ -283,7 +274,7 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
       .add(this.picture)
       .pipe(untilDestroyed(this))
       .subscribe(
-        /* istanbul ignore next */ file => {
+        file => {
           this.state = ModalState.Changed;
           this.modalRef.close({ state: this.state, navigate: [`${this.withSidebar ? '..' : ''}/pictures`, file.pk] });
           this.translocoService
@@ -293,7 +284,7 @@ export class NewPictureModalComponent implements OnInit, AfterViewInit {
               this.toastrService.success(success);
             });
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.loading = false;
           this.cdr.markForCheck();
         }

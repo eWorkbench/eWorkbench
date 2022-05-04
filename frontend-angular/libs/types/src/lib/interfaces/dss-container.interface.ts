@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Envelope } from './envelope.interface';
-import { User } from './user.interface';
+import type { Envelope } from './envelope.interface';
+import type { User } from './user.interface';
 
 export interface DssContainerPayload {
   name: string;

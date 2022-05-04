@@ -5,8 +5,7 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { LabelsService } from '@app/services';
-import { Label } from '@eworkbench/types';
-import { TranslocoService } from '@ngneat/transloco';
+import type { Label } from '@eworkbench/types';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { map } from 'rxjs/operators';
 
@@ -23,11 +22,7 @@ export class RecentChangesLabelsComponent implements OnInit {
 
   public labels: Label[] = [];
 
-  public constructor(
-    private readonly labelsService: LabelsService,
-    private readonly translocoService: TranslocoService,
-    private readonly cdr: ChangeDetectorRef
-  ) {}
+  public constructor(private readonly labelsService: LabelsService, private readonly cdr: ChangeDetectorRef) {}
 
   public ngOnInit(): void {
     this.initDetails();
@@ -39,23 +34,21 @@ export class RecentChangesLabelsComponent implements OnInit {
       .get()
       .pipe(
         untilDestroyed(this),
-        map(
-          /* istanbul ignore next */ labels => {
-            labelIds.forEach(label => {
-              labels.forEach(apiLabel => {
-                if (label === apiLabel.pk) {
-                  if (this.labels.length) {
-                    this.labels = [...this.labels, apiLabel];
-                    this.cdr.markForCheck();
-                  } else {
-                    this.labels = [apiLabel];
-                    this.cdr.markForCheck();
-                  }
+        map(labels => {
+          labelIds.forEach(label => {
+            labels.forEach(apiLabel => {
+              if (label === apiLabel.pk) {
+                if (this.labels.length) {
+                  this.labels = [...this.labels, apiLabel];
+                  this.cdr.markForCheck();
+                } else {
+                  this.labels = [apiLabel];
+                  this.cdr.markForCheck();
                 }
-              });
+              }
             });
-          }
-        )
+          });
+        })
       )
       .subscribe();
   }

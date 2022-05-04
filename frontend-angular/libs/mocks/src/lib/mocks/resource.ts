@@ -1,11 +1,9 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { DjangoAPI, RecentChanges, Resource, ResourceBooking, ResourcePayload } from '@eworkbench/types';
+import type { DjangoAPI, RecentChanges, Resource, ResourceBooking, ResourcePayload } from '@eworkbench/types';
 import { mockUser } from './user';
 
 export const mockResourcePayload: ResourcePayload = {
@@ -13,9 +11,6 @@ export const mockResourcePayload: ResourcePayload = {
   owner_agreement: true,
   projects: [],
   type: 'ROOM',
-  user_availability: 'GLB',
-  user_availability_selected_user_group_pks: [],
-  user_availability_selected_user_pks: [],
 };
 
 export const mockResource: Resource = {
@@ -25,7 +20,6 @@ export const mockResource: Resource = {
   booking_rule_bookable_hours: [],
   booking_rule_time_between: null,
   version_number: 1,
-  user_availability_selected_user_pks: [],
   branch_library: '',
   content_type: 19,
   booking_rule_maximum_time_before: null,
@@ -33,19 +27,16 @@ export const mockResource: Resource = {
   type: 'ROOM',
   description: '',
   metadata: [],
-  user_availability: 'GLB',
-  user_availability_selected_user_group_pks: [],
+  general_usage_setting: '2',
   download_terms_of_use:
     'http://rewriteqa.tum.anx-cus.net/api/resources/47a42a8c-4bc9-48c2-8d4b-ec272c8e5dd0/terms-of-use-download/?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDMxMTkwNDUsInBrIjoiNDdhNDJhOGMtNGJjOS00OGMyLThkNGItZWMyNzJjOGU1ZGQwIiwib2JqZWN0X3R5cGUiOiJSZXNvdXJjZSIsInVzZXIiOjE1MCwiand0X3ZlcmlmaWNhdGlvbl90b2tlbiI6IjNjMTIzYmYyM2M2MzQxNDA5YzExNTJhZDcxZGY1MDQxIiwicGF0aCI6Ii9hcGkvcmVzb3VyY2VzLzQ3YTQyYThjLTRiYzktNDhjMi04ZDRiLWVjMjcyYzhlNWRkMC90ZXJtcy1vZi11c2UtZG93bmxvYWQvIn0.aJUGSQboWknJYRqqHW6bJukkdQyIJUvDjTz0-oq5Hqg',
   booking_rule_bookings_per_user: [],
   last_modified_by: mockUser,
   study_room: false,
   created_at: '2020-10-19T13:32:49.989116+02:00',
-  user_availability_selected_user_groups: [],
   responsible_unit: '',
   booking_rule_maximum_duration: null,
   deleted: false,
-  user_availability_selected_users: [],
   display: 'Resource Resource name test',
   booking_rule_minimum_duration: null,
   pk: '47a42a8c-4bc9-48c2-8d4b-ec272c8e5dd0',
@@ -57,6 +48,8 @@ export const mockResource: Resource = {
   created_by: mockUser,
   calendar_interval: 30,
   is_favourite: false,
+  usage_setting_selected_user_group_pks: null,
+  usage_setting_selected_user_groups: [],
 };
 
 export const mockResourcesList: DjangoAPI<Resource[]> = {

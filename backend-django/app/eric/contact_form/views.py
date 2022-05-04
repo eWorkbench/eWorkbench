@@ -64,7 +64,10 @@ class SendContactForm(APIView):
                 reply_to=[request.user.email],
             )
             msg.content_subtype = "html"
-            msg.send()
+            try:
+                msg.send()
+            except Exception as exc:
+                logger.exception(exc)
 
             # send an e-mail to the sender
             msg = EmailMessage(
@@ -74,7 +77,10 @@ class SendContactForm(APIView):
                 to=[(str(request.user), request.user.email)],
             )
             msg.content_subtype = "html"
-            msg.send()
+            try:
+                msg.send()
+            except Exception as exc:
+                logger.exception(exc)
 
             # add log entry
             logger.debug(

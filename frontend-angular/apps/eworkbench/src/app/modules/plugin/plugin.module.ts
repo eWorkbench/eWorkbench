@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 /**
  * Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -14,9 +12,6 @@ import { ModalsModule } from '@eworkbench/modals';
 import { WysiwygEditorModule } from '@eworkbench/wysiwyg-editor';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { FormHelperModule } from '../form-helper/form-helper.module';
-import { LoadingModule } from '../loading/loading.module';
-import { UserModule } from '../user/user.module';
 import { PluginAccessibilityLabelComponent } from './component/accessibility-label/label.component';
 import { PluginDataComponent } from './component/data/data.component';
 import { PluginDetailsDropdownComponent } from './component/details-dropdown/details-dropdown.component';
@@ -25,6 +20,9 @@ import { PluginFeedbackComponent } from './component/feedback/feedback.component
 import { PluginDetailsModalComponent } from './component/modals/details/details.component';
 import { PluginPreviewComponent } from './component/preview/preview.component';
 import { PluginSmallPreviewComponent } from './component/small-preview/small-preview.component';
+import { FormHelperModule } from '../form-helper/form-helper.module';
+import { LoadingModule } from '../loading/loading.module';
+import { UserModule } from '../user/user.module';
 
 @NgModule({
   declarations: [

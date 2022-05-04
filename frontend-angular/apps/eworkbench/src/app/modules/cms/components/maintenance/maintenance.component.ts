@@ -4,9 +4,9 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CMSSettingsMaintenance } from '@app/stores/cms';
+import type { CMSSettingsMaintenance } from '@app/stores/cms';
 import { CMSService } from '@app/stores/cms/services/cms.service';
-import { User } from '@eworkbench/types';
+import type { User } from '@eworkbench/types';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { take } from 'rxjs/operators';
 
@@ -33,21 +33,20 @@ export class MaintenanceComponent implements OnInit {
       .maintenance()
       .pipe(untilDestroyed(this), take(1))
       .subscribe(
-        /* istanbul ignore next */ maintenance => {
+        maintenance => {
           const visible = !Boolean(localStorage.getItem('hideMaintenance')) && maintenance.visible;
 
           this.maintenance = { ...maintenance, visible };
           this.cmsService.set({ maintenance: this.maintenance });
           this.cdr.markForCheck();
         },
-        /* istanbul ignore next */ () => {
+        () => {
           this.cdr.markForCheck();
         }
       );
   }
 
   public onHide(event: Event): void {
-    /* istanbul ignore next */
     event.preventDefault();
     this.hideMaintenanceMessage();
   }

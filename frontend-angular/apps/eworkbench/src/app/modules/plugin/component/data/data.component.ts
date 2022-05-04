@@ -28,6 +28,9 @@ export class PluginDataComponent implements OnInit {
   public pluginTitle?: string | null;
 
   @Input()
+  public pluginHeight?: number | null;
+
+  @Input()
   public refresh?: EventEmitter<boolean>;
 
   public active = false;
@@ -35,7 +38,6 @@ export class PluginDataComponent implements OnInit {
   public constructor(private readonly sanitizer: DomSanitizer, private readonly cdr: ChangeDetectorRef) {}
 
   public ngOnInit(): void {
-    /* istanbul ignore next */
     this.refresh?.pipe(untilDestroyed(this)).subscribe(() => {
       this.deactivate();
       this.cdr.markForCheck();

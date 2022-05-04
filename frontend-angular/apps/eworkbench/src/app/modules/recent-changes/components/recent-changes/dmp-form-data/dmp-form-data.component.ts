@@ -4,7 +4,6 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 interface RecentChangesDMPFormData {
@@ -40,7 +39,7 @@ export class RecentChangesDMPFormDataComponent implements OnInit {
 
   public changeSet: RecentChangesDMPFormDataChangeSet[] = [];
 
-  public constructor(private readonly translocoService: TranslocoService, private readonly cdr: ChangeDetectorRef) {}
+  public constructor(private readonly cdr: ChangeDetectorRef) {}
 
   public ngOnInit(): void {
     this.initDetails();

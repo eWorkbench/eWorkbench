@@ -1,0 +1,23 @@
+{
+  "projectType": "library",
+  "root": "libs/calendar",
+  "sourceRoot": "libs/calendar/src",
+  "prefix": "eworkbench",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/calendar"],
+      "options": {
+        "jestConfig": "libs/calendar/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "builder": "@angular-eslint/builder:lint",
+      "options": {
+        "lintFilePatterns": ["libs/calendar/**/*.ts", "libs/calendar/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

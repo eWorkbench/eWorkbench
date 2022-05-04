@@ -1,5 +1,7 @@
-node_modules
-build
-dist
-res
-coverage
+# Add files here to ignore them from prettier formatting
+
+/dist
+/coverage
+apps/eworkbench/src/assets/plugins
+.angular
+.npm
