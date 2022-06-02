@@ -40,7 +40,8 @@ export class WysiwygEditorComponent implements ControlValueAccessor, OnInit, Aft
     quickbars_insert_toolbar: '',
     quickbars_selection_toolbar:
       'bold italic underline strikethrough forecolor backcolor | removeformat  | alignleft aligncenter alignright alignjustify | superscript subscript | formula',
-    contextmenu: 'inserttable | cell row column deletetable | charmap | hr',
+    contextmenu:
+      'formats | bold italic underline forecolor removeformat | align | inserttable cell row column deletetable | charmap superscript subscript | link | hr',
     paste_data_images: true,
     content_css: '/assets/styles/tinymce.css',
     file_picker_types: 'image',
@@ -56,13 +57,15 @@ export class WysiwygEditorComponent implements ControlValueAccessor, OnInit, Aft
           const reader = new FileReader();
           reader.onload = () => {
             const id = `blobid${new Date().getTime()}`;
-            const blobCache = this.editor?.editor?.editorUpload.blobCache;
+            const blobCache = this.editor?.editor.editorUpload.blobCache;
             if (reader.result) {
               const base64 = (reader.result as string).split(',')[1];
-              const blobInfo = blobCache.create(id, file, base64);
-              blobCache.add(blobInfo);
+              const blobInfo = blobCache?.create(id, file, base64);
 
-              cb(blobInfo.blobUri(), { title: file.name });
+              if (blobInfo) {
+                blobCache?.add(blobInfo);
+                cb(blobInfo.blobUri(), { title: file.name });
+              }
             }
           };
           reader.readAsDataURL(file);
@@ -112,7 +115,7 @@ export class WysiwygEditorComponent implements ControlValueAccessor, OnInit, Aft
       this.cdr.markForCheck();
     });
 
-    setTimeout(() => this.editor?.editor?.setMode(this.disabled ? 'readonly' : 'design'), 500);
+    setTimeout(() => this.editor?.editor.setMode(this.disabled ? 'readonly' : 'design'), 500);
   }
 
   public writeValue(value: string | null): void {

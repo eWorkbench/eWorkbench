@@ -209,7 +209,7 @@ export class TaskPageComponent implements OnInit, OnDestroy {
       start_date: dateTimeStart,
       due_date: dateTimeEnd,
       full_day: this.f.dateGroup.value.fullDay,
-      priority: (this.f.priority.value as Task['priority'] | null) ?? 'NORM',
+      priority: (this.f.priority.value as Task['priority'] | null) ?? '3',
       state: (this.f.state.value as Task['state'] | null) ?? 'NEW',
       projects: this.f.projects.value,
       checklist_items: this.f.checklist.value,
@@ -275,11 +275,11 @@ export class TaskPageComponent implements OnInit, OnDestroy {
       .pipe(untilDestroyed(this))
       .subscribe(tasks => {
         this.priority = [
-          { label: tasks.priority.veryHigh, value: 'VHIGH' },
-          { label: tasks.priority.high, value: 'HIGH' },
-          { label: tasks.priority.normal, value: 'NORM' },
-          { label: tasks.priority.low, value: 'LOW' },
-          { label: tasks.priority.veryLow, value: 'VLOW' },
+          { label: tasks.priority.veryHigh, value: '5' },
+          { label: tasks.priority.high, value: '4' },
+          { label: tasks.priority.normal, value: '3' },
+          { label: tasks.priority.low, value: '2' },
+          { label: tasks.priority.veryLow, value: '1' },
         ];
 
         this.stateItems = [

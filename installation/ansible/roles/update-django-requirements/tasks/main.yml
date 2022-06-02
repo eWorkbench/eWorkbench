@@ -1,0 +1,11 @@
+---
+- name: pip install requirements and upgrades
+  command: "su - {{ app_user }} -c '{{ activate }} && pip install -r {{ django_dir }}/app/requirements.txt --upgrade && deactivate'"
+  register: out
+
+- name: upgrade log
+  debug:
+    var: out.stdout_lines
+
+- name: Restart daphne
+  command: "su - {{ app_user }} -c 'touch /run/daphne/restart.txt'"

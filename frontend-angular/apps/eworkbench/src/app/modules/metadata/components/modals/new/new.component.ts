@@ -145,6 +145,10 @@ export class NewMetadataFieldComponent implements OnInit {
             label: baseTypes.date,
           },
           {
+            value: 'real_date',
+            label: baseTypes.realDate,
+          },
+          {
             value: 'time',
             label: baseTypes.time,
           },

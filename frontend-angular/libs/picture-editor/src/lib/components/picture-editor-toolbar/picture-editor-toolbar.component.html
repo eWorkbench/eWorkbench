@@ -7,7 +7,7 @@
       tooltip="Select"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="selectTool(tools.Select)"
     >
       <eworkbench-icon class="icon-size-md" className="wb-mouse-pointer"></eworkbench-icon>
@@ -19,7 +19,7 @@
       tooltip="Text"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="selectTool(tools.Text)"
     >
       <eworkbench-icon class="icon-size-md" className="wb-font"></eworkbench-icon>
@@ -34,7 +34,7 @@
       tooltip="Pencil"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="selectTool(tools.Pen)"
     >
       <eworkbench-icon class="icon-size-md" className="wb-pen"></eworkbench-icon>
@@ -46,7 +46,7 @@
       tooltip="Eraser"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="selectTool(tools.Eraser)"
     >
       <eworkbench-icon class="icon-size-md" className="wb-eraser"></eworkbench-icon>
@@ -61,7 +61,7 @@
       tooltip="Line"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="selectTool(tools.Line)"
     >
       <eworkbench-icon class="icon-size-md" className="wb-bold-line"></eworkbench-icon>
@@ -73,7 +73,7 @@
       tooltip="Ellipse"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="selectTool(tools.Ellipse)"
     >
       <eworkbench-icon class="icon-size-md" className="wb-bold-ellipse"></eworkbench-icon>
@@ -85,7 +85,7 @@
       tooltip="Polygon"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="selectTool(tools.Polygon)"
     >
       <eworkbench-icon class="icon-size-md" className="wb-bold-polygon"></eworkbench-icon>
@@ -97,7 +97,7 @@
       tooltip="Rectangle"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="selectTool(tools.Square)"
     >
       <eworkbench-icon class="icon-size-md" className="wb-bold-square"></eworkbench-icon>
@@ -111,7 +111,7 @@
       tooltip="Text and line color"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       [colorPicker]="getPrimaryColor()"
       (colorPickerChange)="changePrimaryColor($event)"
       (colorPickerClose)="changePrimaryColorHistory()"
@@ -127,7 +127,7 @@
       tooltip="Fill color"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       [colorPicker]="getSecondaryColor()"
       (colorPickerChange)="changeSecondaryColor($event)"
       (colorPickerClose)="changeSecondaryColorHistory()"
@@ -146,7 +146,7 @@
       tooltip="Save changes"
       containerClass="tooltip-sm"
       placement="bottom"
-      [disabled]="loading"
+      [disabled]="loading || !editable"
       (click)="save()"
     >
       <eworkbench-icon class="icon-size-md mr-2" className="wb-check"></eworkbench-icon>
@@ -184,7 +184,7 @@
       [disabled]="loading || !canRedo"
       (click)="redo()"
     >
-      <eworkbench-icon class="icon-size-md flipH" className="wb-undo"></eworkbench-icon>
+      <eworkbench-icon class="icon-size-md flip-h" className="wb-undo"></eworkbench-icon>
     </button>
     <eworkbench-picture-editor-details-dropdown
       [picture]="picture"

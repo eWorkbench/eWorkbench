@@ -1,0 +1,20 @@
+- name: Stop service celerybeat
+  systemd:
+    name: celerybeat
+    state: stopped
+  become: yes
+  when: "inventory_file|basename == 'production'"
+
+- name: Delete /var/lib/celerybeat/celerybeat-schedule.db
+  file:
+    path: /var/lib/celerybeat/celerybeat-schedule.db
+    state: absent
+  become: yes
+  when: "inventory_file|basename == 'production'"
+
+- name: Start service celerybeat
+  systemd:
+    name: celerybeat
+    state: started
+  become: yes
+  when: "inventory_file|basename == 'production'"

@@ -24,18 +24,11 @@ export class PluginPreviewComponent {
   @Output()
   public selected = new EventEmitter<PluginDetails>();
 
-  @Output()
-  public dropdownSelected = new EventEmitter<{ type: string; id: string }>();
-
   public onShowDetails(): void {
     this.showDetails.emit(this.plugin);
   }
 
   public onSelect(): void {
     this.selected.emit(this.plugin);
-  }
-
-  public onDropdownSelected(event: { type: string; id: string }): void {
-    this.dropdownSelected.emit(event);
   }
 }

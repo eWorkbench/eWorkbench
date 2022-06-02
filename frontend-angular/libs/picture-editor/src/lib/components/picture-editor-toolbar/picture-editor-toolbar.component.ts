@@ -38,6 +38,9 @@ export class PictureEditorToolbarComponent implements OnInit {
   @Input()
   public service: any;
 
+  @Input()
+  public editable = false;
+
   @Output()
   public saveSketch = new EventEmitter<SaveSketchEvent>();
 

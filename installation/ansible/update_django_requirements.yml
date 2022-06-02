@@ -1,0 +1,6 @@
+---
+# file: update_django_requirements.yml
+
+- hosts: django
+  roles:
+    - update-django-requirements

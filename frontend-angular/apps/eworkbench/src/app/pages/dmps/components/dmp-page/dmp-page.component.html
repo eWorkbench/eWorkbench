@@ -60,6 +60,7 @@
                         [label]="t('dmp.details.title.label')"
                         [loading]="loading"
                         [onSubmit]="refreshResetValue"
+                        [required]="true"
                       >
                         <input
                           type="text"
@@ -133,7 +134,7 @@
                           formControlName="projects"
                           labelForId="projects"
                           name="projects"
-                          [placeholder]="t('dmp.details.projects.placeholder')"
+                          [placeholder]="privileges?.edit ? t('dmp.details.projects.placeholder') : t('formInput.notDefined.placeholder')"
                           [multiple]="true"
                           [typeahead]="projectInput$"
                           [items]="projects"

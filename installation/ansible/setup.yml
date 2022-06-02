@@ -1,0 +1,56 @@
+---
+# file: setup.yml
+
+# following roles will be run on the application hosts
+- hosts: application
+  roles:
+    - setup-ssl-certificates
+    - setup-nginx
+    - reboot
+
+# following roles will be run on the django hosts, which includes the workers
+- hosts: django
+  roles:
+    - setup-install-dependencies
+    - setup-app-user
+    - setup-daphne
+    - setup-directories
+    - setup-nas-mount
+    - setup-dbbackup-scripts
+    - setup-dss-django
+    - reboot
+
+# following roles will be run on the redis hosts
+- hosts: worker
+  roles:
+    - setup-postgresql-client
+    - setup-dss-worker
+    - reboot
+
+# following roles will be run on the redis hosts
+- hosts: redis
+  roles:
+    - setup-redis-config
+    - reboot
+
+# following roles will be run on the database hosts
+- hosts: database
+  roles:
+    - setup-app-user
+    - setup-nas-mount
+    - setup-database-config
+    - reboot
+    - setup-nas-mount-disable
+
+# After the database setup
+#
+# Import DB:
+# sudo -u postgres psql eric
+# DROP SCHEMA public CASCADE;
+# \q
+#
+# Example (adjust the path to the right file to import):
+# cat /mnt/nas_tuze_bib_workbench/backup/testbench/latest_2020-03-14.psql.gz | gunzip | sudo -u postgres psql eric
+#
+# To unmount the NAS simply:
+# sudo reboot

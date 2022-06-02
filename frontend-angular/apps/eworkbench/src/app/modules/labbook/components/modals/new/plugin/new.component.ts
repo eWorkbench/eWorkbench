@@ -9,7 +9,7 @@ import { Validators } from '@angular/forms';
 import { ModalState } from '@app/enums/modal-state.enum';
 import { gridsterConfig } from '@app/modules/labbook/config/gridster-config';
 import { LabBooksService, PluginInstancesService, PluginsService } from '@app/services';
-import type { DropdownElement, LabBookElementEvent, ModalCallback, PluginDetails, PluginInstancePayload } from '@eworkbench/types';
+import type { DropdownElement, LabBookElementEvent, ModalCallback, PluginDetails, PluginInstancePayload, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -55,7 +55,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
 
   public params = new HttpParams();
 
-  public showFeedbackFormForPlugin?: { type: string; id: string };
+  public showFeedbackFormForPlugin?: { type: string; id: string; responsibleUsers: User[] };
 
   public parentElement: DropdownElement[] = [];
 
@@ -255,7 +255,7 @@ export class NewLabBookPluginElementModalComponent implements OnInit {
     this.onChangeStep(2);
   }
 
-  public onDropdownSelected(event: { type: string; id: string }): void {
+  public onSelected(event: { type: string; id: string; responsibleUsers: User[] }): void {
     this.showFeedbackFormForPlugin = { ...event };
   }
 

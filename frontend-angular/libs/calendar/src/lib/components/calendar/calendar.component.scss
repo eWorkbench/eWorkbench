@@ -14,7 +14,6 @@
 :root {
   --fc-neutral-text-color: #{$text-color};
   --fc-border-color: #{$border-color};
-
   --fc-button-text-color: #{$primary-color};
   --fc-button-bg-color: #{$secondary-color};
   --fc-button-border-color: transparent;
@@ -22,11 +21,9 @@
   --fc-button-hover-border-color: transparent;
   --fc-button-active-bg-color: #{$primary-color};
   --fc-button-active-border-color: transparent;
-
   --fc-event-bg-color: #{$event-background-color};
   --fc-event-border-color: #{$event-border-color};
   --fc-event-text-color: #{$event-text-color};
-
   --fc-highlight-color: #{$secondary-color};
   --fc-today-bg-color: #{$secondary-color};
   --fc-now-indicator-color: #{$primary-color};
@@ -55,15 +52,16 @@
     text-transform: capitalize;
   }
 
+  /* stylelint-disable-next-line selector-class-pattern */
   .fc-timeGridWeek-button.fc-button.fc-button-primary {
     font-weight: 500;
 
     &.fc-button-active {
-      color: #ffffff;
+      color: #fff;
 
       &:active,
       &:hover {
-        color: #ffffff;
+        color: #fff;
         background-color: $primary-color-hover;
       }
     }
@@ -73,15 +71,16 @@
     }
   }
 
+  /* stylelint-disable-next-line selector-class-pattern */
   .fc-dayGridMonth-button.fc-button.fc-button-primary {
     font-weight: 500;
 
     &.fc-button-active {
-      color: #ffffff;
+      color: #fff;
 
       &:active,
       &:hover {
-        color: #ffffff;
+        color: #fff;
         background-color: $primary-color-hover;
       }
     }
@@ -99,6 +98,10 @@
     }
   }
 
+  .fc-prev-button.fc-button.fc-button-primary {
+    margin-right: 5px;
+  }
+
   .fc-prev-button.fc-button.fc-button-primary,
   .fc-next-button.fc-button.fc-button-primary {
     width: 25px;
@@ -111,25 +114,21 @@
 
   .fc-export-button.fc-button.fc-button-primary,
   .fc-book-button.fc-button.fc-button-primary {
-    color: #ffffff;
+    color: #fff;
     background-color: $additional-color;
     border-color: transparent;
     text-transform: unset;
 
     &:hover,
     &:active {
-      color: #ffffff;
+      color: #fff;
       background-color: $additional-color-hover;
     }
   }
 
-  .fc-prev-button.fc-button.fc-button-primary {
-    margin-right: 5px;
-  }
-
   .fc-daygrid-day-number {
     font-size: 10px;
-    margin: 4px 4px 0 4px;
+    margin: 4px 4px 0;
     cursor: default;
   }
 
@@ -143,7 +142,7 @@
   }
 
   .fc .fc-daygrid-week-number {
-    color: #000000;
+    color: #000;
     font-size: $font-size;
     font-weight: 600;
     background-color: unset;

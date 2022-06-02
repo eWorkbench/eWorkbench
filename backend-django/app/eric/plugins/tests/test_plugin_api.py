@@ -92,14 +92,6 @@ class TestPluginFeedbackAndRequestAccessAPI(APITestCase, PluginMixin, CommonTest
             path='test_plugin_path',
         )
 
-        # contact admin setting for patching
-        cls.contact_admin1_mail = 'admin1@workbench.test'
-        cls.contact_admin2_mail = 'admin1@workbench.test'
-        cls.contact_admin = (
-            ('Workbench Admin 1', cls.contact_admin1_mail),
-            ('Workbench Admin 2', cls.contact_admin2_mail),
-        )
-
         # create responsible users
         cls.responsible_user1 = cls.create_user(username='responsible1', email='responsible1@test.local')
         cls.responsible_user2 = cls.create_user(username='responsible2', email='responsible2@test.local')
@@ -109,20 +101,18 @@ class TestPluginFeedbackAndRequestAccessAPI(APITestCase, PluginMixin, CommonTest
     def setUp(self):
         self.user1, self.token1 = self.create_user_and_log_in(username='user1', groups=['User'])
 
-    def test_feedback_sends_mail_to_responsible_users_and_admins(self):
-        # patch Django settings
-        with self.settings(CONTACT_ADMIN=self.contact_admin):
-            # send feedback via API
-            response = self.rest_send_plugin_generic_feedback(
-                self.token1, plugin_pk=self.plugin1.pk,
-                subject='Some Feedback',
-                message='This is a nice plugin :-)',
-                feedback_type='feedback'
-            )
-            self.assert_response_status(response, status.HTTP_200_OK)
+    def test_feedback_sends_mail_to_responsible_users(self):
+        # send feedback via API
+        response = self.rest_send_plugin_generic_feedback(
+            self.token1, plugin_pk=self.plugin1.pk,
+            subject='Some Feedback',
+            message='This is a nice plugin :-)',
+            feedback_type='feedback'
+        )
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # check recipients
-        self.assert_mail_is_sent_to_contact_admins_and_responsible_users()
+        self.assert_mail_is_sent_to_responsible_users()
 
         # check contents
         mail1 = mail.outbox[0]
@@ -131,31 +121,27 @@ class TestPluginFeedbackAndRequestAccessAPI(APITestCase, PluginMixin, CommonTest
         self.assertTrue('Some Feedback' in mail_subject)
         self.assertTrue('This is a nice plugin :-)' in mail_content)
 
-    def test_request_access_sends_mail_to_responsible_users_and_admins(self):
-        # patch Django settings
-        with self.settings(CONTACT_ADMIN=self.contact_admin):
-            # request access via API
-            response = self.rest_send_plugin_generic_feedback(
-                self.token1, plugin_pk=self.plugin1.pk,
-                subject='Request to access plugin',
-                message='Hi, I need access to this plugin. Please grant me access.',
-                feedback_type='request_access'
-            )
-            self.assert_response_status(response, status.HTTP_200_OK)
+    def test_request_access_sends_mail_to_responsible_users(self):
+        # request access via API
+        response = self.rest_send_plugin_generic_feedback(
+            self.token1, plugin_pk=self.plugin1.pk,
+            subject='Request to access plugin',
+            message='Hi, I need access to this plugin. Please grant me access.',
+            feedback_type='request_access'
+        )
+        self.assert_response_status(response, status.HTTP_200_OK)
 
         # check recipients
-        self.assert_mail_is_sent_to_contact_admins_and_responsible_users()
+        self.assert_mail_is_sent_to_responsible_users()
 
         # check contents
         mail1 = mail.outbox[0]
         mail_content = mail1.body
         self.assertTrue('Hi, I need access to this plugin. Please grant me access.' in mail_content)
 
-    def assert_mail_is_sent_to_contact_admins_and_responsible_users(self):
+    def assert_mail_is_sent_to_responsible_users(self):
         recipients = [m.to[0] for m in mail.outbox]
         expected_recipients = [
-            self.contact_admin1_mail,
-            self.contact_admin2_mail,
             self.responsible_user1.email,
             self.responsible_user2.email,
         ]

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib import admin
+from django_userforeignkey.request import get_current_user
 
 
 class IsDeleteableMixin:
@@ -25,6 +26,9 @@ class DeleteableModelAdmin(admin.ModelAdmin):
         return actions
 
     def has_delete_permission(self, request, obj=None):
+        user = get_current_user()
+        if user.is_superuser:
+            return True
         if obj and not obj.is_deleteable():
             message = "This object can not be deleted"
             self.message_user(request, message)

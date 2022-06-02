@@ -6,7 +6,6 @@ import logging
 
 from distutils import util
 
-from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.http import HttpResponse, Http404
@@ -146,24 +145,12 @@ class PluginViewSet(
             'message': message,
         }
 
-        # get recipients of mail
         recipient_list = plugin.responsible_users.all()
-
         for recipient in recipient_list:
             context['recipient_username'] = recipient.username
             context['recipient_email'] = recipient.email
-            # send an e-mail to each recipient
             self.create_and_send_mail(context, feedback_type)
 
-        # an additional mail is sent to CONTACT_ADMIN
-
-        for admin_contact in settings.CONTACT_ADMIN:
-            context['recipient_username'] = admin_contact[0]
-            context['recipient_email'] = admin_contact[1]
-
-            self.create_and_send_mail(context, feedback_type)
-
-        # done!
         return Response(status=status.HTTP_200_OK)
 
 

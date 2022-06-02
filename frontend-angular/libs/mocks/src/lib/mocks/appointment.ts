@@ -41,7 +41,7 @@ export const mockAppointment: Appointment = {
   content_type: 34,
   attending_contacts: [],
   resource_pk: null,
-  url: 'http://workbench.local:8000/api/meetings/d09f27fe-9ab4-4c72-949c-741855010d37/',
+  url: 'http://localhost:8000/api/meetings/d09f27fe-9ab4-4c72-949c-741855010d37/',
   scheduled_notification: null,
   resource: null,
   title: 'Appointment',

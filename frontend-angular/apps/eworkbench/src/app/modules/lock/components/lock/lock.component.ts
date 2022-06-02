@@ -41,6 +41,10 @@ export class LockComponent {
     });
   }
 
+  public get isWebdavLocked() {
+    return this.lock.lock_details.webdav_lock;
+  }
+
   public releaseLock(event?: Event): void {
     event?.preventDefault();
     this.service.unlock(this.id).pipe(untilDestroyed(this)).subscribe();

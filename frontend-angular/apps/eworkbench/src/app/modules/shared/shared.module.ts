@@ -18,6 +18,7 @@ import { DetailsCollapseElementComponent } from './details-collapse-element/deta
 import { AuthDownloadDirective } from './directives/auth-download/auth-download.directive';
 import { AutoFocusDirective } from './directives/auto-focus/auto-focus.directive';
 import { EllipsisDirective } from './directives/ellipsis/ellipsis.directive';
+import { StickyDirective } from './directives/sticky/sticky.directive';
 import { FilterSidebarComponent } from './filter-sidebar/filter-sidebar.component';
 import { DescriptionModalComponent } from './modals/description/description.component';
 import { PendingChangesModalComponent } from './modals/pending-changes/pending-changes.component';
@@ -54,6 +55,7 @@ import { LoadingModule } from '../loading/loading.module';
     OverviewCollapseElementComponent,
     EllipsisDirective,
     DescriptionModalComponent,
+    StickyDirective,
   ],
   imports: [
     CommonModule,
@@ -86,6 +88,7 @@ import { LoadingModule } from '../loading/loading.module';
     OverviewCollapseElementComponent,
     EllipsisDirective,
     DescriptionModalComponent,
+    StickyDirective,
   ],
 })
 export class SharedModule {}

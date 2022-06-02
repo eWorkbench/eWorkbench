@@ -416,3 +416,23 @@ def globus_message_queue_consumer():
                 file_watch.channel.close()
             if file_watch.connection:
                 file_watch.connection.close()
+
+
+@shared_task
+def requeue_hanging_files_to_import():
+    """
+    If a FileToImport is still in progress and has not been imported, then set import_in_progress to false, so it is
+    tried again in another import queue
+    """
+    delta = 60 * 60 * 3  # 3 hours
+    hanging_files_to_import = DSSFilesToImport.objects.filter(
+        import_in_progress=True,
+        imported=False,
+        import_attempts__lte=3,
+        created_at__lte=timezone.now() - timedelta(seconds=delta),
+    )
+    if hanging_files_to_import:
+        count = hanging_files_to_import.count()
+        logger.info(f'Found {count} hanging files to requeue')
+        with disable_permission_checks(DSSFilesToImport):
+            hanging_files_to_import.update(import_in_progress=False)

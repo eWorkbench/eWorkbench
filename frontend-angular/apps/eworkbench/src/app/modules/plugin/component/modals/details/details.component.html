@@ -4,17 +4,28 @@
 -->
 
 <ng-container *transloco="let t">
-  <eworkbench-modal>
+  <eworkbench-modal [modalFooter]="false">
     <div slot="header">
       {{ t('plugin.detailsModal.header') }}
     </div>
     <div slot="body">
-      <eworkbench-plugin-details [plugin]="plugin"></eworkbench-plugin-details>
-    </div>
-    <div slot="footer">
-      <button type="button" class="btn ewb-button-big ewb-button-secondary" (click)="modalRef.close()">
-        {{ t('plugin.detailsModal.close') }}
-      </button>
+      <ng-container *ngIf="!showFeedbackFormForPlugin">
+        <eworkbench-plugin-details [plugin]="plugin" (selected)="onSelected($event)"></eworkbench-plugin-details>
+
+        <div class="modal-footer p-0 mt-5">
+          <button type="button" class="btn ewb-button-big ewb-button-secondary mr-2" [disabled]="loading" (click)="modalRef.close()">
+            {{ t('plugin.detailsModal.close') }}
+          </button>
+        </div>
+      </ng-container>
+
+      <eworkbench-plugin-feedback
+        [id]="showFeedbackFormForPlugin?.id"
+        [type]="showFeedbackFormForPlugin?.type"
+        [responsibleUsers]="showFeedbackFormForPlugin?.responsibleUsers"
+        (canceled)="onHideFeedbackForm()"
+        *ngIf="showFeedbackFormForPlugin"
+      ></eworkbench-plugin-feedback>
     </div>
   </eworkbench-modal>
 </ng-container>

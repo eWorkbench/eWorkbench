@@ -5,6 +5,7 @@
 
 import { Component, isDevMode, OnInit } from '@angular/core';
 import { environment } from '@environments/environment';
+import { setTheme } from 'ngx-bootstrap/utils';
 import { MatomoInjector } from 'ngx-matomo-v9';
 import { WebSocketService } from './services';
 
@@ -14,7 +15,9 @@ import { WebSocketService } from './services';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  public constructor(private readonly websocketService: WebSocketService, private readonly matomoInjector: MatomoInjector) {}
+  public constructor(private readonly websocketService: WebSocketService, private readonly matomoInjector: MatomoInjector) {
+    setTheme('bs4');
+  }
 
   public ngOnInit(): void {
     this.websocketService.connect();

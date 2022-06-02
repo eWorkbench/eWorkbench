@@ -228,7 +228,7 @@ export class LabBookDrawBoardPictureComponent implements OnInit {
     this.modalRef = this.modalService.open(PictureEditorModalComponent, {
       closeButton: false,
       width: 'auto',
-      data: { service: this.picturesService, initialState: this.initialState },
+      data: { service: this.picturesService, initialState: this.initialState, privileges: this.privileges },
     });
 
     this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe(() => this.onModalClose());

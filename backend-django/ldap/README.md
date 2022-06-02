@@ -3,7 +3,7 @@
 For testing the LDAP integration, the [docker-compose.yml](../docker-compose.yml) file in this repository
 provides an openLDAP server aswell as phpLdapAdmin for administrating the LDAP server.
 
-You can access the LDAP admin via [http://127.0.11.20:1081/](). Login with
+You can access the LDAP admin via [http://localhost:1081/](). Login with
 ```
 DN: cn=admin,dc=workbech,dc=local
 Password: admin
@@ -40,7 +40,7 @@ docker-compose exec ldap-service ldapadd -x -w "admin" -D "cn=admin,dc=workbench
 
 ### phpLdapAdmin
 
-Log in into the LDAP admin via [https://127.0.11.20:1081/]() (make sure to accept the SSL certificate). Login with
+Log in into the LDAP admin via [https://localhost:1081/]() (make sure to accept the SSL certificate). Login with
 ```
 DN: cn=admin,dc=workbench,dc=local
 Password: admin

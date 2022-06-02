@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# copy Script für lokale DB-Sicherung auf LRZ-NAS
+
+cp /var/django/eworkbench/backups/latest.psql.gz /mnt/nas_tuze_bib_workbench/backup/{{ app_name }}/latest_`date +%F`.psql.gz

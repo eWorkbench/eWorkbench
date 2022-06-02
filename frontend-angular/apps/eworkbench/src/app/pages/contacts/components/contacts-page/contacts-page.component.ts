@@ -573,7 +573,8 @@ export class ContactsPageComponent implements OnInit {
       .subscribe();
   }
 
-  public onSaveFilters(save = false): void {
+  public onSaveFilters(save: boolean): void {
+    this.savedFilters = save;
     if (save) {
       this.userService
         .get()

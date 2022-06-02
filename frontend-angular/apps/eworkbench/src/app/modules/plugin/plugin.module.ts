@@ -14,7 +14,6 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { PluginAccessibilityLabelComponent } from './component/accessibility-label/label.component';
 import { PluginDataComponent } from './component/data/data.component';
-import { PluginDetailsDropdownComponent } from './component/details-dropdown/details-dropdown.component';
 import { PluginDetailsComponent } from './component/details/details.component';
 import { PluginFeedbackComponent } from './component/feedback/feedback.component';
 import { PluginDetailsModalComponent } from './component/modals/details/details.component';
@@ -33,7 +32,6 @@ import { UserModule } from '../user/user.module';
     PluginAccessibilityLabelComponent,
     PluginDetailsModalComponent,
     PluginFeedbackComponent,
-    PluginDetailsDropdownComponent,
   ],
   imports: [
     CommonModule,
@@ -56,7 +54,6 @@ import { UserModule } from '../user/user.module';
     PluginAccessibilityLabelComponent,
     PluginDetailsModalComponent,
     PluginFeedbackComponent,
-    PluginDetailsDropdownComponent,
   ],
 })
 export class PluginModule {}

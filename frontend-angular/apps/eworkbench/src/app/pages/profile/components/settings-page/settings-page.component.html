@@ -321,6 +321,21 @@
               <input
                 class="custom-control-input"
                 type="checkbox"
+                id="confirmationPromptTrash"
+                name="confirmationPromptTrash"
+                formControlName="confirmationPromptTrash"
+                (change)="onSaveDialogSettings()"
+              />
+              <label class="custom-control-label font-normal" for="confirmationPromptTrash">{{
+                t('profileSettings.dialog.confirmationPrompts.trash.label')
+              }}</label>
+            </div>
+          </div>
+          <div class="ml-3 mb-3">
+            <div class="custom-control custom-checkbox">
+              <input
+                class="custom-control-input"
+                type="checkbox"
                 id="confirmationPromptRemoveDirectory"
                 name="confirmationPromptRemoveDirectory"
                 formControlName="confirmationPromptRemoveDirectory"
@@ -336,43 +351,13 @@
               <input
                 class="custom-control-input"
                 type="checkbox"
-                id="confirmationPromptTrashFile"
-                name="confirmationPromptTrashFile"
-                formControlName="confirmationPromptTrashFile"
+                id="confirmationPromptRemoveElementFromLabbook"
+                name="confirmationPromptRemoveElementFromLabbook"
+                formControlName="confirmationPromptRemoveElementFromLabbook"
                 (change)="onSaveDialogSettings()"
               />
-              <label class="custom-control-label font-normal" for="confirmationPromptTrashFile">{{
-                t('profileSettings.dialog.confirmationPrompts.trashFile.label')
-              }}</label>
-            </div>
-          </div>
-          <div class="ml-3 mb-3">
-            <div class="custom-control custom-checkbox">
-              <input
-                class="custom-control-input"
-                type="checkbox"
-                id="confirmationPromptConvertTiff"
-                name="confirmationPromptConvertTiff"
-                formControlName="confirmationPromptConvertTiff"
-                (change)="onSaveDialogSettings()"
-              />
-              <label class="custom-control-label font-normal" for="confirmationPromptConvertTiff">{{
-                t('profileSettings.dialog.confirmationPrompts.convertTiff.label')
-              }}</label>
-            </div>
-          </div>
-          <div class="ml-3 mb-3">
-            <div class="custom-control custom-checkbox">
-              <input
-                class="custom-control-input"
-                type="checkbox"
-                id="confirmationPromptLeaveProject"
-                name="confirmationPromptLeaveProject"
-                formControlName="confirmationPromptLeaveProject"
-                (change)="onSaveDialogSettings()"
-              />
-              <label class="custom-control-label font-normal" for="confirmationPromptLeaveProject">{{
-                t('profileSettings.dialog.confirmationPrompts.leaveProject.label')
+              <label class="custom-control-label font-normal" for="confirmationPromptRemoveElementFromLabbook">{{
+                t('profileSettings.dialog.confirmationPrompts.removeElementFromLabbook.label')
               }}</label>
             </div>
           </div>
@@ -396,43 +381,13 @@
               <input
                 class="custom-control-input"
                 type="checkbox"
-                id="confirmationPromptTrashElementFromDeleteMenu"
-                name="confirmationPromptTrashElementFromDeleteMenu"
-                formControlName="confirmationPromptTrashElementFromDeleteMenu"
+                id="confirmationPromptLeaveProject"
+                name="confirmationPromptLeaveProject"
+                formControlName="confirmationPromptLeaveProject"
                 (change)="onSaveDialogSettings()"
               />
-              <label class="custom-control-label font-normal" for="confirmationPromptTrashElementFromDeleteMenu">{{
-                t('profileSettings.dialog.confirmationPrompts.trashElementFromDeleteMenu.label')
-              }}</label>
-            </div>
-          </div>
-          <div class="ml-3 mb-3">
-            <div class="custom-control custom-checkbox">
-              <input
-                class="custom-control-input"
-                type="checkbox"
-                id="confirmationPromptDeleteColumn"
-                name="confirmationPromptDeleteColumn"
-                formControlName="confirmationPromptDeleteColumn"
-                (change)="onSaveDialogSettings()"
-              />
-              <label class="custom-control-label font-normal" for="confirmationPromptDeleteColumn">{{
-                t('profileSettings.dialog.confirmationPrompts.deleteColumn.label')
-              }}</label>
-            </div>
-          </div>
-          <div class="ml-3 mb-3">
-            <div class="custom-control custom-checkbox">
-              <input
-                class="custom-control-input"
-                type="checkbox"
-                id="confirmationPromptTrashElementFromDetailView"
-                name="confirmationPromptTrashElementFromDetailView"
-                formControlName="confirmationPromptTrashElementFromDetailView"
-                (change)="onSaveDialogSettings()"
-              />
-              <label class="custom-control-label font-normal" for="confirmationPromptTrashElementFromDetailView">{{
-                t('profileSettings.dialog.confirmationPrompts.trashElementFromDetailView.label')
+              <label class="custom-control-label font-normal" for="confirmationPromptLeaveProject">{{
+                t('profileSettings.dialog.confirmationPrompts.leaveProject.label')
               }}</label>
             </div>
           </div>
@@ -471,28 +426,13 @@
               <input
                 class="custom-control-input"
                 type="checkbox"
-                id="confirmationPromptRemoveElementFromLabbook"
-                name="confirmationPromptRemoveElementFromLabbook"
-                formControlName="confirmationPromptRemoveElementFromLabbook"
+                id="confirmationPromptConvertTiff"
+                name="confirmationPromptConvertTiff"
+                formControlName="confirmationPromptConvertTiff"
                 (change)="onSaveDialogSettings()"
               />
-              <label class="custom-control-label font-normal" for="confirmationPromptRemoveElementFromLabbook">{{
-                t('profileSettings.dialog.confirmationPrompts.removeElementFromLabbook.label')
-              }}</label>
-            </div>
-          </div>
-          <div class="ml-3 mb-3">
-            <div class="custom-control custom-checkbox">
-              <input
-                class="custom-control-input"
-                type="checkbox"
-                id="confirmationPromptTrashAndDeleteElementFromLabbook"
-                name="confirmationPromptTrashAndDeleteElementFromLabbook"
-                formControlName="confirmationPromptTrashAndDeleteElementFromLabbook"
-                (change)="onSaveDialogSettings()"
-              />
-              <label class="custom-control-label font-normal" for="confirmationPromptTrashAndDeleteElementFromLabbook">{{
-                t('profileSettings.dialog.confirmationPrompts.trashAndDeleteElementFromLabbook.label')
+              <label class="custom-control-label font-normal" for="confirmationPromptConvertTiff">{{
+                t('profileSettings.dialog.confirmationPrompts.convertTiff.label')
               }}</label>
             </div>
           </div>

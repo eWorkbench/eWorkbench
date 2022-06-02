@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import type { PluginDetails } from '@eworkbench/types';
+import type { PluginDetails, User } from '@eworkbench/types';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -19,9 +19,9 @@ export class PluginDetailsComponent {
   public plugin!: PluginDetails;
 
   @Output()
-  public dropdownSelected = new EventEmitter<{ type: string; id: string }>();
+  public selected = new EventEmitter<{ type: string; id: string; responsibleUsers: User[] }>();
 
-  public onDropdownSelected(event: { type: string; id: string }): void {
-    this.dropdownSelected.emit(event);
+  public onSelect(event: { type: string; id: string; responsibleUsers: User[] }): void {
+    this.selected.emit(event);
   }
 }

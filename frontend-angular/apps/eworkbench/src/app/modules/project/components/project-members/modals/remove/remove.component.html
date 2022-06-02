@@ -21,7 +21,7 @@
 
           <div [class.mt-4]="currentUser?.pk === member.user.pk">
             {{ t('projects.members.removeModal.body1') }}
-            <eworkbench-user-details class="inline-block" [user]="member.user"></eworkbench-user-details>
+            <eworkbench-user-details class="inline-block" [user]="member.user" [modal]="false"></eworkbench-user-details>
             {{ t('projects.members.removeModal.body2') }}
           </div>
 

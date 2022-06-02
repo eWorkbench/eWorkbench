@@ -1,0 +1,18 @@
+[Unit]
+Requires=daphne.socket
+Description=daphne daemon ({{ app_name }})
+After=network.target
+
+[Service]
+#PIDFile=/run/daphne/pid
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ django_dir }}/app
+Environment="DJANGO_SETTINGS_MODULE={{ app_settings_path }}"
+ExecStart={{ django_dir }}/venv/bin/daphne -u /run/daphne/socket -v 2 --proxy-headers --http-timeout 600 eric.asgi:application
+#ExecReload=/bin/kill -s HUP $MAINPID
+#ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

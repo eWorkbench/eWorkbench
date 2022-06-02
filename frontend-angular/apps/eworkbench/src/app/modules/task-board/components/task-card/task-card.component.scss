@@ -12,7 +12,7 @@ $chip-size: 16px;
   display: block;
 
   .task-card {
-    background-color: #ffffff;
+    background-color: #fff;
 
     .due-date-expired {
       color: $danger-color !important;
@@ -88,7 +88,6 @@ $chip-size: 16px;
       font-size: $font-size-sm;
       display: flex;
       justify-content: space-between;
-      font-size: 10px;
       margin-top: 20px;
 
       button:not(.square-md) {

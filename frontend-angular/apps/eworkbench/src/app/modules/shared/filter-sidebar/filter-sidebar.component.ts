@@ -60,7 +60,7 @@ export class FilterSidebarComponent implements OnInit {
     });
 
     this.user$.pipe(take(1)).subscribe(user => {
-      const open = user.userprofile.ui_settings.filter_sidebar?.open;
+      const open = user.userprofile.ui_settings?.filter_sidebar?.open;
       this.open$.next(open ?? false);
     });
   }

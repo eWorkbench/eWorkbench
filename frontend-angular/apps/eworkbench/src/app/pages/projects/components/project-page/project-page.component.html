@@ -141,7 +141,9 @@
                       formControlName="parentProject"
                       labelForId="parentProject"
                       name="parentProject"
-                      [placeholder]="t('project.details.parentProject.placeholder')"
+                      [placeholder]="
+                        privileges?.edit ? t('project.details.parentProject.placeholder') : t('formInput.notDefined.placeholder')
+                      "
                       [typeahead]="projectInput$"
                       [items]="parentProject"
                       groupBy="is_favourite"
@@ -212,7 +214,11 @@
                   *ngIf="initialState.description; else noDescription"
                   [innerHTML]="initialState.description | safeHTML"
                 ></div>
-                <ng-template #noDescription>{{ t('project.details.description.noDescription') }}</ng-template>
+                <ng-template #noDescription>
+                  <span [ngClass]="!privileges?.edit ? 'italic text-tum-disabled' : ''">
+                    {{ t('project.details.description.noDescription') }}
+                  </span>
+                </ng-template>
               </ng-container>
             </eworkbench-project-element>
 

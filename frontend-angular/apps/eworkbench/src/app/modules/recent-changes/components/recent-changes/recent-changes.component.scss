@@ -8,7 +8,7 @@
 
   .close-button {
     font-size: 11px;
-    color: #000000;
+    color: #000;
     background-color: #e6e6e6;
   }
 
@@ -16,7 +16,7 @@
     margin-left: 2rem;
   }
 
-  .field-name:first-letter {
+  .field-name::first-letter {
     text-transform: uppercase;
   }
 

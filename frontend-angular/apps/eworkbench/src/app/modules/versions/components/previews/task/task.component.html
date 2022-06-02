@@ -13,7 +13,7 @@
           class="form-control ewb-input"
           id="title-modal"
           [placeholder]="t('task.details.title.placeholder')"
-          [readonly]="true"
+          [disabled]="true"
           [value]="task?.title"
         />
       </div>
@@ -24,7 +24,7 @@
           class="ewb-select"
           name="assignees-modal"
           [formControl]="assigneesFormControl"
-          [placeholder]="t('task.details.assignees.placeholder')"
+          [placeholder]="t('formInput.notDefined.placeholder')"
           [multiple]="true"
           [items]="assignees"
           bindLabel="username"
@@ -36,6 +36,7 @@
                 class="inline-block mr-1"
                 [user]="item"
                 [chip]="true"
+                [modal]="false"
                 (click)="select.isOpen = false"
               ></eworkbench-user-details>
               <span class="sub-text">{{ item.email }}</span>
@@ -75,8 +76,7 @@
           class="form-control ewb-input"
           id="startDate-modal"
           [formControl]="startDateFormControl"
-          [placeholder]="t('task.details.startDate.placeholder')"
-          [readonly]="true"
+          [placeholder]="t('formInput.notDefined.placeholder')"
         />
       </div>
       <div class="mb-4">
@@ -86,8 +86,7 @@
           class="form-control ewb-input"
           id="endDate-modal"
           [formControl]="dueDateFormControl"
-          [placeholder]="t('task.details.endDate.placeholder')"
-          [readonly]="true"
+          [placeholder]="t('formInput.notDefined.placeholder')"
         />
       </div>
       <div class="mb-4">
@@ -158,7 +157,7 @@
           class="ewb-select"
           name="projects-modal"
           [formControl]="projectsFormControl"
-          [placeholder]="t('task.details.projects.placeholder')"
+          [placeholder]="t('formInput.notDefined.placeholder')"
           [multiple]="true"
           [items]="projects"
           bindLabel="name"
@@ -170,22 +169,27 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="task?.metadata?.length">
+      <div class="mb-4">
         <label for="metadata-modal">{{ t('task.details.metadata.label') }}</label>
-        <ng-container *ngFor="let field of task?.metadata">
-          <div class="mb-2">
-            <div class="mb-1">{{ field.field_info?.display }}</div>
-            <eworkbench-metadata-field
-              [uuid]="field.pk"
-              [id]="field.pk"
-              [baseType]="field.field_info?.base_type"
-              [typeSettings]="field.field_info?.type_settings"
-              [label]="field.field_info?.display"
-              [values]="field.values"
-              [editable]="false"
-            ></eworkbench-metadata-field>
-          </div>
+        <ng-container *ngIf="task?.metadata?.length">
+          <ng-container *ngFor="let field of task?.metadata">
+            <div class="mb-2">
+              <div class="mb-1">{{ field.field_info?.display }}</div>
+              <eworkbench-metadata-field
+                [uuid]="field.pk"
+                [id]="field.pk"
+                [baseType]="field.field_info?.base_type"
+                [typeSettings]="field.field_info?.type_settings"
+                [label]="field.field_info?.display"
+                [values]="field.values"
+                [editable]="false"
+              ></eworkbench-metadata-field>
+            </div>
+          </ng-container>
         </ng-container>
+        <div class="text-tum-disabled italic" *ngIf="!task?.metadata?.length">
+          {{ t('formInput.notDefined.placeholder') }}
+        </div>
       </div>
 
       <div class="modal-footer p-0 mt-5">

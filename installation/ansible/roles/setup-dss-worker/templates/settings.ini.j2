@@ -1,0 +1,20 @@
+[rabbitmq]
+host = dssmq.dss.<domain>
+port = 5671
+virtual_host = fnotify
+queue = dss_fnotify_consumer_workbench
+user = xxxxx
+password = xxxxx
+
+[ssl]
+ca_cert = certs/cacert.pem
+
+[file_watch]
+api_endpoint = https://{{ app_name }}<domain>/api/dssfilestoimport/
+api_login_endpoint = https://{{ app_name }}<domain>/api/auth/login/
+api_user = xxxxx
+api_pass = xxxxx
+; time in seconds to wait before calling api_endpoint
+api_endpoint_request_interval = 10
+; number of messages to be consumed from queue
+message_fetch_size = 50

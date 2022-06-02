@@ -1,0 +1,10 @@
+---
+# copy the ssh pub keys specified in the /files directory to the host
+- name: Set up authorized keys
+  authorized_key:
+    user: '{{ ansible_user }}'
+    state: present
+    key: '{{ item }}'
+  with_file:
+    - example-key-1
+    - example-key-2

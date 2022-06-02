@@ -23,7 +23,7 @@ export const mockLabBook: LabBook = {
   content_type_model: 'labbooks.labbook',
   is_template: false,
   projects: [],
-  url: 'http://workbench.local:8000/api/labbooks/ec3a73fc-250a-40a2-a94b-f7262e7a95d7/',
+  url: 'http://localhost:8000/api/labbooks/ec3a73fc-250a-40a2-a94b-f7262e7a95d7/',
   last_modified_at: '2020-07-09T13:24:40.317191+02:00',
   created_at: '2020-07-09T13:24:40.317147+02:00',
   version_number: 0,

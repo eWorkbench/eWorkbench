@@ -10,7 +10,11 @@
     </div>
     <div slot="body">
       <div>
-        <eworkbench-picture-editor [picture]="initialState" [service]="picturesService"></eworkbench-picture-editor>
+        <eworkbench-picture-editor
+          [picture]="initialState"
+          [service]="picturesService"
+          [editable]="privileges?.edit"
+        ></eworkbench-picture-editor>
       </div>
 
       <div class="modal-footer p-0 mt-5">

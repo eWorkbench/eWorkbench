@@ -43,4 +43,8 @@ app.conf.beat_schedule = {
         'task': 'eric.dss.tasks.globus_message_queue_consumer',
         'schedule': 60 * 7,  # 7 minutes
     },
+    'requeue_hanging_files_to_import': {
+        'task': 'eric.dss.tasks.requeue_hanging_files_to_import',
+        'schedule': 60 * 60 * 3,  # 3 hours
+    },
 }

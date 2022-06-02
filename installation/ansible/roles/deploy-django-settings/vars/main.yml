@@ -1,0 +1,4 @@
+---
+workbench_settings: '{{ vault_workbench_settings }}'
+
+workbench_settings_file_name: production.py

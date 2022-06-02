@@ -190,13 +190,13 @@ class DisplayExportTest(APITestCase, CommonTestMixin, StudyRoomExportMixin, Meet
         rows = self.get_csv_without_first_row(response)
         self.assertEquals(
             '10001;Room Uno;' +
-            '10:00;11:00;True;Ongoing Meeting;Superuser;03.12.2020;' +
+            '11:00;12:00;True;Ongoing Meeting;Superuser;03.12.2020;' +
             ';;;;;;' +
             '03.12.2020;Default' +
             LINE_BREAK +
             '10002;Room Dos;' +
-            '11:00;12:00;False;A;Superuser;03.12.2020;' +
-            '12:00;13:00;False;B;Superuser;03.12.2020;' +
+            '12:00;13:00;False;A;Superuser;03.12.2020;' +
+            '13:00;14:00;False;B;Superuser;03.12.2020;' +
             '03.12.2020;Default',
             rows
         )
@@ -249,11 +249,11 @@ class DisplayExportTest(APITestCase, CommonTestMixin, StudyRoomExportMixin, Meet
         rows = self.get_csv_without_first_row(response)
         self.assertEquals(
             '101;Room;' +
-            '13:00;14:00;False;A;Heinrich Müller;14.12.2020;' +
-            '14:00;15:00;False;B;Peter Schmidt;14.12.2020;' +
-            '15:00;16:00;False;C;Barbara;14.12.2020;' +
-            '16:00;17:00;False;D;Fischer;14.12.2020;' +
-            '17:00;18:00;False;E;-;14.12.2020;' +
+            '14:00;15:00;False;A;Heinrich Müller;14.12.2020;' +
+            '15:00;16:00;False;B;Peter Schmidt;14.12.2020;' +
+            '16:00;17:00;False;C;Barbara;14.12.2020;' +
+            '17:00;18:00;False;D;Fischer;14.12.2020;' +
+            '18:00;19:00;False;E;-;14.12.2020;' +
             '14.12.2020;Default',
             rows
         )

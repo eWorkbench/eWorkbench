@@ -5,14 +5,24 @@ This repo contains the sourcecode of the eRIC Workbench backend. There is a sepa
 The backend consists of an authenticated REST API built with Python 3, Django 1.11 and DjangoRestFramework.
 
 See also:
+* [Docker Setup](installation/docker/README.md)
+* [Ansible Setup](installation/ansible/README.md)
 * [Development Setup](README_DevSetup.md)
 * [Commands](README_Commands.md)
 * [General Changelog](CHANGELOG.md)
 * [API Changelog](api-changes.md)
 
+## One click installation with docker for testing
+See [installation/docker/README.md](installation/docker/README.md) or just issue following commands from the root 
+directory (This will take some time to set everything up and run):
+```bash
+docker-compose build
+docker-compose up
+```
+
 ## Installation instructions for a production system
 This README contains information for developers only. If you are looking for installation instructions, please take a 
-look at the [docs/](docs/) folder.
+look at the [installation/ansible](installation/ansible) folder.
 
 ## API documentation
 OpenAPI/Swagger and Redoc documentation is generated automatically (by drf-yasg) and provided via the following endpoints:

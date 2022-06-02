@@ -13,6 +13,11 @@
 
   @media (min-width: 769px) {
     width: 300px;
+
+    .heading {
+      width: 300px;
+      z-index: 1;
+    }
   }
 
   .heading {
@@ -32,7 +37,6 @@
   }
 
   .list-content {
-    height: 100%;
     padding: 10px;
   }
 

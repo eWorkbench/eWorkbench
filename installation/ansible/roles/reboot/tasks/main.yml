@@ -1,0 +1,5 @@
+---
+- name: Rebooting the machine
+  reboot:
+    post_reboot_delay: 300
+  become: yes

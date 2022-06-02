@@ -133,7 +133,7 @@ export class DetailsDropdownComponent implements OnInit {
 
   public onDelete(): void {
     const userStoreValue = this.userStore.getValue();
-    const userSetting = 'SkipDialog-TrashElementFromDetailView';
+    const userSetting = 'SkipDialog-Trash';
 
     const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 

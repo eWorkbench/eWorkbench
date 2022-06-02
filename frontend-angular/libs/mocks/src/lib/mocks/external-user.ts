@@ -30,7 +30,7 @@ export const mockExternalUser: User = {
     title_pre: '',
     title_post: '',
     type: 'u',
-    avatar: 'http://workbench.local:8000/static/uploaded_media/unknown_user.gif',
+    avatar: 'http://localhost:8000/static/uploaded_media/unknown_user.gif',
     website: null,
   },
 };

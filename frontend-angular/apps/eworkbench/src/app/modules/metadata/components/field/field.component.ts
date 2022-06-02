@@ -71,6 +71,14 @@ export class MetadataFieldComponent implements OnInit {
     defaultMinute: this.currentDate.getMinutes(),
   };
 
+  public realDatePickerConfig: DatePickerConfig = {
+    dateFormat: 'Y-m-d',
+    enableTime: false,
+    locale: {
+      firstDayOfWeek: 1,
+    },
+  };
+
   public timePickerConfig: DatePickerConfig = {
     dateFormat: 'H:i',
     enableTime: true,
@@ -161,6 +169,7 @@ export class MetadataFieldComponent implements OnInit {
         if (this.isNotFinal()) {
           this.customInputControl.patchValue(values.custom_input, { emitEvent: false });
           if (!this.editable) {
+            this.customInputSelectedControl.disable();
             this.customInputControl.disable();
           }
         }
@@ -221,6 +230,9 @@ export class MetadataFieldComponent implements OnInit {
     } else {
       if (this.baseType === 'date') {
         this.datetimePickerConfig = this.datePickerConfig;
+        this.datepicker = true;
+      } else if (this.baseType === 'real_date') {
+        this.datetimePickerConfig = this.realDatePickerConfig;
         this.datepicker = true;
       }
 

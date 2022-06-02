@@ -28,15 +28,11 @@ export const mockUser: User = {
     ui_settings: {
       confirm_dialog: {
         'SkipDialog-ConvertTiff': false,
-        'SkipDialog-DeleteColumn': false,
         'SkipDialog-DuplicateProject': false,
         'SkipDialog-LeaveProject': false,
         'SkipDialog-RemoveDirectory': false,
         'SkipDialog-RemoveElementFromLabbook': false,
-        'SkipDialog-TrashAndDeleteElementFromLabbook': false,
-        'SkipDialog-TrashElementFromDeleteMenu': false,
-        'SkipDialog-TrashElementFromDetailView': false,
-        'SkipDialog-TrashFile': false,
+        'SkipDialog-Trash': false,
       },
     },
   },

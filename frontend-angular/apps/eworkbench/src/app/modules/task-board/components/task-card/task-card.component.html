@@ -43,7 +43,12 @@
                 </button>
               </li>
               <li>
-                <button type="button" class="btn ewb-button-regular font-normal w-full text-left menu-item-button" (click)="onRemove()">
+                <button
+                  type="button"
+                  class="btn ewb-button-regular font-normal w-full text-left menu-item-button"
+                  [disabled]="!privileges?.edit"
+                  (click)="onRemove()"
+                >
                   <span class="mr-2"><eworkbench-icon className="wb-remove"></eworkbench-icon></span
                   >{{ t('taskBoard.taskCard.removeFromBoard') }}
                 </button>
@@ -55,7 +60,7 @@
       <ng-container *ngIf="!userSettings.restrict_task_information">
         <div class="task-card-info">
           <div
-            class="text-secondary task-card-due-date cursor-default flex items-center space-x-1 mb-3"
+            class="text-tum-disabled task-card-due-date cursor-default flex items-center space-x-1 mb-3"
             [class.due-date-expired]="isDueDateExpired(task.task.due_date)"
             [tooltip]="t('taskBoard.taskCard.dueDate.tooltip')"
             container="body"

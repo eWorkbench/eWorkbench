@@ -1,0 +1,106 @@
+---
+- name: Create tmp dir
+  local_action:
+    module: file
+    path: tmp
+    state: directory
+  become: no
+  run_once: yes
+
+- name: new frontend - clone the tag into the tmp directory
+  local_action:
+    module: git
+    repo: 'https://github.com/eWorkbench/eWorkbench.git'
+    dest: tmp/new-frontend
+    version: master
+  become: no
+  run_once: yes
+
+- name: new frontend - npm install
+  local_action:
+    module: command
+    cmd: 'npm install'
+    args:
+      chdir: tmp/new-frontend/frontend-angular/
+    warn: false
+  become: no
+  run_once: yes
+
+- name: Replace environment.prod.ts using a template
+  local_action:
+    module: template
+    src: environment.prod.ts.j2
+    dest: tmp/new-frontend/frontend-angular/apps/eworkbench/src/environments/environment.prod.ts
+    force: yes
+  become: no
+  run_once: yes
+
+- name: new frontend - npm run build:prod
+  local_action:
+    module: command
+    cmd: 'npm run build:prod'
+    args:
+      chdir: tmp/new-frontend/frontend-angular/
+    warn: false
+  become: no
+  run_once: yes
+
+- name: Add maintenance.html to dist
+  local_action:
+    module: copy
+    src: maintenance.html
+    dest: tmp/new-frontend/frontend-angular/dist/apps/eworkbench/maintenance.html
+    force: yes
+  become: no
+  run_once: yes
+
+- name: new-frontend - synchronize (rsync) dist directory
+  synchronize:
+    src: tmp/new-frontend/frontend-angular/dist/apps/eworkbench/
+    dest: '{{ angularjs_dir }}/public/'
+    recursive: yes
+    archive: no
+    checksum: yes
+    delete: no
+    perms: yes
+    use_ssh_args: yes
+  become: yes
+
+- name: Ensure '{{ angularjs_dir }}' is owned by '{{ app_user }}'
+  file:
+    path: '{{ angularjs_dir }}'
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+    recurse: yes
+  become: yes
+
+## Uncomment if the plugin fixture has to be deployed
+#- name: Create '{{ plugins_root_path }}' if it doesn't exist
+#  file:
+#    path: '{{ plugins_root_path }}'
+#    state: directory
+#    mode: '0755'
+#    owner: '{{ app_user }}'
+#    group: www-data
+#  become: yes
+#
+#- name: synchronize plugins directory
+#  synchronize:
+#    src: _frontend-plugins/
+#    dest: '{{ plugins_root_path }}'
+#    recursive: yes
+#    archive: no
+#    checksum: yes
+#    rsync_opts:
+#      - "--delete"
+#    use_ssh_args: yes
+#  become: yes
+#  run_once: yes
+
+- name: Delete tmp directory locally
+  local_action:
+    module: file
+    path: tmp
+    state: absent
+  become: no
+  run_once: yes

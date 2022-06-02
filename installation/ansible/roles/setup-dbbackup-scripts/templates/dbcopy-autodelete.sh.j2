@@ -1,0 +1,3 @@
+#!/bin/bash
+#Script zum automatischen Löschen aller SQL-Backups auf dem LRZ-NAS die älter als 14 Tage sind
+find /mnt/nas_tuze_bib_workbench/backup/{{ app_name }}/*.psql.gz -mtime +14 -type f -delete

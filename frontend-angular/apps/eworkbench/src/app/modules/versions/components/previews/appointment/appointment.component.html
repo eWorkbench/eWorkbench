@@ -13,7 +13,7 @@
           class="form-control ewb-input"
           id="title-modal"
           [placeholder]="t('appointment.details.title.placeholder')"
-          [readonly]="true"
+          [disabled]="true"
           [value]="appointment?.title"
         />
       </div>
@@ -24,8 +24,8 @@
           class="form-control ewb-input"
           id="startDate-modal"
           [placeholder]="t('appointment.details.startDate.placeholder')"
-          [readonly]="true"
-          [value]="appointment?.date_time_start"
+          [disabled]="true"
+          [value]="appointment?.date_time_start | formatDate"
         />
       </div>
       <div class="mb-4">
@@ -35,8 +35,8 @@
           class="form-control ewb-input"
           id="endDate-modal"
           [placeholder]="t('appointment.details.endDate.placeholder')"
-          [readonly]="true"
-          [value]="appointment?.date_time_end"
+          [disabled]="true"
+          [value]="appointment?.date_time_end | formatDate"
         />
       </div>
       <div class="mb-4">
@@ -46,27 +46,27 @@
         </div>
       </div>
       <div class="mb-4">
-        <label for="resource-modal">{{ t('appointment.details.resource.label') }}</label>
-        <ng-select
-          class="ewb-select"
-          name="resource-modal"
-          [formControl]="resourceFormControl"
-          [placeholder]="t('appointment.details.resource.placeholder')"
-          [items]="resources"
-          bindLabel="display"
-          bindValue="pk"
-        ></ng-select>
-      </div>
-      <div class="mb-4">
         <label for="location-modal">{{ t('appointment.details.location.label') }}</label>
         <input
           type="text"
           class="form-control ewb-input"
           id="location-modal"
-          [placeholder]="t('appointment.details.location.placeholder')"
-          [readonly]="true"
+          [placeholder]="t('formInput.notDefined.placeholder')"
+          [disabled]="true"
           [value]="appointment?.location"
         />
+      </div>
+      <div class="mb-4">
+        <label for="resource-modal">{{ t('appointment.details.resource.label') }}</label>
+        <ng-select
+          class="ewb-select"
+          name="resource-modal"
+          [formControl]="resourceFormControl"
+          [placeholder]="t('formInput.notDefined.placeholder')"
+          [items]="resources"
+          bindLabel="display"
+          bindValue="pk"
+        ></ng-select>
       </div>
       <div class="mb-4">
         <label for="attendees-modal">{{ t('appointment.details.attendees.label') }}</label>
@@ -75,7 +75,7 @@
           class="ewb-select"
           name="attendees-modal"
           [formControl]="assigneesFormControl"
-          [placeholder]="t('appointment.details.attendees.placeholder')"
+          [placeholder]="t('formInput.notDefined.placeholder')"
           [multiple]="true"
           [items]="assignees"
           bindLabel="username"
@@ -87,6 +87,7 @@
                 class="inline-block mr-1"
                 [user]="item"
                 [chip]="true"
+                [modal]="false"
                 (click)="select.isOpen = false"
               ></eworkbench-user-details>
               <span class="sub-text">{{ item.email }}</span>
@@ -125,7 +126,7 @@
           class="ewb-select"
           name="attendingContacts-modal"
           [formControl]="contactsFormControl"
-          [placeholder]="t('appointment.details.attendingContacts.placeholder')"
+          [placeholder]="t('formInput.notDefined.placeholder')"
           [multiple]="true"
           [items]="contacts"
           bindLabel="display"
@@ -158,22 +159,27 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="appointment?.metadata?.length">
+      <div class="mb-4">
         <label for="metadata-modal">{{ t('appointment.details.metadata.label') }}</label>
-        <ng-container *ngFor="let field of appointment?.metadata">
-          <div class="mb-2">
-            <div class="mb-1">{{ field.field_info?.display }}</div>
-            <eworkbench-metadata-field
-              [uuid]="field.pk"
-              [id]="field.pk"
-              [baseType]="field.field_info?.base_type"
-              [typeSettings]="field.field_info?.type_settings"
-              [label]="field.field_info?.display"
-              [values]="field.values"
-              [editable]="false"
-            ></eworkbench-metadata-field>
-          </div>
+        <ng-container *ngIf="appointment?.metadata?.length">
+          <ng-container *ngFor="let field of appointment?.metadata">
+            <div class="mb-2">
+              <div class="mb-1">{{ field.field_info?.display }}</div>
+              <eworkbench-metadata-field
+                [uuid]="field.pk"
+                [id]="field.pk"
+                [baseType]="field.field_info?.base_type"
+                [typeSettings]="field.field_info?.type_settings"
+                [label]="field.field_info?.display"
+                [values]="field.values"
+                [editable]="false"
+              ></eworkbench-metadata-field>
+            </div>
+          </ng-container>
         </ng-container>
+        <div class="text-tum-disabled italic" *ngIf="!appointment?.metadata?.length">
+          {{ t('formInput.notDefined.placeholder') }}
+        </div>
       </div>
 
       <div class="modal-footer p-0 mt-5">

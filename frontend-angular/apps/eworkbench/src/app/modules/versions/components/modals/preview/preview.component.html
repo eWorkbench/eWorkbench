@@ -19,7 +19,9 @@
       </div>
       <div class="mb-4">
         <label for="versionSummary">{{ t('versions.previewModal.versionSummary.label') }}</label>
-        <div id="versionSummary">{{ version.summary || '-' }}</div>
+        <div id="versionSummary" [ngClass]="{ 'text-tum-disabled italic': !version.summary }">
+          {{ version.summary || t('formInput.notDefined.placeholder') }}
+        </div>
       </div>
 
       <hr />

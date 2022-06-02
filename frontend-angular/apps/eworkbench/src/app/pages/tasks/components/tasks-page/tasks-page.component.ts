@@ -99,7 +99,7 @@ export class TasksPageComponent implements OnInit {
 
   public favoritesControl = this.fb.control<boolean | null>(null);
 
-  public params = new HttpParams().set('state', 'NEW,PROG,DONE').set('priority', 'VHIGH,HIGH,NORM,LOW,VLOW');
+  public params = new HttpParams().set('state', 'NEW,PROG,DONE').set('priority', '1,2,3,4,5');
 
   public users: User[] = [];
 
@@ -327,31 +327,31 @@ export class TasksPageComponent implements OnInit {
           }
 
           if (filters.priority?.length) {
-            if (filters.priority.includes('VHIGH')) {
+            if (filters.priority.includes('1')) {
               this.veryHighCheckbox.setValue(true);
             } else {
               this.veryHighCheckbox.setValue(false);
             }
 
-            if (filters.priority.includes('HIGH')) {
+            if (filters.priority.includes('2')) {
               this.highCheckbox.setValue(true);
             } else {
               this.highCheckbox.setValue(false);
             }
 
-            if (filters.priority.includes('NORM')) {
+            if (filters.priority.includes('3')) {
               this.normalCheckbox.setValue(true);
             } else {
               this.normalCheckbox.setValue(false);
             }
 
-            if (filters.priority.includes('LOW')) {
+            if (filters.priority.includes('4')) {
               this.lowCheckbox.setValue(true);
             } else {
               this.lowCheckbox.setValue(false);
             }
 
-            if (filters.priority.includes('VLOW')) {
+            if (filters.priority.includes('5')) {
               this.veryLowCheckbox.setValue(true);
             } else {
               this.veryLowCheckbox.setValue(false);
@@ -398,17 +398,17 @@ export class TasksPageComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(tasks => {
         this.priority = {
-          VHIGH: tasks.priority.veryHigh,
-          HIGH: tasks.priority.high,
-          NORM: tasks.priority.normal,
-          LOW: tasks.priority.low,
-          VLOW: tasks.priority.veryLow,
+          5: tasks.priority.veryHigh,
+          4: tasks.priority.high,
+          3: tasks.priority.normal,
+          2: tasks.priority.low,
+          1: tasks.priority.veryLow,
         };
 
         this.state = {
           NEW: tasks.state.new,
-          PROG: tasks.priority.inProgress,
-          DONE: tasks.priority.done,
+          PROG: tasks.state.inProgress,
+          DONE: tasks.state.done,
         };
       });
   }
@@ -527,11 +527,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'VHIGH');
+        .filter(params => params !== '1');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'VHIGH'].join(','));
+          this.params = this.params.set('priority', [...params, '1'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -554,11 +554,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'HIGH');
+        .filter(params => params !== '2');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'HIGH'].join(','));
+          this.params = this.params.set('priority', [...params, '2'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -581,11 +581,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'NORM');
+        .filter(params => params !== '3');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'NORM'].join(','));
+          this.params = this.params.set('priority', [...params, '3'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -608,11 +608,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'LOW');
+        .filter(params => params !== '4');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'LOW'].join(','));
+          this.params = this.params.set('priority', [...params, '4'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -635,11 +635,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'VLOW');
+        .filter(params => params !== '5');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'VLOW'].join(','));
+          this.params = this.params.set('priority', [...params, '5'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -961,6 +961,7 @@ export class TasksPageComponent implements OnInit {
   }
 
   public onSaveFilters(save: boolean): void {
+    this.savedFilters = save;
     if (save) {
       this.userService
         .get()
@@ -1044,7 +1045,7 @@ export class TasksPageComponent implements OnInit {
   }
 
   public onResetFilters(): void {
-    this.params = new HttpParams().set('state', 'NEW,PROG,DONE').set('priority', 'VHIGH,HIGH,NORM,LOW,VLOW');
+    this.params = new HttpParams().set('state', 'NEW,PROG,DONE').set('priority', '1,2,3,4,5');
     history.pushState(null, '', window.location.pathname);
 
     this.projectsControl.setValue(null, { emitEvent: false });

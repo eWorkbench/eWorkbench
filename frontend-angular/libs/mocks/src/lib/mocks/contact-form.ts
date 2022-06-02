@@ -13,5 +13,5 @@ export const mockContactFormPayload: ContactFormPayload = {
   browser_version:
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36',
   local_time: '2021-02-24T12:48:00.000Z',
-  url: 'http://workbench.local:8000/',
+  url: 'http://localhost:8000/',
 };

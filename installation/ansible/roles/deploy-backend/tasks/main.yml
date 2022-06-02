@@ -1,0 +1,103 @@
+---
+- include_vars: vars/vault.yml
+
+- name: create tmp dir
+  local_action:
+    module: file
+    path: tmp
+    state: directory
+  become: no
+  run_once: yes
+
+- name: clone the tag into the tmp directory
+  local_action:
+    module: git
+    repo: 'https://github.com/eWorkbench/eWorkbench.git'
+    dest: tmp/backend
+    version: master
+  become: no
+  run_once: yes
+
+- name: synchronize (rsync) app directory
+  synchronize:
+    src: tmp/backend/backend-django/app
+    dest: '{{ django_dir }}'
+    recursive: yes
+    archive: no
+    checksum: yes
+    delete: yes
+    perms: yes
+    use_ssh_args: yes
+    rsync_opts:
+      - "--exclude=logs/*"
+      - "--exclude=certs/*"
+  become: yes
+
+- name: synchronize (rsync) parse_performance_logs.py
+  synchronize:
+    src: tmp/backend/backend-django/parse_performance_logs.py
+    dest: '{{ django_dir }}/parse_performance_logs.py'
+    recursive: yes
+    archive: no
+    checksum: yes
+    delete: yes
+    perms: yes
+    use_ssh_args: yes
+  become: yes
+
+- name: Touch backups/latest.psql.gz if it doesnt exist
+  file:
+    path: '{{ django_dir }}/backups/latest.psql.gz'
+    state: touch
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+    mode: '0644'
+    modification_time: preserve
+    access_time: preserve
+  become: yes
+  ignore_errors: yes
+
+- name: Copy version.txt file
+  copy:
+    content: '{{ tag }}'
+    dest: '{{ django_dir }}/app/version.txt'
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+    mode: '0644'
+    force: yes
+  become: yes
+
+- name: Ensure '{{ django_dir }}' is recursivly owned by '{{ app_user }}'
+  file:
+    path: '{{ django_dir }}'
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+    recurse: yes
+  become: yes
+
+- name: delete tmp dir
+  local_action:
+    module: file
+    path: tmp
+    state: absent
+  become: no
+  run_once: yes
+
+- name: Create '{{ django_dir}}/app/certs' directory for the app_user
+  file:
+    path: '{{ django_dir}}/app/certs'
+    state: directory
+    mode: '0755'
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+  become: yes
+
+
+- name: Copy globus_ssl_ca_cert
+  copy:
+    content: "{{ globus_ssl_ca_cert }}"
+    dest: "{{ django_dir}}/app/certs/cacert.pem"
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+    mode: '0644'
+  become: yes

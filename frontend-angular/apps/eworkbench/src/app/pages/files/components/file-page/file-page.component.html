@@ -108,7 +108,7 @@
                   <div>
                     <button
                       type="button"
-                      class="btn btn-sm bg-transparent text-left"
+                      class="btn btn-sm bg-transparent px-0 text-left"
                       [authDownload]="{ url: initialState?.download!, fileName: initialState?.original_filename! }"
                     >
                       <eworkbench-icon className="wb-download" class="mr-1"></eworkbench-icon>
@@ -151,7 +151,7 @@
                         formControlName="storage"
                         labelForId="storage"
                         name="storage"
-                        [placeholder]="t('file.details.storage.placeholder')"
+                        [placeholder]="privileges?.edit ? t('file.details.storage.placeholder') : t('formInput.notDefined.placeholder')"
                         [items]="directories | createTree"
                         bindLabel="display"
                         bindValue="pk"
@@ -175,12 +175,12 @@
                     <ng-container *ngIf="!directories.length">
                       <div class="flex align-items-center gap-3">
                         <div>
-                          {{ initialState?.directory?.display || t('file.details.storage.none.label') }}
+                          {{ initialState?.directory?.display || t('formInput.notDefined.placeholder') }}
                         </div>
                         <button
                           type="button"
                           class="btn ewb-button-small ewb-button-primary cursor-help rounded text-monospace"
-                          [tooltip]="t('file.details.storage.none.tooltip')"
+                          [tooltip]="t('file.details.storage.notDefined.tooltip')"
                           placement="right"
                         >
                           i
@@ -230,7 +230,7 @@
                         </ng-container>
                       </ng-container>
                       <ng-container *ngIf="!initialState?.directory">
-                        {{ t('file.details.storage.none.label') }}
+                        {{ t('formInput.notDefined.placeholder') }}
                       </ng-container>
                     </div>
                   </ng-container>
@@ -251,7 +251,7 @@
                       formControlName="projects"
                       labelForId="projects"
                       name="projects"
-                      [placeholder]="t('file.details.projects.placeholder')"
+                      [placeholder]="privileges?.edit ? t('file.details.projects.placeholder') : t('formInput.notDefined.placeholder')"
                       [multiple]="true"
                       [typeahead]="projectInput$"
                       [items]="projects"
@@ -321,7 +321,11 @@
                     *ngIf="initialState.description; else noDescription"
                     [innerHTML]="initialState.description | safeHTML"
                   ></div>
-                  <ng-template #noDescription>{{ t('file.details.description.noDescription') }}</ng-template>
+                  <ng-template #noDescription>
+                    <span [ngClass]="!privileges?.edit ? 'italic text-tum-disabled' : ''">
+                      {{ t('file.details.description.noDescription') }}
+                    </span>
+                  </ng-template>
                 </div>
               </ng-container>
             </eworkbench-details-collapse-element>

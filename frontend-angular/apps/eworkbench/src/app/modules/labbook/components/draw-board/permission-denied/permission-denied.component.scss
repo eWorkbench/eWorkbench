@@ -14,7 +14,7 @@
     display: grid;
     grid-template-rows: auto 1fr;
     grid-template-areas: 'header' 'body';
-    background-color: #ffffff;
+    background-color: #fff;
 
     .header {
       grid-area: header;

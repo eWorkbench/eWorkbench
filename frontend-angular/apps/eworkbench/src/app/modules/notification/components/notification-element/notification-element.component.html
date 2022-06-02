@@ -27,7 +27,7 @@
     </div>
     <div>
       <span>{{ notification.created_at | formatDate }} by </span>
-      <eworkbench-user-details class="inline-block" [user]="notification.created_by"></eworkbench-user-details>
+      <eworkbench-user-details class="inline-block" [user]="notification.created_by" [modal]="false"></eworkbench-user-details>
     </div>
   </div>
 </ng-template>

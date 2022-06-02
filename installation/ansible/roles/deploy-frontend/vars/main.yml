@@ -1,0 +1,19 @@
+---
+workbench_app_local_js: |
+  (function () {
+      'use strict';
+
+      /**
+       * This file is only local, and not within the git repo
+       */
+      var app = angular.module('app');
+
+      app.value('websocketsUrl', 'wss://{{ app_name }}<domain>/ws/');
+
+      // Matomo (Piwik) user tracking
+      app.value('matomoConfig', {
+        'url': 'https://webstat.<domain>/',
+        'siteId': '135'
+      });
+
+  })();

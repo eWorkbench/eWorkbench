@@ -36,7 +36,7 @@ export class TrashButtonComponent {
   public loading = false;
 
   @Input()
-  public skipDialogKey = 'SkipDialog-TrashElementFromDeleteMenu';
+  public skipDialogKey = 'SkipDialog-Trash';
 
   @Output()
   public deleted = new EventEmitter<void>();

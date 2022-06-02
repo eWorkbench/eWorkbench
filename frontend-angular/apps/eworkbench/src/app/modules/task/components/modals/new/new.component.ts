@@ -111,7 +111,7 @@ export class NewTaskModalComponent implements OnInit {
     scheduledNotificationActive: this.fb.control({ value: false, disabled: true }),
     scheduledNotificationTime: this.fb.control({ start: null, end: null, fullDay: false }),
     dateGroup: this.fb.control({ start: null, end: null, fullDay: false }),
-    priority: this.fb.control('NORM', Validators.required),
+    priority: this.fb.control('3', Validators.required),
     state: this.fb.control('NEW', Validators.required),
     checklist: this.fb.control([]),
     description: null,
@@ -168,7 +168,7 @@ export class NewTaskModalComponent implements OnInit {
       due_date: dateTimeEnd,
       full_day: this.f.dateGroup.value.fullDay,
       title: this.f.title.value!,
-      priority: this.f.priority.value ?? 'NORM',
+      priority: this.f.priority.value ?? '3',
       state: this.f.state.value ?? 'NEW',
       description: this.f.description.value ?? '',
       metadata: this.duplicate && this.f.duplicateMetadata.value ? this.initialState?.metadata : [],
@@ -203,11 +203,11 @@ export class NewTaskModalComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(tasks => {
         this.priority = [
-          { label: tasks.priority.veryHigh, value: 'VHIGH' },
-          { label: tasks.priority.high, value: 'HIGH' },
-          { label: tasks.priority.normal, value: 'NORM' },
-          { label: tasks.priority.low, value: 'LOW' },
-          { label: tasks.priority.veryLow, value: 'VLOW' },
+          { label: tasks.priority.veryHigh, value: '5' },
+          { label: tasks.priority.high, value: '4' },
+          { label: tasks.priority.normal, value: '3' },
+          { label: tasks.priority.low, value: '2' },
+          { label: tasks.priority.veryLow, value: '1' },
         ];
 
         this.stateItems = [
@@ -300,7 +300,7 @@ export class NewTaskModalComponent implements OnInit {
       }
 
       if (!this.f.priority.value) {
-        this.form.patchValue({ priority: 'NORM' }, { emitEvent: false });
+        this.form.patchValue({ priority: '3' }, { emitEvent: false });
       }
 
       if (this.f.scheduledNotificationActive.value) {

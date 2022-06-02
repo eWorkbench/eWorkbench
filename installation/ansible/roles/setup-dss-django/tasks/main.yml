@@ -1,0 +1,57 @@
+---
+- name: Install autofs
+  package:
+    name: autofs
+    state: present
+  become: yes
+
+- name: Create /dss directory
+  file:
+    path: '/dss'
+    state: directory
+  become: yes
+
+- name: Copy dss.autofs.py
+  copy:
+    src: dss.autofs.py
+    dest: /etc/auto.master.d/dss.autofs.py
+    owner: root
+    group: root
+    mode: '0755'
+    force: yes
+  become: yes
+
+- name: Copy dss.autofs
+  copy:
+    src: dss.autofs
+    dest: /etc/auto.master.d/dss.autofs
+    owner: root
+    group: root
+    force: yes
+  become: yes
+
+- name: Enable and restart service autofs
+  systemd:
+    name: autofs
+    state: restarted
+#    state: started
+    enabled: yes
+  become: yes
+
+# sudo nano /etc/systemd/system.conf + sudo nano /etc/systemd/user.conf
+# DefaultLimitNOFILE=128000
+- name: Set DefaultLimitNOFILE in /etc/systemd/system.conf
+  lineinfile:
+    path: /etc/systemd/system.conf
+    regexp: '^DefaultLimitNOFILE='
+    insertafter: '^#DefaultLimitNOFILE='
+    line: DefaultLimitNOFILE=128000
+  become: yes
+
+- name: Set DefaultLimitNOFILE in /etc/systemd/user.conf
+  lineinfile:
+    path: /etc/systemd/user.conf
+    regexp: '^DefaultLimitNOFILE='
+    insertafter: '^#DefaultLimitNOFILE='
+    line: DefaultLimitNOFILE=128000
+  become: yes

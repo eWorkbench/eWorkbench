@@ -1,0 +1,4 @@
+---
+django_dir: /var/django/eworkbench
+angularjs_dir: /var/www/eworkbench
+activate: 'source {{ django_dir }}/venv/bin/activate'

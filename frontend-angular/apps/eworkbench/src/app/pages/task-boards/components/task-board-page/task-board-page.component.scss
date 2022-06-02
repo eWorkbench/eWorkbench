@@ -5,8 +5,12 @@
 
 :host {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   min-height: 100%;
+
+  aside {
+    position: sticky;
+  }
 
   .task-board {
     @media (min-width: 769px) {
@@ -32,5 +36,9 @@
       max-width: 100%;
       height: auto;
     }
+  }
+
+  .filter-sidebar {
+    z-index: 1;
   }
 }

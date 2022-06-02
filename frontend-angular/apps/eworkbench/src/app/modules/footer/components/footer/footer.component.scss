@@ -12,6 +12,7 @@ $footer-text-color: #595959;
 
 :host {
   display: block;
+  z-index: 1;
 
   footer {
     background-color: $secondary-color;

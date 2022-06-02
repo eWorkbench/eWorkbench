@@ -118,7 +118,9 @@
                         id="responsibleUnit"
                         formControlName="responsibleUnit"
                         name="responsibleUnit"
-                        [placeholder]="t('resource.details.responsibleUnit.placeholder')"
+                        [placeholder]="
+                          privileges?.edit ? t('resource.details.responsibleUnit.placeholder') : t('formInput.notDefined.placeholder')
+                        "
                         slot="input"
                       />
                     </eworkbench-form-input>
@@ -136,7 +138,7 @@
                         id="contact"
                         formControlName="contact"
                         name="contact"
-                        [placeholder]="t('resource.details.contact.placeholder')"
+                        [placeholder]="privileges?.edit ? t('resource.details.contact.placeholder') : t('formInput.notDefined.placeholder')"
                         slot="input"
                       />
                     </eworkbench-form-input>
@@ -154,7 +156,9 @@
                         id="location"
                         formControlName="location"
                         name="location"
-                        [placeholder]="t('resource.details.location.placeholder')"
+                        [placeholder]="
+                          privileges?.edit ? t('resource.details.location.placeholder') : t('formInput.notDefined.placeholder')
+                        "
                         slot="input"
                       />
                     </eworkbench-form-input>
@@ -192,7 +196,9 @@
                         formControlName="projects"
                         labelForId="projects"
                         name="projects"
-                        [placeholder]="t('resource.details.projects.placeholder')"
+                        [placeholder]="
+                          privileges?.edit ? t('resource.details.projects.placeholder') : t('formInput.notDefined.placeholder')
+                        "
                         [multiple]="true"
                         [typeahead]="projectInput$"
                         [items]="projects"
@@ -339,7 +345,11 @@
                       *ngIf="initialState.description; else noDescription"
                       [innerHTML]="initialState.description | safeHTML"
                     ></div>
-                    <ng-template #noDescription>{{ t('resource.details.description.noDescription') }}</ng-template>
+                    <ng-template #noDescription>
+                      <span [ngClass]="!privileges?.edit ? 'italic text-tum-disabled' : ''">
+                        {{ t('resource.details.description.noDescription') }}
+                      </span>
+                    </ng-template>
                   </div>
                 </ng-container>
               </eworkbench-details-collapse-element>

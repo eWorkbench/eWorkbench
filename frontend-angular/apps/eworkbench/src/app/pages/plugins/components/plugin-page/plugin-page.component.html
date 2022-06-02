@@ -97,7 +97,7 @@
                         formControlName="projects"
                         labelForId="projects"
                         name="projects"
-                        [placeholder]="t('plugin.details.projects.placeholder')"
+                        [placeholder]="privileges?.edit ? t('plugin.details.projects.placeholder') : t('formInput.notDefined.placeholder')"
                         [multiple]="true"
                         [typeahead]="projectInput$"
                         [items]="projects"

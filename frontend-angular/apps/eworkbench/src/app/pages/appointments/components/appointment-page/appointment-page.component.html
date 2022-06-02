@@ -107,7 +107,9 @@
                       id="location"
                       formControlName="location"
                       name="location"
-                      [placeholder]="t('appointment.details.location.placeholder')"
+                      [placeholder]="
+                        privileges?.edit ? t('appointment.details.location.placeholder') : t('formInput.notDefined.placeholder')
+                      "
                       slot="input"
                     />
                   </eworkbench-form-input>
@@ -124,7 +126,9 @@
                       formControlName="resource"
                       labelForId="resource"
                       name="resource"
-                      [placeholder]="t('appointment.details.resource.placeholder')"
+                      [placeholder]="
+                        privileges?.edit ? t('appointment.details.resource.placeholder') : t('formInput.notDefined.placeholder')
+                      "
                       [typeahead]="resourceInput$"
                       [items]="resources"
                       groupBy="is_favourite"
@@ -159,7 +163,9 @@
                       formControlName="attendees"
                       labelForId="attendees"
                       name="attendees"
-                      [placeholder]="t('appointment.details.attendees.placeholder')"
+                      [placeholder]="
+                        privileges?.edit ? t('appointment.details.attendees.placeholder') : t('formInput.notDefined.placeholder')
+                      "
                       [multiple]="true"
                       [typeahead]="assigneesInput$"
                       [items]="assignees"
@@ -224,7 +230,9 @@
                       formControlName="attendingContacts"
                       labelForId="attendingContacts"
                       name="attendingContacts"
-                      [placeholder]="t('appointment.details.attendingContacts.placeholder')"
+                      [placeholder]="
+                        privileges?.edit ? t('appointment.details.attendingContacts.placeholder') : t('formInput.notDefined.placeholder')
+                      "
                       [multiple]="true"
                       [typeahead]="contactsInput$"
                       [items]="contacts"
@@ -282,7 +290,9 @@
                       formControlName="projects"
                       labelForId="projects"
                       name="projects"
-                      [placeholder]="t('appointment.details.projects.placeholder')"
+                      [placeholder]="
+                        privileges?.edit ? t('appointment.details.projects.placeholder') : t('formInput.notDefined.placeholder')
+                      "
                       [multiple]="true"
                       [typeahead]="projectInput$"
                       [items]="projects"
@@ -352,7 +362,11 @@
                     *ngIf="initialState.text; else noDescription"
                     [innerHTML]="initialState.text | safeHTML"
                   ></div>
-                  <ng-template #noDescription>{{ t('appointment.details.description.noDescription') }}</ng-template>
+                  <ng-template #noDescription>
+                    <span [ngClass]="!privileges?.edit ? 'italic text-tum-disabled' : ''">
+                      {{ t('appointment.details.description.noDescription') }}
+                    </span>
+                  </ng-template>
                 </div>
               </ng-container>
             </eworkbench-details-collapse-element>

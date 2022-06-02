@@ -1,0 +1,10 @@
+---
+- name: Enable maintenance
+  file:
+    path: '{{ angularjs_dir }}/public/maintenance.enable'
+    state: touch
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+    mode: '0644'
+  become: yes
+  ignore_errors: yes

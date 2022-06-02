@@ -18,7 +18,7 @@ export const mockTaskPayload: TaskPayload = {
   projects: [],
   title: 'Task',
   state: 'NEW',
-  priority: 'NORM',
+  priority: '3',
   full_day: false,
 };
 
@@ -41,7 +41,7 @@ export const mockTask: Task = {
   last_modified_by: mockUser,
   metadata: [],
   pk: 'ca7f232b-63ce-4a4f-a7b2-5c7a654c3e9c',
-  priority: 'NORM',
+  priority: '3',
   projects: [],
   start_date: '2020-05-09T00:00:00+02:00',
   state: 'NEW',
@@ -70,7 +70,7 @@ export const mockKanbanTask: KanbanTask = {
   pk: 'ff079b33-317a-455b-904c-5c25595b3f84',
   task: mockTask,
   task_id: 'ca7f232b-63ce-4a4f-a7b2-5c7a654c3e9c',
-  url: 'http://workbench.local:8000/api/kanbanboards/470ddfdc-6180-4cb3-91b8-6b27a8b760fc/tasks/ff079b33-317a-455b-904c-5c25595b3f84/',
+  url: 'http://localhost:8000/api/kanbanboards/470ddfdc-6180-4cb3-91b8-6b27a8b760fc/tasks/ff079b33-317a-455b-904c-5c25595b3f84/',
 };
 
 export const mockTaskVersion: Version = {
@@ -87,7 +87,7 @@ export const mockTaskVersion: Version = {
     labels: [],
     due_date: null,
     metadata: [],
-    priority: 'HIGH',
+    priority: '3',
     projects: ['21f5caf4-c7cc-4e65-8912-6ff1ae5a2478'],
     checklist: [],
     start_date: null,
@@ -122,7 +122,7 @@ export const mockTaskHistory: DjangoAPI<RecentChanges[]> = {
         { field_name: 'due_date', old_value: null, new_value: '2020-05-09 23:59:59.999000+02:00' },
         { field_name: 'labels', old_value: null, new_value: '' },
         { field_name: 'metadata', old_value: null, new_value: '[]' },
-        { field_name: 'priority', old_value: null, new_value: 'NORM' },
+        { field_name: 'priority', old_value: null, new_value: '3' },
         { field_name: 'projects', old_value: null, new_value: '' },
         { field_name: 'start_date', old_value: null, new_value: '2020-05-09 00:00:00+02:00' },
         { field_name: 'state', old_value: null, new_value: 'NEW' },
@@ -154,5 +154,5 @@ export const mockTaskBoardAssignment: TaskBoardAssignment = {
     title: mockTaskBoardColumn.title,
   },
   pk: 'cc797b88-88ec-4aab-87cb-49544be8f738',
-  url: 'http://workbench.local:8000/api/kanbanboards/c39fdfd9-353f-4c62-a4e8-b81ac18977a7/tasks/cc797b88-88ec-4aab-87cb-49544be8f738/',
+  url: 'http://localhost:8000/api/kanbanboards/c39fdfd9-353f-4c62-a4e8-b81ac18977a7/tasks/cc797b88-88ec-4aab-87cb-49544be8f738/',
 };

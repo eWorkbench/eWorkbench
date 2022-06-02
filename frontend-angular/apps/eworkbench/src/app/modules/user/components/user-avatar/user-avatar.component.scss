@@ -10,6 +10,13 @@ $avatar-size: 25px;
 :host {
   display: block;
 
+  .initials {
+    color: #595959;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: #{$avatar-size};
+  }
+
   .circle {
     background-color: $secondary-color;
     border-radius: 50%;
@@ -32,18 +39,12 @@ $avatar-size: 25px;
     }
   }
 
-  .initials {
-    color: #595959;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: #{$avatar-size};
-  }
-
   .chip {
     height: calc(#{$avatar-size} - 6px);
     width: calc(#{$avatar-size} - 6px);
     line-height: 1;
 
+    /* stylelint-disable-next-line no-descending-specificity */
     .initials {
       font-size: calc((#{$avatar-size} - 6px) / 2);
       line-height: calc(#{$avatar-size} - 6px);

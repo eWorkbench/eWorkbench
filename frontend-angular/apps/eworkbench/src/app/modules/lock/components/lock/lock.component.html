@@ -14,8 +14,9 @@
         [user]="lockUser.user"
         [avatar]="false"
       ></eworkbench-user-details
-      ><span *ngIf="lockUser.ownUser">you</span>. The lock will be released {{ lockedUntil }} or you can
-      <a href class="alert-link alert-link-lock" (click)="releaseLock($event)">release the lock</a> now.
+      ><span *ngIf="lockUser.ownUser">you</span> {{ isWebdavLocked ? 'via WebDAV' : '' }}. The lock will be released {{ lockedUntil }} or
+      you can <a href class="alert-link alert-link-lock" (click)="releaseLock($event)">release the lock</a> now.
+      <a href [routerLink]="['/faq', 'what-is-a-lock']" class="font-bold" target="_blank">Learn more...</a>
     </alert>
   </ng-container>
   <ng-container *ngIf="modified">
@@ -23,6 +24,7 @@
       <eworkbench-icon className="wb-refresh" class="mr-2"></eworkbench-icon>
       This element has been modified by another user while you were reading it. Click
       <a href class="alert-link alert-link-lock" (click)="refresh($event)">here</a> to reload the page.
+      <a href [routerLink]="['/faq', 'what-is-a-lock']" class="font-bold" target="_blank">Learn more...</a>
     </alert>
   </ng-container>
 </ng-container>

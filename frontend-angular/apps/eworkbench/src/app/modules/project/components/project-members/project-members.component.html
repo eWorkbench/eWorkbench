@@ -6,15 +6,6 @@
 <ng-container *transloco="let t">
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <table>
-      <thead>
-        <div class="hidden">
-          <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-          </tr>
-        </div>
-      </thead>
       <tbody>
         <ng-container *ngFor="let d of data; let i = index">
           <tr>

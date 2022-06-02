@@ -95,11 +95,11 @@ export class TaskPreviewComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(tasks => {
         this.priorities = [
-          { label: tasks.priority.veryHigh, value: 'VHIGH' },
-          { label: tasks.priority.high, value: 'HIGH' },
-          { label: tasks.priority.normal, value: 'NORM' },
-          { label: tasks.priority.low, value: 'LOW' },
-          { label: tasks.priority.veryLow, value: 'VLOW' },
+          { label: tasks.priority.veryHigh, value: '5' },
+          { label: tasks.priority.high, value: '4' },
+          { label: tasks.priority.normal, value: '3' },
+          { label: tasks.priority.low, value: '2' },
+          { label: tasks.priority.veryLow, value: '1' },
         ];
 
         this.states = [
@@ -124,9 +124,11 @@ export class TaskPreviewComponent implements OnInit {
 
           const startDate = task.start_date ? format(parseISO(task.start_date), this.dateFormat) : null;
           this.startDateFormControl.patchValue(startDate, { emitEvent: false });
+          this.startDateFormControl.disable({ emitEvent: false });
 
           const dueDate = task.due_date ? format(parseISO(task.due_date), this.dateFormat) : null;
           this.dueDateFormControl.patchValue(dueDate, { emitEvent: false });
+          this.dueDateFormControl.disable({ emitEvent: false });
 
           this.fullDayControl.patchValue(task.full_day, { emitEvent: false });
           this.fullDayControl.disable({ emitEvent: false });

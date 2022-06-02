@@ -1,0 +1,77 @@
+---
+- name: Update apt cache if it wasnt updated in the last 24 hous
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+  become: yes
+
+- name: Ensure nginx is installed
+  package:
+    name: nginx
+    state: present
+  become: yes
+
+- name: Copy site nginx config file from template
+  template:
+    src: bench.conf.j2
+    dest: '/etc/nginx/sites-available/{{ app_name }}'
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+  notify:
+    - reload nginx
+  become: yes
+
+- name: Copy proxy settings file
+  copy:
+    src: bench.proxy
+    dest: '/etc/nginx/conf.d/{{ app_name }}.proxy'
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+  become: yes
+
+- name: Copy nginx.conf
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+    backup: yes
+  notify:
+    - reload nginx
+  become: yes
+
+- name: Symlink config to /etc/nginx/sites-enabled/
+  file:
+    src: '/etc/nginx/sites-available/{{ app_name }}'
+    dest: '/etc/nginx/sites-enabled/{{ app_name }}.conf'
+    owner: root
+    group: root
+    state: link
+  become: yes
+
+- name: Ensure nginx service is started and enabled
+  service:
+    name: nginx
+    state: started
+    enabled: true
+  become: yes
+  ignore_errors: yes
+
+- name: Ensure nginx service is restarted
+  service:
+    name: nginx
+    state: restarted
+  become: yes
+  ignore_errors: yes
+
+- name: Restart daphne.service
+  systemd:
+    name: daphne.service
+    state: restarted
+  become: yes

@@ -28,4 +28,7 @@
       </button>
     </div>
   </ng-container>
+  <div class="text-tum-disabled italic" *ngIf="!labels.length && readonly">
+    {{ t('formInput.notDefined.placeholder') }}
+  </div>
 </ng-container>

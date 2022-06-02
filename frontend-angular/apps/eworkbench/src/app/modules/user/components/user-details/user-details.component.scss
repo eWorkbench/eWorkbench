@@ -28,7 +28,7 @@ $chip-size: 25px;
     }
 
     &.inverted {
-      color: #ffffff;
+      color: #fff;
     }
   }
 
@@ -42,12 +42,34 @@ $chip-size: 25px;
 
     &.inverted {
       background-color: $primary-color;
-      color: #ffffff;
+      color: #fff;
       font-weight: 300;
 
       a {
-        color: #ffffff;
+        color: #fff;
       }
+    }
+  }
+
+  ::ng-deep {
+    .bs-popover-right,
+    .bs-popover-auto[x-placement^='right'] {
+      margin-left: 2px;
+    }
+
+    .bs-popover-left,
+    .bs-popover-auto[x-placement^='left'] {
+      margin-right: 2px;
+    }
+
+    .bs-popover-top,
+    .bs-popover-auto[x-placement^='top'] {
+      margin-bottom: 2px;
+    }
+
+    .bs-popover-bottom,
+    .bs-popover-auto[x-placement^='bottom'] {
+      margin-top: 2px;
     }
   }
 }

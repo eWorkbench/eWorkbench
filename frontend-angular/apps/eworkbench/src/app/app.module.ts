@@ -18,6 +18,7 @@ import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { MatomoModule } from 'ngx-matomo-v9';
 import { ToastrModule } from 'ngx-toastr';
+import { BehaviorSubject } from 'rxjs';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LeaveProjectGuard } from './guards/leave-project/leave-project.guard';
@@ -25,6 +26,7 @@ import { PendingChangesGuard } from './guards/pending-changes/pending-changes.gu
 import { AuthInterceptor } from './interceptors/auth/auth.interceptor';
 import { ErrorInterceptor } from './interceptors/error/error.interceptor';
 import { FooterModule } from './modules/footer/footer.module';
+import { HEADER_TOP_OFFSET } from './modules/header/tokens/header-top-offset.token';
 import { NavbarModule } from './modules/navbar/navbar.module';
 import { TranslocoRootModule } from './transloco-root.module';
 
@@ -65,6 +67,7 @@ import { TranslocoRootModule } from './transloco-root.module';
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HEADER_TOP_OFFSET, useValue: new BehaviorSubject<number | null>(null) },
     PendingChangesGuard,
     LeaveProjectGuard,
   ],

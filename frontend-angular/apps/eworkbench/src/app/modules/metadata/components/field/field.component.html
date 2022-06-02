@@ -52,7 +52,7 @@
             [formControl]="answer"
             [id]="'answer-' + uuid + '-' + i"
             [name]="'answer-' + uuid + '-' + i"
-            [placeholder]="labels[i] || ''"
+            [placeholder]="editable ? labels[i] || '' : t('formInput.notDefined.placeholder')"
             (change)="onChanged()"
           />
           <div class="input-group-append" *ngIf="baseType === 'percentage'">
@@ -65,7 +65,7 @@
           [inputId]="'answer-' + uuid + '-' + i"
           [inputName]="'answer-' + uuid + '-' + i"
           [datePickerConfig]="datetimePickerConfig"
-          [placeholder]="labels[i] || ''"
+          [placeholder]="editable ? labels[i] || '' : t('formInput.notDefined.placeholder')"
           (change)="onChanged()"
         ></eworkbench-form-date-input>
       </div>
@@ -85,7 +85,6 @@
             [formControl]="customInputSelectedControl"
             [id]="'checkbox.' + uuid + '.custom'"
             [name]="'checkbox.' + uuid"
-            [disabled]="!editable"
           />
           <label class="custom-control-label font-normal" [for]="'checkbox.' + uuid + '.custom'"></label>
         </div>
@@ -112,7 +111,7 @@
           [formControl]="customInputControl"
           [id]="'answer.' + uuid + '.custom'"
           [name]="'answer.' + uuid + '.custom'"
-          [placeholder]="t('metadata.field.customInput')"
+          [placeholder]="editable ? t('metadata.field.customInput') : t('formInput.notDefined.placeholder')"
           (change)="onChanged()"
         />
       </div>

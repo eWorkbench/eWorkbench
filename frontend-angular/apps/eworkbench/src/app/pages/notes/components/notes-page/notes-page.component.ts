@@ -520,6 +520,7 @@ export class NotesPageComponent implements OnInit {
   }
 
   public onSaveFilters(save: boolean): void {
+    this.savedFilters = save;
     if (save) {
       this.userService
         .get()

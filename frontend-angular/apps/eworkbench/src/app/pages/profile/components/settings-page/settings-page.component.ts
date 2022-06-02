@@ -38,17 +38,13 @@ interface FormSettings {
 
   confirmationPrompts: FormControl<boolean>;
   confirmationPromptRemoveDirectory: FormControl<boolean>;
-  confirmationPromptTrashFile: FormControl<boolean>;
+  confirmationPromptTrash: FormControl<boolean>;
   confirmationPromptConvertTiff: FormControl<boolean>;
   confirmationPromptLeaveProject: FormControl<boolean>;
   confirmationPromptMoveElementOutOfSection: FormControl<boolean>;
-  confirmationPromptTrashElementFromDeleteMenu: FormControl<boolean>;
-  confirmationPromptDeleteColumn: FormControl<boolean>;
-  confirmationPromptTrashElementFromDetailView: FormControl<boolean>;
   confirmationPromptDuplicateProject: FormControl<boolean>;
   confirmationPromptDuplicateDMP: FormControl<boolean>;
   confirmationPromptRemoveElementFromLabbook: FormControl<boolean>;
-  confirmationPromptTrashAndDeleteElementFromLabbook: FormControl<boolean>;
 }
 
 @UntilDestroy()
@@ -96,17 +92,13 @@ export class SettingsPageComponent implements OnInit {
 
     confirmationPrompts: this.fb.control({ value: false, disabled: this.loading }),
     confirmationPromptRemoveDirectory: this.fb.control({ value: false, disabled: this.loading }),
-    confirmationPromptTrashFile: this.fb.control({ value: false, disabled: this.loading }),
+    confirmationPromptTrash: this.fb.control({ value: false, disabled: this.loading }),
     confirmationPromptConvertTiff: this.fb.control({ value: false, disabled: this.loading }),
     confirmationPromptLeaveProject: this.fb.control({ value: false, disabled: this.loading }),
     confirmationPromptMoveElementOutOfSection: this.fb.control({ value: false, disabled: this.loading }),
-    confirmationPromptTrashElementFromDeleteMenu: this.fb.control({ value: false, disabled: this.loading }),
-    confirmationPromptDeleteColumn: this.fb.control({ value: false, disabled: this.loading }),
-    confirmationPromptTrashElementFromDetailView: this.fb.control({ value: false, disabled: this.loading }),
     confirmationPromptDuplicateProject: this.fb.control({ value: false, disabled: this.loading }),
     confirmationPromptDuplicateDMP: this.fb.control({ value: false, disabled: this.loading }),
     confirmationPromptRemoveElementFromLabbook: this.fb.control({ value: false, disabled: this.loading }),
-    confirmationPromptTrashAndDeleteElementFromLabbook: this.fb.control({ value: false, disabled: this.loading }),
   });
 
   public constructor(
@@ -181,17 +173,13 @@ export class SettingsPageComponent implements OnInit {
   private get dialogSettings(): ProfileDialogSettings {
     return {
       'SkipDialog-ConvertTiff': !this.f.confirmationPromptConvertTiff.value,
-      'SkipDialog-DeleteColumn': !this.f.confirmationPromptDeleteColumn.value,
       'SkipDialog-DuplicateProject': !this.f.confirmationPromptDuplicateProject.value,
       'SkipDialog-DuplicateDMP': !this.f.confirmationPromptDuplicateDMP.value,
       'SkipDialog-LeaveProject': !this.f.confirmationPromptLeaveProject.value,
       'SkipDialog-MoveElementOutOfSection': !this.f.confirmationPromptMoveElementOutOfSection.value,
       'SkipDialog-RemoveDirectory': !this.f.confirmationPromptRemoveDirectory.value,
       'SkipDialog-RemoveElementFromLabbook': !this.f.confirmationPromptRemoveElementFromLabbook.value,
-      'SkipDialog-TrashAndDeleteElementFromLabbook': !this.f.confirmationPromptTrashAndDeleteElementFromLabbook.value,
-      'SkipDialog-TrashElementFromDeleteMenu': !this.f.confirmationPromptTrashElementFromDeleteMenu.value,
-      'SkipDialog-TrashElementFromDetailView': !this.f.confirmationPromptTrashElementFromDetailView.value,
-      'SkipDialog-TrashFile': !this.f.confirmationPromptTrashFile.value,
+      'SkipDialog-Trash': !this.f.confirmationPromptTrash.value,
     };
   }
 
@@ -255,12 +243,6 @@ export class SettingsPageComponent implements OnInit {
               });
             }
 
-            if ('SkipDialog-DeleteColumn' in prompts) {
-              this.form.patchValue({
-                confirmationPromptDeleteColumn: !prompts['SkipDialog-DeleteColumn'],
-              });
-            }
-
             if ('SkipDialog-DuplicateProject' in prompts) {
               this.form.patchValue({
                 confirmationPromptDuplicateProject: !prompts['SkipDialog-DuplicateProject'],
@@ -297,27 +279,9 @@ export class SettingsPageComponent implements OnInit {
               });
             }
 
-            if ('SkipDialog-TrashAndDeleteElementFromLabbook' in prompts) {
+            if ('SkipDialog-Trash' in prompts) {
               this.form.patchValue({
-                confirmationPromptTrashAndDeleteElementFromLabbook: !prompts['SkipDialog-TrashAndDeleteElementFromLabbook'],
-              });
-            }
-
-            if ('SkipDialog-TrashElementFromDeleteMenu' in prompts) {
-              this.form.patchValue({
-                confirmationPromptTrashElementFromDeleteMenu: !prompts['SkipDialog-TrashElementFromDeleteMenu'],
-              });
-            }
-
-            if ('SkipDialog-TrashElementFromDetailView' in prompts) {
-              this.form.patchValue({
-                confirmationPromptTrashElementFromDetailView: !prompts['SkipDialog-TrashElementFromDetailView'],
-              });
-            }
-
-            if ('SkipDialog-TrashFile' in prompts) {
-              this.form.patchValue({
-                confirmationPromptTrashFile: !prompts['SkipDialog-TrashFile'],
+                confirmationPromptTrash: !prompts['SkipDialog-Trash'],
               });
             }
           }
@@ -458,17 +422,13 @@ export class SettingsPageComponent implements OnInit {
     const toggleValue = this.f.confirmationPrompts.value;
     this.form.patchValue({
       confirmationPromptRemoveDirectory: toggleValue,
-      confirmationPromptTrashFile: toggleValue,
+      confirmationPromptTrash: toggleValue,
       confirmationPromptConvertTiff: toggleValue,
       confirmationPromptLeaveProject: toggleValue,
       confirmationPromptMoveElementOutOfSection: toggleValue,
-      confirmationPromptTrashElementFromDeleteMenu: toggleValue,
-      confirmationPromptDeleteColumn: toggleValue,
-      confirmationPromptTrashElementFromDetailView: toggleValue,
       confirmationPromptDuplicateProject: toggleValue,
       confirmationPromptDuplicateDMP: toggleValue,
       confirmationPromptRemoveElementFromLabbook: toggleValue,
-      confirmationPromptTrashAndDeleteElementFromLabbook: toggleValue,
     });
     this.onSaveDialogSettings();
   }
@@ -514,16 +474,12 @@ export class SettingsPageComponent implements OnInit {
   public onToggleParentDialogSettingsCheckbox(): void {
     const toggleValue =
       this.f.confirmationPromptRemoveDirectory.value &&
-      this.f.confirmationPromptTrashFile.value &&
+      this.f.confirmationPromptTrash.value &&
       this.f.confirmationPromptConvertTiff.value &&
       this.f.confirmationPromptLeaveProject.value &&
-      this.f.confirmationPromptTrashElementFromDeleteMenu.value &&
-      this.f.confirmationPromptDeleteColumn.value &&
-      this.f.confirmationPromptTrashElementFromDetailView.value &&
       this.f.confirmationPromptDuplicateProject.value &&
       this.f.confirmationPromptDuplicateDMP.value &&
-      this.f.confirmationPromptRemoveElementFromLabbook.value &&
-      this.f.confirmationPromptTrashAndDeleteElementFromLabbook.value;
+      this.f.confirmationPromptRemoveElementFromLabbook.value;
     this.form.patchValue({
       confirmationPrompts: toggleValue,
     });

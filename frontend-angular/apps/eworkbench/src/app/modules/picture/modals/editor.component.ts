@@ -22,5 +22,7 @@ export class PictureEditorModalComponent {
 
   public state = ModalState.Unchanged;
 
+  public privileges = this.modalRef.data?.privileges;
+
   public constructor(public readonly modalRef: DialogRef, public readonly picturesService: PicturesService) {}
 }

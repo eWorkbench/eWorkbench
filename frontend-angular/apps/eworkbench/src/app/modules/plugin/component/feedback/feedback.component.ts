@@ -4,16 +4,17 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Validators } from '@angular/forms';
 import { PluginsService } from '@app/services';
-import type { PluginFeedbackPayload } from '@eworkbench/types';
-import { FormBuilder } from '@ngneat/reactive-forms';
+import type { PluginFeedbackPayload, User } from '@eworkbench/types';
+import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
 
 interface FormFeedback {
-  subject: string | null;
-  message: string | null;
+  subject: FormControl<string | null>;
+  message: FormControl<string | null>;
 }
 
 @UntilDestroy()
@@ -30,14 +31,17 @@ export class PluginFeedbackComponent {
   @Input()
   public type? = 'feedback';
 
+  @Input()
+  public responsibleUsers: User[] = [];
+
   @Output()
   public canceled = new EventEmitter<boolean>();
 
   public loading = false;
 
   public form = this.fb.group<FormFeedback>({
-    subject: null,
-    message: null,
+    subject: this.fb.control(null, Validators.required),
+    message: this.fb.control(null, Validators.required),
   });
 
   public constructor(

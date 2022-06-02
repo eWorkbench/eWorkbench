@@ -1,0 +1,11 @@
+[Unit]
+Description=Automount TUZE BIB Workbench NAS
+Requires=systemd-networkd.service
+After=network-online.target
+
+[Automount]
+Where=/mnt/nas_tuze_bib_workbench
+#TimeoutIdleSec=10
+
+[Install]
+WantedBy=multi-user.target

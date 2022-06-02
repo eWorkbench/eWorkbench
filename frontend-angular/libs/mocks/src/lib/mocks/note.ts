@@ -23,7 +23,7 @@ export const mockNote: Note = {
   projects: ['21f5caf4-c7cc-4e65-8912-6ff1ae5a2478'],
   subject: '43543543rerefgfd',
   pk: 'f65dc246-8528-4a40-9900-0ded103c088b',
-  url: 'http://workbench.local:8000/api/notes/f65dc246-8528-4a40-9900-0ded103c088b/',
+  url: 'http://localhost:8000/api/notes/f65dc246-8528-4a40-9900-0ded103c088b/',
   display: '43543543rerefgfd',
   content: '<p>4543543retrefdgfd</p>',
   metadata: [],

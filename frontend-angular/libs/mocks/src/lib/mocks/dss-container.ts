@@ -20,7 +20,7 @@ export const mockDssContainer: DssContainer = {
   pk: 'ae514c61-c116-4742-9531-3c42c934c7c9',
   created_by: mockUser,
   projects: [],
-  url: 'http://workbench.local:8000/api/dsscontainers/ae514c61-c116-4742-9531-3c42c934c7c9/',
+  url: 'http://localhost:8000/api/dsscontainers/ae514c61-c116-4742-9531-3c42c934c7c9/',
   name: 'aster-test2',
   created_at: '2021-03-03T12:57:33.630625+01:00',
   read_write_setting: 'RWA',

@@ -1,0 +1,20 @@
+[Unit]
+Description=Celery Beat Service
+After=network.target
+
+[Service]
+Type=simple
+User={{ app_user }}
+Group={{ app_user }}
+Environment="DJANGO_SETTINGS_MODULE={{ app_settings_path }}"
+WorkingDirectory={{ django_dir }}/app
+ExecStart=/bin/sh -c '{{ django_dir }}/venv/bin/celery -A eric worker -B  \
+    --time-limit 360 \
+    --pidfile=/var/run/celerybeat/celerybeat.pid \
+    --logfile=/var/log/celerybeat/celerybeat.log \
+    --loglevel=INFO \
+    --schedule=/var/lib/celerybeat/celerybeat-schedule'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

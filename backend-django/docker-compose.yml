@@ -79,7 +79,7 @@ services:
     expose:
       - 5432
     ports:
-      - 127.0.11.20:5432:5432
+      - 5432:5432
     volumes:
       - ./backups:/docker-entrypoint-initdb.d
       - pg_data:/var/lib/postgresql/data
@@ -90,7 +90,7 @@ services:
   adminer:
     image: adminer
     ports:
-      - 127.0.11.20:1082:8080
+      - 1082:8080
   # Maildump configuration
   maildump:
     hostname: maildump.workbench.local
@@ -104,23 +104,23 @@ services:
       - 1025
       - 1080
     ports:
-      - 127.0.11.20:1080:1080
-      - 127.0.11.20:1025:1025
+      - 1080:1080
+      - 1025:1025
   redis:
     hostname: redis.workbench.local
     image: redis:2.8
     expose:
       - 6379
     ports:
-      - 127.0.11.20:6379:6379
+      - 6379:6379
   # ldap server
   ldap-service:
     hostname: ldap.workbench.local
     command: "--loglevel trace"
     image: osixia/openldap:1.1.6
     ports:
-     - 127.0.11.20:389:389
-     - 127.0.11.20:636:636
+     - 389:389
+     - 636:636
     environment:
      - LDAP_ORGANISATION=Workbench Local Dev
      - LDAP_DOMAIN=workbench.local
@@ -134,30 +134,8 @@ services:
     hostname: ldap.workbench.local
     image: dinkel/phpldapadmin:latest
     ports:
-     - 127.0.11.20:1081:80
+     - 1081:80
     environment:
      - LDAP_SERVER_HOST=ldap-service
     depends_on:
      - ldap-service
-#  nfs:
-#    hostname: nfs.workbench.local
-#    image: erichough/nfs-server
-#    ports:
-#      - 127.0.11.20:2049:2049
-#      - 127.0.11.20:2049:2049/udp
-#      - 127.0.11.20:111:111
-#      - 127.0.11.20:32767:32767
-#      - 127.0.11.20:32767:32767/udp
-#      - 127.0.11.20:32765:32765
-#      - 127.0.11.20:32765:32765/udp
-#    volumes:
-#      - ./nfs/exports.txt:/etc/exports:ro
-#      - ./nfs/nfs-export/mnt/dss:/mnt/dss
-#      - /lib/modules:/lib/modules:ro
-#    cap_add:
-#        - SYS_ADMIN
-#        - SYS_MODULE
-#    environment:
-#      NFS_LOG_LEVEL: DEBUG
-#    security_opt:
-#      - apparmor=erichough-nfs

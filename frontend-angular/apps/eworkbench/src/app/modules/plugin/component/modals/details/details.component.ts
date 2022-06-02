@@ -4,7 +4,7 @@
  */
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import type { PluginDetails } from '@eworkbench/types';
+import type { PluginDetails, User } from '@eworkbench/types';
 import { DialogRef } from '@ngneat/dialog';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
@@ -18,5 +18,15 @@ import { UntilDestroy } from '@ngneat/until-destroy';
 export class PluginDetailsModalComponent {
   public plugin: PluginDetails = this.modalRef.data.plugin;
 
+  public showFeedbackFormForPlugin?: { type: string; id: string; responsibleUsers: User[] };
+
   public constructor(public readonly modalRef: DialogRef) {}
+
+  public onSelected(event: { type: string; id: string; responsibleUsers: User[] }): void {
+    this.showFeedbackFormForPlugin = { ...event };
+  }
+
+  public onHideFeedbackForm(): void {
+    this.showFeedbackFormForPlugin = undefined!;
+  }
 }

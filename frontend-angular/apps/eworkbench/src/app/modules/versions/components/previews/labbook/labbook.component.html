@@ -13,7 +13,7 @@
           class="form-control ewb-input"
           id="title-modal"
           [placeholder]="t('labBook.details.title.placeholder')"
-          [readonly]="true"
+          [disabled]="true"
           [value]="labBook?.title"
         />
       </div>
@@ -33,7 +33,7 @@
           class="ewb-select"
           name="projects-modal"
           [formControl]="projectsFormControl"
-          [placeholder]="t('labBook.details.projects.placeholder')"
+          [placeholder]="t('formInput.notDefined.placeholder')"
           [multiple]="true"
           [items]="projects"
           bindLabel="name"
@@ -44,36 +44,46 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="labBook?.metadata?.length">
+      <div class="mb-4">
         <label for="metadata-modal">{{ t('labBook.details.metadata.label') }}</label>
-        <ng-container *ngFor="let field of labBook?.metadata">
-          <div class="mb-2">
-            <div class="mb-1">{{ field.field_info?.display }}</div>
-            <eworkbench-metadata-field
-              [uuid]="field.pk"
-              [id]="field.pk"
-              [baseType]="field.field_info?.base_type"
-              [typeSettings]="field.field_info?.type_settings"
-              [label]="field.field_info?.display"
-              [values]="field.values"
-              [editable]="false"
-            ></eworkbench-metadata-field>
+        <ng-container *ngIf="labBook?.metadata?.length">
+          <ng-container *ngFor="let field of labBook?.metadata">
+            <div class="mb-2">
+              <div class="mb-1">{{ field.field_info?.display }}</div>
+              <eworkbench-metadata-field
+                [uuid]="field.pk"
+                [id]="field.pk"
+                [baseType]="field.field_info?.base_type"
+                [typeSettings]="field.field_info?.type_settings"
+                [label]="field.field_info?.display"
+                [values]="field.values"
+                [editable]="false"
+              ></eworkbench-metadata-field>
+            </div>
+          </ng-container>
+        </ng-container>
+        <div class="text-tum-disabled italic" *ngIf="!labBook?.metadata?.length">
+          {{ t('formInput.notDefined.placeholder') }}
+        </div>
+      </div>
+      <div class="mb-4">
+        <label>{{ t('labBook.details.elements.label') }}</label>
+        <ng-container *ngIf="labBook?.child_elements?.length">
+          <div class="flex mb-1" *ngFor="let element of labBook!.child_elements!">
+            <div class="flex-fill">
+              <eworkbench-icon [className]="element.content_type | formatContentTypeModel: 'icon'"></eworkbench-icon>
+              <ng-container *ngIf="element.viewable">
+                {{ element.display_name }}
+              </ng-container>
+              <ng-container *ngIf="!element.viewable">
+                {{ t('labBook.element.noAccess', { element: element.content_type | formatContentTypeModel }) }}
+              </ng-container>
+            </div>
+            <div class="text-right">v{{ element.version_number }}</div>
           </div>
         </ng-container>
-      </div>
-      <div class="mb-4" *ngIf="labBook?.child_elements">
-        <label>{{ t('labBook.details.elements.label') }}</label>
-        <div class="flex mb-1" *ngFor="let element of labBook!.child_elements!">
-          <div class="flex-fill">
-            <eworkbench-icon [className]="element.content_type | formatContentTypeModel: 'icon'"></eworkbench-icon>
-            <ng-container *ngIf="element.viewable">
-              {{ element.display_name }}
-            </ng-container>
-            <ng-container *ngIf="!element.viewable">
-              {{ t('labBook.element.noAccess', { element: element.content_type | formatContentTypeModel }) }}
-            </ng-container>
-          </div>
-          <div class="text-right">v{{ element.version_number }}</div>
+        <div class="text-tum-disabled italic" *ngIf="!labBook?.child_elements?.length">
+          {{ t('formInput.notDefined.placeholder') }}
         </div>
       </div>
 

@@ -115,8 +115,20 @@ export class RecentChangesComponent implements OnInit {
 
                     changeRecords.push({
                       field_name: record.field_name,
-                      old_value: oldValue.filter((oldField: any) => !newValue.some((newField: any) => oldField.pk === newField.pk)),
-                      new_value: newValue.filter((newField: any) => !oldValue.some((oldField: any) => newField.pk === oldField.pk)),
+                      old_value: oldValue.filter(
+                        (oldField: any) =>
+                          !newValue.some(
+                            (newField: any) =>
+                              oldField.pk === newField.pk && oldField.fields?.values?.value === newField.fields?.values?.value
+                          )
+                      ),
+                      new_value: newValue.filter(
+                        (newField: any) =>
+                          !oldValue.some(
+                            (oldField: any) =>
+                              newField.pk === oldField.pk && newField.fields?.values?.value === oldField.fields?.values?.value
+                          )
+                      ),
                     });
                   } else {
                     changeRecords.push({ ...record });

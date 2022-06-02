@@ -5,7 +5,7 @@
 
 export const mockSitePreferences = {
   site_name: 'QA-Bench',
-  site_logo: 'http://workbench.local:8000/static/uploaded_media/site_preferences/a6d1e5457d9652cf1b30f7a84ce89482.png',
+  site_logo: 'http://localhost:8000/static/uploaded_media/site_preferences/a6d1e5457d9652cf1b30f7a84ce89482.png',
   navbar_background_color: '#2C9BA9',
   navbar_border_color: '#2C9BA9',
   content_types: {

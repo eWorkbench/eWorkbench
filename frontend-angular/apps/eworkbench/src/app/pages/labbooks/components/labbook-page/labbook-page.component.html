@@ -98,7 +98,7 @@
                         formControlName="projects"
                         labelForId="projects"
                         name="projects"
-                        [placeholder]="t('labBook.details.projects.placeholder')"
+                        [placeholder]="privileges?.edit ? t('labBook.details.projects.placeholder') : t('formInput.notDefined.placeholder')"
                         [multiple]="true"
                         [typeahead]="projectInput$"
                         [items]="projects"
@@ -168,7 +168,11 @@
                       *ngIf="initialState.description; else noDescription"
                       [innerHTML]="initialState.description | safeHTML"
                     ></div>
-                    <ng-template #noDescription>{{ t('labBook.details.description.noDescription') }}</ng-template>
+                    <ng-template #noDescription>
+                      <span [ngClass]="!privileges?.edit ? 'italic text-tum-disabled' : ''">
+                        {{ t('labBook.details.description.noDescription') }}
+                      </span>
+                    </ng-template>
                   </div>
                 </ng-container>
               </eworkbench-details-collapse-element>

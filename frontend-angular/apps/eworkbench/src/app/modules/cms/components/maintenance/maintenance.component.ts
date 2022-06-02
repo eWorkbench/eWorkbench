@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import type { CMSSettingsMaintenance } from '@app/stores/cms';
 import { CMSService } from '@app/stores/cms/services/cms.service';
 import type { User } from '@eworkbench/types';
@@ -18,6 +18,9 @@ import { take } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MaintenanceComponent implements OnInit {
+  @Output()
+  public maintenanceLoaded = new EventEmitter<boolean>();
+
   public maintenance: CMSSettingsMaintenance = { text: null, visible: false };
 
   public currentUser: User | null = null;
@@ -38,6 +41,7 @@ export class MaintenanceComponent implements OnInit {
 
           this.maintenance = { ...maintenance, visible };
           this.cmsService.set({ maintenance: this.maintenance });
+          this.maintenanceLoaded.next(true);
           this.cdr.markForCheck();
         },
         () => {

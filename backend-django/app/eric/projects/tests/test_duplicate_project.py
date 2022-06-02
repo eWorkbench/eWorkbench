@@ -71,7 +71,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, Task
 
         response = self.rest_create_task(
             self.token1,
-            [self.project_pk], "Test Title Task 1", "Test Description", "NEW", "HIGH",
+            [self.project_pk], "Test Title Task 1", "Test Description", "NEW", "2",
             datetime.now(), datetime.now(), self.user1.pk,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
@@ -84,7 +84,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, Task
 
         response = self.rest_create_task(
             self.token1,
-            [self.sub_project_1_pk], "Test Title Sub Task 1", "Test Description", "NEW", "HIGH",
+            [self.sub_project_1_pk], "Test Title Sub Task 1", "Test Description", "NEW", "2",
             datetime.now(), datetime.now(), self.user1.pk,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
@@ -97,7 +97,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, Task
 
         response = self.rest_create_task(
             self.token1,
-            [self.sub_sub_project_1_pk], "Test Title Sub Sub Task 1", "Test Description", "NEW", "HIGH",
+            [self.sub_sub_project_1_pk], "Test Title Sub Sub Task 1", "Test Description", "NEW", "2",
             datetime.now(), datetime.now(), self.user1.pk,
             HTTP_USER_AGENT, REMOTE_ADDR
         )
@@ -111,7 +111,7 @@ class DuplicateProjectTest(APITestCase, AuthenticationMixin, ProjectsMixin, Task
 
         response = self.rest_create_task(
             self.token1,
-            [self.sub_project_2_pk], "Test Title Sub Task 2", "Test Description", "NEW", "HIGH",
+            [self.sub_project_2_pk], "Test Title Sub Task 2", "Test Description", "NEW", "2",
             datetime.now(), datetime.now(), self.user1.pk,
             HTTP_USER_AGENT, REMOTE_ADDR
         )

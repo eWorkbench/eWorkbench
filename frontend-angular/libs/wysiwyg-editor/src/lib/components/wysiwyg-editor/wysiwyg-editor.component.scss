@@ -9,7 +9,7 @@
   display: block;
 
   .inline {
-    padding: 1rem 1rem 0 1rem;
+    padding: 1rem 1rem 0;
     border: 1px solid $border-color;
   }
 
@@ -18,10 +18,12 @@
       border-color: $border-color;
     }
 
+    /* stylelint-disable selector-class-pattern */
     .tox .tox-toolbar,
     .tox .tox-toolbar__overflow,
     .tox .tox-toolbar__primary {
       background: none;
     }
+    /* stylelint-enable selector-class-pattern */
   }
 }

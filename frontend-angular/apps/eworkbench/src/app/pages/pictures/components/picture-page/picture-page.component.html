@@ -93,7 +93,7 @@
                         formControlName="projects"
                         labelForId="projects"
                         name="projects"
-                        [placeholder]="t('picture.details.projects.placeholder')"
+                        [placeholder]="privileges?.edit ? t('picture.details.projects.placeholder') : t('formInput.notDefined.placeholder')"
                         [multiple]="true"
                         [typeahead]="projectInput$"
                         [items]="projects"
@@ -228,7 +228,11 @@
         </eworkbench-overview-collapse-element>
 
         <div class="border border-tum-border-gray p-4">
-          <eworkbench-picture-editor [picture]="initialState" [service]="picturesService"></eworkbench-picture-editor>
+          <eworkbench-picture-editor
+            [picture]="initialState"
+            [service]="picturesService"
+            [editable]="privileges?.edit"
+          ></eworkbench-picture-editor>
         </div>
       </main>
     </div>

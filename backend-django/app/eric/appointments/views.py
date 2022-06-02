@@ -95,7 +95,8 @@ class CalendarCsvView(PublicCSVExportView):
 
         start_of_today = timezone.now().date()
         in_two_weeks = start_of_today + timedelta(days=14)
-        return Meeting.objects.study_room_bookings().intersecting_interval(start_of_today, in_two_weeks)
+        return Meeting.objects.study_room_bookings().intersecting_interval(start_of_today, in_two_weeks)\
+            .order_by('date_time_start')
 
     @property
     def csv_headers(self):
@@ -136,7 +137,8 @@ class DisplayCsvView(PublicCSVExportView):
 
         now = timezone.now()
         end_of_today = now.replace(hour=23, minute=59, second=59, microsecond=999_999)
-        return Meeting.objects.study_room_bookings().intersecting_interval(now, end_of_today)
+        return Meeting.objects.study_room_bookings().intersecting_interval(now, end_of_today)\
+            .order_by('date_time_start')
 
     @property
     def bookings_per_room(self):
@@ -163,6 +165,9 @@ class DisplayCsvView(PublicCSVExportView):
 
         return headers
 
+    def format_date(self, date):
+        return timezone.localtime(date)
+
     @property
     def csv_rows(self):
         study_rooms = Resource.objects.study_rooms().order_by('study_room_info__room_id')
@@ -181,12 +186,12 @@ class DisplayCsvView(PublicCSVExportView):
         # add available booking information
         bookings = self.study_room_bookings.filter(resource=resource)[:self.bookings_per_room]
         for booking in bookings:
-            start_time = booking.date_time_start.strftime('%H:%M')
-            end_time = booking.date_time_end.strftime('%H:%M')
+            start_time = self.format_date(booking.date_time_start).strftime('%H:%M')
+            end_time = self.format_date(booking.date_time_end).strftime('%H:%M')
             running_flag = booking.date_time_start <= now < booking.date_time_end
             appointment_name = booking.title
             organiser_name = booking.created_by.userprofile.first_name_and_last_name
-            booking_date = booking.date_time_start.strftime('%d.%m.%Y')
+            booking_date = self.format_date(booking.date_time_start).strftime('%d.%m.%Y')
             cells.extend([
                 start_time, end_time, running_flag, appointment_name, organiser_name, booking_date
             ])

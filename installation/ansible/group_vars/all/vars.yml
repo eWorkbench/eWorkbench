@@ -1,0 +1,22 @@
+---
+ansible_python_interpreter: /usr/bin/python3
+ansible_user: srvadm
+ansible_become_user: root
+ansible_become_method: sudo
+ansible_become_pass: '{{ vault_ansible_become_pass }}'
+
+app_user: ge29nax
+app_user_password: '{{ vault_app_user_password }}'
+app_user_encrypted_password: '{{ vault_app_user_encrypted_password }}'
+# ge29nax:x:3883409:2222::/home/ge29nax:
+app_user_uid: 3883409
+app_user_gid: 2222
+
+ufw_allow_ip_range: 10.155.111.0/24
+
+health_email_recipient: eworkbench@<domain>
+
+testbench_db_password: '{{ vault_testbench_db_password }}'
+workbench_db_password: '{{ vault_workbench_db_password }}'
+
+plugins_root_path: /mnt/nas_tuze_bib_workbench/plugins

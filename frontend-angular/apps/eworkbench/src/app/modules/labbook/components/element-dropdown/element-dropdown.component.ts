@@ -144,7 +144,7 @@ export class LabBookElementDropdownComponent implements OnInit {
 
   public onDelete(): void {
     const userStoreValue = this.userStore.getValue();
-    const userSetting = 'SkipDialog-TrashAndDeleteElementFromLabbook';
+    const userSetting = 'SkipDialog-Trash';
 
     const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.[userSetting]);
 

@@ -8,14 +8,7 @@
     <ng-container *ngIf="user?.userprofile">
       <ng-container *ngIf="user?.userprofile?.anonymized">
         <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
-          <eworkbench-user-avatar
-            [user]="user"
-            [chip]="chip"
-            [inverted]="inverted || invertedAvatar"
-            [scale]="avatarScale"
-            class="mr-2"
-            *ngIf="avatar"
-          ></eworkbench-user-avatar>
+          <ng-container [ngTemplateOutlet]="userAvatar"></ng-container>
           <div [class.text-gray-600]="!inverted">
             {{ t('user.details.anonymizedUser') }}
           </div>
@@ -30,14 +23,7 @@
   </ng-container>
   <ng-container *ngIf="!user || !user?.userprofile">
     <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
-      <eworkbench-user-avatar
-        [user]="user"
-        [chip]="chip"
-        [inverted]="inverted || invertedAvatar"
-        [scale]="avatarScale"
-        class="mr-2"
-        *ngIf="avatar"
-      ></eworkbench-user-avatar>
+      <ng-container [ngTemplateOutlet]="userAvatar"></ng-container>
       <div>
         {{ t('user.details.unknownUser') }}
       </div>
@@ -46,27 +32,25 @@
 </ng-container>
 
 <ng-template #userTemplate>
-  <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
-    <eworkbench-user-avatar
-      [user]="user"
-      [chip]="chip"
-      [inverted]="inverted || invertedAvatar"
-      [scale]="avatarScale"
-      class="mr-2"
-      *ngIf="avatar"
-    ></eworkbench-user-avatar>
-    <a href (click)="openUserModal($event)" [class.deactivated]="!active" [class.inverted]="inverted" *ngIf="modal"
-      >{{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}</a
-    >
+  <div
+    #popoverFocusElement
+    class="flex items-center whitespace-nowrap"
+    [class.chip]="chip"
+    [class.inverted]="inverted"
+    (mouseleave)="popoverTriggerElement.focus(); popoverTriggerElement.blur()"
+  >
+    <ng-container [ngTemplateOutlet]="userAvatar"></ng-container>
     <a
+      #popoverTriggerElement
       href
-      class="cursor-default"
+      [class.deactivated]="!active"
+      [class.inverted]="inverted"
       [popover]="userDetailsPopover"
       [popoverContext]="{ user: user }"
-      containerClass="ewb-popover"
-      triggers="mouseenter:mouseleave"
-      (click)="$event.preventDefault()"
-      *ngIf="!modal"
+      [containerClass]="modal ? '' : 'ewb-popover'"
+      [triggers]="modal ? '' : 'mouseenter:blur'"
+      (click)="modal ? openUserModal($event) : $event.preventDefault()"
+      (mouseenter)="popoverFocusElement.focus()"
     >
       {{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}
     </a>
@@ -74,31 +58,46 @@
 </ng-template>
 
 <ng-template #usernameTemplate>
-  <div class="flex items-center whitespace-nowrap" [class.chip]="chip" [class.inverted]="inverted">
-    <eworkbench-user-avatar
-      [user]="user"
-      [chip]="chip"
-      [inverted]="inverted || invertedAvatar"
-      [scale]="avatarScale"
-      class="mr-2"
-      *ngIf="avatar"
-    ></eworkbench-user-avatar>
-    <a href (click)="openUserModal($event)" [class.deactivated]="!active" [class.inverted]="inverted" *ngIf="modal">{{ user?.username }}</a>
+  <div
+    #popoverFocusElement
+    class="flex items-center whitespace-nowrap"
+    [class.chip]="chip"
+    [class.inverted]="inverted"
+    (mouseleave)="popoverTriggerElement.focus(); popoverTriggerElement.blur()"
+  >
+    <ng-container [ngTemplateOutlet]="userAvatar"></ng-container>
     <a
+      #popoverTriggerElement
       href
-      class="cursor-default"
+      [class.deactivated]="!active"
+      [class.inverted]="inverted"
       [popover]="userDetailsPopover"
-      [popoverContext]="{ user: user }"
-      containerClass="ewb-popover"
-      triggers="mouseenter:mouseleave"
-      (click)="$event.preventDefault()"
-      *ngIf="!modal"
+      [popoverContext]="{ user }"
+      [containerClass]="modal ? '' : 'ewb-popover'"
+      [triggers]="modal ? '' : 'mouseenter:blur'"
+      (click)="modal ? openUserModal($event) : $event.preventDefault()"
+      (mouseenter)="popoverFocusElement.focus()"
     >
       {{ user?.username }}
     </a>
   </div>
 </ng-template>
 
+<ng-template #userAvatar>
+  <eworkbench-user-avatar
+    [user]="user"
+    [chip]="chip"
+    [inverted]="inverted || invertedAvatar"
+    [scale]="avatarScale"
+    class="mr-2"
+    *ngIf="avatar"
+  ></eworkbench-user-avatar>
+</ng-template>
+
 <ng-template #userDetailsPopover let-user="user">
-  <eworkbench-user-details-preview [user]="user"></eworkbench-user-details-preview>
+  <eworkbench-user-details-preview
+    [user]="user"
+    (mousedown)="$event.stopPropagation()"
+    (click)="$event.stopPropagation()"
+  ></eworkbench-user-details-preview>
 </ng-template>

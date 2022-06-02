@@ -1,0 +1,8 @@
+[Unit]
+Description=Triggers the daphne service
+
+[Path]
+PathModified=/run/daphne/restart.txt
+
+[Install]
+WantedBy=multi-user.target

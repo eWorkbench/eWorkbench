@@ -62,7 +62,7 @@
                 id="academicTitle"
                 formControlName="academicTitle"
                 name="academicTitle"
-                [placeholder]="t('profile.academicTitle')"
+                [placeholder]="!isLDAPUser ? t('profile.academicTitle') : t('formInput.notDefined.placeholder')"
                 slot="input"
               />
             </eworkbench-form-input>
@@ -87,7 +87,7 @@
                 id="firstName"
                 formControlName="firstName"
                 name="firstName"
-                [placeholder]="t('profile.firstName')"
+                [placeholder]="!isLDAPUser ? t('profile.firstName') : t('formInput.notDefined.placeholder')"
                 slot="input"
               />
             </eworkbench-form-input>
@@ -112,7 +112,7 @@
                 id="lastName"
                 formControlName="lastName"
                 name="lastName"
-                [placeholder]="t('profile.lastName')"
+                [placeholder]="!isLDAPUser ? t('profile.lastName') : t('formInput.notDefined.placeholder')"
                 slot="input"
               />
             </eworkbench-form-input>
@@ -136,7 +136,7 @@
                 id="username"
                 formControlName="username"
                 name="username"
-                [placeholder]="t('profile.username')"
+                [placeholder]="!isLDAPUser ? t('profile.username') : t('formInput.notDefined.placeholder')"
                 slot="input"
               />
             </eworkbench-form-input>
@@ -165,7 +165,7 @@
                         [formControl]="employeeAffiliation.controls[i]"
                         [id]="'employeeAffiliation.' + i"
                         [name]="'employeeAffiliation.' + i"
-                        [placeholder]="t('profile.employeeAffiliation')"
+                        [placeholder]="!isLDAPUser ? t('profile.employeeAffiliation') : t('formInput.notDefined.placeholder')"
                       />
                     </div>
 
@@ -241,7 +241,7 @@
                         [formControl]="studentAffiliation.controls[i]"
                         [id]="'studentAffiliation.' + i"
                         [name]="'studentAffiliation.' + i"
-                        [placeholder]="t('profile.studentAffiliation')"
+                        [placeholder]="!isLDAPUser ? t('profile.studentAffiliation') : t('formInput.notDefined.placeholder')"
                       />
                     </div>
                     <button
@@ -312,7 +312,7 @@
                 id="country"
                 formControlName="country"
                 name="country"
-                [placeholder]="t('profile.country')"
+                [placeholder]="!isLDAPUser ? t('profile.country') : t('formInput.notDefined.placeholder')"
                 slot="input"
               />
             </eworkbench-form-input>
@@ -337,7 +337,7 @@
                 id="phone"
                 formControlName="phone"
                 name="phone"
-                [placeholder]="t('profile.phoneNumber')"
+                [placeholder]="!isLDAPUser ? t('profile.phoneNumber') : t('formInput.notDefined.placeholder')"
                 slot="input"
               />
             </eworkbench-form-input>
@@ -362,7 +362,7 @@
                 id="email"
                 formControlName="email"
                 name="email"
-                [placeholder]="t('profile.emailAddress')"
+                [placeholder]="!isLDAPUser ? t('profile.emailAddress') : t('formInput.notDefined.placeholder')"
                 slot="input"
               />
             </eworkbench-form-input>

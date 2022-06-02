@@ -69,7 +69,6 @@
                   <eworkbench-plugin-preview
                     [plugin]="plugin"
                     (showDetails)="onShowDetails($event)"
-                    (dropdownSelected)="onDropdownSelected($event)"
                     (selected)="onSelect($event)"
                     *ngFor="let plugin of plugins"
                   ></eworkbench-plugin-preview>
@@ -150,10 +149,7 @@
               </ng-container>
             </ng-container>
             <ng-container *ngIf="pluginDetails">
-              <eworkbench-plugin-details
-                [plugin]="pluginDetails"
-                (dropdownSelected)="onDropdownSelected($event)"
-              ></eworkbench-plugin-details>
+              <eworkbench-plugin-details [plugin]="pluginDetails" (selected)="onSelected($event)"></eworkbench-plugin-details>
 
               <div class="flex justify-between mt-5">
                 <div>
@@ -171,6 +167,7 @@
       <eworkbench-plugin-feedback
         [id]="showFeedbackFormForPlugin?.id"
         [type]="showFeedbackFormForPlugin?.type"
+        [responsibleUsers]="showFeedbackFormForPlugin?.responsibleUsers"
         (canceled)="onHideFeedbackForm()"
         *ngIf="showFeedbackFormForPlugin"
       ></eworkbench-plugin-feedback>

@@ -21,22 +21,40 @@
           </div>
         </div>
         <div class="flex-fill">
-          <div>
+          <div class="mb-4">
             <label for="responsibleUsers-modal" class="font-bold inline-block mr-1">{{ t('plugin.preview.responsibleUsers.label') }}</label>
-            <eworkbench-users-grouping
-              [users]="plugin.responsible_users"
-              [chip]="true"
-              [modal]="false"
-              class="inline-block"
-            ></eworkbench-users-grouping>
+            <div class="mb-2">
+              <eworkbench-users-grouping
+                [users]="plugin.responsible_users"
+                [chip]="true"
+                [modal]="false"
+                class="inline-block"
+              ></eworkbench-users-grouping>
+            </div>
+            <button
+              type="button"
+              class="btn ewb-button-big ewb-button-secondary"
+              (click)="onSelect({ type: 'feedback', id: plugin.pk, responsibleUsers: plugin.responsible_users })"
+            >
+              <eworkbench-icon className="wb-envelope"></eworkbench-icon> {{ t('plugin.detailsDropdown.giveFeedback') }}
+            </button>
           </div>
           <div>
-            <eworkbench-plugin-accessibility-label [isAccessible]="plugin.is_accessible"></eworkbench-plugin-accessibility-label>
+            <div [class.mb-2]="!plugin.is_accessible">
+              <eworkbench-plugin-accessibility-label [isAccessible]="plugin.is_accessible"></eworkbench-plugin-accessibility-label>
+            </div>
+            <button
+              type="button"
+              class="btn ewb-button-big ewb-button-secondary"
+              (click)="onSelect({ type: 'request_access', id: plugin.pk, responsibleUsers: plugin.responsible_users })"
+              *ngIf="!plugin.is_accessible"
+            >
+              <eworkbench-icon className="wb-envelope"></eworkbench-icon> {{ t('plugin.detailsDropdown.requestAccess') }}
+            </button>
           </div>
         </div>
       </div>
     </div>
-    <eworkbench-plugin-details-dropdown [plugin]="plugin" (selected)="onDropdownSelected($event)"></eworkbench-plugin-details-dropdown>
   </div>
 
   <div class="mt-3" [innerHTML]="plugin.long_description"></div>

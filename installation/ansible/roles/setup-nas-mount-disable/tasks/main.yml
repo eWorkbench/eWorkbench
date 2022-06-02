@@ -1,0 +1,12 @@
+---
+- name: Disable service mnt-nas_tuze_bib_workbench.automount
+  systemd:
+    name: mnt-nas_tuze_bib_workbench.automount
+    enabled: no
+  become: yes
+
+- name: Disable service mnt-nas_tuze_bib_workbench.mount
+  systemd:
+    name: mnt-nas_tuze_bib_workbench.mount
+    enabled: no
+  become: yes

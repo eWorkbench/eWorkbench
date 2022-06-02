@@ -5,8 +5,8 @@
 
 export const environment = {
   production: true,
-  apiUrl: 'http://workbench.local:8000/api',
-  wsUrl: 'ws://workbench.local:8000/ws',
+  apiUrl: 'http://localhost:8000/api',
+  wsUrl: 'ws://localhost:8000/ws',
   tracking: false,
   matomoUrl: null,
   matomoId: null,

@@ -10,7 +10,7 @@
 
   .dashboard {
     &-element {
-      background-color: #ffffff;
+      background-color: #fff;
 
       &-body {
         padding-top: 8px;
@@ -19,7 +19,7 @@
 
     &-header {
       background-color: $primary-color;
-      color: #ffffff;
+      color: #fff;
       padding: 8px;
     }
   }

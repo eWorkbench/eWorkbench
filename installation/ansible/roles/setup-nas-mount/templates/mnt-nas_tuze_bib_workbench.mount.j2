@@ -1,0 +1,15 @@
+[Unit]
+Description=TUZE BIB Workbench NAS
+Requires=systemd-networkd.service
+After=network-online.target
+Wants=network-online.target
+
+[Mount]
+What=//nas.<domain>/tuze/bib/workbench
+Where=/mnt/nas_tuze_bib_workbench
+Type=cifs
+TimeoutSec=15
+Options=user,vers=3.0,uid={{ app_user }},gid=www-data,file_mode=0664,dir_mode=0775,credentials=/etc/samba/creds/tuze_bib_workbench_nas,iocharset=utf8,rw,x-systemd.automount
+
+[Install]
+WantedBy=multi-user.target

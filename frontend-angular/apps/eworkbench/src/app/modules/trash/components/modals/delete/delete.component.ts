@@ -92,7 +92,7 @@ export class DeleteModalComponent {
         untilDestroyed(this),
         take(1),
         switchMap(user => {
-          const userSetting = this.userSetting ?? 'SkipDialog-TrashElementFromDeleteMenu';
+          const userSetting = this.userSetting ?? 'SkipDialog-Trash';
           return this.userService.changeSettings({
             userprofile: {
               ui_settings: {

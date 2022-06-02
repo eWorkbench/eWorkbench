@@ -18,7 +18,13 @@
           [formControl]="f.start"
           [id]="'startDate' + uniqueHash"
           [name]="'startDate' + uniqueHash"
-          [placeholder]="placeholders ? customPlaceholder.start ?? t('formDateGroup.startDate.placeholder') : ''"
+          [placeholder]="
+            ngControl.disabled
+              ? t('formInput.notDefined.placeholder')
+              : placeholders
+              ? customPlaceholder.start ?? t('formDateGroup.startDate.placeholder')
+              : ''
+          "
           autocomplete="off"
         />
         <div class="input-group-append cursor-pointer" (click)="startDate.click()" *ngIf="!f.start.disabled">
@@ -41,7 +47,13 @@
           [formControl]="f.end"
           [id]="'endDate' + uniqueHash"
           [name]="'endDate' + uniqueHash"
-          [placeholder]="placeholders ? customPlaceholder.end ?? t('formDateGroup.endDate.placeholder') : ''"
+          [placeholder]="
+            ngControl.disabled
+              ? t('formInput.notDefined.placeholder')
+              : placeholders
+              ? customPlaceholder.end ?? t('formDateGroup.endDate.placeholder')
+              : ''
+          "
           autocomplete="off"
         />
         <div class="input-group-append cursor-pointer" (click)="endDate.click()" *ngIf="!f.end.disabled">

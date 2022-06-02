@@ -283,7 +283,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const rectangles = xScale.append('g').selectAll('rect').data(this.items).enter();
 
-    const innerRects = rectangles
+    rectangles
       .append('rect')
       .attr('x', (item: GanttChartItem) => this.calculateInnerRectsX(item))
       .attr('y', (_: GanttChartItem, i: number) => i * gap + topPadding + (gap - barHeight) / 2)
@@ -300,7 +300,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
         return '#677f99';
       });
 
-    const rectsText = rectangles
+    rectangles
       .append('text')
       .text((item: GanttChartItem) => item.name)
       .attr('x', (item: GanttChartItem) => this.calculateRectsTextX(item))
@@ -318,6 +318,14 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
         return '#ffffff';
       });
 
+    const fullWidthRects = rectangles
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', (_: GanttChartItem, i: number) => i * gap + topPadding)
+      .attr('width', '100%')
+      .attr('height', gap)
+      .style('opacity', 0);
+
     this.tooltip = select('body')
       .append('div')
       .attr('id', `gantt-tooltip${this.uuid}`)
@@ -329,8 +337,7 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
       .style('position', 'absolute')
       .style('display', 'none');
 
-    this.addTooltip(innerRects);
-    this.addTooltip(rectsText);
+    this.addTooltip(fullWidthRects);
   }
 
   public calculateInnerRectsX(item: GanttChartItem): number {

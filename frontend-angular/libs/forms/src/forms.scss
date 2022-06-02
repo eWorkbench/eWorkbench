@@ -9,9 +9,7 @@
 
 @mixin ewb-button($height, $padding, $font-size) {
   margin: 0;
-  padding: 0;
   border-radius: 0;
-
   height: $height;
   padding: $padding;
   line-height: unset;
@@ -50,7 +48,7 @@ label {
   }
 
   &-primary {
-    color: #ffffff;
+    color: #fff;
     background-color: $primary-color;
 
     &.ewb-button-regular {
@@ -61,7 +59,7 @@ label {
 
     &:hover,
     &.active {
-      color: #ffffff;
+      color: #fff;
       background-color: $primary-color;
     }
   }
@@ -87,38 +85,38 @@ label {
   }
 
   &-danger {
-    color: #ffffff;
+    color: #fff;
     background-color: $danger-color;
 
     &:hover,
     &.active {
-      color: #ffffff;
+      color: #fff;
       background-color: $danger-color-hover;
     }
   }
 
   &-additional {
-    color: #ffffff;
+    color: #fff;
     background-color: $additional-color;
 
     &:hover {
-      color: #ffffff;
+      color: #fff;
       background-color: $additional-color-hover;
     }
   }
 
   &-background {
     color: $primary-color;
-    background-color: #ffffff;
+    background-color: #fff;
 
     &.ewb-button-secondary {
-      color: #ffffff;
+      color: #fff;
       background-color: unset;
-      border-color: #ffffff;
+      border-color: #fff;
 
       &:hover {
         color: $primary-color;
-        background-color: #ffffff;
+        background-color: #fff;
       }
     }
 
@@ -135,7 +133,7 @@ label {
 
     &:hover,
     &.active {
-      color: #ffffff;
+      color: #fff;
       background-color: $primary-color;
     }
   }
@@ -167,7 +165,7 @@ a.ewb-button-regular {
 
 @mixin ewb-input($label: false) {
   color: $text-color;
-  background-color: #ffffff;
+  background-color: #fff;
   border-color: $border-color;
   border-radius: 0;
   height: 34px;
@@ -175,19 +173,11 @@ a.ewb-button-regular {
   padding: 6px 10px;
   background-clip: border-box;
 
-  &:placeholder-shown {
-    background-color: $secondary-color;
-
-    &:read-only {
-      background-color: $secondary-color;
-    }
-  }
-
   &:read-only {
     @if $label {
       background-color: $secondary-color;
     } @else {
-      background-color: #ffffff;
+      background-color: #fff;
     }
   }
 
@@ -199,6 +189,12 @@ a.ewb-button-regular {
   &:disabled {
     border-color: transparent;
     background-color: transparent;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    &:placeholder-shown {
+      font-style: italic;
+    }
   }
 
   &.ng-invalid.ng-touched {
@@ -209,7 +205,13 @@ a.ewb-button-regular {
 }
 
 .ewb-input {
-  @include ewb-input();
+  @include ewb-input;
+}
+
+.input-group {
+  .ewb-input {
+    padding: 6px 10px;
+  }
 }
 
 .ewb-input-file {
@@ -232,7 +234,7 @@ a.ewb-button-regular {
 
   &:focus {
     & + label {
-      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
     }
   }
 
@@ -241,6 +243,15 @@ a.ewb-button-regular {
       pointer-events: none;
       opacity: 0.5;
     }
+  }
+}
+
+.custom-control-label::before {
+  border-color: #6b6b6b;
+
+  &.ng-invalid.ng-touched {
+    border-color: $invalid-border-color;
+    background-color: #fff0ee;
   }
 }
 
@@ -262,15 +273,6 @@ a.ewb-button-regular {
   }
 }
 
-.custom-control-label::before {
-  border-color: #6b6b6b;
-
-  &.ng-invalid.ng-touched {
-    border-color: $invalid-border-color;
-    background-color: #fff0ee;
-  }
-}
-
 .custom-control-input:checked ~ .custom-control-label::before {
   background-color: $primary-color;
   border-color: transparent;
@@ -283,7 +285,7 @@ a.ewb-button-regular {
 
 .custom-file-label {
   &::after {
-    color: #ffffff;
+    color: #fff;
     background-color: $additional-color-hover;
     border-radius: 0;
     height: unset;
@@ -293,14 +295,14 @@ a.ewb-button-regular {
 .custom-file-label-filled {
   &.ewb-input-file {
     &:read-only {
-      background-color: #ffffff;
+      background-color: #fff;
     }
   }
 }
 
 .ewb-textarea {
   color: $text-color;
-  background-color: #ffffff;
+  background-color: #fff;
   border-color: $border-color;
   border-radius: 0;
   font-size: $font-size-sm;
@@ -334,9 +336,10 @@ a.ewb-button-regular {
     min-height: 34px;
     border-color: $border-color;
     background-color: #f4f4f4;
+    overflow: inherit;
 
     &.ng-has-value {
-      background-color: #ffffff;
+      background-color: #fff;
     }
 
     &:hover {
@@ -365,7 +368,7 @@ a.ewb-button-regular {
       .ng-placeholder {
         color: $text-color;
         font-size: $font-size-sm;
-        opacity: 0.7;
+        opacity: 0.8;
       }
     }
   }
@@ -387,6 +390,32 @@ a.ewb-button-regular {
     }
   }
 
+  .ng-arrow-wrapper {
+    .ng-arrow {
+      display: none;
+    }
+  }
+
+  &.ng-select-disabled {
+    .ng-select-container {
+      background-color: #fff;
+      border: 0;
+
+      .ng-value-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+
+      .ng-arrow-wrapper {
+        display: none;
+      }
+
+      .ng-placeholder {
+        font-style: italic;
+      }
+    }
+  }
+
   &.ng-select-multiple {
     .ng-select-container {
       .ng-value-container {
@@ -396,7 +425,7 @@ a.ewb-button-regular {
 
         .ng-placeholder {
           top: unset;
-          padding-left: 0px;
+          padding-left: 0;
         }
 
         .ng-input {
@@ -441,20 +470,30 @@ a.ewb-button-regular {
     }
   }
 
+  span.ng-arrow-wrapper {
+    &::before {
+      content: '\e942';
+      display: inline-block;
+      font: normal normal normal 14px/1 wb-font;
+      font-size: inherit;
+      text-rendering: auto;
+    }
+  }
+
   &.ng-select-opened {
     > .ng-select-container {
       background-color: $focus-color;
-      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
 
       .ng-arrow {
         display: none;
       }
 
       span.ng-arrow-wrapper {
-        &:before {
+        &::before {
           content: '\e943';
           display: inline-block;
-          font: normal normal normal 14px/1 'wb-font';
+          font: normal normal normal 14px/1 wb-font;
           font-size: inherit;
           text-rendering: auto;
         }
@@ -467,7 +506,7 @@ a.ewb-button-regular {
       > .ng-select-container {
         background-color: $focus-color;
         border-color: $border-color;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
       }
     }
   }
@@ -483,25 +522,9 @@ a.ewb-button-regular {
     }
   }
 
-  .ng-arrow-wrapper {
-    .ng-arrow {
-      display: none;
-    }
-  }
-
-  span.ng-arrow-wrapper {
-    &:before {
-      content: '\e942';
-      display: inline-block;
-      font: normal normal normal 14px/1 'wb-font';
-      font-size: inherit;
-      text-rendering: auto;
-    }
-  }
-
   .ng-dropdown-panel {
     border-color: $border-color;
-    background-color: #ffffff;
+    background-color: #fff;
     width: auto !important;
     min-width: 100% !important;
 
@@ -535,7 +558,7 @@ a.ewb-button-regular {
           }
 
           &.ng-option-disabled {
-            background-color: #ffffff;
+            background-color: #fff;
             opacity: 0.5;
           }
 
@@ -555,6 +578,7 @@ a.ewb-button-regular {
   }
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 ng-select.ng-invalid.ng-touched .ng-select-container {
   border-width: 1.5px;
   border-color: $invalid-border-color;
@@ -575,24 +599,10 @@ dp-date-picker {
   &.dp-popup {
     box-shadow: none;
     border: 0;
-    background-color: #ffffff;
+    background-color: #fff;
   }
 
   .dp-calendar-nav {
-    &-left,
-    &-right {
-      line-height: unset;
-      background: transparent;
-      color: #ffffff;
-      border: 0;
-      width: 30px;
-      height: 30px;
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-      }
-    }
-
     &-left {
       &::before {
         bottom: 1px;
@@ -604,6 +614,20 @@ dp-date-picker {
       &::before {
         bottom: 1px;
         right: 2px;
+      }
+    }
+
+    &-left,
+    &-right {
+      line-height: unset;
+      background: transparent;
+      color: #fff;
+      border: 0;
+      width: 30px;
+      height: 30px;
+
+      &:hover {
+        background-color: rgb(0 0 0 / 10%);
       }
     }
   }
@@ -619,11 +643,11 @@ dp-date-picker {
 
     &::before {
       content: 'Today';
-      color: #ffffff;
+      color: #fff;
     }
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: rgb(0 0 0 / 10%);
     }
   }
 
@@ -641,11 +665,11 @@ dp-date-picker {
       .dp-nav-header-btn {
         background: transparent;
         border: 0;
-        color: #ffffff;
+        color: #fff;
         height: 30px;
 
         &:hover {
-          background-color: rgba(0, 0, 0, 0.1);
+          background-color: rgb(0 0 0 / 10%);
         }
       }
     }
@@ -679,7 +703,7 @@ dp-date-picker {
       height: 35px;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.1);
+        background-color: rgb(0 0 0 / 10%);
       }
     }
 
@@ -705,7 +729,7 @@ dp-date-picker {
       }
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.1);
+        background-color: rgb(0 0 0 / 10%);
       }
     }
   }

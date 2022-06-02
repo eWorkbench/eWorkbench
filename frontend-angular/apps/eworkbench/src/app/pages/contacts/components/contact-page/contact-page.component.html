@@ -78,7 +78,9 @@
                       id="academicTitle"
                       formControlName="academicTitle"
                       name="academicTitle"
-                      [placeholder]="t('contact.details.academicTitle.placeholder')"
+                      [placeholder]="
+                        privileges?.edit ? t('contact.details.academicTitle.placeholder') : t('formInput.notDefined.placeholder')
+                      "
                       slot="input"
                     />
                   </eworkbench-form-input>
@@ -134,7 +136,7 @@
                       id="email"
                       formControlName="email"
                       name="email"
-                      [placeholder]="t('contact.details.email.placeholder')"
+                      [placeholder]="privileges?.edit ? t('contact.details.email.placeholder') : t('formInput.notDefined.placeholder')"
                       slot="input"
                     />
                   </eworkbench-form-input>
@@ -152,7 +154,7 @@
                       id="phone"
                       formControlName="phone"
                       name="phone"
-                      [placeholder]="t('contact.details.phone.placeholder')"
+                      [placeholder]="privileges?.edit ? t('contact.details.phone.placeholder') : t('formInput.notDefined.placeholder')"
                       slot="input"
                     />
                   </eworkbench-form-input>
@@ -170,7 +172,7 @@
                       id="company"
                       formControlName="company"
                       name="company"
-                      [placeholder]="t('contact.details.company.placeholder')"
+                      [placeholder]="privileges?.edit ? t('contact.details.company.placeholder') : t('formInput.notDefined.placeholder')"
                       slot="input"
                     />
                   </eworkbench-form-input>
@@ -187,7 +189,7 @@
                       formControlName="projects"
                       labelForId="projects"
                       name="projects"
-                      [placeholder]="t('contact.details.projects.placeholder')"
+                      [placeholder]="privileges?.edit ? t('contact.details.projects.placeholder') : t('formInput.notDefined.placeholder')"
                       [multiple]="true"
                       [typeahead]="projectInput$"
                       [items]="projects"
@@ -257,7 +259,11 @@
                     *ngIf="initialState.notes; else noDescription"
                     [innerHTML]="initialState.notes | safeHTML"
                   ></div>
-                  <ng-template #noDescription>{{ t('contact.details.description.noDescription') }}</ng-template>
+                  <ng-template #noDescription>
+                    <span [ngClass]="!privileges?.edit ? 'italic text-tum-disabled' : ''">
+                      {{ t('contact.details.description.noDescription') }}
+                    </span>
+                  </ng-template>
                 </div>
               </ng-container>
             </eworkbench-details-collapse-element>

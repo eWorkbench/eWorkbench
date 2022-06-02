@@ -13,7 +13,7 @@
           class="form-control ewb-input"
           id="title-modal"
           [placeholder]="t('dmp.details.title.placeholder')"
-          [readonly]="true"
+          [disabled]="true"
           [value]="dmp?.title"
         />
       </div>
@@ -45,7 +45,7 @@
           class="ewb-select"
           name="projects-modal"
           [formControl]="projectsFormControl"
-          [placeholder]="t('dmp.details.projects.placeholder')"
+          [placeholder]="t('formInput.notDefined.placeholder')"
           [multiple]="true"
           [items]="projects"
           bindLabel="name"
@@ -56,22 +56,27 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="dmp?.metadata?.length">
+      <div class="mb-4">
         <label for="metadata-modal">{{ t('dmp.details.metadata.label') }}</label>
-        <ng-container *ngFor="let field of dmp?.metadata">
-          <div class="mb-2">
-            <div class="mb-1">{{ field.field_info?.display }}</div>
-            <eworkbench-metadata-field
-              [uuid]="field.pk"
-              [id]="field.pk"
-              [baseType]="field.field_info?.base_type"
-              [typeSettings]="field.field_info?.type_settings"
-              [label]="field.field_info?.display"
-              [values]="field.values"
-              [editable]="false"
-            ></eworkbench-metadata-field>
-          </div>
+        <ng-container *ngIf="dmp?.metadata?.length">
+          <ng-container *ngFor="let field of dmp?.metadata">
+            <div class="mb-2">
+              <div class="mb-1">{{ field.field_info?.display }}</div>
+              <eworkbench-metadata-field
+                [uuid]="field.pk"
+                [id]="field.pk"
+                [baseType]="field.field_info?.base_type"
+                [typeSettings]="field.field_info?.type_settings"
+                [label]="field.field_info?.display"
+                [values]="field.values"
+                [editable]="false"
+              ></eworkbench-metadata-field>
+            </div>
+          </ng-container>
         </ng-container>
+        <div class="text-tum-disabled italic" *ngIf="!dmp?.metadata?.length">
+          {{ t('formInput.notDefined.placeholder') }}
+        </div>
       </div>
       <div class="mb-4" *ngFor="let data of formData">
         <label>{{ data.name }}</label>

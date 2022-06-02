@@ -13,7 +13,7 @@
           class="form-control ewb-input"
           id="title-modal"
           [placeholder]="t('plugin.details.title.placeholder')"
-          [readonly]="true"
+          [disabled]="true"
           [value]="pluginInstance?.title"
         />
       </div>
@@ -31,7 +31,7 @@
           class="ewb-select"
           name="projects-modal"
           [formControl]="projectsFormControl"
-          [placeholder]="t('plugin.details.projects.placeholder')"
+          [placeholder]="t('formInput.notDefined.placeholder')"
           [multiple]="true"
           [items]="projects"
           bindLabel="name"
@@ -42,22 +42,27 @@
           </ng-template>
         </ng-select>
       </div>
-      <div class="mb-4" *ngIf="pluginInstance?.metadata?.length">
+      <div class="mb-4">
         <label for="metadata-modal">{{ t('plugin.details.metadata.label') }}</label>
-        <ng-container *ngFor="let field of pluginInstance?.metadata">
-          <div class="mb-2">
-            <div class="mb-1">{{ field.field_info?.display }}</div>
-            <eworkbench-metadata-field
-              [uuid]="field.pk"
-              [id]="field.pk"
-              [baseType]="field.field_info?.base_type"
-              [typeSettings]="field.field_info?.type_settings"
-              [label]="field.field_info?.display"
-              [values]="field.values"
-              [editable]="false"
-            ></eworkbench-metadata-field>
-          </div>
+        <ng-container *ngIf="pluginInstance?.metadata?.length">
+          <ng-container *ngFor="let field of pluginInstance?.metadata">
+            <div class="mb-2">
+              <div class="mb-1">{{ field.field_info?.display }}</div>
+              <eworkbench-metadata-field
+                [uuid]="field.pk"
+                [id]="field.pk"
+                [baseType]="field.field_info?.base_type"
+                [typeSettings]="field.field_info?.type_settings"
+                [label]="field.field_info?.display"
+                [values]="field.values"
+                [editable]="false"
+              ></eworkbench-metadata-field>
+            </div>
+          </ng-container>
         </ng-container>
+        <div class="text-tum-disabled italic" *ngIf="!pluginInstance?.metadata?.length">
+          {{ t('formInput.notDefined.placeholder') }}
+        </div>
       </div>
       <div class="mb-4">
         <img [src]="pluginInstance?.download_picture" class="max-w-full h-auto" [alt]="pluginInstance?.title" />

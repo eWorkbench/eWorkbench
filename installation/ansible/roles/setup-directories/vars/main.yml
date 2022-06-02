@@ -1,0 +1,11 @@
+---
+www_data_dirs:
+  - /var/django
+  - /var/www
+
+app_user_dirs:
+  - '{{ angularjs_dir }}'
+  - '{{ angularjs_dir }}/public'
+  - '{{ django_dir }}'
+  - '{{ django_dir }}/backups'
+  - '{{ django_dir }}/app'

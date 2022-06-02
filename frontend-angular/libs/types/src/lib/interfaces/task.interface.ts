@@ -19,7 +19,7 @@ export interface TaskPayload {
   labels: string[];
   state: 'NEW' | 'PROG' | 'DONE';
   projects: string[];
-  priority: 'VHIGH' | 'HIGH' | 'NORM' | 'LOW' | 'VLOW';
+  priority: '1' | '2' | '3' | '4' | '5';
   title: string;
   description?: string;
   metadata?: Metadata[];
@@ -58,7 +58,7 @@ export interface Task {
   pk: string;
   state: 'NEW' | 'PROG' | 'DONE';
   projects: string[];
-  priority: 'VHIGH' | 'HIGH' | 'NORM' | 'LOW' | 'VLOW';
+  priority: '1' | '2' | '3' | '4' | '5';
   task_id: number;
   title: string;
   url: string;

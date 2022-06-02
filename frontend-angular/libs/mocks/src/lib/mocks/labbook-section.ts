@@ -26,6 +26,6 @@ export const mockLabBookSection: LabBookSection = {
   pk: '5efee26c-8151-43aa-8037-c15ae71bddba',
   projects: [],
   title: 'Section Name',
-  url: 'http://workbench.local:8000/api/labbooksections/5efee26c-8151-43aa-8037-c15ae71bddba/',
+  url: 'http://localhost:8000/api/labbooksections/5efee26c-8151-43aa-8037-c15ae71bddba/',
   version_number: 1,
 };

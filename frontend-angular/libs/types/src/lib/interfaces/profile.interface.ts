@@ -5,15 +5,11 @@
 
 export interface ProfileDialogSettings {
   'SkipDialog-ConvertTiff': boolean;
-  'SkipDialog-DeleteColumn': boolean;
   'SkipDialog-DuplicateProject': boolean;
   'SkipDialog-DuplicateDMP': boolean;
   'SkipDialog-LeaveProject': boolean;
   'SkipDialog-MoveElementOutOfSection': boolean;
   'SkipDialog-RemoveDirectory': boolean;
   'SkipDialog-RemoveElementFromLabbook': boolean;
-  'SkipDialog-TrashAndDeleteElementFromLabbook': boolean;
-  'SkipDialog-TrashElementFromDeleteMenu': boolean;
-  'SkipDialog-TrashElementFromDetailView': boolean;
-  'SkipDialog-TrashFile': boolean;
+  'SkipDialog-Trash': boolean;
 }

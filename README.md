@@ -5,11 +5,11 @@ License: [AGPL 3](LICENSE)
 Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 ## Installation
-The eWorkbench consists of separate frontend (Angular) and backend (Django) applications.
+For a "simple" containerized non production ready testing installation see the installation/docker directory:
+* [installation/docker/README.md](installation/docker/README.md)
 
-For installation instructions see the docs folder in the backend directory and the README file in the frontend directory:
-* [backend-django/docs/index.rst](backend-django/docs/index.rst)
-* [frontend-angular/README.md](frontend-angular/README.md)
+For production ready example ansible playbooks that can be adapted see:
+* [installation/ansible/README.md](installation/ansible/README.md)
 
 ## Development
 For development instructions, see the README files:
@@ -20,4 +20,4 @@ For development instructions, see the README files:
 ## Contributors
 eWorkbench is developed by Technical University of Munich Library (TUM Library) in collaboration with ANEXIA Internetdienstleistungs GmbH.  
 
-Contact for TUM Library eWorkbench team: <eric@ub.tum.de>
+Contact for TUM Library eWorkbench team: <workbench@ub.tum.de>

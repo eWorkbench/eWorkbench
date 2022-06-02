@@ -82,6 +82,7 @@
                     class="inline-block mr-1"
                     [user]="item"
                     [chip]="true"
+                    [modal]="false"
                     (click)="select.isOpen = false"
                   ></eworkbench-user-details>
                   <span class="sub-text">{{ item.email }}</span>
@@ -116,7 +117,7 @@
             </ng-select>
           </div>
           <div class="mb-4">
-            <label for="attendingContacts-modal">{{ t('appointments.editModal.attendingContacts.placeholder') }}</label>
+            <label for="attendingContacts-modal">{{ t('appointments.editModal.attendingContacts.label') }}</label>
             <ng-select
               class="ewb-select"
               formControlName="attendingContacts"

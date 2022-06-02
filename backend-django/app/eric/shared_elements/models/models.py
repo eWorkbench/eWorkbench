@@ -893,11 +893,11 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
     )
 
     # Task Priority
-    TASK_PRIORITY_NORMAL = 'NORM'
-    TASK_PRIORITY_HIGH = 'HIGH'
-    TASK_PRIORITY_VERY_HIGH = 'VHIGH'
-    TASK_PRIORITY_LOW = 'LOW'
-    TASK_PRIORITY_VERY_LOW = 'VLOW'
+    TASK_PRIORITY_VERY_HIGH = '5'
+    TASK_PRIORITY_HIGH = '4'
+    TASK_PRIORITY_NORMAL = '3'
+    TASK_PRIORITY_LOW = '2'
+    TASK_PRIORITY_VERY_LOW = '1'
 
     TASK_PRIORITY_CHOICES = (
         (TASK_PRIORITY_VERY_HIGH, 'Very High'),

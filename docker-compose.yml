@@ -1,0 +1,159 @@
+version: '3'
+volumes:
+  pg_data:
+  maildump_data:
+  app_data:
+  ldap_data:
+  ldap_config:
+services:
+  # python container
+  python: &python
+    build:
+      context: . # We set this context to load the app requirements when building the image
+      dockerfile: ./installation/docker/python/Dockerfile
+    volumes:
+      - ./backend-django:/app
+      - app_data:/var/lib/app
+      - ./backend-django/dss:/dss
+    command: >
+      mkdir -p logs/ &&
+      touch logs/application.log &&
+      sh -c "
+             pip install --no-cache-dir -r requirements.txt --upgrade &&
+             python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             python manage.py shell -c \"from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@example.com', 'adminpass');\" &&
+             python -Wd manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=eric.settings.docker
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    depends_on:
+      - db
+      - maildump
+      - redis
+      - ldap-service
+  cron_remove_old_element_locks:
+    <<: *python
+    ports: []
+    volumes:
+      - ./backend-django:/app
+      - app_data:/var/lib/app
+    command: while true; do python manage.py remove_old_element_locks; sleep 10; done
+  cron_send_notifications:
+    <<: *python
+    ports: []
+    volumes:
+      - ./backend-django:/app
+      - app_data:/var/lib/app
+    command: while true; do python manage.py send_notifications; sleep 60; done
+  cron_trash_unneeded_tmp_files:
+    <<: *python
+    ports: []
+    volumes:
+      - ./backend-django:/app
+      - app_data:/var/lib/app
+    command: while true; do python manage.py trash_unneeded_tmp_files; sleep 60; done
+  # Celery
+  celery:
+    <<: *python
+    ports: []
+    volumes:
+      - ./backend-django:/app
+      - app_data:/var/lib/app
+      - ./backend-django/dss:/dss
+    command: celery -A eric worker -B -l INFO
+    environment:
+      - DJANGO_SETTINGS_MODULE=eric.settings.docker
+    depends_on:
+      - broker
+      - python
+  # RabbitMQ Broker used by celery
+  broker:
+    image: rabbitmq:3.8
+    hostname: broker
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    ports:
+      - 5672:5672
+  # Postgres configuration
+  db:
+    hostname: db.workbench.local
+    image: postgres:12.3
+    command: postgres -c jit=off
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    volumes:
+      - ./backend-django/backups:/docker-entrypoint-initdb.d
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: eric
+      POSTGRES_USER: eric
+      POSTGRES_PASSWORD: eric
+  adminer:
+    image: adminer
+    ports:
+      - 1082:8080
+  # Maildump configuration
+  maildump:
+    hostname: maildump.workbench.local
+    build:
+      context: ./installation/docker/maildump
+      args:
+        MAILDUMP_VERSION: 1.0
+    volumes:
+      - maildump_data:/maildump
+    expose:
+      - 1025
+      - 1080
+    ports:
+      - 1080:1080
+      - 1025:1025
+  redis:
+    hostname: redis.workbench.local
+    image: redis:2.8
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
+  # ldap server
+  ldap-service:
+    hostname: ldap.workbench.local
+    command: "--loglevel trace"
+    image: osixia/openldap:1.1.6
+    ports:
+     - 389:389
+     - 636:636
+    environment:
+     - LDAP_ORGANISATION=Workbench Local Dev
+     - LDAP_DOMAIN=workbench.local
+    command: "--copy-service"
+    volumes:
+     - ./backend-django/ldap/:/ldap
+     - ldap_data:/var/lib/ldap
+     - ldap_config:/etc/ldap/slapd.d
+  # ldap admin
+  ldap-admin:
+    hostname: ldap.workbench.local
+    image: dinkel/phpldapadmin:latest
+    ports:
+     - 1081:80
+    environment:
+     - LDAP_SERVER_HOST=ldap-service
+    depends_on:
+     - ldap-service
+  # Frontend Node configuration
+  node:
+    build:
+      context: ./installation/docker/node
+    volumes:
+      - ./frontend-angular:/app
+    command: npm install && npm start
+    ports:
+      - "4200:4200"

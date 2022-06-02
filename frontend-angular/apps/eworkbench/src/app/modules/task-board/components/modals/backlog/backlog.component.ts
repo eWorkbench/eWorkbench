@@ -99,7 +99,7 @@ export class BacklogModalComponent implements OnInit {
 
   public favoritesControl = this.fb.control<boolean | null>(null);
 
-  public params = new HttpParams().set('state', 'NEW,PROG').set('priority', 'VHIGH,HIGH,NORM,LOW,VLOW');
+  public params = new HttpParams().set('state', 'NEW,PROG').set('priority', '1,2,3,4,5');
 
   public users: User[] = [];
 
@@ -277,11 +277,11 @@ export class BacklogModalComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'VHIGH');
+        .filter(params => params !== '1');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'VHIGH'].join(','));
+          this.params = this.params.set('priority', [...params, '1'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -298,11 +298,11 @@ export class BacklogModalComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'HIGH');
+        .filter(params => params !== '2');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'HIGH'].join(','));
+          this.params = this.params.set('priority', [...params, '2'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -319,11 +319,11 @@ export class BacklogModalComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'NORM');
+        .filter(params => params !== '3');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'NORM'].join(','));
+          this.params = this.params.set('priority', [...params, '3'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -340,11 +340,11 @@ export class BacklogModalComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'LOW');
+        .filter(params => params !== '4');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'LOW'].join(','));
+          this.params = this.params.set('priority', [...params, '4'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -361,11 +361,11 @@ export class BacklogModalComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== 'VLOW');
+        .filter(params => params !== '5');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, 'VLOW'].join(','));
+          this.params = this.params.set('priority', [...params, '5'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -544,7 +544,7 @@ export class BacklogModalComponent implements OnInit {
   }
 
   public onResetFilters(): void {
-    this.params = new HttpParams().set('state', 'NEW,PROG').set('priority', 'VHIGH,HIGH,NORM,LOW,VLOW');
+    this.params = new HttpParams().set('state', 'NEW,PROG').set('priority', '1,2,3,4,5');
 
     this.projectsControl.setValue(null, { emitEvent: false });
     this.projects = [];

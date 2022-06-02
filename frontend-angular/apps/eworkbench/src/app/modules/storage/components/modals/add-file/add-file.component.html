@@ -64,5 +64,5 @@
   {{ row.created_at | formatDate }}
 </ng-template>
 <ng-template #createdByCellTemplate let-row>
-  <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
+  <eworkbench-user-details [user]="row.created_by" [modal]="false"></eworkbench-user-details>
 </ng-template>

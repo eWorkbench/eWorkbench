@@ -1,0 +1,20 @@
+---
+- name: Copy dbcopy.sh
+  template:
+    src: dbcopy.sh.j2
+    dest: /root/dbcopy.sh
+    owner: root
+    group: root
+    mode: '0744'
+    force: yes
+  become: yes
+
+- name: Copy dbcopy-autodelete.sh
+  template:
+    src: dbcopy-autodelete.sh.j2
+    dest: /root/dbcopy-autodelete.sh
+    owner: root
+    group: root
+    mode: '0744'
+    force: yes
+  become: yes

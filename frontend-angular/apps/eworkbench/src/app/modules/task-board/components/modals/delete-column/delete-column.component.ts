@@ -98,7 +98,7 @@ export class DeleteColumnModalComponent {
                 ...user.userprofile.ui_settings,
                 confirm_dialog: {
                   ...user.userprofile.ui_settings?.confirm_dialog,
-                  'SkipDialog-DeleteColumn': this.f.doNotShowMessageAgain.value,
+                  'SkipDialog-Trash': this.f.doNotShowMessageAgain.value,
                 },
               },
             },

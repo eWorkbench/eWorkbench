@@ -7,6 +7,17 @@
   <eworkbench-loading [loading]="loading">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" errorTailor>
       <div class="mb-4">
+        <label for="recipient-modal">{{ t('plugin.feedback.recipient.label') }}</label>
+        <div id="recipient-modal">
+          <eworkbench-users-grouping
+            [users]="responsibleUsers"
+            [chip]="true"
+            [modal]="false"
+            class="inline-block"
+          ></eworkbench-users-grouping>
+        </div>
+      </div>
+      <div class="mb-4">
         <ng-container *ngIf="type === 'request_access'; else subjectField">
           <label for="subject-modal">{{ t('plugin.feedback.subject.label') }}</label>
           <div>{{ t('plugin.feedback.subject.requestAccess') }}</div>

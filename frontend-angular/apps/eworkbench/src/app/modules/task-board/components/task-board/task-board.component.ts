@@ -3,19 +3,32 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import type { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalState } from '@app/enums/modal-state.enum';
+import { HEADER_TOP_OFFSET } from '@app/modules/header/tokens/header-top-offset.token';
+import { StickyDirective } from '@app/modules/shared/directives/sticky/sticky.directive';
 import { NewTaskModalComponent } from '@app/modules/task/components/modals/new/new.component';
 import { AuthService, LabelsService, TaskBoardsService, WebSocketService } from '@app/services';
 import { UserState, UserStore } from '@app/stores/user';
 import type {
   KanbanTask,
   Label,
-  ModalCallback,
   Privileges,
   PrivilegesData,
   Task,
@@ -26,7 +39,7 @@ import type {
 } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import type { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { BacklogModalComponent } from '../modals/backlog/backlog.component';
 import { ColumnDetailsModalComponent } from '../modals/column-details/column-details.component';
@@ -40,6 +53,8 @@ import { DeleteColumnModalComponent } from '../modals/delete-column/delete-colum
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskBoardComponent implements OnInit, OnDestroy {
+  @ViewChildren(StickyDirective) public stickyElements!: QueryList<StickyDirective>;
+
   @Input()
   public columns: TaskBoardColumn[] = [];
 
@@ -71,11 +86,14 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   public modalRef?: DialogRef;
 
+  public columnsLoading$ = new BehaviorSubject<boolean>(false);
+
   public filter: TaskBoardFilter = { assignee: null, user: null, project: null, search: null, priority: null, state: null, favorite: null };
 
   private skipNext = false;
 
   public constructor(
+    @Inject(HEADER_TOP_OFFSET) public readonly headerTopOffset: BehaviorSubject<number>,
     private readonly taskBoardsService: TaskBoardsService,
     private readonly labelsService: LabelsService,
     private readonly route: ActivatedRoute,
@@ -85,8 +103,13 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     private readonly websocketService: WebSocketService,
     private readonly authService: AuthService,
     private readonly router: Router,
-    private readonly userStore: UserStore
+    private readonly userStore: UserStore,
+    private readonly elRef: ElementRef
   ) {}
+
+  public get stickyXScrollElement(): HTMLElement {
+    return this.elRef.nativeElement.parentElement;
+  }
 
   public ngOnInit(): void {
     // There is currently no way to have a bi-directional drag n drop,
@@ -154,6 +177,10 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       );
   }
 
+  public isHeadingSticky(column: TaskBoardColumn): boolean {
+    return Boolean(column.tasks?.length && column.tasks.length > 2);
+  }
+
   public taskBoard(): Observable<PrivilegesData<TaskBoard>> {
     return this.authService.user$.pipe(
       untilDestroyed(this),
@@ -181,11 +208,22 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   public loadData(): void {
+    this.columnsLoading$.next(true);
+    const scrollY = window.scrollY;
+    window.scroll({
+      top: 0,
+      behavior: 'smooth',
+    });
     this.prepareColumns()
       .pipe(untilDestroyed(this))
       .subscribe(columns => {
         this.columns = [...columns];
         this.cdr.markForCheck();
+        this.columnsLoading$.next(false);
+        window.scroll({
+          top: scrollY,
+          behavior: 'smooth',
+        });
       });
 
     this.labelsService
@@ -248,11 +286,45 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       });
   }
 
+  public handleStickyOnDrop(event: CdkDragEnd): void {
+    this.headerTopOffset.pipe(take(1)).subscribe(stickyTop => {
+      if (window.pageYOffset >= stickyTop) {
+        const element = event.source.element.nativeElement;
+        if (element.classList.contains('is-sticky')) {
+          element.style.position = 'fixed';
+          element.style.top = `${stickyTop}px`;
+        }
+      }
+    });
+  }
+
   public onColumnDrop(event: CdkDragDrop<TaskBoardColumn[]>): void {
     if (event.previousIndex === event.currentIndex) {
       return;
     }
-    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    const itemIsSticky = event.item.element.nativeElement.classList.contains('is-sticky');
+    this.headerTopOffset.pipe(take(1)).subscribe(stickyTop => {
+      if (window.pageYOffset >= stickyTop) {
+        this.stickyElements.forEach(item => {
+          if (item.el.nativeElement === event.item.element.nativeElement && !itemIsSticky) {
+            return;
+          }
+          item.removeSticky();
+        });
+      }
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      if (window.pageYOffset >= stickyTop) {
+        setTimeout(() => {
+          this.stickyElements.forEach(item => {
+            if (item.el.nativeElement === event.item.element.nativeElement && !itemIsSticky) {
+              return;
+            }
+            item.addSticky();
+          });
+        }, 1);
+      }
+    });
+
     let i = 1;
     for (const column of this.columns) {
       column.ordering = i++;
@@ -304,8 +376,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       width: '100%',
       data: { taskBoardId: this.id, column },
     });
-
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public openNewTaskModal(column?: string): void {
@@ -314,8 +384,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       enableClose: false,
       data: { taskBoardId: this.id, initialState: { projects: this.projects }, column },
     });
-
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public openColumnDetailsModal(column: TaskBoardColumn): void {
@@ -323,14 +391,12 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       closeButton: false,
       data: { column, taskBoardId: this.id, columns: this.columns },
     });
-
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
   }
 
   public onRemoveColumn(column: TaskBoardColumn): void {
     const userStoreValue = this.userStore.getValue();
 
-    const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-DeleteColumn']);
+    const skipTrashDialog = Boolean(userStoreValue.user?.userprofile.ui_settings?.confirm_dialog?.['SkipDialog-Trash']);
 
     if (skipTrashDialog) {
       this.delete(column);
@@ -340,8 +406,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
         windowClass: 'modal-danger',
         data: { column, taskBoardId: this.id, columns: this.columns },
       });
-
-      this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
     }
   }
 
@@ -372,12 +436,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }
       );
-  }
-
-  public onModalClose(callback?: ModalCallback): void {
-    if (callback?.state === ModalState.Changed) {
-      this.loadData();
-    }
   }
 
   public matchesFilter(task: Task): boolean {

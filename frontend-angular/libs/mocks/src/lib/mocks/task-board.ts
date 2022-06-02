@@ -41,7 +41,7 @@ export const mockTaskBoard: TaskBoard = {
   projects: [],
   display: 'Test',
   pk: '470ddfdc-6180-4cb3-91b8-6b27a8b760fc',
-  url: 'http://workbench.local:8000/api/kanbanboards/470ddfdc-6180-4cb3-91b8-6b27a8b760fc/',
+  url: 'http://localhost:8000/api/kanbanboards/470ddfdc-6180-4cb3-91b8-6b27a8b760fc/',
   created_by: mockUser,
   last_modified_by: mockUser,
   is_favourite: false,

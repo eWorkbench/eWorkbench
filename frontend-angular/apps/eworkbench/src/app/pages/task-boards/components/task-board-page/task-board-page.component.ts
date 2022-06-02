@@ -143,7 +143,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
 
   private stateFilters: string[] = ['NEW', 'PROG', 'DONE'];
 
-  private priorityFilters: string[] = ['VHIGH', 'HIGH', 'NORM', 'LOW', 'VLOW'];
+  private priorityFilters: string[] = ['1', '2', '3', '4', '5'];
 
   public form = this.fb.group<FormTaskBoard>({
     title: this.fb.control(null, Validators.required),
@@ -382,10 +382,10 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     });
 
     this.veryHighCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
-      const params = this.priorityFilters.filter(params => params !== 'VHIGH');
+      const params = this.priorityFilters.filter(params => params !== '1');
 
       if (value) {
-        this.priorityFilters = [...params, 'VHIGH'];
+        this.priorityFilters = [...params, '1'];
         this.setFilter.next({
           assignee: this.assigneesControl.value,
           user: this.usersControl.value,
@@ -414,10 +414,10 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     });
 
     this.highCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
-      const params = this.priorityFilters.filter(params => params !== 'HIGH');
+      const params = this.priorityFilters.filter(params => params !== '2');
 
       if (value) {
-        this.priorityFilters = [...params, 'HIGH'];
+        this.priorityFilters = [...params, '2'];
         this.setFilter.next({
           assignee: this.assigneesControl.value,
           user: this.usersControl.value,
@@ -446,10 +446,10 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     });
 
     this.normalCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
-      const params = this.priorityFilters.filter(params => params !== 'NORM');
+      const params = this.priorityFilters.filter(params => params !== '3');
 
       if (value) {
-        this.priorityFilters = [...params, 'NORM'];
+        this.priorityFilters = [...params, '3'];
         this.setFilter.next({
           assignee: this.assigneesControl.value,
           user: this.usersControl.value,
@@ -478,10 +478,10 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     });
 
     this.lowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
-      const params = this.priorityFilters.filter(params => params !== 'LOW');
+      const params = this.priorityFilters.filter(params => params !== '4');
 
       if (value) {
-        this.priorityFilters = [...params, 'LOW'];
+        this.priorityFilters = [...params, '4'];
         this.setFilter.next({
           assignee: this.assigneesControl.value,
           user: this.usersControl.value,
@@ -510,10 +510,10 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     });
 
     this.veryLowCheckbox.value$.pipe(untilDestroyed(this), skip(1), debounceTime(500)).subscribe(value => {
-      const params = this.priorityFilters.filter(params => params !== 'VLOW');
+      const params = this.priorityFilters.filter(params => params !== '5');
 
       if (value) {
-        this.priorityFilters = [...params, 'VLOW'];
+        this.priorityFilters = [...params, '5'];
         this.setFilter.next({
           assignee: this.assigneesControl.value,
           user: this.usersControl.value,
@@ -862,6 +862,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   }
 
   public onSaveFilters(save: boolean): void {
+    this.savedFilters = save;
     if (save) {
       this.taskBoardsService
         .getFilterSettings(this.id)
@@ -934,7 +935,7 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   }
 
   public onResetFilters(): void {
-    this.priorityFilters = ['VHIGH', 'HIGH', 'NORM', 'LOW', 'VLOW'];
+    this.priorityFilters = ['1', '2', '3', '4', '5'];
     this.stateFilters = ['NEW', 'PROG', 'DONE'];
 
     this.projectsControl.setValue(null, { emitEvent: false });

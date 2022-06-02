@@ -23,6 +23,9 @@ module.exports = {
             gray: '#e6e6e6',
             gray2: '#c8c8c8',
           },
+          disabled: {
+            DEFAULT: 'rgba(77, 77, 77, 0.8)',
+          },
         },
       },
     },

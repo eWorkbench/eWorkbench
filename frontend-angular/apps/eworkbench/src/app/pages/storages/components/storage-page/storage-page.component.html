@@ -57,6 +57,7 @@
                       [label]="t('storage.details.title.label')"
                       [loading]="loading"
                       [onSubmit]="refreshResetValue"
+                      [required]="true"
                     >
                       <input
                         type="text"
@@ -81,7 +82,7 @@
                         formControlName="projects"
                         labelForId="projects"
                         name="projects"
-                        [placeholder]="t('storage.details.projects.placeholder')"
+                        [placeholder]="privileges?.edit ? t('storage.details.projects.placeholder') : t('formInput.notDefined.placeholder')"
                         [multiple]="true"
                         [typeahead]="projectInput$"
                         [items]="projects"
@@ -120,7 +121,9 @@
                         formControlName="dssEnvelope"
                         labelForId="dssEnvelope"
                         name="dssEnvelope"
-                        [placeholder]="t('storage.details.dssEnvelope.placeholder')"
+                        [placeholder]="
+                          privileges?.edit ? t('storage.details.dssEnvelope.placeholder') : t('formInput.notDefined.placeholder')
+                        "
                         [items]="dssEnvelopes"
                         [clearable]="false"
                         bindLabel="path"

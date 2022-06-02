@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Inject, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProjectsService } from '@app/services';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { lastValueFrom } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
+import { HEADER_TOP_OFFSET } from '../../tokens/header-top-offset.token';
 
 @UntilDestroy()
 @Component({
@@ -21,7 +22,12 @@ export class HeaderComponent implements OnInit {
 
   public breadcrumbs: { name: string; uri: string }[] = [];
 
-  public constructor(private readonly router: Router, private readonly projectsService: ProjectsService) {}
+  public constructor(
+    @Inject(HEADER_TOP_OFFSET) private readonly headerTopOffset: BehaviorSubject<number>,
+    private readonly router: Router,
+    private readonly projectsService: ProjectsService,
+    private readonly elRef: ElementRef
+  ) {}
 
   public async ngOnInit(): Promise<void> {
     const url = this.router.url.split('/').filter(v => v);
@@ -41,5 +47,12 @@ export class HeaderComponent implements OnInit {
         return { name, uri: `/${url.slice(-url.length, i + 1).join('/')}` };
       })
     );
+  }
+
+  public onMaintenanceLoaded(): void {
+    setTimeout(() => {
+      const topOffset = 60 + Number(this.elRef.nativeElement.offsetHeight); // 60 = height of menu bar
+      this.headerTopOffset.next(topOffset);
+    }, 1);
   }
 }

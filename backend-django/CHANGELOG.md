@@ -1,5 +1,51 @@
 # Changelog
 
+## Version 2.11.3 - May 2022
+- [SITUMEWB-884] Fixed priority values and components for tasks
+- [SITUMEWB-892] Fixed an issue with clickable content in popovers on special occasions
+- [SITUMEWB-879] Fix WebDAV capitalization
+- [SITUMEWB-809] Fix sticky task board headers bugs
+
+## Version 2.11.2 - May 2022
+- [SITUMEWB-884] Fixed migrations for task priority
+- [SITUMEWB-890] appointments display export add ordering and date format
+- [SITUMEWB-879] Fix lock faq link not rendering correctly
+- [SITUMEWB-886] Fixed feedback form on plugin data details page
+- [SITUMEWB-892] Fixed an issue with non-clickable content in popovers when embedded in ng-select elements
+- [SITUMEWB-907] Fixed some placeholder texts
+
+## Version 2.11.1 - May 2022
+- [SITUMEWB-894] Fixed spacing for multi-selects in readonly mode
+- [SITUMEWB-*] Fix racecondition on saving filter sidebar settings
+
+## Version 2.11 - May 2022
+- [SITUMEWB-770] DSS - write idtags from dir_metadata.json files into description of DSS files
+- [SITUMEWB-809] Fix sticky task board headers when details are open, fix horizontal scrolling
+- [SITUMEWB-825] Add admin panel hard delete
+- [SITUMEWB-833] Changes to metadata fields and added new real date field
+- [SITUMEWB-879] Webdav locking text and faq entry
+- [SITUMEWB-880] add one click docker testing installation, add adaptable ansible playbooks for production use, update instructions
+- [SITUMEWB-881] Enhanced context menu for WYSIWYG editor
+- [SITUMEWB-884] Task priority ordering
+- [SITUMEWB-886] Changes to plugin modal regarding responsible users and feedback form, Don't send plugin feedback emails to admins anymore
+- [SITUMEWB-889] add a celery task to requeue hanging dss imports and a django admin action for the same
+- [SITUMEWB-890] csv export study room booking add ordering and date format
+- [SITUMEWB-891] Changes to confirmation prompts
+- [SITUMEWB-892] Changes to user popovers to make the content clickable
+- [SITUMEWB-894] Changes to styling for readonly mode
+- [SITUMEWB-895] Changes to placeholder for readonly mode
+- [SITUMEWB-897] Add project timeline hover text for row
+- [SITUMEWB-907] select fields change labels and placeholder
+- [SITUMEWB-*] Fix favorite tooltip appending to body
+- [SITUMEWB-*] Fixed access to filter sidebar in settings
+- [SITUMEWB-*] Update deps, add stylelint 
+- [SITUMEWB-*] Upgrade bootstrap dep
+
+## Version 2.10.2 - May 2022
+- [SITUMEWB-838] Fix resource general usage setting sorting
+- [SITUMEWB-878] Implemented new icon wb-user-group for general usage settings
+- [SITUMEWB-888] Add resource general usage setting faq slug
+
 ## Version 2.10.1 - April 2022
 - [SITUMEWB-860] Time / unit display appointments
 - [SITUMEWB-838] Refactor resources general usage setting

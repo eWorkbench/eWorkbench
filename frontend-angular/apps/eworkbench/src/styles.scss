@@ -52,6 +52,9 @@
 
 pre {
   font-family: monospace !important;
+  background-color: #fafafa;
+  border: 1px solid #ccc;
+  padding: 9.5px;
 }
 
 html {
@@ -61,7 +64,7 @@ html {
 body {
   height: 100%;
   width: 100%;
-  background-color: #ffffff;
+  background-color: #fff;
   font-size: $font-size;
 }
 
@@ -147,7 +150,7 @@ label {
   font-size: $font-size-md;
 }
 
-.flipH {
+.flip-h {
   display: inline-block;
   transform: scaleX(-1);
 }
@@ -294,7 +297,7 @@ ngneat-dialog {
     .tooltip {
       &-inner {
         font-size: $font-size-sm;
-        color: #000000;
+        color: #000;
         border-radius: 0;
         border: 1px solid $border-color;
         background-color: $secondary-color;
@@ -314,12 +317,12 @@ ngneat-dialog {
   }
 
   &-success {
-    color: #333333;
+    color: #333;
     background-color: $success-color !important;
   }
 
   &-info {
-    color: #333333;
+    color: #333;
     background-color: $light-blue-color !important;
   }
 
@@ -372,9 +375,16 @@ bs-dropdown-container {
   }
 
   &.tox-tinymce-aux {
+    /* stylelint-disable-next-line selector-class-pattern */
     .tox-toolbar__overflow {
       border-radius: 0 !important;
       box-shadow: none !important;
+    }
+  }
+
+  &-tbtn--enabled {
+    svg {
+      fill: $primary-color !important;
     }
   }
 
@@ -393,12 +403,6 @@ bs-dropdown-container {
     }
   }
 
-  &-tbtn--enabled {
-    svg {
-      fill: $primary-color !important;
-    }
-  }
-
   &-tinymce-inline {
     z-index: 1100;
   }
@@ -406,12 +410,6 @@ bs-dropdown-container {
 
 :root .fc-daygrid-day-frame.fc-scrollgrid-sync-inner {
   min-height: unset !important;
-}
-
-pre {
-  background-color: #fafafa;
-  border: 1px solid #ccc;
-  padding: 9.5px;
 }
 
 eworkbench-dashboard-page {
@@ -456,7 +454,7 @@ eworkbench-dashboard-page {
 
       .active {
         background-color: $primary-color;
-        color: #ffffff;
+        color: #fff;
       }
     }
   }
@@ -499,4 +497,9 @@ eworkbench-dashboard-page {
 
 .skeleton-wrapper {
   padding: 40px 70px;
+}
+
+.custom-control-input[disabled] ~ .custom-control-label,
+.custom-control-input:disabled ~ .custom-control-label {
+  color: rgb(77 77 77 / 80%);
 }

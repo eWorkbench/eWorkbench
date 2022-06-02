@@ -97,7 +97,7 @@
                       formControlName="assignees"
                       labelForId="assignees"
                       name="assignees"
-                      [placeholder]="t('task.details.assignees.placeholder')"
+                      [placeholder]="privileges?.edit ? t('task.details.assignees.placeholder') : t('formInput.notDefined.placeholder')"
                       [multiple]="true"
                       [typeahead]="assigneesInput$"
                       [items]="assignees"
@@ -270,8 +270,19 @@
                 </div>
                 <div class="mb-4">
                   <label for="labels" class="w-full">{{ t('task.details.labels.label') }}</label>
-                  <eworkbench-labels [id]="id" [labels]="labels" (labelChange)="labelChange($event)"></eworkbench-labels>
-                  <button id="labels" type="button" class="btn ewb-button-background square rounded-none mt-2" (click)="openLabelsModal()">
+                  <eworkbench-labels
+                    [id]="id"
+                    [labels]="labels"
+                    [readonly]="!privileges?.edit"
+                    (labelChange)="labelChange($event)"
+                  ></eworkbench-labels>
+                  <button
+                    id="labels"
+                    type="button"
+                    class="btn ewb-button-background square rounded-none mt-2"
+                    (click)="openLabelsModal()"
+                    *ngIf="privileges?.edit"
+                  >
                     <eworkbench-icon className="wb-plus-circle"></eworkbench-icon>
                   </button>
                 </div>
@@ -287,7 +298,7 @@
                       formControlName="projects"
                       labelForId="projects"
                       name="projects"
-                      [placeholder]="t('task.details.projects.placeholder')"
+                      [placeholder]="privileges?.edit ? t('task.details.projects.placeholder') : t('formInput.notDefined.placeholder')"
                       [multiple]="true"
                       [typeahead]="projectInput$"
                       [items]="projects"
@@ -357,7 +368,11 @@
                     *ngIf="initialState.description; else noDescription"
                     [innerHTML]="initialState.description | safeHTML"
                   ></div>
-                  <ng-template #noDescription>{{ t('task.details.description.noDescription') }}</ng-template>
+                  <ng-template #noDescription>
+                    <span [ngClass]="!privileges?.edit ? 'italic text-tum-disabled' : ''">
+                      {{ t('task.details.description.noDescription') }}
+                    </span>
+                  </ng-template>
                 </div>
               </ng-container>
             </eworkbench-details-collapse-element>

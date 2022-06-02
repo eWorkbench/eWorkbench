@@ -1,0 +1,56 @@
+diff --git a/node_modules/@tinymce/tinymce-angular/fesm2015/tinymce-tinymce-angular.mjs b/node_modules/@tinymce/tinymce-angular/fesm2015/tinymce-tinymce-angular.mjs
+index 5bf4ae9..8f30ef9 100644
+--- a/node_modules/@tinymce/tinymce-angular/fesm2015/tinymce-tinymce-angular.mjs
++++ b/node_modules/@tinymce/tinymce-angular/fesm2015/tinymce-tinymce-angular.mjs
+@@ -477,7 +477,9 @@ class EditorComponent extends Events {
+     ngOnDestroy() {
+         this.destroy$.next();
+         if (getTinymce() !== null) {
+-            getTinymce().remove(this._editor);
++            try {
++              getTinymce().remove(this._editor);
++            } catch (error) {}
+         }
+     }
+     createElement() {
+@@ -510,9 +512,9 @@ class EditorComponent extends Events {
+         if (typeof this.initialValue === 'string') {
+             this.ngZone.run(() => {
+                 editor.setContent(this.initialValue);
+-                if (editor.getContent() !== this.initialValue) {
+-                    this.emitOnChange(editor);
+-                }
++                // if (editor.getContent() !== this.initialValue) {
++                //     this.emitOnChange(editor);
++                // }
+                 if (this.onInitNgModel !== undefined) {
+                     this.onInitNgModel.emit(editor);
+                 }
+diff --git a/node_modules/@tinymce/tinymce-angular/fesm2020/tinymce-tinymce-angular.mjs b/node_modules/@tinymce/tinymce-angular/fesm2020/tinymce-tinymce-angular.mjs
+index 90cbdb7..0555858 100644
+--- a/node_modules/@tinymce/tinymce-angular/fesm2020/tinymce-tinymce-angular.mjs
++++ b/node_modules/@tinymce/tinymce-angular/fesm2020/tinymce-tinymce-angular.mjs
+@@ -484,7 +484,9 @@ class EditorComponent extends Events {
+     ngOnDestroy() {
+         this.destroy$.next();
+         if (getTinymce() !== null) {
+-            getTinymce().remove(this._editor);
++            try {
++              getTinymce().remove(this._editor);
++            } catch (error) {}
+         }
+     }
+     createElement() {
+@@ -517,9 +519,9 @@ class EditorComponent extends Events {
+         if (typeof this.initialValue === 'string') {
+             this.ngZone.run(() => {
+                 editor.setContent(this.initialValue);
+-                if (editor.getContent() !== this.initialValue) {
+-                    this.emitOnChange(editor);
+-                }
++                // if (editor.getContent() !== this.initialValue) {
++                //     this.emitOnChange(editor);
++                // }
+                 if (this.onInitNgModel !== undefined) {
+                     this.onInitNgModel.emit(editor);
+                 }

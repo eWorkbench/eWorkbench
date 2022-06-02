@@ -11,7 +11,7 @@ import { RecentChangesModalComponent } from '@app/modules/recent-changes/compone
 import { UserDetailsModalComponent } from '@app/modules/user/components/modals/user-details/user-details.component';
 import { UsersListModalComponent } from '@app/modules/user/components/modals/users-list/users-list.component';
 import { AuthService, TaskBoardsService, TasksService, WebSocketService } from '@app/services';
-import type { KanbanTask, Label, Task, User } from '@eworkbench/types';
+import type { KanbanTask, Label, Privileges, Task, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -58,6 +58,9 @@ export class TaskCardComponent implements OnInit {
 
   @Input()
   public userSettings: Record<string, any> = {};
+
+  @Input()
+  public privileges?: Privileges;
 
   @Output()
   public removed = new EventEmitter<string>();
@@ -107,11 +110,11 @@ export class TaskCardComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe(tasks => {
         this.priority = {
-          VHIGH: tasks.priority.veryHigh,
-          HIGH: tasks.priority.high,
-          NORM: tasks.priority.normal,
-          LOW: tasks.priority.low,
-          VLOW: tasks.priority.veryLow,
+          5: tasks.priority.veryHigh,
+          4: tasks.priority.high,
+          3: tasks.priority.normal,
+          2: tasks.priority.low,
+          1: tasks.priority.veryLow,
         };
 
         this.state = {
