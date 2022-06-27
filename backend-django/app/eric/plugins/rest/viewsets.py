@@ -6,6 +6,7 @@ import logging
 
 from distutils import util
 
+from django.core.files.uploadedfile import UploadedFile
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.http import HttpResponse, Http404
@@ -196,11 +197,36 @@ class PluginInstanceViewSet(
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # we need to check, if the current user is allowed to use the referenced plugin
-        plugin_pk = request.data['plugin']
+        # allow duplicating a plugin instance's raw data via the "pk" attribute
+        plugin_instance = None
+        if 'pk' in request.data:
+            plugin_instance = PluginInstance.objects.filter(pk=request.data['pk']).first()
+            if not plugin_instance:
+                raise PermissionDenied(_('Plugin instance is not accessible for user'))
+
+        plugin_pk = request.data.get('plugin', None)
         plugin = Plugin.objects.usable().filter(pk=plugin_pk).first()
         if not plugin:
             raise PermissionDenied(_('Plugin is not accessible for user'))
 
         self.check_object_permissions(request, plugin)
+
+        if plugin_instance:
+            request.data['rawdata'] = UploadedFile(
+                file=plugin_instance.rawdata.file,
+                name=plugin_instance.rawdata.name,
+                size=plugin_instance.rawdata.file.size,
+                content_type=plugin_instance.rawdata_mime_type,
+            )
+            request.data['rawdata_mime_type'] = plugin_instance.rawdata_mime_type
+            request.data['rawdata_size'] = plugin_instance.rawdata_size
+            request.data['picture'] = UploadedFile(
+                file=plugin_instance.picture.file,
+                name=plugin_instance.picture.name,
+                size=plugin_instance.picture.file.size,
+                content_type=plugin_instance.picture_mime_type,
+            )
+            request.data['picture_mime_type'] = plugin_instance.picture_mime_type
+            request.data['picture_size'] = plugin_instance.picture_size
+
         return super(PluginInstanceViewSet, self).create(request, *args, **kwargs)

@@ -333,7 +333,7 @@
 </div>
 
 <ng-template #titleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/plugin-data', row.pk]">{{ row.title }}</a>
   </div>
 </ng-template>
@@ -353,7 +353,7 @@
   <eworkbench-user-details [user]="row.last_modified_by"></eworkbench-user-details>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
-  <div class="text-right">
+  <div class="whitespace-nowrap text-right">
     <eworkbench-favorite-button
       class="inline-block mr-2"
       [id]="row.pk"

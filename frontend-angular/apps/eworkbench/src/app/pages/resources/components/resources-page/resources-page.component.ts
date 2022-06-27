@@ -167,6 +167,7 @@ export class ResourcesPageComponent implements OnInit {
             name: column.name,
             key: 'name',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.typeCellTemplate,
@@ -179,6 +180,7 @@ export class ResourcesPageComponent implements OnInit {
             name: column.description,
             key: 'description',
             sortable: true,
+            width: '20%',
           },
           {
             name: column.location,
@@ -229,6 +231,7 @@ export class ResourcesPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )
@@ -704,9 +707,11 @@ export class ResourcesPageComponent implements OnInit {
   }
 
   public onOpenResourceBookingModal(resource: Resource): void {
+    const initialState = this.project ? { projects: [this.project] } : null;
+
     this.modalRef = this.modalService.open(NewAppointmentModalComponent, {
       closeButton: false,
-      data: { resource },
+      data: { resource, initialState: initialState },
     });
 
     this.modalRef.afterClosed$

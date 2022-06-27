@@ -311,7 +311,9 @@
 </div>
 
 <ng-template #titleCellTemplate let-row>
-  <a [routerLink]="[showSidebar ? '.' : '' + '/dmps', row.pk]">{{ row.display }}</a>
+  <div ellipsis [tooltip]="row.display" containerClass="tooltip-sm" [delay]="500">
+    <a [routerLink]="[showSidebar ? '.' : '' + '/dmps', row.pk]">{{ row.display }}</a>
+  </div>
 </ng-template>
 <ng-template #statusCellTemplate let-row>
   <eworkbench-dmp-status [status]="row.status"></eworkbench-dmp-status>
@@ -329,7 +331,7 @@
   <eworkbench-user-details [user]="row.last_modified_by"></eworkbench-user-details>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
-  <div class="text-right">
+  <div class="whitespace-nowrap text-right">
     <eworkbench-favorite-button
       class="inline-block mr-2"
       [id]="row.pk"

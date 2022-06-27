@@ -1,0 +1,24 @@
+---
+- name: Add Postgres repo to sources list
+  apt_repository:
+    repo: 'deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main'
+    state: present
+    update_cache: no
+  become: yes
+
+- name: Add key for Postgres repo
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+  become: yes
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Ensure postgresql-client-12 is installed
+  package:
+    name: postgresql-client-12
+    state: present
+  become: yes

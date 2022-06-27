@@ -251,39 +251,55 @@
   <eworkbench-user-details [user]="row.created_by" [modal]="false"></eworkbench-user-details>
 </ng-template>
 <ng-template #genericCreatedAtCellTemplate let-row>
-  {{ row.created_at | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.created_at | formatDate }}
+  </div>
 </ng-template>
 <ng-template #appointmentTitleCellTemplate let-row>
-  {{ row.title }}
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+    {{ row.title }}
+  </div>
 </ng-template>
 <ng-template #appointmentStartDateCellTemplate let-row>
-  {{ row.date_time_start | formatDate }} - {{ row.date_time_end | formatDate }}
+  <div class="whitespace-nowrap">{{ row.date_time_start | formatDate }} - {{ row.date_time_end | formatDate }}</div>
 </ng-template>
 <ng-template #commentSubjectCellTemplate let-row>
-  {{ row.subject }}
+  <div ellipsis [tooltip]="row.subject" containerClass="tooltip-sm" [delay]="500">
+    {{ row.subject }}
+  </div>
 </ng-template>
 <ng-template #contactFirstNameCellTemplate let-row>
-  {{ row.first_name }}
+  <div ellipsis [tooltip]="row.first_name" containerClass="tooltip-sm" [delay]="500">
+    {{ row.first_name }}
+  </div>
 </ng-template>
 <ng-template #contactLastNameCellTemplate let-row>
-  {{ row.last_name }}
+  <div ellipsis [tooltip]="row.last_name" containerClass="tooltip-sm" [delay]="500">
+    {{ row.last_name }}
+  </div>
 </ng-template>
 <ng-template #dmpTitleCellTemplate let-row>
-  {{ row.display }}
+  <div ellipsis [tooltip]="row.display" containerClass="tooltip-sm" [delay]="500">
+    {{ row.display }}
+  </div>
 </ng-template>
 <ng-template #fileNameCellTemplate let-row>
-  {{ row.name }}
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+    {{ row.name }}
+  </div>
+</ng-template>
+<ng-template #fileTitleCellTemplate let-row>
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+    {{ row.title }}
+  </div>
 </ng-template>
 <ng-template #labBookTitleCellTemplate let-row>
-  {{ row.title }}
-</ng-template>
-<ng-template #pictureTitleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     {{ row.title }}
   </div>
 </ng-template>
 <ng-template #pictureTitleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     {{ row.title }}
   </div>
 </ng-template>
@@ -299,17 +315,23 @@
   />
 </ng-template>
 <ng-template #pluginInstanceTitleCellTemplate let-row>
-  {{ row.title }}
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+    {{ row.title }}
+  </div>
 </ng-template>
 <ng-template #projectNameCellTemplate let-row>
-  {{ row.name }}
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+    {{ row.name }}
+  </div>
 </ng-template>
 <ng-template #driveTitleCellTemplate let-row>
-  {{ row.title }}
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+    {{ row.title }}
+  </div>
 </ng-template>
 <ng-template #taskIdCellTemplate let-row>#{{ row.task_id }}</ng-template>
 <ng-template #taskTitleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     {{ row.title }}
   </div>
 </ng-template>
@@ -320,10 +342,12 @@
   <eworkbench-task-state [state]="row.state"></eworkbench-task-state>
 </ng-template>
 <ng-template #taskBoardTitleCellTemplate let-row>
-  {{ row.title }}
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+    {{ row.title }}
+  </div>
 </ng-template>
 <ng-template #noteSubjectCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.subject" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.subject" containerClass="tooltip-sm" [delay]="500">
     {{ row.subject }}
   </div>
 </ng-template>

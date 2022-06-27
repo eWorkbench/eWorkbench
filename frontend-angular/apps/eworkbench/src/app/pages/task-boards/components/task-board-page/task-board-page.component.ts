@@ -4,7 +4,18 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,6 +23,7 @@ import { ModalState } from '@app/enums/modal-state.enum';
 import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
+import { HEADER_TOP_OFFSET } from '@app/modules/header/tokens/header-top-offset.token';
 import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { BacklogModalComponent } from '@app/modules/task-board/components/modals/backlog/backlog.component';
@@ -38,7 +50,7 @@ import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastrService } from 'ngx-toastr';
-import { from, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, from, Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime, map, mergeMap, skip, switchMap, take } from 'rxjs/operators';
 
 interface FormTaskBoard {
@@ -55,6 +67,15 @@ interface FormTaskBoard {
 export class TaskBoardPageComponent implements OnInit, OnDestroy {
   @ViewChild(CommentsComponent)
   public comments!: CommentsComponent;
+
+  @ViewChild('taskboardContainer')
+  public taskboardContainer?: ElementRef<HTMLElement>;
+
+  @ViewChild('taskboardScrollbar')
+  public taskboardScrollbar?: ElementRef<HTMLElement>;
+
+  @ViewChild('scrollbarContent')
+  public scrollbarContent?: ElementRef<HTMLElement>;
 
   public title = '';
 
@@ -150,7 +171,13 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     projects: this.fb.control([]),
   });
 
+  @HostListener('window:resize')
+  public onResize() {
+    this.handleTaskboardScrollOnResize();
+  }
+
   public constructor(
+    @Inject(HEADER_TOP_OFFSET) public readonly headerTopOffset: BehaviorSubject<number>,
     public readonly taskBoardsService: TaskBoardsService,
     private readonly fb: FormBuilder,
     private readonly translocoService: TranslocoService,
@@ -736,6 +763,45 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       .subscribe(title => {
         this.titleService.setTitle(title);
       });
+  }
+
+  public initTaskboardScroll(): void {
+    setTimeout(() => {
+      if (this.taskboardContainer && this.taskboardScrollbar && this.scrollbarContent) {
+        this.taskboardScrollbar.nativeElement.style.width = `${this.taskboardContainer.nativeElement.offsetWidth}px`;
+        this.scrollbarContent.nativeElement.style.width = `${this.taskboardContainer.nativeElement.scrollWidth}px`;
+      }
+    }, 1);
+    setTimeout(() => {
+      this.taskboardScrollbar?.nativeElement.scroll({
+        left: this.taskboardScrollbar.nativeElement.scrollLeft - 1,
+        behavior: 'smooth',
+      });
+    }, 1);
+  }
+
+  public handleTaskboardScrollOnResize(): void {
+    if (this.taskboardScrollbar && this.scrollbarContent) {
+      this.taskboardScrollbar.nativeElement.style.width = '0px';
+      this.scrollbarContent.nativeElement.style.width = '0px';
+    }
+    this.initTaskboardScroll();
+  }
+
+  public onTaskboardScroll(event: any): void {
+    if (this.taskboardContainer) {
+      this.taskboardContainer.nativeElement.scrollLeft = event.target.scrollLeft;
+    }
+  }
+
+  public onTaskboardContainerScroll(event: any): void {
+    if (this.taskboardScrollbar) {
+      this.taskboardScrollbar.nativeElement.scrollLeft = event.target.scrollLeft;
+    }
+  }
+
+  public onToggleFilterSidebar(): void {
+    this.handleTaskboardScrollOnResize();
   }
 
   public onBoardChange(privilegesData: PrivilegesData<TaskBoard>): void {

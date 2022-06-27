@@ -1,0 +1,28 @@
+---
+- name: Add the user '{{ app_user }}' with a bash shell, appending the group 'www-data' to the user's groups
+  user:
+    name: '{{ app_user }}'
+    password: '{{ app_user_encrypted_password }}'
+    uid: '{{ app_user_uid }}'
+    shell: /bin/bash
+    groups: www-data
+    append: yes
+    state: present
+  become: yes
+
+- name: Ensure group '{{ app_user }}' exists and has the right GID
+  group:
+    name: '{{ app_user }}'
+    gid: '{{ app_user_gid }}'
+    state: present
+  become: yes
+
+- name: Let user '{{ ansible_user }}' su with user '{{ app_user }}' without password by editing/etc/pam.d/su
+  lineinfile:
+    backup: yes
+    path: /etc/pam.d/su
+    insertbefore: '^# Uncomment this to force users to be a member of group root'
+    line: |
+      auth  [success=ignore default=1] pam_succeed_if.so user = {{ app_user }}
+      auth  sufficient                 pam_succeed_if.so use_uid user = {{ ansible_user }}
+  become: yes

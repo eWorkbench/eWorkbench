@@ -112,6 +112,7 @@ export class LinkListComponent implements OnInit {
             cellTemplate: this.titleCellTemplate,
             name: column.title,
             key: 'left_content_object',
+            width: '33%',
           },
           {
             cellTemplate: this.linkedByCellTemplate,

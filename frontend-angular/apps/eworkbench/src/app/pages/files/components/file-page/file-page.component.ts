@@ -578,7 +578,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
     }
   }
 
-  public getStorageForDirectory(directoryId: string): Drive[] {
+  public getStorageForDirectory(directoryId: string | null): Drive[] {
     return this.storages.filter(storage => storage.sub_directories.filter(directory => directory.pk === directoryId).length);
   }
 
@@ -586,7 +586,7 @@ export class FilePageComponent implements OnInit, OnDestroy {
     return this.getStorageForDirectory(directoryId)[0]?.display || this.translocoService.translate('file.details.storage.unknown.label');
   }
 
-  public getStorageIdForDirectory(directoryId: string): string {
+  public getStorageIdForDirectory(directoryId: string | null): string {
     return this.getStorageForDirectory(directoryId)[0]?.pk || '';
   }
 }

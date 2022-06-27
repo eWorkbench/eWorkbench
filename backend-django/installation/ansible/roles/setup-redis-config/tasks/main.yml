@@ -1,0 +1,20 @@
+---
+- name: Copy redis.conf
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/redis.conf
+    owner: redis
+    group: redis
+    mode: '0640'
+    force: yes
+    backup: yes
+  become: yes
+
+- name: Allow incoming tcp access from '{{ ufw_allow_ip_range }}' to port 6379
+  ufw:
+    rule: allow
+    direction: in
+    proto: tcp
+    src: '{{ ufw_allow_ip_range }}'
+    to_port: '6379'
+  become: yes

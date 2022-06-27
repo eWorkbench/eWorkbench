@@ -140,10 +140,9 @@
             <label for="termsOfUsePDF-modal">{{ t('resource.newModal.termsOfUse.label') }}</label>
             <div class="custom-file">
               <input
-                #termsOfUsePDFInput
                 type="file"
                 class="custom-file-input"
-                (change)="onUploadPDF($event)"
+                (change)="onUpload($event)"
                 id="termsOfUsePDF-modal"
                 name="termsOfUsePDF-modal"
               />

@@ -7,7 +7,9 @@ import type { Metadata } from './metadata.interface';
 import type { User } from './user.interface';
 
 export interface PluginInstancePayload {
+  pk?: string;
   title: string;
+  plugin?: string;
   projects?: string[];
   metadata?: Metadata[];
 }

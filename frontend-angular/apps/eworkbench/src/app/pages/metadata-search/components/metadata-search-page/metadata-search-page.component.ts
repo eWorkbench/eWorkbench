@@ -171,6 +171,7 @@ export class MetadataSearchPageComponent implements OnInit {
             cellTemplate: this.titleCellTemplate,
             name: column.title,
             key: 'title',
+            width: '25%',
           },
           {
             cellTemplate: this.typeCellTemplate,

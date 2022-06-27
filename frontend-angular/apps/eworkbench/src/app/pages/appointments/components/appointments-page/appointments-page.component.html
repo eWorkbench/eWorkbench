@@ -357,37 +357,47 @@
 </div>
 
 <ng-template #titleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="[showSidebar ? '.' : '' + '/appointments', row.pk]">{{ row.title }}</a>
   </div>
 </ng-template>
 <ng-template #startTimeCellTemplate let-row>
-  {{ row.date_time_start | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.date_time_start | formatDate }}
+  </div>
 </ng-template>
 <ng-template #endTimeCellTemplate let-row>
-  {{ row.date_time_end | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.date_time_end | formatDate }}
+  </div>
 </ng-template>
 <ng-template #attendeesCellTemplate let-row>
   <eworkbench-users-grouping [users]="row.attending_users" [chip]="true"></eworkbench-users-grouping>
 </ng-template>
 <ng-template #createdAtCellTemplate let-row>
-  {{ row.created_at | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.created_at | formatDate }}
+  </div>
 </ng-template>
 <ng-template #createdByCellTemplate let-row>
   <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
 </ng-template>
 <ng-template #lastModifiedAtCellTemplate let-row>
-  {{ row.last_modified_at | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.last_modified_at | formatDate }}
+  </div>
 </ng-template>
 <ng-template #lastModifiedByCellTemplate let-row>
   <eworkbench-user-details [user]="row.last_modified_by"></eworkbench-user-details>
 </ng-template>
 <ng-template #resourceCellTemplate let-row>
-  <a [routerLink]="[showSidebar ? '.' : '' + '/resources', row.resource.pk]" *ngIf="row.resource">{{ row.resource.display }}</a>
+  <div ellipsis [tooltip]="row.resource?.display" containerClass="tooltip-sm" [delay]="500">
+    <a [routerLink]="[showSidebar ? '.' : '' + '/resources', row.resource.pk]" *ngIf="row.resource">{{ row.resource?.display }}</a>
+  </div>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div class="text-right">
+    <div class="whitespace-nowrap text-right">
       <eworkbench-favorite-button
         class="inline-block mr-2"
         [id]="row.pk"

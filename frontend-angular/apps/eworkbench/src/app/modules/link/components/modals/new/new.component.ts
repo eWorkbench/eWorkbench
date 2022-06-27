@@ -100,6 +100,9 @@ export class NewLinkModalComponent implements OnInit {
   @ViewChild('fileNameCellTemplate', { static: true })
   public fileNameCellTemplate!: TemplateRef<any>;
 
+  @ViewChild('fileTitleCellTemplate', { static: true })
+  public fileTitleCellTemplate!: TemplateRef<any>;
+
   @ViewChild('labBookTitleCellTemplate', { static: true })
   public labBookTitleCellTemplate!: TemplateRef<any>;
 
@@ -268,6 +271,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '25%',
           },
           {
             cellTemplate: this.appointmentStartDateCellTemplate,
@@ -300,6 +304,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.subject,
             key: 'subject',
             sortable: true,
+            width: '33%',
           },
           {
             cellTemplate: this.genericCreatedByCellTemplate,
@@ -326,12 +331,14 @@ export class NewLinkModalComponent implements OnInit {
             name: column.firstName,
             key: 'first_name',
             sortable: true,
+            width: '25%',
           },
           {
             cellTemplate: this.contactLastNameCellTemplate,
             name: column.lastName,
             key: 'last_name',
             sortable: true,
+            width: '25%',
           },
           {
             cellTemplate: this.genericCreatedByCellTemplate,
@@ -358,6 +365,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '25%',
           },
           {
             name: column.dmpForm,
@@ -389,6 +397,14 @@ export class NewLinkModalComponent implements OnInit {
             name: column.name,
             key: 'name',
             sortable: true,
+            width: '25%',
+          },
+          {
+            cellTemplate: this.fileTitleCellTemplate,
+            name: column.title,
+            key: 'title',
+            sortable: true,
+            width: '25%',
           },
           {
             cellTemplate: this.genericCreatedByCellTemplate,
@@ -415,6 +431,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '33%',
           },
           {
             cellTemplate: this.genericCreatedByCellTemplate,
@@ -441,6 +458,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '50%',
           },
           {
             cellTemplate: this.picturePreviewCellTemplate,
@@ -460,6 +478,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '33%',
           },
           {
             cellTemplate: this.genericCreatedByCellTemplate,
@@ -486,6 +505,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.name,
             key: 'name',
             sortable: true,
+            width: '50%',
           },
           {
             cellTemplate: this.genericCreatedByCellTemplate,
@@ -512,6 +532,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '50%',
           },
           {
             cellTemplate: this.genericCreatedByCellTemplate,
@@ -544,6 +565,7 @@ export class NewLinkModalComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '25%',
           },
           {
             cellTemplate: this.taskPriorityCellTemplate,
@@ -581,6 +603,7 @@ export class NewLinkModalComponent implements OnInit {
                 name: column.title,
                 key: 'title',
                 sortable: true,
+                width: '50%',
               },
               {
                 cellTemplate: this.genericCreatedByCellTemplate,

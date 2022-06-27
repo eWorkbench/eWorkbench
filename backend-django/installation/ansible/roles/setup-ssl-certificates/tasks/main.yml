@@ -1,0 +1,28 @@
+---
+- include_vars: vars/vault.yml
+
+- name: Copy cert if it doesnt't exist
+  copy:
+    content: "{{ lookup('vars', app_name + '_zert_bundle_pem') }}"
+    dest: '/etc/ssl/certs/{{ app_name }}-zert.bundle.pem'
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+  become: yes
+
+- name: Copy key if it doesnt't exist
+  copy:
+    content: "{{ lookup('vars', app_name + '_key_key') }}"
+    dest: '/etc/ssl/private/{{ app_name }}-key.key'
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+  become: yes
+
+- name: Generate Diffie-Hellman parameters with the default size (4096 bits)
+  openssl_dhparam:
+    path: /etc/ssl/dhparam.pem
+    state: present
+  become: yes

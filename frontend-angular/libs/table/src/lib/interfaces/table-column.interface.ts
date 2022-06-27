@@ -14,4 +14,5 @@ export interface TableColumn {
   sort?: TableSortDirection;
   hideable?: boolean;
   hidden?: boolean;
+  width?: string;
 }

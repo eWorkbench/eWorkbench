@@ -1,0 +1,6 @@
+---
+- name: Install dependencies
+  package:
+    name: '{{ dependencies }}'
+    state: present
+  become: yes

@@ -1,0 +1,17 @@
+---
+vault_workbench_zert_bundle_pem: |
+  -----BEGIN CERTIFICATE-----
+  xxxxx
+  -----END CERTIFICATE-----
+  -----BEGIN CERTIFICATE-----
+  xxxxx
+  -----END CERTIFICATE-----
+  -----BEGIN CERTIFICATE-----
+  xxxxx
+  -----END CERTIFICATE-----
+
+
+vault_workbench_key_key: |
+  -----BEGIN RSA PRIVATE KEY-----
+  xxxxx
+  -----END RSA PRIVATE KEY-----

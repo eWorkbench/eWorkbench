@@ -189,6 +189,7 @@ export class AppointmentsPageComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '20%',
           },
           {
             name: column.location,
@@ -244,6 +245,7 @@ export class AppointmentsPageComponent implements OnInit {
             key: 'resource__name',
             sortable: true,
             hidden: true,
+            width: '20%',
           },
           {
             cellTemplate: this.actionsCellTemplate,
@@ -263,6 +265,7 @@ export class AppointmentsPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )

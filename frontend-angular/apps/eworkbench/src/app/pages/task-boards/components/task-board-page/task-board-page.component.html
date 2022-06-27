@@ -252,13 +252,24 @@
       </ng-container>
     </div>
 
-    <div class="task-board main" [ngStyle]="styles">
+    <div
+      #taskboardScrollbar
+      sticky
+      class="task-board-scrollbar"
+      [stickyTop]="stickyTop"
+      (scroll)="onTaskboardScroll($event)"
+      *ngIf="headerTopOffset | async as stickyTop"
+    >
+      <div #scrollbarContent></div>
+    </div>
+    <div #taskboardContainer class="task-board main" [ngStyle]="styles" (scroll)="onTaskboardContainerScroll($event)">
       <eworkbench-task-board
         #taskBoardC
         [setFilter]="setFilter"
         [projects]="initialState?.projects ?? []"
         [userSettings]="userSettings"
         (boardChange)="onBoardChange($event)"
+        (columnsLoaded)="initTaskboardScroll()"
       ></eworkbench-task-board>
     </div>
   </div>
@@ -271,6 +282,7 @@
           [savedFilters]="savedFilters"
           (resetFilters)="onResetFilters()"
           (saveFilters)="onSaveFilters($event)"
+          (toggle)="onToggleFilterSidebar()"
         >
           <div>
             <label for="users-filter" class="text-base font-bold">{{ t('taskBoards.filter.createdBy.label') }}</label>

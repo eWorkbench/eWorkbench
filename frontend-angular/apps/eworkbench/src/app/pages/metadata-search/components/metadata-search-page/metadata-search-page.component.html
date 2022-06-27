@@ -64,22 +64,22 @@
 </ng-container>
 
 <ng-template #titleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.display" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.display" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="[row.content_type_model | formatContentTypeModel: 'routerBaseLink', row.pk]">{{ row.display }}</a>
   </div>
 </ng-template>
 <ng-template #typeCellTemplate let-row>{{ row.content_type_model | formatContentTypeModel }}</ng-template>
 <ng-template #createdByCellTemplate let-row>
-  <ng-container *transloco="let t">
+  <div class="whitespace-nowrap" *transloco="let t">
     {{ t('metadataSearch.createdBy') }}
     <eworkbench-user-details class="inline-block" [user]="row.created_by"></eworkbench-user-details>
     {{ t('metadataSearch.createdBy.at') }} {{ row.created_at | formatDate }}
-  </ng-container>
+  </div>
 </ng-template>
 <ng-template #lastModifiedByCellTemplate let-row>
-  <ng-container *transloco="let t">
+  <div class="whitespace-nowrap" *transloco="let t">
     {{ t('metadataSearch.lastModifiedBy') }}
     <eworkbench-user-details class="inline-block" [user]="row.last_modified_by"></eworkbench-user-details>
     {{ t('metadataSearch.lastModifiedBy.at') }} {{ row.last_modified_at | formatDate }}
-  </ng-container>
+  </div>
 </ng-template>

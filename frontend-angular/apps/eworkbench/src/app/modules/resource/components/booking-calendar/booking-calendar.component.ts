@@ -335,7 +335,7 @@ export class ResourceBookingCalendarComponent implements OnInit {
           data: {
             initialState: {
               title,
-              projects: [],
+              projects: this.resource.projects,
             },
             selectedStartDate: startDate,
             selectedEndDate: endDate,

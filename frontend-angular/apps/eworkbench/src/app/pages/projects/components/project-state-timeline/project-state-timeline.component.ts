@@ -69,6 +69,7 @@ export class ProjectStateTimelineComponent implements OnInit {
             cellTemplate: this.nameCellTemplate,
             name: column.name,
             key: 'name',
+            width: '50%',
           },
           {
             cellTemplate: this.progressCellTemplate,

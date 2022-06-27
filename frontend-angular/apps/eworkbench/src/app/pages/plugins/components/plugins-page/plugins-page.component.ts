@@ -168,6 +168,7 @@ export class PluginsPageComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.typeCellTemplate,
@@ -216,6 +217,7 @@ export class PluginsPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )

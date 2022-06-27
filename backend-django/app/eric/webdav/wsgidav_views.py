@@ -507,17 +507,7 @@ class DavView(TemplateView):
         else:
             locktype = locktype_obj.xpath('local-name()')
 
-        # token = self.lock_class(self.resource).acquire(lockscope, locktype, depth, timeout, owner)
-        token = self.lock_class.acquire(
-            url=self.resource,
-            lock_type=locktype,
-            lock_scope=lockscope,
-            lock_depth=depth,
-            lock_owner=owner,
-            timeout=timeout,
-            principal=self.resource,
-            token_list=[],
-        )
+        token = self.lock_class(self.resource).acquire(lockscope, locktype, depth, timeout, owner)
         if not token:
             return HttpResponseLocked('Already locked')
 

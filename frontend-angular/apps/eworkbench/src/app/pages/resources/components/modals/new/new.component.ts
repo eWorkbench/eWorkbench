@@ -233,14 +233,16 @@ export class NewResourceModalComponent implements OnInit {
       );
   }
 
-  public onUploadPDF(event: Event): void {
+  public onUpload(event: Event): void {
     const files = (event.target as HTMLInputElement).files;
 
     if (files?.length) {
       const reader = new FileReader();
       reader.onload = () => {
+        this.filePlaceholder = files[0].name;
         this.form.patchValue({ termsOfUsePDF: files[0] });
         this.f.termsOfUsePDF.markAsDirty();
+        this.cdr.markForCheck();
       };
       reader.readAsBinaryString(files[0]);
     }

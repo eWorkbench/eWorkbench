@@ -42,9 +42,11 @@
         bindValue="value"
         (change)="onAdd()"
       >
-        <ng-template ng-notfound-tmp let-item="item" let-clear="clear" let-search="searchTerm">
-          <div class="ng-option" (click)="openNewModal(search)">
-            {{ t('metadata.parameters.add', { search: search }) }}
+        <ng-template ng-footer-tmp let-item="item" let-clear="clear" let-search="searchTerm">
+          <div class="footer-option" (click)="openNewModal(search)">
+            <span class="footer-option-label">
+              {{ search ? t('metadata.parameters.add', { search: search }) : t('metadata.parameters.addNew') }}
+            </span>
           </div>
         </ng-template>
       </ng-select>

@@ -161,6 +161,7 @@ export class PicturesPageComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.createdAtCellTemplate,
@@ -218,6 +219,7 @@ export class PicturesPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )

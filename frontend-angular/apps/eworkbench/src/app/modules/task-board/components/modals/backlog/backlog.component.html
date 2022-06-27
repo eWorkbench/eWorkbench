@@ -523,7 +523,7 @@
   <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
 </ng-template>
 <ng-template #titleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/tasks', row.pk]" target="_blank">{{ row.title }}</a>
   </div>
 </ng-template>
@@ -531,16 +531,20 @@
   <eworkbench-task-state [state]="row.state"></eworkbench-task-state>
 </ng-template>
 <ng-template #startDateCellTemplate let-row>
-  {{ row.start_date | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.start_date | formatDate }}
+  </div>
 </ng-template>
 <ng-template #dueDateCellTemplate let-row>
-  {{ row.due_date | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.due_date | formatDate }}
+  </div>
 </ng-template>
 <ng-template #assigneesCellTemplate let-row>
   <eworkbench-users-grouping [users]="row.assigned_users" [chip]="true" [modal]="false"></eworkbench-users-grouping>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
-  <div class="text-right">
+  <div class="whitespace-nowrap text-right">
     <eworkbench-favorite-button
       *ngIf="!row.deleted"
       class="inline-block"

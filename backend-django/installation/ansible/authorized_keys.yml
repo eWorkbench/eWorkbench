@@ -1,0 +1,12 @@
+---
+# file: authorized_keys.yml
+
+# first add the keys to the loadbalancer as it is used as a jump host
+- hosts: loadbalancer
+  roles:
+    - authorized-keys
+
+# then add the keys to the gatewayed hosts
+- hosts: gatewayed
+  roles:
+    - authorized-keys

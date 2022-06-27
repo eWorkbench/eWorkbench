@@ -89,6 +89,7 @@ $header-padding-x-narrow: 20px;
 
       .elements {
         grid-area: elements;
+        white-space: nowrap;
 
         @media (min-width: $breakpoint-lg) {
           justify-self: end;

@@ -160,6 +160,7 @@ export class ProjectsPageComponent implements OnInit {
             name: column.name,
             key: 'name',
             sortable: true,
+            width: '33%',
           },
           {
             cellTemplate: this.progressCellTemplate,
@@ -207,6 +208,7 @@ export class ProjectsPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )

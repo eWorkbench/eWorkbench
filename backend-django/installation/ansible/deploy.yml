@@ -1,0 +1,40 @@
+---
+# file: deploy.yml
+
+# maintenance on
+- hosts: application
+  roles:
+    - deploy-maintenance-on
+
+# following roles will be run on the django hosts, which includes
+# the workers
+- hosts: django
+  roles:
+    - deploy-backend
+    - deploy-django-settings
+    - deploy-backend-commands
+
+# following roles will be run on the application hosts
+- hosts: application
+  roles:
+    - deploy-frontend
+
+# following roles will be run on the worker hosts
+- hosts: worker
+  roles:
+    - deploy-crontab
+    - deploy-restart-celerybeat-service
+
+- hosts: gatewayed
+  roles:
+    - reboot
+
+# maintenance off
+- hosts: application
+  roles:
+    - deploy-maintenance-off
+
+# fts rebuild: only uncomment if some fts templates were changed, added or removed
+#- hosts: worker
+#  roles:
+#    - deploy-backend-ftsrebuild

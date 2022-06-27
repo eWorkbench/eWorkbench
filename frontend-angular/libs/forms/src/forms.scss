@@ -522,56 +522,66 @@ a.ewb-button-regular {
     }
   }
 
-  .ng-dropdown-panel {
-    border-color: $border-color;
-    background-color: #fff;
-    width: auto !important;
-    min-width: 100% !important;
+  .ng-dropdown {
+    &-footer {
+      padding: 6px 10px;
 
-    &.ng-select-bottom,
-    &.ng-select-top {
-      border-radius: 0;
-      margin: 0;
+      &:hover {
+        background-color: #e6e6e6;
+      }
+    }
 
-      .ng-dropdown-panel-items {
-        .ng-option {
-          color: $text-color;
-          font-size: $font-size-sm;
-          padding: 6px 10px;
+    &-panel {
+      border-color: $border-color;
+      background-color: #fff;
+      width: auto !important;
+      min-width: 100% !important;
 
-          .highlighted {
-            font-weight: unset;
-            text-decoration: unset;
-            background-color: $focus-color;
+      &.ng-select-bottom,
+      &.ng-select-top {
+        border-radius: 0;
+        margin: 0;
+
+        .ng-dropdown-panel-items {
+          .ng-option {
+            color: $text-color;
+            font-size: $font-size-sm;
+            padding: 6px 10px;
+
+            .highlighted {
+              font-weight: unset;
+              text-decoration: unset;
+              background-color: $focus-color;
+            }
+
+            &.ng-option-selected {
+              background-color: transparent;
+            }
+
+            &.ng-option-marked {
+              background-color: $secondary-color-hover;
+            }
+
+            &:last-child {
+              border-radius: 0;
+            }
+
+            &.ng-option-disabled {
+              background-color: #fff;
+              opacity: 0.5;
+            }
+
+            .favorite-icon {
+              float: right;
+              color: #fc3;
+            }
           }
 
-          &.ng-option-selected {
-            background-color: transparent;
+          .ng-optgroup {
+            color: #000;
+            font-weight: 600;
+            font-size: 0.8rem;
           }
-
-          &.ng-option-marked {
-            background-color: $secondary-color-hover;
-          }
-
-          &:last-child {
-            border-radius: 0;
-          }
-
-          &.ng-option-disabled {
-            background-color: #fff;
-            opacity: 0.5;
-          }
-
-          .favorite-icon {
-            float: right;
-            color: #fc3;
-          }
-        }
-
-        .ng-optgroup {
-          color: #000;
-          font-weight: 600;
-          font-size: 0.8rem;
         }
       }
     }

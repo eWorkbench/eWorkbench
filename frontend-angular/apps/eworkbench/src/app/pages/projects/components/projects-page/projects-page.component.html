@@ -349,7 +349,7 @@
 </div>
 
 <ng-template #nameCellTemplate let-row>
-  <div class="inline-flex" ellipsis="300" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/projects', row.pk]">{{ row.name }}</a>
   </div>
 </ng-template>
@@ -369,7 +369,7 @@
   <eworkbench-project-state [state]="row.project_state"></eworkbench-project-state>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
-  <div class="text-right">
+  <div class="whitespace-nowrap text-right">
     <eworkbench-favorite-button
       class="inline-block mr-2"
       [id]="row.pk"

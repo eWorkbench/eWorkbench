@@ -41,6 +41,9 @@ export class FilterSidebarComponent implements OnInit {
   @Output()
   public saveFilters = new EventEmitter<boolean>();
 
+  @Output()
+  public toggle = new EventEmitter<boolean>();
+
   public cmsMessageShown = false;
 
   private readonly user$ = this.userService.get().pipe(shareReplay(1));
@@ -67,6 +70,7 @@ export class FilterSidebarComponent implements OnInit {
 
   public toggleSidebar(open: boolean): void {
     this.open$.next(open);
+    this.toggle.next(open);
     this.user$
       .pipe(
         filter(Boolean),

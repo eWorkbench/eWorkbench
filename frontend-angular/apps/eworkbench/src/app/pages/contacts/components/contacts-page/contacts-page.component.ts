@@ -167,12 +167,14 @@ export class ContactsPageComponent implements OnInit {
             name: column.firstName,
             key: 'first_name',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.lastNameCellTemplate,
             name: column.lastName,
             key: 'last_name',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.emailCellTemplate,
@@ -228,6 +230,7 @@ export class ContactsPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )

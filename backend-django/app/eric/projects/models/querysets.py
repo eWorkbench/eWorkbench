@@ -836,6 +836,9 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
                 # all resources where the user group of the current user is selected
                 usage_setting_selected_user_groups__pk__in=user.groups.values_list('pk')
             ) | Q(
+                # all resources where the current user gets permissions from a project
+                projects__pk__in=project_pks
+            ) | Q(
                 # get all entities where the current user is the owner
                 model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
                 model_privileges__user=user

@@ -432,6 +432,10 @@ export class TaskPageComponent implements OnInit, OnDestroy {
             );
           }
 
+          if (this.f.assignees.value.length) {
+            this.f.assignees.enable();
+          }
+
           if (!privileges.edit) {
             this.form.disable({ emitEvent: false });
           }

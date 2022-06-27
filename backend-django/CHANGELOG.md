@@ -1,5 +1,28 @@
 # Changelog
 
+## Version 2.12.1 - June 2022
+- [SITUMEWB-911] Fixed project assignment for resource booking modal via list view button
+- [SITUMEWB-916] Changed styling of infotext for non-defined storages for files
+- [SITUMEWB-918] Added ellipsis to link list modal
+- [SITUMEWB-918] Changes to tasks backlog table for better use of ellipsis
+- [SITUMEWB-934] Fix taskboard scrollbar on window resize
+- [SITUMEWB-934] fixes for sticky task board headers
+
+## Version 2.12 - June 2022
+- [SITUMEWB-*] Fix assignee checkbox status
+- [SITUMEWB-*] Fixed implementation of adding new metadata fields in ng-select fields
+- [SITUMEWB-898] TRR_277_AMC statistics V1
+- [SITUMEWB-908] Implemented duplicating LabBook plugin instances
+- [SITUMEWB-910] Fix resource visibility for project members, observers
+- [SITUMEWB-911] Fixed problem with race condition and project assignment in project calendar for resource 
+- [SITUMEWB-913] Added file title column to new link list modal for files
+- [SITUMEWB-913] Enabled searching files by UUID via search parameter
+- [SITUMEWB-916] Fixed storages assignment information for files
+- [SITUMEWB-917] Fixed an issue with displaying a selected file in the new resource dialog box
+- [SITUMEWB-918] Implemented dynamic ellipsis
+- [SITUMEWB-920] Fix taskboard scrolling with sticky headers
+- [SITUMEWB-926] fix webdav lock request bug
+
 ## Version 2.11.3 - May 2022
 - [SITUMEWB-884] Fixed priority values and components for tasks
 - [SITUMEWB-892] Fixed an issue with clickable content in popovers on special occasions

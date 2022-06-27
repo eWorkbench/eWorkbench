@@ -1,0 +1,4 @@
+---
+- name: django ftsrebuild
+  command: "su - {{ app_user }} -c '{{ activate }} && python {{ django_dir }}/app/manage.py ftsrebuild --settings={{ app_settings_path }} && deactivate'"
+  run_once: yes

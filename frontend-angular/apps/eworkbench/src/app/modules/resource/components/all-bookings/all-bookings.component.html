@@ -46,7 +46,7 @@
 </ng-container>
 
 <ng-template #nameCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.resource.display" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.resource.display" containerClass="tooltip-sm" [delay]="500">
     {{ row.resource.display }}
   </div>
 </ng-template>
@@ -54,17 +54,17 @@
   <eworkbench-resource-type [type]="row.resource.type"></eworkbench-resource-type>
 </ng-template>
 <ng-template #descriptionCellTemplate let-row>
-  <div ellipsis="350" [tooltip]="row.resource.description | stripHTML" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.resource.description | stripHTML" containerClass="tooltip-sm" [delay]="500">
     {{ row.resource.description | stripHTML }}
   </div>
 </ng-template>
 <ng-template #appointmentCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.display" containerClass="tooltip-sm">
+  <div ellipsis [tooltip]="row.display" containerClass="tooltip-sm">
     <a [routerLink]="['/appointments', row.pk]">{{ row.display }}</a>
   </div>
 </ng-template>
 <ng-template #appointmentDescriptionCellTemplate let-row>
-  <div ellipsis="350" [tooltip]="row.text | stripHTML" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.text | stripHTML" containerClass="tooltip-sm" [delay]="500">
     {{ row.text | stripHTML }}
   </div>
 </ng-template>
@@ -72,10 +72,14 @@
   <eworkbench-users-grouping [users]="row.attending_users" [chip]="true"></eworkbench-users-grouping>
 </ng-template>
 <ng-template #dateTimeStartCellTemplate let-row>
-  {{ row.date_time_start | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.date_time_start | formatDate }}
+  </div>
 </ng-template>
 <ng-template #dateTimeEndCellTemplate let-row>
-  {{ row.date_time_end | formatDate }}
+  <div class="whitespace-nowrap">
+    {{ row.date_time_end | formatDate }}
+  </div>
 </ng-template>
 <ng-template #createdAtCellTemplate let-row>
   {{ row.created_at | formatDate }}
@@ -85,7 +89,7 @@
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div class="text-right">
+    <div class="whitespace-nowrap text-right">
       <button
         class="btn ewb-button-small mr-2"
         [disabled]="loading"

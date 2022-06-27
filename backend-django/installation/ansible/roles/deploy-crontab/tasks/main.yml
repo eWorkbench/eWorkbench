@@ -1,0 +1,34 @@
+---
+- name: Make sure all the crontab entries exist
+  cron:
+    name: "{{ item.key }}"
+    minute: "{{ item.value.minute }}"
+    hour: "{{ item.value.hour }}"
+    day: "{{ item.value.day }}"
+    month: "{{ item.value.month }}"
+    weekday: "{{ item.value.weekday }}"
+    job: "{{ item.value.job }}"
+    state: present
+    user: "{{ app_user }}"
+  loop: "{{ lookup('dict', bench_crontab_entries) }}"
+  become: yes
+
+- name: Ensure entry MAILTO='{{ health_email_recipient }}' exists
+  cronvar:
+    name: MAILTO
+    value: "{{ health_email_recipient }}"
+    state: present
+    user: "{{ app_user }}"
+  become: yes
+
+# only needed the first time, will add everytime if uncommented
+#- name: Add dbcopy jobs to /etc/crontab
+#  lineinfile:
+#    backup: yes
+#    path: /etc/crontab
+#    insertafter: EOF
+#    line: |
+#      # copy lokales DB-Backup auf LRZ-NAS
+#      00 1  * * *     root  /root/dbcopy.sh
+#      30 1  * * *     root  /root/dbcopy-autodelete.sh
+#  become: yes

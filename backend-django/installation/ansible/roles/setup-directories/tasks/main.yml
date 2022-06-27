@@ -1,0 +1,20 @@
+---
+- name: Create directories for www-data
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: '0755'
+    owner: www-data
+    group: www-data
+  loop: '{{ www_data_dirs }}'
+  become: yes
+
+- name: Create directories for the app_user
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: '0755'
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+  loop: '{{ app_user_dirs }}'
+  become: yes

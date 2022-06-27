@@ -14,7 +14,7 @@
   <eworkbench-loading [loading]="!firstDataLoaded && loading">
     <table cdk-table [dataSource]="dataSource$">
       <ng-container *ngFor="let column of columns; first as isFirst" [cdkColumnDef]="column.key">
-        <th cdk-header-cell *cdkHeaderCellDef>
+        <th cdk-header-cell [style.width]="column.width" *cdkHeaderCellDef>
           {{ column.name }}
           <eworkbench-table-sort
             [class.invisible]="!column.sortable"
@@ -23,22 +23,22 @@
           ></eworkbench-table-sort>
         </th>
         <td class="expand-cell" cdk-cell *cdkCellDef="let element">
-          <div *ngIf="isFirst" class="inline-block" [style.padding-left.px]="element.level * 30"></div>
-          <button
-            type="button"
-            class="btn ewb-button-regular ewb-button-icon ewb-button-expand square mr-2"
-            *ngIf="column.key === expandKey && expandable"
-            [class.expand-hidden]="!hasRelation(element)"
-            (click)="onExpandChange(element)"
-          >
-            <eworkbench-icon [className]="element.expanded ? 'wb-chevron-down-1' : 'wb-chevron-right-1'"></eworkbench-icon>
-          </button>
-          <ng-container *ngIf="column.cellTemplate">
-            <ng-container [ngTemplateOutlet]="column.cellTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-container>
-          </ng-container>
-          <ng-container *ngIf="!column.cellTemplate">
-            {{ element[column.key] }}
-          </ng-container>
+          <div [ngClass]="{ 'd-flex': isFirst }">
+            <ng-container
+              [ngTemplateOutlet]="expandTemplate"
+              [ngTemplateOutletContext]="{
+                isFirst: isFirst,
+                element: element,
+                column: column
+              }"
+            ></ng-container>
+            <ng-container *ngIf="column.cellTemplate">
+              <ng-container [ngTemplateOutlet]="column.cellTemplate" [ngTemplateOutletContext]="{ $implicit: element }"></ng-container>
+            </ng-container>
+            <ng-container *ngIf="!column.cellTemplate">
+              {{ element[column.key] }}
+            </ng-container>
+          </div>
         </td>
       </ng-container>
 
@@ -62,6 +62,19 @@
     </div>
   </eworkbench-loading>
 </ng-container>
+
+<ng-template #expandTemplate let-isFirst="isFirst" let-element="element" let-column="column">
+  <div *ngIf="isFirst" class="inline-block" [style.padding-left.px]="element.level * 30"></div>
+  <button
+    type="button"
+    class="btn ewb-button-regular ewb-button-icon ewb-button-expand square mr-2"
+    *ngIf="column.key === expandKey && expandable"
+    [class.expand-hidden]="!hasRelation(element)"
+    (click)="onExpandChange(element)"
+  >
+    <eworkbench-icon [className]="element.expanded ? 'wb-chevron-down-1' : 'wb-chevron-right-1'"></eworkbench-icon>
+  </button>
+</ng-template>
 
 <ng-template #firstTemplate>
   <eworkbench-icon className="wb-2-chevrons-up rotate-90"></eworkbench-icon>

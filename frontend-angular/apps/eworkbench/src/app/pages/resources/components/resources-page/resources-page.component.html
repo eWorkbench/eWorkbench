@@ -312,7 +312,7 @@
 </div>
 
 <ng-template #nameCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="[showSidebar ? '.' : '' + '/resources', row.pk]">{{ row.name }}</a>
   </div>
 </ng-template>
@@ -320,7 +320,7 @@
   <eworkbench-resource-type [type]="row.type"></eworkbench-resource-type>
 </ng-template>
 <ng-template #descriptionCellTemplate let-row>
-  <div ellipsis="350" [tooltip]="row.description | stripHTML" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.description | stripHTML" containerClass="tooltip-sm" [delay]="500">
     {{ row.description | stripHTML }}
   </div>
 </ng-template>
@@ -335,7 +335,7 @@
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div class="text-right">
+    <div class="whitespace-nowrap text-right">
       <eworkbench-favorite-button
         class="inline-block mr-2"
         [id]="row.pk"

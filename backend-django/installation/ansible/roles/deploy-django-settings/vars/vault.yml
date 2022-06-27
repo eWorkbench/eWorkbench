@@ -1,0 +1,174 @@
+---
+vault_workbench_settings: |
+  from eric.settings.base import *
+  import ldap
+  import logging
+  from django_auth_ldap.config import LDAPSearch, PosixGroupType, GroupOfNamesType
+
+  # EMail Settings (maildump server)
+  EMAIL_HOST = 'mailout.<domain>'
+  EMAIL_PORT = 25
+  EMAIL_HOST_USER = ''
+  EMAIL_HOST_PASSWORD = ''
+
+  EMAIL_RECIPIENT_FOR_NEW_METADATA_FIELDS = "workbench@<domain>"
+
+  NOTIFICATIONS_SETTINGS['MINIMUM_TIME_BETWEEN_EMAILS'] = timedelta(seconds=10)
+
+  ALLOWED_HOSTS = [
+      "workbench.<domain>",
+      "{{ inventory_hostname }}",
+  ]
+
+  ADMINS = [
+      ('Anexia TUMWB Dev Team', 'eworkbench@<domain>'),
+  ]
+
+  CONTACT_ADMIN = [
+      ('workbench@<domain>', 'workbench@<domain>'),
+  ]
+
+  SERVER_EMAIL = "workbench@<domain>"
+
+  MEDIA_ROOT = '/mnt/nas_tuze_bib_workbench/workbench'
+
+  # disable debug mode
+  DEBUG = False
+
+  DEFAULT_QUOTA_PER_USER_MEGABYTE = 50000
+
+  # Set a secret key - keep this secret! do not commit this into a git repo
+  SECRET_KEY = 'xxxxx'
+
+  ANX_MONITORING_ACCESS_TOKEN = 'xxxxx'
+
+  DATABASES = {
+      'default': {
+          'ENGINE': 'django.db.backends.postgresql_psycopg2',
+          'HOST': 'data.<domain>',
+          'NAME': 'eric',
+          'USER': 'eric',
+          'PASSWORD': 'xxxxx',
+      }
+  }
+
+  AUTHENTICATION_BACKENDS = (
+      'django_auth_ldap.backend.LDAPBackend',
+      'django.contrib.auth.backends.ModelBackend',
+  )
+
+  # CORS Configuration
+  CORS_ORIGIN_REGEX_WHITELIST = (
+      '^(http?://)workbench\.<domain>\.<domain>\.<domain>',
+      '^(http?://)?localhost$', # localhost
+      '^(http?://)?127\.0\.0\.1$', # 127.0.0.1
+      '^(http?://)?localhost:(\d+)$', # localhost:any port
+      '^(http?://)?workbench.local:(\d+)$', # localhost:any port
+  )
+
+  # defines workbench settings
+  WORKBENCH_SETTINGS.update({
+      'url': 'https://workbench.<domain>/',
+      'project_file_upload_folder': os.path.join(MEDIA_ROOT, '%(filename)s'),
+      'password_reset_url': 'https://workbench.<domain>/reset-password/{token}',
+      'title': 'eWorkbench',
+      'email_from': 'workbench@<domain>'
+  })
+
+  AUTH_LDAP_SERVER_URI = "ldaps://iauth.<domain>"
+
+  AUTH_LDAP_BIND_DN = "cn=TUZEBIB-eRICworkbench,ou=bindDNs,ou=iauth,dc=tum,dc=de"
+
+  AUTH_LDAP_BIND_PASSWORD = "xxxxx"
+
+  AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=users,ou=data,ou=prod,ou=iauth,dc=tum,dc=de",
+      ldap.SCOPE_SUBTREE, "(cn=%(user)s)")
+
+  AUTH_LDAP_USER_ASSIGN_GROUP_BASED_ON_ATTRIBUTE = {
+      "imAffiliationPrim": [
+          {
+              "value_regex": "^employee$",
+              "group_name": "User"
+          },
+          {
+              "value_regex": "^student$",
+              "group_name": "Student"
+          },
+      ]
+  }
+
+  AUTH_LDAP_REQUIRED_ATTRIBUTES = [
+      "imVorname",
+      "sn",
+  ]
+
+  # user ldap attributes
+  # "user_attribute": "ldap_attribute"
+  AUTH_LDAP_USER_ATTR_MAP = {
+      "email": "imHauptEMail"
+  }
+
+  # user profile ldap attributes
+  # "userprofile_attribute": "ldap_attribute"
+  AUTH_LDAP_PROFILE_ATTR_MAP = {
+      "first_name": "imVorname",
+      "last_name": "sn",
+      "phone": "telephonenumber",
+      "country": "imAdrDienstLand",
+      "academic_title": "imAkademischerGrad",
+      "salutation": "imAnrede",
+      "email_others": "imEmailAdressen",
+      "org_zug_mitarbeiter": "imOrgZugMitarbeiter",
+      "org_zug_mitarbeiter_lang": "imOrgZugMitarbeiterLang",
+      "org_zug_student": "imOrgZugStudent",
+      "org_zug_student_lang": "imOrgZugStudentLang",
+      "title_salutation": "imTitelAnrede",
+      "title_pre": "imTitelPre",
+      "title_post": "imTitelPost"
+  }
+
+  INTERNAL_IPS = ('127.0.0.1', 'xxx.xx.xx.xx', )
+
+  CACHES = {
+      'default': {
+          'BACKEND': 'redis_cache.RedisCache',
+          'LOCATION': '10.155.111.1111:6379',
+      },
+  }
+
+  FILE_UPLOAD_TEMP_DIR="/mnt/nas_tuze_bib_workbench/workbench_tmp"
+
+  DSS_SETTINGS['CHECK_MOUNT_STATUS'] = True
+
+  DSS_SETTINGS['CHECK_GLOBUS_RABBITMQ_QUEUE'] = True
+  DSS_SETTINGS['GLOBUS_RABBITMQ_HOST'] = 'dssmq.dss.<domain>'
+  DSS_SETTINGS['GLOBUS_RABBITMQ_PORT'] = 5671
+  DSS_SETTINGS['GLOBUS_RABBITMQ_VIRTUAL_HOST'] = 'fnotify'
+  DSS_SETTINGS['GLOBUS_RABBITMQ_QUEUE'] = 'dss_fnotify_consumer_workbench'
+  DSS_SETTINGS['GLOBUS_RABBITMQ_USER'] = 'xxxxx'
+  DSS_SETTINGS['GLOBUS_RABBITMQ_PASSWORD'] = "xxxxx"
+  DSS_SETTINGS['GLOBUS_RABBITMQ_SSL_CA_CERT'] = 'certs/cacert.pem'
+  DSS_SETTINGS['GLOBUS_RABBITMQ_MESSAGE_FETCH_SIZE'] = 100
+
+  # Celery and RabbitMQ Config
+  RABBITMQ_URL = 'amqp://myruser:myrpassword@localhost:5672/myrvhost'
+  CELERY_BROKER_URL = RABBITMQ_URL
+  CELERY_RESULT_BACKEND = 'rpc://'
+
+  HTTP_X_FORWARDED_FOR_TRUSTED_PROXIES = ["b''", ""]
+
+  # Django Dav with nginx x-redirect
+  DJANGODAV_X_REDIRECT = True
+  DJANGODAV_X_REDIRECT_PREFIX = "/uploads"
+  DJANGODAV_ENABLE_HTTP_X_FILE_NAME = True
+
+  SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+  CHANNEL_LAYERS = {
+      'default': {
+          'BACKEND': 'channels_redis.core.RedisChannelLayer',
+          'CONFIG': {
+              "hosts": [("10.155.111.111", 6379)],
+          },
+      },
+  }

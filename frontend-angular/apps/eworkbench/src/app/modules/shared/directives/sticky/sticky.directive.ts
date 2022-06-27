@@ -58,20 +58,26 @@ export class StickyDirective implements OnInit {
     if (this.stickyScrollOnOverflow && elementHeight > window.innerHeight - this.stickyTop) {
       return false;
     }
+    if (this.el.nativeElement.offsetTop <= 0) {
+      return false;
+    }
     return true;
   }
 
   public handleStickyElement(): void {
     if (this.canBeSticky) {
       const isWindowOverOffset = window.pageYOffset >= this.stickyOffset;
-      if (isWindowOverOffset && this.style.position !== 'fixed') {
+      if (isWindowOverOffset && !this.classList.contains('is-sticky')) {
         this.oldOffsetTop = this.stickyOffset;
         this.classList.add('is-sticky');
         this.addSticky();
-      } else if (!isWindowOverOffset && this.style.position === 'fixed') {
+      } else if (!isWindowOverOffset && this.classList.contains('is-sticky')) {
         this.classList.remove('is-sticky');
         this.removeSticky();
       }
+    } else {
+      this.classList.remove('is-sticky');
+      this.removeSticky();
     }
   }
 
@@ -79,9 +85,11 @@ export class StickyDirective implements OnInit {
     if (this.canBeSticky) {
       if (this.parent) {
         if (this.parent === this.el.nativeElement.parentElement) {
+          const scrollLeft = this.el.nativeElement.scrollLeft;
           const containerElement = this.createContainerElement();
           this.renderer.insertBefore(this.parent, containerElement, this.el.nativeElement);
           containerElement.appendChild(this.el.nativeElement);
+          this.el.nativeElement.scrollLeft = scrollLeft;
         }
       }
       this.style.position = 'fixed';
@@ -98,14 +106,14 @@ export class StickyDirective implements OnInit {
   }
 
   public removeSticky(): void {
-    if (this.canBeSticky) {
-      this.style.position = this.oldStylePosition;
-      this.style.top = this.oldStyleTop;
-      this.style.marginLeft = '0';
-      const containerElement = this.parent?.querySelector(`#sticky-container-${this.uniqueHash}`);
-      if (containerElement) this.renderer.insertBefore(this.parent, this.el.nativeElement, containerElement);
-      this.removeElement(`#sticky-container-${this.uniqueHash}`);
-    }
+    this.style.position = this.oldStylePosition;
+    this.style.top = this.oldStyleTop;
+    this.style.marginLeft = '0';
+    const scrollLeft = this.el.nativeElement.scrollLeft;
+    const containerElement = this.parent?.querySelector(`#sticky-container-${this.uniqueHash}`);
+    if (containerElement) this.renderer.insertBefore(this.parent, this.el.nativeElement, containerElement);
+    this.removeElement(`#sticky-container-${this.uniqueHash}`);
+    this.el.nativeElement.scrollLeft = scrollLeft;
   }
 
   public createContainerElement(): any {

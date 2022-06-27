@@ -163,6 +163,7 @@ export class DMPsPageComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '20%',
           },
           {
             name: column.dmpForm,
@@ -217,6 +218,7 @@ export class DMPsPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )

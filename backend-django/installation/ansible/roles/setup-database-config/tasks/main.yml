@@ -1,0 +1,30 @@
+---
+- name: Copy postgresql.conf
+  copy:
+    src: postgresql.conf
+    dest: /etc/postgresql/12/main/postgresql.conf
+    owner: postgres
+    group: postgres
+    mode: '0644'
+    force: yes
+    backup: yes
+  become: yes
+
+- name: Copy pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: /etc/postgresql/12/main/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: '0640'
+    force: yes
+    backup: yes
+  become: yes
+
+- name: Allow incoming access from '{{ ufw_allow_ip_range }}' to port 5432
+  ufw:
+    rule: allow
+    direction: in
+    src: '{{ ufw_allow_ip_range }}'
+    to_port: '5432'
+  become: yes

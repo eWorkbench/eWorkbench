@@ -277,7 +277,9 @@
 </ng-template>
 
 <ng-template #projectNameCellTemplate let-row>
-  <a [routerLink]="['/projects', row.pk]">{{ row.name }}</a>
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+    <a [routerLink]="['/projects', row.pk]">{{ row.name }}</a>
+  </div>
 </ng-template>
 <ng-template #projectStartDateCellTemplate let-row>
   {{ row.start_date | formatDate }}
@@ -290,7 +292,7 @@
 </ng-template>
 
 <ng-template #taskTitleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/tasks', row.pk]">{{ row.title }}</a>
   </div>
 </ng-template>
@@ -307,7 +309,7 @@
 </ng-template>
 
 <ng-template #fileNameCellTemplate let-row>
-  <div ellipsis="350" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/files', row.pk]">{{ row.name }}</a>
   </div>
 </ng-template>
@@ -316,7 +318,9 @@
 </ng-template>
 
 <ng-template #contactNameCellTemplate let-row>
-  <a [routerLink]="['/contacts', row.pk]">{{ row.first_name }} {{ row.last_name }}</a>
+  <div ellipsis [tooltip]="row.first_name + ' ' + row.last_name" containerClass="tooltip-sm" [delay]="500">
+    <a [routerLink]="['/contacts', row.pk]">{{ row.first_name }} {{ row.last_name }}</a>
+  </div>
 </ng-template>
 <ng-template #contactEmailCellTemplate let-row>
   <ng-container *transloco="let t">
@@ -329,17 +333,21 @@
 </ng-template>
 
 <ng-template #resourceNameCellTemplate let-row>
-  <a [routerLink]="['/resources', row.pk]">{{ row.name }}</a>
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+    <a [routerLink]="['/resources', row.pk]">{{ row.name }}</a>
+  </div>
 </ng-template>
 <ng-template #resourceTypeCellTemplate let-row>
   <eworkbench-resource-type [type]="row.type"></eworkbench-resource-type>
 </ng-template>
 <ng-template #resourceDescriptionCellTemplate let-row>
-  <div ellipsis="150" [tooltip]="row.description | stripHTML" containerClass="tooltip-sm">{{ row.description | stripHTML }}</div>
+  <div ellipsis [tooltip]="row.description | stripHTML" containerClass="tooltip-sm">{{ row.description | stripHTML }}</div>
 </ng-template>
 
 <ng-template #dmpTitleCellTemplate let-row>
-  <a [routerLink]="['/dmps', row.pk]">{{ row.title }}</a>
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+    <a [routerLink]="['/dmps', row.pk]">{{ row.title }}</a>
+  </div>
 </ng-template>
 <ng-template #dmpStatusCellTemplate let-row>
   <eworkbench-dmp-status [status]="row.status"></eworkbench-dmp-status>

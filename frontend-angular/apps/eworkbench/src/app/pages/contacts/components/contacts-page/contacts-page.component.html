@@ -315,10 +315,14 @@
 </div>
 
 <ng-template #firstNameCellTemplate let-row>
-  <a [routerLink]="[showSidebar ? '.' : '' + '/contacts', row.pk]">{{ row.first_name }}</a>
+  <div ellipsis [tooltip]="row.first_name" containerClass="tooltip-sm" [delay]="500">
+    <a [routerLink]="[showSidebar ? '.' : '' + '/contacts', row.pk]">{{ row.first_name }}</a>
+  </div>
 </ng-template>
 <ng-template #lastNameCellTemplate let-row>
-  <a [routerLink]="[showSidebar ? '.' : '' + '/contacts', row.pk]">{{ row.last_name }}</a>
+  <div ellipsis [tooltip]="row.last_name" containerClass="tooltip-sm" [delay]="500">
+    <a [routerLink]="[showSidebar ? '.' : '' + '/contacts', row.pk]">{{ row.last_name }}</a>
+  </div>
 </ng-template>
 <ng-template #emailCellTemplate let-row>
   <a href="mailto:{{ row.email }}">{{ row.email }}</a>
@@ -330,7 +334,7 @@
   <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
-  <div class="text-right">
+  <div class="whitespace-nowrap text-right">
     <eworkbench-favorite-button
       class="inline-block mr-2"
       [id]="row.pk"

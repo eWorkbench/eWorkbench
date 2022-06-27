@@ -32,7 +32,7 @@
 
 <ng-template #titleCellTemplate let-row>
   <ng-container *ngIf="row.right_object_id === id">
-    <div ellipsis="190" [tooltip]="row.left_content_object.display" containerClass="tooltip-sm" [delay]="500">
+    <div ellipsis [tooltip]="row.left_content_object.display" containerClass="tooltip-sm" [delay]="500">
       <eworkbench-icon
         [className]="row.left_content_object.content_type_model | formatContentTypeModel: 'icon'"
         class="mr-2"
@@ -44,7 +44,7 @@
     </div>
   </ng-container>
   <ng-container *ngIf="row.left_object_id === id && row.right_object_id !== id">
-    <div ellipsis="190" [tooltip]="row.right_content_object.display" containerClass="tooltip-sm" [delay]="500">
+    <div ellipsis [tooltip]="row.right_content_object.display" containerClass="tooltip-sm" [delay]="500">
       <eworkbench-icon
         [className]="row.right_content_object.content_type_model | formatContentTypeModel: 'icon'"
         class="mr-2"
@@ -74,7 +74,7 @@
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div class="text-right whitespace-nowrap" *ngIf="currentUser?.pk === row.created_by.pk">
+    <div class="whitespace-nowrap text-right" *ngIf="currentUser?.pk === row.created_by.pk">
       <button type="button" class="btn ewb-button-small mr-2" (click)="onChangePrivateState(row)" [disabled]="loading">
         <eworkbench-icon
           *ngIf="row.private"

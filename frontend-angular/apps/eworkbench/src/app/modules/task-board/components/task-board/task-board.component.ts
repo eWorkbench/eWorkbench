@@ -70,6 +70,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   @Output()
   public boardChange = new EventEmitter<PrivilegesData<TaskBoard>>();
 
+  @Output()
+  public columnsLoaded = new EventEmitter<void>();
+
   public id = this.route.snapshot.paramMap.get('id')!;
 
   public currentUser!: User;
@@ -86,11 +89,11 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   public modalRef?: DialogRef;
 
-  public columnsLoading$ = new BehaviorSubject<boolean>(false);
-
   public filter: TaskBoardFilter = { assignee: null, user: null, project: null, search: null, priority: null, state: null, favorite: null };
 
   private skipNext = false;
+
+  public scrollBarHeight = 10;
 
   public constructor(
     @Inject(HEADER_TOP_OFFSET) public readonly headerTopOffset: BehaviorSubject<number>,
@@ -208,20 +211,17 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
   }
 
   public loadData(): void {
-    this.columnsLoading$.next(true);
-    const scrollY = window.scrollY;
-    window.scroll({
-      top: 0,
-      behavior: 'smooth',
-    });
     this.prepareColumns()
       .pipe(untilDestroyed(this))
       .subscribe(columns => {
         this.columns = [...columns];
         this.cdr.markForCheck();
-        this.columnsLoading$.next(false);
+        this.columnsLoaded.emit();
+        this.stickyElements.forEach(item => {
+          item.removeSticky();
+        });
         window.scroll({
-          top: scrollY,
+          top: window.scrollY - 1,
           behavior: 'smooth',
         });
       });
@@ -497,5 +497,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     }
 
     return true;
+  }
+
+  public trackByIdentity(_index: number, item: TaskBoardColumn): TaskBoardColumn {
+    return item;
   }
 }

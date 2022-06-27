@@ -1,0 +1,11 @@
+---
+vault_globus_ssl_ca_cert: |
+  -----BEGIN CERTIFICATE-----
+  xxxx
+  -----END CERTIFICATE-----
+  -----BEGIN CERTIFICATE-----
+  xxxx
+  -----END CERTIFICATE-----
+  -----BEGIN CERTIFICATE-----
+  xxxx
+  -----END CERTIFICATE-----

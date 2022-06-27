@@ -123,6 +123,7 @@ export class MyResourceBookingsComponent implements OnInit {
             name: column.name,
             key: 'resource__name',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.typeCellTemplate,
@@ -148,6 +149,7 @@ export class MyResourceBookingsComponent implements OnInit {
             name: column.appointment,
             key: 'title',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.appointmentDescriptionCellTemplate,
@@ -204,6 +206,7 @@ export class MyResourceBookingsComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )

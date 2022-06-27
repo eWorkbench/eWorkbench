@@ -24,6 +24,7 @@ import { SkeletonsModule } from '@eworkbench/skeletons';
 import { TableModule } from '@eworkbench/table';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { DssContainerPageComponent } from './components/dss-container-page/dss-container-page.component';
 import { DssContainersPageComponent } from './components/dss-containers-page/dss-containers-page.component';
 import { NewDssContainerModalComponent } from './components/modals/new/new.component';
@@ -61,6 +62,7 @@ import { DssContainersPageRoutingModule } from './dss-containers-page-routing.mo
     TrashModule,
     LockModule,
     RecentChangesModule,
+    TooltipModule.forRoot(),
   ],
 })
 export class DssContainersPageModule {}

@@ -387,12 +387,12 @@
 </div>
 
 <ng-template #titleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="[showSidebar ? '.' : '' + '/files', row.pk]">{{ row.title }}</a>
   </div>
 </ng-template>
 <ng-template #nameCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <eworkbench-file-icon class="inline-block mr-2" [mime]="row.mime_type"></eworkbench-file-icon>
     <a [routerLink]="[showSidebar ? '.' : '' + '/files', row.pk]">{{ row.name }}</a>
   </div>
@@ -410,7 +410,7 @@
   {{ row.mime_type }}
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
-  <div class="text-right">
+  <div class="whitespace-nowrap text-right">
     <eworkbench-favorite-button
       class="inline-block mr-2"
       [id]="row.pk"

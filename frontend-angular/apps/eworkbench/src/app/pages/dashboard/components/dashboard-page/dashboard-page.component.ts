@@ -193,6 +193,7 @@ export class DashboardPageComponent implements OnInit {
         cellTemplate: this.taskTitleCellTemplate,
         name: '',
         key: 'title',
+        width: '50%',
       },
       {
         cellTemplate: this.taskPriorityCellTemplate,
@@ -216,6 +217,7 @@ export class DashboardPageComponent implements OnInit {
         cellTemplate: this.projectNameCellTemplate,
         name: '',
         key: 'name',
+        width: '33%',
       },
       {
         cellTemplate: this.projectStartDateCellTemplate,
@@ -239,6 +241,7 @@ export class DashboardPageComponent implements OnInit {
         cellTemplate: this.fileNameCellTemplate,
         name: '',
         key: 'name',
+        width: '50%',
       },
       {
         cellTemplate: this.fileSizeCellTemplate,
@@ -252,6 +255,7 @@ export class DashboardPageComponent implements OnInit {
         cellTemplate: this.contactNameCellTemplate,
         name: '',
         key: 'full_name',
+        width: '33%',
       },
       {
         name: '',
@@ -269,6 +273,7 @@ export class DashboardPageComponent implements OnInit {
         cellTemplate: this.resourceNameCellTemplate,
         name: '',
         key: 'name',
+        width: '33%',
       },
       {
         cellTemplate: this.resourceTypeCellTemplate,
@@ -279,6 +284,7 @@ export class DashboardPageComponent implements OnInit {
         cellTemplate: this.resourceDescriptionCellTemplate,
         name: '',
         key: 'description',
+        width: '33%',
       },
     ];
 
@@ -287,6 +293,7 @@ export class DashboardPageComponent implements OnInit {
         cellTemplate: this.dmpTitleCellTemplate,
         name: '',
         key: 'title',
+        width: '50%',
       },
       {
         cellTemplate: this.dmpStatusCellTemplate,

@@ -38,7 +38,7 @@ interface FormImport {
 export class ImportLabBookElementsModalComponent implements OnInit {
   public labBookId = this.modalRef.data.labBookId;
 
-  public projectsList: string[] = this.modalRef.data.projects ?? [];
+  public projects: string[] = this.modalRef.data.projects ?? [];
 
   public state = ModalState.Unchanged;
 
@@ -291,11 +291,30 @@ export class ImportLabBookElementsModalComponent implements OnInit {
 
   public addLabBookElement(element: LabBookElement<any>): Observable<any> {
     if (element.child_object_content_type_model === 'labbooks.labbooksection') {
-      return this.labBookSectionsService.add(element.child_object).pipe(untilDestroyed(this));
+      return this.labBookSectionsService
+        .add({
+          date: element.child_object.date,
+          title: element.child_object.title,
+          projects: this.projects,
+        })
+        .pipe(untilDestroyed(this));
     } else if (element.child_object_content_type_model === 'shared_elements.note') {
-      return this.notesService.add(element.child_object).pipe(untilDestroyed(this));
+      return this.notesService
+        .add({
+          subject: element.child_object.subject,
+          content: element.child_object.content,
+          projects: this.projects,
+        })
+        .pipe(untilDestroyed(this));
     } else if (element.child_object_content_type_model === 'plugins.plugininstance') {
-      return this.pluginInstancesService.add(element.child_object).pipe(untilDestroyed(this));
+      return this.pluginInstancesService
+        .add({
+          pk: element.child_object.pk,
+          title: element.child_object.title,
+          plugin: element.child_object.plugin_details.pk,
+          projects: this.projects,
+        })
+        .pipe(untilDestroyed(this));
     } else if (element.child_object_content_type_model === 'pictures.picture') {
       return this.picturesService
         .add({
@@ -305,6 +324,7 @@ export class ImportLabBookElementsModalComponent implements OnInit {
           rendered_image: element.child_object.pk,
           background_image: element.child_object.pk,
           shapes_image: element.child_object.pk,
+          projects: this.projects,
         })
         .pipe(untilDestroyed(this));
     } else if (element.child_object_content_type_model === 'shared_elements.file') {
@@ -313,6 +333,7 @@ export class ImportLabBookElementsModalComponent implements OnInit {
           title: element.child_object.title,
           name: element.child_object.name,
           path: element.child_object.pk,
+          projects: this.projects,
         })
         .pipe(untilDestroyed(this));
     }

@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+@import 'colors';
+
 :host {
   display: block;
 }
@@ -15,4 +17,13 @@
 
 .cdk-drag-placeholder {
   opacity: 0.5;
+}
+
+.footer-option {
+  cursor: pointer;
+
+  &-label {
+    font-size: 13px;
+    color: $text-color;
+  }
 }

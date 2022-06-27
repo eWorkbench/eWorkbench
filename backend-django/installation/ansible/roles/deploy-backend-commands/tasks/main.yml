@@ -1,0 +1,25 @@
+---
+- name: Create the virtualenv if it doesn't exist yet
+  command: "su - {{ app_user }} -c 'virtualenv -p python3 {{ django_dir }}/venv'"
+  args:
+    creates: '{{ django_dir }}/venv'
+
+- name: pip install requirements and upgrades
+  command: "su - {{ app_user }} -c '{{ activate }} && pip install -r {{ django_dir }}/app/requirements.txt --upgrade && deactivate'"
+
+- name: django migrate
+  command: "su - {{ app_user }} -c '{{ activate }} && python {{ django_dir }}/app/manage.py migrate --settings={{ app_settings_path }} && deactivate'"
+  run_once: yes
+
+- name: django fixpermissionlabels
+  command: "su - {{ app_user }} -c '{{ activate }} && python {{ django_dir }}/app/manage.py fixpermissionlabels --settings={{ app_settings_path }} && deactivate'"
+  run_once: yes
+
+- name: django collectstatic
+  command: "su - {{ app_user }} -c '{{ activate }} && python {{ django_dir }}/app/manage.py collectstatic --noinput --settings={{ app_settings_path }} && deactivate'"
+
+- name: Restart daphne.service
+  systemd:
+    name: daphne.service
+    state: restarted
+  become: yes

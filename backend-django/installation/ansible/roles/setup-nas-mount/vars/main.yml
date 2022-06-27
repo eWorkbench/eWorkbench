@@ -1,0 +1,5 @@
+---
+# Following variables reference the corresponding variables
+# in the encrypted vault.yml in the same directory
+tuze_bib_workbench_nas: '{{ vault_tuze_bib_workbench_nas }}'
+

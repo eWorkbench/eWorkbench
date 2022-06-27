@@ -31,6 +31,7 @@
         font-weight: 600;
         border-bottom: 2px solid #e6e6e6;
         padding: 0 10px;
+        white-space: nowrap;
       }
 
       td {
@@ -41,6 +42,10 @@
         &.row-hover:hover {
           background: #f3f9ff;
         }
+      }
+
+      &.hidden-header {
+        height: 0 !important;
       }
     }
   }

@@ -141,6 +141,8 @@ export class CalendarPageComponent implements OnInit {
 
   public project?: string;
 
+  private skippedInit = false;
+
   private readonly popoversMap = new Map<any, ComponentRef<CalendarPopoverWrapperComponent>>();
 
   private readonly popoverFactory = this.resolver.resolveComponentFactory(CalendarPopoverWrapperComponent);
@@ -458,6 +460,11 @@ export class CalendarPageComponent implements OnInit {
   }
 
   public getMySchedules(rangeStart: Date, rangeEnd: Date): void {
+    if (this.showSidebar && !this.skippedInit) {
+      this.skippedInit = true;
+      return;
+    }
+
     this.params = this.params.set('end_date__gte', rangeStart.toISOString());
     this.params = this.params.set('start_date__lte', rangeEnd.toISOString());
 

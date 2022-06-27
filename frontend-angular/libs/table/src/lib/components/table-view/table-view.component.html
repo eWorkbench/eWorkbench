@@ -23,15 +23,25 @@
       </ng-container>
 
       <ng-container *ngFor="let column of columns" [cdkColumnDef]="column.key">
-        <th cdkDrag [cdkDragDisabled]="column.key === 'actions'" cdkDragLockAxis="x" cdk-header-cell *cdkHeaderCellDef>
-          {{ column.name }}
-          <eworkbench-table-sort
-            [class.invisible]="!column.sortable"
-            [column]="column"
-            [sortBy]="sortBy"
-            [sort]="sort"
-            (sortChanged)="onSortChanged($event)"
-          ></eworkbench-table-sort>
+        <th
+          cdkDrag
+          [style.width]="column.width"
+          [ngClass]="{ 'p-0 border-0': !columnHeader }"
+          [cdkDragDisabled]="column.key === 'actions'"
+          cdkDragLockAxis="x"
+          cdk-header-cell
+          *cdkHeaderCellDef
+        >
+          <ng-container *ngIf="columnHeader">
+            {{ column.name }}
+            <eworkbench-table-sort
+              [class.invisible]="!column.sortable"
+              [column]="column"
+              [sortBy]="sortBy"
+              [sort]="sort"
+              (sortChanged)="onSortChanged($event)"
+            ></eworkbench-table-sort>
+          </ng-container>
         </th>
         <td cdk-cell *cdkCellDef="let element" [ngClass]="{ 'p-0': noPadding }">
           <ng-container *ngIf="column.cellTemplate">
@@ -43,7 +53,7 @@
         </td>
       </ng-container>
 
-      <tr [class.d-none]="!columnHeader" cdk-header-row *cdkHeaderRowDef="displayedColumns$.value"></tr>
+      <tr cdk-header-row [class.hidden-header]="!columnHeader" *cdkHeaderRowDef="displayedColumns$.value"></tr>
       <tr [class.row-hover]="rowHover" cdk-row *cdkRowDef="let row; columns: displayedColumns$.value"></tr>
     </table>
 

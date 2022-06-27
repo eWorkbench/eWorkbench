@@ -190,6 +190,7 @@ export class BacklogModalComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.stateCellTemplate,

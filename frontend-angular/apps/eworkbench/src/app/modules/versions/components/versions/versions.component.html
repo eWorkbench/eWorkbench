@@ -18,13 +18,13 @@
 <ng-template #numberCellTemplate let-row>v{{ row.number }}</ng-template>
 <ng-template #createdAtCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div *ngIf="row.created_at">{{ row.created_at | formatDate }}</div>
+    <div *ngIf="row.created_at" class="whitespace-nowrap">{{ row.created_at | formatDate }}</div>
     <div *ngIf="!row.created_at">{{ t('versions.draft') }}</div>
   </ng-container>
 </ng-template>
 <ng-template #createdByCellTemplate let-row>
   <ng-container *transloco="let t">
-    <div *ngIf="row.created_at" class="flex items-center">
+    <div *ngIf="row.created_at" class="flex items-center whitespace-nowrap">
       <span class="mr-2">{{ t('versions.createdBy') }}</span>
       <eworkbench-user-details class="inline-block" [user]="row.created_by"></eworkbench-user-details>
     </div>

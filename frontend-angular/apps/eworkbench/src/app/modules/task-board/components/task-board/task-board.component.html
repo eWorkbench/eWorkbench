@@ -4,119 +4,117 @@
 -->
 
 <ng-container *transloco="let t">
-  <eworkbench-loading [loading]="columnsLoading$ | async">
-    <div
-      *ngIf="headerTopOffset | async as stickyTop"
-      cdkDropList
-      [cdkDropListData]="columns"
-      [cdkDropListOrientation]="$any(dropListOrientation)"
-      (cdkDropListDropped)="onColumnDrop($event)"
-    >
-      <div cdkDropListGroup class="task-board">
+  <div
+    *ngIf="headerTopOffset | async as stickyTop"
+    cdkDropList
+    [cdkDropListData]="columns"
+    [cdkDropListOrientation]="$any(dropListOrientation)"
+    (cdkDropListDropped)="onColumnDrop($event)"
+  >
+    <div cdkDropListGroup class="task-board">
+      <div
+        #columnElement
+        cdkDrag
+        sticky
+        class="list"
+        [stickyTop]="stickyTop + scrollBarHeight"
+        [stickyXScrollElement]="stickyXScrollElement"
+        [stickyScrollOnOverflow]="true"
+        [cdkDragDisabled]="!privileges?.edit"
+        [style.backgroundColor]="column.color"
+        [attr.data-pk]="column.pk"
+        (cdkDragEnded)="handleStickyOnDrop($event)"
+        *ngFor="let column of columns; trackBy: trackByIdentity"
+      >
         <div
-          cdkDrag
-          (cdkDragEnded)="handleStickyOnDrop($event)"
+          #columnHeading
+          cdkDragHandle
           sticky
-          [stickyTop]="stickyTop"
+          class="flex items-center heading"
+          [stickyTop]="stickyTop + scrollBarHeight"
+          [stickyEnabled]="columnElement.classList.contains('is-sticky') === false"
           [stickyXScrollElement]="stickyXScrollElement"
-          [stickyScrollOnOverflow]="true"
-          class="list"
-          [cdkDragDisabled]="!privileges?.edit"
-          [style.backgroundColor]="column.color"
-          [attr.data-pk]="column.pk"
-          *ngFor="let column of columns"
-          #columnElement
         >
-          <div
-            cdkDragHandle
-            sticky
-            [stickyTop]="stickyTop"
-            [stickyEnabled]="columnElement.classList.contains('is-sticky') === false"
-            [stickyXScrollElement]="stickyXScrollElement"
-            class="flex items-center heading"
-            #columnHeading
+          <h1 class="title flex-fill">{{ column.title }}</h1>
+          <div class="inline-block" dropdown container="body" placement="bottom right">
+            <a href dropdownToggle (click)="(false)" class="btn ewb-button ewb-button-transparent">
+              <eworkbench-icon className="wb-more-vertical"></eworkbench-icon>
+            </a>
+            <ul *dropdownMenu class="dropdown-menu dropdown-menu-right details-dropdown-menu whitespace-nowrap" role="menu">
+              <li>
+                <button
+                  type="button"
+                  class="btn ewb-button-regular font-normal w-full text-left menu-item-button"
+                  [disabled]="!privileges?.edit"
+                  (click)="openColumnDetailsModal(column)"
+                >
+                  <span class="mr-2">
+                    <eworkbench-icon className="wb-pen"></eworkbench-icon>
+                  </span>
+                  {{ t('taskBoard.column.dropdown.editColumn') }}
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  class="btn ewb-button-regular font-normal w-full text-left menu-item-button"
+                  [disabled]="!privileges?.edit"
+                  (click)="onRemoveColumn(column)"
+                >
+                  <span class="mr-2">
+                    <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                  </span>
+                  {{ t('taskBoard.column.dropdown.removeColumn') }}
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div
+          [class.empty]="!column.tasks?.length"
+          cdkDropList
+          [cdkDropListData]="column.tasks"
+          (cdkDropListDropped)="onCardDrop($any($event))"
+          class="list-content"
+        >
+          <ng-container *ngFor="let task of column.tasks">
+            <eworkbench-task-card
+              cdkDrag
+              [cdkDragDisabled]="!privileges?.edit"
+              [cdkDragData]="task"
+              [taskBoardId]="id"
+              [labels]="labels"
+              [task]="task"
+              [userSettings]="userSettings"
+              [privileges]="privileges"
+              (removed)="onRemove($event)"
+              *ngIf="matchesFilter(task.task)"
+            ></eworkbench-task-card>
+          </ng-container>
+        </div>
+        <div class="list-footer flex">
+          <button
+            (click)="openNewTaskModal(column.pk)"
+            class="btn ewb-button-regular font-normal mr-2"
+            [tooltip]="t('taskBoard.newTask.tooltip')"
+            container="body"
+            containerClass="tooltip-sm"
+            [disabled]="!privileges?.edit"
           >
-            <h1 class="title flex-fill">{{ column.title }}</h1>
-            <div class="inline-block" dropdown container="body" placement="bottom right">
-              <a href dropdownToggle (click)="(false)" class="btn ewb-button ewb-button-transparent">
-                <eworkbench-icon className="wb-more-vertical"></eworkbench-icon>
-              </a>
-              <ul *dropdownMenu class="dropdown-menu dropdown-menu-right details-dropdown-menu whitespace-nowrap" role="menu">
-                <li>
-                  <button
-                    type="button"
-                    class="btn ewb-button-regular font-normal w-full text-left menu-item-button"
-                    [disabled]="!privileges?.edit"
-                    (click)="openColumnDetailsModal(column)"
-                  >
-                    <span class="mr-2">
-                      <eworkbench-icon className="wb-pen"></eworkbench-icon>
-                    </span>
-                    {{ t('taskBoard.column.dropdown.editColumn') }}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    class="btn ewb-button-regular font-normal w-full text-left menu-item-button"
-                    [disabled]="!privileges?.edit"
-                    (click)="onRemoveColumn(column)"
-                  >
-                    <span class="mr-2">
-                      <eworkbench-icon className="wb-remove"></eworkbench-icon>
-                    </span>
-                    {{ t('taskBoard.column.dropdown.removeColumn') }}
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div
-            [class.empty]="!column.tasks?.length"
-            cdkDropList
-            [cdkDropListData]="column.tasks"
-            (cdkDropListDropped)="onCardDrop($any($event))"
-            class="list-content"
+            {{ t('taskBoard.newTask') }}
+          </button>
+          <button
+            (click)="openBacklogModal(column.pk)"
+            class="btn ewb-button-regular font-normal"
+            [tooltip]="t('taskBoard.backlog.tooltip')"
+            container="body"
+            containerClass="tooltip-sm"
+            [disabled]="!privileges?.edit"
           >
-            <ng-container *ngFor="let task of column.tasks">
-              <eworkbench-task-card
-                cdkDrag
-                [cdkDragDisabled]="!privileges?.edit"
-                [cdkDragData]="task"
-                [taskBoardId]="id"
-                [labels]="labels"
-                [task]="task"
-                [userSettings]="userSettings"
-                [privileges]="privileges"
-                (removed)="onRemove($event)"
-                *ngIf="matchesFilter(task.task)"
-              ></eworkbench-task-card>
-            </ng-container>
-          </div>
-          <div class="list-footer flex">
-            <button
-              (click)="openNewTaskModal(column.pk)"
-              class="btn ewb-button-regular font-normal mr-2"
-              [tooltip]="t('taskBoard.newTask.tooltip')"
-              container="body"
-              containerClass="tooltip-sm"
-              [disabled]="!privileges?.edit"
-            >
-              {{ t('taskBoard.newTask') }}
-            </button>
-            <button
-              (click)="openBacklogModal(column.pk)"
-              class="btn ewb-button-regular font-normal"
-              [tooltip]="t('taskBoard.backlog.tooltip')"
-              container="body"
-              containerClass="tooltip-sm"
-              [disabled]="!privileges?.edit"
-            >
-              {{ t('taskBoard.backlog') }}
-            </button>
-          </div>
+            {{ t('taskBoard.backlog') }}
+          </button>
         </div>
       </div>
     </div>
-  </eworkbench-loading>
+  </div>
 </ng-container>

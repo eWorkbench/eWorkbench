@@ -54,7 +54,9 @@
   <eworkbench-table-view #tableView [columns]="listColumns" [service]="dssContainersService"></eworkbench-table-view>
 
   <ng-template #nameCellTemplate let-row>
-    <a [routerLink]="['/dsscontainers', row.pk]">{{ row.name }}</a>
+    <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+      <a [routerLink]="['/dsscontainers', row.pk]">{{ row.name }}</a>
+    </div>
   </ng-template>
   <ng-template #pathCellTemplate let-row>
     {{ row.path }}
@@ -66,13 +68,17 @@
     <eworkbench-dss-import-option [importOption]="row.import_option"></eworkbench-dss-import-option>
   </ng-template>
   <ng-template #createdAtCellTemplate let-row>
-    {{ row.created_at | formatDate }}
+    <div class="whitespace-nowrap">
+      {{ row.created_at | formatDate }}
+    </div>
   </ng-template>
   <ng-template #createdByCellTemplate let-row>
     <eworkbench-user-details [user]="row.created_by"></eworkbench-user-details>
   </ng-template>
   <ng-template #lastModifiedAtCellTemplate let-row>
-    {{ row.last_modified_at | formatDate }}
+    <div class="whitespace-nowrap">
+      {{ row.last_modified_at | formatDate }}
+    </div>
   </ng-template>
   <ng-template #lastModifiedByCellTemplate let-row>
     <eworkbench-user-details [user]="row.last_modified_by"></eworkbench-user-details>

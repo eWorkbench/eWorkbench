@@ -1,0 +1,7 @@
+---
+# Following variables reference the corresponding variables
+# in the encrypted vault.yml in the same directory
+testbench_zert_bundle_pem: '{{ vault_testbench_zert_bundle_pem }}'
+testbench_key_key: '{{ vault_testbench_key_key }}'
+workbench_zert_bundle_pem: '{{ vault_workbench_zert_bundle_pem }}'
+workbench_key_key: '{{ vault_workbench_key_key }}'

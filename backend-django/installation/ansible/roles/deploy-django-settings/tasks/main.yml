@@ -1,0 +1,11 @@
+---
+- include_vars: vars/vault.yml
+
+- name: Copy django settings
+  copy:
+    content: "{{ lookup('vars', app_name + '_settings') }}"
+    dest: "{{ django_dir}}/app/eric/settings/{{ lookup('vars', app_name + '_settings_file_name') }}"
+    owner: '{{ app_user }}'
+    group: '{{ app_user }}'
+    mode: '0644'
+  become: yes

@@ -25,7 +25,7 @@ export interface File {
   created_by: User;
   deleted: boolean;
   description: string;
-  directory_id: string;
+  directory_id: string | null;
   directory?: Directory | null;
   display: string;
   download: string;

@@ -34,9 +34,9 @@
             <div *ngIf="!initialState?.pk">
               <div class="custom-file">
                 <input type="file" class="custom-file-input" (change)="onUpload($event)" id="file-modal" name="file-modal" />
-                <label for="file-modal" class="custom-file-label ewb-input-file" [class.custom-file-label-filled]="f.file.value">
-                  {{ filePlaceholder }}
-                </label>
+                <label for="file-modal" class="custom-file-label ewb-input-file" [class.custom-file-label-filled]="f.file.value">{{
+                  filePlaceholder
+                }}</label>
               </div>
             </div>
             <div *ngIf="initialState?.pk">

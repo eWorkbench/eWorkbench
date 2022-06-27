@@ -22,7 +22,7 @@
 </ng-container>
 
 <ng-template #nameCellTemplate let-row>
-  <div class="inline-flex" ellipsis="300" [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.name" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="['/projects', row.pk]">{{ row.name }}</a>
   </div>
 </ng-template>

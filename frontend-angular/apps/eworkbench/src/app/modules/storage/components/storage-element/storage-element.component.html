@@ -13,15 +13,16 @@
   >
     <eworkbench-loading [loading]="loading">
       <div class="flex mb-3">
-        <button class="btn ewb-button-primary ewb-button-big mr-2 self-center" (click)="onOpenNewDirectoryModal()">
+        <button class="btn ewb-button-primary ewb-button-big mr-2 self-center text-nowrap" (click)="onOpenNewDirectoryModal()">
           {{ t('storages.newFolder') }}
         </button>
         <button
-          class="btn ewb-button-primary ewb-button-big mr-2 self-center"
+          class="btn ewb-button-primary ewb-button-big mr-2 self-center text-nowrap"
           (click)="onOpenWebDavModal()"
           [disabled]="storage.is_dss_drive"
         >
-          <eworkbench-icon className="wb-desktop" class="mr-1"></eworkbench-icon>{{ t('storages.webDav') }}
+          <eworkbench-icon className="wb-desktop" class="mr-1"></eworkbench-icon>
+          {{ t('storages.webDav') }}
         </button>
         <div class="search-input">
           <div class="input-group search-input-group">
@@ -46,8 +47,9 @@
         </div>
       </div>
       <div *ngIf="rootDirectory" class="root-row pl-2 border-b">
-        <div class="root-header self-center">
-          <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon>{{ storage.title }}
+        <div ellipsis class="root-header self-center">
+          <eworkbench-icon className="wb-storages" class="mr-1"></eworkbench-icon>
+          {{ storage.title }}
         </div>
         <div class="root-actions py-1 self-center" *ngIf="!collapsed && rootDirectory">
           <button
@@ -97,7 +99,7 @@
 </ng-container>
 
 <ng-template #collapseLabelTemplate let-row>
-  <div class="storage-title">
+  <div ellipsis class="storage-title">
     <div class="float-right text-right" *ngIf="favoriteMarker">
       <eworkbench-favorite-button
         *ngIf="!row.deleted"

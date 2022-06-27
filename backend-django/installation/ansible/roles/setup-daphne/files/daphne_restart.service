@@ -1,0 +1,6 @@
+[Unit]
+Description=Restart daphne service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl restart daphne

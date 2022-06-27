@@ -1,0 +1,53 @@
+---
+workbench_crontab_entries:
+  syncldapusers:
+    minute: "0"
+    hour: "1"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "cd /var/django/eworkbench/ && . venv/bin/activate && cd app && python manage.py syncldapusers --settings={{ app_settings_path }} > logs/syncldapusers.log 2>&1  && deactivate"
+  dbbackup:
+    minute: "0"
+    hour: "0"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "cd /var/django/eworkbench/ && rm backups/latest.psql.gz && . venv/bin/activate && cd app && python manage.py dbbackup -o latest.psql.gz -z --settings={{ app_settings_path }} >> logs/dbbackup.log 2>&1 && deactivate"
+  send_notifications:
+    minute: "*"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "cd /var/django/eworkbench/ && . venv/bin/activate && cd app && python manage.py send_notifications --settings={{ app_settings_path }} >> logs/notifications.log 2>&1 && deactivate"
+  remove_old_element_locks:
+    minute: "*"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "cd /var/django/eworkbench/ && . venv/bin/activate && cd app && python manage.py remove_old_element_locks --settings={{ app_settings_path }} >> logs/send_remove_old_element_locks.log 2>&1 && deactivate"
+  trash_unneeded_tmp_files:
+    minute: "*"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "cd /var/django/eworkbench/ && . venv/bin/activate && cd app && python manage.py trash_unneeded_tmp_files --settings={{ app_settings_path }} >> logs/trash_unneeded_tmp_files.log 2>&1 && deactivate"
+  process_new_logs:
+    minute: "30"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "cd /var/django/eworkbench/ && . venv/bin/activate && cd app && python manage.py process_new_logs --settings={{ app_settings_path }} >> logs/process_new_logs.log 2>&1 && deactivate"
+  clear_old_logs:
+    minute: "45"
+    hour: "2"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "cd /var/django/eworkbench/ && . venv/bin/activate && cd app && python manage.py clear_old_logs --settings={{ app_settings_path }} >> logs/clear_old_logs.log 2>&1 && deactivate"
+
+bench_crontab_entries: "{{ lookup('vars', app_name + '_crontab_entries') }}"

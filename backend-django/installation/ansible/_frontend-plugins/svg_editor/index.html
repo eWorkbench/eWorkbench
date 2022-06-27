@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SVG Editor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            color: #888;
+            background: #eee;
+            font-family: sans-serif;
+            font-size: 13px;
+        }
+
+        button {
+            width: 100%;
+            color: #888;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            outline: none;
+        }
+
+        button:hover {
+            color: #fff;
+            border: transparent;
+            background-color: #999;
+        }
+
+        input {
+            color: #888;
+            padding: 4px 8px;
+        }
+
+        hr {
+            border: 0;
+            padding: 2px 0px;
+        }
+
+        #tools {
+            padding: 0px 10px;
+            display: inline-block;
+            width: 110px;
+            line-height: 24px;
+            vertical-align: top;
+        }
+
+        #content {
+            display: inline-block;
+            width: 600px;
+        }
+
+        #stage {
+            background: #fff;
+        }
+
+        #stage.wireframe * {
+            stroke: #000 !important;
+            stroke-width: 1px !important;
+            fill: transparent !important;
+        }
+
+        #textarea {
+            padding: 10px;
+            color: #888;
+            background-color: #f8f8f8;
+            border: 0px;
+            width: 600px;
+            height: 200px;
+        }
+
+        #tech_info table {
+            width: 100%;
+            word-wrap: break-word;
+            border-spacing: 10px;
+        }
+
+        #tech_info td {
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body onload="loadPluginInstanceDetailsfromBackend()">
+<span id="tools">
+    <input id="wireframe" type="checkbox"> outline
+    <hr>
+    <button id="createCircle">Circle</button>
+    <button id="createRectangle">Rectangle</button>
+    <button id="createText">Text</button>
+    <hr>
+    <button id="save">Save</button>
+    <button id="clear">Clear</button>
+</span>
+<span id="content">
+    <svg id="stage" width="600" height="400" viewBox="0 0 600 400"></svg>
+    <textarea id="textarea" spellcheck="false"></textarea>
+</span>
+<div id="tech_info">
+    <table>
+        <tr>
+            <th>JSON web token</th>
+            <td class="jwt"></td>
+        </tr>
+        <tr>
+            <th>Primary key of the plugin instance element</th>
+            <td class="pk"></td>
+        </tr>
+        <tr>
+            <th>API base URL</th>
+            <td class="apiBaseUrl"></td>
+        </tr>
+    </table>
+</div>
+
+<script src="js/Editor.js"></script>
+<script src="js/Selector.js"></script>
+<script src="js/Source.js"></script>
+<script src="js/pablo/pablo.min.js"></script>
+<script>
+    const NS = 'http://www.w3.org/2000/svg';
+    const WIDTH = 600;
+    const HEIGHT = 400;
+
+    // get params from location
+    var params = location.href.split('?')[1].split('&');
+    var locationData = {};
+
+    for (x in params) {
+        const paramParts = params[x].split('=');
+        const key = paramParts[0];
+        const value = paramParts[1];
+        locationData[key] = value;
+    }
+
+    const apiBaseUrl = decodeURIComponent(locationData.apiBaseUrl);
+
+    // show technical info
+    const techInfo = document.getElementById('tech_info');
+    techInfo.getElementsByClassName('jwt')[0].innerHTML = locationData.jwt;
+    techInfo.getElementsByClassName('pk')[0].innerHTML = locationData.pk;
+    techInfo.getElementsByClassName('apiBaseUrl')[0].innerHTML = apiBaseUrl;
+
+    function parseNumber (value) {
+        return parseFloat(value.toFixed(2));
+    }
+
+    function randomColor () {
+        return '#' + Math.floor(Math.random() * 16777215).toString(16);
+    }
+
+    var editor = new Editor(stage);
+    editor.setSource(new Source(textarea));
+
+    var selector = new Selector(stage);
+
+    wireframe.addEventListener('change', function () {
+        stage.classList.toggle('wireframe');
+    });
+
+    createCircle.addEventListener('click', function () {
+        var element = document.createElementNS(NS, 'circle');
+        element.setAttribute('cx', parseNumber(Math.random() * WIDTH));
+        element.setAttribute('cy', parseNumber(Math.random() * HEIGHT));
+        element.setAttribute('r', parseNumber(Math.random() * 100));
+        element.style.stroke = 'black';
+        element.style.fill = randomColor();
+
+        editor.addElement(element);
+    });
+
+    createRectangle.addEventListener('click', function () {
+        var element = document.createElementNS(NS, 'rect');
+        element.setAttribute('x', parseNumber(Math.random() * WIDTH));
+        element.setAttribute('y', parseNumber(Math.random() * HEIGHT));
+        element.setAttribute('width', parseNumber(Math.random() * 100));
+        element.setAttribute('height', parseNumber(Math.random() * 100));
+        element.style.stroke = 'black';
+        element.style.fill = randomColor();
+
+        editor.addElement(element);
+    });
+
+    createText.addEventListener('click', function () {
+        var element = document.createElementNS(NS, 'text');
+        element.setAttribute('x', parseNumber(Math.random() * WIDTH));
+        element.setAttribute('y', parseNumber(Math.random() * HEIGHT));
+        element.setAttribute('font-size', '30px');
+        element.style.stroke = 'black';
+        element.style.fill = randomColor();
+        element.textContent = 'Hello World';
+
+        editor.addElement(element);
+    });
+
+    // LOAD APP DETAILS FROM BACKEND (Called from onload)
+    function loadPluginInstanceDetailsfromBackend () {
+        const url = apiBaseUrl + locationData.pk + '/?jwt=' + locationData.jwt;
+        fetch(url)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (pluginInstanceDetailJSON) {
+                loadSVGfromBackend(pluginInstanceDetailJSON['download_rawdata'])
+            });
+
+    }
+
+    // LOAD APP DETAILS FROM BACKEND
+    function loadSVGfromBackend (svgURL) {
+        fetch(svgURL)
+            .then(function (response) {
+                return response.text()
+            })
+            .then(function (svgContent) {
+                if (svgContent) {
+                    editor.setSVG(new DOMParser().parseFromString(svgContent, 'image/svg+xml'));
+                }
+            });
+    }
+
+    save.addEventListener('click', function () {
+        // create a file from the svg-data
+        svgData = editor.toString();
+        var file = new Blob([svgData], {type: 'text/xml'});
+        var img = Pablo(document.getElementById('stage')).toImage('png', appendImgToFormAndSend);
+        var formData = new FormData();
+
+        function dataURItoBlob (dataURI) {
+            // convert base64/URLEncoded data component to raw binary data held in a string
+            var byteString;
+            if (dataURI.split(',')[0].indexOf('base64') >= 0)
+                byteString = atob(dataURI.split(',')[1]);
+            else
+                byteString = unescape(dataURI.split(',')[1]);
+
+            // separate out the mime component
+            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+            // write the bytes of the string to a typed array
+            var ia = new Uint8Array(byteString.length);
+            for (var i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+
+            return new Blob([ia], {type: mimeString});
+        }
+
+        function appendImgToFormAndSend () {
+            var picture = dataURItoBlob(img[0].src);
+            formData.append('picture', picture, 'picture_representation.png');
+            formData.append('rawdata', file, 'rawdata');
+
+            const headers = new Headers({
+                'Authorization': 'JWT ' + locationData.jwt
+            });
+
+            const options = {
+                method: 'PATCH',
+                body: formData,
+                credentials: "include",
+                headers
+            };
+
+            const url = apiBaseUrl + locationData.pk + '/';
+            fetch(url, options)
+                .then(response => response.json())
+                .catch(error => console.error('Error:', error))
+                .then(response => console.log('Success:', JSON.stringify(response)));
+        }
+    });
+
+    clear.addEventListener('click', function () {
+        editor.clear();
+    });
+</script>
+</body>
+</html>

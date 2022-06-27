@@ -571,7 +571,7 @@
   <eworkbench-task-priority [priority]="row.priority"></eworkbench-task-priority>
 </ng-template>
 <ng-template #titleCellTemplate let-row>
-  <div ellipsis="300" [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
+  <div ellipsis [tooltip]="row.title" containerClass="tooltip-sm" [delay]="500">
     <a [routerLink]="[showSidebar ? '.' : '' + '/tasks', row.pk]">{{ row.title }}</a>
   </div>
 </ng-template>
@@ -588,7 +588,7 @@
   <eworkbench-users-grouping [users]="row.assigned_users" [chip]="true"></eworkbench-users-grouping>
 </ng-template>
 <ng-template #actionsCellTemplate let-row>
-  <div class="text-right">
+  <div class="whitespace-nowrap text-right">
     <eworkbench-favorite-button
       class="inline-block mr-2"
       [id]="row.pk"

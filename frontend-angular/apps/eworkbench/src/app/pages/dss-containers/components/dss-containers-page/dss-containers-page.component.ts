@@ -113,6 +113,7 @@ export class DssContainersPageComponent implements OnInit {
             name: column.name,
             key: 'name',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.pathCellTemplate,
@@ -168,6 +169,7 @@ export class DssContainersPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )

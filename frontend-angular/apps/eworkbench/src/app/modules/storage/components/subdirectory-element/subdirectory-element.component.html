@@ -11,7 +11,7 @@
           <div class="file-row pl-2 border-b">
             <div class="self-center">
               <button type="button" class="btn btn-sm bg-transparent pl-0 mr-1">
-                <div class="inline-flex" ellipsis="300" [tooltip]="file.name" containerClass="tooltip-sm" [delay]="500">
+                <div class="inline-flex" ellipsis [tooltip]="file.name" containerClass="tooltip-sm" [delay]="500">
                   <eworkbench-icon class="mr-1" [className]="file.icon_class!"></eworkbench-icon>
                   <a [routerLink]="['/files', file.pk]">{{ file.name }}</a>
                 </div>
@@ -65,9 +65,9 @@
   </eworkbench-loading>
   <ng-template #collapseLabelTemplate let-directory>
     <div class="directory-row pt-1 pb-1">
-      <div class="self-center">
-        <eworkbench-icon className="wb-folder" class="mr-1"></eworkbench-icon
-        ><a (click)="onOpenEditDirectoryModal(directory)">{{ directory.name }}</a>
+      <div ellipsis class="self-center">
+        <eworkbench-icon className="wb-folder" class="mr-1"></eworkbench-icon>
+        <a (click)="onOpenEditDirectoryModal(directory)">{{ directory.name }}</a>
       </div>
       <div class="directory-actions self-center">
         <button

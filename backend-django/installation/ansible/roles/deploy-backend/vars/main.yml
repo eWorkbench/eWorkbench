@@ -1,0 +1,2 @@
+---
+globus_ssl_ca_cert: '{{ vault_globus_ssl_ca_cert }}'

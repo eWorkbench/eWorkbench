@@ -1,0 +1,7 @@
+---
+- name: Disable maintenance
+  file:
+    path: '{{ angularjs_dir }}/public/maintenance.enable'
+    state: absent
+  become: yes
+  ignore_errors: yes

@@ -1,0 +1,14 @@
+---
+- name: reload nginx
+  service:
+    name: nginx
+    state: reloaded
+  become: yes
+  ignore_errors: yes
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+  become: yes
+  ignore_errors: yes

@@ -186,12 +186,14 @@ export class FilesPageComponent implements OnInit {
             name: column.title,
             key: 'title',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.nameCellTemplate,
             name: column.fileName,
             key: 'name',
             sortable: true,
+            width: '20%',
           },
           {
             cellTemplate: this.fileSizeCellTemplate,
@@ -236,6 +238,7 @@ export class FilesPageComponent implements OnInit {
                 key: column.key,
                 sortable: column.sortable,
                 hideable: column.hidden,
+                width: column.width,
               })),
               'key'
             )
