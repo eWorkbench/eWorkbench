@@ -147,10 +147,11 @@ class PictureViewSet(
         if image:
             file_path = os.path.join(settings.MEDIA_ROOT, image.name)
             response = FileResponse(open(file_path, 'rb'))
+            response['Content-Type'] = 'image/png;'
         else:
             response = HttpResponse("[]")
+            response['Content-Type'] = 'application/json;'
 
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(download_file_name)
-        response['Content-Type'] = 'application/json;'
 
         return response

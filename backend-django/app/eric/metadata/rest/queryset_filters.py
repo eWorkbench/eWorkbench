@@ -5,6 +5,7 @@
 from abc import abstractmethod
 from django.contrib.postgres.fields.jsonb import KeyTransform, KeyTextTransform
 from django.db.models import F, Q, Value, ExpressionWrapper, FloatField
+from django.db.models.functions import Cast
 from django.utils.dateparse import parse_datetime, parse_date
 
 from eric.metadata.models.models import MetadataField
@@ -84,8 +85,8 @@ class FractionFilterMethod(MetadataQuerySetFilterMethod):
         # Numerator and denominator must be transformed to decimals, otherwise the SQL division will return an integer.
         # The input fraction must be computed in SQL, to avoid problems caused by different precision levels.
         queryset = queryset \
-            .annotate(numerator=KeyDecimalTransform('numerator', 'values')) \
-            .annotate(denominator=KeyDecimalTransform('denominator', 'values')) \
+            .annotate(numerator=Cast(KeyTextTransform("numerator", "values"), FloatField())) \
+            .annotate(denominator=Cast(KeyTextTransform("denominator", "values"), FloatField())) \
             .filter(~Q(denominator=0)) \
             .annotate(fraction=F('numerator') / F('denominator')) \
             .annotate(input_fraction=ExpressionWrapper(Value(numerator) / Value(denominator),

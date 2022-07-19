@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for versions """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 from rest_framework_nested import routers
 
 from eric.core.rest.routers import get_api_router
@@ -39,5 +40,5 @@ add_sub_urls(r'dmps', DmpViewSet, 'dmp')
 add_sub_urls(r'plugininstances', PluginInstanceViewSet, 'plugininstance')
 
 urlpatterns = [
-    url(r'^', include(urls)),
+    re_path(r'^', include(urls)),
 ]

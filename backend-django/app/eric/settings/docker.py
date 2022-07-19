@@ -14,6 +14,10 @@ ANX_MONITORING_ACCESS_TOKEN = 'none'
 
 DEBUG = True
 
+MIDDLEWARE += [
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+]
+
 NOTIFICATIONS_SETTINGS['MINIMUM_TIME_BETWEEN_EMAILS'] = timedelta(seconds=10)
 
 # CORS Configuration
@@ -90,6 +94,8 @@ AUTH_LDAP_USER_ATTR_MAP = {
 AUTH_LDAP_PROFILE_ATTR_MAP = {
     "first_name": "description",
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # defines workbench settings
 WORKBENCH_SETTINGS.update({

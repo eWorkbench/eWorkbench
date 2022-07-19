@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for kanban boards """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 
 from rest_framework_nested import routers
 
@@ -49,6 +50,6 @@ tasks_router.register(r'kanbanboard_assignments', TaskKanbanBoardAssignmentsView
 
 urlpatterns = [
     # REST Endpoints for kanban boards (history, relations)
-    url(r'^', include(kanban_board_router.urls)),
-    url(r'^', include(tasks_router.urls)),
+    re_path(r'^', include(kanban_board_router.urls)),
+    re_path(r'^', include(tasks_router.urls)),
 ]

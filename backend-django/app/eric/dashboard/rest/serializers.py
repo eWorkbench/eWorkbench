@@ -68,6 +68,7 @@ class DashboardTaskSerializer(serializers.ModelSerializer):
             'priority',
             'state',
             'due_date',
+            'full_day',
         )
 
 

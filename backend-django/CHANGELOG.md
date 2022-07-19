@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.13 - July 2022
+- [SITUMEWB-628] Upgrade Backend to Django 3.2 LTS
+
 ## Version 2.12.1 - June 2022
 - [SITUMEWB-911] Fixed project assignment for resource booking modal via list view button
 - [SITUMEWB-916] Changed styling of infotext for non-defined storages for files

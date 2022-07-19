@@ -125,14 +125,14 @@ class KanbanBoardViewSet(
             # create a file response
             file_path = os.path.join(settings.MEDIA_ROOT, picture_object.background_image.name)
             response = FileResponse(open(file_path, 'rb'))
+            response['Content-Type'] = 'image/png;'
         else:
             # no file available, send an empty response
             response = HttpResponse("[]")
+            response['Content-Type'] = 'application/json;'
 
         # set filename in header
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(original_file_name)
-        # set mime type to the stored mime type
-        response['Content-Type'] = 'application/json;'
 
         return response
 
@@ -150,14 +150,14 @@ class KanbanBoardViewSet(
             # create a file response
             file_path = os.path.join(settings.MEDIA_ROOT, picture_object.background_image_thumbnail.name)
             response = FileResponse(open(file_path, 'rb'))
+            response['Content-Type'] = 'image/png;'
         else:
             # no file available, send an empty response
             response = HttpResponse("[]")
+            response['Content-Type'] = 'application/json;'
 
         # set filename in header
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(original_file_name)
-        # set mime type to the stored mime type
-        response['Content-Type'] = 'application/json;'
 
         return response
 

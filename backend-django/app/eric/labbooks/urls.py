@@ -2,7 +2,8 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 
 from rest_framework_nested import routers
 
@@ -41,6 +42,6 @@ labbooksection_router.register(r'history', GenericChangeSetViewSet, basename='la
 labbooksection_router.register(r'privileges', ModelPrivilegeViewSet, basename='labbooksection-privileges')
 
 urlpatterns = [
-    url(r'^', include(labbook_router.urls)),
-    url(r'^', include(labbooksection_router.urls)),
+    re_path(r'^', include(labbook_router.urls)),
+    re_path(r'^', include(labbooksection_router.urls)),
 ]

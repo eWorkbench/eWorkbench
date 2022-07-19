@@ -88,10 +88,10 @@ class Command(BaseCommand):
         created_at = date_short(localtime(obj.created_at))
         last_modified_at = date_short(localtime(obj.last_modified_at))
         print(
-            model_name + '\t' +
-            str(obj.pk) + '\t' +
-            obj.created_by.username + '\t' +
-            created_at + '\t' +
-            obj.last_modified_by.username + '\t' +
-            last_modified_at + '\t'
+            model_name + '\t'
+            + str(obj.pk) + '\t'
+            + obj.created_by.username + '\t'
+            + created_at + '\t'
+            + obj.last_modified_by.username + '\t'
+            + last_modified_at + '\t'
         )

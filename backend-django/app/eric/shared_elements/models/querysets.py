@@ -227,7 +227,7 @@ class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         """
         user = get_current_user()
         if user.is_anonymous:
-            self.none()
+            return self.none()
 
         return self.filter(
             assigned_users=user,
@@ -325,7 +325,7 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         user = get_current_user()
         if user.is_anonymous:
-            self.none()
+            return self.none()
 
         return self.filter(
             attending_users=user,
@@ -566,6 +566,8 @@ class CalendarAccessQuerySet(QuerySet, ChangeSetQuerySetMixin):
 
     def for_current_user(self):
         user = get_current_user()
+        if user.is_anonymous:
+            return self.none()
         return self.for_user(user)
 
     def viewable(self):

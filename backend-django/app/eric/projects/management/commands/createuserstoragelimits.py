@@ -23,7 +23,7 @@ class Command(BaseCommand):
         for user in users:
             try:
                 a = user.user_storage_limit
-            except:
+            except Exception:
                 print("No storage limit exists for {user}, creating it...".format(user=user))
 
                 UserStorageLimit.objects.create(

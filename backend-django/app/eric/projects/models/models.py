@@ -108,7 +108,7 @@ class MyUser(User):
 
             if first_name != '' and last_name != '':
                 return f'{first_name} {last_name}'
-        except:
+        except Exception:
             # ignore (userprofile not available)
             pass
 

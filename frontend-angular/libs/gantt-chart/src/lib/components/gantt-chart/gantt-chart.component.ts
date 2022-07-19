@@ -378,9 +378,8 @@ export class GanttChartComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public scrollToToday(): void {
-    select<HTMLDivElement, unknown>('#gantt-body')
-      .node()!
-      .scrollBy(this.timeScale(new Date()) - (this.width! - 2 * this.sidePadding) / 2, 0);
+    select<HTMLDivElement, unknown>('#gantt-body').node()!.scrollLeft =
+      this.timeScale(new Date()) - (this.width! - 2 * this.sidePadding) / 2;
   }
 
   public addTooltip(selection: any): void {

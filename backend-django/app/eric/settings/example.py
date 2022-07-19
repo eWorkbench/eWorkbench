@@ -148,3 +148,5 @@ INTERNAL_IPS = (
 logger = logging.getLogger('django_auth_ldap')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

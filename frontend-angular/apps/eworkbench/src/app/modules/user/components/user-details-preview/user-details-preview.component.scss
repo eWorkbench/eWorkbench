@@ -48,6 +48,11 @@
           justify-content: space-between;
         }
       }
+
+      .inactive-indicator {
+        color: #4d4d4d;
+        opacity: 0.5;
+      }
     }
   }
 }

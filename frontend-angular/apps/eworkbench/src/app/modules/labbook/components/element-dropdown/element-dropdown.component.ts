@@ -116,6 +116,7 @@ export class LabBookElementDropdownComponent implements OnInit {
   public onOpenPrivilegesModal(): void {
     this.modalService.open(PrivilegesModalComponent, {
       closeButton: false,
+      width: '800px',
       data: { service: this.service, id: this.id, data: this.initialState },
     });
   }

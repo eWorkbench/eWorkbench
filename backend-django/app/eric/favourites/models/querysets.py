@@ -29,6 +29,8 @@ class FavouriteQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
 
     def for_current_user(self):
         user = get_current_user()
+        if user.is_anonymous:
+            return self.none()
         return self.filter(user=user)
 
     def for_content_type(self, content_type, *args, **kwargs):

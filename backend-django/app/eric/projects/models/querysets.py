@@ -329,6 +329,7 @@ class BaseProjectEntityPermissionQuerySet(
         - the element does not have a model privilege 'deny_view' for the current user (deny_object_ids)
         """
         user = get_current_user()
+
         if user.is_anonymous:
             return self.none()
         elif user.is_superuser:

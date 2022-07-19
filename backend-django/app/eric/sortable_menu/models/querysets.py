@@ -21,18 +21,18 @@ class MenuEntryQuerySet(BaseQuerySet):
         return self.filter(visible=True)
 
     def viewable(self, *args, **kwargs):
-        user = get_current_user()
-
-        return self.filter(owner=user)
+        return self.for_current_user()
 
     def editable(self, *args, **kwargs):
-        user = get_current_user()
-
-        return self.filter(owner=user)
+        return self.for_current_user()
 
     def deletable(self, *args, **kwargs):
-        user = get_current_user()
+        return self.for_current_user()
 
+    def for_current_user(self):
+        user = get_current_user()
+        if user.is_anonymous:
+            return self.none()
         return self.filter(owner=user)
 
 
@@ -43,16 +43,16 @@ class MenuEntryParameterQuerySet(BaseQuerySet):
     """
 
     def viewable(self, *args, **kwargs):
-        user = get_current_user()
-
-        return self.filter(menu_entry__owner=user)
+        return self.for_current_user()
 
     def editable(self, *args, **kwargs):
-        user = get_current_user()
-
-        return self.filter(menu_entry__owner=user)
+        return self.for_current_user()
 
     def deletable(self, *args, **kwargs):
-        user = get_current_user()
+        return self.for_current_user()
 
+    def for_current_user(self):
+        user = get_current_user()
+        if user.is_anonymous:
+            return self.none()
         return self.filter(menu_entry__owner=user)

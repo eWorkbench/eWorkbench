@@ -2,7 +2,8 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 
 from eric.core.rest.routers import get_api_router
 from eric.metadata.rest.viewsets import MetadataFieldViewSet, MetadataSearchViewSet
@@ -34,5 +35,5 @@ router.register(r'metadatafields', MetadataFieldViewSet, basename='metadatafield
 router.register(r'metadata-search', MetadataSearchViewSet, basename='metadata-search')
 
 urlpatterns = [
-    url(r'^', include(urls)),
+    re_path(r'^', include(urls)),
 ]

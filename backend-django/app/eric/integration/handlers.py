@@ -4,7 +4,7 @@
 #
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_userforeignkey.request import get_current_user
 from rest_framework.exceptions import PermissionDenied
 

@@ -6,7 +6,6 @@ import os
 import uuid
 
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -375,7 +374,7 @@ class KanbanBoardUserFilterSetting(BaseModel):
         on_delete=models.CASCADE,
     )
 
-    settings = JSONField(
+    settings = models.JSONField(
         verbose_name=_("Kanban Board User Filter Settings"),
         null=True,
         blank=True,

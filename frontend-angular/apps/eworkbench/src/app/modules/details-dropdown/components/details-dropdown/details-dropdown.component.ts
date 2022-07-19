@@ -102,7 +102,7 @@ export class DetailsDropdownComponent implements OnInit {
   public onOpenPrivilegesModal(): void {
     this.modalRef = this.modalService.open(PrivilegesModalComponent, {
       closeButton: false,
-      width: '600px',
+      width: '800px',
       data: { service: this.service, id: this.id, data: this.initialState },
     });
 

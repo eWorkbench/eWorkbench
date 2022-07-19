@@ -164,7 +164,7 @@ class Collection(ical.Collection):
                 CaldavItem.objects.viewable().sort('-last_modified_at').last_modified_at,
                 '%a, %d %b %Y %H:%M:%S %z'
             )
-        except:
+        except Exception:
             return None
 
     @property

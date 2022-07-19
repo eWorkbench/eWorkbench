@@ -13,10 +13,12 @@ services:
       - ./:/app
       - app_data:/var/lib/app
       - ./dss:/dss
-    command: python -Wd manage.py runserver 0.0.0.0:8000
+    # command: python -Wd manage.py runserver 0.0.0.0:8000
+    command: gunicorn --workers 4 --bind 0.0.0.0:8000 eric.asgi:application -k uvicorn.workers.UvicornWorker
     environment:
       - DJANGO_SETTINGS_MODULE=eric.settings.docker
       - PYTHONUNBUFFERED=1
+      - PACKAGE_VERSION=0.3.1  # Remove this after upgrading to the official release of django-userforeignkey
     ports:
       - "8000:8000"
     expose:
@@ -26,7 +28,6 @@ services:
       - maildump
       - redis
       - ldap-service
-#      - nfs
   cron_remove_old_element_locks:
     <<: *python
     ports: []
@@ -108,7 +109,7 @@ services:
       - 1025:1025
   redis:
     hostname: redis.workbench.local
-    image: redis:2.8
+    image: redis:5.0
     expose:
       - 6379
     ports:
@@ -117,7 +118,7 @@ services:
   ldap-service:
     hostname: ldap.workbench.local
     command: "--loglevel trace"
-    image: osixia/openldap:1.1.6
+    image: osixia/openldap:1.5.0
     ports:
      - 389:389
      - 636:636

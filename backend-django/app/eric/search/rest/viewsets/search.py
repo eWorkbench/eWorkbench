@@ -3,20 +3,20 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
-from itertools import chain
-from operator import attrgetter
 
 from django.apps.registry import apps
-from django.contrib.postgres.search import SearchRank
+from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db import models
 from django.db.models import Q
-from rest_framework.response import Response
-from rest_framework.serializers import Serializer
-
 from eric.core.models.abstract import get_all_workbench_models, WorkbenchEntityMixin
 from eric.core.rest.viewsets import BaseGenericViewSet
 from eric.search.models import FTSMixin
-from eric.search.models.search import FollowedBySearchQuery
+from itertools import chain
+from operator import attrgetter
+from rest_framework.response import Response
+from rest_framework.serializers import Serializer
+
+from eric.search.utils import convert_search_terms
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +85,9 @@ class SearchViewSet(BaseGenericViewSet):
         if not search_terms:
             return model.objects.none()
 
-        plain_search_terms = " ".join(search_terms)
+        plain_search_terms = convert_search_terms(search_terms)
+        search_query = SearchQuery(plain_search_terms, config=models.F('fts_language'))
 
-        search_query = FollowedBySearchQuery(search_terms, config=models.F('fts_language'))
         queryset = model.objects.viewable().annotate(
             fts_rank=SearchRank(models.F('fts_index'), search_query)
         ).filter(
@@ -97,7 +97,7 @@ class SearchViewSet(BaseGenericViewSet):
         # do common prefetches on the querysets
         queryset = queryset.prefetch_common()
 
-        # if the model has a "projects" attribute, prefetch this aswell
+        # if the model has a "projects" attribute, prefetch this as well
         if hasattr(model, 'projects'):
             queryset = queryset.prefetch_related('projects')
 

@@ -8,9 +8,9 @@ from collections import defaultdict
 from contextlib import contextmanager
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models, IntegrityError
 from django.db.models import Q
-from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import *
 from django.dispatch import receiver
 from django.utils import timezone
@@ -405,12 +405,12 @@ class LockMixin:
             for el in elements:
                 i = i + 1
                 logger.error(
-                    "    ElementLock {}: \n".format(i) +
-                    "        ElementLock-pk = {} \n".format(el.pk) +
-                    "        ElementLock-locked_at = {} \n".format(el.locked_at) +
-                    "        Parent-object_type = {} \n".format(el.content_type) +
-                    "        Parent-object_id = {} \n".format(el.object_id) +
-                    "        Element-__str__ = {}".format(el)
+                    "    ElementLock {}: \n".format(i)
+                    + "        ElementLock-pk = {} \n".format(el.pk)
+                    + "        ElementLock-locked_at = {} \n".format(el.locked_at)
+                    + "        Parent-object_type = {} \n".format(el.content_type)
+                    + "        Parent-object_id = {} \n".format(el.object_id)
+                    + "        Element-__str__ = {}".format(el)
                 )
 
         return lock

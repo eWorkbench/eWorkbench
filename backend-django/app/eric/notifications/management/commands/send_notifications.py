@@ -11,7 +11,7 @@ from django.db.models import Subquery
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.timezone import timedelta, localtime
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from eric.core.templatetags.date_filters import date_short
 from eric.notifications.config import MINIMUM_TIME_BETWEEN_EMAILS, SINGLE_MAIL_NOTIFICATIONS

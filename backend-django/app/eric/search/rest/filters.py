@@ -3,19 +3,17 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import operator
-
-from functools import reduce
+import six
 
 from django.db.models import Q, F
-from django.utils import six
-from django.contrib.postgres.search import SearchRank
-
+from django.contrib.postgres.search import SearchQuery, SearchRank
+from eric.search.models import FTSMixin
+from functools import reduce
 from rest_framework.filters import SearchFilter
 from rest_framework.settings import api_settings
 from rest_framework.compat import distinct
 
-from eric.search.models import FTSMixin
-from eric.search.models.search import FollowedBySearchQuery
+from eric.search.utils import convert_search_terms
 
 
 class FTSSearchFilter(SearchFilter):
@@ -62,11 +60,14 @@ class FTSSearchFilter(SearchFilter):
         if not issubclass(queryset.model, FTSMixin) or not search_terms:
             return queryset
 
-        search_query = FollowedBySearchQuery(search_terms, config=F('fts_language'))
+        plain_search_terms = convert_search_terms(search_terms)
+        search_query = SearchQuery(plain_search_terms, config=F('fts_language'))
 
         queryset = queryset.annotate(
             fts_rank=SearchRank(F('fts_index'), search_query)
-        ).filter(fts_index=search_query).order_by('-fts_rank')
+        ).filter(
+            Q(fts_index=search_query) | Q(fts_index__contains=plain_search_terms)
+        ).order_by('-fts_rank')
 
         return queryset
 

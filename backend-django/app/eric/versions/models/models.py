@@ -6,7 +6,6 @@ import uuid
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_changeset.models import CreatedModifiedByMixIn
@@ -40,7 +39,7 @@ class Version(BaseModel, CreatedModifiedByMixIn):
 
     # Stores some metadata specific to this version of the linked entity
     # (e.g. creation date and author of one task version)
-    metadata = JSONField(
+    metadata = models.JSONField(
         verbose_name=_("Meta data for this version of the related entity"),
         null=False,
         blank=True

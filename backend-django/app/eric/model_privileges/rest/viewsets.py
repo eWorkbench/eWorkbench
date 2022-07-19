@@ -204,7 +204,7 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         # make sure user_pk is an integer
         try:
             user_pk = int(self.kwargs['user_id'])
-        except:
+        except Exception:
             raise NotFound
 
         # parse arguments and return entity and primary key

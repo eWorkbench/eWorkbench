@@ -12,6 +12,7 @@
       <div class="name-plate mb-4 mt-1">
         <div class="semi-bold">
           {{ user.userprofile.academic_title }} {{ user.userprofile.first_name }} {{ user.userprofile.last_name }}
+          <span *ngIf="!user?.is_active" class="inactive-indicator">- {{ t('user.details.inactive') }}</span>
         </div>
         <div *ngIf="user.userprofile.country" class="ml-3">{{ user.userprofile.country }}</div>
       </div>

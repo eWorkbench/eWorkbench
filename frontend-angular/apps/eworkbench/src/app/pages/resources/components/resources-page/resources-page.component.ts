@@ -51,6 +51,9 @@ export class ResourcesPageComponent implements OnInit {
   @ViewChild('typeCellTemplate', { static: true })
   public typeCellTemplate!: TemplateRef<any>;
 
+  @ViewChild('locationCellTemplate', { static: true })
+  public locationCellTemplate!: TemplateRef<any>;
+
   @ViewChild('descriptionCellTemplate', { static: true })
   public descriptionCellTemplate!: TemplateRef<any>;
 
@@ -183,9 +186,11 @@ export class ResourcesPageComponent implements OnInit {
             width: '20%',
           },
           {
+            cellTemplate: this.locationCellTemplate,
             name: column.location,
             key: 'location',
             sortable: true,
+            width: '15%',
           },
           {
             cellTemplate: this.createdByCellTemplate,

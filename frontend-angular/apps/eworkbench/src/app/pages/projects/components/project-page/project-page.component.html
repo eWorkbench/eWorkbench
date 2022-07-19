@@ -256,7 +256,11 @@
             </eworkbench-project-element>
             <eworkbench-project-element elementName="links" [labelText]="t('project.details.element.links')">
               <ng-container slot="actions">
-                <eworkbench-link [baseModel]="initialState" [service]="projectsService"></eworkbench-link>
+                <eworkbench-link
+                  [baseModel]="initialState"
+                  [service]="projectsService"
+                  (refreshLinkList)="onRefreshLinkList()"
+                ></eworkbench-link>
               </ng-container>
               <ng-container slot="body">
                 <alert type="note" [dismissible]="true">{{ t('project.details.privilege.warning') }}</alert>
@@ -264,6 +268,7 @@
                   *ngIf="initialState"
                   [id]="initialState.pk"
                   [service]="projectsService"
+                  [refresh]="refreshLinkList"
                   class="mt-3"
                 ></eworkbench-link-list>
               </ng-container>

@@ -68,102 +68,52 @@ class ExtendedDSSDriveFileQuerySet:
 
 class DSSContainerQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def viewable(self, *args, **kwargs):
-        user = get_current_user()
-        if user.is_anonymous:
-            return self.none()
-        elif user.is_superuser:
-            return self.all()
-
-        return self.filter(
-            created_by=user,
-        )
+        return self.for_current_user()
 
     def editable(self, *args, **kwargs):
+        return self.for_current_user()
+
+    def trashable(self, *args, **kwargs):
+        return self.for_current_user()
+
+    def restorable(self, *args, **kwargs):
+        return self.for_current_user()
+
+    def deletable(self, *args, **kwargs):
+        return self.for_current_user()
+
+    def for_current_user(self):
         user = get_current_user()
         if user.is_anonymous:
             return self.none()
         elif user.is_superuser:
             return self.all()
-
-        return self.filter(
-            created_by=user,
-        )
-
-    def trashable(self, *args, **kwargs):
-        user = get_current_user()
-        if user.is_superuser:
-            return self.all()
-        else:
-            return self.none()
-
-    def restorable(self, *args, **kwargs):
-        user = get_current_user()
-        if user.is_superuser:
-            return self.all()
-        else:
-            return self.none()
-
-    def deletable(self, *args, **kwargs):
-        user = get_current_user()
-        if user.is_superuser:
-            return self.all()
-        else:
-            return self.none()
+        return self.filter(created_by=user)
 
 
 class DSSEnvelopeQuerySet(BaseQuerySet):
     def viewable(self, *args, **kwargs):
-        user = get_current_user()
-        if user.is_anonymous:
-            return self.none()
-
-        return self.filter(
-            created_by=user,
-        )
+        return self.for_current_user()
 
     def editable(self, *args, **kwargs):
-        user = get_current_user()
-        if user.is_anonymous:
-            return self.none()
-        elif user.is_superuser:
-            return self.all()
-
-        return self.filter(
-            created_by=user,
-        )
+        return self.for_current_user()
 
     def trashable(self, *args, **kwargs):
-        user = get_current_user()
-        if user.is_anonymous:
-            return self.none()
-        elif user.is_superuser:
-            return self.all()
-
-        return self.filter(
-            created_by=user,
-        )
+        return self.for_current_user()
 
     def restorable(self, *args, **kwargs):
-        user = get_current_user()
-        if user.is_anonymous:
-            return self.none()
-        elif user.is_superuser:
-            return self.all()
-
-        return self.filter(
-            created_by=user,
-        )
+        return self.for_current_user()
 
     def deletable(self, *args, **kwargs):
+        return self.for_current_user()
+
+    def for_current_user(self):
         user = get_current_user()
         if user.is_anonymous:
             return self.none()
         elif user.is_superuser:
             return self.all()
-
-        return self.filter(
-            created_by=user,
-        )
+        return self.filter(created_by=user)
 
     def prefetch_common(self, *args, **kwargs):
         """

@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for shared elements """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 from rest_framework_nested import routers
 
 from eric.core.rest.routers import get_api_router
@@ -138,23 +139,23 @@ router.register(r'element_labels', ElementLabelViewSet, basename='element_labels
 
 urlpatterns = [
     # REST Endpoints for contacts (history, relations)
-    url(r'^', include(contacts_router.urls)),
+    re_path(r'^', include(contacts_router.urls)),
 
     # REST Endpoints for tasks (history, relations)
-    url(r'^', include(tasks_router.urls)),
+    re_path(r'^', include(tasks_router.urls)),
 
     # REST Endpoints for files (history, relations)
-    url(r'^', include(files_router.urls)),
+    re_path(r'^', include(files_router.urls)),
 
     # REST Endpoints for notes (history, relations)
-    url(r'^', include(notes_router.urls)),
+    re_path(r'^', include(notes_router.urls)),
 
     # REST Endpoints for comments (history, relations)
-    url(r'^', include(comments_router.urls)),
+    re_path(r'^', include(comments_router.urls)),
 
     # REST Endpoints for meetings  (history, relations)
-    url(r'^', include(meetings_router.urls)),
+    re_path(r'^', include(meetings_router.urls)),
 
     # REST Endpoints for calendar_access_privileges  (privileges)
-    url(r'^', include(calendar_access_privileges_router.urls)),
+    re_path(r'^', include(calendar_access_privileges_router.urls)),
 ]

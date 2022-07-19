@@ -585,6 +585,7 @@ export class CalendarPageComponent implements OnInit {
   public onOpenPrivilegesModal(): void {
     this.modalRef = this.modalService.open(PrivilegesModalComponent, {
       closeButton: false,
+      width: '800px',
       data: {
         service: this.calendarAccessPrivilegesService,
         id: this.calendarAccessPrivileges.pk,

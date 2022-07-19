@@ -4,7 +4,7 @@
 #
 import django_filters
 
-from eric.core.rest.filters import BaseFilter, WorkbenchElementFilter
+from eric.core.rest.filters import BaseFilter, WorkbenchElementFilter, RecursiveProjectsListFilter
 from eric.drives.models import Drive
 from eric.dss.models import DSSContainer
 
@@ -14,8 +14,8 @@ class DriveFilter(WorkbenchElementFilter):
         model = Drive
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS
         }
 
     container = django_filters.ModelChoiceFilter(field_name='envelope__container', queryset=DSSContainer.objects.all())
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')

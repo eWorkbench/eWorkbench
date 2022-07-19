@@ -2,6 +2,7 @@
 # Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 
@@ -17,7 +18,7 @@ For information, please consult the django channels documentation:
 """
 
 application = ProtocolTypeRouter({
-    # (http->django views is added by default)
+    'http': get_asgi_application(),
     # make sure only the hosts listed in ALLOWED_HOSTS are able to connect to the websockets
     'websocket': AllowedHostsOriginValidator(
         URLRouter(

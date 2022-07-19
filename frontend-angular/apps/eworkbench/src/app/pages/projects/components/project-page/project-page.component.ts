@@ -80,6 +80,8 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
 
   public refreshMetadata = new EventEmitter<boolean>();
 
+  public refreshLinkList = new EventEmitter<boolean>();
+
   public assignees: User[] = [];
 
   public assigneesInput$ = new Subject<string>();
@@ -352,6 +354,7 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
           this.refreshVersions.next(true);
           this.refreshChanges.next(true);
           this.refreshMetadata.next(true);
+          this.refreshLinkList.next(true);
         })
       )
       .subscribe(
@@ -490,6 +493,11 @@ export class ProjectPageComponent implements OnInit, OnDestroy {
     this.refreshVersions.next(true);
     this.refreshChanges.next(true);
     this.refreshMetadata.next(true);
+    this.refreshLinkList.next(true);
+  }
+
+  public onRefreshLinkList(): void {
+    this.refreshLinkList.next(true);
   }
 
   public onUpdateMetadata(metadata: Metadata[]): void {

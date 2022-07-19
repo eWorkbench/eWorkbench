@@ -155,7 +155,7 @@ class DisplayExportTest(APITestCase, CommonTestMixin, StudyRoomExportMixin, Meet
             rows
         )
 
-    @time_machine.travel('2020-12-03 10:00', tz_offset=timedelta(hours=1))
+    @time_machine.travel('2020-12-03 11:00')
     def test_exported_data_for_bookings_from_today(self):
         """
         Tests a successful export.
@@ -201,7 +201,7 @@ class DisplayExportTest(APITestCase, CommonTestMixin, StudyRoomExportMixin, Meet
             rows
         )
 
-    @time_machine.travel('2020-12-14 12:00', tz_offset=timedelta(hours=1))
+    @time_machine.travel('2020-12-14 13:00')
     def test_organiser_name(self):
         """ Tests the salutation and name of booking organisers. """
 

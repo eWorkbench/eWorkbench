@@ -4,7 +4,5 @@
 #
 from django.db.models import options
 
-default_app_config = 'eric.projects.apps.ProjectsConfig'
-
 # used to specify which model can have a generic relation
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('can_have_special_permissions',)

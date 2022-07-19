@@ -264,7 +264,7 @@ class TestGenericsFiles(APITestCase, EntityChangeRelatedProjectTestMixin, FileMi
         response = self.rest_download_file(self.token1, file.file_entries.all()[0].pk,
                                            HTTP_USER_AGENT, REMOTE_ADDR)
         # check headers
-        self.assertTrue("filename*=UTF-8" in response._headers['content-disposition'][1])
+        self.assertTrue("filename*=UTF-8" in response.headers['content-disposition'])
 
     def test_on_delete_file_also_delete_the_physical_files(self):
         """

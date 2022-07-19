@@ -6,5 +6,3 @@
 # Origin: django-db-logger Package
 # https://github.com/anx-bhagmann/django-db-logger
 # License: WTFPL
-
-default_app_config = 'eric.db_logging.apps.DBLoggingAppConfig'

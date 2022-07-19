@@ -72,4 +72,16 @@ $chip-size: 25px;
       margin-top: 2px;
     }
   }
+
+  .inactive-indicator {
+    color: #4d4d4d;
+    opacity: 0.5;
+    margin-left: 4px;
+  }
+
+  .inverted {
+    .inactive-indicator {
+      color: #fff;
+    }
+  }
 }

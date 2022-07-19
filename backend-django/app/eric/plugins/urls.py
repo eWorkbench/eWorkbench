@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for plugins """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 
 from rest_framework_nested import routers
 
@@ -33,6 +34,6 @@ plugin_instance_router.register(r'privileges', ModelPrivilegeViewSet, basename='
 
 urlpatterns = [
     # REST Endpoints for plugins (history, relations)
-    url(r'^', include(plugin_router.urls)),
-    url(r'^', include(plugin_instance_router.urls))
+    re_path(r'^', include(plugin_router.urls)),
+    re_path(r'^', include(plugin_instance_router.urls))
 ]

@@ -11,7 +11,7 @@ from django.db import transaction
 from django.db.models.signals import post_delete, pre_save, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_rest_multitokenauth.signals import post_auth
 from django_userforeignkey.request import get_current_request
 from django.core.exceptions import ValidationError
@@ -207,7 +207,7 @@ def add_project_for_webdav_uploads(sender, instance, *args, **kwargs):
                 and not instance.name.startswith(OFFICE_TEMP_FILE_PREFIX):
             for project in instance.directory.drive.projects.all():
                 instance.projects.add(project.pk)
-    except:
+    except Exception:
         pass
 
 

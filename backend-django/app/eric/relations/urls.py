@@ -5,7 +5,8 @@
 """
 URL Configuration for eric relations
 """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 
 from eric.core.rest.routers import CustomSimpleRouter
 
@@ -13,5 +14,5 @@ from eric.core.rest.routers import CustomSimpleRouter
 router = CustomSimpleRouter()
 
 urlpatterns = [
-    url(r'^', include(router.urls)),  # browsable REST API
+    re_path(r'^', include(router.urls)),  # browsable REST API
 ]

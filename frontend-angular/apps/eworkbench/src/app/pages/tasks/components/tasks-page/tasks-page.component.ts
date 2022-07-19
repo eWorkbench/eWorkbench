@@ -329,13 +329,13 @@ export class TasksPageComponent implements OnInit {
           }
 
           if (filters.priority?.length) {
-            if (filters.priority.includes('1')) {
+            if (filters.priority.includes('5')) {
               this.veryHighCheckbox.setValue(true);
             } else {
               this.veryHighCheckbox.setValue(false);
             }
 
-            if (filters.priority.includes('2')) {
+            if (filters.priority.includes('4')) {
               this.highCheckbox.setValue(true);
             } else {
               this.highCheckbox.setValue(false);
@@ -347,13 +347,13 @@ export class TasksPageComponent implements OnInit {
               this.normalCheckbox.setValue(false);
             }
 
-            if (filters.priority.includes('4')) {
+            if (filters.priority.includes('2')) {
               this.lowCheckbox.setValue(true);
             } else {
               this.lowCheckbox.setValue(false);
             }
 
-            if (filters.priority.includes('5')) {
+            if (filters.priority.includes('1')) {
               this.veryLowCheckbox.setValue(true);
             } else {
               this.veryLowCheckbox.setValue(false);

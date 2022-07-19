@@ -7,7 +7,6 @@ from typing import Iterable
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_changeset.models import CreatedModifiedByMixIn
@@ -79,7 +78,7 @@ class MetadataField(BaseModel, CreatedModifiedByMixIn):
         null=False,
     )
 
-    type_settings = JSONField(
+    type_settings = models.JSONField(
         verbose_name=_("Values for base type settings"),
         default=dict,
         null=False,
@@ -163,7 +162,7 @@ class Metadata(BaseModel, CreatedModifiedByMixIn, OrderingModelMixin):
         null=False,
     )
 
-    values = JSONField(
+    values = models.JSONField(
         verbose_name=_("Field values"),
         null=False,
     )

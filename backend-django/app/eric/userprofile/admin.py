@@ -5,7 +5,6 @@
 import logging
 import time
 
-from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -15,7 +14,7 @@ from django.db.models import Prefetch, Q
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template.loader import get_template
 from django.template.response import TemplateResponse
-from django.urls import reverse
+from django.urls import reverse, re_path
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -63,12 +62,12 @@ class UserAdmin(BaseUserAdmin):
         """ Adds a custom URL for action-buttons """
         urls = super().get_urls()
         custom_urls = [
-            url(
+            re_path(
                 r'^export-user-data/(?P<user_pk>[0-9]+)$',
                 self.admin_site.admin_view(self.export_personal_data),
                 name='export-user-data',
             ),
-            url(
+            re_path(
                 r'^anonymize/(?P<user_pk>[0-9]+)$',
                 self.admin_site.admin_view(self.anonymize_user),
                 name='anonymize-user',

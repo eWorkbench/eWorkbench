@@ -5,7 +5,8 @@
 import django_filters
 from django.db.models.constants import LOOKUP_SEP
 
-from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, WorkbenchElementFilter, BetterBooleanFilter
+from eric.core.rest.filters import BaseFilter, BooleanDefaultFilter, WorkbenchElementFilter, BetterBooleanFilter, \
+    RecursiveProjectsListFilter
 from eric.core.rest.filters import ListFilter
 from eric.drives.models import Drive
 from eric.shared_elements.models import Contact, Task, Meeting, Note, File, ElementLabel, CalendarAccess, Comment
@@ -17,7 +18,6 @@ class FileFilter(WorkbenchElementFilter):
         model = File  # File -> Directory -> Drive
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
@@ -25,6 +25,7 @@ class FileFilter(WorkbenchElementFilter):
 
     container = django_filters.ModelChoiceFilter(field_name='directory__drive__envelope__container',
                                                  queryset=DSSContainer.objects.all())
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
 
 class TaskFilter(WorkbenchElementFilter):
@@ -33,7 +34,6 @@ class TaskFilter(WorkbenchElementFilter):
         fields = {
             'id': BaseFilter.FOREIGNKEY_COMPERATORS,
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'assigned_users': BaseFilter.FOREIGNKEY_COMPERATORS,
             'state': BaseFilter.CHOICE_COMPERATORS,
             'priority': BaseFilter.CHOICE_COMPERATORS,
@@ -45,8 +45,8 @@ class TaskFilter(WorkbenchElementFilter):
     id = ListFilter(field_name='id', exclude=True)
     state = ListFilter(field_name='state')
     priority = ListFilter(field_name='priority')
-
     full_day = BetterBooleanFilter()
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     @classmethod
     def get_filter_name(cls, field_name, lookup_expr):
@@ -75,9 +75,10 @@ class ContactFilter(WorkbenchElementFilter):
         model = Contact
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS
         }
+
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
 
 class MeetingFilter(WorkbenchElementFilter):
@@ -85,7 +86,6 @@ class MeetingFilter(WorkbenchElementFilter):
         model = Meeting
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'resource': BaseFilter.FOREIGNKEY_COMPERATORS,
             'attending_users': BaseFilter.FOREIGNKEY_COMPERATORS,
             'date_time_end': BaseFilter.DATE_COMPERATORS,
@@ -93,6 +93,7 @@ class MeetingFilter(WorkbenchElementFilter):
         }
 
         full_day = BetterBooleanFilter()
+        projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
     @classmethod
     def get_filter_name(cls, field_name, lookup_expr):
@@ -144,9 +145,10 @@ class NoteFilter(WorkbenchElementFilter):
         model = Note
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
+
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
 
 class CommentFilter(WorkbenchElementFilter):
@@ -154,9 +156,10 @@ class CommentFilter(WorkbenchElementFilter):
         model = Comment
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
+
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
 
 class ElementLabelFilter(BaseFilter):

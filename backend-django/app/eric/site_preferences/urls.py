@@ -3,11 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for site preferences """
-from django.conf.urls import url, include
+from django.urls import re_path
 
-# site preferences
 from eric.site_preferences.viewsets import ListSitePreferences
 
 urlpatterns = [
-    url(r'site_preferences', ListSitePreferences.as_view())
+    re_path(r'site_preferences', ListSitePreferences.as_view())
 ]

@@ -61,6 +61,7 @@ DEFAULT_QUOTA_PER_USER_MEGABYTE = 100
 
 INSTALLED_APPS = [
     # Django
+    'django_light',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -166,6 +167,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'eric.core.middlewares.HTTPXForwardedForMiddleware',
 ]
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # do not trust any proxies here
 HTTP_X_FORWARDED_FOR_TRUSTED_PROXIES = []

@@ -112,7 +112,7 @@ class Directory(BaseModel, ChangeSetMixIn, RevisionModelMixin, ImportedDSSMixin)
         try:
             # try to access the parent directory
             return self.directory.full_directory_path + "/" + self.name
-        except:
+        except Exception:
             return self.name
 
     def get_direct_sub_directory_pks(self, all_directories):

@@ -22,6 +22,9 @@ class CaldavItemQuerySet(BaseProjectEntityPermissionQuerySet):
         from eric.shared_elements.models import Meeting
         user = get_current_user()
 
+        if user.is_anonymous:
+            return self.none()
+
         return self.filter(
             Q(
                 # all CaldavItems where the current user is attending

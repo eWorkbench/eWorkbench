@@ -69,7 +69,7 @@ pip install pycodestyle
 * Verify:
 ```bash
 cd app/
-find . -name "*.py" ! -path "*migrations*" ! -path "*tests*" -exec pycodestyle --max-line-length=120 --ignore=E402 {} +
+find . -name "*.py" ! -path "*migrations*" ! -path "*tests*" -exec pycodestyle --max-line-length=120 --ignore=E402,W503 {} +
 ```
 
 # Project related external resources

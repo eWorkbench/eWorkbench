@@ -33,11 +33,11 @@ class Command(BaseCommand):
                 has_privileges = obj.model_privileges.exists()
 
                 print(
-                    model_name + '\t' +
-                    str(obj.pk) + '\t' +
-                    obj.created_by.username + '\t' +
-                    created_at + '\t' +
-                    obj.last_modified_by.username + '\t' +
-                    last_modified_at + '\t' +
-                    str(has_privileges)
+                    model_name + '\t'
+                    + str(obj.pk) + '\t'
+                    + obj.created_by.username + '\t'
+                    + created_at + '\t'
+                    + obj.last_modified_by.username + '\t'
+                    + last_modified_at + '\t'
+                    + str(has_privileges)
                 )

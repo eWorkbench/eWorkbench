@@ -6,7 +6,7 @@ import re
 
 from django.db.models.signals import post_save, pre_save, pre_delete
 from django.dispatch import receiver
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from rest_framework.exceptions import PermissionDenied
 
 from eric.core.models import disable_permission_checks
@@ -186,7 +186,7 @@ def handle_duplicate_filenames_in_directory(instance, *args, **kwargs):
                 })
     except ValidationError:
         raise
-    except:
+    except Exception:
         # no parent directory set, ignore it
         pass
 

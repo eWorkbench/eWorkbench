@@ -18,7 +18,7 @@ class RedirectView(View):
     def get(self, request, *args, **kwargs):
         try:
             short_url = ShortURL.objects.get(pk=kwargs['pk'])
-        except:
+        except Exception:
             raise Http404('not found')
 
         # the following line is equivalent to short_url.access_count += 1 , but this way it is not a race condition

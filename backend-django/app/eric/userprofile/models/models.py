@@ -5,7 +5,7 @@
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -166,7 +166,7 @@ class UserProfile(BaseModel):
         default=''
     )
 
-    ui_settings = JSONField(
+    ui_settings = models.JSONField(
         verbose_name=_("Persistent UI settings that have no effect on the backend"),
         null=True,
         blank=True,

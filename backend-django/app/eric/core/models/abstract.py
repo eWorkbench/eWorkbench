@@ -145,9 +145,10 @@ class IsFavouriteMixin(models.Model):
     def is_favourite(self):
         from django_userforeignkey.request import get_current_user
         user = get_current_user()
-        # check if this is an anonymous user --> no favourites
+
         if user.is_anonymous:
             return False
+
         from eric.favourites.models import Favourite
         return Favourite.objects.filter(
             user=user,

@@ -192,7 +192,7 @@ class KeyDecimalTransform(KeyTextTransform):
         See https://ishan1608.wordpress.com/2018/01/05/querying-jsonfield-in-django/
         """
 
-    def as_sql(self, compiler, connection):
+    def as_sql(self, compiler, connection, function=None, template=None, arg_joiner=None, **extra_context):
         key_transforms = [self.key_name]
         previous = self.lhs
         while isinstance(previous, KeyTransform):

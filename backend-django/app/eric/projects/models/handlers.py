@@ -33,9 +33,7 @@ from eric.site_preferences.models import options as site_preferences
 
 logger = logging.getLogger('eric.projects.models.handlers')
 
-check_create_roles_for_other_workbench_elements = django.dispatch.Signal(
-    providing_args=["user", "instance"]
-)
+check_create_roles_for_other_workbench_elements = django.dispatch.Signal()
 
 
 @receiver(pre_save, sender=ProjectRoleUserAssignment)

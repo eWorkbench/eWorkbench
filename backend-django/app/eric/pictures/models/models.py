@@ -47,7 +47,7 @@ def validate_file_is_json(value):
     try:
         value.file.seek(0)
         data = json.loads(value.file.read().decode("utf-8"))
-    except:
+    except Exception:
         raise ValidationError(_("File must contain valid JSON"))
 
 

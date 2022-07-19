@@ -7,7 +7,7 @@ import logging
 from PIL import Image
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
@@ -23,7 +23,7 @@ class ConvertTiffToPngView(APIView):
     def get(self, request, *args, **kwargs):
         """ Provides a simple HTML form for the conversion. """
 
-        return render_to_response("tiff_to_png.html", {})
+        return render(None, "tiff_to_png.html", {})
 
     def post(self, request, *args, **kwargs):
         """ Takes a multipart TIF file and responds with the converted PNG. """

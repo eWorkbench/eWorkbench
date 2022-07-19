@@ -8,7 +8,7 @@ import os
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save, post_delete, post_save, pre_delete
 from django.dispatch import receiver
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from eric.drives.models import Drive, Directory
 from eric.dss.models.models import get_upload_to_path, dss_storage, DSSContainer, DSSEnvelope

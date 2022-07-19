@@ -2166,9 +2166,9 @@ class ElementLabel(BaseModel, RevisionModelMixin, ChangeSetMixIn):
                     blue = result.group(3)
                 # calculate the brightness using the following algorithm (https://stackoverflow.com/a/596243)
                 brightness = math.sqrt(
-                    0.299 * math.pow(int(red), 2) +
-                    0.587 * math.pow(int(green), 2) +
-                    0.114 * math.pow(int(blue), 2)
+                    0.299 * math.pow(int(red), 2)
+                    + 0.587 * math.pow(int(green), 2)
+                    + 0.114 * math.pow(int(blue), 2)
                 )
                 # return white if the brightness is below 128
                 if brightness < 128:

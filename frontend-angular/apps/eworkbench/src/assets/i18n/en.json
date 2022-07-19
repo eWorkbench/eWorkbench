@@ -703,6 +703,7 @@
   "user.listModal.header": "Assignees",
   "user.listModal.close": "Close",
   "user.details.unknownUser": "Unknown user",
+  "user.details.inactive": "inactive",
   "usersGrouping.and": "and",
   "usersGrouping.usersMore": "{{ count }} more",
   "versions.finalizeModal.header": "Finalize version",

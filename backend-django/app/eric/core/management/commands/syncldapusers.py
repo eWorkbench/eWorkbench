@@ -87,7 +87,7 @@ class Command(BaseCommand):
                 print('ERROR: LDAPBackend().populate_user() did not find user with username=', username)
                 print(repr(dn))
                 print(attrs)
-        except:
+        except Exception:
             print("Error trying to sync user with username=", username)
             print(repr(dn))
             print(attrs)

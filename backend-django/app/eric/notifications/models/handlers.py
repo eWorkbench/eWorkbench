@@ -14,7 +14,7 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.timezone import timedelta
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django_userforeignkey.request import get_current_user
 
 from eric.notifications.models import Notification

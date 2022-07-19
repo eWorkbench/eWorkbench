@@ -42,8 +42,8 @@ class NotificationQuerySet(BaseQuerySet):
         :return:
         """
         return self.filter(
-            Q(user=get_current_user()) |
-            Q(created_by=get_current_user())
+            Q(user=get_current_user())
+            | Q(created_by=get_current_user())
         )
 
     def deletable(self, *args, **kwargs):

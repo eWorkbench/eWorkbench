@@ -7,16 +7,15 @@ from django.utils.translation import gettext_lazy as _
 from django_changeset.models import ChangeSet
 from django_userforeignkey.request import get_current_user
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 
 from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet, BaseAuthenticatedReadOnlyModelViewSet, \
-    DeletableViewSetMixIn, BaseGenericViewSet
+    DeletableViewSetMixIn
 from eric.projects.models import Project
 from eric.projects.rest.filters import ProjectFilter
 from eric.projects.rest.serializers import PublicUserSerializer, ProjectBreadcrumbSerializer, \
-    ProjectSerializerExtended, ProjectTreeSerializer
-from eric.projects.rest.viewsets import ChangeSetViewSet, get_object_or_404
+    ProjectSerializerExtended
+from eric.projects.rest.viewsets import ChangeSetViewSet
 from eric.shared_elements.models import CalendarAccess
 
 
@@ -153,28 +152,3 @@ class ProjectChangeSetViewSet(ChangeSetViewSet):
         ).prefetch_related(
             'change_records'
         )
-
-
-class ProjectTreeViewSet(RetrieveModelMixin, ListModelMixin, BaseGenericViewSet):
-    """
-    ViewSet for querying project-trees.
-    List-view returns the root-project (project without a parent) and all descendants.
-    Detail-view returns the requested project and all its descendants.
-    """
-
-    serializer_class = ProjectTreeSerializer
-    filterset_class = ProjectFilter
-    search_fields = ()
-
-    # disable pagination for this endpoint
-    pagination_class = None
-
-    def get_queryset(self):
-        # get all viewable root projects and non-root projects where the parent is not viewable
-        return Project.objects.viewable_with_orphans().prefetch_common()
-
-    def retrieve(self, request, pk=None):
-        queryset = Project.objects.viewable().prefetch_common()
-        projecttree = get_object_or_404(queryset, pk=pk)
-        serializer = ProjectTreeSerializer(projecttree)
-        return Response(serializer.data)

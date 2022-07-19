@@ -5,7 +5,8 @@
 from django.contrib.auth import get_user_model
 from django_filters import BooleanFilter, ChoiceFilter
 
-from eric.core.rest.filters import BaseFilter, WorkbenchElementFilter, RecentlyModifiedByMeFilter, BooleanDefaultFilter
+from eric.core.rest.filters import BaseFilter, WorkbenchElementFilter, RecentlyModifiedByMeFilter, \
+    BooleanDefaultFilter, RecursiveProjectsListFilter
 from eric.core.rest.filters import ListFilter
 from eric.favourites.rest.filters import FavouriteFilter
 from eric.projects.models import Project, ProjectRoleUserAssignment, Resource, Role
@@ -89,7 +90,6 @@ class ResourceFilter(WorkbenchElementFilter):
         fields = {
             'type': BaseFilter.CHOICE_COMPERATORS,
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
@@ -99,15 +99,10 @@ class ResourceFilter(WorkbenchElementFilter):
         choices=StudyRoom.BRANCH_LIBRARY_CHOICES
     )
     bookable_by_students = BooleanFilter(field_name='study_room_info__is_bookable_by_students')
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
 
 
 class RoleFilter(BaseFilter):
     """ Filter for Role, which allows filtering by permission code name """
-
-    class Meta:
-        model = Role
-        fields = {
-            'permission': BaseFilter.CHOICE_COMPERATORS,
-        }
 
     permission = ListFilter(field_name='permissions__codename')

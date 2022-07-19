@@ -7,7 +7,6 @@ import os
 import uuid
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import models
@@ -88,7 +87,7 @@ class DSSEnvelope(BaseModel, ChangeSetMixIn, RevisionModelMixin, ImportedDSSMixi
         verbose_name=_("Path of the DSS envelope")
     )
 
-    metadata_file_content = JSONField(
+    metadata_file_content = models.JSONField(
         verbose_name=_("The JSON content of the metadata file within this envelope"),
         null=False,
         blank=True

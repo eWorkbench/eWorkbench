@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for shared elements """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework_nested import routers
@@ -34,6 +35,6 @@ pictures_router.register(r'privileges', ModelPrivilegeViewSet, basename='picture
 
 urlpatterns = [
     # REST Endpoints for contacts (history, relations)
-    url(r'^', include(pictures_router.urls)),
-    url(r'convert_tiff_to_png/', csrf_exempt(ConvertTiffToPngView.as_view()), name='convert_tiff_to_png')
+    re_path(r'^', include(pictures_router.urls)),
+    re_path(r'convert_tiff_to_png/', csrf_exempt(ConvertTiffToPngView.as_view()), name='convert_tiff_to_png')
 ]

@@ -5,7 +5,8 @@
 """
 URL Configuration for eric dmp
 """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 from rest_framework_nested import routers
 
 from eric.core.rest.routers import get_api_router
@@ -42,5 +43,5 @@ dmp_router.register(r'data', DmpFormDataViewSet, basename='dmpformdata')
 
 urlpatterns = [
     # REST Endpoints for dmps (history, relations)
-    url(r'^', include(dmp_router.urls)),
+    re_path(r'^', include(dmp_router.urls)),
 ]

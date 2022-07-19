@@ -77,7 +77,7 @@ class CalendarExportTest(APITestCase, CommonTestMixin, StudyRoomExportMixin, Mee
         self.assert_response_status(response, status.HTTP_200_OK)
         self.assertEquals(HEADERS_STR, response.content.decode().strip())
 
-    @time_machine.travel('2020-10-30 10:00:00', tz_offset=timedelta(hours=1), tick=False)
+    @time_machine.travel('2020-10-30 11:00:00', tick=False)
     def test_csv_export_data(self):
         """
         Tests the exported CSV data.

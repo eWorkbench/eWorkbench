@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for projects """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 from rest_framework_nested import routers
 
 from eric.core.rest.routers import get_api_router
@@ -11,8 +12,7 @@ from eric.model_privileges.rest.viewsets import ModelPrivilegeViewSet
 from eric.projects.rest.viewsets import GenericChangeSetViewSet
 from eric.projects.rest.viewsets import PublicUserViewSet, ProjectViewSet, ProjectUsersViewSet, MyUserViewSet, \
     ProjectChangeSetViewSet, ProjectBreadcrumbViewSet, ResourceViewSet, \
-    ProjectRoleUserAssignmentViewSet, ProjectRoleUserAssignmentChangeSetViewSet, RoleViewSet, ChangeSetViewSet, \
-    ProjectTreeViewSet
+    ProjectRoleUserAssignmentViewSet, ProjectRoleUserAssignmentChangeSetViewSet, RoleViewSet, ChangeSetViewSet
 from eric.relations.rest.viewsets import RelationViewSet
 from eric.search.rest.viewsets import SearchViewSet
 
@@ -59,13 +59,10 @@ projects_router.register(r'users', ProjectUsersViewSet, basename='project_users'
 # add changeset for projects
 projects_router.register(r'history', ProjectChangeSetViewSet, 'projects_changeset')
 
-# projects tree
-router.register(r'projecttree', ProjectTreeViewSet, basename='projecttree')
-
 urlpatterns = [
     # include projects_router and all sub routes
-    url(r'^', include(projects_router.urls)),
+    re_path(r'^', include(projects_router.urls)),
 
     # REST Endpoints for resources (history, relations)
-    url(r'^', include(resources_router.urls)),
+    re_path(r'^', include(resources_router.urls)),
 ]

@@ -53,8 +53,8 @@ class RelationQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
             Q(
                 left_content_type=model_class.get_content_type(),
                 left_object_id=model_pk
-            ) |
-            Q(
+            )
+            | Q(
                 right_content_type=model_class.get_content_type(),
                 right_object_id=model_pk
             )

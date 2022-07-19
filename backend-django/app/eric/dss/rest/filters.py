@@ -13,7 +13,6 @@ class DSSContainerFilter(BaseFilter):
         model = DSSContainer
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS
         }
 

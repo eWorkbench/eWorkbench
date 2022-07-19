@@ -82,7 +82,7 @@ def get_current_version_from_git():
         else:
             # tagged
             version = git_description
-    except:
+    except Exception:
         # could not determine repository version
         version = "Unknown version"
 
@@ -99,7 +99,7 @@ def get_current_version_from_version_file():
     try:
         with open("version.txt") as infile:
             version = infile.read().strip()
-    except:
+    except Exception:
         # could not determine repository version
         version = "Unknown version"
 

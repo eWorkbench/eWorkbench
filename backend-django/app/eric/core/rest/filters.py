@@ -142,7 +142,7 @@ class RecentlyModifiedByMeFilter(Filter):
         # convert string to int and when the string is no valid integer than throw an exception
         try:
             value = int(value)
-        except:
+        except Exception:
             raise ValidationError({
                 'recently_modified_by_me': ValidationError(
                     _("The parameter is not an integer"),

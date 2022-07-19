@@ -4,4 +4,3 @@
 #
 PLACEHOLDER_CACHE_KEY = 'user_manual_placeholders'
 HELP_TEXT_CACHE_KEY = 'user_manual_help_text_cache_%s'
-default_app_config = 'eric.user_manual.apps.UserManualConfig'

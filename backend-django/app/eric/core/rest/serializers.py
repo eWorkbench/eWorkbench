@@ -129,10 +129,10 @@ class BaseModelSerializer(serializers.ModelSerializer):
         `Meta.fields` option is not specified.
         """
         return (
-            ['pk', 'display', 'content_type', 'content_type_model'] +
-            list(declared_fields.keys()) +
-            list(model_info.fields.keys()) +
-            list(model_info.forward_relations.keys())
+            ['pk', 'display', 'content_type', 'content_type_model']
+            + list(declared_fields.keys())
+            + list(model_info.fields.keys())
+            + list(model_info.forward_relations.keys())
         )
 
     def build_relational_field(self, field_name, relation_info):

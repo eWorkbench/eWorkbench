@@ -286,7 +286,8 @@ Backend (REST API)
     ``ModelPrivilegeViewSet`` and add the nested urls to ``urlpatterns``
   .. code-block:: python
 
-      from django.conf.urls import url, include
+      from django.conf.urls import include
+      from django.urls import re_path
       from rest_framework_nested import routers
 
       from eric.core.rest.routers import get_api_router
@@ -308,7 +309,7 @@ Backend (REST API)
       {element}_router.register(r'privileges', ModelPrivilegeViewSet, basename='{element}-privileges')
 
       urlpatterns = [
-          url(r'^', include({element}_router.urls)),
+          re_path(r'^', include({element}_router.urls)),
       ]
 
 

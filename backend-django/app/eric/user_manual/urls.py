@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for shared elements """
-from django.conf.urls import url, include
+from django.conf.urls import include
+from django.urls import re_path
 
 from rest_framework_nested import routers
 
@@ -21,5 +22,5 @@ user_manual_router.register(r'help_texts', UserManualHelpTextViewset, basename='
 
 
 urlpatterns = [
-    url(r'^', include(user_manual_router.urls)),
+    re_path(r'^', include(user_manual_router.urls)),
 ]

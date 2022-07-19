@@ -319,6 +319,11 @@
 <ng-template #typeCellTemplate let-row>
   <eworkbench-resource-type [type]="row.type"></eworkbench-resource-type>
 </ng-template>
+<ng-template #locationCellTemplate let-row>
+  <div ellipsis [tooltip]="row.location" containerClass="tooltip-sm" [delay]="500">
+    {{ row.location }}
+  </div>
+</ng-template>
 <ng-template #descriptionCellTemplate let-row>
   <div ellipsis [tooltip]="row.description | stripHTML" containerClass="tooltip-sm" [delay]="500">
     {{ row.description | stripHTML }}

@@ -27,8 +27,8 @@ class PluginInstanceFilter(WorkbenchElementFilter):
         model = PluginInstance
         fields = {
             'projects': BaseFilter.FOREIGNKEY_COMPERATORS,
-            'projects_recursive': BaseFilter.FOREIGNKEY_COMPERATORS,
             'created_by': BaseFilter.FOREIGNKEY_COMPERATORS,
         }
 
     plugin = django_filters.ModelChoiceFilter(field_name='plugin', queryset=Plugin.objects.all())
+    projects_recursive = RecursiveProjectsListFilter(field_name='projects')

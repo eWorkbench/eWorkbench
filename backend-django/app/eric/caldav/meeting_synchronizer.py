@@ -212,7 +212,7 @@ class MeetingSynchronizer:
                 active_tz = pytz.timezone(
                     first_tz.name.replace("/freeassociation.sourceforge.net/", "")
                 )
-            except:
+            except Exception:
                 print("Unknown timezone {}".format(first_tz.name))
 
         return active_tz or timezone.get_default_timezone()

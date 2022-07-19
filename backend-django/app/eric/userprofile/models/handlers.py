@@ -51,7 +51,7 @@ def create_user_profile_ldap(user, ldap_user, *args, **kwargs):
 def get_or_create_userprofile(user):
     try:
         return user.userprofile
-    except:
+    except Exception:
         # user profile does not exist yet
         return UserProfile(user=user)
 
