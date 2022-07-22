@@ -1,0 +1,8 @@
+[Unit]
+Description=Triggers the django3 gunicorn service
+
+[Path]
+PathModified=/run/gunicorn/gunicorn_restart.txt
+
+[Install]
+WantedBy=multi-user.target

@@ -20,13 +20,15 @@ services:
       touch logs/application.log &&
       sh -c "
              pip install --no-cache-dir -r requirements.txt --upgrade &&
+             pip install --no-cache-dir whitenoise &&
              python manage.py collectstatic --noinput &&
              python manage.py migrate &&
              python manage.py shell -c \"from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@example.com', 'adminpass');\" &&
-             python -Wd manage.py runserver 0.0.0.0:8000"
+             gunicorn --workers 4 --bind 0.0.0.0:8000 eric.asgi:application -k uvicorn.workers.UvicornWorker"
     environment:
       - DJANGO_SETTINGS_MODULE=eric.settings.docker
       - PYTHONUNBUFFERED=1
+      - PACKAGE_VERSION=0.3.1  # Remove this after upgrading to the official release of django-userforeignkey
     ports:
       - "8000:8000"
     expose:
@@ -117,7 +119,7 @@ services:
       - 1025:1025
   redis:
     hostname: redis.workbench.local
-    image: redis:2.8
+    image: redis:5.0
     expose:
       - 6379
     ports:
@@ -126,7 +128,7 @@ services:
   ldap-service:
     hostname: ldap.workbench.local
     command: "--loglevel trace"
-    image: osixia/openldap:1.1.6
+    image: osixia/openldap:1.5.0
     ports:
      - 389:389
      - 636:636

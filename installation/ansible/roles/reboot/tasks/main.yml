@@ -1,5 +1,5 @@
 ---
 - name: Rebooting the machine
   reboot:
-    post_reboot_delay: 300
+    post_reboot_delay: 120
   become: yes

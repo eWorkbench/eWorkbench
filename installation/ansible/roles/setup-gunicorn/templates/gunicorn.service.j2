@@ -1,0 +1,18 @@
+[Unit]
+Requires=gunicorn.socket
+Description=gunicorn daemon ({{ app_name }})
+After=network.target
+
+[Service]
+PIDFile=/run/gunicorn/.%p.pid
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ django_dir }}/app
+Environment="DJANGO_SETTINGS_MODULE={{ app_settings_path }}"
+ExecStart={{ django_dir }}/venv/bin/gunicorn --pid /run/gunicorn/.%p.pid --workers 9 --bind unix:/run/gunicorn/socket eric.asgi:application -k uvicorn.workers.UvicornWorker
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

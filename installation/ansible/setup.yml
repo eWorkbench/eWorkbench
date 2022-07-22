@@ -13,7 +13,7 @@
   roles:
     - setup-install-dependencies
     - setup-app-user
-    - setup-daphne
+    - setup-gunicorn
     - setup-directories
     - setup-nas-mount
     - setup-dbbackup-scripts

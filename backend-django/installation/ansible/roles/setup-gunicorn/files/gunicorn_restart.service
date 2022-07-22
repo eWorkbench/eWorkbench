@@ -1,0 +1,6 @@
+[Unit]
+Description=Restart django3 gunicorn service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl restart gunicorn

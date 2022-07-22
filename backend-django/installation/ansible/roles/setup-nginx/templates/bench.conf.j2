@@ -1,6 +1,6 @@
 # {{ app_name }} server configuration
 
-# mapping for daphne and websockets
+# mapping for gunicorn and websockets
 map $http_upgrade $connection_upgrade {
     default   upgrade;
     ''        close;
@@ -12,7 +12,7 @@ proxy_cache_path /nginx_proxy_cache levels=1:2 keys_zone=auth_cache:10m max_size
 # upstream (django)
 upstream web {
     ip_hash;
-    server unix:/run/daphne/socket fail_timeout=0;
+    server unix:/run/gunicorn/socket fail_timeout=0;
 }
 
 # don't send the nginx version number in error pages and Server header

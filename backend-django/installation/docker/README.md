@@ -40,3 +40,28 @@ This will take some time to start everything and will keep running once everythi
 * Logout of the frontend application with the currently logged in superuser, and login with the credentials provided within the e-mail.
 * *Please Note:* You are still logged in in the admin panel, which also gives you access to the browsable api. This
  means that you will see different results in the browsable api than in the frontend.
+
+### To use an external IP:
+Forward the external port 80 to the internal port 4200.
+If used with an external IP following files in the codebase need to be changed.
+```
+1) backend-django/app/eric/settings/docker.py
+
+	add IP / hostname to CORS_ORIGIN_REGEX_WHITELIST at the bottom
+
+2) frontend-angular/apps/eworkbench/src/environments/environment.ts
+
+	replace "localhost" with the IP / hostname
+```
+
+### When changes are made within the codebase or the docker-compose.yml File always do:
+```bash
+docker compose down
+docker-compose build
+docker-compose up
+```
+
+### Change the following file to adjust the django (backend settings) in order to use an external Postgres Database, LDAP or anything else you want to change:
+```
+backend-django/app/eric/settings/docker.py
+```

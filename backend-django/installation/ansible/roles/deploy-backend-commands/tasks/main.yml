@@ -18,8 +18,8 @@
 - name: django collectstatic
   command: "su - {{ app_user }} -c '{{ activate }} && python {{ django_dir }}/app/manage.py collectstatic --noinput --settings={{ app_settings_path }} && deactivate'"
 
-- name: Restart daphne.service
+- name: Restart gunicorn.service
   systemd:
-    name: daphne.service
+    name: gunicorn.service
     state: restarted
   become: yes

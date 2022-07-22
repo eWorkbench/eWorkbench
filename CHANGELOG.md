@@ -1,7 +1,16 @@
 # Changelog
 
+## Version 2.13.1 - July 2022
+- [SITUMEWB-960] Fix opensource installation after django3 upgrade
+
 ## Version 2.13 - July 2022
 - [SITUMEWB-628] Upgrade Backend to Django 3.2 LTS
+- [SITUMEWB-*] Fixed priority filtering for tasks
+- [SITUMEWB-*] Fixed link list not refreshing after adding new links for projects
+- [SITUMEWB-*] Fixed modal width for privileges to prevent content overflows
+- [SITUMEWB-964] Add inactive user indicator
+- [SITUMEWB-976] Fix project timeline today button
+- [SITUMEWB-*] Fixed ellipsis for location of resources in list view
 
 ## Version 2.12.1 - June 2022
 - [SITUMEWB-911] Fixed project assignment for resource booking modal via list view button
