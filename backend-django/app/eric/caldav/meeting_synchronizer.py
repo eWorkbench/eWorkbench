@@ -107,7 +107,10 @@ class MeetingSynchronizer:
         create_or_update_caldav_item_for_meeting(meeting, name=name)
 
     def update_meeting(self, meeting, input_event):
-        meeting.title = input_event.read('summary')
+        summary = input_event.read('summary')
+        if len(summary) > 128:
+            summary = summary[:128]
+        meeting.title = summary
         if not meeting.title:
             meeting.title = _("No Subject")
         meeting.location = input_event.read('location')

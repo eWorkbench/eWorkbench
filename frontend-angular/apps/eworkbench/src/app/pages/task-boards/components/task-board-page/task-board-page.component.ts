@@ -14,7 +14,9 @@ import {
   Inject,
   OnDestroy,
   OnInit,
+  QueryList,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -24,6 +26,7 @@ import { ProjectSidebarItem } from '@app/enums/project-sidebar-item.enum';
 import { CommentsComponent } from '@app/modules/comment/components/comments/comments.component';
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { HEADER_TOP_OFFSET } from '@app/modules/header/tokens/header-top-offset.token';
+import { StickyDirective } from '@app/modules/shared/directives/sticky/sticky.directive';
 import { DescriptionModalComponent } from '@app/modules/shared/modals/description/description.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { BacklogModalComponent } from '@app/modules/task-board/components/modals/backlog/backlog.component';
@@ -76,6 +79,8 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
 
   @ViewChild('scrollbarContent')
   public scrollbarContent?: ElementRef<HTMLElement>;
+
+  @ViewChildren(StickyDirective) public stickyElements!: QueryList<StickyDirective>;
 
   public title = '';
 
@@ -784,6 +789,14 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     if (this.taskboardScrollbar && this.scrollbarContent) {
       this.taskboardScrollbar.nativeElement.style.width = '0px';
       this.scrollbarContent.nativeElement.style.width = '0px';
+      this.stickyElements.forEach(item => {
+        if (item.classList.contains('is-sticky')) {
+          item.removeSticky();
+          setTimeout(() => {
+            item.addSticky();
+          }, 1);
+        }
+      });
     }
     this.initTaskboardScroll();
   }

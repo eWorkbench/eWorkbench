@@ -76,6 +76,11 @@
       @extend %list;
     }
   }
+
+  .space {
+    width: 62px;
+    height: 1px;
+  }
 }
 
 .cdk-drag-animating,

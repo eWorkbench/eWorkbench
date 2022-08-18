@@ -4,6 +4,7 @@
 #
 import os
 import re
+from urllib.parse import quote
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django_userforeignkey.request import get_current_user
@@ -25,7 +26,6 @@ from django.http import HttpResponseForbidden, HttpResponseNotAllowed, HttpRespo
     HttpResponseRedirect, Http404, HttpResponse, FileResponse
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
-from django.utils.http import urlquote
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -81,6 +81,9 @@ class DavView(TemplateView):
         else:
             self.path = '/'
             self.base_url = request.META['PATH_INFO']
+
+        # properly encode the base path as well
+        self.base_url = quote(self.base_url)
 
         meta = request.META.get
         self.xbody = kwargs['xbody'] = None
@@ -247,7 +250,7 @@ class DavView(TemplateView):
                         relpath = self.resource.read().name
 
                     # we are not allowed to send utf8 headers, so we need to make sure to quote it
-                    response['X-Accel-Redirect'] = urlquote(
+                    response['X-Accel-Redirect'] = quote(
                         # join url with the DAV prefix
                         url_join(DJANGODAV_X_REDIRECT_PREFIX, relpath)
                     )
@@ -275,7 +278,9 @@ class DavView(TemplateView):
         response['Last-Modified'] = self.resource.getlastmodified
 
         # lock the File on opening it
-        self.resource.obj.lock(webdav=True)
+        # check the class of the object, so only Files are locked, fixes Directory lock bug
+        if self.resource.obj.__class__.__name__ == "File":
+            self.resource.obj.lock(webdav=True)
 
         return response
 
@@ -566,6 +571,7 @@ class DavView(TemplateView):
                 )
                 for child in children
             ]
+
         else:
             responses = [
                 D.response(

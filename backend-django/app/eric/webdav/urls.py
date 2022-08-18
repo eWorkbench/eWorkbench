@@ -13,7 +13,6 @@ from eric.webdav.resources2 import MyDriveDavResource, MyDriveListResource, MyPr
 urlpatterns = [
     re_path(r'auth/', IsAuthenticatedViews.as_view(), name='is-authenticated'),
 
-    # todo MFI: implement ElementLock instead of DummyLock
     # List all drives (read only)
     re_path(r'^d/$',
         AuthFsDavView.as_view(resource_class=MyDriveListResource, lock_class=DummyLock, acl_class=ReadOnlyAcl),

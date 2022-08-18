@@ -5,8 +5,8 @@
 import time
 import calendar
 import unicodedata
+from urllib.parse import quote
 
-from django.utils.http import urlquote
 from django.utils.feedgenerator import rfc2822_date
 
 try:
@@ -129,7 +129,7 @@ def rfc5987_content_disposition(file_name, disposition_type="attachment"):
     ascii_name = unicodedata.normalize('NFKD', file_name).encode('ascii', 'ignore').decode()
     header = '{}; filename="{}"'.format(disposition_type, ascii_name)
     if ascii_name != file_name:
-        quoted_name = urlquote(file_name)
+        quoted_name = quote(file_name)
         header += '; filename*=UTF-8\'\'{}'.format(quoted_name)
 
     return header

@@ -47,4 +47,8 @@ app.conf.beat_schedule = {
         'task': 'eric.dss.tasks.requeue_hanging_files_to_import',
         'schedule': 60 * 60 * 3,  # 3 hours
     },
+    'process_dir_metadata_etags': {
+        'task': 'eric.dss.tasks.process_dir_metadata_etags',
+        'schedule': 60 * 60 * 24,  # 24 hours
+    },
 }

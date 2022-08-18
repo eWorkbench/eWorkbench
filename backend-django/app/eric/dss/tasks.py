@@ -4,6 +4,7 @@
 #
 from __future__ import absolute_import, unicode_literals
 
+import json
 import logging
 import os
 from collections import Counter
@@ -436,3 +437,34 @@ def requeue_hanging_files_to_import():
         logger.info(f'Found {count} hanging files to requeue')
         with disable_permission_checks(DSSFilesToImport):
             hanging_files_to_import.update(import_in_progress=False)
+
+
+@shared_task
+def process_dir_metadata_etags():
+    """
+    Read idtags from dir_matadata.json files in directories and write the corresponding idtag into all File Descriptions
+    """
+    try:
+        file_name = "dir_metadata.json"
+        dir_metadata_files = File.objects.all().filter(
+            name=file_name
+        ).distinct()
+        for dir_metadata_file in dir_metadata_files:
+            if dir_metadata_file.is_dss_file:
+                idtag = ""
+                with open(dir_metadata_file.path.path, 'r') as in_file:
+                    dir_metadata_file_content = json.loads(in_file.read())
+                for entry in dir_metadata_file_content:
+                    if "idtag" in entry.keys():
+                        idtag_id = entry["idtag"]
+                        idtag = f"<p>idtag: {idtag_id}</p>"
+                        logger.info(f'process_dir_metadata_etags IDTAG: {idtag}')
+                with disable_permission_checks(File):
+                    files_in_the_same_directory = File.objects.all().filter(
+                        directory=dir_metadata_file.directory
+                    ).distinct()
+                    logger.info(f'process_dir_metadata_etags: Found {files_in_the_same_directory.count()} '
+                                f'files in the same directory')
+                    files_in_the_same_directory.update(description=idtag)
+    except Exception as error:
+        logger.error(error)

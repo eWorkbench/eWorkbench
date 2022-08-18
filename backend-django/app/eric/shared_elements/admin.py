@@ -3,9 +3,11 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ contains basic admin functionality for eric workbench elements """
-from admin_auto_filters.filters import AutocompleteFilter
+from admin_auto_filters.filters import AutocompleteFilter, AutocompleteFilterFactory
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
 from eric.core.admin.filters import is_null_filter
@@ -15,6 +17,11 @@ from eric.shared_elements.models import Contact, Note, Meeting, Task, TaskAssign
     UploadedFileEntry, UserAttendsMeeting, ContactAttendsMeeting, TaskCheckList, CalendarAccess, Comment
 
 User = get_user_model()
+
+
+class DirectoryFilter(AutocompleteFilter):
+    title = 'Directory of a Drive'
+    field_name = 'directory'
 
 
 class MeetingResourceFilter(AutocompleteFilter):
@@ -122,6 +129,43 @@ class UploadedFileEntryAdmin(admin.TabularInline):
         return format_html("<a href=\"%(url)s\">Download</a>" % {'url': obj.download_url})
 
 
+@admin.action(description='Trash selected Files')
+def bulk_trash_files(modeladmin, request, queryset):
+    backlink = request.get_full_path()
+
+    if "apply" in request.POST:
+        selected_items_count = queryset.count()
+        queryset.update(deleted=True)
+
+        modeladmin.message_user(request, f"Trashed {selected_items_count} selected Files")
+
+        return HttpResponseRedirect(backlink)
+
+    return render(request, "admin/bulk_trash.html", context={
+        "items": queryset,
+        "backlink": backlink
+    })
+
+
+@admin.action(description='Delete selected Files')
+def bulk_trash_and_delete_files(modeladmin, request, queryset):
+    backlink = request.get_full_path()
+
+    if "apply" in request.POST:
+        selected_items_count = queryset.count()
+        queryset.update(deleted=True)
+        queryset.delete()
+
+        modeladmin.message_user(request, f"Permanently deleted {selected_items_count} selected Files")
+
+        return HttpResponseRedirect(backlink)
+
+    return render(request, "admin/bulk_trash_and_delete.html", context={
+        "items": queryset,
+        "backlink": backlink
+    })
+
+
 @admin.register(File)
 class FileAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_display = (
@@ -146,8 +190,24 @@ class FileAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     raw_id_fields = ('uploaded_file_entry',)
     list_filter = (
         ProjectsFilter,
+        AutocompleteFilterFactory('Drive', 'directory__drive'),
+        DirectoryFilter,
     )
-    inlines = (UploadedFileEntryAdmin, ModelPrivilegeInline,)
+    inlines = (
+        UploadedFileEntryAdmin,
+        ModelPrivilegeInline,
+    )
+    actions = (
+        bulk_trash_files,
+        bulk_trash_and_delete_files,
+    )
+
+    # Disable the default action for deleting selected Files as we created our own method for it
+    # which also trashes items first.
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        del actions['delete_selected']
+        return actions
 
 
 class TaskAssignedUserInline(admin.TabularInline):

@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.14.2 - August 2022
+- [SITUMEWB-991] fix webdav url encoding
+
+## Version 2.13.2 & 2.14.1 - August 2022
+- [SITUMEWB-992] Properly truncate a too long vobject summary so it can be set as meeting title, fixes a 500 server error
+- [SITUMEWB-991] fix webdav directory lock errors
+
+## Version 2.14 - August 2022
+- [SITUMEWB-934] Fix taskboard bugs in Firefox
+- [SITUMEWB-923] refactor reading idtags from dir metadata jsons
+- [SITUMEWB-924] Implemented custom bulk action for trashing and deleting files and added a filter for directories
+- [SITUMEWB-983] trashed items stats
+- [SITUMEWB-984] tasks stats
+- [SITUMEWB-985] projects stats
+- [SITUMEWB-905] Added cronjobs for copying of logs from the app servers to the worker server for statistic parsing
+
 ## Version 2.13.1 - July 2022
 - [SITUMEWB-960] Fix opensource installation after django3 upgrade
 

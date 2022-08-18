@@ -196,10 +196,7 @@ class DSSFileImport:
         drive = self._get_or_create_drive(envelope, metadata_fields, projects=valid_projects)
         parent_directory = self._get_or_create_directories(drive)
 
-        dir_metadata_json_idtag = self._get_dir_metadata_json_idtag(parent_directory)
-
-        self._create_file(parent_directory, metadata_fields, projects=valid_projects,
-                          dir_metadata_json_idtag=dir_metadata_json_idtag)
+        self._create_file(parent_directory, metadata_fields, projects=valid_projects)
 
     def _load_container(self):
         container = DSSContainer.objects.filter(path=self.dss_url.container_path).first()
@@ -246,34 +243,7 @@ class DSSFileImport:
 
             return parent_directory
 
-    def _get_dir_metadata_json_idtag(self, parent_directory: Directory):
-        idtag = None
-
-        full_directory_path = parent_directory.full_directory_path
-        if full_directory_path.startswith("//"):
-            full_directory_path = full_directory_path[2:]
-        if full_directory_path.startswith("/"):
-            full_directory_path = full_directory_path[1:]
-
-        dir_metadata_path = os.path.join(
-            DSS_MOUNT_PATH,
-            self.dss_url.container_path,
-            self.dss_url.envelope,
-            self.dss_url.storage,
-            full_directory_path,
-            "dir_metadata.json",
-        )
-        if os.path.exists(dir_metadata_path):
-            with open(dir_metadata_path, 'r') as dir_metadata_file:
-                dir_metadata_file_content = json.loads(dir_metadata_file.read())
-
-            for entry in dir_metadata_file_content:
-                if "idtag" in entry.keys():
-                    idtag_id = entry["idtag"]
-                    idtag = f"<p>idtag: {idtag_id}</p>"
-        return idtag
-
-    def _create_file(self, parent_directory: Directory, metadata_fields, projects=None, dir_metadata_json_idtag=None):
+    def _create_file(self, parent_directory: Directory, metadata_fields, projects=None):
         with DisableSignal(pre_save, check_new_files_for_dss_container_read_write_settings, File):
             dss_url = self.dss_url
 
@@ -307,12 +277,6 @@ class DSSFileImport:
                 if projects:
                     try:
                         file.projects.set(projects)
-                    except Exception as error:
-                        logger.error(error)
-                if dir_metadata_json_idtag:
-                    try:
-                        file.description = dir_metadata_json_idtag
-                        file.save()
                     except Exception as error:
                         logger.error(error)
 

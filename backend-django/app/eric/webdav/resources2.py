@@ -5,8 +5,8 @@
 import os
 import re
 import shutil
+from urllib.parse import quote
 
-from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 
 from hashlib import sha256
@@ -209,7 +209,7 @@ class MyProjectListResource(MetaEtagMixIn, BaseDBDavResource):
             )
 
     def get_escaped_path(self):
-        path = [urlquote(p) for p in self.path]
+        path = [quote(p) for p in self.path]
         return "/".join(path) + ("/" * self.is_collection)
 
     @property
@@ -261,7 +261,7 @@ class MyDriveListResource(MetaEtagMixIn, BaseDBDavResource):
                 )
 
     def get_escaped_path(self):
-        path = [urlquote(p) for p in self.path]
+        path = [quote(p) for p in self.path]
         return "/".join(path) + ("/" * self.is_collection)
 
     @property

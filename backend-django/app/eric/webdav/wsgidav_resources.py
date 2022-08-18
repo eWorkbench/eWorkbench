@@ -4,8 +4,8 @@
 #
 from hashlib import md5
 from mimetypes import guess_type
+from urllib.parse import quote
 
-from django.utils.http import urlquote
 from eric.webdav.wsgidav_utils import rfc3339_date, rfc1123_date, safe_join
 
 
@@ -27,7 +27,7 @@ class BaseDavResource(object):
         return ("/" if self.path else "") + "/".join(self.path) + ("/" * (self.is_collection))
 
     def get_escaped_path(self):
-        path = [urlquote(p) for p in self.path]
+        path = [quote(p) for p in self.path]
         return ("/" if path else "") + "/".join(path) + ("/" * self.is_collection)
 
     @property
