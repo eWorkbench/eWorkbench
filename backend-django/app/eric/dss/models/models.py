@@ -220,7 +220,7 @@ class DSSFilesToImport(BaseModel):
 
     # Syntax:  /dss/<container-path>/<envelope>/<storage>/<directory-path>/<file>
     #
-    # Example: /dss/dssfs01/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part1.tar.gz
+    # Example: /dss/dssfs03/tumdss/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part1.tar.gz
     #
     #   container-path: dssfs01/ab12cd/ab12cd-dss-0000/
     #   envelope:       env0123

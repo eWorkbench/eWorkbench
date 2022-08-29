@@ -42,7 +42,7 @@ class PluginViewSet(
     """ REST API Viewset for plugins """
     http_method_names = ['get', 'head', 'post']
     serializer_class = PluginSerializer
-    filter_class = PluginFilter
+    filterset_class = PluginFilter
     search_fields = ['title', 'short_description']
     ordering_fields = ('title',)
 
@@ -160,7 +160,7 @@ class PluginInstanceViewSet(
     LockableViewSetMixIn
 ):
     serializer_class = PluginInstanceSerializer
-    filter_class = PluginInstanceFilter
+    filterset_class = PluginInstanceFilter
     permission_classes = (IsAuthenticated, HasPluginAccess,)
     search_fields = ()
     ordering_fields = ('title', 'created_at', 'created_by', 'last_modified_at', 'last_modified_by')

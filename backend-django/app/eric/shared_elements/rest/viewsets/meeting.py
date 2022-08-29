@@ -144,7 +144,7 @@ class MyMeetingViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetMixIn):
     serializer_class = MeetingSerializer
-    filter_class = MeetingFilter
+    filterset_class = MeetingFilter
     search_fields = ()
     ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
                        'date_time_start', 'date_time_end',
@@ -200,7 +200,7 @@ class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetM
 
 class AllResourceBookingViewSet(BaseViewSetMixin, mixins.ListModelMixin, GenericViewSet):
     serializer_class = MeetingSerializer
-    filter_class = AnonymousMeetingFilter
+    filterset_class = AnonymousMeetingFilter
     search_fields = ()
     ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
                        'date_time_start', 'date_time_end',
@@ -236,7 +236,7 @@ class AllResourceBookingViewSet(BaseViewSetMixin, mixins.ListModelMixin, Generic
 
 class EditorResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetMixIn):
     serializer_class = MeetingSerializer
-    filter_class = MeetingFilter
+    filterset_class = MeetingFilter
     search_fields = ()
     ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
                        'date_time_start', 'date_time_end',

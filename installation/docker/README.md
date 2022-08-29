@@ -49,7 +49,15 @@ If used with an external IP following files in the codebase need to be changed.
 
 	add IP / hostname to CORS_ORIGIN_REGEX_WHITELIST at the bottom
 
-2) frontend-angular/apps/eworkbench/src/environments/environment.ts
+2) backend-django/app/eric/settings/docker.py
+
+	add an ALLOWED_HOSTS setting like the following using your IP / hostname
+	ALLOWED_HOSTS = [
+        "myworkbenchdomain.com",
+        "111.222.333.444",
+    ]
+
+3) frontend-angular/apps/eworkbench/src/environments/environment.ts
 
 	replace "localhost" with the IP / hostname
 ```

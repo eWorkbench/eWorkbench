@@ -1,0 +1,67 @@
+<!--
+  Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<ng-container *transloco="let t">
+  <div class="user-dropdown-option">
+    <ng-container *ngIf="user">
+      <ng-container *ngIf="user?.userprofile">
+        <ng-container [ngTemplateOutlet]="userAvatar"></ng-container>
+        <div>
+          <ng-container *ngIf="user?.userprofile.anonymized">
+            <span class="text-gray-600">
+              {{ t('user.details.anonymizedUser') }}
+            </span>
+          </ng-container>
+          <ng-container *ngIf="!user?.userprofile.anonymized">
+            <ng-container
+              *ngIf="user?.userprofile.first_name && user?.userprofile.last_name; then userTemplate; else usernameTemplate"
+            ></ng-container>
+          </ng-container>
+          <div class="sub-text">
+            <ngx-highlight-words
+              [textToHighlight]="user.email"
+              [searchWords]="searchTerms"
+              highlightClassName="highlighted"
+            ></ngx-highlight-words>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+    <ng-container *ngIf="!user || !user?.userprofile">
+      <div class="flex items-center whitespace-nowrap">
+        <ng-container [ngTemplateOutlet]="userAvatar"></ng-container>
+        <div>
+          {{ t('user.details.unknownUser') }}
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</ng-container>
+
+<ng-template #userTemplate>
+  <div class="flex items-center whitespace-nowrap">
+    <ngx-highlight-words
+      [textToHighlight]="user?.userprofile.first_name + ' ' + user?.userprofile.last_name"
+      [searchWords]="searchTerms"
+      highlightClassName="highlighted"
+    ></ngx-highlight-words>
+    <span *ngIf="!user?.is_active" class="inactive-indicator">{{ t('user.details.inactive') }}</span>
+  </div>
+</ng-template>
+
+<ng-template #usernameTemplate>
+  <div class="flex items-center whitespace-nowrap">
+    <ngx-highlight-words
+      [textToHighlight]="user?.username"
+      [searchWords]="searchTerms"
+      highlightClassName="highlighted"
+    ></ngx-highlight-words>
+    <span *ngIf="!user?.is_active" class="inactive-indicator">{{ t('user.details.inactive') }}</span>
+  </div>
+</ng-template>
+
+<ng-template #userAvatar>
+  <eworkbench-user-avatar [user]="user" [scale]="avatarScale" class="mr-2" *ngIf="avatar"></eworkbench-user-avatar>
+</ng-template>

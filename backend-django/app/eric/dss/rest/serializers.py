@@ -70,9 +70,9 @@ class DSSFilesToImportListSerializer(serializers.ListSerializer):
     """
     This ListSerializer will bulk create items if the request data is a list of paths like the following json:
     [
-        {"path":"/dss/dssfs01/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part1.tar.gz"},
-        {"path":"/dss/dssfs01/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part2.tar.gz"},
-        {"path":"/dss/dssfs01/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part3.tar.gz"}
+        {"path":"/dss/dssfs03/tumdss/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part1.tar.gz"},
+        {"path":"/dss/dssfs03/tumdss/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part2.tar.gz"},
+        {"path":"/dss/dssfs03/tumdss/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part3.tar.gz"}
     ]
     """
     def to_internal_value(self, data):

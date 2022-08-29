@@ -27,7 +27,7 @@ class ImportTest(TestCase):
         self.bot_user = User.objects.create_user(username='bot1', email='bot1@workbench.test')
 
     def test_import_assigns_correct_user_and_file_size(self):
-        container_path = 'my/container/09'  # must have 3 parts
+        container_path = 'my/tumdss/container/09'  # must have 4 parts
         envelope_path = 'envelope32'
         hierarchy_path = f'{envelope_path}/storage23'
         file_name = 'file1324.test'
@@ -86,7 +86,7 @@ class ImportTest(TestCase):
         self.assertIsNone(file_to_import.last_import_fail_reason)
 
     def test_import_creates_storage_hierarchy_and_stores_metadata_file_with_readonly_container(self):
-        container_path = 'my/container/02'  # must have 3 parts
+        container_path = 'my/tumdss/container/02'  # must have 4 parts
         envelope_path = 'envelope2'
         hierarchy_path = f'{envelope_path}/storage2/dir2/subdir2/subsubdir2'
         file_name = 'file2.test'
@@ -173,7 +173,7 @@ class ImportTest(TestCase):
         self.assertEqual(f'{container_path}/{hierarchy_path}/{file_name}', str(file.path))
 
     def test_import_adds_metadata_to_storage_and_files(self):
-        container_path = 'my/container/03'  # must have 3 parts
+        container_path = 'my/tumdss/container/03'  # must have 4 parts
         hierarchy_path = 'envelope/storage'
 
         # create metadata fields
@@ -267,7 +267,7 @@ class ImportTest(TestCase):
         __assert_correct_metadata_values(files[1].metadata)
 
     def test_failed_import_marks_filetoimport_as_failed(self):
-        container_path = 'my/container/04'  # must have 3 parts
+        container_path = 'my/tumdss/container/04'  # must have 4 parts
         hierarchy_path = 'envelope/storage/dir1/dir1-1'
         file_name = 'file4.test'
         file_content = 'test 1234'
@@ -355,7 +355,7 @@ class ImportTest(TestCase):
         self.assertEqual(2, file_to_import.import_attempts)
 
     def test_import_fails_for_missing_metadata_file(self):
-        container_path = 'my/container/01'  # must have 3 parts
+        container_path = 'my/tumdss/container/01'  # must have 4 parts
         hierarchy_path = 'envelope_with_missing_metadata/storage'
         file_name = 'file1.test'
         file_content = 'test123test123'
@@ -402,7 +402,7 @@ class ImportTest(TestCase):
         self.assertTrue(time_before_import < file_to_import.last_import_attempt_failed_at < timezone.now())
 
     def test_import_fails_for_missing_container(self):
-        container_path = 'my/container/01'  # must have 3 parts
+        container_path = 'my/tumdss/container/01'  # must have 4 parts
         hierarchy_path = 'envelope/storage'
         file_name = 'file1.test'
         file_content = 'test123test123'
@@ -441,7 +441,7 @@ class ImportTest(TestCase):
         self.assertTrue(time_before_import < file_to_import.last_import_attempt_failed_at < timezone.now())
 
     def test_import_does_not_add_metadata_redundantly_for_multiple_files_in_storage(self):
-        container_path = 'my/container/05'  # must have 3 parts
+        container_path = 'my/tumdss/container/05'  # must have 4 parts
         hierarchy_path = 'envelope/storage_multi_files'
 
         # create metadata fields
@@ -500,7 +500,7 @@ class ImportTest(TestCase):
         self.assertEqual(1, drive.metadata.all().count())
 
     def test_import_adds_projects_to_storage_and_files(self):
-        container_path = 'my/container/03'  # must have 3 parts
+        container_path = 'my/tumdss/container/03'  # must have 4 parts
         hierarchy_path = 'envelope/storage'
 
         self.memberRole = Role.objects.filter(name="Project Member").first()

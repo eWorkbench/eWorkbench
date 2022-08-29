@@ -444,7 +444,7 @@ class LabbookSectionViewSet(BaseAuthenticatedCreateUpdateWithoutProjectModelView
     """ Handles LabBook sections. """
 
     serializer_class = LabbookSectionSerializer
-    filter_class = LabbookSectionFilter
+    filterset_class = LabbookSectionFilter
     search_fields = ()
 
     # pagination for this endpoint

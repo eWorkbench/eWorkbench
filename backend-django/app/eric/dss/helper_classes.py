@@ -44,8 +44,9 @@ class DSSURL:
 
     def __init__(self, dss_path):
         """
-        Example: /dss/dssfs01/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part1.tar.gz
-        :param dss_path: /dss/<container-path (3 parts)>/<envelope>/<storage>/<directory-path>/<filename>
+        Updated in August 2022:
+        Example: /dss/dssfs03/tumdss/ab12cd/ab12cd-dss-0000/env0123/stor-abc/export/data/raw/part1.tar.gz
+        :param dss_path: /dss/<container-path (4 parts)>/<envelope>/<storage>/<directory-path>/<filename>
         """
 
         path_separator = os.sep
@@ -59,10 +60,10 @@ class DSSURL:
         # DSS path parts
         # path_parts[0] is empty (path start with path separator)
         self.base_path = self.path_parts[1]
-        self.container_path = path_separator.join(self.path_parts[2:5])
-        self.envelope = self.path_parts[5]
-        self.storage = self.path_parts[6]
-        self.directories = self.path_parts[7:-1]
+        self.container_path = path_separator.join(self.path_parts[2:6])
+        self.envelope = self.path_parts[6]
+        self.storage = self.path_parts[7]
+        self.directories = self.path_parts[8:-1]
         self.file = self.path_parts[-1]
 
         # mount path in the workbench

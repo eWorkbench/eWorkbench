@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.15 - August 2022
+- [SITUMEWB-980] dss filesystem migration
+- [SITUMEWB-991] fix webdav renaming
+- [SITUMEWB-924] Fixed bulk actions for files
+- [SITUMEWB-*] upgrade django-filter, replace deprecated filter_class with filterset_class
+- [SITUMEWB-*] various docker fixes
+- [SITUMEWB-*] Added official 0.5.0 release for django-userforeignkey to requirements
+- [SITUMEWB-964] Changes to user component for ng-select dropdowns
+- [SITUMEWB-1002] Fixed name for download of files
+- [SITUMEWB-*] Fixed tasks priority filter
+
+## Version 2.14.3 - August 2022
+- [SITUMEWB-924] Implemented storage filter for files in admin list view
+
 ## Version 2.14.2 - August 2022
 - [SITUMEWB-991] fix webdav url encoding
 

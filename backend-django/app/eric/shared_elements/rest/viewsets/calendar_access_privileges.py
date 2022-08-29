@@ -6,7 +6,7 @@ from eric.shared_elements.rest.serializers import CalendarAccessSerializer
 
 class CalendarAccessViewSet(BaseAuthenticatedModelViewSet):
     serializer_class = CalendarAccessSerializer
-    filter_class = CalendarAccessFilter
+    filterset_class = CalendarAccessFilter
     search_fields = ()
 
     # disable pagination for this endpoint

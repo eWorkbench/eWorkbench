@@ -37,28 +37,11 @@
             </ng-template>
 
             <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-              <div class="user-dropdown-option">
-                <img class="rounded-full mr-2" width="40" [src]="item.userprofile.avatar" [alt]="t('profile.picture')" />
-                <div>
-                  <ng-container *ngIf="item?.userprofile.anonymized">
-                    <span class="details text-gray-600">{{ t('user.details.anonymizedUser') }}</span>
-                  </ng-container>
-                  <ng-container *ngIf="!item?.userprofile.anonymized">
-                    <ng-container
-                      *ngIf="item?.userprofile.first_name && item?.userprofile.last_name; then userTemplate; else usernameTemplate"
-                    ></ng-container>
-                  </ng-container>
-
-                  <ng-template #userTemplate>
-                    <span [ngOptionHighlight]="search">{{ item?.userprofile.first_name }} {{ item?.userprofile.last_name }}</span>
-                  </ng-template>
-                  <ng-template #usernameTemplate>
-                    <span [ngOptionHighlight]="search">{{ item?.username }}</span>
-                  </ng-template>
-
-                  <div class="sub-text" [ngOptionHighlight]="search">{{ item.email }}</div>
-                </div>
-              </div>
+              <eworkbench-user-details-dropdown
+                class="inline-block mr-1"
+                [user]="item"
+                [search]="search"
+              ></eworkbench-user-details-dropdown>
             </ng-template>
           </ng-select>
           <div class="modal-footer p-0 mt-5">

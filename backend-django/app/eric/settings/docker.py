@@ -139,9 +139,10 @@ CELERY_BROKER_URL = RABBITMQ_URL
 CELERY_RESULT_BACKEND = 'rpc://'
 
 # debug toolbar always enabled
-DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': lambda x: DEBUG
-}
+if not 'test' in sys.argv:
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda x: DEBUG
+    }
 
 # If set to true, a resource is made available which can be used to delete all workbench models
 # Only use if you know what you are doing - data is permanently lost when called!

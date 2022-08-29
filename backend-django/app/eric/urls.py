@@ -89,5 +89,5 @@ if settings.DEBUG:
 # serve a "/" for webdav in debug mode
 if settings.DEBUG:
     urlpatterns += [
-        re_path(r'^$', TemplateView.as_view(template_name='empty.html'), name='webdav-home')
+        re_path(r'^webdav/$', TemplateView.as_view(template_name='empty.html'), name='webdav-home')
     ]

@@ -412,7 +412,9 @@ class DavView(TemplateView):
         if sparts.scheme != dparts.scheme or sparts.hostname != dparts.hostname:
             return HttpResponseBadGateway('Source and destination must have the same scheme and host.')
         # adjust path for our base url:
-        dst = self.get_resource(path=dparts.path[len(self.base_url):])
+        # fix for renaming errors, base_url must be decoded to get the right length
+        len_unquoted_base_url = len(urlparse.unquote(urlparse.unquote(self.base_url)))
+        dst = self.get_resource(path=dparts.path[len_unquoted_base_url:])
         if not dst.get_parent().exists:
             return HttpResponseConflict()
         if not self.has_access(self.resource, 'write'):

@@ -87,7 +87,7 @@ class ScheduledNotificationViewSet(BaseAuthenticatedModelViewSet, DeletableViewS
     """REST API Viewset for scheduled notifications"""
 
     serializer_class = ScheduledNotificationSerializer
-    filter_class = ScheduledNotificationFilter
+    filterset_class = ScheduledNotificationFilter
     search_fields = ()
 
     # disable pagination for this endpoint

@@ -638,18 +638,19 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
         return new_file_path
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None, dds_migration=False):
         """
         Set original file name and mime type of the uploaded file
         :param force_insert:
         :param force_update:
         :param using:
         :param update_fields:
+        :param dds_migration:
         :return:
         """
         store_uploaded_file_entry = False
         # check if file has changed
-        if self.path and hasattr(self.path.file, 'content_type'):
+        if not dds_migration and self.path and hasattr(self.path.file, 'content_type'):
             # mark True for store uploaded file entry
             store_uploaded_file_entry = True
             # store original filename
@@ -696,7 +697,7 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         )
 
         # make sure that the file is always closed (hasattr on self.path.file actually opens the file)
-        if self.path:
+        if not dds_migration and self.path:
             self.path.file.close()
 
     def __str__(self):

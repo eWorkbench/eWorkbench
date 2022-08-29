@@ -74,7 +74,6 @@ services:
 #      - 5672:5672
   # Postgres configuration
   db:
-    hostname: db.workbench.local
     image: postgres:12.3
     command: postgres -c jit=off
     expose:
@@ -94,7 +93,6 @@ services:
       - 1082:8080
   # Maildump configuration
   maildump:
-    hostname: maildump.workbench.local
     build:
       context: ./docker/maildump
       args:
@@ -108,7 +106,6 @@ services:
       - 1080:1080
       - 1025:1025
   redis:
-    hostname: redis.workbench.local
     image: redis:5.0
     expose:
       - 6379
@@ -116,7 +113,6 @@ services:
       - 6379:6379
   # ldap server
   ldap-service:
-    hostname: ldap.workbench.local
     command: "--loglevel trace"
     image: osixia/openldap:1.5.0
     ports:
@@ -124,7 +120,7 @@ services:
      - 636:636
     environment:
      - LDAP_ORGANISATION=Workbench Local Dev
-     - LDAP_DOMAIN=workbench.local
+     - LDAP_DOMAIN=0.0.0.0
     command: "--copy-service"
     volumes:
      - ./ldap/:/ldap
@@ -132,7 +128,6 @@ services:
      - ./data/docker_ldap_config:/etc/ldap/slapd.d
   # ldap admin
   ldap-admin:
-    hostname: ldap.workbench.local
     image: dinkel/phpldapadmin:latest
     ports:
      - 1081:80

@@ -529,11 +529,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== '1');
+        .filter(params => params !== '5');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, '1'].join(','));
+          this.params = this.params.set('priority', [...params, '5'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -556,11 +556,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== '2');
+        .filter(params => params !== '4');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, '2'].join(','));
+          this.params = this.params.set('priority', [...params, '4'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -610,11 +610,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== '4');
+        .filter(params => params !== '2');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, '4'].join(','));
+          this.params = this.params.set('priority', [...params, '2'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
@@ -637,11 +637,11 @@ export class TasksPageComponent implements OnInit {
       const params = this.params
         .getAll('priority')?.[0]
         .split(',')
-        .filter(params => params !== '5');
+        .filter(params => params !== '1');
       if (value) {
         this.params = this.params.delete('priority');
         if (params?.length) {
-          this.params = this.params.set('priority', [...params, '5'].join(','));
+          this.params = this.params.set('priority', [...params, '1'].join(','));
         }
 
         this.tableView.loadData(false, this.params);
