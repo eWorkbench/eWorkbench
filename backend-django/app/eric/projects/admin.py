@@ -1,38 +1,49 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from django_admin_listfilter_dropdown.filters import DropdownFilter, ChoiceDropdownFilter
-from django_changeset.models import ChangeSet, ChangeRecord
+
+from admin_auto_filters.filters import AutocompleteFilter
+from django_admin_listfilter_dropdown.filters import ChoiceDropdownFilter, DropdownFilter
+from django_changeset.models import ChangeRecord, ChangeSet
 
 from eric.core.admin.filters import is_null_filter
 from eric.core.admin.is_deleteable import DeleteableModelAdmin
 from eric.model_privileges.admin import ModelPrivilegeInline
-from eric.projects.models import Project, Resource, Role, ProjectRoleUserAssignment, \
-    UserStorageLimit, ResourceBookingRuleMinimumDuration, ResourceBookingRuleMaximumDuration, \
-    ResourceBookingRuleBookableHours, ResourceBookingRuleMinimumTimeBefore, ResourceBookingRuleMaximumTimeBefore, \
-    ResourceBookingRuleTimeBetween, ResourceBookingRuleBookingsPerUser
+from eric.projects.models import (
+    Project,
+    ProjectRoleUserAssignment,
+    Resource,
+    ResourceBookingRuleBookableHours,
+    ResourceBookingRuleBookingsPerUser,
+    ResourceBookingRuleMaximumDuration,
+    ResourceBookingRuleMaximumTimeBefore,
+    ResourceBookingRuleMinimumDuration,
+    ResourceBookingRuleMinimumTimeBefore,
+    ResourceBookingRuleTimeBetween,
+    Role,
+    UserStorageLimit,
+)
 
 User = get_user_model()
 
 
 class ProjectFilter(AutocompleteFilter):
-    """ Autocomplete filter for a single project """
+    """Autocomplete filter for a single project"""
 
-    title = 'Project'
-    field_name = 'project'
-    field = 'project'
+    title = "Project"
+    field_name = "project"
+    field = "project"
 
 
 class ProjectsFilter(AutocompleteFilter):
-    """ Autocomplete filter for a list of projects """
+    """Autocomplete filter for a list of projects"""
 
-    title = 'Projects'
-    field_name = 'projects'
+    title = "Projects"
+    field_name = "projects"
 
 
 class CreatedAndModifiedByReadOnlyAdminMixin:
@@ -46,50 +57,53 @@ class CreatedAndModifiedByReadOnlyAdminMixin:
 
     def get_readonly_fields(self, request, obj=None):
         return self.readonly_fields + (
-            'created_by',
-            'last_modified_by',
-            'created_at',
-            'last_modified_at',
+            "created_by",
+            "last_modified_by",
+            "created_at",
+            "last_modified_at",
         )
 
     def get_list_select_related(self, request, obj=None):
-        return tuple((
-            'created_by',
-            'last_modified_by',
-        ))
+        return tuple(
+            (
+                "created_by",
+                "last_modified_by",
+            )
+        )
 
 
 @admin.register(ProjectRoleUserAssignment)
 class ProjectRoleUserAssignmentAdmin(DeleteableModelAdmin):
     model = ProjectRoleUserAssignment
     list_display = (
-        'user',
-        'role',
-        'project',
-        'created_by',
-        'last_modified_by',
+        "user",
+        "role",
+        "project",
+        "created_by",
+        "last_modified_by",
     )
     list_filter = (
         ProjectFilter,
-        ('role', admin.RelatedFieldListFilter),
+        ("role", admin.RelatedFieldListFilter),
     )
-    raw_id_fields = ('user',)
-    autocomplete_fields = ('project',)
+    raw_id_fields = ("user",)
+    autocomplete_fields = ("project",)
     search_fields = (
-        'user__username',
-        'user__email',
-        'user__userprofile__last_name',
-        'project__name',
+        "user__username",
+        "user__email",
+        "user__userprofile__last_name",
+        "project__name",
     )
 
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    """ RoleAdmin is very similar to Django auth GroupAdmin """
+    """RoleAdmin is very similar to Django auth GroupAdmin"""
+
     model = Role
-    list_display = ('name',)
-    filter_horizontal = ('permissions',)
-    search_fields = ('name',)
+    list_display = ("name",)
+    filter_horizontal = ("permissions",)
+    search_fields = ("name",)
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         """
@@ -103,16 +117,15 @@ class RoleAdmin(admin.ModelAdmin):
         :param kwargs:
         :return:
         """
-        if db_field.name == 'permissions':
-            qs = kwargs.get('queryset', db_field.remote_field.model.objects)
+        if db_field.name == "permissions":
+            qs = kwargs.get("queryset", db_field.remote_field.model.objects)
             # Avoid a major performance hit resolving permission names which
             # triggers a content_type load:
-            kwargs['queryset'] = qs.select_related('content_type')
+            kwargs["queryset"] = qs.select_related("content_type")
             # set meta.auto_created to true for our through table
             db_field.remote_field.through._meta.auto_created = True
 
-        return super(RoleAdmin, self).formfield_for_manytomany(
-            db_field, request=request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request=request, **kwargs)
 
 
 class ChangeSetInline(admin.StackedInline):
@@ -125,77 +138,74 @@ class ProjectInline(admin.TabularInline):
 
 
 class ProjectAssignedUsersInline(admin.TabularInline):
-    verbose_name = 'Assigned User'
-    verbose_name_plural = 'Assigned Users'
+    verbose_name = "Assigned User"
+    verbose_name_plural = "Assigned Users"
     model = ProjectRoleUserAssignment
-    raw_id_fields = ('user',)
+    raw_id_fields = ("user",)
 
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    inlines = (ProjectInline, ProjectAssignedUsersInline,)
+    inlines = (
+        ProjectInline,
+        ProjectAssignedUsersInline,
+    )
     list_display = (
-        'name',
-        'project_state',
-        'created_by',
-        'created_at',
-        'last_modified_by',
-        'last_modified_at',
+        "name",
+        "project_state",
+        "created_by",
+        "created_at",
+        "last_modified_by",
+        "last_modified_at",
     )
     list_select_related = (
-        'created_by',
-        'last_modified_by',
+        "created_by",
+        "last_modified_by",
     )
-    list_filter = (
-        'project_state',
-    )
+    list_filter = ("project_state",)
     search_fields = (
-        'name',
+        "name",
         "created_by__username",
         "created_by__email",
     )
-    autocomplete_fields = ('parent_project',)
+    autocomplete_fields = ("parent_project",)
 
 
 class ChangeRecordInline(admin.StackedInline):
     model = ChangeRecord
     can_delete = False
-    verbose_name = 'Change Record'
-    verbose_name_plural = 'Change Records'
+    verbose_name = "Change Record"
+    verbose_name_plural = "Change Records"
     extra = 0
 
 
 @admin.register(ChangeSet)
 class ChangesetAdmin(admin.ModelAdmin):
     list_display = (
-        '__str__',
-        'user',
-        'date',
-        'object_type',
-        'object_uuid',
+        "__str__",
+        "user",
+        "date",
+        "object_type",
+        "object_uuid",
     )
-    list_filter = (
-        'object_type',
-    )
+    list_filter = ("object_type",)
     search_fields = (
-        'object_uuid',
-        'user__username',
-        'user__email',
-        'user__userprofile__last_name',
+        "object_uuid",
+        "user__username",
+        "user__email",
+        "user__userprofile__last_name",
     )
-    inlines = (
-        ChangeRecordInline,
-    )
+    inlines = (ChangeRecordInline,)
 
 
 @admin.register(ChangeRecord)
 class ChangeRecordAdmin(admin.ModelAdmin):
     list_display = (
-        '__str__',
-        'field_name',
-        'old_value',
-        'new_value',
-        'change_set',
+        "__str__",
+        "field_name",
+        "old_value",
+        "new_value",
+        "change_set",
     )
 
 
@@ -233,73 +243,64 @@ make_type_itres.short_description = _("Make selected resources type IT_RESOURCE"
 
 class ResourceBookingRuleMinimumDurationInline(admin.TabularInline):
     model = ResourceBookingRuleMinimumDuration
-    verbose_name = _('Resource Booking Rule Minimum Duration')
-    verbose_name_plural = _('Resource Booking Rules Minimum Duration')
+    verbose_name = _("Resource Booking Rule Minimum Duration")
+    verbose_name_plural = _("Resource Booking Rules Minimum Duration")
 
 
 class ResourceBookingRuleMaximumDurationInline(admin.TabularInline):
     model = ResourceBookingRuleMaximumDuration
-    verbose_name = _('Resource Booking Rule Maximum Duration')
-    verbose_name_plural = _('Resource Booking Rules Maximum Duration')
+    verbose_name = _("Resource Booking Rule Maximum Duration")
+    verbose_name_plural = _("Resource Booking Rules Maximum Duration")
 
 
 class ResourceBookingRuleBookableHoursInline(admin.TabularInline):
     model = ResourceBookingRuleBookableHours
-    verbose_name = _('Resource Booking Rule Bookable Hours')
-    verbose_name_plural = _('Resource Booking Rules Bookable Hours')
+    verbose_name = _("Resource Booking Rule Bookable Hours")
+    verbose_name_plural = _("Resource Booking Rules Bookable Hours")
     extra = 1
 
 
 class ResourceBookingRuleMinimumTimeBeforeInline(admin.TabularInline):
     model = ResourceBookingRuleMinimumTimeBefore
-    verbose_name = _('Resource Booking Rule Minimum Time Before')
-    verbose_name_plural = _('Resource Booking Rules Minimum Time Before')
+    verbose_name = _("Resource Booking Rule Minimum Time Before")
+    verbose_name_plural = _("Resource Booking Rules Minimum Time Before")
 
 
 class ResourceBookingRuleMaximumTimeBeforeInline(admin.TabularInline):
     model = ResourceBookingRuleMaximumTimeBefore
-    verbose_name = _('Resource Booking Rule Maximum Time Before')
-    verbose_name_plural = _('Resource Booking Rules Maximum Time Before')
+    verbose_name = _("Resource Booking Rule Maximum Time Before")
+    verbose_name_plural = _("Resource Booking Rules Maximum Time Before")
 
 
 class ResourceBookingRuleTimeBetweenInline(admin.TabularInline):
     model = ResourceBookingRuleTimeBetween
-    verbose_name = _('Resource Booking Rule Time Between')
-    verbose_name_plural = _('Resource Booking Rules Time Between')
+    verbose_name = _("Resource Booking Rule Time Between")
+    verbose_name_plural = _("Resource Booking Rules Time Between")
 
 
 class ResourceBookingRuleBookingsPerUserInline(admin.TabularInline):
     model = ResourceBookingRuleBookingsPerUser
-    verbose_name = _('Resource Booking Rule Bookings Per User')
-    verbose_name_plural = _('Resource Booking Rules Bookings Per User')
+    verbose_name = _("Resource Booking Rule Bookings Per User")
+    verbose_name_plural = _("Resource Booking Rules Bookings Per User")
     extra = 1
 
 
 @admin.register(Resource)
 class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    list_display = (
-        'name',
-        'type',
-        'responsible_unit',
-        'location',
-        'contact',
-        'created_by'
-    )
-    list_select_related = (
-        'created_by',
-    )
+    list_display = ("name", "type", "responsible_unit", "location", "contact", "created_by")
+    list_select_related = ("created_by",)
     list_filter = (
-        ('type', ChoiceDropdownFilter),
-        ('general_usage_setting', ChoiceDropdownFilter),
-        ('location', DropdownFilter),
-        is_null_filter('study_room_info', 'Is Study Room'),
+        ("type", ChoiceDropdownFilter),
+        ("general_usage_setting", ChoiceDropdownFilter),
+        ("location", DropdownFilter),
+        is_null_filter("study_room_info", "Is Study Room"),
     )
     search_fields = (
-        'name',
-        'description',
-        'responsible_unit',
-        'location',
-        'contact',
+        "name",
+        "description",
+        "responsible_unit",
+        "location",
+        "contact",
         "created_by__username",
         "created_by__email",
     )
@@ -321,24 +322,25 @@ class ResourceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         make_type_offeq,
         make_type_itres,
     ]
-    autocomplete_fields = ('projects', 'usage_setting_selected_user_groups',)
+    autocomplete_fields = (
+        "projects",
+        "usage_setting_selected_user_groups",
+    )
 
 
 @admin.register(UserStorageLimit)
 class UserStorageLimitAdmin(admin.ModelAdmin):
     list_display = (
-        'user',
-        'storage_megabyte',
-        'comment',
+        "user",
+        "storage_megabyte",
+        "comment",
     )
-    raw_id_fields = ('user',)
+    raw_id_fields = ("user",)
     search_fields = (
-        'user__username',
-        'user__email',
-        'user__userprofile__last_name',
-        'storage_megabyte',
-        'comment',
+        "user__username",
+        "user__email",
+        "user__userprofile__last_name",
+        "storage_megabyte",
+        "comment",
     )
-    list_filter = (
-        ('storage_megabyte', DropdownFilter),
-    )
+    list_filter = (("storage_megabyte", DropdownFilter),)

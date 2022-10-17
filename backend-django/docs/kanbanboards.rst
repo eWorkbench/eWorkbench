@@ -69,4 +69,3 @@ assignments, e.g.:
     [
         {"task_id":"19742f1c-4e87-4ed4-925c-6c795ee5e7d1","kanban_board_column":"ec44ff3d-17fa-44d7-9d5d-783446c97429"}
     ]
-

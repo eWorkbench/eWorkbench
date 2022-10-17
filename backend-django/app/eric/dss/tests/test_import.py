@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
@@ -9,13 +9,13 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
-from eric.core.tests.test_utils import FakeRequestUser, NoRequest, FakeRequest
-from eric.drives.models import Drive, Directory
-from eric.dss.models.models import DSSFilesToImport, DSSContainer, DSSEnvelope
+from eric.core.tests.test_utils import FakeRequest, FakeRequestUser, NoRequest
+from eric.drives.models import Directory, Drive
+from eric.dss.models.models import DSSContainer, DSSEnvelope, DSSFilesToImport
 from eric.dss.tasks import import_dss_file
 from eric.dss.tests.dss_test_utils import TemporaryDSSFile
 from eric.metadata.models.models import MetadataField
-from eric.projects.models import Role, Project, ProjectRoleUserAssignment, MyUser, Group
+from eric.projects.models import Group, MyUser, Project, ProjectRoleUserAssignment, Role
 from eric.shared_elements.models import File
 
 User = get_user_model()
@@ -23,15 +23,15 @@ User = get_user_model()
 
 class ImportTest(TestCase):
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user1', email='user1@workbench.test')
-        self.bot_user = User.objects.create_user(username='bot1', email='bot1@workbench.test')
+        self.user1 = User.objects.create_user(username="user1", email="user1@workbench.test")
+        self.bot_user = User.objects.create_user(username="bot1", email="bot1@workbench.test")
 
     def test_import_assigns_correct_user_and_file_size(self):
-        container_path = 'my/tumdss/container/09'  # must have 4 parts
-        envelope_path = 'envelope32'
-        hierarchy_path = f'{envelope_path}/storage23'
-        file_name = 'file1324.test'
-        file_content = 'test123test123'
+        container_path = "my/tumdss/container/09"  # must have 4 parts
+        envelope_path = "envelope32"
+        hierarchy_path = f"{envelope_path}/storage23"
+        file_name = "file1324.test"
+        file_content = "test123test123"
         metadata_file_content = {
             "tum_id": self.user1.username,
             "projects": [],
@@ -41,31 +41,28 @@ class ImportTest(TestCase):
         # create container hierarchy
         with FakeRequest(), FakeRequestUser(self.user1):
             container = DSSContainer.objects.create(
-                name='Test Container',
+                name="Test Container",
                 path=container_path,
                 read_write_setting=DSSContainer.READ_ONLY,
                 import_option=DSSContainer.IMPORT_LIST,
             )
             DSSEnvelope.objects.create(
-                path='envelope',
+                path="envelope",
                 container=container,
                 metadata_file_content=metadata_file_content,
             )
 
         # simulate automated API call from external service
         with FakeRequest(), FakeRequestUser(self.bot_user):
-            file_to_import = DSSFilesToImport.objects.create(
-                path=f'/dss/{container_path}/{hierarchy_path}/{file_name}'
-            )
+            file_to_import = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/{file_name}")
 
         # simulate import via celery task
         time_before_import = timezone.now()
-        with NoRequest(), \
-             TemporaryDSSFile(filename=f'{container_path}/{hierarchy_path}/{file_name}', content=file_content), \
-             TemporaryDSSFile(
-                 filename=f'{container_path}/{envelope_path}/metadata.json',
-                 content=json.dumps(metadata_file_content)
-             ):
+        with NoRequest(), TemporaryDSSFile(
+            filename=f"{container_path}/{hierarchy_path}/{file_name}", content=file_content
+        ), TemporaryDSSFile(
+            filename=f"{container_path}/{envelope_path}/metadata.json", content=json.dumps(metadata_file_content)
+        ):
             import_dss_file(file_to_import.path)
 
         # check that  the imported file has the correct user set
@@ -86,21 +83,17 @@ class ImportTest(TestCase):
         self.assertIsNone(file_to_import.last_import_fail_reason)
 
     def test_import_creates_storage_hierarchy_and_stores_metadata_file_with_readonly_container(self):
-        container_path = 'my/tumdss/container/02'  # must have 4 parts
-        envelope_path = 'envelope2'
-        hierarchy_path = f'{envelope_path}/storage2/dir2/subdir2/subsubdir2'
-        file_name = 'file2.test'
-        file_content = 'test TEST 0123456789876543210 TEST test'
-        metadata_file_content = json.dumps({
-            "tum_id": self.user1.username,
-            "projects": [],
-            "metadata_fields": []
-        })
+        container_path = "my/tumdss/container/02"  # must have 4 parts
+        envelope_path = "envelope2"
+        hierarchy_path = f"{envelope_path}/storage2/dir2/subdir2/subsubdir2"
+        file_name = "file2.test"
+        file_content = "test TEST 0123456789876543210 TEST test"
+        metadata_file_content = json.dumps({"tum_id": self.user1.username, "projects": [], "metadata_fields": []})
 
         # create container
         with FakeRequest(), FakeRequestUser(self.user1):
             container = DSSContainer.objects.create(
-                name='Test Container 2',
+                name="Test Container 2",
                 path=container_path,
                 read_write_setting=DSSContainer.READ_ONLY,
                 import_option=DSSContainer.IMPORT_LIST,
@@ -108,25 +101,19 @@ class ImportTest(TestCase):
 
         # simulate automated API call from external service
         with FakeRequest(), FakeRequestUser(self.bot_user):
-            file_to_import = DSSFilesToImport.objects.create(
-                path=f'/dss/{container_path}/{hierarchy_path}/{file_name}'
-            )
+            file_to_import = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/{file_name}")
 
         # simulate import via celery task
         with NoRequest(), TemporaryDSSFile(
-                filename=f'{container_path}/{envelope_path}/metadata.json',
-                content=metadata_file_content
-        ), TemporaryDSSFile(
-            filename=f'{container_path}/{hierarchy_path}/{file_name}',
-            content=file_content
-        ):
+            filename=f"{container_path}/{envelope_path}/metadata.json", content=metadata_file_content
+        ), TemporaryDSSFile(filename=f"{container_path}/{hierarchy_path}/{file_name}", content=file_content):
             import_dss_file(file_to_import.path)
 
         # check envelope
         envelope_qs = DSSEnvelope.objects.all()
         self.assertEqual(1, envelope_qs.count())
         envelope = envelope_qs.first()
-        self.assertEqual('envelope2', envelope.path)
+        self.assertEqual("envelope2", envelope.path)
         self.assertEqual(container, envelope.container)
         self.assertEqual(metadata_file_content, json.dumps(envelope.metadata_file_content))
 
@@ -134,7 +121,7 @@ class ImportTest(TestCase):
         storage_qs = Drive.objects.all()
         self.assertEqual(1, storage_qs.count())
         storage = storage_qs.first()
-        self.assertEqual('storage2', storage.title)
+        self.assertEqual("storage2", storage.title)
         self.assertEqual(envelope, storage.envelope)
 
         # check directories
@@ -145,23 +132,23 @@ class ImportTest(TestCase):
         # check virtual root directory
         root_dir = directories[0]
         self.assertTrue(root_dir.is_virtual_root)
-        self.assertEqual('/', root_dir.name)
+        self.assertEqual("/", root_dir.name)
         self.assertIsNone(root_dir.directory)
         self.assertEqual(storage, root_dir.drive)
 
         # check first directory
         first_dir = directories[1]
-        self.assertEqual('dir2', first_dir.name)
+        self.assertEqual("dir2", first_dir.name)
         self.assertEqual(root_dir, first_dir.directory)
 
         # check sub directory
         sub_dir = directories[2]
-        self.assertEqual('subdir2', sub_dir.name)
+        self.assertEqual("subdir2", sub_dir.name)
         self.assertEqual(first_dir, sub_dir.directory)
 
         # check sub-sub directory
         sub_sub_dir = directories[3]
-        self.assertEqual('subsubdir2', sub_sub_dir.name)
+        self.assertEqual("subsubdir2", sub_sub_dir.name)
         self.assertEqual(sub_dir, sub_sub_dir.directory)
 
         # check file
@@ -170,34 +157,34 @@ class ImportTest(TestCase):
         self.assertEqual(len(file_content), file.file_size)
         self.assertEqual(file_name, file.title)
         self.assertEqual(sub_sub_dir, file.directory)
-        self.assertEqual(f'{container_path}/{hierarchy_path}/{file_name}', str(file.path))
+        self.assertEqual(f"{container_path}/{hierarchy_path}/{file_name}", str(file.path))
 
     def test_import_adds_metadata_to_storage_and_files(self):
-        container_path = 'my/tumdss/container/03'  # must have 4 parts
-        hierarchy_path = 'envelope/storage'
+        container_path = "my/tumdss/container/03"  # must have 4 parts
+        hierarchy_path = "envelope/storage"
 
         # create metadata fields
         metadata_field_checkbox = MetadataField.objects.create(
-            name='checkbox',
-            description='desc1',
+            name="checkbox",
+            description="desc1",
             base_type=MetadataField.BASE_TYPE_CHECKBOX,
         )
         metadata_field_fraction = MetadataField.objects.create(
-            name='fraction',
-            description='desc2',
+            name="fraction",
+            description="desc2",
             base_type=MetadataField.BASE_TYPE_FRACTION,
         )
 
         # create container hierarchy
         with FakeRequest(), FakeRequestUser(self.user1):
             container = DSSContainer.objects.create(
-                name='Test Container 3',
+                name="Test Container 3",
                 path=container_path,
                 read_write_setting=DSSContainer.READ_ONLY,
                 import_option=DSSContainer.IMPORT_LIST,
             )
             DSSEnvelope.objects.create(
-                path='envelope',
+                path="envelope",
                 container=container,
                 metadata_file_content={
                     "tum_id": self.user1.username,
@@ -208,28 +195,28 @@ class ImportTest(TestCase):
                             "values": [
                                 {"value": True},
                                 {"value": False},
-                            ]
+                            ],
                         },
                         {
                             "id": str(metadata_field_fraction.pk),
                             "values": [
                                 {"nominator": 5, "denominator": 3},
-                            ]
-                        }
+                            ],
+                        },
                     ],
-                }
+                },
             )
 
         # simulate automated API call from external service
         with FakeRequest(), FakeRequestUser(self.bot_user):
-            file_to_import1 = DSSFilesToImport.objects.create(path=f'/dss/{container_path}/{hierarchy_path}/file1')
-            file_to_import2 = DSSFilesToImport.objects.create(path=f'/dss/{container_path}/{hierarchy_path}/file2')
+            file_to_import1 = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/file1")
+            file_to_import2 = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/file2")
 
         # simulate import via celery task
         time_before_import = timezone.now()
-        with NoRequest(), \
-             TemporaryDSSFile(f'{container_path}/{hierarchy_path}/file1'), \
-             TemporaryDSSFile(f'{container_path}/{hierarchy_path}/file2'):
+        with NoRequest(), TemporaryDSSFile(f"{container_path}/{hierarchy_path}/file1"), TemporaryDSSFile(
+            f"{container_path}/{hierarchy_path}/file2"
+        ):
             import_dss_file(file_to_import1.path)
             import_dss_file(file_to_import2.path)
 
@@ -248,8 +235,8 @@ class ImportTest(TestCase):
             self.assertEqual(2, md_checkbox_qs.count())
             self.assertEqual(1, md_fraction_qs.count())
             md_fraction = metadata_qs.filter(field=metadata_field_fraction).first()
-            self.assertEqual(5, md_fraction.values.get('nominator'))
-            self.assertEqual(3, md_fraction.values.get('denominator'))
+            self.assertEqual(5, md_fraction.values.get("nominator"))
+            self.assertEqual(3, md_fraction.values.get("denominator"))
 
         # check created storage
         storage_qs = Drive.objects.all()
@@ -267,48 +254,42 @@ class ImportTest(TestCase):
         __assert_correct_metadata_values(files[1].metadata)
 
     def test_failed_import_marks_filetoimport_as_failed(self):
-        container_path = 'my/tumdss/container/04'  # must have 4 parts
-        hierarchy_path = 'envelope/storage/dir1/dir1-1'
-        file_name = 'file4.test'
-        file_content = 'test 1234'
+        container_path = "my/tumdss/container/04"  # must have 4 parts
+        hierarchy_path = "envelope/storage/dir1/dir1-1"
+        file_name = "file4.test"
+        file_content = "test 1234"
 
         # create container hierarchy
         with FakeRequest(), FakeRequestUser(self.user1):
             container = DSSContainer.objects.create(
-                name='Test Container 3',
+                name="Test Container 3",
                 path=container_path,
                 read_write_setting=DSSContainer.READ_ONLY,
                 import_option=DSSContainer.IMPORT_LIST,
             )
             DSSEnvelope.objects.create(
-                path='envelope',
+                path="envelope",
                 container=container,
                 metadata_file_content={
                     "tum_id": self.user1.username,
                     "projects": [],
                     "metadata_fields": [],
-                }
+                },
             )
 
         # simulate automated API call from external service
         with FakeRequest(), FakeRequestUser(self.bot_user):
-            file_to_import = DSSFilesToImport.objects.create(
-                path=f'/dss/{container_path}/{hierarchy_path}/{file_name}'
-            )
+            file_to_import = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/{file_name}")
 
         # simulate import via celery task
         time_before_import = timezone.now()
         with NoRequest(), TemporaryDSSFile(
-                filename=f'{container_path}/{hierarchy_path}/{file_name}',
-                content=file_content
-        ), patch(
-            'eric.dss.helper_classes.DSSFileImport.create_data',
-            side_effect=OSError('Fake Exception')
-        ):
+            filename=f"{container_path}/{hierarchy_path}/{file_name}", content=file_content
+        ), patch("eric.dss.helper_classes.DSSFileImport.create_data", side_effect=OSError("Fake Exception")):
             try:
                 import_dss_file(file_to_import.path)
             except Exception as exc:
-                self.assertIn('Fake Exception', str(exc))
+                self.assertIn("Fake Exception", str(exc))
 
         # check that the file was not imported and no hierarchy was created
         self.assertEqual(0, File.objects.all().count())
@@ -322,22 +303,18 @@ class ImportTest(TestCase):
         self.assertTrue(file_to_import.last_import_attempt_failed)
         self.assertTrue(time_before_import <= file_to_import.last_import_attempt_failed_at <= timezone.now())
         self.assertIsNotNone(file_to_import.last_import_fail_reason)
-        self.assertIn('Fake Exception', file_to_import.last_import_fail_reason)
+        self.assertIn("Fake Exception", file_to_import.last_import_fail_reason)
         self.assertEqual(1, file_to_import.import_attempts)
 
         # retry: simulate import via celery task
         time_before_import = timezone.now()
         with NoRequest(), TemporaryDSSFile(
-                filename=f'{container_path}/{hierarchy_path}/{file_name}',
-                content=file_content
-        ), patch(
-            'eric.dss.helper_classes.DSSFileImport.create_data',
-            side_effect=Exception('Another Fake Exception')
-        ):
+            filename=f"{container_path}/{hierarchy_path}/{file_name}", content=file_content
+        ), patch("eric.dss.helper_classes.DSSFileImport.create_data", side_effect=Exception("Another Fake Exception")):
             try:
                 import_dss_file(file_to_import.path)
             except Exception as exc:
-                self.assertIn('Another Fake Exception', str(exc))
+                self.assertIn("Another Fake Exception", str(exc))
 
         # check that the file was not imported and no hierarchy was created
         self.assertEqual(0, File.objects.all().count())
@@ -351,19 +328,19 @@ class ImportTest(TestCase):
         self.assertTrue(file_to_import.last_import_attempt_failed)
         self.assertTrue(time_before_import <= file_to_import.last_import_attempt_failed_at <= timezone.now())
         self.assertIsNotNone(file_to_import.last_import_fail_reason)
-        self.assertIn('Another Fake Exception', file_to_import.last_import_fail_reason)
+        self.assertIn("Another Fake Exception", file_to_import.last_import_fail_reason)
         self.assertEqual(2, file_to_import.import_attempts)
 
     def test_import_fails_for_missing_metadata_file(self):
-        container_path = 'my/tumdss/container/01'  # must have 4 parts
-        hierarchy_path = 'envelope_with_missing_metadata/storage'
-        file_name = 'file1.test'
-        file_content = 'test123test123'
+        container_path = "my/tumdss/container/01"  # must have 4 parts
+        hierarchy_path = "envelope_with_missing_metadata/storage"
+        file_name = "file1.test"
+        file_content = "test123test123"
 
         # create container hierarchy
         with FakeRequest(), FakeRequestUser(self.user1):
             DSSContainer.objects.create(
-                name='Test Container',
+                name="Test Container",
                 path=container_path,
                 read_write_setting=DSSContainer.READ_ONLY,
                 import_option=DSSContainer.IMPORT_LIST,
@@ -371,20 +348,17 @@ class ImportTest(TestCase):
 
         # simulate automated API call from external service
         with FakeRequest(), FakeRequestUser(self.bot_user):
-            file_to_import = DSSFilesToImport.objects.create(
-                path=f'/dss/{container_path}/{hierarchy_path}/{file_name}'
-            )
+            file_to_import = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/{file_name}")
 
         # simulate import via celery task
         time_before_import = timezone.now()
         with NoRequest(), TemporaryDSSFile(
-                filename=f'{container_path}/{hierarchy_path}/{file_name}',
-                content=file_content
+            filename=f"{container_path}/{hierarchy_path}/{file_name}", content=file_content
         ):
             try:
                 import_dss_file(file_to_import.path)
             except Exception as exc:
-                self.assertIn('metadata', str(exc))
+                self.assertIn("metadata", str(exc))
 
         # check that no container have been created and the file was not imported
         self.assertEqual(0, File.objects.all().count())
@@ -402,27 +376,24 @@ class ImportTest(TestCase):
         self.assertTrue(time_before_import < file_to_import.last_import_attempt_failed_at < timezone.now())
 
     def test_import_fails_for_missing_container(self):
-        container_path = 'my/tumdss/container/01'  # must have 4 parts
-        hierarchy_path = 'envelope/storage'
-        file_name = 'file1.test'
-        file_content = 'test123test123'
+        container_path = "my/tumdss/container/01"  # must have 4 parts
+        hierarchy_path = "envelope/storage"
+        file_name = "file1.test"
+        file_content = "test123test123"
 
         # simulate automated API call from external service
         with FakeRequest(), FakeRequestUser(self.bot_user):
-            file_to_import = DSSFilesToImport.objects.create(
-                path=f'/dss/{container_path}/{hierarchy_path}/{file_name}'
-            )
+            file_to_import = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/{file_name}")
 
         # simulate import via celery task
         time_before_import = timezone.now()
         with NoRequest(), TemporaryDSSFile(
-                filename=f'{container_path}/{hierarchy_path}/{file_name}',
-                content=file_content
+            filename=f"{container_path}/{hierarchy_path}/{file_name}", content=file_content
         ):
             try:
                 import_dss_file(file_to_import.path)
             except Exception as exc:
-                self.assertIn('container', str(exc))
+                self.assertIn("container", str(exc))
 
         # check that no container have been created and the file was not imported
         self.assertEqual(0, DSSContainer.objects.all().count())
@@ -441,26 +412,26 @@ class ImportTest(TestCase):
         self.assertTrue(time_before_import < file_to_import.last_import_attempt_failed_at < timezone.now())
 
     def test_import_does_not_add_metadata_redundantly_for_multiple_files_in_storage(self):
-        container_path = 'my/tumdss/container/05'  # must have 4 parts
-        hierarchy_path = 'envelope/storage_multi_files'
+        container_path = "my/tumdss/container/05"  # must have 4 parts
+        hierarchy_path = "envelope/storage_multi_files"
 
         # create metadata fields
         metadata_field_checkbox = MetadataField.objects.create(
-            name='checkbox',
-            description='A checkbox field',
+            name="checkbox",
+            description="A checkbox field",
             base_type=MetadataField.BASE_TYPE_CHECKBOX,
         )
 
         # create container hierarchy
         with FakeRequest(), FakeRequestUser(self.user1):
             container = DSSContainer.objects.create(
-                name='Test Container 3',
+                name="Test Container 3",
                 path=container_path,
                 read_write_setting=DSSContainer.READ_ONLY,
                 import_option=DSSContainer.IMPORT_LIST,
             )
             DSSEnvelope.objects.create(
-                path='envelope',
+                path="envelope",
                 container=container,
                 metadata_file_content={
                     "tum_id": self.user1.username,
@@ -470,23 +441,22 @@ class ImportTest(TestCase):
                             "id": str(metadata_field_checkbox.pk),
                             "values": [
                                 {"value": True},
-                            ]
+                            ],
                         },
                     ],
-                }
+                },
             )
 
         # simulate automated API call from external service
         with FakeRequest(), FakeRequestUser(self.bot_user):
-            file_to_import1 = DSSFilesToImport.objects.create(path=f'/dss/{container_path}/{hierarchy_path}/file1')
-            file_to_import2 = DSSFilesToImport.objects.create(path=f'/dss/{container_path}/{hierarchy_path}/file2')
-            file_to_import3 = DSSFilesToImport.objects.create(path=f'/dss/{container_path}/{hierarchy_path}/file3')
+            file_to_import1 = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/file1")
+            file_to_import2 = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/file2")
+            file_to_import3 = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/file3")
 
         # simulate imports via celery task
-        with NoRequest(), \
-             TemporaryDSSFile(f'{container_path}/{hierarchy_path}/file1'), \
-             TemporaryDSSFile(f'{container_path}/{hierarchy_path}/file2'), \
-             TemporaryDSSFile(f'{container_path}/{hierarchy_path}/file3'):
+        with NoRequest(), TemporaryDSSFile(f"{container_path}/{hierarchy_path}/file1"), TemporaryDSSFile(
+            f"{container_path}/{hierarchy_path}/file2"
+        ), TemporaryDSSFile(f"{container_path}/{hierarchy_path}/file3"):
             import_dss_file(file_to_import1.path)
             import_dss_file(file_to_import2.path)
             import_dss_file(file_to_import3.path)
@@ -500,14 +470,14 @@ class ImportTest(TestCase):
         self.assertEqual(1, drive.metadata.all().count())
 
     def test_import_adds_projects_to_storage_and_files(self):
-        container_path = 'my/tumdss/container/03'  # must have 4 parts
-        hierarchy_path = 'envelope/storage'
+        container_path = "my/tumdss/container/03"  # must have 4 parts
+        hierarchy_path = "envelope/storage"
 
         self.memberRole = Role.objects.filter(name="Project Member").first()
         self.observerRole = Role.objects.filter(name="Observer").first()
 
         self.my_user1 = MyUser.objects.filter(pk=self.user1.pk).first()
-        self.user_group = Group.objects.get(name='User')
+        self.user_group = Group.objects.get(name="User")
         self.my_user1.groups.add(self.user_group)
 
         self.my_bot_user = MyUser.objects.filter(pk=self.bot_user.pk).first()
@@ -515,13 +485,9 @@ class ImportTest(TestCase):
 
         # simulate automated API call from external service
         with FakeRequest(), FakeRequestUser(self.bot_user):
-            self.project2 = Project.objects.create(
-                name="Project 2"
-            )
+            self.project2 = Project.objects.create(name="Project 2")
 
-            self.project3 = Project.objects.create(
-                name="Project 3"
-            )
+            self.project3 = Project.objects.create(name="Project 3")
 
             # set user1 as observer in project2
             ProjectRoleUserAssignment.objects.create(
@@ -530,36 +496,34 @@ class ImportTest(TestCase):
                 role=self.observerRole,
             )
 
-            file_to_import1 = DSSFilesToImport.objects.create(path=f'/dss/{container_path}/{hierarchy_path}/file1')
-            file_to_import2 = DSSFilesToImport.objects.create(path=f'/dss/{container_path}/{hierarchy_path}/file2')
+            file_to_import1 = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/file1")
+            file_to_import2 = DSSFilesToImport.objects.create(path=f"/dss/{container_path}/{hierarchy_path}/file2")
 
         # create container hierarchy
         with FakeRequest(), FakeRequestUser(self.my_user1):
-            self.project1 = Project.objects.create(
-                name="Project 1"
-            )
+            self.project1 = Project.objects.create(name="Project 1")
 
             container = DSSContainer.objects.create(
-                name='Test Container 3',
+                name="Test Container 3",
                 path=container_path,
                 read_write_setting=DSSContainer.READ_ONLY,
                 import_option=DSSContainer.IMPORT_LIST,
             )
             DSSEnvelope.objects.create(
-                path='envelope',
+                path="envelope",
                 container=container,
                 metadata_file_content={
                     "tum_id": self.user1.username,
                     "projects": [str(self.project1.pk), str(self.project2.pk), str(self.project3.pk)],
                     "metadata_fields": [],
-                }
+                },
             )
 
         # simulate import via celery task
         time_before_import = timezone.now()
-        with NoRequest(), \
-             TemporaryDSSFile(f'{container_path}/{hierarchy_path}/file1'), \
-             TemporaryDSSFile(f'{container_path}/{hierarchy_path}/file2'):
+        with NoRequest(), TemporaryDSSFile(f"{container_path}/{hierarchy_path}/file1"), TemporaryDSSFile(
+            f"{container_path}/{hierarchy_path}/file2"
+        ):
             import_dss_file(file_to_import1.path)
             import_dss_file(file_to_import2.path)
 

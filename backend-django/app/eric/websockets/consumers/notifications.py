@@ -1,13 +1,14 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
 
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 from eric.notifications.models import Notification
 from eric.websockets.consumers.core import AuthenticatedWorkbenchJsonWebsocketConsumer
@@ -28,13 +29,7 @@ def notification_has_changed(instance, created, *args, **kwargs):
         group_name = NOTIFICATION_CHANNEL_GROUP.format(user_pk=instance.user.pk)
 
         async_to_sync(channel_layer.group_send)(
-            group_name,
-            {
-                'type': 'notification_changed',
-                'message': {
-                    'pk': str(instance.pk)
-                }
-            }
+            group_name, {"type": "notification_changed", "message": {"pk": str(instance.pk)}}
         )
 
 
@@ -55,10 +50,7 @@ class NotificationConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
     def disconnect(self, close_code):
         if self.group_name:
             # Leave notification group with this channel
-            async_to_sync(self.channel_layer.group_discard)(
-                self.group_name,
-                self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
 
     def receive_json_authenticated(self, content, **kwargs):
         # we do not expect the user to send anything over this channel
@@ -72,10 +64,7 @@ class NotificationConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         self.group_name = NOTIFICATION_CHANNEL_GROUP.format(user_pk=user.pk)
 
         # Join notification group with the current channel
-        async_to_sync(self.channel_layer.group_add)(
-            self.group_name,
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
 
     def notification_changed(self, event):
         """
@@ -83,9 +72,7 @@ class NotificationConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
 
         Notify the current channel about this change
         """
-        message = event['message']
+        message = event["message"]
 
         # Send message to WebSocket
-        self.send(text_data=json.dumps({
-            'message': message
-        }))
+        self.send(text_data=json.dumps({"message": message}))

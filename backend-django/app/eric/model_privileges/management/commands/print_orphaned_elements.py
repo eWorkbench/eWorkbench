@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.auth import get_user_model
@@ -14,14 +14,14 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Prints all Workbench elements where no Full Access privilege is granted to any user'
+    help = "Prints all Workbench elements where no Full Access privilege is granted to any user"
 
     def handle(self, *args, **options):
-        print('Model\tPK\tCreatedBy\tCreatedAt\tLastModifiedBy\tLastModifiedAt\tHasAnyPrivileges')
+        print("Model\tPK\tCreatedBy\tCreatedAt\tLastModifiedBy\tLastModifiedAt\tHasAnyPrivileges")
 
         for model in get_workbench_models_with_special_permissions():
             model_name = str(model._meta)
-            print('# ' + model_name)
+            print("# " + model_name)
 
             objects_without_full_access_privilege = model.objects.exclude(
                 model_privileges__full_access_privilege=ModelPrivilege.ALLOW
@@ -33,11 +33,17 @@ class Command(BaseCommand):
                 has_privileges = obj.model_privileges.exists()
 
                 print(
-                    model_name + '\t'
-                    + str(obj.pk) + '\t'
-                    + obj.created_by.username + '\t'
-                    + created_at + '\t'
-                    + obj.last_modified_by.username + '\t'
-                    + last_modified_at + '\t'
+                    model_name
+                    + "\t"
+                    + str(obj.pk)
+                    + "\t"
+                    + obj.created_by.username
+                    + "\t"
+                    + created_at
+                    + "\t"
+                    + obj.last_modified_by.username
+                    + "\t"
+                    + last_modified_at
+                    + "\t"
                     + str(has_privileges)
                 )

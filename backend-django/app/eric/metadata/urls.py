@@ -1,12 +1,12 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.conf.urls import include
 from django.urls import re_path
 
 from eric.core.rest.routers import get_api_router
-from eric.metadata.rest.viewsets import MetadataFieldViewSet, MetadataSearchViewSet
+from eric.metadata.rest.viewsets import MetadataFieldViewSet, MetadataSearchViewSet, MetadataTagViewSet
 
 router = get_api_router()
 urls = []
@@ -29,11 +29,14 @@ urls = []
 # add_sub_urls(r'dmps', DmpViewSet, 'dmp')
 
 # /api/metadatafields
-router.register(r'metadatafields', MetadataFieldViewSet, basename='metadatafield')
+router.register(r"metadatafields", MetadataFieldViewSet, basename="metadatafield")
 
 # /api/metadata-search
-router.register(r'metadata-search', MetadataSearchViewSet, basename='metadata-search')
+router.register(r"metadata-search", MetadataSearchViewSet, basename="metadata-search")
+
+# /api/metadata-search
+router.register(r"metadata/tags", MetadataTagViewSet, basename="metadata-tag")
 
 urlpatterns = [
-    re_path(r'^', include(urls)),
+    re_path(r"^", include(urls)),
 ]

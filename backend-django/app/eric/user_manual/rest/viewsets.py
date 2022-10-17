@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import errno
@@ -7,35 +7,38 @@ import os
 import re
 import zipfile
 
-import zipstream
 from django.conf import settings
 from django.core import serializers
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
+
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+import zipstream
 
 from eric.core.rest.viewsets import BaseAuthenticatedReadOnlyModelViewSet
 from eric.user_manual import HELP_TEXT_CACHE_KEY
 from eric.user_manual.models import UserManualCategory, UserManualHelpText, UserManualPlaceholder
 from eric.user_manual.rest.filters import UserManualHelpTextFilter
-from eric.user_manual.rest.serializers import UserManualHelpTextSerializer, UserManualCategorySerializer
+from eric.user_manual.rest.serializers import UserManualCategorySerializer, UserManualHelpTextSerializer
 
 
 class UserManualHelper:
     @staticmethod
     def get_serialized_categories():
-        """ Returns a serialized string of categories """
+        """Returns a serialized string of categories"""
         categories = UserManualCategory.objects.all()
 
-        return serializers.serialize("xml", categories, fields=(
-            'id', 'title', 'description', 'ordering', 'created_at', 'last_modified_at'))
+        return serializers.serialize(
+            "xml", categories, fields=("id", "title", "description", "ordering", "created_at", "last_modified_at")
+        )
 
     @staticmethod
     def collect_all_media_files_from_html(html_string):
-        pattern = re.compile(r'\${MEDIA_URL}([^,\s\"])*')
+        pattern = re.compile(r"\${MEDIA_URL}([^,\s\"])*")
 
         matches = pattern.finditer(html_string)
 
@@ -55,8 +58,9 @@ class UserManualHelper:
         """
         placeholders = UserManualPlaceholder.objects.all()
 
-        serialized_placeholders = serializers.serialize("xml", placeholders, fields=(
-            'id', 'key', 'content', 'created_at', 'last_modified_at'))
+        serialized_placeholders = serializers.serialize(
+            "xml", placeholders, fields=("id", "key", "content", "created_at", "last_modified_at")
+        )
 
         # find all occurances of the current media url and replace it with something variable
         serialized_placeholders = serialized_placeholders.replace(settings.MEDIA_URL, "${MEDIA_URL}/")
@@ -71,8 +75,11 @@ class UserManualHelper:
         """
         manual_texts = UserManualHelpText.objects.all()
 
-        serialized_manual_texts = serializers.serialize("xml", manual_texts, fields=(
-            'id', 'title', 'text', 'category', 'ordering', 'created_at', 'last_modified_at'))
+        serialized_manual_texts = serializers.serialize(
+            "xml",
+            manual_texts,
+            fields=("id", "title", "text", "category", "ordering", "created_at", "last_modified_at"),
+        )
 
         # find all occurances of the current media url and replace it with something variable
         serialized_manual_texts = serialized_manual_texts.replace(settings.MEDIA_URL, "${MEDIA_URL}/")
@@ -81,11 +88,11 @@ class UserManualHelper:
 
 
 class UserManualHelpTextViewset(BaseAuthenticatedReadOnlyModelViewSet):
-    """ REST API Viewset for User Manual Help Texts """
+    """REST API Viewset for User Manual Help Texts"""
 
     serializer_class = UserManualHelpTextSerializer
     filterset_class = UserManualHelpTextFilter
-    search_fields = ('title',)
+    search_fields = ("title",)
 
     # disable pagination for this endpoint
     pagination_class = None
@@ -95,7 +102,7 @@ class UserManualHelpTextViewset(BaseAuthenticatedReadOnlyModelViewSet):
         Fetches the parent object and raises Http404 if the parent object does not exist (or the user does not have
         access to said object)
         """
-        super(UserManualHelpTextViewset, self).initial(request, *args, **kwargs)
+        super().initial(request, *args, **kwargs)
         # store parent object
         self.parent_object = self.get_parent_object_or_404(*args, **kwargs)
 
@@ -105,10 +112,10 @@ class UserManualHelpTextViewset(BaseAuthenticatedReadOnlyModelViewSet):
         Tries to retrieve the parent object (defined via the REST API)
         Raises Http404 if we do not have access to the parent object
         """
-        return get_object_or_404(UserManualCategory.objects.all(), pk=kwargs['usermanualcategory_pk'])
+        return get_object_or_404(UserManualCategory.objects.all(), pk=kwargs["usermanualcategory_pk"])
 
     def list(self, request, *args, **kwargs):
-        """ Cached list response """
+        """Cached list response"""
 
         cache_key = HELP_TEXT_CACHE_KEY % self.parent_object.pk
 
@@ -128,17 +135,16 @@ class UserManualHelpTextViewset(BaseAuthenticatedReadOnlyModelViewSet):
         return Response(serializer_data)
 
     def get_queryset(self):
-        if not hasattr(self, 'parent_object') or not self.parent_object:
+        if not hasattr(self, "parent_object") or not self.parent_object:
             return UserManualHelpText.objects.none()
 
         return UserManualHelpText.objects.filter(category=self.parent_object).prefetch_related(
-            'category',
-            'created_by', 'last_modified_by'
+            "category", "created_by", "last_modified_by"
         )
 
 
 class UserManualCategoriesViewset(BaseAuthenticatedReadOnlyModelViewSet):
-    """ REST API Viewset for User Manual Category """
+    """REST API Viewset for User Manual Category"""
 
     serializer_class = UserManualCategorySerializer
 
@@ -148,15 +154,15 @@ class UserManualCategoriesViewset(BaseAuthenticatedReadOnlyModelViewSet):
     def get_queryset(self):
         return UserManualCategory.objects.all()
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=["GET"])
     def export_user_manual(self, request, *args, **kwargs):
-        """ Exports the user manual in form of a ZIP file """
+        """Exports the user manual in form of a ZIP file"""
 
         # verify the current user is staff
         if not request.user or not request.user.is_staff:
             raise PermissionDenied
 
-        zf = zipstream.ZipFile(mode='w', compression=zipstream.ZIP_DEFLATED)
+        zf = zipstream.ZipFile(mode="w", compression=zipstream.ZIP_DEFLATED)
 
         serialized_categories = UserManualHelper.get_serialized_categories()
         zf.writestr("categories.xml", serialized_categories.encode())
@@ -175,36 +181,38 @@ class UserManualCategoriesViewset(BaseAuthenticatedReadOnlyModelViewSet):
             actual_file = file.replace("${MEDIA_URL}", settings.MEDIA_ROOT)
             zf.write(actual_file, arcname=file)
 
-        response = StreamingHttpResponse(zf, content_type='application/zip')
+        response = StreamingHttpResponse(zf, content_type="application/zip")
 
         # set filename in header
-        response['Content-Disposition'] = 'attachment; filename="{}"'.format("user_manual.zip")
+        response["Content-Disposition"] = 'attachment; filename="{}"'.format("user_manual.zip")
 
         return response
 
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=["POST"])
     def import_user_manual(self, request, *args, **kwargs):
-        """ Imports a user manual in form of a ZIP file """
+        """Imports a user manual in form of a ZIP file"""
 
         # verify the current user is staff
         if not request.user or not request.user.is_staff:
             raise PermissionDenied
 
         # make sure user has permissions to add, edit and delete the user manual
-        if not request.user.has_perms([
-            'user_manual.add_usermanualhelptext',
-            'user_manual.add_usermanualplaceholder',
-            'user_manual.add_usermanualcategory',
-            'user_manual.change_usermanualhelptext',
-            'user_manual.change_usermanualplaceholder',
-            'user_manual.change_usermanualcategory',
-            'user_manual.delete_usermanualhelptext',
-            'user_manual.delete_usermanualplaceholder',
-            'user_manual.delete_usermanualcategory'
-        ]):
+        if not request.user.has_perms(
+            [
+                "user_manual.add_usermanualhelptext",
+                "user_manual.add_usermanualplaceholder",
+                "user_manual.add_usermanualcategory",
+                "user_manual.change_usermanualhelptext",
+                "user_manual.change_usermanualplaceholder",
+                "user_manual.change_usermanualcategory",
+                "user_manual.delete_usermanualhelptext",
+                "user_manual.delete_usermanualplaceholder",
+                "user_manual.delete_usermanualcategory",
+            ]
+        ):
             raise PermissionDenied
 
-        file_obj = request.data['file']
+        file_obj = request.data["file"]
 
         # clean existing database entries
         UserManualCategory.objects.all().delete()

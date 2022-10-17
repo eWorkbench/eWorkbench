@@ -42,4 +42,3 @@ as a property to each model that inherits from the mixin. The workflow of the ``
 4. Prefetch all those models (using ``viewable()`` method for permissions/privileges and appropriate prefetches)
 5. Iterate over all relations for the given object and fill in the prefetched elements for ``left_content_object``
    and ``right_content_object`` (this is done for performance reasons)
-

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from rest_framework.test import APITestCase
@@ -15,12 +15,7 @@ class TestGenericNotes(APITestCase, NoteMixin, EntityChangeRelatedProjectTestMix
     def setUp(self):
         self.superSetUp()
 
-        self.data = [{
-            'subject': "Reminder",
-            'content': "<p>Please <u>do</u> it</p>",
-            'project_pks': None
-        }, {
-            'subject': "Agreed",
-            'content': "Seems like your way is the way to go!",
-            'project_pks': None
-        }]
+        self.data = [
+            {"subject": "Reminder", "content": "<p>Please <u>do</u> it</p>", "project_pks": None},
+            {"subject": "Agreed", "content": "Seems like your way is the way to go!", "project_pks": None},
+        ]

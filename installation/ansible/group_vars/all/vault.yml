@@ -4,4 +4,3 @@ vault_app_user_password: "xxxx"
 vault_app_user_encrypted_password: "xxxx"
 vault_testbench_db_password: "xxxx"
 vault_workbench_db_password: "xxxx"
-

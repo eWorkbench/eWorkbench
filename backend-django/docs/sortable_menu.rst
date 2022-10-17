@@ -16,4 +16,3 @@ If the ``default_menu_entries`` setting is changed, a sync needs to be performed
 .. code:: bash
 
     python manage.py sync_sortable_menu
-

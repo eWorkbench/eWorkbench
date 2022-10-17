@@ -1,8 +1,10 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.auth import get_user_model
+
+from django_userforeignkey.request import get_current_user
 
 from eric.model_privileges.models import ModelPrivilege
 
@@ -10,8 +12,15 @@ User = get_user_model()
 
 
 def UserPermission(
-        user, object_id, content_type,
-        can_view=False, can_edit=False, can_delete=False, can_restore=False, can_trash=False, is_owner=False
+    user,
+    object_id,
+    content_type,
+    can_view=False,
+    can_edit=False,
+    can_delete=False,
+    can_restore=False,
+    can_trash=False,
+    is_owner=False,
 ):
     """
     Wrapper for creating a fake ModelPrivilege
@@ -26,7 +35,7 @@ def UserPermission(
         delete_privilege=ModelPrivilege.ALLOW if can_delete else ModelPrivilege.NEUTRAL,
         restore_privilege=ModelPrivilege.ALLOW if can_restore else ModelPrivilege.NEUTRAL,
         object_id=object_id,
-        content_type=content_type
+        content_type=content_type,
     )
 
 
@@ -39,27 +48,26 @@ def collect_additional_privileges_for(entity, obj, for_user=None):
     """
     permissions_by_user = dict()
 
-    # for the specified entity get all privileges and process them
-    if entity in privileges_by_class:
-        privs = privileges_by_class[entity]
+    user = get_current_user()
 
-        # iterate over all privilege classes for this entity
-        for priv in privs:
-            priv_cls = priv['privilege_cls']
-            # execute the privilege by calling "get_privileges"
-            permissions_by_user = priv_cls.get_privileges(obj, permissions_by_user)
+    if not user.is_anonymous:
+        # for the specified entity get all privileges and process them
+        if entity in privileges_by_class:
+            privs = privileges_by_class[entity]
+
+            # iterate over all privilege classes for this entity
+            for priv in privs:
+                priv_cls = priv["privilege_cls"]
+                # execute the privilege by calling "get_privileges"
+                permissions_by_user = priv_cls.get_privileges(obj, permissions_by_user)
 
     # check if we need to filter permissions for a specific user
     if for_user:
         # check if we have privileges for this user
         if for_user.pk in permissions_by_user:
-            return {
-                for_user.pk: permissions_by_user[for_user.pk]
-            }
+            return {for_user.pk: permissions_by_user[for_user.pk]}
 
-        return {
-            for_user.pk: UserPermission(for_user, obj.pk, obj.get_content_type())
-        }
+        return {for_user.pk: UserPermission(for_user, obj.pk, obj.get_content_type())}
 
     return permissions_by_user
 
@@ -75,7 +83,7 @@ def get_project_and_additional_inherited_privileges_for(entity, obj, user=None):
     permissions_by_user = collect_additional_privileges_for(entity, obj, user)
 
     # verify that this object is project related (it should be)
-    if hasattr(obj, 'projects'):
+    if hasattr(obj, "projects"):
         for project in obj.projects.all():
             # from the current project, get all assigned users with
             # any permission related to the content type of object
@@ -87,28 +95,22 @@ def get_project_and_additional_inherited_privileges_for(entity, obj, user=None):
                 assigned_users = assigned_users.filter(user=user)
 
             # now order/select this permissions by user and the permission codename
-            role_permissions = assigned_users.values(
-                'user', 'role__permissions__codename'
-            ).order_by('user')
+            role_permissions = assigned_users.values("user", "role__permissions__codename").order_by("user")
 
             # prefetch users
-            user_pks = role_permissions.values_list('user', flat=True)
+            user_pks = role_permissions.values_list("user", flat=True)
             users = User.objects.filter(pk__in=user_pks).in_bulk()
 
             # collect role permissions by user (edit, delete, view) in the permission_by_user dict
             for role_perm in role_permissions:
                 # get the user_pk
-                user_pk = role_perm['user']
+                user_pk = role_perm["user"]
                 # make sure an entry for user exists in permissions_by_user
                 if user_pk not in permissions_by_user:
                     # does not exist --> create a new entry and set defaults to False
-                    permissions_by_user[user_pk] = UserPermission(
-                        users.get(user_pk),
-                        obj.pk,
-                        obj.get_content_type()
-                    )
+                    permissions_by_user[user_pk] = UserPermission(users.get(user_pk), obj.pk, obj.get_content_type())
 
-                perm = role_perm['role__permissions__codename']
+                perm = role_perm["role__permissions__codename"]
 
                 if "change_" in perm:
                     permissions_by_user[user_pk].edit_privilege = ModelPrivilege.ALLOW
@@ -145,9 +147,7 @@ def get_model_privileges_and_project_permissions_for(entity, obj, user=None):
         mp_qs = mp_qs.filter(user=user)
 
     # get model privileges for the current object, and convert them into a list so we can work with them
-    model_privileges = list(
-        mp_qs.select_related('user', 'user__userprofile', 'content_type')
-    )
+    model_privileges = list(mp_qs.select_related("user", "user__userprofile", "content_type"))
 
     # iterate over model privileges and set some additional attributes
     for model_privilege in model_privileges:
@@ -174,7 +174,7 @@ def get_model_privileges_and_project_permissions_for(entity, obj, user=None):
     return model_privileges
 
 
-class BasePrivilege(object):
+class BasePrivilege:
     """
     Base Privilege that should be inherited by other privileges
     needs to implement static method get_privileges(obj)
@@ -182,7 +182,7 @@ class BasePrivilege(object):
 
     @staticmethod
     def get_privileges(obj):
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 """
@@ -214,14 +214,11 @@ def register_privilege(model_cls=None, execution_order=0, **kwargs):
         if model_cls not in privileges_by_class:
             privileges_by_class[model_cls] = []
 
-        privileges_by_class[model_cls].append({
-            'execution_order': execution_order,
-            'privilege_cls': privilege_cls
-        })
+        privileges_by_class[model_cls].append({"execution_order": execution_order, "privilege_cls": privilege_cls})
 
         # sort privileges_by_class[model_cls]
         privileges_by_class[model_cls] = sorted(
-            privileges_by_class[model_cls], key=lambda value: value['execution_order']
+            privileges_by_class[model_cls], key=lambda value: value["execution_order"]
         )
 
         return privilege_cls

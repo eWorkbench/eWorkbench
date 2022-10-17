@@ -5,6 +5,7 @@
 {% block userlinks %}
     {% if user.is_active and user.is_staff %}
     <a href="/admin/settings/">{% trans "Edit Site settings" %}</a> /
+    <a href="/admin/statistics/statistic/">{% trans "Statistics" %}</a> /
     {% endif %}
         {{ block.super }}
 

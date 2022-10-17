@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
@@ -8,72 +8,85 @@ from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
-from django_changeset.models import RevisionModelMixin
+
 from rest_framework import status
 
+from django_changeset.models import RevisionModelMixin
+
 from eric.core.models import disable_permission_checks
-from eric.core.tests import test_utils, HTTP_USER_AGENT, REMOTE_ADDR
+from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR, test_utils
 from eric.core.tests.test_utils import CommonTestMixin
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.models import Project, Role
-from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, ChangeSetMixin
+from eric.projects.tests.core import AuthenticationMixin, ChangeSetMixin, ModelPrivilegeMixin, ProjectsMixin
 from eric.shared_elements.models import File
 
 User = get_user_model()
 
 
-class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin,
-                                          ChangeSetMixin):
+class EntityChangeRelatedProjectTestMixin(
+    CommonTestMixin, AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, ChangeSetMixin
+):
     """
     Mixin which tests several API endpoints of the given "entity"
     """
+
     entity = None
     data = None
 
     def superSetUp(self):
         self.observer_role = self.create_strict_observer_role()
-        self.pm_role = Role.objects.get(name='Project Manager')
-        self.user_group = Group.objects.get(name='User')
+        self.pm_role = Role.objects.get(name="Project Manager")
+        self.user_group = Group.objects.get(name="User")
 
-        self.user1 = User.objects.create_user(
-            username='student_1', email='student_1@email.com', password='top_secret')
+        self.user1 = User.objects.create_user(username="student_1", email="student_1@email.com", password="top_secret")
         self.user1.groups.add(self.user_group)
 
-        self.user2 = User.objects.create_user(
-            username='student_2', email='student_2@email.com', password='foobar')
+        self.user2 = User.objects.create_user(username="student_2", email="student_2@email.com", password="foobar")
         self.user2.groups.add(self.user_group)
 
         # create a user without any special permissions
-        self.user3 = User.objects.create_user(
-            username='student_3', email='student_3@email.com', password='permission'
-        )
+        self.user3 = User.objects.create_user(username="student_3", email="student_3@email.com", password="permission")
 
         self.superuser = User.objects.create_user(
-            username='superuser', email='super@user.com', password='sudo', is_superuser=True,
+            username="superuser",
+            email="super@user.com",
+            password="sudo",
+            is_superuser=True,
         )
 
-        self.token1 = self.login_and_return_token('student_1', 'top_secret')
-        self.token2 = self.login_and_return_token('student_2', 'foobar')
-        self.token3 = self.login_and_return_token('student_3', 'permission')
-        self.superuser_token = self.login_and_return_token('superuser', 'sudo')
+        self.token1 = self.login_and_return_token("student_1", "top_secret")
+        self.token2 = self.login_and_return_token("student_2", "foobar")
+        self.token3 = self.login_and_return_token("student_3", "permission")
+        self.superuser_token = self.login_and_return_token("superuser", "sudo")
 
         # create two projects
         self.project1 = self.create_project(
-            self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", Project.STARTED,
-            HTTP_USER_AGENT, REMOTE_ADDR
+            self.token1,
+            "My Own Project (user1)",
+            "Only user1 has access to this project",
+            Project.STARTED,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
         )
 
         self.project2 = self.create_project(
-            self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", Project.STARTED,
-            HTTP_USER_AGENT, REMOTE_ADDR
+            self.token2,
+            "Another Project (user2)",
+            "Only user2 has access to this project",
+            Project.STARTED,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
         )
 
         # add user3 to project1
         self.rest_assign_user_to_project(
-            self.token1, self.project1, self.user3, self.pm_role,
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            self.token1,
+            self.project1,
+            self.user3,
+            self.pm_role,
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
 
     def rest_generic_create_entity(self, token, index):
@@ -86,12 +99,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         data = self.data[index]
 
         # check if there is a method called "rest_create_{entity_name}"
-        method_name = "rest_create_{entity_name}".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_create_{self.entity.__name__.lower()}"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         # call handler
@@ -107,12 +121,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         data = self.data[index]
 
         # check if there is a method called "rest_update_{entity_name}"
-        method_name = "rest_update_{entity_name}".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_update_{self.entity.__name__.lower()}"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         # call handler
@@ -126,12 +141,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return: response
         """
         # check if there is a method called "rest_update_{entity_name}"
-        method_name = "rest_get_{entity_name}_export_link".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_get_{self.entity.__name__.lower()}_export_link"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         return handler(token, pk, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
@@ -144,12 +160,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return: response
         """
         # check if there is a method called "rest_get_{entity_name}"
-        method_name = "rest_get_{entity_name}".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_get_{self.entity.__name__.lower()}"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         return handler(token, pk, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
@@ -180,6 +197,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
     def rest_generic_get_lock_status(self, token, pk):
         from eric.projects.tests.core import TestLockMixin
+
         if isinstance(self, TestLockMixin):
             modelname = self.model_to_model_name_plural()
             response = self.get_lock_status(token, modelname, pk, HTTP_USER_AGENT, REMOTE_ADDR)
@@ -197,12 +215,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return: response
         """
         # check if there is a method called "rest_trash_{entity_name}"
-        method_name = "rest_trash_{entity_name}".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_trash_{self.entity.__name__.lower()}"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         # call handler
@@ -216,12 +235,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return: response
         """
         # check if there is a method called "rest_restore_{entity_name}"
-        method_name = "rest_restore_{entity_name}".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_restore_{self.entity.__name__.lower()}"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         # call handler
@@ -235,12 +255,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return: response
         """
         # check if there is a method called "rest_delete_{entity_name}"
-        method_name = "rest_delete_{entity_name}".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_delete_{self.entity.__name__.lower()}"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         # call handler
@@ -253,12 +274,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return: response
         """
         # check if there is a method called "rest_get_{entity_name}s"
-        method_name = "rest_get_{entity_name}s".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_get_{self.entity.__name__.lower()}s"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         return handler(token, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
@@ -271,12 +293,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return:
         """
         # check if there is a method called "rest_get_{entity_name}s"
-        method_name = "rest_get_{entity_name}s_recently_modified_by_me".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_get_{self.entity.__name__.lower()}s_recently_modified_by_me"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         return handler(token, number_of_days, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
@@ -289,12 +312,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return: response
         """
         # check if there is a method called "rest_get_{entity_name}s"
-        method_name = "rest_search_{entity_name}s".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_search_{self.entity.__name__.lower()}s"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         return handler(token, search_string, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
@@ -308,12 +332,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         :return: response
         """
         # check if there is a method called "rest_get_{entity_name}s"
-        method_name = "rest_update_{entity_name}_project".format(entity_name=self.entity.__name__.lower())
+        method_name = f"rest_update_{self.entity.__name__.lower()}_project"
         handler = getattr(self, method_name, None)
 
         # assert that the method exists and is callable
-        assert hasattr(self,
-                       method_name), "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        assert hasattr(self, method_name), (
+            "EntityChangeRelatedProjectTestMixin needs to have a mixin with the method " + method_name
+        )
         assert callable(handler), "Method " + method_name + " is not callable"
 
         return handler(token, pk, project_pks, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
@@ -344,8 +369,9 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         """
         modelname = self.model_to_model_name_plural()
 
-        return self.rest_create_privilege(token, modelname, pk, user_pk,
-                                          HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
+        return self.rest_create_privilege(
+            token, modelname, pk, user_pk, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
 
     def rest_generic_patch_privilege(self, token, pk, user_pk, privilege):
         """
@@ -358,8 +384,9 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         """
         modelname = self.model_to_model_name_plural()
 
-        return self.rest_patch_privilege(token, modelname, pk, user_pk, privilege,
-                                         HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
+        return self.rest_patch_privilege(
+            token, modelname, pk, user_pk, privilege, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
 
     def rest_generic_update_privilege(self, token, pk, user_pk, privilege):
         """
@@ -372,8 +399,9 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         """
         modelname = self.model_to_model_name_plural()
 
-        return self.rest_update_privilege(token, modelname, pk, user_pk, privilege,
-                                          HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
+        return self.rest_update_privilege(
+            token, modelname, pk, user_pk, privilege, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
 
     def rest_generic_delete_privilege(self, token, pk, user_pk):
         """
@@ -385,8 +413,9 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         """
         modelname = self.model_to_model_name_plural()
 
-        return self.rest_delete_privilege(token, modelname, pk, user_pk,
-                                          HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
+        return self.rest_delete_privilege(
+            token, modelname, pk, user_pk, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+        )
 
     def rest_generic_get_changeset(self, token, pk):
         """
@@ -397,8 +426,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         """
         modelname = self.model_to_model_name_plural()
 
-        return self.rest_get_changesets(token, modelname, pk,
-                                        HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
+        return self.rest_get_changesets(token, modelname, pk, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
 
     def test_create_entity(self):
         """
@@ -411,24 +439,24 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertEquals(self.entity.objects.filter(pk=decoded_response['pk']).exists(), True)
-        element = self.entity.objects.filter(pk=decoded_response['pk']).first()
+        self.assertEqual(self.entity.objects.filter(pk=decoded_response["pk"]).exists(), True)
+        element = self.entity.objects.filter(pk=decoded_response["pk"]).first()
 
         # verify that a changeset entry was created
-        self.assertEquals(element.changesets.count(), 1)
+        self.assertEqual(element.changesets.count(), 1)
 
         # verify that created_by and last_modified_by is set
-        self.assertEquals(element.created_by.pk, self.user1.pk)
-        self.assertEquals(element.last_modified_by.pk, self.user1.pk)
+        self.assertEqual(element.created_by.pk, self.user1.pk)
+        self.assertEqual(element.last_modified_by.pk, self.user1.pk)
 
         # try to get the changeset for this element
         response = self.rest_generic_get_changeset(self.token1, element.pk)
         self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
-        self.assertTrue('count' in decoded_response, msg="History Response is paginated")
-        self.assertTrue('results' in decoded_response, msg="History Response is paginated")
-        self.assertEquals(decoded_response['count'], 1, msg="There should be one changeset entry")
-        self.assertEquals(len(decoded_response['results']), 1, msg="There should be one changeset entry")
+        self.assertTrue("count" in decoded_response, msg="History Response is paginated")
+        self.assertTrue("results" in decoded_response, msg="History Response is paginated")
+        self.assertEqual(decoded_response["count"], 1, msg="There should be one changeset entry")
+        self.assertEqual(len(decoded_response["results"]), 1, msg="There should be one changeset entry")
 
     def test_create_entity_without_permission(self):
         """
@@ -437,7 +465,6 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         """
         response = self.rest_generic_create_entity(self.token3, 0)
         self.assertIn(response.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_403_FORBIDDEN])
-        decoded_response = json.loads(response.content.decode())
 
     def test_retrieve_entity(self):
         """
@@ -450,14 +477,14 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertEquals(self.entity.objects.filter(pk=decoded_response['pk']).exists(), True)
-        element = (self.entity.objects.filter(pk=decoded_response['pk']).first())
+        self.assertEqual(self.entity.objects.filter(pk=decoded_response["pk"]).exists(), True)
+        element = self.entity.objects.filter(pk=decoded_response["pk"]).first()
 
         # try to get the element from REST API with user 1 (should work)
         response = self.rest_generic_get_entity(self.token1, element.pk)
         self.assert_response_status(response, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
-        self.assertEquals(decoded_response['pk'], str(element.pk))
+        self.assertEqual(decoded_response["pk"], str(element.pk))
 
         # try to get the element from REST API with user 2 (should not work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
@@ -473,8 +500,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertEquals(self.entity.objects.filter(pk=decoded_response['pk']).exists(), True)
-        element = (self.entity.objects.filter(pk=decoded_response['pk']).first())
+        self.assertEqual(self.entity.objects.filter(pk=decoded_response["pk"]).exists(), True)
+        element = self.entity.objects.filter(pk=decoded_response["pk"]).first()
 
         # try to get the element from REST API with user 2 (should work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
@@ -494,21 +521,21 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_200_OK)
         decoded_list = json.loads(response.content.decode())
         decoded_list = test_utils.get_paginated_results(decoded_list)
-        self.assertEquals(len(decoded_list), 1, msg="User 1 should see exactly one element")
+        self.assertEqual(len(decoded_list), 1, msg="User 1 should see exactly one element")
 
         # User 2 should see 1 element
         response = self.rest_generic_list_entity(self.token2)
         self.assert_response_status(response, status.HTTP_200_OK)
         decoded_list = json.loads(response.content.decode())
         decoded_list = test_utils.get_paginated_results(decoded_list)
-        self.assertEquals(len(decoded_list), 1, msg="User 2 should see exactly one element")
+        self.assertEqual(len(decoded_list), 1, msg="User 2 should see exactly one element")
 
         # User 3 should see 0 elements
         response = self.rest_generic_list_entity(self.token3)
         self.assert_response_status(response, status.HTTP_200_OK)
         decoded_list = json.loads(response.content.decode())
         decoded_list = test_utils.get_paginated_results(decoded_list)
-        self.assertEquals(len(decoded_list), 0, msg="User 3 should see exactly zero elements")
+        self.assertEqual(len(decoded_list), 0, msg="User 3 should see exactly zero elements")
 
     def test_trash_entity(self):
         """
@@ -518,8 +545,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         element = self.generic_create_entity_and_return_from_db(self.token1, 0)
 
         # verify that this element is not trashed
-        self.assertEquals(element.deleted, False)
-        self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
+        self.assertEqual(element.deleted, False)
+        self.assertEqual(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
 
         response = self.rest_generic_trash_entity(self.token1, element.pk)
         self.assert_response_status(response, status.HTTP_200_OK)
@@ -527,14 +554,14 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         element.refresh_from_db()
 
         # check that the element has been trashed
-        self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 1)
-        self.assertEquals(element.deleted, True)
+        self.assertEqual(self.entity.objects.trashed().filter(pk=element.pk).count(), 1)
+        self.assertEqual(element.deleted, True)
 
         # this should also have created a changerecord containing the field deleted, changed to True
-        self.assertEquals(element.changesets.count(), 2)
-        self.assertEquals(element.changesets.all()[0].changeset_type, "S")  # is a soft delete
-        self.assertEquals(element.changesets.all()[0].change_records.filter(field_name='deleted').count(), 1)
-        self.assertEquals(element.changesets.all()[0].change_records.filter(field_name='deleted')[0].new_value, 'True')
+        self.assertEqual(element.changesets.count(), 2)
+        self.assertEqual(element.changesets.all()[0].changeset_type, "S")  # is a soft delete
+        self.assertEqual(element.changesets.all()[0].change_records.filter(field_name="deleted").count(), 1)
+        self.assertEqual(element.changesets.all()[0].change_records.filter(field_name="deleted")[0].new_value, "True")
 
         # modifying a trashed element should not work
         response = self.rest_generic_update_entity(self.token1, element.pk, 1)
@@ -549,8 +576,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         element = self.generic_create_entity_and_return_from_db(self.token1, 0)
 
         # verify that this element is not trashed
-        self.assertEquals(element.deleted, False)
-        self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
+        self.assertEqual(element.deleted, False)
+        self.assertEqual(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
 
         response = self.rest_generic_trash_entity(self.token1, element.pk)
         self.assert_response_status(response, status.HTTP_200_OK)
@@ -558,8 +585,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         # refresh element
         element.refresh_from_db()
 
-        self.assertEquals(element.deleted, True)
-        self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 1)
+        self.assertEqual(element.deleted, True)
+        self.assertEqual(self.entity.objects.trashed().filter(pk=element.pk).count(), 1)
 
         # now try to restore it
         response = self.rest_generic_restore_entity(self.token1, element.pk)
@@ -568,8 +595,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         # refresh element
         element.refresh_from_db()
 
-        self.assertEquals(element.deleted, False)
-        self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
+        self.assertEqual(element.deleted, False)
+        self.assertEqual(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
 
     def test_delete_entity(self):
         """
@@ -579,8 +606,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         element = self.generic_create_entity_and_return_from_db(self.token1, 0)
 
         # verify that this element is not trashed
-        self.assertEquals(element.deleted, False)
-        self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
+        self.assertEqual(element.deleted, False)
+        self.assertEqual(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
 
         # trash it
         response = self.rest_generic_trash_entity(self.token1, element.pk)
@@ -595,7 +622,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_204_NO_CONTENT)
 
         # try to find the element in database
-        self.assertEquals(self.entity.objects.filter(pk=element.pk).count(), 0)
+        self.assertEqual(self.entity.objects.filter(pk=element.pk).count(), 0)
 
     def test_can_not_delete_entity_without_trashing_it_first(self):
         """
@@ -606,7 +633,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         element = self.generic_create_entity_and_return_from_db(self.token1, 0)
 
         # verify that this element is not trashed
-        self.assertEquals(element.deleted, False)
+        self.assertEqual(element.deleted, False)
 
         # try to delete it (should not work)
         response = self.rest_generic_delete_entity(self.token1, element.pk)
@@ -615,8 +642,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         print(decoded_response)
 
         # verify element still exists
-        self.assertEquals(self.entity.objects.filter(pk=element.pk).count(), 1)
-        self.assertEquals(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
+        self.assertEqual(self.entity.objects.filter(pk=element.pk).count(), 1)
+        self.assertEqual(self.entity.objects.trashed().filter(pk=element.pk).count(), 0)
 
     def test_trash_entity_without_permission(self):
         """
@@ -637,10 +664,10 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         # element should not be trashed
         element.refresh_from_db()
-        self.assertEquals(element.deleted, False)
+        self.assertEqual(element.deleted, False)
 
         # give user2 the view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["view_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -654,10 +681,10 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         # element should still not be trashed
         element.refresh_from_db()
-        self.assertEquals(element.deleted, False)
+        self.assertEqual(element.deleted, False)
 
         # give user2 privilege "TRASH" for this element
-        user2_privilege['trash_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["trash_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -670,7 +697,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         # element should now be trashed
         element.refresh_from_db()
-        self.assertEquals(element.deleted, True)
+        self.assertEqual(element.deleted, True)
 
     def test_restore_entity_without_permission(self):
         """
@@ -685,13 +712,13 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         element.refresh_from_db()
         # should be trashed
-        self.assertEquals(element.deleted, True)
+        self.assertEqual(element.deleted, True)
 
         # unlock the element with user1
         self.rest_generic_unlock_entity(self.token1, element.pk)
 
         # give user2 view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["view_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -704,10 +731,10 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         element.refresh_from_db()
         # should still be trashed
-        self.assertEquals(element.deleted, True)
+        self.assertEqual(element.deleted, True)
 
         # give user2 the restore privilege
-        user2_privilege['restore_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["restore_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -717,7 +744,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         element.refresh_from_db()
         # should no longer be trashed
-        self.assertEquals(element.deleted, False)
+        self.assertEqual(element.deleted, False)
 
     def test_create_update_delete_privilege(self):
         """
@@ -727,12 +754,12 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         element, user2_privilege = self.generic_create_entity_and_add_another_user(0, self.user2)
 
         # give user2 view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["view_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # update the privilege, also give the edit privilege
-        user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["edit_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -754,7 +781,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_200_OK)
         privileges = json.loads(response.content.decode())
 
-        self.assertEquals(len(privileges), 1, msg="There should be exactly one privilege")
+        self.assertEqual(len(privileges), 1, msg="There should be exactly one privilege")
 
         # user2 should not be able to view the privileges
         response = self.rest_generic_delete_privilege(self.token2, element.pk, self.user1.pk)
@@ -777,10 +804,10 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         element.refresh_from_db()
         # should be trashed
-        self.assertEquals(element.deleted, True)
+        self.assertEqual(element.deleted, True)
 
         # give user2 view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["view_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -793,11 +820,11 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         element.refresh_from_db()
         # should still be trashed
-        self.assertEquals(element.deleted, True)
+        self.assertEqual(element.deleted, True)
 
         # give user2 the edit and delete privilege
-        user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
-        user2_privilege['delete_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["edit_privilege"] = ModelPrivilege.ALLOW
+        user2_privilege["delete_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -806,7 +833,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
 
         # element should still be in database
-        self.assertEquals(self.entity.objects.filter(pk=element.pk).count(), 1)
+        self.assertEqual(self.entity.objects.filter(pk=element.pk).count(), 1)
 
     def test_change_related_project_to_the_same_project(self):
         """
@@ -819,33 +846,34 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertTrue(self.entity.objects.filter(pk=decoded_response['pk']).exists())
-        element = self.entity.objects.filter(pk=decoded_response['pk']).first()
+        self.assertTrue(self.entity.objects.filter(pk=decoded_response["pk"]).exists())
+        element = self.entity.objects.filter(pk=decoded_response["pk"]).first()
 
         # verify that element does not have any projects set
-        self.assertEquals(element.projects.all().count(), 0)
+        self.assertEqual(element.projects.all().count(), 0)
 
         # set parent project of entity 0 to self.project1
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk])
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # verify that element has one projects set
-        self.assertEquals(element.projects.all().count(), 1)
+        self.assertEqual(element.projects.all().count(), 1)
 
         # set it again
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk, self.project1.pk])
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # verify that element still only has one projects set
-        self.assertEquals(element.projects.all().count(), 1)
+        self.assertEqual(element.projects.all().count(), 1)
 
         # set it again
-        response = self.rest_generic_set_project(self.token1, element.pk,
-                                                 [self.project1.pk, self.project1.pk, self.project1.pk])
+        response = self.rest_generic_set_project(
+            self.token1, element.pk, [self.project1.pk, self.project1.pk, self.project1.pk]
+        )
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # verify that element still only has one projects set
-        self.assertEquals(element.projects.all().count(), 1)
+        self.assertEqual(element.projects.all().count(), 1)
 
     def test_change_related_project(self):
         """
@@ -858,27 +886,29 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertEquals(self.entity.objects.filter(pk=decoded_response['pk']).exists(), True)
-        element = self.entity.objects.filter(pk=decoded_response['pk']).first()
+        self.assertEqual(self.entity.objects.filter(pk=decoded_response["pk"]).exists(), True)
+        element = self.entity.objects.filter(pk=decoded_response["pk"]).first()
 
         # verify that element does not have any projects set
-        self.assertEquals(element.projects.all().count(), 0)
+        self.assertEqual(element.projects.all().count(), 0)
 
         # set parent project of entity 0 to self.project1
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk])
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # verify that the element has projects set
-        self.assertEquals(element.projects.all().count(), 1)
+        self.assertEqual(element.projects.all().count(), 1)
 
         # give user1 the observer role in project2
-        response = self.rest_assign_user_to_project(self.token2, self.project2, self.user1, self.observer_role,
-                                                    HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_assign_user_to_project(
+            self.token2, self.project2, self.user1, self.observer_role, HTTP_USER_AGENT, REMOTE_ADDR
+        )
         self.assert_response_status(response, status.HTTP_201_CREATED)
 
         # add user2 to project1 with observer permission, so user2 can see the element
-        response = self.rest_assign_user_to_project(self.token1, self.project1, self.user2, self.observer_role,
-                                                    HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_assign_user_to_project(
+            self.token1, self.project1, self.user2, self.observer_role, HTTP_USER_AGENT, REMOTE_ADDR
+        )
         self.assert_response_status(response, status.HTTP_201_CREATED)
         decoded_assignment = json.loads(response.content.decode())
 
@@ -886,8 +916,9 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.rest_generic_unlock_entity(self.token1, element.pk)
 
         # now increase the role of user2 in project1 to project manager
-        response = self.rest_edit_user_project_assignment(self.token1, self.project1, decoded_assignment['pk'],
-                                                          self.user2, self.pm_role, HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_edit_user_project_assignment(
+            self.token1, self.project1, decoded_assignment["pk"], self.user2, self.pm_role, HTTP_USER_AGENT, REMOTE_ADDR
+        )
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # user1 needs to unlock the element
@@ -898,7 +929,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # and those two projects should now be available
-        self.assertEquals(element.projects.all().count(), 2)
+        self.assertEqual(element.projects.all().count(), 2)
 
         # user2 needs to unlock the element
         self.rest_generic_unlock_entity(self.token2, element.pk)
@@ -909,16 +940,16 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         # We temporarily must deactivate all permission checks for files because of SITUMEWB-819
         if element.get_content_type() == File.get_content_type():
             self.assert_response_status(response, status.HTTP_200_OK)
-            self.assertEquals(element.projects.all().count(), 1)
+            self.assertEqual(element.projects.all().count(), 1)
         else:
             self.assert_response_status(response, status.HTTP_403_FORBIDDEN)
-            self.assertEquals(element.projects.all().count(), 2)
+            self.assertEqual(element.projects.all().count(), 2)
 
             # but user2 can remove it again
             response = self.rest_generic_set_project(self.token2, element.pk, [self.project1.pk])
             self.assert_response_status(response, status.HTTP_200_OK)
 
-            self.assertEquals(element.projects.all().count(), 1)
+            self.assertEqual(element.projects.all().count(), 1)
 
     def test_check_auto_created_entity_permission_is_owner(self):
         """
@@ -930,16 +961,16 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # retrieve entity permissions
-        response = self.rest_generic_get_privileges(self.token1, decoded_response['pk'])
+        response = self.rest_generic_get_privileges(self.token1, decoded_response["pk"])
         self.assert_response_status(response, status.HTTP_200_OK)
         decoded_privileges = json.loads(response.content.decode())
 
         # there should be one entry in the decoded_privileges
-        self.assertEquals(len(decoded_privileges), 1)
+        self.assertEqual(len(decoded_privileges), 1)
         # it should have user1
-        self.assertEquals(decoded_privileges[0]['user_pk'], self.user1.pk)
-        self.assertEquals(decoded_privileges[0]['object_id'], decoded_response['pk'])
-        self.assertEquals(decoded_privileges[0]['full_access_privilege'], ModelPrivilege.ALLOW)
+        self.assertEqual(decoded_privileges[0]["user_pk"], self.user1.pk)
+        self.assertEqual(decoded_privileges[0]["object_id"], decoded_response["pk"])
+        self.assertEqual(decoded_privileges[0]["full_access_privilege"], ModelPrivilege.ALLOW)
 
     def generic_create_entity_and_return_from_db(self, token, entity_index):
         """
@@ -952,8 +983,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertEquals(self.entity.objects.filter(pk=decoded_response['pk']).exists(), True)
-        element = self.entity.objects.filter(pk=decoded_response['pk']).first()
+        self.assertEqual(self.entity.objects.filter(pk=decoded_response["pk"]).exists(), True)
+        element = self.entity.objects.filter(pk=decoded_response["pk"]).first()
 
         return element
 
@@ -964,8 +995,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertEquals(self.entity.objects.filter(pk=decoded_response['pk']).exists(), True)
-        element = self.entity.objects.filter(pk=decoded_response['pk']).first()
+        self.assertEqual(self.entity.objects.filter(pk=decoded_response["pk"]).exists(), True)
+        element = self.entity.objects.filter(pk=decoded_response["pk"]).first()
 
         # try to access this entry with user1 (should work)
         response = self.rest_generic_get_entity(self.token1, element.pk)
@@ -984,12 +1015,12 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_201_CREATED)
         user2_privilege = json.loads(response.content.decode())
         # verify that all privileges for this user are set to neutral (for now)
-        self.assertEquals(user2_privilege['user']['pk'], self.user2.pk)
-        self.assertEquals(user2_privilege['view_privilege'], ModelPrivilege.NEUTRAL)
-        self.assertEquals(user2_privilege['edit_privilege'], ModelPrivilege.NEUTRAL)
-        self.assertEquals(user2_privilege['trash_privilege'], ModelPrivilege.NEUTRAL)
-        self.assertEquals(user2_privilege['delete_privilege'], ModelPrivilege.NEUTRAL)
-        self.assertEquals(user2_privilege['restore_privilege'], ModelPrivilege.NEUTRAL)
+        self.assertEqual(user2_privilege["user"]["pk"], self.user2.pk)
+        self.assertEqual(user2_privilege["view_privilege"], ModelPrivilege.NEUTRAL)
+        self.assertEqual(user2_privilege["edit_privilege"], ModelPrivilege.NEUTRAL)
+        self.assertEqual(user2_privilege["trash_privilege"], ModelPrivilege.NEUTRAL)
+        self.assertEqual(user2_privilege["delete_privilege"], ModelPrivilege.NEUTRAL)
+        self.assertEqual(user2_privilege["restore_privilege"], ModelPrivilege.NEUTRAL)
 
         # try to access this entity with user2 (should not work)
         response = self.rest_generic_get_entity(self.token2, element.pk)
@@ -1009,7 +1040,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         element, user2_privilege = self.generic_create_entity_and_add_another_user(0, self.user2)
 
         # update privilege (should work): add view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["view_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -1026,7 +1057,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # now modify the privilege such that user2 is DENIED viewing the element
-        user2_privilege['view_privilege'] = ModelPrivilege.DENY
+        user2_privilege["view_privilege"] = ModelPrivilege.DENY
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -1049,8 +1080,8 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         decoded_response = json.loads(response.content.decode())
 
         # verify the entry exists in the database
-        self.assertEquals(self.entity.objects.filter(pk=decoded_response['pk']).exists(), True)
-        element = self.entity.objects.filter(pk=decoded_response['pk']).first()
+        self.assertEqual(self.entity.objects.filter(pk=decoded_response["pk"]).exists(), True)
+        element = self.entity.objects.filter(pk=decoded_response["pk"]).first()
 
         # set parent project of entity 0 to self.project1
         response = self.rest_generic_set_project(self.token1, element.pk, [self.project1.pk])
@@ -1069,9 +1100,9 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # now remove the view privilege from user3
-        response = self.rest_generic_patch_privilege(self.token1, element.pk, self.user3.pk, {
-            'view_privilege': ModelPrivilege.DENY
-        })
+        response = self.rest_generic_patch_privilege(
+            self.token1, element.pk, self.user3.pk, {"view_privilege": ModelPrivilege.DENY}
+        )
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # try to access this entity with user3 (should not work)
@@ -1094,7 +1125,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         element, user2_privilege = self.generic_create_entity_and_add_another_user(0, self.user2)
 
         # update privilege (should work): add view privilege
-        user2_privilege['view_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["view_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -1122,7 +1153,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.assert_response_status(response, status.HTTP_404_NOT_FOUND)
 
         # update privilege (should work): add edit privilege
-        user2_privilege['edit_privilege'] = ModelPrivilege.ALLOW
+        user2_privilege["edit_privilege"] = ModelPrivilege.ALLOW
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -1153,7 +1184,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
         self.rest_generic_unlock_entity(self.token1, element.pk)
 
         # now deny the edit privilege for user2 (should work)
-        user2_privilege['edit_privilege'] = ModelPrivilege.DENY
+        user2_privilege["edit_privilege"] = ModelPrivilege.DENY
         response = self.rest_generic_update_privilege(self.token1, element.pk, self.user2.pk, user2_privilege)
         self.assert_response_status(response, status.HTTP_200_OK)
 
@@ -1192,18 +1223,12 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         # try to access this URL without a token
         self.reset_client_credentials()
-        response = self.client.get(
-            decoded_response['url'],
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
+        response = self.client.get(decoded_response["url"], HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
         self.assert_response_status(response, status.HTTP_200_OK)
 
         # this url should still work
         self.reset_client_credentials()
-        response = self.client.get(
-            decoded_response['url'],
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
+        response = self.client.get(decoded_response["url"], HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
         self.assert_response_status(response, status.HTTP_200_OK)
 
     def test_entity_export_with_invalid_link(self):
@@ -1223,10 +1248,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         url = split_url[0] + "?jwt=" + split_url[1].replace("a", "b").replace("c", "d").replace("e", "f")
         self.reset_client_credentials()
-        response = self.client.get(
-            url,
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
+        response = self.client.get(url, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
         self.assert_response_status(response, status.HTTP_401_UNAUTHORIZED)
 
     def test_export_without_token(self):
@@ -1245,10 +1267,7 @@ class EntityChangeRelatedProjectTestMixin(CommonTestMixin, AuthenticationMixin, 
 
         url = split_url[0]
         self.reset_client_credentials()
-        response = self.client.get(
-            url,
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
-        )
+        response = self.client.get(url, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
         self.assert_response_status(response, status.HTTP_401_UNAUTHORIZED)
 
     def test_export_without_view_permission(self):
@@ -1291,21 +1310,21 @@ def test_search(self):
     self.assert_response_status(response, status.HTTP_200_OK)
     decoded_response = json.loads(response.content.decode())
     decoded_response = test_utils.get_paginated_results(decoded_response)
-    self.assertEquals(len(decoded_response), 1, msg="Search should return only one element")
+    self.assertEqual(len(decoded_response), 1, msg="Search should return only one element")
 
     # call recently modified by me (within the last 1 days)
     response = self.rest_generic_recently_modified_by_me(self.user_token, 1)
     self.assert_response_status(response, status.HTTP_200_OK)
     decoded_response = json.loads(response.content.decode())
     decoded_response = test_utils.get_paginated_results(decoded_response)
-    self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")
+    self.assertEqual(len(decoded_response), 2, msg="Search should return two elements")
 
     # now try the same with user2 (should return 0 elements, as user2 did not modify anything)
     response = self.rest_generic_recently_modified_by_me(self.token2, 1)
     self.assert_response_status(response, status.HTTP_200_OK)
     decoded_response = json.loads(response.content.decode())
     decoded_response = test_utils.get_paginated_results(decoded_response)
-    self.assertEquals(len(decoded_response), 0, msg="Search should return no elements")
+    self.assertEqual(len(decoded_response), 0, msg="Search should return no elements")
 
     # reset element1 last_modified_at and created_at to 2 days ago
     with RevisionModelMixin.enabled(False):
@@ -1329,31 +1348,36 @@ def test_search(self):
     self.assert_response_status(response, status.HTTP_200_OK)
     decoded_response = json.loads(response.content.decode())
     decoded_response = test_utils.get_paginated_results(decoded_response)
-    self.assertEquals(len(decoded_response), 1,
-                      msg="Search should return one element; probably missing recently_modified_by_me = RecentlyModifiedByMeFilter()?")
+    self.assertEqual(
+        len(decoded_response),
+        1,
+        msg="Search should return one element; probably missing recently_modified_by_me = RecentlyModifiedByMeFilter()?",
+    )
 
     # call recently modified by me (within the last 2 days)
     response = self.rest_generic_recently_modified_by_me(self.user_token, 2)
     self.assert_response_status(response, status.HTTP_200_OK)
     decoded_response = json.loads(response.content.decode())
     decoded_response = test_utils.get_paginated_results(decoded_response)
-    self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")
+    self.assertEqual(len(decoded_response), 2, msg="Search should return two elements")
 
     # now try the same with user2 (should return 0 elements, as user2 did not modify anything)
     response = self.rest_generic_recently_modified_by_me(self.token2, 1)
     self.assert_response_status(response, status.HTTP_200_OK)
     decoded_response = json.loads(response.content.decode())
     decoded_response = test_utils.get_paginated_results(decoded_response)
-    self.assertEquals(len(decoded_response), 0, msg="Search should return no elements")
+    self.assertEqual(len(decoded_response), 0, msg="Search should return no elements")
 
     # give user2 view and edit privilege for element2
     response = self.rest_generic_create_privilege(self.user_token, element2.pk, self.user2.pk)
     self.assert_response_status(response, status.HTTP_201_CREATED)
 
-    self.rest_generic_patch_privilege(self.user_token, element2.pk, self.user2.pk, {
-        'view_privilege': ModelPrivilege.ALLOW,
-        'edit_privilege': ModelPrivilege.ALLOW
-    })
+    self.rest_generic_patch_privilege(
+        self.user_token,
+        element2.pk,
+        self.user2.pk,
+        {"view_privilege": ModelPrivilege.ALLOW, "edit_privilege": ModelPrivilege.ALLOW},
+    )
 
     # modify element2 with user2
     response = self.rest_generic_update_entity(self.token2, element2.pk, 0)
@@ -1364,11 +1388,11 @@ def test_search(self):
     self.assert_response_status(response, status.HTTP_200_OK)
     decoded_response = json.loads(response.content.decode())
     decoded_response = test_utils.get_paginated_results(decoded_response)
-    self.assertEquals(len(decoded_response), 1, msg="Search should return one element")
+    self.assertEqual(len(decoded_response), 1, msg="Search should return one element")
 
     # and user1 should also still see two elements (within 2 days)
     response = self.rest_generic_recently_modified_by_me(self.user_token, 2)
     self.assert_response_status(response, status.HTTP_200_OK)
     decoded_response = json.loads(response.content.decode())
     decoded_response = test_utils.get_paginated_results(decoded_response)
-    self.assertEquals(len(decoded_response), 2, msg="Search should return two elements")
+    self.assertEqual(len(decoded_response), 2, msg="Search should return two elements")

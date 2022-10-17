@@ -5,12 +5,14 @@
 
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Location } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AppVersionService, AuthService } from '@app/services';
 import type { User } from '@eworkbench/types';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import type { BehaviorSubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { SHOW_MENU } from '../../tokens/show-menu.token';
 
 @UntilDestroy()
 @Component({
@@ -41,6 +43,7 @@ export class NavbarComponent implements OnInit {
   public version = '2.0';
 
   public constructor(
+    @Inject(SHOW_MENU) public readonly showMenu$: BehaviorSubject<boolean>,
     private readonly authService: AuthService,
     private readonly appVersionService: AppVersionService,
     private readonly location: Location,

@@ -1,15 +1,16 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.core.management.base import BaseCommand
 from django.core.validators import URLValidator, ValidationError
 from django.db import transaction
 from django.test import RequestFactory
+
 from django_userforeignkey.request import set_current_request
 
 from eric.base64_image_extraction.config import *
-from eric.base64_image_extraction.utils import upload_and_create_extracted_image, get_uri_for_extracted_image
+from eric.base64_image_extraction.utils import get_uri_for_extracted_image, upload_and_create_extracted_image
 from eric.core.utils import convert_base64_image_strings_to_file_references
 
 
@@ -21,7 +22,7 @@ def set_request_for_user(user):
     :return: Request context
     """
     request = RequestFactory().request(**{})
-    setattr(request, 'user', user)
+    setattr(request, "user", user)
     set_current_request(request)
 
     return request
@@ -38,18 +39,18 @@ def replace_image_references_in_texts(class_object, source_field, base_url):
     """
     for element in class_object.objects.all():
         request = set_request_for_user(element.last_modified_by)
-        print('Work on element {} of type {} as user {}...'.format(element.pk, type(element), request.user))
+        print(f"Work on element {element.pk} of type {type(element)} as user {request.user}...")
 
         element_content = getattr(element, source_field)
 
         image_references = convert_base64_image_strings_to_file_references(element_content)
         if not image_references:
-            print('...done. Did not find any image reference(s).')
+            print("...done. Did not find any image reference(s).")
             continue
 
         element_content = replace_content_with_image_urls(image_references, base_url, element, source_field)
         class_object.objects.filter(pk=element.pk).update(**{source_field: element_content})
-        print('Work on element {} of type {} finished.'.format(element.pk, type(element)))
+        print(f"Work on element {element.pk} of type {type(element)} finished.")
 
 
 def replace_content_with_image_urls(image_references, base_url, source, source_field):
@@ -65,39 +66,39 @@ def replace_content_with_image_urls(image_references, base_url, source, source_f
     content = getattr(source, source_field)
 
     for image_reference in image_references:
-        print('Work on image reference {}...'.format(image_reference['file_name']))
+        print("Work on image reference {}...".format(image_reference["file_name"]))
         image = upload_and_create_extracted_image(
-            file_name=image_reference['file_name'],
-            binary=image_reference['binary'],
-            mime_type=image_reference['mime_type'],
+            file_name=image_reference["file_name"],
+            binary=image_reference["binary"],
+            mime_type=image_reference["mime_type"],
             source=source,
-            source_field=source_field
+            source_field=source_field,
         )
 
         if image:
-            image_url = '{}{}'.format(base_url, get_uri_for_extracted_image(image))
-            content = content.replace(image_reference['base64'], image_url)
-            print('...done. Created image element {}.'.format(image.pk))
+            image_url = f"{base_url}{get_uri_for_extracted_image(image)}"
+            content = content.replace(image_reference["base64"], image_url)
+            print(f"...done. Created image element {image.pk}.")
         else:
-            print('...failed')
-            raise ValueError('Failed to convert image reference to image element. Aborting migration.')
+            print("...failed")
+            raise ValueError("Failed to convert image reference to image element. Aborting migration.")
 
     return content
 
 
 class Command(BaseCommand):
-    help = 'Convert base64 references in element texts to URL references'
+    help = "Convert base64 references in element texts to URL references"
 
     def add_arguments(self, parser):
-        parser.add_argument('base-url', type=str)
+        parser.add_argument("base-url", type=str)
 
     def handle(self, *args, **options):
-        base_url = options['base-url'].rstrip('/')
+        base_url = options["base-url"].rstrip("/")
         try:
-            validate = URLValidator(schemes=('http', 'https'))
+            validate = URLValidator(schemes=("http", "https"))
             validate(base_url)
         except ValidationError:
-            self.stdout.write(self.style.ERROR('Please provide a valid URL: {}'.format(base_url)))
+            self.stdout.write(self.style.ERROR(f"Please provide a valid URL: {base_url}"))
             return
 
         with transaction.atomic():

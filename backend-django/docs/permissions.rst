@@ -643,4 +643,3 @@ Handle permissions in QuerySet:
             return Q(
                 pk__in=file_pks
             )
-

@@ -1,11 +1,12 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.core.management.base import BaseCommand
 from django.core.validators import URLValidator, ValidationError
 from django.db import transaction
 from django.test import RequestFactory
+
 from django_userforeignkey.request import set_current_request
 
 from eric.base64_image_extraction.config import *
@@ -19,7 +20,7 @@ def set_request_for_user(user):
     :return: Request context
     """
     request = RequestFactory().request(**{})
-    setattr(request, 'user', user)
+    setattr(request, "user", user)
     set_current_request(request)
 
     return request
@@ -37,11 +38,11 @@ def replace_url_references_in_texts(class_object, source_field, old_url, new_url
     """
     for element in class_object.objects.all():
         request = set_request_for_user(element.last_modified_by)
-        print('Work on element {} of type {} as user {}...'.format(element.pk, type(element), request.user))
+        print(f"Work on element {element.pk} of type {type(element)} as user {request.user}...")
 
         element_content = replace_url_references(element, source_field, old_url, new_url)
         class_object.objects.filter(pk=element.pk).update(**{source_field: element_content})
-        print('...done')
+        print("...done")
 
 
 def replace_url_references(source, source_field, old_url, new_url):
@@ -55,10 +56,7 @@ def replace_url_references(source, source_field, old_url, new_url):
     :return:
     """
     content = getattr(source, source_field)
-    return content.replace(
-        '{}/extractedimage/'.format(old_url),
-        '{}/extractedimage/'.format(new_url)
-    )
+    return content.replace(f"{old_url}/extractedimage/", f"{new_url}/extractedimage/")
 
 
 def check_url(url):
@@ -68,30 +66,30 @@ def check_url(url):
     :param url: Absolute URL which should be used for image URLs
     :return:
     """
-    validate = URLValidator(schemes=('http', 'https'))
-    validate(url.rstrip('/'))
+    validate = URLValidator(schemes=("http", "https"))
+    validate(url.rstrip("/"))
 
 
 class Command(BaseCommand):
-    help = 'Replace extracted image URL references in element texts'
+    help = "Replace extracted image URL references in element texts"
 
     def add_arguments(self, parser):
-        parser.add_argument('old-url', type=str)
-        parser.add_argument('new-url', type=str)
+        parser.add_argument("old-url", type=str)
+        parser.add_argument("new-url", type=str)
 
     def handle(self, *args, **options):
-        old_url = options['old-url'].rstrip('/')
+        old_url = options["old-url"].rstrip("/")
         try:
             check_url(old_url)
         except ValidationError:
-            self.stdout.write(self.style.ERROR('Please provide a valid old URL: {}'.format(old_url)))
+            self.stdout.write(self.style.ERROR(f"Please provide a valid old URL: {old_url}"))
             return
 
-        new_url = options['new-url'].rstrip('/')
+        new_url = options["new-url"].rstrip("/")
         try:
             check_url(new_url)
         except ValidationError:
-            self.stdout.write(self.style.ERROR('Please provide a valid new URL: {}'.format(new_url)))
+            self.stdout.write(self.style.ERROR(f"Please provide a valid new URL: {new_url}"))
             return
 
         with transaction.atomic():

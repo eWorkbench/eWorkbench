@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
@@ -7,20 +7,21 @@ import logging
 import os
 from datetime import timedelta
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models.signals import post_delete, pre_save, post_save, pre_delete
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
 from django_rest_multitokenauth.signals import post_auth
 from django_userforeignkey.request import get_current_request
-from django.core.exceptions import ValidationError
 
 from eric.base64_image_extraction.utils import convert_text_with_base64_images_to_file_references
 from eric.core.tests import custom_json_handler
 from eric.model_privileges.models import ModelPrivilege
 from eric.ms_office_handling.models.handlers import OFFICE_TEMP_FILE_PREFIX
-from eric.shared_elements.models import File, Meeting, Note, Task, UploadedFileEntry, CalendarAccess, Comment
+from eric.shared_elements.models import CalendarAccess, Comment, File, Meeting, Note, Task, UploadedFileEntry
 from eric.versions.models import Version
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ def auto_create_calendar_access_privileges(sender, user, *args, **kwargs):
 
     # set current requests user (as during auth, that user is not set yet)
     request = get_current_request()
-    if request and (not hasattr(request, 'user') or request.user.is_anonymous):
+    if request and (not hasattr(request, "user") or request.user.is_anonymous):
         request.user = user
 
     # make sure the user has a calendar access object
@@ -50,8 +51,8 @@ def auto_create_calendar_access_privileges(sender, user, *args, **kwargs):
             content_type=CalendarAccess.get_content_type(),
             object_id=own_calendar_access.pk,
             defaults={
-                'full_access_privilege': ModelPrivilege.ALLOW,
-            }
+                "full_access_privilege": ModelPrivilege.ALLOW,
+            },
         )
 
 
@@ -70,13 +71,15 @@ def prevent_change_of_own_calendar_access_privilege(sender, instance, *args, **k
     obj = ModelPrivilege.objects.filter(pk=instance.pk).first()
     content_type = instance.content_object.get_content_type()
     if obj and content_type == CalendarAccess.get_content_type() and obj.created_by == obj.user:
-        raise ValidationError({
-            'non_field_errors': ValidationError(
-                _("Full access to the own calendar cannot be removed"),
-                params={'full_access_privilege': instance.full_access_privilege},
-                code='invalid'
-            )
-        })
+        raise ValidationError(
+            {
+                "non_field_errors": ValidationError(
+                    _("Full access to the own calendar cannot be removed"),
+                    params={"full_access_privilege": instance.full_access_privilege},
+                    code="invalid",
+                )
+            }
+        )
 
 
 @receiver(post_delete)
@@ -93,7 +96,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         try:
             os.remove(instance.path.path)
         except OSError as error:
-            logger.error("ERROR: OSError in auto_delete_file_on_delete: {}".format(error))
+            logger.error(f"ERROR: OSError in auto_delete_file_on_delete: {error}")
 
 
 @receiver(pre_save, sender=File)
@@ -107,7 +110,7 @@ def convert_file_description_with_base64_images_to_file_references(sender, insta
     :param kwargs:
     :return:
     """
-    instance.description = convert_text_with_base64_images_to_file_references(instance, 'description')
+    instance.description = convert_text_with_base64_images_to_file_references(instance, "description")
 
 
 @receiver(pre_save, sender=Meeting)
@@ -121,7 +124,7 @@ def convert_meeting_text_with_base64_images_to_file_references(sender, instance,
     :param kwargs:
     :return:
     """
-    instance.text = convert_text_with_base64_images_to_file_references(instance, 'text')
+    instance.text = convert_text_with_base64_images_to_file_references(instance, "text")
 
 
 @receiver(pre_save, sender=Note)
@@ -135,7 +138,7 @@ def convert_note_content_with_base64_images_to_file_references(sender, instance,
     :param kwargs:
     :return:
     """
-    instance.content = convert_text_with_base64_images_to_file_references(instance, 'content')
+    instance.content = convert_text_with_base64_images_to_file_references(instance, "content")
 
 
 @receiver(pre_save, sender=Comment)
@@ -149,7 +152,7 @@ def convert_comment_content_with_base64_images_to_file_references(sender, instan
     :param kwargs:
     :return:
     """
-    instance.content = convert_text_with_base64_images_to_file_references(instance, 'content')
+    instance.content = convert_text_with_base64_images_to_file_references(instance, "content")
 
 
 @receiver(pre_save, sender=Task)
@@ -163,7 +166,7 @@ def convert_task_description_with_base64_images_to_file_references(sender, insta
     :param kwargs:
     :return:
     """
-    instance.description = convert_text_with_base64_images_to_file_references(instance, 'description')
+    instance.description = convert_text_with_base64_images_to_file_references(instance, "description")
 
 
 @receiver(post_save, sender=File)
@@ -201,10 +204,12 @@ def add_project_for_webdav_uploads(sender, instance, *args, **kwargs):
     :return:
     """
     try:
-        if not instance.projects.all() \
-                and instance.directory \
-                and instance.directory.drive.projects.all() \
-                and not instance.name.startswith(OFFICE_TEMP_FILE_PREFIX):
+        if (
+            not instance.projects.all()
+            and instance.directory
+            and instance.directory.drive.projects.all()
+            and not instance.name.startswith(OFFICE_TEMP_FILE_PREFIX)
+        ):
             for project in instance.directory.drive.projects.all():
                 instance.projects.add(project.pk)
     except Exception:
@@ -231,14 +236,9 @@ def handle_version_on_file_path_updates(old_file):
             content_type=content_type,
         ).exists()
         if not same_version:
-            Version.objects.create(
-                content_type=content_type,
-                object_id=object_id,
-                metadata=metadata,
-                summary=summary
-            )
+            Version.objects.create(content_type=content_type, object_id=object_id, metadata=metadata, summary=summary)
     except Exception as error:
-        logger.error("ERROR: Error in handle_version_on_file_path_updates: {}".format(error))
+        logger.error(f"ERROR: Error in handle_version_on_file_path_updates: {error}")
 
 
 @receiver(pre_save, sender=File)

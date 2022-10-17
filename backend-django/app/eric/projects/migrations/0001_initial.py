@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from __future__ import unicode_literals
 
-from django.conf import settings
-from django.db import migrations, models
-import django.db.models.deletion
-import django_changeset.models.mixins
-import eric.projects.models.models
 import uuid
 
+import django.db.models.deletion
+from django.conf import settings
+from django.db import migrations, models
+
+import django_changeset.models.mixins
+
+import eric.projects.models.models
 from eric.core.models import UploadToPathAndRename
 
 

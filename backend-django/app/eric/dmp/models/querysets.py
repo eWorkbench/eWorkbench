@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
@@ -23,7 +23,7 @@ class BaseProjectDmpPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.dmp.models import Dmp
 
-        return self.filter(dmp__pk__in=Dmp.objects.viewable().values_list('pk'))
+        return self.filter(dmp__pk__in=Dmp.objects.viewable().values_list("pk"))
 
     def editable(self, *args, **kwargs):
         """
@@ -31,7 +31,7 @@ class BaseProjectDmpPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.dmp.models import Dmp
 
-        return self.filter(dmp__pk__in=Dmp.objects.editable().values_list('pk'))
+        return self.filter(dmp__pk__in=Dmp.objects.editable().values_list("pk"))
 
     def deletable(self, *args, **kwargs):
         """
@@ -39,7 +39,7 @@ class BaseProjectDmpPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.dmp.models import Dmp
 
-        return self.filter(dmp__pk__in=Dmp.objects.editable().values_list('pk'))
+        return self.filter(dmp__pk__in=Dmp.objects.editable().values_list("pk"))
 
 
 class DmpQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -47,8 +47,7 @@ class DmpQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         """
         Prefetch common attributes
         """
-        return super(DmpQuerySet, self).prefetch_common() \
-            .prefetch_metadata()
+        return super().prefetch_common().prefetch_metadata()
 
 
 class DmpFormQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
@@ -58,7 +57,7 @@ class DmpFormQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
         """
         from eric.dmp.models import Dmp
 
-        return self.filter(dmps__pk__in=Dmp.objects.viewable().values_list('pk'))
+        return self.filter(dmps__pk__in=Dmp.objects.viewable().values_list("pk"))
 
 
 class DmpFormFieldQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):

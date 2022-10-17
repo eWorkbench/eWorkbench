@@ -1,38 +1,36 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import os
 import re
 import shutil
-from urllib.parse import quote
-
-from django.utils.translation import gettext_lazy as _
-
 from hashlib import sha256
 from mimetypes import guess_type
+from urllib.parse import quote
 
-from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-from django.core.files.uploadedfile import UploadedFile, SimpleUploadedFile
+from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
 from django.db import transaction
 from django.http import Http404, HttpResponseBadRequest
+from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
-from django_userforeignkey.request import get_current_request
-from eric.webdav.wsgidav_db_resources import NameLookupDBDavMixIn, BaseDBDavResource
-from eric.webdav.wsgidav_responses import ResponseException
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
 
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, get_authorization_header
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication, get_authorization_header
+
+from django_userforeignkey.request import get_current_request
 
 from eric.drives.models import Directory, Drive
 from eric.projects.models import Project
 from eric.shared_elements.models import File
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-
+from eric.webdav.wsgidav_db_resources import BaseDBDavResource, NameLookupDBDavMixIn
 from eric.webdav.wsgidav_resources import MetaEtagMixIn
+from eric.webdav.wsgidav_responses import ResponseException
 from eric.webdav.wsgidav_rest import RestAuthViewMixIn
 from eric.webdav.wsgidav_views import DavView
 
@@ -60,13 +58,12 @@ class CachedBasicAuthentication(BasicAuthentication):
     ever becomes insecure, we will have a much bigger issue...). In addition, we are using a combination of the
     applications secret key
     """
+
     CACHED_BASIC_AUTHENTICATION_CACHE_KEY = "basic_auth_cache"
 
     @staticmethod
     def check_if_key_is_in_cache(key):
-        return cache.get("{}:{}".format(
-            CachedBasicAuthentication.CACHED_BASIC_AUTHENTICATION_CACHE_KEY, key
-        ), None) is not None
+        return cache.get(f"{CachedBasicAuthentication.CACHED_BASIC_AUTHENTICATION_CACHE_KEY}:{key}", None) is not None
 
     @staticmethod
     def add_key_to_cache(key):
@@ -75,9 +72,7 @@ class CachedBasicAuthentication(BasicAuthentication):
         :param key:
         :return:
         """
-        cache.set("{}:{}".format(
-            CachedBasicAuthentication.CACHED_BASIC_AUTHENTICATION_CACHE_KEY, key
-        ), "", 600)
+        cache.set(f"{CachedBasicAuthentication.CACHED_BASIC_AUTHENTICATION_CACHE_KEY}:{key}", "", 600)
 
     @staticmethod
     def scramble_auth_string(auth_str, userid):
@@ -107,10 +102,7 @@ class CachedBasicAuthentication(BasicAuthentication):
         :param request:
         :return:
         """
-        key = self.scramble_auth_string(
-            get_authorization_header(request).split()[0],
-            userid
-        )
+        key = self.scramble_auth_string(get_authorization_header(request).split()[0], userid)
 
         # check if the user has recently authed with this key
         if self.check_if_key_is_in_cache(key):
@@ -120,7 +112,7 @@ class CachedBasicAuthentication(BasicAuthentication):
             return (user, None)
 
         # else: handle auth
-        user, resp = super(CachedBasicAuthentication, self).authenticate_credentials(userid, password, request)
+        user, resp = super().authenticate_credentials(userid, password, request)
 
         if user:
             # auth successful, add this key to cache
@@ -133,14 +125,15 @@ class AuthFsDavView(RestAuthViewMixIn, DavView):
     """
     Special View providing Authentication for our Webdav Resource
     """
+
     authentications = (CachedBasicAuthentication(), SessionAuthentication())
 
     @method_decorator(csrf_exempt)
     @transaction.atomic
     def dispatch(self, request, *args, **kwargs):
-        drive = kwargs.get('drive', None)
-        if 'path' not in kwargs:
-            kwargs['path'] = ""
+        drive = kwargs.get("drive", None)
+        if "path" not in kwargs:
+            kwargs["path"] = ""
 
         if drive:
             drive = Drive.objects.filter(pk=drive).first()
@@ -159,9 +152,9 @@ class AuthFsDavView(RestAuthViewMixIn, DavView):
 
             request.drive = drive
 
-            del kwargs['drive']
+            del kwargs["drive"]
 
-        project = kwargs.get('project', None)
+        project = kwargs.get("project", None)
 
         if project:
             project = Project.objects.filter(pk=project).first()
@@ -171,23 +164,23 @@ class AuthFsDavView(RestAuthViewMixIn, DavView):
 
             request.project = project
 
-            del kwargs['project']
+            del kwargs["project"]
 
-        if 'drive_title' in kwargs:
-            del kwargs['drive_title']
+        if "drive_title" in kwargs:
+            del kwargs["drive_title"]
 
-        if 'project_title' in kwargs:
-            del kwargs['project_title']
+        if "project_title" in kwargs:
+            del kwargs["project_title"]
 
         # continue
-        return super(AuthFsDavView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class MyProjectListResource(MetaEtagMixIn, BaseDBDavResource):
     collection_model = Project
 
-    created_attribute = 'created_at'
-    modified_attribute = 'last_modified_at'
+    created_attribute = "created_at"
+    modified_attribute = "last_modified_at"
 
     def getcontentlength(self):
         return 0
@@ -199,13 +192,13 @@ class MyProjectListResource(MetaEtagMixIn, BaseDBDavResource):
         """Return an iterator of all direct children of this resource."""
         for child in Project.objects.viewable().not_deleted():
             # strip all non-confirming characters from drive title
-            pat = re.compile(r'[\W \-]+')
+            pat = re.compile(r"[\W \-]+")
 
-            stripped_title = re.sub(pat, ' ', child.name)
+            stripped_title = re.sub(pat, " ", child.name)
 
             yield self.clone(
                 "/" + stripped_title + " (" + str(child.pk) + ")",
-                obj=child    # Sending ready object to reduce db requests
+                obj=child,  # Sending ready object to reduce db requests
             )
 
     def get_escaped_path(self):
@@ -225,10 +218,11 @@ class MyDriveListResource(MetaEtagMixIn, BaseDBDavResource):
     """
     Lists all drives that the current user has access to
     """
-    name_attribute = 'title'
-    size_attribute = 'size'
-    created_attribute = 'created_at'
-    modified_attribute = 'last_modified_at'
+
+    name_attribute = "title"
+    size_attribute = "size"
+    created_attribute = "created_at"
+    modified_attribute = "last_modified_at"
     collection_attribute = None
 
     base_url = ""
@@ -244,20 +238,20 @@ class MyDriveListResource(MetaEtagMixIn, BaseDBDavResource):
         request = get_current_request()
 
         # if this request is project specific, filter projects
-        if hasattr(request, 'project'):
+        if hasattr(request, "project"):
             drives = drives.filter(projects=request.project)
 
         for child in drives:
             # strip all non-confirming characters from drive title
-            pat = re.compile(r'[\W \-]+')
+            pat = re.compile(r"[\W \-]+")
 
-            stripped_title = re.sub(pat, ' ', child.title)
+            stripped_title = re.sub(pat, " ", child.title)
 
             # temporarily exclude DSS drives from the list
             if not child.is_dss_drive:
                 yield self.clone(
                     "/" + stripped_title + " (" + str(child.pk) + ")",
-                    obj=child    # Sending ready object to reduce db requests
+                    obj=child,  # Sending ready object to reduce db requests
                 )
 
     def get_escaped_path(self):
@@ -282,11 +276,11 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
     object_model = File
     collection_model = Directory
 
-    name_attribute = 'name'
-    size_attribute = 'file_size'
-    created_attribute = 'created_at'
-    modified_attribute = 'last_modified_at'
-    collection_attribute = 'directory'
+    name_attribute = "name"
+    size_attribute = "file_size"
+    created_attribute = "created_at"
+    modified_attribute = "last_modified_at"
+    collection_attribute = "directory"
 
     root = settings.MEDIA_ROOT
 
@@ -296,12 +290,12 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
             obj = Directory.objects.filter(drive=request.drive, is_virtual_root=True).first()
             kwargs["obj"] = obj
 
-        super(MyDriveDavResource, self).__init__(path, **kwargs)
+        super().__init__(path, **kwargs)
 
     def get_model_by_path(self, model_attr, path):
         path = ["/"] + path
 
-        return super(MyDriveDavResource, self).get_model_by_path(model_attr, path)
+        return super().get_model_by_path(model_attr, path)
 
     @property
     def collection_model_qs(self):
@@ -320,7 +314,7 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
         return self.obj.path
 
     def get_parent_path(self):
-        parent_path = super(MyDriveDavResource, self).get_parent_path()
+        parent_path = super().get_parent_path()
 
         if not parent_path.startswith("/"):
             parent_path = "/" + parent_path
@@ -355,17 +349,17 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
             shutil.move(temp_file, new_file_path)
 
             some_file = UploadedFile(
-                file=open(new_file_path, 'rb'),
+                file=open(new_file_path, "rb"),
                 name=self.displayname,
                 size=size,
-                content_type=guess_type(self.displayname)[0] or "application/octet-stream"
+                content_type=guess_type(self.displayname)[0] or "application/octet-stream",
             )
         else:
             # file is being submitted in body/memory
             some_file = SimpleUploadedFile(
                 name=self.displayname,
                 content=request.body,
-                content_type=guess_type(self.displayname)[0] or "application/octet-stream"
+                content_type=guess_type(self.displayname)[0] or "application/octet-stream",
             )
 
         parent = self.get_parent().obj
@@ -382,7 +376,7 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
         self.obj.path = some_file
 
         # when a new file is created, wait for it to have a proper name before the upload
-        if self.displayname.startswith('~ew') and self.displayname.endswith('.tmp'):
+        if self.displayname.startswith("~ew") and self.displayname.endswith(".tmp"):
             raise ResponseException(HttpResponseBadRequest(_("Not uploading until the file is named")))
 
         self.obj.save()
@@ -403,9 +397,7 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
             # if parent is not set, set it to the virtual root
             parent = Directory.objects.filter(drive=request.drive, is_virtual_root=True).first()
 
-        self.collection_model.objects.create(
-            drive=request.drive, **{self.collection_attribute: parent, 'name': name}
-        )
+        self.collection_model.objects.create(drive=request.drive, **{self.collection_attribute: parent, "name": name})
 
     def delete(self):
         """
@@ -435,7 +427,7 @@ class MyDriveDavResource(MetaEtagMixIn, NameLookupDBDavMixIn, BaseDBDavResource)
             file=self.obj.path.file,
             name=self.obj.original_filename,
             size=getattr(self.obj, self.size_attribute),
-            content_type=guess_type(self.displayname)[0] or "application/octet-stream"
+            content_type=guess_type(self.displayname)[0] or "application/octet-stream",
         )
 
         new_obj = self.object_model()

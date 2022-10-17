@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -18,7 +18,7 @@ def try_delete_file(file):
         try:
             os.remove(file.path)
         except OSError:
-            LOGGER.exception("Could not delete file {}".format(file))
+            LOGGER.exception(f"Could not delete file {file}")
 
 
 @receiver(post_delete, sender=PluginInstance)
@@ -27,5 +27,5 @@ def auto_delete_plugin_instance_files_on_delete(sender, instance, **kwargs):
     try_delete_file(instance.picture)
 
     for cs in instance.changesets.all():
-        for cr in cs.change_records.filter(field_name__in=['rawdata', 'picture']):
+        for cr in cs.change_records.filter(field_name__in=["rawdata", "picture"]):
             try_delete_file(cr.old_value)

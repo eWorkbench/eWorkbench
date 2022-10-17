@@ -1,11 +1,12 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from rest_framework import viewsets
 from django.contrib.contenttypes.models import ContentType
 
-from django_changeset.models import ChangeSet, ChangeRecord
+from rest_framework import viewsets
+
+from django_changeset.models import ChangeRecord, ChangeSet
 
 from eric.core.rest.viewsets import BaseAuthenticatedReadOnlyModelViewSet
 from eric.dmp.models import DmpFormField
@@ -14,7 +15,8 @@ from eric.projects.rest.serializers import ChangeSetSerializer
 
 
 class DmpFormFieldViewSet(BaseAuthenticatedReadOnlyModelViewSet):
-    """ Viewset for dmp form fields """
+    """Viewset for dmp form fields"""
+
     serializer_class = DmpFormFieldSerializerExtended
     queryset = DmpFormField.objects.all()
 
@@ -23,7 +25,8 @@ class DmpFormFieldViewSet(BaseAuthenticatedReadOnlyModelViewSet):
 
 
 class DmpFormFieldChangeSetViewSet(viewsets.ReadOnlyModelViewSet):
-    """ Viewsets for changesets in dmp form fields """
+    """Viewsets for changesets in dmp form fields"""
+
     serializer_class = ChangeSetSerializer
     queryset = ChangeSet.objects.none()
 

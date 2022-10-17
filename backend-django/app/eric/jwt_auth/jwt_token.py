@@ -1,29 +1,30 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 
-import jwt
 from django.conf import settings
+
+import jwt
 from jwt import DecodeError
 
-JWT_URL_PARAM = 'jwt'
+JWT_URL_PARAM = "jwt"
 
-PATH_KEY = 'path'
-VERIFICATION_TOKEN_KEY = 'jwt_verification_token'
-USER_PK_KEY = 'user'
-EXPIRY_DATE_KEY = 'exp'
-CHECK_PATH_PARAMS_KEY = 'check_params'
+PATH_KEY = "path"
+VERIFICATION_TOKEN_KEY = "jwt_verification_token"
+USER_PK_KEY = "user"
+EXPIRY_DATE_KEY = "exp"
+CHECK_PATH_PARAMS_KEY = "check_params"
 
 
 class JWTToken:
-    algorithms = 'HS256'
+    algorithms = "HS256"
     encryption_key = settings.SECRET_KEY
 
     def __init__(self, token_string: str):
         self.token_string = token_string
 
-    def decode(self) -> 'JWTPayload':
+    def decode(self) -> "JWTPayload":
         decoded = jwt.decode(
             jwt=self.token_string,
             key=self.encryption_key,
@@ -34,12 +35,12 @@ class JWTToken:
         if decoded:
             return JWTPayload(decoded)
         else:
-            raise DecodeError('Token could not be decoded.')
+            raise DecodeError("Token could not be decoded.")
 
     @classmethod
-    def encode(cls, payload: 'JWTPayload') -> 'JWTToken':
+    def encode(cls, payload: "JWTPayload") -> "JWTToken":
         token_byte_string = jwt.encode(payload.dict, key=cls.encryption_key, algorithm=cls.algorithms)
-        token_string = token_byte_string.decode('utf-8')
+        token_string = token_byte_string.decode("utf-8")
         return JWTToken(token_string)
 
 
@@ -53,14 +54,14 @@ class JWTPayload:
             self.user_pk = payload.get(USER_PK_KEY)
             self.verification_token = payload.get(VERIFICATION_TOKEN_KEY)
         except KeyError as err:
-            raise DecodeError('Required payload missing from token.', err)
+            raise DecodeError("Required payload missing from token.", err)
 
         # optional payload
         self.expiry_date = payload.get(EXPIRY_DATE_KEY, None)
         self.check_path_params = payload.get(CHECK_PATH_PARAMS_KEY, False)
 
     @classmethod
-    def create(cls, path: str, user, exp=None, check_path_params=False, **kwargs) -> 'JWTPayload':
+    def create(cls, path: str, user, exp=None, check_path_params=False, **kwargs) -> "JWTPayload":
         payload = {
             PATH_KEY: path,
             USER_PK_KEY: user.pk,

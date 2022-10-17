@@ -1,10 +1,9 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import django.contrib.postgres.fields
-from django.db import migrations
-from django.db import models
+from django.db import migrations, models
 
 from eric.core.models import disable_permission_checks
 

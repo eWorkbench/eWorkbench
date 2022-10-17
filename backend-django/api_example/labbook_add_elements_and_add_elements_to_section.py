@@ -15,9 +15,7 @@ api.set_http_header("Authorization", "Token " + token)
 # width is the width of the element in the labbook (default = 20, minimum = 4, maximum = 20)
 
 # create a Labbook
-data_labbook = {
-    "title": "My new Labbook"
-}
+data_labbook = {"title": "My new Labbook"}
 labbook = api.create_labbook(data_labbook)
 
 # create a Note
@@ -34,7 +32,7 @@ child_object_1 = api.add_element_to_labbook(
     height=7,
     width=20,
     position_x=0,
-    position_y=0
+    position_y=0,
 )
 
 # create another Note
@@ -51,14 +49,11 @@ child_object_2 = api.add_element_to_labbook(
     height=7,
     width=20,
     position_x=0,
-    position_y=child_object_1["position_y"] + child_object_1["height"]
+    position_y=child_object_1["position_y"] + child_object_1["height"],
 )
 
 # create a Section
-data_section_1 = {
-    "date": "2020-04-06",
-    "title": "Section 1"
-}
+data_section_1 = {"date": "2020-04-06", "title": "Section 1"}
 section_1 = api.create_section(data_section_1)
 # add section_1 to the labbook
 child_object_3 = api.add_element_to_labbook(
@@ -68,7 +63,7 @@ child_object_3 = api.add_element_to_labbook(
     height=1,
     width=20,
     position_x=0,
-    position_y=child_object_2["position_y"] + child_object_2["height"]
+    position_y=child_object_2["position_y"] + child_object_2["height"],
 )
 
 # create another Note, which will be added to Section 1
@@ -85,7 +80,7 @@ child_object_4 = api.add_element_to_labbook(
     height=7,
     width=20,
     position_x=0,
-    position_y=child_object_3["position_y"] + child_object_3["height"]
+    position_y=child_object_3["position_y"] + child_object_3["height"],
 )
 
 # now lets get the section to get its child_elements list

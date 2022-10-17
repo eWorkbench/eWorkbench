@@ -1,8 +1,8 @@
 import getpass
 
-from eric import APIAccess
 import grequests
 
+from eric import APIAccess
 from eric.shared_elements.models import Task
 
 
@@ -15,13 +15,11 @@ base_url = "http://workbench.local:8000/api"
 
 api = APIAccess(base_url=base_url)
 
-token = api.login(getpass.getpass('Username: '), getpass.getpass('Password: '))
+token = api.login(getpass.getpass("Username: "), getpass.getpass("Password: "))
 
 api.set_http_header("Authorization", "Token " + token)
 
-headers = {
-    'Authorization': "Token " + token
-}
+headers = {"Authorization": "Token " + token}
 
 task = {
     "project": None,
@@ -32,7 +30,7 @@ task = {
     "assigned_users": [],
     "title": "Schmafu",
     "assigned_users_pk": [],
-    "projects": []
+    "projects": [],
 }
 
 reqs = [
@@ -55,7 +53,7 @@ reqs = [
     grequests.post(base_url + "/tasks/", data=task, headers=headers),
     grequests.post(base_url + "/tasks/", data=task, headers=headers),
     grequests.post(base_url + "/tasks/", data=task, headers=headers),
-    grequests.post(base_url + "/tasks/", data=task, headers=headers)
+    grequests.post(base_url + "/tasks/", data=task, headers=headers),
 ]
 
 grequests.map(reqs, exception_handler=exception_handler)

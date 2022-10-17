@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import base64
@@ -11,17 +11,20 @@ import re
 import unicodedata
 from mimetypes import guess_extension, guess_type
 
-from PIL import Image
-from bs4 import BeautifulSoup
 from django.utils.http import urlquote
+
+from bs4 import BeautifulSoup
+from PIL import Image
 
 
 def get_rgb_rgba_pattern():
     # From https://dev.to/taufik_nurrohman/match-valid-rgb-rgba-color-string-using-range-pattern-3142
     # Modified by MPO to allow "1.0" values too and not only "1".
-    return r"(?:rgb\(\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d" \
-           r"|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*\)|rgba\(\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]" \
-           r"\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*([01]|[01]?\.\d+)\s*\))"
+    return (
+        r"(?:rgb\(\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d"
+        r"|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*\)|rgba\(\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]"
+        r"\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*(\d|[1-9]\d|1\d{2}|2[0-4]\d|2[0-5]{2})\s*,\s*([01]|[01]?\.\d+)\s*\))"
+    )
 
 
 def rfc5987_content_disposition(file_name, disposition_type="attachment"):
@@ -31,11 +34,11 @@ def rfc5987_content_disposition(file_name, disposition_type="attachment"):
     :param disposition_type: either "attachment" or "inline"
     :return:
     """
-    ascii_name = unicodedata.normalize('NFKD', file_name).encode('ascii', 'ignore').decode()
-    header = '{}; filename="{}"'.format(disposition_type, ascii_name)
+    ascii_name = unicodedata.normalize("NFKD", file_name).encode("ascii", "ignore").decode()
+    header = f'{disposition_type}; filename="{ascii_name}"'
     if ascii_name != file_name:
         quoted_name = urlquote(file_name)
-        header += '; filename*=UTF-8\'\'{}'.format(quoted_name)
+        header += f"; filename*=UTF-8''{quoted_name}"
 
     return header
 
@@ -63,7 +66,7 @@ def convert_html_to_text(html):
     return soup.get_text()
 
 
-def decode_base64_with_padding_correction(data, altchars=b'+/'):
+def decode_base64_with_padding_correction(data, altchars=b"+/"):
     """
     Decode base64 and repair missing padding.
 
@@ -71,10 +74,10 @@ def decode_base64_with_padding_correction(data, altchars=b'+/'):
     :param altchars: Specifies the alternative alphabet used instead of the + and / characters
     :returns: The decoded byte string.
     """
-    data = re.sub(rb'[^a-zA-Z0-9%s]+' % altchars, b'', data)  # normalize
+    data = re.sub(rb"[^a-zA-Z0-9%s]+" % altchars, b"", data)  # normalize
     missing_padding = len(data) % 4
     if missing_padding:
-        data += b'=' * (4 - missing_padding)
+        data += b"=" * (4 - missing_padding)
 
     return base64.b64decode(data, altchars)
 
@@ -95,7 +98,7 @@ def guess_extension_for_file_header(encoded_base64_string):
     for file_test in imghdr.tests:
         file_extension = file_test(file_header_sample, None)
         if file_extension:
-            file_extension = ".{}".format(file_extension)
+            file_extension = f".{file_extension}"
             break
 
     return file_extension
@@ -128,8 +131,10 @@ def get_base64_image_references(data):
 
     # This regular expression searches for all important attributes it can find.
     # It uses a positive look forward in case the attributes are placed in the wrong order.
-    regex = r'<img\b(?=[^<>]*\s+src=\"(data:(.+?);base64,(.+?))\")(?=[^<>]*\s+title=\"(.*?)\")?' \
-            r'(?=[^<>]*\s+alt=\"(.*?)\")?[^<>]+>'
+    regex = (
+        r"<img\b(?=[^<>]*\s+src=\"(data:(.+?);base64,(.+?))\")(?=[^<>]*\s+title=\"(.*?)\")?"
+        r"(?=[^<>]*\s+alt=\"(.*?)\")?[^<>]+>"
+    )
 
     return re.finditer(regex, data, re.IGNORECASE)
 
@@ -162,11 +167,11 @@ def extract_image_attributes_for_regex_match(regex_match):
         alt = alt.strip()
 
     return {
-        'full_base64_data': full_base64_data,
-        'mime_type': mime_type,
-        'base64_image_string': base64_image_string,
-        'title': title,
-        'alt': alt,
+        "full_base64_data": full_base64_data,
+        "mime_type": mime_type,
+        "base64_image_string": base64_image_string,
+        "title": title,
+        "alt": alt,
     }
 
 
@@ -178,21 +183,21 @@ def create_file_name_for_image_reference(image_attributes, file_extension):
     :param file_extension: Extension for file
     :returns: File name for image reference
     """
-    file_name_without_extension = ''
+    file_name_without_extension = ""
 
     if type(image_attributes) is dict:
         # Usually the alt or title attributes have the exact file name in them.
         # We would like to get rid of the file extension and just use the base name.
-        if image_attributes.get('title'):
-            file_name_without_extension = os.path.splitext(image_attributes['title'])[0]
-        elif image_attributes.get('alt'):
-            file_name_without_extension = os.path.splitext(image_attributes['alt'])[0]
+        if image_attributes.get("title"):
+            file_name_without_extension = os.path.splitext(image_attributes["title"])[0]
+        elif image_attributes.get("alt"):
+            file_name_without_extension = os.path.splitext(image_attributes["alt"])[0]
 
     # use the current time stamp as the file name if neither the title nor the alt attribute holds a value
     if not file_name_without_extension:
-        file_name_without_extension = 'image_file_{}'.format(datetime.datetime.now())
+        file_name_without_extension = f"image_file_{datetime.datetime.now()}"
 
-    return '{}.{}'.format(file_name_without_extension, file_extension.lstrip('.'))
+    return "{}.{}".format(file_name_without_extension, file_extension.lstrip("."))
 
 
 def convert_base64_image_strings_to_file_references(data):
@@ -209,11 +214,10 @@ def convert_base64_image_strings_to_file_references(data):
     matches = get_base64_image_references(data)
     for match in matches:
         image_attributes = extract_image_attributes_for_regex_match(match)
-        base64_ascii_string = image_attributes['base64_image_string'].encode('ascii')
+        base64_ascii_string = image_attributes["base64_image_string"].encode("ascii")
 
         file_extension = guess_extension_for_file(
-            decode_base64_with_padding_correction(base64_ascii_string),
-            image_attributes['mime_type']
+            decode_base64_with_padding_correction(base64_ascii_string), image_attributes["mime_type"]
         )
         file_name = create_file_name_for_image_reference(image_attributes, file_extension)
         mime_type = guess_type(file_name)[0]
@@ -226,14 +230,16 @@ def convert_base64_image_strings_to_file_references(data):
         image_width, image_height = image.size
         binary_image_blob.seek(0)
 
-        image_references.append({
-            'file_name': file_name,
-            'width': image_width,
-            'height': image_height,
-            'base64': image_attributes['full_base64_data'],
-            'binary': binary_image_blob,
-            'mime_type': mime_type,
-        })
+        image_references.append(
+            {
+                "file_name": file_name,
+                "width": image_width,
+                "height": image_height,
+                "base64": image_attributes["full_base64_data"],
+                "binary": binary_image_blob,
+                "mime_type": mime_type,
+            }
+        )
 
     return image_references
 

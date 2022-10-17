@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import uuid
@@ -19,6 +19,7 @@ class ShortURL(models.Model):
     """
     A Model that provides short urls for Django
     """
+
     objects = ShortURLManager()
 
     class Meta:
@@ -26,36 +27,20 @@ class ShortURL(models.Model):
         verbose_name_plural = _("Short URLs")
 
     created_by = UserForeignKey(
-        auto_user_add=True,
-        verbose_name=_("The user that created the short url"),
-        on_delete=models.SET_NULL
+        auto_user_add=True, verbose_name=_("The user that created the short url"), on_delete=models.SET_NULL
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_("When was this url created")
-    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("When was this url created"))
 
     id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-        verbose_name=_("Special primary key of the short url")
+        primary_key=True, default=uuid.uuid4, editable=False, verbose_name=_("Special primary key of the short url")
     )
 
-    url = models.TextField(
-        verbose_name=_("The URL that we redirect to")
-    )
+    url = models.TextField(verbose_name=_("The URL that we redirect to"))
 
-    last_accessed = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_("Last time this url was accessed")
-    )
+    last_accessed = models.DateTimeField(auto_now=True, verbose_name=_("Last time this url was accessed"))
 
-    access_count = models.BigIntegerField(
-        default=0,
-        verbose_name=_("How often this url was accessed")
-    )
+    access_count = models.BigIntegerField(default=0, verbose_name=_("How often this url was accessed"))
 
     def get_short_url(self):
         """
@@ -64,4 +49,4 @@ class ShortURL(models.Model):
         """
         request = get_current_request()
 
-        return reverse('short-url', kwargs={'pk': self.pk}, request=request)
+        return reverse("short-url", kwargs={"pk": self.pk}, request=request)

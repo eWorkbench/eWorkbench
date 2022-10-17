@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -12,15 +12,14 @@ from django.db.models import Q
 from django.utils import timezone
 
 from eric.core.models import DisableSignals
-from eric.ms_office_handling.models.handlers import OFFICE_TEMP_FILE_PREFIX, MS_OFFICE_EXTENSIONS
+from eric.ms_office_handling.models.handlers import MS_OFFICE_EXTENSIONS, OFFICE_TEMP_FILE_PREFIX
 from eric.shared_elements.models import File
 
-
-logger = logging.getLogger('eric.ms_office_handling.models.handlers')
+logger = logging.getLogger("eric.ms_office_handling.models.handlers")
 
 
 class Command(BaseCommand):
-    help = 'Trashes unneeded temp files that were created by editing files in webdav using MS Office'
+    help = "Trashes unneeded temp files that were created by editing files in webdav using MS Office"
 
     def handle(self, *args, **options):
         now = timezone.now()

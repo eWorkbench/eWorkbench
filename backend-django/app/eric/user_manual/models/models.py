@@ -1,19 +1,18 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import uuid
 
-from ckeditor_uploader.fields import RichTextUploadingField
 from django.core.cache import cache
-
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from ckeditor_uploader.fields import RichTextUploadingField
 from django_changeset.models import RevisionModelMixin
 
-
 from eric.core.models import BaseModel
-from eric.core.models.abstract import OrderingModelMixin, ChangeSetMixIn
+from eric.core.models.abstract import ChangeSetMixIn, OrderingModelMixin
 
 
 class UserManualCategory(BaseModel, OrderingModelMixin, ChangeSetMixIn, RevisionModelMixin):
@@ -24,24 +23,22 @@ class UserManualCategory(BaseModel, OrderingModelMixin, ChangeSetMixIn, Revision
     class Meta:
         verbose_name = _("Category")
         verbose_name_plural = _("Categories")
-        track_fields = ('title', 'ordering', 'description',)
-        ordering = ('ordering', 'title', )
+        track_fields = (
+            "title",
+            "ordering",
+            "description",
+        )
+        ordering = (
+            "ordering",
+            "title",
+        )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        verbose_name=_("Title of the category"),
-        max_length=128,
-        db_index=True,
-        unique=True
-    )
+    title = models.CharField(verbose_name=_("Title of the category"), max_length=128, db_index=True, unique=True)
 
     description = RichTextUploadingField(
-        config_name='awesome_ckeditor',
+        config_name="awesome_ckeditor",
         verbose_name=_("Description of the category"),
         blank=True,
     )
@@ -59,25 +56,16 @@ class UserManualPlaceholder(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     class Meta:
         verbose_name = _("Placeholder")
         verbose_name_plural = _("Placeholders")
-        track_fields = ('key', 'content',)
+        track_fields = (
+            "key",
+            "content",
+        )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    key = models.CharField(
-        verbose_name=_("Key of the placeholder"),
-        max_length=128,
-        db_index=True,
-        unique=True
-    )
+    key = models.CharField(verbose_name=_("Key of the placeholder"), max_length=128, db_index=True, unique=True)
 
-    content = RichTextUploadingField(
-        config_name='awesome_ckeditor',
-        verbose_name=_("Content of the placeholder")
-    )
+    content = RichTextUploadingField(config_name="awesome_ckeditor", verbose_name=_("Content of the placeholder"))
 
     def __str__(self):
         return "{$%s}" % self.key
@@ -90,6 +78,7 @@ class UserManualPlaceholder(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         :return:
         """
         from eric.user_manual import PLACEHOLDER_CACHE_KEY
+
         placeholders = cache.get(PLACEHOLDER_CACHE_KEY, None)
 
         if not placeholders:
@@ -108,34 +97,25 @@ class UserManualHelpText(BaseModel, OrderingModelMixin, ChangeSetMixIn, Revision
         verbose_name = _("Help Text")
         verbose_name_plural = _("Help Texts")
         unique_together = (
-            ('title', 'category',),
+            (
+                "title",
+                "category",
+            ),
         )
-        track_fields = ('title', 'ordering', 'text', 'category')
-        ordering = ('ordering',)
+        track_fields = ("title", "ordering", "text", "category")
+        ordering = ("ordering",)
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        verbose_name=_("Title of the text"),
-        max_length=128,
-        db_index=True
-    )
+    title = models.CharField(verbose_name=_("Title of the text"), max_length=128, db_index=True)
 
     text = RichTextUploadingField(
-        config_name='awesome_ckeditor',
+        config_name="awesome_ckeditor",
         verbose_name=_("Actual help text"),
         blank=True,
     )
 
-    category = models.ForeignKey(
-        "UserManualCategory",
-        on_delete=models.CASCADE,
-        related_name="help_texts"
-    )
+    category = models.ForeignKey("UserManualCategory", on_delete=models.CASCADE, related_name="help_texts")
 
     def __str__(self):
         return self.title

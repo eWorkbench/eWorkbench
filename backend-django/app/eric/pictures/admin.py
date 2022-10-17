@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 
@@ -16,22 +16,20 @@ User = get_user_model()
 
 @admin.register(Picture)
 class PictureAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    """ contains basic admin functionality for eric workbench pictures """
+    """contains basic admin functionality for eric workbench pictures"""
 
     list_display = (
-        'title',
-        'created_by',
-        'created_at',
+        "title",
+        "created_by",
+        "created_at",
     )
-    list_filter = (
-        ProjectsFilter,
-    )
+    list_filter = (ProjectsFilter,)
     search_fields = (
-        'projects__name',
-        'title',
+        "projects__name",
+        "title",
         "created_by__username",
         "created_by__email",
     )
     inlines = (ModelPrivilegeInline,)
-    autocomplete_fields = ('projects',)
-    raw_id_fields = ('uploaded_picture_entry',)
+    autocomplete_fields = ("projects",)
+    raw_id_fields = ("uploaded_picture_entry",)

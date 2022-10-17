@@ -1,18 +1,20 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import csv
-from dateutil.relativedelta import relativedelta
+
 from django.core.management.base import BaseCommand
 from django.db.models import Sum
 from django.utils import timezone
+
+from dateutil.relativedelta import relativedelta
+
 from eric.dmp.models import Dmp
 from eric.drives.models import Drive
 from eric.projects.models import Project
 from eric.shared_elements.models import File
 from eric.versions.models import Version
-
 
 # ssh -J srvadm@tuzebib-wb-load.srv.mwn.de srvadm@tuzebib-wb-work.srv.mwn.de
 # su - ge29nax
@@ -57,17 +59,17 @@ LEVEL1_DATA = {}
 
 
 def get_dmp_data(project_id, project_name, level):
-    dmps = Dmp.objects.filter(
-        projects=project_id,
-        title__startswith=project_name,
-    ).filter(
-        title__icontains="WP_"
-    ).order_by("title")
+    dmps = (
+        Dmp.objects.filter(
+            projects=project_id,
+            title__startswith=project_name,
+        )
+        .filter(title__icontains="WP_")
+        .order_by("title")
+    )
     for dmp in dmps:
-        version_remark_versions = Version.objects.filter(
-            object_id=dmp.pk
-        ).filter(
-            summary__regex=r'^V\d+',
+        version_remark_versions = Version.objects.filter(object_id=dmp.pk).filter(
+            summary__regex=r"^V\d+",
         )
         version_remarks = ""
         if version_remark_versions:
@@ -102,12 +104,14 @@ def get_dmp_data(project_id, project_name, level):
 
 
 def get_storage_data(project_id, project_name, level):
-    storages = Drive.objects.filter(
-        projects=project_id,
-        title__startswith=project_name,
-    ).filter(
-        title__icontains="workspace"
-    ).order_by("title")
+    storages = (
+        Drive.objects.filter(
+            projects=project_id,
+            title__startswith=project_name,
+        )
+        .filter(title__icontains="workspace")
+        .order_by("title")
+    )
     for storage in storages:
         all_files_in_storage = File.objects.filter(directory__drive__pk=storage.pk)
         file_last_updated = all_files_in_storage.order_by("-last_modified_at").first()
@@ -119,20 +123,16 @@ def get_storage_data(project_id, project_name, level):
             file_last_updated_pk = ""
 
         all_files_in_storage_pks = all_files_in_storage.values_list("pk", flat=True)
-        version_remark_versions = Version.objects.filter(
-            object_id__in=all_files_in_storage_pks
-        ).filter(
-            summary__regex=r'^V\d+',
+        version_remark_versions = Version.objects.filter(object_id__in=all_files_in_storage_pks).filter(
+            summary__regex=r"^V\d+",
         )
         version_remarks = ""
         if version_remark_versions:
             version_remarks = version_remark_versions.values_list("object_id", flat=True)
 
-        storage_size = all_files_in_storage.aggregate(Sum('file_size'))['file_size__sum']
-        files_last_three_months = all_files_in_storage.filter(
-            created_at__gte=timezone.now() - relativedelta(months=3)
-        )
-        storage_size_last_three_months = files_last_three_months.aggregate(Sum('file_size'))['file_size__sum']
+        storage_size = all_files_in_storage.aggregate(Sum("file_size"))["file_size__sum"]
+        files_last_three_months = all_files_in_storage.filter(created_at__gte=timezone.now() - relativedelta(months=3))
+        storage_size_last_three_months = files_last_three_months.aggregate(Sum("file_size"))["file_size__sum"]
 
         number_of_files_last_three_months = files_last_three_months.count()
 
@@ -195,13 +195,19 @@ def get_level2_totals():
                 current_file_number_last3months = ivalue[16]
                 if current_dmp_last_updated_timestamp and not dmp_last_updated_timestamp:
                     dmp_last_updated_timestamp = current_dmp_last_updated_timestamp
-                if current_dmp_last_updated_timestamp and dmp_last_updated_timestamp and \
-                        current_dmp_last_updated_timestamp > dmp_last_updated_timestamp:
+                if (
+                    current_dmp_last_updated_timestamp
+                    and dmp_last_updated_timestamp
+                    and current_dmp_last_updated_timestamp > dmp_last_updated_timestamp
+                ):
                     dmp_last_updated_timestamp = current_dmp_last_updated_timestamp
                 if current_file_last_updated_timestamp and not file_last_updated_timestamp:
                     file_last_updated_timestamp = current_file_last_updated_timestamp
-                if current_file_last_updated_timestamp and file_last_updated_timestamp and \
-                        current_file_last_updated_timestamp > file_last_updated_timestamp:
+                if (
+                    current_file_last_updated_timestamp
+                    and file_last_updated_timestamp
+                    and current_file_last_updated_timestamp > file_last_updated_timestamp
+                ):
                     file_last_updated_timestamp = current_file_last_updated_timestamp
                 if current_file_filesize_total:
                     file_filesize_total += int(current_file_filesize_total)
@@ -253,13 +259,19 @@ def get_level1_totals(l1_project_id, l1_project_name):
         current_file_number_last3months = value[16]
         if current_dmp_last_updated_timestamp and not dmp_last_updated_timestamp:
             dmp_last_updated_timestamp = current_dmp_last_updated_timestamp
-        if current_dmp_last_updated_timestamp and dmp_last_updated_timestamp and \
-                current_dmp_last_updated_timestamp > dmp_last_updated_timestamp:
+        if (
+            current_dmp_last_updated_timestamp
+            and dmp_last_updated_timestamp
+            and current_dmp_last_updated_timestamp > dmp_last_updated_timestamp
+        ):
             dmp_last_updated_timestamp = current_dmp_last_updated_timestamp
         if current_file_last_updated_timestamp and not file_last_updated_timestamp:
             file_last_updated_timestamp = current_file_last_updated_timestamp
-        if current_file_last_updated_timestamp and file_last_updated_timestamp and \
-                current_file_last_updated_timestamp > file_last_updated_timestamp:
+        if (
+            current_file_last_updated_timestamp
+            and file_last_updated_timestamp
+            and current_file_last_updated_timestamp > file_last_updated_timestamp
+        ):
             file_last_updated_timestamp = current_file_last_updated_timestamp
         if current_file_filesize_total:
             file_filesize_total += int(current_file_filesize_total)
@@ -299,22 +311,34 @@ def write_csv():
     now = timezone.now().isoformat()
     with open(f"trr_277_amc_stats-{now}.csv", "w", newline="") as csvfile:
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(["LEVEL 3", ])
+        csvwriter.writerow(
+            [
+                "LEVEL 3",
+            ]
+        )
         csvwriter.writerow(CSV_HEADERS)
         for key, value in LEVEL3_DATA.items():
             csvwriter.writerow(value)
-        csvwriter.writerow(["LEVEL 2", ])
+        csvwriter.writerow(
+            [
+                "LEVEL 2",
+            ]
+        )
         csvwriter.writerow(CSV_HEADERS)
         for key, value in LEVEL2_DATA.items():
             csvwriter.writerow(value)
-        csvwriter.writerow(["LEVEL 1", ])
+        csvwriter.writerow(
+            [
+                "LEVEL 1",
+            ]
+        )
         csvwriter.writerow(CSV_HEADERS)
         for key, value in LEVEL1_DATA.items():
             csvwriter.writerow(value)
 
 
 class Command(BaseCommand):
-    help = 'Prints statistics for the TRR_277_AMC project in csv format. python manage.py trr_277_amc_stats'
+    help = "Prints statistics for the TRR_277_AMC project in csv format. python manage.py trr_277_amc_stats"
 
     def handle(self, *args, **options):
         # Level 1

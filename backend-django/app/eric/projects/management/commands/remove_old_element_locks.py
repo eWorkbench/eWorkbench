@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Removes element locks that are older than 15 minutes'
+    help = "Removes element locks that are older than 15 minutes"
 
     def handle(self, *args, **options):
         with disable_permission_checks(ElementLock):
@@ -36,18 +36,18 @@ class Command(BaseCommand):
             )
 
             if element_locks.count() > 0:
-                logger.debug("{}: Deleting {}/{} ElementLocks".format(
-                    timezone.now(),
-                    element_locks.count(),
-                    ElementLock.objects.all().count()
-                ))
+                logger.debug(
+                    "{}: Deleting {}/{} ElementLocks".format(
+                        timezone.now(), element_locks.count(), ElementLock.objects.all().count()
+                    )
+                )
 
             if webdav_element_locks.count() > 0:
-                logger.debug("{}: Deleting {}/{} Webdav ElementLocks".format(
-                    timezone.now(),
-                    element_locks.count(),
-                    ElementLock.objects.all().count()
-                ))
+                logger.debug(
+                    "{}: Deleting {}/{} Webdav ElementLocks".format(
+                        timezone.now(), element_locks.count(), ElementLock.objects.all().count()
+                    )
+                )
 
             # deleting element locks might fail, if the model does not exist anymore
             # but there are still some instances of that model in the database
@@ -67,5 +67,5 @@ class Command(BaseCommand):
                 with disable_permission_checks(ElementLock):
                     lock.delete()
             except Exception as e:
-                logger.error('Could not delete lock:')
+                logger.error("Could not delete lock:")
                 logger.error(e)

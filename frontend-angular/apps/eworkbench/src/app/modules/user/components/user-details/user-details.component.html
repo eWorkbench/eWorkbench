@@ -53,7 +53,8 @@
       >
         {{ user?.userprofile?.first_name }} {{ user?.userprofile?.last_name }}
       </a>
-      <span *ngIf="!user?.is_active" class="inactive-indicator">{{ t('user.details.inactive') }}</span>
+      <span *ngIf="user?.userprofile?.status === 'INACTIVE'" class="status-indicator">{{ t('user.details.inactive') }}</span>
+      <span *ngIf="user?.userprofile?.status === 'INVITED'" class="status-indicator">{{ t('user.details.invited') }}</span>
     </div>
   </ng-template>
 
@@ -80,7 +81,8 @@
       >
         {{ user?.username }}
       </a>
-      <span *ngIf="!user?.is_active" class="inactive-indicator">{{ t('user.details.inactive') }}</span>
+      <span *ngIf="user?.userprofile?.status === 'INACTIVE'" class="status-indicator">{{ t('user.details.inactive') }}</span>
+      <span *ngIf="user?.userprofile?.status === 'INVITED'" class="status-indicator">{{ t('user.details.invited') }}</span>
     </div>
   </ng-template>
 </ng-container>

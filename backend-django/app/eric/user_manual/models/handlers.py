@@ -1,13 +1,13 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.core.cache import cache
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from eric.user_manual import PLACEHOLDER_CACHE_KEY, HELP_TEXT_CACHE_KEY
-from eric.user_manual.models import UserManualPlaceholder, UserManualHelpText, UserManualCategory
+from eric.user_manual import HELP_TEXT_CACHE_KEY, PLACEHOLDER_CACHE_KEY
+from eric.user_manual.models import UserManualCategory, UserManualHelpText, UserManualPlaceholder
 
 
 def invalidate_help_text_cache_for_all_entries():

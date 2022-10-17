@@ -52,3 +52,5 @@ dss/dssfs01/*
 !dss/dssfs01/.gitkeep
 
 app/celerybeat-schedule
+
+.DS_Store

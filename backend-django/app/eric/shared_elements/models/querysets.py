@@ -1,15 +1,16 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
 
 from django.db.models import Q, QuerySet
 from django.utils import timezone
+
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 from django_userforeignkey.request import get_current_user
 
-from eric.core.models.abstract import get_all_workbench_models, WorkbenchEntityMixin
+from eric.core.models.abstract import WorkbenchEntityMixin, get_all_workbench_models
 from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, extend_queryset
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ class ContactQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         Prefetch common attributes
         """
-        return super(ContactQuerySet, self).prefetch_common().prefetch_metadata()
+        return super().prefetch_common().prefetch_metadata()
 
 
 class NoteQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -41,31 +42,31 @@ class NoteQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         (via privileges or permissions)
         """
         from eric.relations.models import Relation
-        from eric.shared_elements.models import Note
-        from eric.shared_elements.models import Comment
+        from eric.shared_elements.models import Comment, Note
 
         # exclude notes from models to check to avoid endless recursion
         workbench_models_except_notes = [
-            model for model in get_all_workbench_models(WorkbenchEntityMixin)
+            model
+            for model in get_all_workbench_models(WorkbenchEntityMixin)
             if model is not Note and model is not Comment
         ]
 
         # query for viewable elements that are in a relation and put them in a union-queryset ("conditions")
         related_element_viewable = Q()
         for model in workbench_models_except_notes:
-            viewable_element_pks = model.objects.viewable().values_list('pk', flat=True)
+            viewable_element_pks = model.objects.viewable().values_list("pk", flat=True)
             related_element_viewable |= Q(
                 Q(left_object_id__in=viewable_element_pks) | Q(right_object_id__in=viewable_element_pks)
             )
 
         # add directly viewable notes (to avoid endless recursion)
-        viewable_element_pks = Note.objects.directly_viewable().values_list('pk', flat=True)
+        viewable_element_pks = Note.objects.directly_viewable().values_list("pk", flat=True)
         related_element_viewable |= Q(
             Q(left_object_id__in=viewable_element_pks) | Q(right_object_id__in=viewable_element_pks)
         )
 
         # add directly viewable comments (to avoid endless recursion)
-        viewable_comment_element_pks = Comment.objects.directly_viewable().values_list('pk', flat=True)
+        viewable_comment_element_pks = Comment.objects.directly_viewable().values_list("pk", flat=True)
         related_element_viewable |= Q(
             Q(left_object_id__in=viewable_comment_element_pks) | Q(right_object_id__in=viewable_comment_element_pks)
         )
@@ -78,8 +79,8 @@ class NoteQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         # ("AssertionError at /api/notes/ Cannot combine a unique query with a non-unique query.")
 
         viewable_relations = Relation.objects.filter(related_element_viewable, private=False)
-        viewable_relations_left = viewable_relations.values_list('left_object_id', flat=True)
-        viewable_relations_right = viewable_relations.values_list('right_object_id', flat=True)
+        viewable_relations_left = viewable_relations.values_list("left_object_id", flat=True)
+        viewable_relations_right = viewable_relations.values_list("right_object_id", flat=True)
         viewable_notes_via_relations = self.filter(
             Q(pk__in=viewable_relations_left) | Q(pk__in=viewable_relations_right)
         ).distinct()
@@ -99,8 +100,7 @@ class NoteQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         """
         Prefetch common attributes
         """
-        return super(NoteQuerySet, self).prefetch_common() \
-            .prefetch_metadata()
+        return super().prefetch_common().prefetch_metadata()
 
 
 class CommentQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -117,31 +117,31 @@ class CommentQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         (via privileges or permissions)
         """
         from eric.relations.models import Relation
-        from eric.shared_elements.models import Note
-        from eric.shared_elements.models import Comment
+        from eric.shared_elements.models import Comment, Note
 
         # exclude notes from models to check to avoid endless recursion
         workbench_models_except_notes = [
-            model for model in get_all_workbench_models(WorkbenchEntityMixin)
+            model
+            for model in get_all_workbench_models(WorkbenchEntityMixin)
             if model is not Note and model is not Comment
         ]
 
         # query for viewable elements that are in a relation and put them in a union-queryset ("conditions")
         related_element_viewable = Q()
         for model in workbench_models_except_notes:
-            viewable_element_pks = model.objects.viewable().values_list('pk', flat=True)
+            viewable_element_pks = model.objects.viewable().values_list("pk", flat=True)
             related_element_viewable |= Q(
                 Q(left_object_id__in=viewable_element_pks) | Q(right_object_id__in=viewable_element_pks)
             )
 
         # add directly viewable notes (to avoid endless recursion)
-        viewable_element_pks = Note.objects.directly_viewable().values_list('pk', flat=True)
+        viewable_element_pks = Note.objects.directly_viewable().values_list("pk", flat=True)
         related_element_viewable |= Q(
             Q(left_object_id__in=viewable_element_pks) | Q(right_object_id__in=viewable_element_pks)
         )
 
         # add directly viewable comments (to avoid endless recursion)
-        viewable_comment_element_pks = Comment.objects.directly_viewable().values_list('pk', flat=True)
+        viewable_comment_element_pks = Comment.objects.directly_viewable().values_list("pk", flat=True)
         related_element_viewable |= Q(
             Q(left_object_id__in=viewable_comment_element_pks) | Q(right_object_id__in=viewable_comment_element_pks)
         )
@@ -154,8 +154,8 @@ class CommentQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         # ("AssertionError at /api/notes/ Cannot combine a unique query with a non-unique query.")
 
         viewable_relations = Relation.objects.filter(related_element_viewable, private=False)
-        viewable_relations_left = viewable_relations.values_list('left_object_id', flat=True)
-        viewable_relations_right = viewable_relations.values_list('right_object_id', flat=True)
+        viewable_relations_left = viewable_relations.values_list("left_object_id", flat=True)
+        viewable_relations_right = viewable_relations.values_list("right_object_id", flat=True)
         viewable_notes_via_relations = self.filter(
             Q(pk__in=viewable_relations_left) | Q(pk__in=viewable_relations_right)
         ).distinct()
@@ -175,8 +175,7 @@ class CommentQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         Prefetch common attributes
         """
-        return super(CommentQuerySet, self).prefetch_common() \
-            .prefetch_metadata()
+        return super().prefetch_common().prefetch_metadata()
 
 
 class FileQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -188,12 +187,19 @@ class FileQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         """
         Prefetch common attributes
         """
-        return super(FileQuerySet, self).prefetch_common() \
-            .prefetch_related('file_entries',
-                              'file_entries__created_by', 'file_entries__created_by__userprofile',
-                              'file_entries__last_modified_by', 'file_entries__last_modified_by__userprofile',
-                              'uploaded_file_entry', ) \
+        return (
+            super()
+            .prefetch_common()
+            .prefetch_related(
+                "file_entries",
+                "file_entries__created_by",
+                "file_entries__created_by__userprofile",
+                "file_entries__last_modified_by",
+                "file_entries__last_modified_by__userprofile",
+                "uploaded_file_entry",
+            )
             .prefetch_metadata()
+        )
 
 
 class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -205,11 +211,7 @@ class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         """
         Prefetch common attributes
         """
-        return super(TaskQuerySet, self).prefetch_common() \
-            .with_assignee() \
-            .with_checklist() \
-            .with_labels() \
-            .prefetch_metadata()
+        return super().prefetch_common().with_assignee().with_checklist().with_labels().prefetch_metadata()
 
     def not_done(self, *args, **kwargs):
         """
@@ -217,9 +219,7 @@ class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         """
         from eric.shared_elements.models import Task
 
-        return self.exclude(
-            state=Task.TASK_STATE_DONE
-        )
+        return self.exclude(state=Task.TASK_STATE_DONE)
 
     def assigned(self, *args, **kwargs):
         """
@@ -239,27 +239,25 @@ class TaskQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
         """
         now = timezone.now()
 
-        return self.filter(
-            start_date__lte=now
-        )
+        return self.filter(start_date__lte=now)
 
     def with_assignee(self, *args, **kwargs):
         """
         selects the related assigned user and assigned user profile
         """
-        return self.prefetch_related('assigned_users', 'assigned_users__userprofile')
+        return self.prefetch_related("assigned_users", "assigned_users__userprofile")
 
     def with_checklist(self, *args, **kwargs):
         """
         selects the related checklsit items
         """
-        return self.prefetch_related('checklist_items')
+        return self.prefetch_related("checklist_items")
 
     def with_labels(self):
         """
         prefetches the related labels
         """
-        return self.prefetch_related('labels')
+        return self.prefetch_related("labels")
 
 
 class BaseTaskPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
@@ -277,7 +275,7 @@ class BaseTaskPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.shared_elements.models import Task
 
-        return self.filter(task__pk__in=Task.objects.viewable().values_list('pk'))
+        return self.filter(task__pk__in=Task.objects.viewable().values_list("pk"))
 
     def editable(self, *args, **kwargs):
         """
@@ -285,7 +283,7 @@ class BaseTaskPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.shared_elements.models import Task
 
-        return self.filter(task__pk__in=Task.objects.editable().values_list('pk'))
+        return self.filter(task__pk__in=Task.objects.editable().values_list("pk"))
 
     def deletable(self, *args, **kwargs):
         """
@@ -293,13 +291,14 @@ class BaseTaskPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.shared_elements.models import Task
 
-        return self.filter(task__pk__in=Task.objects.editable().values_list('pk'))
+        return self.filter(task__pk__in=Task.objects.editable().values_list("pk"))
 
 
 class TaskAssignedUserQuerySet(BaseTaskPermissionQuerySet, ChangeSetQuerySetMixin):
     """
     QuerySet for Task Assigned Users
     """
+
     pass
 
 
@@ -307,17 +306,21 @@ class TaskCheckListQuerySet(BaseTaskPermissionQuerySet, ChangeSetQuerySetMixin):
     """
     QuerySet for Task CheckLists
     """
+
     pass
 
 
 class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def prefetch_common(self, *args, **kwargs):
-        return super(MeetingQuerySet, self).prefetch_common(*args, **kwargs) \
-            .with_attending_contacts() \
-            .with_attending_users() \
-            .prefetch_related('resource') \
-            .select_related('resource__study_room_info') \
+        return (
+            super()
+            .prefetch_common(*args, **kwargs)
+            .with_attending_contacts()
+            .with_attending_users()
+            .prefetch_related("resource")
+            .select_related("resource__study_room_info")
             .prefetch_metadata()
+        )
 
     def attending(self, *args, **kwargs):
         """
@@ -335,34 +338,37 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         selects the related attending user and attending user profile
         """
-        return self.prefetch_related('attending_users', 'attending_users__userprofile')
+        return self.prefetch_related("attending_users", "attending_users__userprofile")
 
     def with_attending_contacts(self, *args, **kwargs):
         """
         selects the related attending contacts
         """
-        return self.prefetch_related('attending_contacts')
+        return self.prefetch_related("attending_contacts")
 
     def resource_bookings(self):
-        return self.filter(resource__isnull=False).select_related('resource')
+        return self.filter(resource__isnull=False).select_related("resource")
 
     def study_room_bookings(self):
         return self.resource_bookings().filter(resource__study_room_info__isnull=False)
 
     def my_bookings(self):
-        """ Own bookings for an accessible resource """
+        """Own bookings for an accessible resource"""
         from eric.projects.models.models import Resource
 
+        user = get_current_user()
+        if user.is_anonymous:
+            return
         return self.viewable().filter(
             resource__in=Resource.objects.viewable(),
-            created_by=get_current_user(),
+            created_by=user,
         )
 
     def intersecting_interval(self, dt_start, dt_end):
         return self.filter(date_time_start__lte=dt_end, date_time_end__gte=dt_start)
 
     def fully_viewable(self):
-        """ Bookings where all information can be provided. """
+        """Bookings where all information can be provided."""
         from eric.projects.models.models import Resource
 
         is_resource_editor = Q(resource__in=Resource.objects.editable())
@@ -371,7 +377,7 @@ class MeetingQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         return self.viewable().union(booking_where_user_is_resource_editor)
 
     def editor_viewable(self):
-        """ Bookings where the editors of a resource can see all bookings for that resource. """
+        """Bookings where the editors of a resource can see all bookings for that resource."""
         from eric.projects.models.models import Resource
 
         is_resource_editor = Q(resource__in=Resource.objects.editable())
@@ -389,7 +395,7 @@ class BaseMeetingPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.shared_elements.models import Meeting
 
-        return self.filter(meeting__pk__in=Meeting.objects.viewable().values_list('pk'))
+        return self.filter(meeting__pk__in=Meeting.objects.viewable().values_list("pk"))
 
     def editable(self, *args, **kwargs):
         """
@@ -397,7 +403,7 @@ class BaseMeetingPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.shared_elements.models import Meeting
 
-        return self.filter(meeting__pk__in=Meeting.objects.editable().values_list('pk'))
+        return self.filter(meeting__pk__in=Meeting.objects.editable().values_list("pk"))
 
     def deletable(self, *args, **kwargs):
         """
@@ -405,7 +411,7 @@ class BaseMeetingPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.shared_elements.models import Meeting
 
-        return self.filter(meeting__pk__in=Meeting.objects.editable().values_list('pk'))
+        return self.filter(meeting__pk__in=Meeting.objects.editable().values_list("pk"))
 
 
 class UserAttendsMeetingQuerySet(BaseMeetingPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -426,12 +432,11 @@ class ExtendedMeetingContactQuerySet:
     @staticmethod
     def _viewable():
         from eric.shared_elements.models import Meeting
+
         # get all contacts of meetings that are viewable
         contact_pks = Meeting.objects.viewable().values_list("attending_contacts__pk")
 
-        return Q(
-            pk__in=contact_pks
-        )
+        return Q(pk__in=contact_pks)
 
 
 @extend_queryset(TaskQuerySet)
@@ -444,26 +449,24 @@ class TaskAssignedUsersViewableEditableQuerySet:
     @staticmethod
     def _viewable():
         from eric.shared_elements.models import Task
+
         user = get_current_user()
 
         # get all tasks that the current user is assigned to
-        task_pks = Task.objects.filter(assigned_users=user).values_list('pk')
+        task_pks = Task.objects.filter(assigned_users=user).values_list("pk")
 
-        return Q(
-            pk__in=task_pks
-        )
+        return Q(pk__in=task_pks)
 
     @staticmethod
     def _editable():
         from eric.shared_elements.models import Task
+
         user = get_current_user()
 
         # get all tasks that the current user is assigned to
-        task_pks = Task.objects.filter(assigned_users=user).values_list('pk')
+        task_pks = Task.objects.filter(assigned_users=user).values_list("pk")
 
-        return Q(
-            pk__in=task_pks
-        )
+        return Q(pk__in=task_pks)
 
 
 @extend_queryset(MeetingQuerySet)
@@ -476,30 +479,22 @@ class MeetingAttendingUsersViewableEditableQuerySet:
     @staticmethod
     def _viewable():
         user = get_current_user()
-        return Q(
-            attending_users=user
-        )
+        return Q(attending_users=user)
 
     @staticmethod
     def _editable():
         user = get_current_user()
-        return Q(
-            attending_users=user
-        )
+        return Q(attending_users=user)
 
     @staticmethod
     def _trashable():
         user = get_current_user()
-        return Q(
-            attending_users=user
-        )
+        return Q(attending_users=user)
 
     @staticmethod
     def _restoreable():
         user = get_current_user()
-        return Q(
-            attending_users=user
-        )
+        return Q(attending_users=user)
 
 
 def get_meetings_where_the_booked_resource_is_editable():
@@ -552,8 +547,9 @@ class ElementLabelQuerySet(QuerySet, ChangeSetQuerySetMixin):
         return self.filter(created_by=current_user)
 
     def prefetch_common(self):
-        return self.prefetch_related('created_by', 'created_by__userprofile',
-                                     'last_modified_by', 'last_modified_by__userprofile')
+        return self.prefetch_related(
+            "created_by", "created_by__userprofile", "last_modified_by", "last_modified_by__userprofile"
+        )
 
 
 class CalendarAccessQuerySet(QuerySet, ChangeSetQuerySetMixin):
@@ -580,8 +576,9 @@ class CalendarAccessQuerySet(QuerySet, ChangeSetQuerySetMixin):
         return self.for_current_user()
 
     def prefetch_common(self):
-        return self.prefetch_related('created_by', 'created_by__userprofile',
-                                     'last_modified_by', 'last_modified_by__userprofile')
+        return self.prefetch_related(
+            "created_by", "created_by__userprofile", "last_modified_by", "last_modified_by__userprofile"
+        )
 
 
 @extend_queryset(MeetingQuerySet)
@@ -592,115 +589,135 @@ class MeetingCalendarAccessQuerySet:
 
     @staticmethod
     def _viewable():
-        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
+        from eric.shared_elements.models import CalendarAccess
+
         user = get_current_user()
 
         calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
-        model_privilege_users = ModelPrivilege.objects.all().filter(
-            Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                view_privilege=ModelPrivilege.ALLOW
-            ) | Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                full_access_privilege=ModelPrivilege.ALLOW
+        model_privilege_users = (
+            ModelPrivilege.objects.all()
+            .filter(
+                Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    view_privilege=ModelPrivilege.ALLOW,
+                )
+                | Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    full_access_privilege=ModelPrivilege.ALLOW,
+                )
             )
-        ).values('created_by')
-
-        return Q(
-            created_by__in=model_privilege_users
+            .values("created_by")
         )
+
+        return Q(created_by__in=model_privilege_users)
 
     @staticmethod
     def _editable():
-        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
+        from eric.shared_elements.models import CalendarAccess
+
         user = get_current_user()
 
         calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
-        model_privilege_users = ModelPrivilege.objects.all().filter(
-            Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                edit_privilege=ModelPrivilege.ALLOW
-            ) | Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                full_access_privilege=ModelPrivilege.ALLOW
+        model_privilege_users = (
+            ModelPrivilege.objects.all()
+            .filter(
+                Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    edit_privilege=ModelPrivilege.ALLOW,
+                )
+                | Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    full_access_privilege=ModelPrivilege.ALLOW,
+                )
             )
-        ).values('created_by')
-
-        return Q(
-            created_by__in=model_privilege_users
+            .values("created_by")
         )
+
+        return Q(created_by__in=model_privilege_users)
 
     @staticmethod
     def _trashable():
-        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
+        from eric.shared_elements.models import CalendarAccess
+
         user = get_current_user()
 
         calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
-        model_privilege_users = ModelPrivilege.objects.all().filter(
-            Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                trash_privilege=ModelPrivilege.ALLOW
-            ) | Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                full_access_privilege=ModelPrivilege.ALLOW
+        model_privilege_users = (
+            ModelPrivilege.objects.all()
+            .filter(
+                Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    trash_privilege=ModelPrivilege.ALLOW,
+                )
+                | Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    full_access_privilege=ModelPrivilege.ALLOW,
+                )
             )
-        ).values('created_by')
-
-        return Q(
-            created_by__in=model_privilege_users
+            .values("created_by")
         )
+
+        return Q(created_by__in=model_privilege_users)
 
     @staticmethod
     def _restoreable():
-        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
+        from eric.shared_elements.models import CalendarAccess
+
         user = get_current_user()
 
         calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
-        model_privilege_users = ModelPrivilege.objects.all().filter(
-            Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                restore_privilege=ModelPrivilege.ALLOW
-            ) | Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                full_access_privilege=ModelPrivilege.ALLOW
+        model_privilege_users = (
+            ModelPrivilege.objects.all()
+            .filter(
+                Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    restore_privilege=ModelPrivilege.ALLOW,
+                )
+                | Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    full_access_privilege=ModelPrivilege.ALLOW,
+                )
             )
-        ).values('created_by')
-
-        return Q(
-            created_by__in=model_privilege_users
+            .values("created_by")
         )
+
+        return Q(created_by__in=model_privilege_users)
 
     @staticmethod
     def _deletable():
-        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
+        from eric.shared_elements.models import CalendarAccess
+
         user = get_current_user()
 
         calendar_access_privilege_content_type_id = CalendarAccess.get_content_type().id
-        model_privilege_users = ModelPrivilege.objects.all().filter(
-            Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                delete_privilege=ModelPrivilege.ALLOW
-            ) | Q(
-                content_type=calendar_access_privilege_content_type_id,
-                user=user,
-                full_access_privilege=ModelPrivilege.ALLOW
+        model_privilege_users = (
+            ModelPrivilege.objects.all()
+            .filter(
+                Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    delete_privilege=ModelPrivilege.ALLOW,
+                )
+                | Q(
+                    content_type=calendar_access_privilege_content_type_id,
+                    user=user,
+                    full_access_privilege=ModelPrivilege.ALLOW,
+                )
             )
-        ).values('created_by')
-
-        return Q(
-            created_by__in=model_privilege_users
+            .values("created_by")
         )
+
+        return Q(created_by__in=model_privilege_users)

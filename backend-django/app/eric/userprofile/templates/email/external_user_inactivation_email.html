@@ -1,0 +1,12 @@
+{% extends "email/simple_email_template.html" %}
+{% load i18n captureas %}
+
+{% block content %}
+    <p>{% blocktrans %}Dear {{ user }}!{% endblocktrans %}</p>
+    <p>Your account will be <strong>deactivated</strong> in {{ days }}.</p>
+    <p>{% blocktrans %}Please contact a workbench admin to change the date of inactivation.{% endblocktrans %}</p>
+{% endblock %}
+
+{% block footer %}
+{% include 'email/_footer.html' %}
+{% endblock %}

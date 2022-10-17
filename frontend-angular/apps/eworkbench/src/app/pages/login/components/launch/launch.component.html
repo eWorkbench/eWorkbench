@@ -1,0 +1,14 @@
+<ng-container *transloco="let t">
+  <div class="content p-2" *ngIf="currentScreen$ | async as currentScreen">
+    <h1>{{ currentScreen.title }}</h1>
+    <div class="text" [innerHTML]="currentScreen.text | safeHTML"></div>
+    <div class="buttons">
+      <button type="button" class="btn ewb-button-big ewb-button-primary mr-2" (click)="acceptScreen()">
+        {{ t('launchScreen.accept') }}
+      </button>
+      <button type="button" class="btn ewb-button-big ewb-button-secondary" (click)="onLogout()">
+        {{ t('launchScreen.logout') }}
+      </button>
+    </div>
+  </div>
+</ng-container>

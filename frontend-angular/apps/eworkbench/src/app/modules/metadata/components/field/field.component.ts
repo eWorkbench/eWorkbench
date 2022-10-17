@@ -5,7 +5,8 @@
 
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
-import type { DatePickerConfig, Metadata, MetadataFieldSearchConfig, MetadataFieldTypeSettings } from '@eworkbench/types';
+import { MetadataTagsService } from '@app/services';
+import type { DatePickerConfig, Metadata, MetadataFieldSearchConfig, MetadataFieldTypeSettings, MetadataTag } from '@eworkbench/types';
 import { FormArray, FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -48,6 +49,10 @@ export class MetadataFieldComponent implements OnInit {
 
   @Output()
   public changed = new EventEmitter<any>();
+
+  public loading = false;
+
+  public tags: MetadataTag[] = [];
 
   public selectedValues: string[] = [];
 
@@ -110,6 +115,7 @@ export class MetadataFieldComponent implements OnInit {
   public constructor(
     private readonly fb: FormBuilder,
     private readonly translocoService: TranslocoService,
+    private readonly metadataTagsService: MetadataTagsService,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
@@ -227,6 +233,22 @@ export class MetadataFieldComponent implements OnInit {
         this.fb.control({ value, disabled: !this.editable }, [Validators.pattern(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)]) as any
       );
       this.labels.push(this.label ?? '');
+    } else if (this.baseType === 'tag') {
+      this.metadataTagsService
+        .get()
+        .pipe(untilDestroyed(this))
+        .subscribe(
+          tags => {
+            this.tags = tags;
+            this.loading = false;
+            this.cdr.markForCheck();
+          },
+          () => {
+            this.loading = false;
+            this.cdr.markForCheck();
+          }
+        );
+      this.answers.push(this.fb.control({ value: values?.answers ?? [], disabled: !this.editable }));
     } else {
       if (this.baseType === 'date') {
         this.datetimePickerConfig = this.datePickerConfig;
@@ -348,6 +370,11 @@ export class MetadataFieldComponent implements OnInit {
       this.changed.emit({
         value: returnValue,
       });
+    } else if (this.baseType === 'tag') {
+      // return value for tag in format: { answers: ['Tag 1', 'Tag 2'] }
+      this.changed.emit({
+        answers: answers[0],
+      });
     } else {
       // return value for any other type in format: { value: 'V' }
       let answer = answers[0];
@@ -385,4 +412,24 @@ export class MetadataFieldComponent implements OnInit {
   public isNotFinal(): boolean {
     return this.typeSettings?.final === false;
   }
+
+  public addTag = (name: string): Promise<MetadataTag> =>
+    new Promise((resolve, reject) => {
+      this.loading = true;
+      this.metadataTagsService
+        .add({ name })
+        .pipe(untilDestroyed(this))
+        .subscribe(
+          tag => {
+            this.loading = false;
+            this.cdr.markForCheck();
+            resolve({ pk: tag.pk, name: tag.name });
+          },
+          () => {
+            this.loading = false;
+            this.cdr.markForCheck();
+            reject();
+          }
+        );
+    });
 }

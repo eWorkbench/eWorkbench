@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.auth import get_user_model
@@ -22,30 +22,27 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--creator',
-            type=str,
-            default=None,
-            help='Limits the command to a specific creator (username)'
+            "--creator", type=str, default=None, help="Limits the command to a specific creator (username)"
         )
 
         parser.add_argument(
-            '--dry-run',  # stored as dry_run
-            action='store_true',
-            help='Prints the result but does not perform the action'
+            "--dry-run",  # stored as dry_run
+            action="store_true",
+            help="Prints the result but does not perform the action",
         )
 
     def handle(self, *args, **options):
-        dry_run = options['dry_run']
-        creator_username = options['creator']
+        dry_run = options["dry_run"]
+        creator_username = options["creator"]
 
         if dry_run:
-            print('# DRY RUN')
+            print("# DRY RUN")
 
-        print('Model\tPK\tCreatedBy\tCreatedAt\tLastModifiedBy\tLastModifiedAt')
+        print("Model\tPK\tCreatedBy\tCreatedAt\tLastModifiedBy\tLastModifiedAt")
 
         for model in get_workbench_models_with_special_permissions():
             model_name = str(model._meta)
-            print('# ' + model_name)
+            print("# " + model_name)
 
             objects_without_full_access_privilege = self.get_objects_without_full_access_privilege(
                 model, creator_username
@@ -72,11 +69,7 @@ class Command(BaseCommand):
     def grant_full_access_privilege(cls, obj, user):
         privileges = obj.model_privileges.filter(user=user).first()
         if not privileges:
-            privileges = ModelPrivilege(
-                user=user,
-                content_type=obj.get_content_type(),
-                object_id=obj.pk
-            )
+            privileges = ModelPrivilege(user=user, content_type=obj.get_content_type(), object_id=obj.pk)
 
         privileges.full_access_privilege = ModelPrivilege.ALLOW
 
@@ -88,10 +81,16 @@ class Command(BaseCommand):
         created_at = date_short(localtime(obj.created_at))
         last_modified_at = date_short(localtime(obj.last_modified_at))
         print(
-            model_name + '\t'
-            + str(obj.pk) + '\t'
-            + obj.created_by.username + '\t'
-            + created_at + '\t'
-            + obj.last_modified_by.username + '\t'
-            + last_modified_at + '\t'
+            model_name
+            + "\t"
+            + str(obj.pk)
+            + "\t"
+            + obj.created_by.username
+            + "\t"
+            + created_at
+            + "\t"
+            + obj.last_modified_by.username
+            + "\t"
+            + last_modified_at
+            + "\t"
         )

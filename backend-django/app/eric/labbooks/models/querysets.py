@@ -1,17 +1,17 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
 
 from django.db.models import Q
+
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 
 from eric.pictures.models.querysets import PictureQuerySet
 from eric.plugins.models.querysets import PluginInstanceQuerySet
-from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, \
-    extend_queryset
-from eric.shared_elements.models.querysets import NoteQuerySet, FileQuerySet
+from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, extend_queryset
+from eric.shared_elements.models.querysets import FileQuerySet, NoteQuerySet
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +35,14 @@ class ExtendedLabBookPictureQuerySet:
         from eric.pictures.models import Picture
 
         # get all viewable LabBookChildElements that contain a picture
-        picture_pks = LabBookChildElement.objects.viewable().filter(
-            child_object_content_type=Picture.get_content_type()
-        ).values_list('child_object_id')
+        picture_pks = (
+            LabBookChildElement.objects.viewable()
+            .filter(child_object_content_type=Picture.get_content_type())
+            .values_list("child_object_id")
+        )
 
         # The following is equal to Picture.filter(pk__in=note_pks)
-        return Q(
-            pk__in=picture_pks
-        )
+        return Q(pk__in=picture_pks)
 
     @staticmethod
     def _editable():
@@ -55,14 +55,14 @@ class ExtendedLabBookPictureQuerySet:
         from eric.pictures.models import Picture
 
         # get all viewable LabBookChildElements that contain a note
-        picture_pks = LabBookChildElement.objects.editable().filter(
-            child_object_content_type=Picture.get_content_type()
-        ).values_list('child_object_id')
+        picture_pks = (
+            LabBookChildElement.objects.editable()
+            .filter(child_object_content_type=Picture.get_content_type())
+            .values_list("child_object_id")
+        )
 
         # The following is equal to Picture.filter(pk__in=note_pks)
-        return Q(
-            pk__in=picture_pks
-        )
+        return Q(pk__in=picture_pks)
 
 
 @extend_queryset(NoteQuerySet)
@@ -80,18 +80,18 @@ class ExtendedLabBookNoteQuerySet:
         user is allowed to view the LabBook
         :return: django.db.models.Q
         """
-        from eric.shared_elements.models import Note
         from eric.labbooks.models import LabBookChildElement
+        from eric.shared_elements.models import Note
 
         # get all viewable LabBookChildElements that contain a note
-        note_pks = LabBookChildElement.objects.viewable().filter(
-            child_object_content_type=Note.get_content_type()
-        ).values_list('child_object_id')
+        note_pks = (
+            LabBookChildElement.objects.viewable()
+            .filter(child_object_content_type=Note.get_content_type())
+            .values_list("child_object_id")
+        )
 
         # The following is equal to Note.filter(pk__in=note_pks)
-        return Q(
-            pk__in=note_pks
-        )
+        return Q(pk__in=note_pks)
 
     @staticmethod
     def _editable():
@@ -100,18 +100,18 @@ class ExtendedLabBookNoteQuerySet:
         user is allowed to edit the LabBook
         :return: django.db.models.Q
         """
-        from eric.shared_elements.models import Note
         from eric.labbooks.models import LabBookChildElement
+        from eric.shared_elements.models import Note
 
         # get all viewable LabBookChildElements that contain a note
-        note_pks = LabBookChildElement.objects.editable().filter(
-            child_object_content_type=Note.get_content_type()
-        ).values_list('child_object_id')
+        note_pks = (
+            LabBookChildElement.objects.editable()
+            .filter(child_object_content_type=Note.get_content_type())
+            .values_list("child_object_id")
+        )
 
         # The following is equal to Note.filter(pk__in=note_pks)
-        return Q(
-            pk__in=note_pks
-        )
+        return Q(pk__in=note_pks)
 
 
 @extend_queryset(FileQuerySet)
@@ -129,18 +129,18 @@ class ExtendedLabBookFileQuerySet:
         user is allowed to view the LabBook
         :return: django.db.models.Q
         """
-        from eric.shared_elements.models import File
         from eric.labbooks.models import LabBookChildElement
+        from eric.shared_elements.models import File
 
         # get all viewable LabBookChildElements that contain a note
-        file_pks = LabBookChildElement.objects.viewable().filter(
-            child_object_content_type=File.get_content_type()
-        ).values_list('child_object_id')
+        file_pks = (
+            LabBookChildElement.objects.viewable()
+            .filter(child_object_content_type=File.get_content_type())
+            .values_list("child_object_id")
+        )
 
         # the following is equal to File.filter(pk__in=file_pks)
-        return Q(
-            pk__in=file_pks
-        )
+        return Q(pk__in=file_pks)
 
     @staticmethod
     def _editable():
@@ -149,18 +149,18 @@ class ExtendedLabBookFileQuerySet:
         user is allowed to edit the LabBook
         :return: django.db.models.Q
         """
-        from eric.shared_elements.models import File
         from eric.labbooks.models import LabBookChildElement
+        from eric.shared_elements.models import File
 
         # get all viewable LabBookChildElements that contain a note
-        file_pks = LabBookChildElement.objects.editable().filter(
-            child_object_content_type=File.get_content_type()
-        ).values_list('child_object_id')
+        file_pks = (
+            LabBookChildElement.objects.editable()
+            .filter(child_object_content_type=File.get_content_type())
+            .values_list("child_object_id")
+        )
 
         # the following is equal to File.filter(pk__in=file_pks)
-        return Q(
-            pk__in=file_pks
-        )
+        return Q(pk__in=file_pks)
 
 
 @extend_queryset(PluginInstanceQuerySet)
@@ -183,14 +183,14 @@ class ExtendedLabBookPluginInstanceQuerySet:
         from eric.plugins.models import PluginInstance
 
         # get all viewable LabBookChildElements that contain a embeddedapp
-        plugin_instance_pks = LabBookChildElement.objects.viewable().filter(
-            child_object_content_type=PluginInstance.get_content_type()
-        ).values_list('child_object_id')
+        plugin_instance_pks = (
+            LabBookChildElement.objects.viewable()
+            .filter(child_object_content_type=PluginInstance.get_content_type())
+            .values_list("child_object_id")
+        )
 
         # The following is equal to PluginInstance.filter(pk__in=note_pks)
-        return Q(
-            pk__in=plugin_instance_pks
-        )
+        return Q(pk__in=plugin_instance_pks)
 
     @staticmethod
     def _editable():
@@ -204,14 +204,14 @@ class ExtendedLabBookPluginInstanceQuerySet:
         from eric.plugins.models import PluginInstance
 
         # get all viewable LabBookChildElements that contain a note
-        plugin_instance_pks = LabBookChildElement.objects.editable().filter(
-            child_object_content_type=PluginInstance.get_content_type()
-        ).values_list('child_object_id')
+        plugin_instance_pks = (
+            LabBookChildElement.objects.editable()
+            .filter(child_object_content_type=PluginInstance.get_content_type())
+            .values_list("child_object_id")
+        )
 
         # The following is equal to PluginInstance.filter(pk__in=note_pks)
-        return Q(
-            pk__in=plugin_instance_pks
-        )
+        return Q(pk__in=plugin_instance_pks)
 
 
 class LabBookQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -219,8 +219,7 @@ class LabBookQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         Prefetch common attributes
         """
-        return super(LabBookQuerySet, self).prefetch_common() \
-            .prefetch_metadata()
+        return super().prefetch_common().prefetch_metadata()
 
 
 class BaseLabBookPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
@@ -238,7 +237,7 @@ class BaseLabBookPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.labbooks.models import LabBook
 
-        return self.filter(lab_book__pk__in=LabBook.objects.viewable().values_list('pk'))
+        return self.filter(lab_book__pk__in=LabBook.objects.viewable().values_list("pk"))
 
     def editable(self, *args, **kwargs):
         """
@@ -246,7 +245,7 @@ class BaseLabBookPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.labbooks.models import LabBook
 
-        return self.filter(lab_book__pk__in=LabBook.objects.editable().values_list('pk'))
+        return self.filter(lab_book__pk__in=LabBook.objects.editable().values_list("pk"))
 
     def deletable(self, *args, **kwargs):
         """
@@ -254,7 +253,7 @@ class BaseLabBookPermissionQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.labbooks.models import LabBook
 
-        return self.filter(lab_book__pk__in=LabBook.objects.editable().values_list('pk'))
+        return self.filter(lab_book__pk__in=LabBook.objects.editable().values_list("pk"))
 
 
 class LabBookChildElementQuerySet(BaseLabBookPermissionQuerySet):
@@ -279,7 +278,7 @@ class LabbookSectionQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuery
         """
         Prefetch common attributes
         """
-        return super(LabbookSectionQuerySet, self).prefetch_common()
+        return super().prefetch_common()
 
 
 @extend_queryset(LabbookSectionQuerySet)
@@ -297,17 +296,17 @@ class ExtendedLabbookSectionQuerySet:
         user is allowed to view the LabBook
         :return: django.db.models.Q
         """
-        from eric.labbooks.models.models import LabbookSection
         from eric.labbooks.models import LabBookChildElement
+        from eric.labbooks.models.models import LabbookSection
 
         # get all viewable LabBookChildElements that contain a section
-        labbooksection_pks = LabBookChildElement.objects.viewable().filter(
-            child_object_content_type=LabbookSection.get_content_type()
-        ).values_list('child_object_id')
-
-        return Q(
-            pk__in=labbooksection_pks
+        labbooksection_pks = (
+            LabBookChildElement.objects.viewable()
+            .filter(child_object_content_type=LabbookSection.get_content_type())
+            .values_list("child_object_id")
         )
+
+        return Q(pk__in=labbooksection_pks)
 
     @staticmethod
     def _editable():
@@ -316,17 +315,17 @@ class ExtendedLabbookSectionQuerySet:
         user is allowed to view the LabBook
         :return: django.db.models.Q
         """
-        from eric.labbooks.models.models import LabbookSection
         from eric.labbooks.models import LabBookChildElement
+        from eric.labbooks.models.models import LabbookSection
 
         # get all viewable LabBookChildElements that contain a section
-        labbooksection_pks = LabBookChildElement.objects.editable().filter(
-            child_object_content_type=LabbookSection.get_content_type()
-        ).values_list('child_object_id')
-
-        return Q(
-            pk__in=labbooksection_pks
+        labbooksection_pks = (
+            LabBookChildElement.objects.editable()
+            .filter(child_object_content_type=LabbookSection.get_content_type())
+            .values_list("child_object_id")
         )
+
+        return Q(pk__in=labbooksection_pks)
 
     @staticmethod
     def _deletable():
@@ -335,14 +334,14 @@ class ExtendedLabbookSectionQuerySet:
         user is allowed to view the LabBook
         :return: django.db.models.Q
         """
-        from eric.labbooks.models.models import LabbookSection
         from eric.labbooks.models import LabBookChildElement
+        from eric.labbooks.models.models import LabbookSection
 
         # get all viewable LabBookChildElements that contain a section
-        labbooksection_pks = LabBookChildElement.objects.deletable().filter(
-            child_object_content_type=LabbookSection.get_content_type()
-        ).values_list('child_object_id')
-
-        return Q(
-            pk__in=labbooksection_pks
+        labbooksection_pks = (
+            LabBookChildElement.objects.deletable()
+            .filter(child_object_content_type=LabbookSection.get_content_type())
+            .values_list("child_object_id")
         )
+
+        return Q(pk__in=labbooksection_pks)

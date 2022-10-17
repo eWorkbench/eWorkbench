@@ -215,30 +215,7 @@
     <div *ngIf="initialState" class="mx-16 pt-6 pb-4 mb-5 border-0 border-b-[3px] border-solid border-tum-border-gray">
       <ng-container *transloco="let t">
         <div class="flex justify-between items-center">
-          <div class="search-input">
-            <div class="input-group search-input-group">
-              <input
-                type="text"
-                class="form-control ewb-input"
-                id="search-header"
-                name="search-header"
-                [formControl]="searchControl"
-                [placeholder]="t('notes.header.search.placeholder')"
-              />
-              <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
-                <eworkbench-icon className="wb-search"></eworkbench-icon>
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm bg-transparent clear-input"
-                (click)="searchControl.patchValue(null)"
-                *ngIf="searchControl.value"
-              >
-                <eworkbench-icon className="wb-remove"></eworkbench-icon>
-              </button>
-            </div>
-          </div>
-
+          <div></div>
           <div>
             <button class="btn ewb-button-big ewb-button-primary mr-2" (click)="openNewColumnModal()">
               <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('taskBoard.column') }}
@@ -284,6 +261,35 @@
           (saveFilters)="onSaveFilters($event)"
           (toggle)="onToggleFilterSidebar()"
         >
+          <div>
+            <label for="search-filter" class="text-base font-bold">{{ t('contacts.filter.searchBy.label') }}</label>
+            <div class="flex mt-4">
+              <div class="search-input">
+                <div class="input-group search-input-group">
+                  <input
+                    type="text"
+                    class="form-control ewb-input"
+                    id="search-filter"
+                    name="search-filter"
+                    [formControl]="searchControl"
+                    [placeholder]="t('contacts.filter.searchBy.placeholder')"
+                  />
+                  <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+                    <eworkbench-icon className="wb-search"></eworkbench-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm bg-transparent clear-input"
+                    (click)="searchControl.patchValue(null)"
+                    *ngIf="searchControl.value"
+                  >
+                    <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label for="users-filter" class="text-base font-bold">{{ t('taskBoards.filter.createdBy.label') }}</label>
             <div class="mt-4">

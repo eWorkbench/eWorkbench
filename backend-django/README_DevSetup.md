@@ -21,6 +21,17 @@ To initially build and run the application, do the steps as follows:
 * Run the services: ``docker-compose up``
 
 
+## Auto-formatter setup
+We use [isort](https://github.com/pycqa/isort), [black](https://github.com/psf/black) and [flake8](https://gitlab.com/pycqa/flake8) for local auto-formatting and for linting in the CI pipeline.
+The pre-commit framework (https://pre-commit.com) provides GIT hooks for these tools, so they are automatically applied before every commit.
+
+Steps to activate:
+* Install the pre-commit framework: `pip install pre-commit` (for alternative installation options see https://pre-commit.com/#install)
+* Activate the framework (from the root directory of the repository): `pre-commit install`
+
+Hint: You can also run the formatters manually at any time with the following command: `pre-commit run --all-files`
+
+
 ## Django Setup
 
 * The docker setup uses a very specific docker configuration file, located in [app/eric/settings/docker.py](app/eric/settings/docker.py). 
@@ -94,22 +105,32 @@ Add new Docker connection
 - Unix Socket on Linux
 - TCP Socket on Windows (Also tick "Expose TCP Socket" in Docker App an see URL from there)
 
-**Settings > Project: ericworkbench > Project Interpreter > Add > Docker Compose**  
+**Settings > Project: eworkbench-backend > Project Interpreter > Add > Docker Compose**  
 - Server: Docker
 - Configuration files: `./docker-compose.yml`
 - Service: django  
 - Python interpreter path: `/var/lib/app/venv/bin/python`
 - PyCharm helpers path: `/opt/.pycharm_helpers`
 
-**Settings > Project: ericworkbench > Project Structure**  
+**Settings > Project: eworkbench-backend > Project Structure**  
 - Source folders: `app`
 - Template Folders: `app/eric/cms/templates`
 
 **Settings > Languages & Frameworks > Django**
 - [✓] Enable Django Support
-- Django project root: path to repository, e.g. `/home/bhagmann/Projekt/ericworkbench/app/eric`  
+- Django project root: path to repository, e.g. `/home/bhagmann/Projekt/eworkbench-backend/app/eric`  
 - Settings: `settings/docker.py`  
-- Manage script: path to manage.py, e.g. `/home/bhagmann/Projekt/ericworkbench/app/manage.py`
+- Manage script: path to manage.py, e.g. `/home/bhagmann/Projekt/eworkbench-backend/app/manage.py`
+
+
+## PyCharm Test Setup
+Please make sure to change your local testing configuration as follows:
+- Custom settings: path to your `docker_tests.py` settings file, e.g. `/home/bhagmann/Projekt/eworkbench-backend/app/eric/settings/docker_tests.py`  
+- Options: `--keepdb` to reuse the existing database
+
+You can change these settings either for individual tests or as a template:  
+- Test dropdown > Edit Configurations > Django tests   
+- Test dropdown > Edit Configurations > Edit configuration templates > Django tests
 
 
 ## LDAP

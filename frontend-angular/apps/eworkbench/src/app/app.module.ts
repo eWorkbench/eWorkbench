@@ -28,6 +28,7 @@ import { ErrorInterceptor } from './interceptors/error/error.interceptor';
 import { FooterModule } from './modules/footer/footer.module';
 import { HEADER_TOP_OFFSET } from './modules/header/tokens/header-top-offset.token';
 import { NavbarModule } from './modules/navbar/navbar.module';
+import { SHOW_MENU } from './modules/navbar/tokens/show-menu.token';
 import { TranslocoRootModule } from './transloco-root.module';
 
 @NgModule({
@@ -68,6 +69,7 @@ import { TranslocoRootModule } from './transloco-root.module';
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HEADER_TOP_OFFSET, useValue: new BehaviorSubject<number | null>(null) },
+    { provide: SHOW_MENU, useValue: new BehaviorSubject<boolean>(true) },
     PendingChangesGuard,
     LeaveProjectGuard,
   ],

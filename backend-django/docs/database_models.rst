@@ -29,4 +29,3 @@ The two models are stored in xml files which were created using draw.io:
 .. image:: workbench_overview_model.png
 
 .. image:: workbench_elements_model.png
-

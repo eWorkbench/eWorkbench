@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService, PageTitleService } from '@app/services';
-import type { UserState } from '@app/stores/user';
 import { EmailDetected } from '@app/validators/email-detected.validator';
 import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { map, take } from 'rxjs/operators';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 interface FormLogin {
   username: FormControl<string | null>;
@@ -30,12 +30,17 @@ interface FormLogin {
 export class LoginPageComponent implements OnInit {
   public title = '';
 
-  public loading = false;
+  public loading$ = new BehaviorSubject(false);
 
   public form = this.fb.group<FormLogin>({
     username: this.fb.control(null, [Validators.required, EmailDetected()]),
     password: this.fb.control(null, Validators.required),
   });
+
+  private readonly loginSubject = new Subject<void>();
+  private readonly loggedIn$ = this.loginSubject
+    .asObservable()
+    .pipe(switchMap(() => this.authService.login(this.f.username.value!, this.f.password.value!)));
 
   private returnUrl = '/';
 
@@ -45,7 +50,6 @@ export class LoginPageComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
     private readonly translocoService: TranslocoService,
-    private readonly cdr: ChangeDetectorRef,
     private readonly pageTitleService: PageTitleService,
     private readonly titleService: Title
   ) {}
@@ -55,15 +59,16 @@ export class LoginPageComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.authService.user$.pipe(
-      untilDestroyed(this),
-      take(1),
-      map((user: UserState) => {
+    this.loggedIn$.pipe(untilDestroyed(this)).subscribe({
+      next: user => {
         if (user.loggedIn) {
-          void this.router.navigate(['/']);
+          void this.router.navigate([this.returnUrl]);
         }
-      })
-    );
+      },
+      error: () => {
+        this.loading$.next(false);
+      },
+    });
 
     this.returnUrl = this.route.snapshot.queryParams.returnUrl || this.returnUrl;
 
@@ -92,22 +97,10 @@ export class LoginPageComponent implements OnInit {
   }
 
   public onLogin(): void {
-    if (this.loading || this.form.invalid) {
+    if (this.loading$.value || this.form.invalid) {
       return;
     }
-    this.loading = true;
-
-    this.authService
-      .login(this.f.username.value!, this.f.password.value!)
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        () => {
-          void this.router.navigate([this.returnUrl]);
-        },
-        () => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        }
-      );
+    this.loading$.next(true);
+    this.loginSubject.next();
   }
 }

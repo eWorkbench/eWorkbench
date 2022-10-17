@@ -1,4 +1,5 @@
 import json
+
 import requests
 
 
@@ -29,7 +30,7 @@ class APIAccess:
         print(response.status_code)
 
         if response.status_code == 200:
-            return data['token']
+            return data["token"]
         else:
             return None
 
@@ -40,7 +41,7 @@ class APIAccess:
         return data
 
     def get_project(self, pk):
-        response = self.get("/projects/{pk}/".format(pk=pk))
+        response = self.get(f"/projects/{pk}/")
         data = json.loads(response.text)
 
         return data
@@ -64,29 +65,28 @@ class APIAccess:
         return data
 
     def get_section_child_elements(self, labbook_pk, section_pk):
-        response = self.get("/labbooks/{labbook_pk}/elements/?section={section_pk}".format(
-            labbook_pk=labbook_pk,
-            section_pk=section_pk
-        ))
+        response = self.get(f"/labbooks/{labbook_pk}/elements/?section={section_pk}")
         data = json.loads(response.text)
 
         return data
 
     def modify_section(self, pk, child_elements):
-        response = self.patch("/labbooksections/{pk}/".format(pk=pk),
-                              data={
-                                  'pk': pk,
-                                  'child_elements': child_elements,
-                              })
+        response = self.patch(
+            f"/labbooksections/{pk}/",
+            data={
+                "pk": pk,
+                "child_elements": child_elements,
+            },
+        )
         data = json.loads(response.text)
 
         return data
 
     def modify_labbook_child_element(self, labbook_pk, element_pk, position_y):
-        response = self.patch("/labbooks/{labbook_pk}/elements/{element_pk}/".format(
-            labbook_pk=labbook_pk,
-            element_pk=element_pk
-        ), data={'position_y': position_y})
+        response = self.patch(
+            f"/labbooks/{labbook_pk}/elements/{element_pk}/",
+            data={"position_y": position_y},
+        )
         data = json.loads(response.text)
 
         return data
@@ -104,13 +104,13 @@ class APIAccess:
         return data
 
     def get_note(self, pk):
-        response = self.get("/notes/{pk}/".format(pk=pk))
+        response = self.get(f"/notes/{pk}/")
         data = json.loads(response.text)
 
         return data
 
     def get_note_relations(self, pk):
-        response = self.get("/notes/{pk}/relations/".format(pk=pk))
+        response = self.get(f"/notes/{pk}/relations/")
         data = json.loads(response.text)
 
         return data
@@ -146,53 +146,54 @@ class APIAccess:
         return data
 
     def modify_sub_directory_of_drive(self, drive_pk, directory_pk, new_title):
-        response = self.patch("/drives/{drive_pk}/sub_directories/{directory_pk}/".format(
-            drive_pk=drive_pk, directory_pk=directory_pk
-        ), data={'title': new_title})
+        response = self.patch(
+            f"/drives/{drive_pk}/sub_directories/{directory_pk}/",
+            data={"title": new_title},
+        )
         data = json.loads(response.text)
 
         return data
 
     def get_picture(self, pk):
-        response = self.get("/pictures/{pk}/".format(pk=pk))
+        response = self.get(f"/pictures/{pk}/")
         data = json.loads(response.text)
 
         return data
 
     def get_file(self, pk):
-        response = self.get("/files/{pk}/".format(pk=pk))
+        response = self.get(f"/files/{pk}/")
         data = json.loads(response.text)
 
         return data
 
-    def add_element_to_labbook(self,
-                               labbook_pk,
-                               child_object_id,
-                               child_object_content_type,
-                               height,
-                               width,
-                               position_x,
-                               position_y):
-        response = self.post("/labbooks/{labbook_pk}/elements/".format(labbook_pk=labbook_pk,)
-                             , data={'child_object_id': child_object_id,
-                                     'child_object_content_type': child_object_content_type,
-                                     'height': height,
-                                     'width': width,
-                                     'position_x': position_x,
-                                     'position_y': position_y})
+    def add_element_to_labbook(
+        self, labbook_pk, child_object_id, child_object_content_type, height, width, position_x, position_y
+    ):
+        response = self.post(
+            "/labbooks/{labbook_pk}/elements/".format(
+                labbook_pk=labbook_pk,
+            ),
+            data={
+                "child_object_id": child_object_id,
+                "child_object_content_type": child_object_content_type,
+                "height": height,
+                "width": width,
+                "position_x": position_x,
+                "position_y": position_y,
+            },
+        )
         data = json.loads(response.text)
 
         return data
 
     def get_drive(self, pk):
-        response = self.get("/drives/{pk}/".format(pk=pk))
+        response = self.get(f"/drives/{pk}/")
         data = json.loads(response.text)
 
         return data
 
     def add_file_to_directory(self, file_pk, directory_pk):
-        response = self.patch("/files/{file_pk}/".format(file_pk=file_pk),
-                              data={'directory_id': directory_pk})
+        response = self.patch(f"/files/{file_pk}/", data={"directory_id": directory_pk})
         data = json.loads(response.text)
 
         return data

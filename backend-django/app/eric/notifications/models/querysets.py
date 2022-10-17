@@ -1,8 +1,9 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.db.models import Q
+
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 from django_userforeignkey.request import get_current_user
 
@@ -41,10 +42,7 @@ class NotificationQuerySet(BaseQuerySet):
         :param kwargs:
         :return:
         """
-        return self.filter(
-            Q(user=get_current_user())
-            | Q(created_by=get_current_user())
-        )
+        return self.filter(Q(user=get_current_user()) | Q(created_by=get_current_user()))
 
     def deletable(self, *args, **kwargs):
         return self.none()
@@ -58,11 +56,13 @@ class ScheduledNotificationQuerySet(BaseQuerySet):
 
     def viewable(self, *args, **kwargs):
         from eric.shared_elements.models import Meeting
-        return self.filter(object_id__in=Meeting.objects.viewable().values_list('pk'))
+
+        return self.filter(object_id__in=Meeting.objects.viewable().values_list("pk"))
 
     def editable(self, *args, **kwargs):
         from eric.shared_elements.models import Meeting
-        return self.filter(object_id__in=Meeting.objects.editable().values_list('pk'))
+
+        return self.filter(object_id__in=Meeting.objects.editable().values_list("pk"))
 
     def deletable(self, *args, **kwargs):
         return self.none()

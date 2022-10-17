@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
@@ -7,8 +7,14 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
-from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_204_NO_CONTENT, \
-    HTTP_403_FORBIDDEN
+
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_204_NO_CONTENT,
+    HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
+)
 from rest_framework.test import APITestCase
 
 from eric.core.models.utils import pk_or_none
@@ -20,9 +26,9 @@ from eric.pictures.tests.core import PictureMixin
 from eric.plugins.models import Plugin
 from eric.plugins.tests.mixins import PluginInstanceMixin
 from eric.projects.models import Project
-from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ModelPrivilegeMixin, TestLockMixin
+from eric.projects.tests.core import AuthenticationMixin, ModelPrivilegeMixin, ProjectsMixin, TestLockMixin
 from eric.shared_elements.models import Task
-from eric.shared_elements.tests.core import ContactMixin, MeetingMixin, NoteMixin, TaskMixin, FileMixin
+from eric.shared_elements.tests.core import ContactMixin, FileMixin, MeetingMixin, NoteMixin, TaskMixin
 from eric.versions.tests import HTTP_USER_AGENT, REMOTE_ADDRESS, VersionData, http_info
 from eric.versions.tests.helper_mixin import HelperMixin
 from eric.versions.tests.rest_mixin import HttpInfo, VersionRestMixin
@@ -37,27 +43,27 @@ class GenericTestContext:
         self.content_type = content_type
 
 
-class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin, ModelPrivilegeMixin, TestLockMixin,
-                            HelperMixin):
-    """ Tests that the versions API behaves as expected for different model types and user permissions """
+class GenericVersionApiTest(
+    VersionRestMixin, ProjectsMixin, AuthenticationMixin, ModelPrivilegeMixin, TestLockMixin, HelperMixin
+):
+    """Tests that the versions API behaves as expected for different model types and user permissions"""
 
     def create_model_instance(self, project):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_endpoint(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_model_name(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_asserter(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def create_model_instance_with_privileges(self, project):
         instance, response = self.create_model_instance(project)
         self.get_asserter().assertEquals(
-            response.status_code, HTTP_201_CREATED,
-            "Couldn't create model instance: " + response.content.decode()
+            response.status_code, HTTP_201_CREATED, "Couldn't create model instance: " + response.content.decode()
         )
         self.set_model_privileges(self.get_endpoint(), self.get_model_name(), instance.pk)
 
@@ -70,10 +76,8 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         self.user_no_access, self.token_no_access = self.create_user_and_login("user4-no-access")
 
         self.project1 = self.create_project(
-            self.token_author,
-            "MyProject", "My test project",
-            Project.INITIALIZED,
-            HTTP_USER_AGENT, REMOTE_ADDRESS)
+            self.token_author, "MyProject", "My test project", Project.INITIALIZED, HTTP_USER_AGENT, REMOTE_ADDRESS
+        )
 
         # assign the users to the project
         self.assign_user_to_project(self.token_author, self.user_full_access, self.project1)
@@ -84,8 +88,7 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         instance_with_project = self.create_model_instance_with_privileges(self.project1)
 
         # unlock the model instance (creating it usually locks it)
-        self.unlock(self.token_author, self.get_endpoint(), instance_with_project.pk,
-                    HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(self.token_author, self.get_endpoint(), instance_with_project.pk, HTTP_USER_AGENT, REMOTE_ADDRESS)
 
         self.perform_test_with_object(instance_with_project)
 
@@ -93,8 +96,9 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         instance_without_project = self.create_model_instance_with_privileges(None)
 
         # unlock the model instance (creating it usually locks it)
-        self.unlock(self.token_author, self.get_endpoint(), instance_without_project.pk,
-                    HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(
+            self.token_author, self.get_endpoint(), instance_without_project.pk, HTTP_USER_AGENT, REMOTE_ADDRESS
+        )
 
         self.perform_test_with_object(instance_without_project)
 
@@ -102,7 +106,8 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         test_context = GenericTestContext(
             endpoint=self.get_endpoint(),
             endpoint_id=model_instance.pk,
-            content_type=ContentType.objects.get_for_model(model_instance))
+            content_type=ContentType.objects.get_for_model(model_instance),
+        )
 
         self.step1__post_first_version(test_context)
         self.step2__post_another_version(test_context)
@@ -114,34 +119,38 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
     def step1__post_first_version(self, test_context):
         # user with full access posts a version -> should work
         response = self.__step1_post_as_user(self.token_full_access, test_context)
-        self.get_asserter().assertEquals(response.status_code, HTTP_201_CREATED,
-                                         "Full access user couldn't post version\n%s" % response.content)
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_201_CREATED, "Full access user couldn't post version\n%s" % response.content
+        )
 
         # user with readonly access posts a version -> shouldn't be possible
         response = self.__step1_post_as_user(self.token_readonly, test_context)
-        self.get_asserter().assertEquals(response.status_code, HTTP_403_FORBIDDEN,
-                                         "Readonly user was able to post version")
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_403_FORBIDDEN, "Readonly user was able to post version"
+        )
 
         # user with no access posts a version -> shouldn't be possible
         response = self.__step1_post_as_user(self.token_no_access, test_context)
-        self.get_asserter().assertEquals(response.status_code, HTTP_404_NOT_FOUND,
-                                         "No-access user was able to post version")
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_404_NOT_FOUND, "No-access user was able to post version"
+        )
 
         # check that exactly one version has been created
         # and it has the version number 1
         version_list = self.get_version_list(test_context)
         self.get_asserter().assertEquals(len(version_list), 1, "There should exist exactly one version")
         version_data = version_list[0]
-        self.get_asserter().assertEquals(version_data['number'], 1, "Version should have number 1")
+        self.get_asserter().assertEquals(version_data["number"], 1, "Version should have number 1")
 
         # check that there is metadata
         # the metadata import+export itself is tested in shared_elements.tests.test_metadata_export_import
-        metadata = version_data['metadata']
-        self.get_asserter().assertGreaterEqual(metadata['metadata_version'], 1, "Metadata should have version >= 1")
+        metadata = version_data["metadata"]
+        self.get_asserter().assertGreaterEqual(metadata["metadata_version"], 1, "Metadata should have version >= 1")
 
         # unlock the model instance
-        self.unlock(self.token_full_access, self.get_endpoint(), test_context.endpoint_id,
-                    HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(
+            self.token_full_access, self.get_endpoint(), test_context.endpoint_id, HTTP_USER_AGENT, REMOTE_ADDRESS
+        )
 
     def __step1_post_as_user(self, token, test_context):
         return self.rest_post_version(
@@ -152,7 +161,8 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
                 object_id=test_context.endpoint_id,
                 summary="Test summary.\nSecond line of test summary.",
             ).as_dict(),
-            HttpInfo(token))
+            HttpInfo(token),
+        )
 
     def step2__post_another_version(self, test_context):
         # post another version
@@ -163,34 +173,39 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         version_list = self.get_version_list(test_context)
         self.get_asserter().assertEquals(len(version_list), 2, "There should be two versions now")
         second_version = version_list[0]  # version list is ordered DESC -> first element is latest
-        self.get_asserter().assertEquals(second_version['number'], 2, "Second version should have number 2")
+        self.get_asserter().assertEquals(second_version["number"], 2, "Second version should have number 2")
 
         # unlock the model instance
-        self.unlock(self.token_full_access, self.get_model_name(), test_context.endpoint_id,
-                    HTTP_USER_AGENT, REMOTE_ADDRESS)
+        self.unlock(
+            self.token_full_access, self.get_model_name(), test_context.endpoint_id, HTTP_USER_AGENT, REMOTE_ADDRESS
+        )
 
     def step3__get_versions(self, test_context):
         # request version list without having access rights
         response = self.rest_get_version_list(
-            test_context.endpoint,
-            test_context.endpoint_id,
-            HttpInfo(self.token_no_access))
+            test_context.endpoint, test_context.endpoint_id, HttpInfo(self.token_no_access)
+        )
 
         # check that the request fails
-        self.get_asserter().assertEquals(response.status_code, HTTP_404_NOT_FOUND,
-                                         "User without access rights shouldn't be able to list versions")
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_404_NOT_FOUND, "User without access rights shouldn't be able to list versions"
+        )
 
         # request specific version without having access rights
         response = self.__step3_get_latest_version(test_context, self.token_no_access)
-        self.get_asserter().assertEquals(response.status_code, HTTP_404_NOT_FOUND,
-                                         "User without access rights shouldn't be able to see specific version")
+        self.get_asserter().assertEquals(
+            response.status_code,
+            HTTP_404_NOT_FOUND,
+            "User without access rights shouldn't be able to see specific version",
+        )
 
         # request specific version with reading rights
         response = self.__step3_get_latest_version(test_context, self.token_readonly)
-        self.get_asserter().assertEquals(response.status_code, HTTP_200_OK,
-                                         "User with reading rights should be able to see specific version")
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_200_OK, "User with reading rights should be able to see specific version"
+        )
         version = json.loads(response.content.decode())
-        self.get_asserter().assertGreaterEqual(version['number'], 1)  # just check that there is something there
+        self.get_asserter().assertGreaterEqual(version["number"], 1)  # just check that there is something there
 
     def __step3_get_latest_version(self, test_context, token):
         version_list = self.get_version_list(test_context)
@@ -198,17 +213,21 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         return self.rest_get_version(
             endpoint=test_context.endpoint,
             endpoint_id=test_context.endpoint_id,
-            extension_id=version['pk'],
-            http_info=HttpInfo(token))
+            extension_id=version["pk"],
+            http_info=HttpInfo(token),
+        )
 
     def step4__preview_version(self, test_context):
         version_list = self.get_version_list(test_context)
-        version_pk = version_list[1]['pk']
+        version_pk = version_list[1]["pk"]
 
         # preview a version without access rights -> must fail
         response = self.preview_version_as(test_context, version_pk, self.token_no_access)
-        self.get_asserter().assertEquals(response.status_code, HTTP_404_NOT_FOUND,
-                                         "User without access rights shouldn't be able to preview a version")
+        self.get_asserter().assertEquals(
+            response.status_code,
+            HTTP_404_NOT_FOUND,
+            "User without access rights shouldn't be able to preview a version",
+        )
 
         # preview a version with readonly access
         response = self.preview_version_as(test_context, version_pk, self.token_readonly)
@@ -216,30 +235,36 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
 
         # preview a version with full access rights
         response = self.preview_version_as(test_context, version_pk, self.token_full_access)
-        self.get_asserter().assertEquals(response.status_code, HTTP_200_OK,
-                                         "User with full access rights should be able to preview a version")
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_200_OK, "User with full access rights should be able to preview a version"
+        )
 
     def preview_version_as(self, test_context, version_pk, token):
         return self.rest_preview_version(test_context.endpoint, test_context.endpoint_id, version_pk, HttpInfo(token))
 
     def step5__restore_version(self, test_context):
         version_list = self.get_version_list(test_context)
-        version_pk = version_list[1]['pk']
+        version_pk = version_list[1]["pk"]
 
         # restore a version without access rights -> must fail
         response = self.restore_version_as(test_context, version_pk, self.token_no_access)
-        self.get_asserter().assertEquals(response.status_code, HTTP_404_NOT_FOUND,
-                                         "User without access rights shouldn't be able to restore a version")
+        self.get_asserter().assertEquals(
+            response.status_code,
+            HTTP_404_NOT_FOUND,
+            "User without access rights shouldn't be able to restore a version",
+        )
 
         # restore a version with readonly-access -> must fail
         response = self.restore_version_as(test_context, version_pk, self.token_readonly)
-        self.get_asserter().assertEquals(response.status_code, HTTP_403_FORBIDDEN,
-                                         "User with readonly-access shouldn't be able to restore a version")
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_403_FORBIDDEN, "User with readonly-access shouldn't be able to restore a version"
+        )
 
         # restore a version with access rights
         response = self.restore_version_as(test_context, version_pk, self.token_full_access)
-        self.get_asserter().assertEquals(response.status_code, HTTP_200_OK,
-                                         "User with access rights should be able to restore a version")
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_200_OK, "User with access rights should be able to restore a version"
+        )
 
     def restore_version_as(self, test_context, version_pk, token):
         return self.rest_restore_version(test_context.endpoint, test_context.endpoint_id, version_pk, HttpInfo(token))
@@ -252,19 +277,23 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         response = self.rest_delete_version(
             endpoint=test_context.endpoint,
             endpoint_id=test_context.endpoint_id,
-            extension_id=first_version['pk'],
-            http_info=HttpInfo(self.token_no_access))
-        self.get_asserter().assertEquals(response.status_code, HTTP_404_NOT_FOUND,
-                                         "User without access rights shouldn't be able to delete a version")
+            extension_id=first_version["pk"],
+            http_info=HttpInfo(self.token_no_access),
+        )
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_404_NOT_FOUND, "User without access rights shouldn't be able to delete a version"
+        )
 
         # delete a version with access rights
         response = self.rest_delete_version(
             endpoint=test_context.endpoint,
             endpoint_id=test_context.endpoint_id,
-            extension_id=first_version['pk'],
-            http_info=HttpInfo(self.token_full_access))
-        self.get_asserter().assertEquals(response.status_code, HTTP_204_NO_CONTENT,
-                                         "User with access rights should be able to delete a version")
+            extension_id=first_version["pk"],
+            http_info=HttpInfo(self.token_full_access),
+        )
+        self.get_asserter().assertEquals(
+            response.status_code, HTTP_204_NO_CONTENT, "User with access rights should be able to delete a version"
+        )
 
         # check that there is only one version now
         version_list = self.get_version_list(test_context)
@@ -272,11 +301,10 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
 
     def get_version_list(self, test_context):
         response = self.rest_get_version_list(
-            endpoint=test_context.endpoint,
-            endpoint_id=test_context.endpoint_id,
-            http_info=HttpInfo(self.token_author))
+            endpoint=test_context.endpoint, endpoint_id=test_context.endpoint_id, http_info=HttpInfo(self.token_author)
+        )
         self.get_asserter().assertEquals(response.status_code, HTTP_200_OK, "Couldn't get version list")
-        return json.loads(response.content.decode())['results']
+        return json.loads(response.content.decode())["results"]
 
     def set_model_privileges(self, endpoint, model, pk):
         allow = ModelPrivilege.ALLOW
@@ -285,21 +313,23 @@ class GenericVersionApiTest(VersionRestMixin, ProjectsMixin, AuthenticationMixin
         # author has full access automatically
 
         self.set_model_privilege_for_user(
-            self.token_author, endpoint, pk, self.user_full_access,
-            full_access_privilege=allow)
+            self.token_author, endpoint, pk, self.user_full_access, full_access_privilege=allow
+        )
+
+        self.set_model_privilege_for_user(self.token_author, endpoint, pk, self.user_readonly, view_privilege=allow)
 
         self.set_model_privilege_for_user(
-            self.token_author, endpoint, pk, self.user_readonly,
-            view_privilege=allow)
-
-        self.set_model_privilege_for_user(
-            self.token_author, endpoint, pk, self.user_no_access,
+            self.token_author,
+            endpoint,
+            pk,
+            self.user_no_access,
             full_access_privilege=deny,
             view_privilege=deny,
             edit_privilege=deny,
             delete_privilege=deny,
             trash_privilege=deny,
-            restore_privilege=deny)
+            restore_privilege=deny,
+        )
 
 
 class TaskVersionApiTest(GenericVersionApiTest, APITestCase, TaskMixin):
@@ -314,11 +344,17 @@ class TaskVersionApiTest(GenericVersionApiTest, APITestCase, TaskMixin):
 
     def create_model_instance(self, project):
         return self.create_task_orm(
-            auth_token=self.token_author, project_pk=pk_or_none(project),
-            title="my task", description="My task description",
-            state=Task.TASK_STATE_NEW, priority=Task.TASK_PRIORITY_NORMAL,
-            start_date=timezone.now(), due_date=timezone.now(), assigned_user=self.user_author.pk,
-            **http_info)
+            auth_token=self.token_author,
+            project_pk=pk_or_none(project),
+            title="my task",
+            description="My task description",
+            state=Task.TASK_STATE_NEW,
+            priority=Task.TASK_PRIORITY_NORMAL,
+            start_date=timezone.now(),
+            due_date=timezone.now(),
+            assigned_user=self.user_author.pk,
+            **http_info,
+        )
 
 
 class ContactVersionApiTest(GenericVersionApiTest, APITestCase, ContactMixin):
@@ -333,9 +369,14 @@ class ContactVersionApiTest(GenericVersionApiTest, APITestCase, ContactMixin):
 
     def create_model_instance(self, project):
         return self.create_contact_orm(
-            auth_token=self.token_author, project_pk=pk_or_none(project),
-            academic_title="Dr.", first_name="my first name", last_name="my last name", email="first.last@email.com",
-            **http_info)
+            auth_token=self.token_author,
+            project_pk=pk_or_none(project),
+            academic_title="Dr.",
+            first_name="my first name",
+            last_name="my last name",
+            email="first.last@email.com",
+            **http_info,
+        )
 
 
 class MeetingVersionApiTest(GenericVersionApiTest, APITestCase, MeetingMixin):
@@ -350,10 +391,14 @@ class MeetingVersionApiTest(GenericVersionApiTest, APITestCase, MeetingMixin):
 
     def create_model_instance(self, project):
         return self.create_meeting_orm(
-            auth_token=self.token_author, project_pk=pk_or_none(project),
-            title="my project", description="a meeting description",
-            start_date=timezone.now(), end_date=timezone.now(),
-            **http_info)
+            auth_token=self.token_author,
+            project_pk=pk_or_none(project),
+            title="my project",
+            description="a meeting description",
+            start_date=timezone.now(),
+            end_date=timezone.now(),
+            **http_info,
+        )
 
 
 class NoteVersionApiTest(GenericVersionApiTest, APITestCase, NoteMixin):
@@ -368,9 +413,12 @@ class NoteVersionApiTest(GenericVersionApiTest, APITestCase, NoteMixin):
 
     def create_model_instance(self, project):
         return self.create_note_orm(
-            auth_token=self.token_author, project_pk=pk_or_none(project),
-            subject="my note", content="Some Note Description",
-            **http_info)
+            auth_token=self.token_author,
+            project_pk=pk_or_none(project),
+            subject="my note",
+            content="Some Note Description",
+            **http_info,
+        )
 
 
 class PictureVersionApiTest(GenericVersionApiTest, APITestCase, PictureMixin):
@@ -384,10 +432,7 @@ class PictureVersionApiTest(GenericVersionApiTest, APITestCase, PictureMixin):
         return self
 
     def create_model_instance(self, project):
-        return self.create_picture_orm(
-            self.token_author, pk_or_none(project),
-            "My picture", "demo1.png",
-            **http_info)
+        return self.create_picture_orm(self.token_author, pk_or_none(project), "My picture", "demo1.png", **http_info)
 
 
 class FileVersionApiTest(GenericVersionApiTest, APITestCase, FileMixin):
@@ -402,9 +447,8 @@ class FileVersionApiTest(GenericVersionApiTest, APITestCase, FileMixin):
 
     def create_model_instance(self, project):
         return self.create_file_orm(
-            self.token_author, pk_or_none(project),
-            "my file", "my description", "demo1.txt", pow(2, 20),
-            **http_info)
+            self.token_author, pk_or_none(project), "my file", "my description", "demo1.txt", pow(2, 20), **http_info
+        )
 
 
 class LabBookVersionApiTest(GenericVersionApiTest, APITestCase, LabBookMixin):
@@ -418,10 +462,7 @@ class LabBookVersionApiTest(GenericVersionApiTest, APITestCase, LabBookMixin):
         return self
 
     def create_model_instance(self, project):
-        return self.create_labbook_orm(
-            self.token_author, pk_or_none(project),
-            "my lab book", False,
-            **http_info)
+        return self.create_labbook_orm(self.token_author, pk_or_none(project), "my lab book", False, **http_info)
 
 
 class DmpVersionApiTest(GenericVersionApiTest, APITestCase, DmpsMixin):
@@ -437,9 +478,8 @@ class DmpVersionApiTest(GenericVersionApiTest, APITestCase, DmpsMixin):
     def create_model_instance(self, project):
         dmp_form = DmpForm.objects.create(title="My DMP Form", description="My DMP Form Description")
         return self.create_dmp_orm(
-            self.token_author, pk_or_none(project),
-            "My DMP", Dmp.PROGRESS, dmp_form.pk,
-            **http_info)
+            self.token_author, pk_or_none(project), "My DMP", Dmp.PROGRESS, dmp_form.pk, **http_info
+        )
 
 
 class PluginInstanceVersionApiTest(GenericVersionApiTest, APITestCase, PluginInstanceMixin):
@@ -454,15 +494,15 @@ class PluginInstanceVersionApiTest(GenericVersionApiTest, APITestCase, PluginIns
 
     def create_model_instance(self, project):
         plugin = Plugin.objects.create(
-            title='My Plugin',
-            short_description='This is a test plugin.',
+            title="My Plugin",
+            short_description="This is a test plugin.",
             user_availability=Plugin.GLOBAL,
-            path='test_plugin_path',
+            path="test_plugin_path",
         )
 
         return self.create_plugininstance_orm(
             self.token_author,
             projects=[project.pk] if project else [],
-            title='My plugin instance',
+            title="My plugin instance",
             plugin=plugin.pk,
         )

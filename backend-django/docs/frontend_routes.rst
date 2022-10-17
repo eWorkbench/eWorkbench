@@ -117,4 +117,3 @@ For instance, this code from ``app/js/app.js`` handles the ``needsAuth`` propert
 Basically, the ``onBefore`` transition allows returning a ``promise``. As long as the promise is not resolved, the ui
 router suspends the state transition, and waits. This ``promise`` is resolved by the ``AuthRestService`` once the user has
 logged in, and then the ui router continues with the transition.
-

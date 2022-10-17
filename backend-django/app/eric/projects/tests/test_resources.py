@@ -1,17 +1,18 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from eric.core.tests import test_utils, HTTP_INFO, HTTP_USER_AGENT, REMOTE_ADDR
-from eric.projects.models import Role, Resource, Project
-from eric.projects.tests.core import AuthenticationMixin, UserMixin, ProjectsMixin, ResourceMixin
+from eric.core.tests import HTTP_INFO, HTTP_USER_AGENT, REMOTE_ADDR, test_utils
+from eric.projects.models import Project, Resource, Role
+from eric.projects.tests.core import AuthenticationMixin, ProjectsMixin, ResourceMixin, UserMixin
 
 User = get_user_model()
 
@@ -25,67 +26,73 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
     """
 
     def setUp(self):
-        """ Set up a couple of users and roles and projects """
+        """Set up a couple of users and roles and projects"""
         self.student_role = self.create_student_role()
         self.pm_role = Role.objects.filter(default_role_on_project_create=True).first()
-        self.user_group = Group.objects.get(name='User')
+        self.user_group = Group.objects.get(name="User")
 
         # get add_resource and add_resource_without_project permission
         self.add_resource_permission = Permission.objects.filter(
-            codename='add_resource',
-            content_type=Resource.get_content_type()
+            codename="add_resource", content_type=Resource.get_content_type()
         ).first()
 
         self.add_resource_without_project_permission = Permission.objects.filter(
-            codename='add_resource_without_project',
-            content_type=Resource.get_content_type()
+            codename="add_resource_without_project", content_type=Resource.get_content_type()
         ).first()
 
-        self.user1 = User.objects.create_user(
-            username='student_1', email='student_1@email.com', password='top_secret')
-        self.token1 = self.login_and_return_token('student_1', 'top_secret')
+        self.user1 = User.objects.create_user(username="student_1", email="student_1@email.com", password="top_secret")
+        self.token1 = self.login_and_return_token("student_1", "top_secret")
         self.user1.groups.add(self.user_group)
 
-        self.user2 = User.objects.create_user(
-            username='student_2', email='student_2@email.com', password='foobar')
-        self.token2 = self.login_and_return_token('student_2', 'foobar')
+        self.user2 = User.objects.create_user(username="student_2", email="student_2@email.com", password="foobar")
+        self.token2 = self.login_and_return_token("student_2", "foobar")
         self.user2.groups.add(self.user_group)
 
         # create a user without any special permissions
-        self.user3 = User.objects.create_user(
-            username='student_3', email='student_3@email.com', password='permission'
-        )
-        self.token3 = self.login_and_return_token('student_3', 'permission')
+        self.user3 = User.objects.create_user(username="student_3", email="student_3@email.com", password="permission")
+        self.token3 = self.login_and_return_token("student_3", "permission")
 
         # create a user without any special permissions
-        self.user4 = User.objects.create_user(
-            username='student_4', email='student_4@email.com', password='permission4'
-        )
-        self.token4 = self.login_and_return_token('student_4', 'permission4')
+        self.user4 = User.objects.create_user(username="student_4", email="student_4@email.com", password="permission4")
+        self.token4 = self.login_and_return_token("student_4", "permission4")
 
         # create two projects
         self.project1 = self.create_project(
-            self.token1, "My Own Project (user1)",
-            "Only user1 has access to this project", Project.STARTED,
-            HTTP_USER_AGENT, REMOTE_ADDR
+            self.token1,
+            "My Own Project (user1)",
+            "Only user1 has access to this project",
+            Project.STARTED,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
         )
 
         self.project2 = self.create_project(
-            self.token2, "Another Project (user2)",
-            "Only user2 has access to this project", Project.STARTED,
-            HTTP_USER_AGENT, REMOTE_ADDR
+            self.token2,
+            "Another Project (user2)",
+            "Only user2 has access to this project",
+            Project.STARTED,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
         )
 
         # add user3 to project1 as student
         self.rest_assign_user_to_project(
-            self.token1, self.project1, self.user3, self.student_role,
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            self.token1,
+            self.project1,
+            self.user3,
+            self.student_role,
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
 
         # add user4 to project1 as pm
         self.rest_assign_user_to_project(
-            self.token1, self.project1, self.user4, self.pm_role,
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            self.token1,
+            self.project1,
+            self.user4,
+            self.pm_role,
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
 
     def test_create_resource(self):
@@ -94,7 +101,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
         :return:
         """
         # there should be zero Resources to begin with
-        self.assertEquals(Resource.objects.all().count(), 0, msg="There should be zero Resources to begin with")
+        self.assertEqual(Resource.objects.all().count(), 0, msg="There should be zero Resources to begin with")
 
         # creating a resource for a project1 should work for user1
         response = self.rest_create_resource(
@@ -105,11 +112,11 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             Resource.ROOM,
             Resource.GLOBAL,
             HTTP_USER_AGENT,
-            REMOTE_ADDR
+            REMOTE_ADDR,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        self.assertEquals(Resource.objects.all().count(), 1, msg="There should be one resource")
+        self.assertEqual(Resource.objects.all().count(), 1, msg="There should be one resource")
 
         # however, creating a resource for a project1 should also work for user3
         response = self.rest_create_resource(
@@ -120,11 +127,11 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             Resource.ROOM,
             Resource.GLOBAL,
             HTTP_USER_AGENT,
-            REMOTE_ADDR
+            REMOTE_ADDR,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        self.assertEquals(Resource.objects.all().count(), 2, msg="There should be two resources")
+        self.assertEqual(Resource.objects.all().count(), 2, msg="There should be two resources")
 
     def test_pdf_upload(self):
         """checks if pdf upload is validated correctly"""
@@ -183,7 +190,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
 
     def test_resource_without_title_can_not_be_created(self):
         # there should be zero Resources to begin with
-        self.assertEquals(Resource.objects.all().count(), 0, msg="There should be zero Resources to begin with")
+        self.assertEqual(Resource.objects.all().count(), 0, msg="There should be zero Resources to begin with")
 
         # check: empty name
         response = self.rest_create_resource(
@@ -193,7 +200,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             general_usage_setting=Resource.GLOBAL,
-            **HTTP_INFO
+            **HTTP_INFO,
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -205,7 +212,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             general_usage_setting=Resource.GLOBAL,
-            **HTTP_INFO
+            **HTTP_INFO,
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -213,14 +220,11 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
         # using self.rest_create_resource(name=None) will just send the string "None"
         # therefore we need to use a custom post request without the "name" attribute
         data = {
-            'description': "my resource description",
-            'type': Resource.LAB_EQUIPMENT,
+            "description": "my resource description",
+            "type": Resource.LAB_EQUIPMENT,
         }
         response = self.client.post(
-            '/api/resources/',
-            data,
-            format='multipart',
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            "/api/resources/", data, format="multipart", HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -229,7 +233,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
 
     def test_general_usage_setting(self):
         # there should be zero Resources to begin with
-        self.assertEquals(Resource.objects.all().count(), 0, msg="There should be zero Resources to begin with")
+        self.assertEqual(Resource.objects.all().count(), 0, msg="There should be zero Resources to begin with")
 
         ## GLOBAL
         # create 2 global resources in different projects
@@ -240,7 +244,7 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             general_usage_setting=Resource.GLOBAL,
-            **HTTP_INFO
+            **HTTP_INFO,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -251,30 +255,66 @@ class ResourcesTest(APITestCase, AuthenticationMixin, UserMixin, ResourceMixin, 
             description="Test Description",
             resource_type=Resource.ROOM,
             general_usage_setting=Resource.GLOBAL,
-            **HTTP_INFO
+            **HTTP_INFO,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # all users should be able to see 2 resources
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode()))), 2)
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode()))), 2)
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 2)
+        self.assertEqual(
+            len(
+                test_utils.get_paginated_results(
+                    json.loads(self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode())
+                )
+            ),
+            2,
+        )
+        self.assertEqual(
+            len(
+                test_utils.get_paginated_results(
+                    json.loads(self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode())
+                )
+            ),
+            2,
+        )
+        self.assertEqual(
+            len(
+                test_utils.get_paginated_results(
+                    json.loads(self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode())
+                )
+            ),
+            2,
+        )
 
         ## SELECTED GROUPS
         resource = Resource.objects.create(
-            name='Test Resource 3',
-            description='Test',
+            name="Test Resource 3",
+            description="Test",
             type=Resource.ROOM,
-            general_usage_setting=Resource.SELECTED_GROUPS
+            general_usage_setting=Resource.SELECTED_GROUPS,
         )
         resource.usage_setting_selected_user_groups.add(self.user_group)
         # user1 and user2 should see 3 and user3 still has 2 resources
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode()))), 3)
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode()))), 3)
-        self.assertEqual(len(test_utils.get_paginated_results(json.loads(
-            self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode()))), 2)
+        self.assertEqual(
+            len(
+                test_utils.get_paginated_results(
+                    json.loads(self.rest_get_resources(auth_token=self.token1, **HTTP_INFO).content.decode())
+                )
+            ),
+            3,
+        )
+        self.assertEqual(
+            len(
+                test_utils.get_paginated_results(
+                    json.loads(self.rest_get_resources(auth_token=self.token2, **HTTP_INFO).content.decode())
+                )
+            ),
+            3,
+        )
+        self.assertEqual(
+            len(
+                test_utils.get_paginated_results(
+                    json.loads(self.rest_get_resources(auth_token=self.token3, **HTTP_INFO).content.decode())
+                )
+            ),
+            2,
+        )

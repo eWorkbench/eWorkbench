@@ -1,13 +1,14 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
 
-from eric.core.rest.serializers import PublicUserSerializer
+from django_changeset.models import ChangeRecord, ChangeSet
 
-from django_changeset.models import ChangeSet, ChangeRecord
+from eric.core.rest.serializers import PublicUserSerializer
 
 User = get_user_model()
 
@@ -15,20 +16,33 @@ User = get_user_model()
 class ChangeRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChangeRecord
-        fields = ('field_name', 'old_value', 'new_value',)
+        fields = (
+            "field_name",
+            "old_value",
+            "new_value",
+        )
 
 
 class SimpleChangeSetSerializer(serializers.ModelSerializer):
     """
     A very basic changeset serializer
     """
+
     user = PublicUserSerializer(read_only=True)
 
     change_records = ChangeRecordSerializer(many=True, read_only=True)
 
     class Meta:
         model = ChangeSet
-        fields = ('pk', 'user', 'object_type', 'object_uuid', 'changeset_type', 'date', 'change_records',)
+        fields = (
+            "pk",
+            "user",
+            "object_type",
+            "object_uuid",
+            "changeset_type",
+            "date",
+            "change_records",
+        )
         depth = 1
 
 
@@ -36,6 +50,7 @@ class ChangeSetSerializer(serializers.ModelSerializer):
     """
     An extended changeset serializer, which also displays more information about the element that was modified
     """
+
     user = PublicUserSerializer(read_only=True)
 
     change_records = ChangeRecordSerializer(many=True, read_only=True)
@@ -73,14 +88,20 @@ class ChangeSetSerializer(serializers.ModelSerializer):
         #     value = LabBook.objects.get(pk=obj.object_uuid)
 
         if value:
-            return {
-                'pk': value.pk,
-                'display': value.__str__()
-            }
+            return {"pk": value.pk, "display": value.__str__()}
 
         return {}
 
     class Meta:
         model = ChangeSet
-        fields = ('pk', 'user', 'changeset_type', 'date', 'object_type', 'object_uuid', 'change_records', 'object',)
+        fields = (
+            "pk",
+            "user",
+            "changeset_type",
+            "date",
+            "object_type",
+            "object_uuid",
+            "change_records",
+            "object",
+        )
         depth = 1

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ defines custom permission settings for the REST API """
@@ -22,8 +22,8 @@ class IsStaffOrTargetUserOrReadOnly(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        """ returns True when the request method is in SAFE_METHODS (e.g., GET, HEAD, OPTIONS), else it is checked
-        if the object belongs to request.user """
+        """returns True when the request method is in SAFE_METHODS (e.g., GET, HEAD, OPTIONS), else it is checked
+        if the object belongs to request.user"""
         # allow GET / HEAD / OPTIONS
         if request.method in permissions.SAFE_METHODS:
             return True

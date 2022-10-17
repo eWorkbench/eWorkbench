@@ -1,8 +1,9 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
+
 from rest_framework import status
 
 from eric.relations.models import Relation
@@ -15,152 +16,182 @@ class RelationsMixin:
     - /api/notes/{note_id}/relations
     - etc...
     """
-    def rest_get_project_relation(self, auth_token, project_id, relation_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get relation of project by id via REST API """
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+    def rest_get_project_relation(self, auth_token, project_id, relation_id, HTTP_USER_AGENT, REMOTE_ADDR):
+        """Get relation of project by id via REST API"""
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/projects/{project_id}/relations/{relation_id}/'.format(project_id=project_id, relation_id=relation_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            "/api/projects/{project_id}/relations/{relation_id}/".format(
+                project_id=project_id, relation_id=relation_id
+            ),
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_task_relation(self, auth_token, task_id, relation_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get relation of task by id via REST API """
+        """Get relation of task by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/tasks/{task_id}/relations/{relation_id}/'.format(task_id=task_id, relation_id=relation_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/tasks/{task_id}/relations/{relation_id}/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_note_relation(self, auth_token, note_id, relation_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get relations of note by id via REST API """
+        """Get relations of note by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/notes/{note_id}/relations/{relation_id}/'.format(note_id=note_id, relation_id=relation_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/notes/{note_id}/relations/{relation_id}/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_contact_relation(self, auth_token, contact_id, relation_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get relation of contact by id via REST API """
+        """Get relation of contact by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/contacts/{contact_id}/relations/{relation_id}/'.format(contact_id=contact_id, relation_id=relation_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            "/api/contacts/{contact_id}/relations/{relation_id}/".format(
+                contact_id=contact_id, relation_id=relation_id
+            ),
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_meeting_relation(self, auth_token, meeting_id, relation_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get relation of meeting by id via REST API """
+        """Get relation of meeting by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/meetings/{meeting_id}/relations/{relation_id}/'.format(meeting_id=meeting_id, relation_id=relation_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            "/api/meetings/{meeting_id}/relations/{relation_id}/".format(
+                meeting_id=meeting_id, relation_id=relation_id
+            ),
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_file_relation(self, auth_token, file_id, relation_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get relation of file by id via REST API """
+        """Get relation of file by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/files/{file_id}/relations/{relation_id}/'.format(file_id=file_id, relation_id=relation_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/files/{file_id}/relations/{relation_id}/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_project_relations(self, auth_token, project_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get all relations of a task by id via REST API """
+        """Get all relations of a task by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/projects/{project_id}/relations/'.format(project_id=project_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/projects/{project_id}/relations/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_task_relations(self, auth_token, task_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get all relations of a task by id via REST API """
+        """Get all relations of a task by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/tasks/{task_id}/relations/'.format(task_id=task_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/tasks/{task_id}/relations/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_note_relations(self, auth_token, note_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get all relations of a note by id via REST API """
+        """Get all relations of a note by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/notes/{note_id}/relations/'.format(note_id=note_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/notes/{note_id}/relations/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_contact_relations(self, auth_token, contact_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get all relations of a contact by id via REST API """
+        """Get all relations of a contact by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/contacts/{contact_id}/relations/'.format(contact_id=contact_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/contacts/{contact_id}/relations/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_meeting_relations(self, auth_token, meeting_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get all relations of a meeting by id via REST API """
+        """Get all relations of a meeting by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/meetings/{meeting_id}/relations/'.format(meeting_id=meeting_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/meetings/{meeting_id}/relations/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_file_relations(self, auth_token, file_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get all relations of a file by id via REST API """
+        """Get all relations of a file by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/files/{file_id}/relations/'.format(file_id=file_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/files/{file_id}/relations/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_get_dmp_relations(self, auth_token, dmp_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ Get all relations of a dmp by id via REST API """
+        """Get all relations of a dmp by id via REST API"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.get(
-            '/api/dmps/{dmp_id}/relations/'.format(dmp_id=dmp_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/dmps/{dmp_id}/relations/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
-    def rest_create_relation(self, auth_token, object_type, object_id,
-                             left_content_type, left_object_id, right_content_type, right_object_id, private_field,
-                             HTTP_USER_AGENT, REMOTE_ADDR):
+    def rest_create_relation(
+        self,
+        auth_token,
+        object_type,
+        object_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
         """
         Wrapper for creating a new relation via REST API
         :param auth_token: authorization token for REST API
@@ -176,27 +207,37 @@ class RelationsMixin:
         :return:
         """
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         # Make a REST API call for creating a relation
         response = self.client.post(
-            '/api/{object_type}/{object_id}/relations/'.format(object_type=object_type, object_id=object_id),
+            f"/api/{object_type}/{object_id}/relations/",
             {
-                'left_content_type': left_content_type.id,
-                'left_object_id': left_object_id,
-                'right_content_type': right_content_type.id,
-                'right_object_id': right_object_id,
-                'private': private_field
+                "left_content_type": left_content_type.id,
+                "left_object_id": left_object_id,
+                "right_content_type": right_content_type.id,
+                "right_object_id": right_object_id,
+                "private": private_field,
             },
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
 
         return response
 
-    def create_generic_relation(self, auth_token, object_type, object_id,
-                                left_content_type, left_object_id,
-                                right_content_type, right_object_id,
-                                private_field, HTTP_USER_AGENT, REMOTE_ADDR):
+    def create_generic_relation(
+        self,
+        auth_token,
+        object_type,
+        object_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
         """
         Tries to create a generic relation for object "object_type" and object_id
         :param auth_token:
@@ -211,16 +252,24 @@ class RelationsMixin:
         :param REMOTE_ADDR:
         :return: relation
         """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         # store the relation length
         initial_relation_length = Relation.objects.all().count()
 
         # create relation via REST API
-        response = self.rest_create_relation(auth_token, object_type, object_id,
-                                             left_content_type, left_object_id,
-                                             right_content_type, right_object_id, private_field,
-                                             HTTP_USER_AGENT, REMOTE_ADDR)
+        response = self.rest_create_relation(
+            auth_token,
+            object_type,
+            object_id,
+            left_content_type,
+            left_object_id,
+            right_content_type,
+            right_object_id,
+            private_field,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
+        )
 
         # relation should have been created, HTTP response code should be 201
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -230,128 +279,255 @@ class RelationsMixin:
         decoded_response = json.loads(content)
 
         self.assertTrue('"pk":' in content, msg="primary key (pk) in response")
-        self.assertTrue('"left_content_type":' + str(left_content_type.id) in content,
-                        msg="correct left_content_type in response")
+        self.assertTrue(
+            '"left_content_type":' + str(left_content_type.id) in content, msg="correct left_content_type in response"
+        )
         self.assertTrue('"left_object_id":' in content, msg="correct left_object_id in response")
-        self.assertTrue('"right_content_type":' + str(right_content_type.id) in content,
-                        msg="correct right_content_type in response")
+        self.assertTrue(
+            '"right_content_type":' + str(right_content_type.id) in content,
+            msg="correct right_content_type in response",
+        )
         self.assertTrue('"right_object_id":' in content, msg="correct right_object_id in response")
         self.assertTrue('"private":' in content, msg="primary key (pk) in response")
         self.assertTrue('"created_at":' in content, msg="created_at in response")
         self.assertTrue('"created_by":' in content, msg="created_by in response")
 
         # see what the actual Relation element from database looks like
-        pk = decoded_response['pk']
+        pk = decoded_response["pk"]
         # get the relation object from database
         relation = Relation.objects.get(pk=pk)
 
         # check if the relation object was created
-        self.assertEqual(Relation.objects.all().count(), initial_relation_length + 1,
-                         msg="check if the relation was created")
+        self.assertEqual(
+            Relation.objects.all().count(), initial_relation_length + 1, msg="check if the relation was created"
+        )
 
         # verify several relation attributes with api response
-        self.assertEqual(str(relation.pk), decoded_response['pk'])
-        self.assertEqual(relation.private, decoded_response['private'])
-        self.assertEqual(str(relation.left_object_id), decoded_response['left_object_id'])
-        self.assertEqual(str(relation.right_object_id), decoded_response['right_object_id'])
+        self.assertEqual(str(relation.pk), decoded_response["pk"])
+        self.assertEqual(relation.private, decoded_response["private"])
+        self.assertEqual(str(relation.left_object_id), decoded_response["left_object_id"])
+        self.assertEqual(str(relation.right_object_id), decoded_response["right_object_id"])
 
         # check if the correct left_content_type, left_object_id, right_content_type, right_object_id were saved
-        self.assertEqual(relation.left_content_type, left_content_type,
-                         msg="check if correct left_content_type was saved")
+        self.assertEqual(
+            relation.left_content_type, left_content_type, msg="check if correct left_content_type was saved"
+        )
         self.assertEqual(relation.left_object_id, left_object_id, msg="check if correct left_object_id was saved")
-        self.assertEqual(relation.right_content_type, right_content_type,
-                         msg="check if correct right_content_type was saved")
+        self.assertEqual(
+            relation.right_content_type, right_content_type, msg="check if correct right_content_type was saved"
+        )
         self.assertEqual(relation.right_object_id, right_object_id, msg="check if correct right_object_id was saved")
         self.assertEqual(relation.private, private_field, msg="check if correct private_field was saved")
 
         return relation
 
-    def create_project_relation(self, auth_token, project_id, left_content_type, left_object_id, right_content_type,
-                             right_object_id, private_field, HTTP_USER_AGENT, REMOTE_ADDR):
+    def create_project_relation(
+        self,
+        auth_token,
+        project_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
         """
-            tries to create a new relation for a project
+        tries to create a new relation for a project
         """
-        return self.create_generic_relation(auth_token, "projects", project_id,
-                                            left_content_type, left_object_id,
-                                            right_content_type, right_object_id,
-                                            private_field, HTTP_USER_AGENT, REMOTE_ADDR)
+        return self.create_generic_relation(
+            auth_token,
+            "projects",
+            project_id,
+            left_content_type,
+            left_object_id,
+            right_content_type,
+            right_object_id,
+            private_field,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
+        )
 
-    def create_file_relation(self, auth_token, file_id, left_content_type, left_object_id, right_content_type,
-                             right_object_id, private_field, HTTP_USER_AGENT, REMOTE_ADDR):
+    def create_file_relation(
+        self,
+        auth_token,
+        file_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
         """
-            tries to create a new relation for a file
+        tries to create a new relation for a file
         """
-        return self.create_generic_relation(auth_token, "files", file_id,
-                                            left_content_type, left_object_id,
-                                            right_content_type, right_object_id,
-                                            private_field, HTTP_USER_AGENT, REMOTE_ADDR)
+        return self.create_generic_relation(
+            auth_token,
+            "files",
+            file_id,
+            left_content_type,
+            left_object_id,
+            right_content_type,
+            right_object_id,
+            private_field,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
+        )
 
-    def create_note_relation(self, auth_token, note_id, left_content_type, left_object_id, right_content_type,
-                             right_object_id, private_field, HTTP_USER_AGENT, REMOTE_ADDR):
+    def create_note_relation(
+        self,
+        auth_token,
+        note_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
         """
-            tries to create a new relation for a note
+        tries to create a new relation for a note
         """
-        return self.create_generic_relation(auth_token, "notes", note_id,
-                                            left_content_type, left_object_id,
-                                            right_content_type, right_object_id,
-                                            private_field, HTTP_USER_AGENT, REMOTE_ADDR)
+        return self.create_generic_relation(
+            auth_token,
+            "notes",
+            note_id,
+            left_content_type,
+            left_object_id,
+            right_content_type,
+            right_object_id,
+            private_field,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
+        )
 
-    def create_task_relation(self, auth_token, task_id, left_content_type, left_object_id, right_content_type,
-                             right_object_id, private_field, HTTP_USER_AGENT, REMOTE_ADDR):
+    def create_task_relation(
+        self,
+        auth_token,
+        task_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
         """
-            tries to create a new relation for a task
+        tries to create a new relation for a task
         """
-        return self.create_generic_relation(auth_token, "tasks", task_id,
-                                            left_content_type, left_object_id,
-                                            right_content_type, right_object_id,
-                                            private_field, HTTP_USER_AGENT, REMOTE_ADDR)
+        return self.create_generic_relation(
+            auth_token,
+            "tasks",
+            task_id,
+            left_content_type,
+            left_object_id,
+            right_content_type,
+            right_object_id,
+            private_field,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
+        )
 
-    def create_meeting_relation(self, auth_token, meeting_id, left_content_type, left_object_id, right_content_type,
-                             right_object_id, private_field, HTTP_USER_AGENT, REMOTE_ADDR):
+    def create_meeting_relation(
+        self,
+        auth_token,
+        meeting_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
         """
-            tries to create a new relation for a task
+        tries to create a new relation for a task
         """
-        return self.create_generic_relation(auth_token, "meetings", meeting_id,
-                                            left_content_type, left_object_id,
-                                            right_content_type, right_object_id,
-                                            private_field, HTTP_USER_AGENT, REMOTE_ADDR)
+        return self.create_generic_relation(
+            auth_token,
+            "meetings",
+            meeting_id,
+            left_content_type,
+            left_object_id,
+            right_content_type,
+            right_object_id,
+            private_field,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
+        )
 
-    def create_contact_relation(self, auth_token, contact_id, left_content_type, left_object_id, right_content_type,
-                             right_object_id, private_field, HTTP_USER_AGENT, REMOTE_ADDR):
+    def create_contact_relation(
+        self,
+        auth_token,
+        contact_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
         """
-            tries to create a new relation for a task
+        tries to create a new relation for a task
         """
-        return self.create_generic_relation(auth_token, "contacts", contact_id,
-                                            left_content_type, left_object_id,
-                                            right_content_type, right_object_id,
-                                            private_field, HTTP_USER_AGENT, REMOTE_ADDR)
+        return self.create_generic_relation(
+            auth_token,
+            "contacts",
+            contact_id,
+            left_content_type,
+            left_object_id,
+            right_content_type,
+            right_object_id,
+            private_field,
+            HTTP_USER_AGENT,
+            REMOTE_ADDR,
+        )
 
-    def rest_update_task_relation(self, auth_token, task_id, relation_id, left_content_type, left_object_id, right_content_type,
-                                  right_object_id, private_field, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ tries to update the relation """
+    def rest_update_task_relation(
+        self,
+        auth_token,
+        task_id,
+        relation_id,
+        left_content_type,
+        left_object_id,
+        right_content_type,
+        right_object_id,
+        private_field,
+        HTTP_USER_AGENT,
+        REMOTE_ADDR,
+    ):
+        """tries to update the relation"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.put(
-            '/api/tasks/{task_id}/relations/{relation_id}/'.format(task_id=task_id, relation_id=relation_id),
+            f"/api/tasks/{task_id}/relations/{relation_id}/",
             {
-                'left_content_type': left_content_type.id,
-                'left_object_id': left_object_id,
-                'right_content_type': right_content_type.id,
-                'right_object_id': right_object_id,
-                'private': private_field
+                "left_content_type": left_content_type.id,
+                "left_object_id": left_object_id,
+                "right_content_type": right_content_type.id,
+                "right_object_id": right_object_id,
+                "private": private_field,
             },
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response
 
     def rest_delete_task_relation(self, auth_token, task_id, relation_id, HTTP_USER_AGENT, REMOTE_ADDR):
-        """ tries to delete a relation """
+        """tries to delete a relation"""
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + auth_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
 
         response = self.client.delete(
-            '/api/tasks/{task_id}/relations/{relation_id}/'.format(task_id=task_id, relation_id=relation_id),
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            f"/api/tasks/{task_id}/relations/{relation_id}/",
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         return response

@@ -16,7 +16,7 @@ export const mockDssContainer: DssContainer = {
   envelopes: [],
   import_option: 'ION',
   last_modified_by: mockUser,
-  path: 'dssfs01/pr53ve/aster-test',
+  path: 'dssfs01/tumdss/pr53ve/aster-test',
   pk: 'ae514c61-c116-4742-9531-3c42c934c7c9',
   created_by: mockUser,
   projects: [],

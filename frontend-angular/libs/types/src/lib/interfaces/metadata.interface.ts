@@ -60,6 +60,7 @@ export interface MetadataField {
   pk?: string;
   type_settings?: MetadataFieldTypeSettings;
 
+  uniqueHash?: string;
   added?: boolean;
   showCheckbox?: boolean;
   showRadio?: boolean;
@@ -125,6 +126,7 @@ export interface MetadataSearchParameters {
 }
 
 export interface MetadataChangedSearchParameter {
+  uniqueHash: string;
   id: string;
   type: string;
   operator: string;
@@ -142,4 +144,16 @@ export interface MetadataFieldSearchConfig {
   custom_input?: string | null;
   single_selected?: string;
   custom_input_selected?: boolean;
+}
+
+export interface MetadataTag {
+  pk: string;
+  name: string;
+  display?: string;
+  content_type?: number;
+  content_type_model?: string;
+}
+
+export interface MetadataTagPayload {
+  name: string;
 }

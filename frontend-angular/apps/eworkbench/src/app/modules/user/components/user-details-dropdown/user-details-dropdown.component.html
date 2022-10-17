@@ -9,14 +9,14 @@
       <ng-container *ngIf="user?.userprofile">
         <ng-container [ngTemplateOutlet]="userAvatar"></ng-container>
         <div>
-          <ng-container *ngIf="user?.userprofile.anonymized">
+          <ng-container *ngIf="user?.userprofile?.anonymized">
             <span class="text-gray-600">
               {{ t('user.details.anonymizedUser') }}
             </span>
           </ng-container>
-          <ng-container *ngIf="!user?.userprofile.anonymized">
+          <ng-container *ngIf="!user?.userprofile?.anonymized">
             <ng-container
-              *ngIf="user?.userprofile.first_name && user?.userprofile.last_name; then userTemplate; else usernameTemplate"
+              *ngIf="user?.userprofile?.first_name && user?.userprofile?.last_name; then userTemplate; else usernameTemplate"
             ></ng-container>
           </ng-container>
           <div class="sub-text">
@@ -38,30 +38,32 @@
       </div>
     </ng-container>
   </div>
+
+  <ng-template #userTemplate>
+    <div class="flex items-center whitespace-nowrap">
+      <ngx-highlight-words
+        [textToHighlight]="user?.userprofile?.first_name + ' ' + user?.userprofile?.last_name"
+        [searchWords]="searchTerms"
+        highlightClassName="highlighted"
+      ></ngx-highlight-words>
+      <span *ngIf="user?.userprofile?.status === 'INACTIVE'" class="status-indicator">{{ t('user.details.inactive') }}</span>
+      <span *ngIf="user?.userprofile?.status === 'INVITED'" class="status-indicator">{{ t('user.details.invited') }}</span>
+    </div>
+  </ng-template>
+
+  <ng-template #usernameTemplate>
+    <div class="flex items-center whitespace-nowrap">
+      <ngx-highlight-words
+        [textToHighlight]="user?.username"
+        [searchWords]="searchTerms"
+        highlightClassName="highlighted"
+      ></ngx-highlight-words>
+      <span *ngIf="user?.userprofile?.status === 'INACTIVE'" class="status-indicator">{{ t('user.details.inactive') }}</span>
+      <span *ngIf="user?.userprofile?.status === 'INVITED'" class="status-indicator">{{ t('user.details.invited') }}</span>
+    </div>
+  </ng-template>
+
+  <ng-template #userAvatar>
+    <eworkbench-user-avatar [user]="user" [scale]="avatarScale" class="mr-2" *ngIf="avatar"></eworkbench-user-avatar>
+  </ng-template>
 </ng-container>
-
-<ng-template #userTemplate>
-  <div class="flex items-center whitespace-nowrap">
-    <ngx-highlight-words
-      [textToHighlight]="user?.userprofile.first_name + ' ' + user?.userprofile.last_name"
-      [searchWords]="searchTerms"
-      highlightClassName="highlighted"
-    ></ngx-highlight-words>
-    <span *ngIf="!user?.is_active" class="inactive-indicator">{{ t('user.details.inactive') }}</span>
-  </div>
-</ng-template>
-
-<ng-template #usernameTemplate>
-  <div class="flex items-center whitespace-nowrap">
-    <ngx-highlight-words
-      [textToHighlight]="user?.username"
-      [searchWords]="searchTerms"
-      highlightClassName="highlighted"
-    ></ngx-highlight-words>
-    <span *ngIf="!user?.is_active" class="inactive-indicator">{{ t('user.details.inactive') }}</span>
-  </div>
-</ng-template>
-
-<ng-template #userAvatar>
-  <eworkbench-user-avatar [user]="user" [scale]="avatarScale" class="mr-2" *ngIf="avatar"></eworkbench-user-avatar>
-</ng-template>

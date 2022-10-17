@@ -2,9 +2,13 @@
 -r requirements_tests.txt
 -r requirements_docs.txt
 django-debug-toolbar==3.5.*
-pycodestyle==2.6.*
 licenseheaders
 whitenoise
 
 # tblib is required to run Django tests in parallel
 tblib
+
+# linters and formatters
+pre-commit>=2.15,<2.16
+isort>=5.9,<5.10
+black>=21.9b0,<22

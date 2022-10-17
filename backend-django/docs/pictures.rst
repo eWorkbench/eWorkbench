@@ -34,4 +34,3 @@ User Interface
 Literally Canvas provides its own React based toolbar (user interface), however, for eRIC Workbench we had different
 requirements, which lead to needing to rewrite the toolbar in AngularJS. This also enables a better integration (e.g.,
 save button), without having to talk to a React component from within AngularJS.
-

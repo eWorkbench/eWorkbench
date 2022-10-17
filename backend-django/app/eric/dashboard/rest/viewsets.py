@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from rest_framework import viewsets
@@ -7,8 +7,14 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
 from eric.core.rest.viewsets import BaseGenericViewSet
-from eric.dashboard.rest.serializers import DashboardProjectSerializer, DashboardContactSerializer, \
-    DashboardFileSerializer, DashboardTaskSerializer, DashboardDmpSerializer, DashboardResourceSerializer
+from eric.dashboard.rest.serializers import (
+    DashboardContactSerializer,
+    DashboardDmpSerializer,
+    DashboardFileSerializer,
+    DashboardProjectSerializer,
+    DashboardResourceSerializer,
+    DashboardTaskSerializer,
+)
 from eric.dmp.rest.viewsets import DmpViewSet
 from eric.projects.rest.viewsets import ProjectViewSet, ResourceViewSet
 from eric.shared_elements.rest.viewsets import ContactViewSet, FileViewSet, TaskViewSet
@@ -26,22 +32,22 @@ class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
 
     # define the viewsets for all entities that should be provided by the dashboard
     viewsets = {
-        'projects': ProjectViewSet,
-        'contacts': ContactViewSet,
-        'files': FileViewSet,
-        'tasks': TaskViewSet,
-        'dmps': DmpViewSet,
-        'resources': ResourceViewSet,
+        "projects": ProjectViewSet,
+        "contacts": ContactViewSet,
+        "files": FileViewSet,
+        "tasks": TaskViewSet,
+        "dmps": DmpViewSet,
+        "resources": ResourceViewSet,
     }
 
     # use slimmed down serializers for the dashboard to only load what we need to display
     dashboard_serializers = {
-        'projects': DashboardProjectSerializer,
-        'contacts': DashboardContactSerializer,
-        'files': DashboardFileSerializer,
-        'tasks': DashboardTaskSerializer,
-        'dmps': DashboardDmpSerializer,
-        'resources': DashboardResourceSerializer,
+        "projects": DashboardProjectSerializer,
+        "contacts": DashboardContactSerializer,
+        "files": DashboardFileSerializer,
+        "tasks": DashboardTaskSerializer,
+        "dmps": DashboardDmpSerializer,
+        "resources": DashboardResourceSerializer,
     }
 
     def get_serialized_data_for(self, request, view_name, num_elements):
@@ -60,12 +66,12 @@ class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
         qs = view.get_queryset()
 
         # handle special cases for sorting etc...
-        if view_name == 'tasks':
-            qs = qs.assigned().order_by('due_date').not_done()
-        elif view_name == 'projects':
-            qs = qs.order_by('start_date').not_closed_or_deleted_or_canceled()
+        if view_name == "tasks":
+            qs = qs.assigned().order_by("due_date").not_done()
+        elif view_name == "projects":
+            qs = qs.order_by("start_date").not_closed_or_deleted_or_canceled()
         else:
-            qs = qs.order_by('-last_modified_at')
+            qs = qs.order_by("-last_modified_at")
 
         # filter soft deleted elements
         qs = qs.filter(deleted=False)
@@ -84,12 +90,12 @@ class MyDashboardViewSet(BaseGenericViewSet, viewsets.mixins.ListModelMixin):
         limit = 10
 
         data = {
-            'projects': self.get_serialized_data_for(request, 'projects', limit),
-            'contacts': self.get_serialized_data_for(request, 'contacts', limit),
-            'dmps': self.get_serialized_data_for(request, 'dmps', limit),
-            'files': self.get_serialized_data_for(request, 'files', limit),
-            'tasks': self.get_serialized_data_for(request, 'tasks', limit),
-            'resources': self.get_serialized_data_for(request, 'resources', limit),
+            "projects": self.get_serialized_data_for(request, "projects", limit),
+            "contacts": self.get_serialized_data_for(request, "contacts", limit),
+            "dmps": self.get_serialized_data_for(request, "dmps", limit),
+            "files": self.get_serialized_data_for(request, "files", limit),
+            "tasks": self.get_serialized_data_for(request, "tasks", limit),
+            "resources": self.get_serialized_data_for(request, "resources", limit),
         }
 
         return Response(data)

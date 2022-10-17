@@ -1,32 +1,45 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ contains basic admin functionality for eric workbench elements """
-from admin_auto_filters.filters import AutocompleteFilter, AutocompleteFilterFactory
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
+from admin_auto_filters.filters import AutocompleteFilter, AutocompleteFilterFactory
+
 from eric.core.admin.filters import is_null_filter
 from eric.model_privileges.admin import ModelPrivilegeInline, ReadOnlyModelPrivilegeInline
 from eric.projects.admin import CreatedAndModifiedByReadOnlyAdminMixin, ProjectsFilter
-from eric.shared_elements.models import Contact, Note, Meeting, Task, TaskAssignedUser, File, \
-    UploadedFileEntry, UserAttendsMeeting, ContactAttendsMeeting, TaskCheckList, CalendarAccess, Comment
+from eric.shared_elements.models import (
+    CalendarAccess,
+    Comment,
+    Contact,
+    ContactAttendsMeeting,
+    File,
+    Meeting,
+    Note,
+    Task,
+    TaskAssignedUser,
+    TaskCheckList,
+    UploadedFileEntry,
+    UserAttendsMeeting,
+)
 
 User = get_user_model()
 
 
 class DirectoryFilter(AutocompleteFilter):
-    title = 'Directory of a Drive'
-    field_name = 'directory'
+    title = "Directory of a Drive"
+    field_name = "directory"
 
 
 class MeetingResourceFilter(AutocompleteFilter):
-    title = 'Resource'
-    field_name = 'resource'
+    title = "Resource"
+    field_name = "resource"
 
 
 class ContactInline(admin.StackedInline):
@@ -36,100 +49,97 @@ class ContactInline(admin.StackedInline):
 @admin.register(Contact)
 class ContactAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_display = (
-        'first_name',
-        'last_name',
-        'company',
-        'email',
-        'created_by',
-        'created_at',
+        "first_name",
+        "last_name",
+        "company",
+        "email",
+        "created_by",
+        "created_at",
     )
     list_filter = (
         ProjectsFilter,
-        ('company', admin.AllValuesFieldListFilter),
+        ("company", admin.AllValuesFieldListFilter),
     )
     search_fields = (
-        'projects__name',
-        'first_name',
-        'last_name',
-        'email',
-        'company',
+        "projects__name",
+        "first_name",
+        "last_name",
+        "email",
+        "company",
         "created_by__username",
         "created_by__email",
     )
     inlines = (ModelPrivilegeInline,)
-    autocomplete_fields = ('projects',)
+    autocomplete_fields = ("projects",)
 
 
 @admin.register(Note)
 class NoteAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_display = (
-        'subject',
-        'created_by',
-        'created_at',
+        "subject",
+        "created_by",
+        "created_at",
     )
     search_fields = (
-        'projects__name',
-        'subject',
-        'content',
+        "projects__name",
+        "subject",
+        "content",
         "created_by__username",
         "created_by__email",
     )
-    autocomplete_fields = ('projects',)
+    autocomplete_fields = ("projects",)
     inlines = (ModelPrivilegeInline,)
-    list_filter = (
-        ProjectsFilter,
-    )
+    list_filter = (ProjectsFilter,)
 
 
 @admin.register(Comment)
 class CommentAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_display = (
-        '__str__',
-        'created_by',
-        'created_at',
+        "__str__",
+        "created_by",
+        "created_at",
     )
     search_fields = (
-        'projects__name',
-        'content',
+        "projects__name",
+        "content",
         "created_by__username",
         "created_by__email",
     )
-    autocomplete_fields = ('projects',)
+    autocomplete_fields = ("projects",)
     inlines = (ModelPrivilegeInline,)
-    list_filter = (
-        ProjectsFilter,
-    )
+    list_filter = (ProjectsFilter,)
 
 
 class UploadedFileEntryAdmin(admin.TabularInline):
     model = UploadedFileEntry
-    verbose_name = 'Uploaded File Entry'
-    verbose_name_plural = 'Uploaded File Entries'
+    verbose_name = "Uploaded File Entry"
+    verbose_name_plural = "Uploaded File Entries"
     can_delete = False
     fields = (
-        'mime_type',
-        'original_filename',
-        'file_size',
-        'created_at',
-        'created_by',
-        'download_url',
+        "mime_type",
+        "original_filename",
+        "file_size",
+        "created_at",
+        "created_by",
+        "download_url",
     )
     readonly_fields = (
-        'mime_type',
-        'original_filename',
-        'file_size',
-        'created_at',
-        'created_by',
-        'download_url',
+        "mime_type",
+        "original_filename",
+        "file_size",
+        "created_at",
+        "created_by",
+        "download_url",
     )
     extra = 0
 
     def download_url(self, obj):
         from django.utils.html import format_html
-        return format_html("<a href=\"%(url)s\">Download</a>" % {'url': obj.download_url})
+
+        return format_html(f'<a href="{obj.download_url}">Download</a>')
 
 
-@admin.action(description='Trash selected Files')
+@admin.action(description="Trash selected Files")
 def bulk_trash_files(modeladmin, request, queryset):
     backlink = request.get_full_path()
 
@@ -141,13 +151,10 @@ def bulk_trash_files(modeladmin, request, queryset):
 
         return HttpResponseRedirect(backlink)
 
-    return render(request, "admin/bulk_trash.html", context={
-        "items": queryset,
-        "backlink": backlink
-    })
+    return render(request, "admin/bulk_trash_files.html", context={"items": queryset, "backlink": backlink})
 
 
-@admin.action(description='Delete selected Files')
+@admin.action(description="Delete selected Files")
 def bulk_trash_and_delete_files(modeladmin, request, queryset):
     backlink = request.get_full_path()
 
@@ -160,37 +167,32 @@ def bulk_trash_and_delete_files(modeladmin, request, queryset):
 
         return HttpResponseRedirect(backlink)
 
-    return render(request, "admin/bulk_trash_and_delete.html", context={
-        "items": queryset,
-        "backlink": backlink
-    })
+    return render(request, "admin/bulk_trash_and_delete_files.html", context={"items": queryset, "backlink": backlink})
 
 
 @admin.register(File)
 class FileAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_display = (
-        'title',
-        'name',
-        'created_by',
-        'created_at',
+        "title",
+        "name",
+        "created_by",
+        "created_at",
     )
-    readonly_fields = (
-        'original_filename',
-    )
+    readonly_fields = ("original_filename",)
     search_fields = (
-        'title',
-        'name',
-        'original_filename',
-        'description',
-        'projects__name',
+        "title",
+        "name",
+        "original_filename",
+        "description",
+        "projects__name",
         "created_by__username",
         "created_by__email",
     )
-    autocomplete_fields = ('projects',)
-    raw_id_fields = ('uploaded_file_entry',)
+    autocomplete_fields = ("projects",)
+    raw_id_fields = ("uploaded_file_entry",)
     list_filter = (
         ProjectsFilter,
-        AutocompleteFilterFactory('Drive', 'directory__drive'),
+        AutocompleteFilterFactory("Drive", "directory__drive"),
         DirectoryFilter,
     )
     inlines = (
@@ -206,7 +208,7 @@ class FileAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     # which also trashes items first.
     def get_actions(self, request):
         actions = super().get_actions(request)
-        del actions['delete_selected']
+        del actions["delete_selected"]
         return actions
 
 
@@ -214,17 +216,19 @@ class TaskAssignedUserInline(admin.TabularInline):
     """
     Inline Admin for users that are assigned to a Task
     """
+
     model = TaskAssignedUser
     verbose_name = _("Assigned User")
     verbose_name_plural = _("Assigned Users")
     extra = 1
-    raw_id_fields = ('assigned_user',)
+    raw_id_fields = ("assigned_user",)
 
 
 class TaskCheckListInline(admin.TabularInline):
     """
     Inline Admin for task checlist items
     """
+
     model = TaskCheckList
     verbose_name = _("Task Checklist Item")
     verbose_name_plural = _("Task Checklist Items")
@@ -234,76 +238,82 @@ class TaskCheckListInline(admin.TabularInline):
 @admin.register(Task)
 class TaskAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_display = (
-        'task_id',
-        'title',
-        'start_date',
-        'due_date',
-        'priority',
-        'state',
-        'created_by',
-        'created_at',
-        'full_day',
+        "task_id",
+        "title",
+        "start_date",
+        "due_date",
+        "priority",
+        "state",
+        "created_by",
+        "created_at",
+        "full_day",
     )
     list_filter = (
         ProjectsFilter,
-        ('priority', admin.ChoicesFieldListFilter),
-        ('state', admin.ChoicesFieldListFilter),
+        ("priority", admin.ChoicesFieldListFilter),
+        ("state", admin.ChoicesFieldListFilter),
     )
     search_fields = (
-        'projects__name',
-        'title',
-        'task_id',
-        'description',
+        "projects__name",
+        "title",
+        "task_id",
+        "description",
         "created_by__username",
         "created_by__email",
     )
-    autocomplete_fields = ('projects',)
-    filter_horizontal = ('labels',)
-    inlines = (TaskCheckListInline, TaskAssignedUserInline, ModelPrivilegeInline,)
+    autocomplete_fields = ("projects",)
+    filter_horizontal = ("labels",)
+    inlines = (
+        TaskCheckListInline,
+        TaskAssignedUserInline,
+        ModelPrivilegeInline,
+    )
 
 
 class UserAttendsMeetingInline(admin.StackedInline):
     """
     Inline Admin for Users that attend a Meeting
     """
+
     model = UserAttendsMeeting
-    verbose_name = 'Attending User'
-    verbose_name_plural = 'Attending Users'
+    verbose_name = "Attending User"
+    verbose_name_plural = "Attending Users"
     extra = 1
-    raw_id_fields = ('user',)
+    raw_id_fields = ("user",)
 
 
 class ContactAttendsMeetingInline(admin.StackedInline):
     """
     Inline Admin for Contacts that attend a Meeting
     """
+
     model = ContactAttendsMeeting
-    verbose_name = 'Attending Contact'
-    verbose_name_plural = 'Attending Contacts'
+    verbose_name = "Attending Contact"
+    verbose_name_plural = "Attending Contacts"
     extra = 1
-    raw_id_fields = ('contact',)
+    raw_id_fields = ("contact",)
 
 
 @admin.register(Meeting)
 class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_display = (
-        'title',
-        'date_time_start',
-        'date_time_end',
-        'location',
-        'created_by',
-        'created_at',
+        "title",
+        "date_time_start",
+        "date_time_end",
+        "location",
+        "created_by",
+        "created_at",
     )
     list_filter = (
         ProjectsFilter,
         MeetingResourceFilter,
-        is_null_filter('resource', 'Is Resource Booking'),
+        is_null_filter("resource", "Is Resource Booking"),
     )
     search_fields = (
-        'projects__name',
-        'title',
-        'text',
-        'location',
+        "projects__name",
+        "title",
+        "text",
+        "location",
         "created_by__username",
         "created_by__email",
     )
@@ -312,14 +322,17 @@ class MeetingAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
         ContactAttendsMeetingInline,
         ModelPrivilegeInline,
     )
-    autocomplete_fields = ('projects', 'resource',)
+    autocomplete_fields = (
+        "projects",
+        "resource",
+    )
 
 
 @admin.register(CalendarAccess)
 class CalendarAccessAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     list_display = (
-        'created_by',
-        'created_at',
+        "created_by",
+        "created_at",
     )
     search_fields = (
         "created_by__username",

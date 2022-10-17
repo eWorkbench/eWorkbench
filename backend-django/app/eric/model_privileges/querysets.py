@@ -1,9 +1,11 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django_changeset.models.queryset import ChangeSetQuerySetMixin
 from django.db.models import Q
+
+from django_changeset.models.queryset import ChangeSetQuerySetMixin
+
 from eric.projects.models.querysets import BaseQuerySet
 
 
@@ -11,6 +13,7 @@ class ModelPrivilegeQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
     """
     QuerySet that determines who is allowed to view, edit and delete model privileges (for now, everybody)
     """
+
     def viewable(self, *args, **kwargs):
         return self.all()
 
@@ -29,6 +32,4 @@ class ModelPrivilegeQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
         :return:
         """
 
-        return self.filter(
-            content_type=model_class.get_content_type()
-        )
+        return self.filter(content_type=model_class.get_content_type())

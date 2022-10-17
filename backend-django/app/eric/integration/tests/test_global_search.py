@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from rest_framework.test import APITestCase
 
-from eric.core.models.abstract import get_all_workbench_models, WorkbenchEntityMixin
+from eric.core.models.abstract import WorkbenchEntityMixin, get_all_workbench_models
 from eric.dmp.models import Dmp
 from eric.drives.models import Drive
 from eric.dss.models import DSSContainer
@@ -17,7 +17,7 @@ from eric.projects.tests.core import AuthenticationMixin
 from eric.search.models.abstract import FTSMixin
 from eric.search.rest.viewsets import SearchViewSet
 from eric.search.tests.core import FTSDataMixin
-from eric.shared_elements.models import Contact, File, Meeting, Note, Task, Comment
+from eric.shared_elements.models import Comment, Contact, File, Meeting, Note, Task
 
 
 class GlobalFTSSearchTest(APITestCase, AuthenticationMixin, FTSDataMixin):
@@ -54,7 +54,7 @@ class GlobalFTSSearchTest(APITestCase, AuthenticationMixin, FTSDataMixin):
         Get all searchable models in the application
         """
         workbench_searchable_elements = get_all_workbench_models(WorkbenchEntityMixin, FTSMixin)
-        available_models = dict([(model.__name__.lower(), model) for model in workbench_searchable_elements])
+        available_models = {model.__name__.lower(): model for model in workbench_searchable_elements}
 
         return available_models.values()
 

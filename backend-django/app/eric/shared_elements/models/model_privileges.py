@@ -1,13 +1,17 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django_userforeignkey.request import get_current_user
 
 from eric.model_privileges.models import ModelPrivilege
-from eric.model_privileges.utils import BasePrivilege, UserPermission, register_privilege, \
-    get_model_privileges_and_project_permissions_for
-from eric.shared_elements.models import Task, Meeting, Contact
+from eric.model_privileges.utils import (
+    BasePrivilege,
+    UserPermission,
+    get_model_privileges_and_project_permissions_for,
+    register_privilege,
+)
+from eric.shared_elements.models import Contact, Meeting, Task
 
 
 @register_privilege(Task)
@@ -25,9 +29,7 @@ class TaskPrivilege(BasePrivilege):
             if assigned_user.pk not in permissions_by_user:
                 # create a new privilege for the user
                 permissions_by_user[assigned_user.pk] = UserPermission(
-                    assigned_user,
-                    obj.pk, obj.get_content_type(),
-                    can_view=True, can_edit=True
+                    assigned_user, obj.pk, obj.get_content_type(), can_view=True, can_edit=True
                 )
             else:
                 # overwrite the privilege
@@ -53,8 +55,12 @@ class MeetingPrivilege(BasePrivilege):
                 # create a new privilege for the user
                 permissions_by_user[attending_user.pk] = UserPermission(
                     attending_user,
-                    obj.pk, obj.get_content_type(),
-                    can_view=True, can_edit=True, can_trash=True, can_restore=True
+                    obj.pk,
+                    obj.get_content_type(),
+                    can_view=True,
+                    can_edit=True,
+                    can_trash=True,
+                    can_restore=True,
                 )
             else:
                 # overwrite the privilege
@@ -74,8 +80,8 @@ class MeetingCalendarAccessPrivilege(BasePrivilege):
 
     @classmethod
     def get_privileges(cls, obj, permissions_by_user=None):
-        from eric.shared_elements.models import CalendarAccess
         from eric.model_privileges.models import ModelPrivilege
+        from eric.shared_elements.models import CalendarAccess
 
         permissions_by_user = permissions_by_user or dict()
 
@@ -133,9 +139,7 @@ class MeetingResourcePrivilege(BasePrivilege):
             if meeting_resource_is_editable:
                 # create a new privilege for the user
                 permissions_by_user[user.pk] = UserPermission(
-                    user,
-                    obj.pk, obj.get_content_type(),
-                    can_view=True, can_edit=True, can_trash=True, can_restore=True
+                    user, obj.pk, obj.get_content_type(), can_view=True, can_edit=True, can_trash=True, can_restore=True
                 )
 
         return permissions_by_user
@@ -152,9 +156,7 @@ class ContactPrivilege(BasePrivilege):
         permissions_by_user = permissions_by_user or dict()
 
         # get all meetings where this contact is attending
-        meetings = Meeting.objects.all().filter(
-            attending_contacts=obj
-        ).prefetch_related('attending_users')
+        meetings = Meeting.objects.all().filter(attending_contacts=obj).prefetch_related("attending_users")
 
         # for each meeting, we need to add allow all attending_users the view privilege
         for meeting in meetings:
@@ -163,16 +165,13 @@ class ContactPrivilege(BasePrivilege):
             # iterate over all meeting privileges
             for priv in meeting_privileges:
                 # if a view privilege is set on the meeting, the user is allowed to view the contact
-                if priv.view_privilege == ModelPrivilege.ALLOW \
-                        or priv.full_access_privilege == ModelPrivilege.ALLOW:
+                if priv.view_privilege == ModelPrivilege.ALLOW or priv.full_access_privilege == ModelPrivilege.ALLOW:
                     user = priv.user
 
                     if user.pk not in permissions_by_user:
                         # create a new privilege for the user
                         permissions_by_user[user.pk] = UserPermission(
-                            user,
-                            obj.pk, obj.get_content_type(),
-                            can_view=True
+                            user, obj.pk, obj.get_content_type(), can_view=True
                         )
                     else:
                         # overwrite the privilege

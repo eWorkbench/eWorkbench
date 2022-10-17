@@ -1,9 +1,11 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from rest_framework import viewsets
 from django.contrib.contenttypes.models import ContentType
+
+from rest_framework import viewsets
+
 from django_changeset.models import ChangeSet
 
 from eric.core.rest.viewsets import BaseAuthenticatedUpdateOnlyModelViewSet
@@ -13,7 +15,8 @@ from eric.projects.rest.serializers import ChangeSetSerializer
 
 
 class DmpFormDataViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
-    """ Viewset for dmp form data """
+    """Viewset for dmp form data"""
+
     serializer_class = DmpFormDataSerializerExtended
     queryset = DmpFormData.objects.none()
 
@@ -21,14 +24,15 @@ class DmpFormDataViewSet(BaseAuthenticatedUpdateOnlyModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        if 'dmp_pk' in self.kwargs:
-            return DmpFormData.objects.viewable().select_related('dmp').filter(dmp=self.kwargs['dmp_pk'])
+        if "dmp_pk" in self.kwargs:
+            return DmpFormData.objects.viewable().select_related("dmp").filter(dmp=self.kwargs["dmp_pk"])
         else:
-            return DmpFormData.objects.viewable().select_related('dmp')
+            return DmpFormData.objects.viewable().select_related("dmp")
 
 
 class DmpFormDataChangeSetViewSet(viewsets.ReadOnlyModelViewSet):
-    """ Viewsets for changesets in dmp form data """
+    """Viewsets for changesets in dmp form data"""
+
     serializer_class = ChangeSetSerializer
     queryset = ChangeSet.objects.none()
 

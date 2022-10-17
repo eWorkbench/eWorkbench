@@ -1,8 +1,9 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib import admin
+
 from django_changeset.models import ChangeRecord
 from django_rest_multitokenauth.models import MultiToken
 from django_rest_passwordreset.models import ResetPasswordToken
@@ -10,7 +11,12 @@ from django_rest_passwordreset.models import ResetPasswordToken
 
 class ChangeRecordAdmin(admin.ModelAdmin):
     list_display = [field.name for field in ChangeRecord._meta.get_fields()]
-    search_fields = ('id', 'new_value', "old_value", "field_name",)
+    search_fields = (
+        "id",
+        "new_value",
+        "old_value",
+        "field_name",
+    )
     list_per_page = 20
 
 

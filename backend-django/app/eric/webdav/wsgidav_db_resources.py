@@ -1,35 +1,37 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
+from functools import reduce
 from operator import and_
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.timezone import now
+
 from eric.webdav.wsgidav_base_resources import BaseDavResource
 from eric.webdav.wsgidav_utils import url_join
-from functools import reduce
 
 
 class BaseDBDavResource(BaseDavResource):
     collection_model = None
     object_model = None
 
-    collection_attribute = 'parent'
-    created_attribute = 'created'
-    modified_attribute = 'modified'
-    name_attribute = 'name'
-    size_attribute = 'size'
+    collection_attribute = "parent"
+    created_attribute = "created"
+    modified_attribute = "modified"
+    name_attribute = "name"
+    size_attribute = "size"
 
     def __init__(self, path, **kwargs):
-        if 'obj' in kwargs:  # Accepting ready object to reduce db requests
-            self.__dict__['obj'] = kwargs.pop('obj')
-        super(BaseDBDavResource, self).__init__(path)
+        if "obj" in kwargs:  # Accepting ready object to reduce db requests
+            self.__dict__["obj"] = kwargs.pop("obj")
+        super().__init__(path)
 
     @cached_property
     def obj(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
     def getcontentlength(self):
@@ -68,10 +70,7 @@ class BaseDBDavResource(BaseDavResource):
         if not self.exists or isinstance(self.obj, self.object_model):
             return
 
-        querysets = [
-            self.collection_model_qs,
-            self.object_model_qs
-        ]
+        querysets = [self.collection_model_qs, self.object_model_qs]
         for qs in querysets:
             # get kwargs for this model
             kwargs = self.get_model_lookup_kwargs(**{self.collection_attribute: self.obj})
@@ -79,16 +78,15 @@ class BaseDBDavResource(BaseDavResource):
             # wtf?
             for child in qs.filter(**kwargs):
                 yield self.clone(
-                    url_join(*(self.path + [child.name])),
-                    obj=child    # Sending ready object to reduce db requests
+                    url_join(*(self.path + [child.name])), obj=child  # Sending ready object to reduce db requests
                 )
 
     def read(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     # ToDo: here it is called `content`, but in our example it is called `request` ... why?
     def write(self, content, temp_file=None, range_start=None):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def delete(self):
         if not self.obj:
@@ -96,18 +94,18 @@ class BaseDBDavResource(BaseDavResource):
         self.obj.delete()
 
 
-class NameLookupDBDavMixIn(object):
+class NameLookupDBDavMixIn:
     """Object lookup by joining collections tables to fit given path"""
 
     def __init__(self, path, **kwargs):
         self.possible_collection = path.endswith("/")
-        super(NameLookupDBDavMixIn, self).__init__(path, **kwargs)
+        super().__init__(path, **kwargs)
 
     def get_object(self):
-        return self.get_model_by_path('object', self.path)
+        return self.get_model_by_path("object", self.path)
 
     def get_collection(self):
-        return self.get_model_by_path('collection', self.path)
+        return self.get_model_by_path("collection", self.path)
 
     def create_collection_in_db(self, parent, name):
         """
@@ -116,9 +114,7 @@ class NameLookupDBDavMixIn(object):
         :param name: the name of the new collection
         :return:
         """
-        self.collection_model.objects.create(
-            **{self.collection_attribute: parent, 'name': name}
-        )
+        self.collection_model.objects.create(**{self.collection_attribute: parent, "name": name})
 
     def create_collection(self):
         """

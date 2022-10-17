@@ -12,36 +12,26 @@
       <div class="filter-sidebar">
         <div class="flex flex-col justify-between p-6">
           <div>
-            <div class="flex items-center pb-4 mb-5 border-0 border-b-[3px] border-solid border-tum-border-gray">
-              <div class="search-input">
-                <div class="input-group search-input-group">
-                  <input
-                    type="text"
-                    class="form-control ewb-input"
-                    id="search-header"
-                    name="search-header"
-                    [formControl]="searchControl"
-                    [placeholder]="t('taskBoard.backlogModal.filter.search.placeholder')"
-                  />
-                  <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
-                    <eworkbench-icon className="wb-search"></eworkbench-icon>
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-sm bg-transparent clear-input"
-                    (click)="searchControl.patchValue(null)"
-                    *ngIf="searchControl.value"
-                  >
-                    <eworkbench-icon className="wb-remove"></eworkbench-icon>
-                  </button>
-                </div>
-              </div>
-            </div>
-
             <div class="flex justify-between pb-4 mb-5">
               <div class="space-x-2">
                 <div *ngIf="!filtersChanged" class="text-sm text-tum-info-color">
                   {{ t('filterHeader.noFilters') }}
+                </div>
+
+                <div
+                  *ngIf="searchControl.value"
+                  class="bg-tum-primary hover:bg-tum-primary-hover text-white py-0.5 px-2.5 rounded-full inline-flex justify-between items-center"
+                >
+                  <span class="text-sm mr-2">{{ t('taskBoard.backlogModal.filter.searchBy.label') }} "{{ searchControl.value }}"</span>
+                  <button
+                    type="button"
+                    class="btn ewb-button-small text-white"
+                    [tooltip]="t('filterHeader.chip.tooltip.remove')"
+                    containerClass="tooltip-sm"
+                    (click)="searchControl.setValue(null)"
+                  >
+                    <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                  </button>
                 </div>
 
                 <div
@@ -107,12 +97,11 @@
             <button class="btn ewb-button-big ewb-button-secondary mr-2" (click)="modalRef.close()" [disabled]="loading">
               {{ t('taskBoard.backlogModal.close') }}
             </button>
-            <!-- // TODO: translate singular and plural of tasks -->
             <button class="btn ewb-button-big ewb-button-primary" (click)="onSubmit()" [disabled]="loading || !selected.length">
               {{
-                t('taskBoard.backlogModal.add', {
-                  num: selected.length ? (selected.length === 1 ? selected.length + ' task' : selected.length + ' tasks') : 'task'
-                })
+                selected.length === 1
+                  ? t('taskBoard.backlogModal.add.singular', { num: selected.length })
+                  : t('taskBoard.backlogModal.add.plural', { num: selected.length })
               }}
             </button>
           </div>
@@ -125,6 +114,35 @@
             [rememberFilters]="false"
             (resetFilters)="onResetFilters()"
           >
+            <div>
+              <label for="search-filter" class="text-base font-bold">{{ t('taskBoard.backlogModal.filter.searchBy.label') }}</label>
+              <div class="flex mt-4">
+                <div class="search-input">
+                  <div class="input-group search-input-group">
+                    <input
+                      type="text"
+                      class="form-control ewb-input"
+                      id="search-filter"
+                      name="search-filter"
+                      [formControl]="searchControl"
+                      [placeholder]="t('taskBoard.backlogModal.filter.searchBy.placeholder')"
+                    />
+                    <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+                      <eworkbench-icon className="wb-search"></eworkbench-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm bg-transparent clear-input"
+                      (click)="searchControl.patchValue(null)"
+                      *ngIf="searchControl.value"
+                    >
+                      <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label for="users-filter-backlog" class="text-base font-bold">
                 {{ t('taskBoard.backlogModal.filter.createdBy.label') }}

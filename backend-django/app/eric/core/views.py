@@ -1,24 +1,26 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
 import logging
 import os
 
-import pkg_resources
 from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
+
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import MethodNotAllowed, ValidationError
+from rest_framework.response import Response
+
+import pkg_resources
 from drf_yasg.utils import swagger_auto_schema
 from git import Repo
 from memoize import memoize
 from pkg_resources._vendor.packaging.requirements import InvalidRequirement
 from pkg_resources._vendor.pyparsing import ParseException
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import MethodNotAllowed, ValidationError
-from rest_framework.response import Response
 
 from eric.core.models import DisableSignals
 from eric.core.models.abstract import WorkbenchEntityMixin, get_all_workbench_models
@@ -27,7 +29,7 @@ from eric.metadata.models.models import Metadata
 from eric.projects.models import Project
 from eric.versions.models.models import Version
 
-js_error_logger = logging.getLogger('js_errors')
+js_error_logger = logging.getLogger("js_errors")
 
 
 def get_pkg_metadata(pkgname, metadata_key="License"):
@@ -41,9 +43,9 @@ def get_pkg_metadata(pkgname, metadata_key="License"):
         pkgs = pkg_resources.require(pkgname)
         pkg = pkgs[0]
 
-        for line in pkg.get_metadata_lines('METADATA'):
+        for line in pkg.get_metadata_lines("METADATA"):
             if ": " in line:
-                (k, v) = line.split(': ', 1)
+                (k, v) = line.split(": ", 1)
 
                 if k.upper() == metadata_key.upper():
                     return v
@@ -62,20 +64,19 @@ def get_current_version_from_git():
     :return: current version from git, e.g. "master (+1)"
     """
     lastcwd = os.getcwd()
-    repodir = os.path.join(lastcwd, '..')
+    repodir = os.path.join(lastcwd, "..")
 
     try:
         r = Repo(repodir)
         git_description = str(r.git.describe(tags=True))
         # check if this is a version which is tagged or not
-        if '-' in git_description:
+        if "-" in git_description:
             # not tagged --> long name like tagNumber-numberOfCommitsAhead-commitId
-            data = git_description.split('-')
+            data = git_description.split("-")
 
             version = "{tag} (+{number_of_commits_ahead_of_tag}/{branch_name})".format(
                 tag=data[0],
                 number_of_commits_ahead_of_tag=data[1],
-                describe=r.git.describe(),
                 branch_name=r.active_branch.name,
             )
 
@@ -117,7 +118,7 @@ def current_version_view(request):
     if version == "Unknown version":
         version = get_current_version_from_version_file()
 
-    return HttpResponse(version, content_type='text')
+    return HttpResponse(version, content_type="text")
 
 
 @cache_page(60 * 15)
@@ -155,39 +156,39 @@ def js_error_logger_view(request):
     :param request:
     :return:
     """
-    if request.method != 'POST':
+    if request.method != "POST":
         raise MethodNotAllowed
 
-    body_unicode = request.body.decode('utf-8')
+    body_unicode = request.body.decode("utf-8")
     body = json.loads(body_unicode)
 
     if "error_url" in body and "error_message" in body and "cause" in body and "backend_version" in body:
         # add ip and user agent to body
-        body['user_agent'] = request.META['HTTP_USER_AGENT']
+        body["user_agent"] = request.META["HTTP_USER_AGENT"]
 
         if hasattr(request, "user") and request.user:
-            body['user'] = str(request.user)
+            body["user"] = str(request.user)
         else:
-            body['user'] = "anonymous"
+            body["user"] = "anonymous"
 
-        js_error_logger.error(json.dumps(body, sort_keys=True, indent=2, separators=(',', ': ')))
+        js_error_logger.error(json.dumps(body, sort_keys=True, indent=2, separators=(",", ": ")))
 
         return HttpResponse(status=200)
     else:
         raise ValidationError
 
 
-@swagger_auto_schema(methods=['post'], auto_schema=None)  # disable automated API schema generation
+@swagger_auto_schema(methods=["post"], auto_schema=None)  # disable automated API schema generation
 @permission_classes(permission_classes=(IsSuperuser,))
-@api_view(['POST'])
+@api_view(["POST"])
 def clean_workbench_models(request, *args, **kwargs):
-    """ Purges data from all workbench models. """
+    """Purges data from all workbench models."""
 
-    if not hasattr(settings, 'CLEAN_ALL_WORKBENCH_MODELS') or not settings.CLEAN_ALL_WORKBENCH_MODELS:
-        return Response({'error': 'Operation is not enabled in settings.'}, status=status.HTTP_404_NOT_FOUND)
+    if not hasattr(settings, "CLEAN_ALL_WORKBENCH_MODELS") or not settings.CLEAN_ALL_WORKBENCH_MODELS:
+        return Response({"error": "Operation is not enabled in settings."}, status=status.HTTP_404_NOT_FOUND)
 
     if not request.user.is_authenticated:
-        return Response({'error': 'You need to be logged in.'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"error": "You need to be logged in."}, status=status.HTTP_401_UNAUTHORIZED)
 
     all_workbench_models = get_all_workbench_models(WorkbenchEntityMixin)
 
@@ -200,4 +201,4 @@ def clean_workbench_models(request, *args, **kwargs):
         Version.objects.all().delete()
         Metadata.objects.all().delete()
 
-    return Response({'status': 'ok'}, status=200)
+    return Response({"status": "ok"}, status=200)

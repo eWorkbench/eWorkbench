@@ -1,0 +1,4 @@
+{% load i18n captureas %}
+{% blocktrans %}Dear {{ user }}!{% endblocktrans %}
+{% blocktrans %}Your account will be deactivated in {{ days }}.{% endblocktrans %}
+{% blocktrans %}Please contact a workbench admin to change the date of inactivation.{% endblocktrans %}

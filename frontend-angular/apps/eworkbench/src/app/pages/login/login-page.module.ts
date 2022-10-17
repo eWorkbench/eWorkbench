@@ -8,15 +8,17 @@ import { NgModule } from '@angular/core';
 import { FormHelperModule } from '@app/modules/form-helper/form-helper.module';
 import { HeaderModule } from '@app/modules/header/header.module';
 import { CustomControlErrorComponent } from '@app/modules/shared/control-error/control-error.component';
+import { SharedModule } from '@app/modules/shared/shared.module';
 import { TranslocoRootModule } from '@app/transloco-root.module';
 import { FormsModule } from '@eworkbench/forms';
 import { ErrorTailorModule } from '@ngneat/error-tailor';
 import { TranslocoService } from '@ngneat/transloco';
+import { LaunchComponent } from './components/launch/launch.component';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { LoginPageRoutingModule } from './login-page-routing.module';
 
 @NgModule({
-  declarations: [LoginPageComponent],
+  declarations: [LoginPageComponent, LaunchComponent],
   imports: [
     CommonModule,
     LoginPageRoutingModule,
@@ -36,6 +38,7 @@ import { LoginPageRoutingModule } from './login-page-routing.module';
       },
       controlErrorComponent: CustomControlErrorComponent,
     }),
+    SharedModule,
   ],
 })
 export class LoginPageModule {}

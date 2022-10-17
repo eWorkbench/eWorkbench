@@ -18,18 +18,19 @@
 
     <p>
         {% blocktrans %}
-            The User {{ user_str }} ({{ username }}, {{ user_email }}) has send following contact form:
+            The User {{ user_str }} ({{ username }}, {{ user_email }}) has send following contact form (images and other
+            unsave html tags are stripped out):
         {% endblocktrans %}
     </p>
 
     <p>
         {% blocktrans %}
             Subject: {{ subject }}
-        {% endblocktrans %} <br />
+        {% endblocktrans %} <br /><br />
         {% blocktrans %}
             Message:
         {% endblocktrans %}
-        {{ message|linebreaks}}
+        {{ message | safe }}
     </p>
 
     <p>

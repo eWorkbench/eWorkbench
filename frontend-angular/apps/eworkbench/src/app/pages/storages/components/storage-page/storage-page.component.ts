@@ -30,6 +30,7 @@ interface FormStorage {
   title: FormControl<string | null>;
   projects: FormControl<string[]>;
   dssEnvelope: string | null;
+  location: string | null;
 }
 
 @UntilDestroy()
@@ -87,6 +88,7 @@ export class StoragePageComponent implements OnInit {
     title: this.fb.control(null, Validators.required),
     projects: this.fb.control([]),
     dssEnvelope: null,
+    location: null,
   });
 
   public constructor(
@@ -108,6 +110,14 @@ export class StoragePageComponent implements OnInit {
 
   public get f() {
     return this.form.controls;
+  }
+
+  public get envelope(): string | null {
+    return this.f.dssEnvelope.value;
+  }
+
+  public get location(): string | null {
+    return this.f.location.value;
   }
 
   public get storage(): DrivePayload {
@@ -199,7 +209,8 @@ export class StoragePageComponent implements OnInit {
             {
               title: storage.title,
               projects: storage.projects,
-              dssEnvelope: storage.dss_envelope_id,
+              dssEnvelope: storage.envelope_path,
+              location: storage.location,
             },
             { emitEvent: false }
           );

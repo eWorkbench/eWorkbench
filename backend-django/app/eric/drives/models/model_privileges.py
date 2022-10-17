@@ -1,11 +1,15 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from eric.drives.models import Drive
 from eric.model_privileges.models import ModelPrivilege
-from eric.model_privileges.utils import BasePrivilege, UserPermission, register_privilege, \
-    get_model_privileges_and_project_permissions_for
+from eric.model_privileges.utils import (
+    BasePrivilege,
+    UserPermission,
+    get_model_privileges_and_project_permissions_for,
+    register_privilege,
+)
 from eric.shared_elements.models import File
 
 
@@ -25,9 +29,7 @@ class DriveFilePrivilege(BasePrivilege):
         permissions_by_user = permissions_by_user or dict()
 
         # get all drives that contain the picture
-        drives = Drive.objects.viewable().filter(
-            sub_directories__files__pk=obj.pk
-        )
+        drives = Drive.objects.viewable().filter(sub_directories__files__pk=obj.pk)
 
         # iterate over all those drives and collect the users that have the view privilege
         for drive in drives:
@@ -39,10 +41,7 @@ class DriveFilePrivilege(BasePrivilege):
 
                 # check if user is already in permissions_by_user
                 if user.pk not in permissions_by_user.keys():
-                    permissions_by_user[user.pk] = UserPermission(
-                        user,
-                        obj.pk, obj.get_content_type()
-                    )
+                    permissions_by_user[user.pk] = UserPermission(user, obj.pk, obj.get_content_type())
 
                 # check if view privilege is set
                 if priv.view_privilege == ModelPrivilege.ALLOW or priv.full_access_privilege == ModelPrivilege.ALLOW:

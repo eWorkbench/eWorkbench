@@ -1,11 +1,12 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
 
 from django.db.models import Q
 from django.utils import timezone
+
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 from django_request_cache import cache_for_request
 from django_userforeignkey.request import get_current_user
@@ -73,16 +74,22 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
             return list()
 
         # if the user has the global permission "view_project", they can view all projects anyway
-        if user.has_perm('projects.{}'.format(permission)):
+        if user.has_perm(f"projects.{permission}"):
             # return codeword "all"
-            return list(["all"], )
+            return list(
+                ["all"],
+            )
         else:
             # access ProjectRoleUserAssignment and get all projects where user has the permission
-            projects_ids = ProjectRoleUserAssignment.objects.filter(
-                user=user,
-                role__permissions__content_type=entity.get_content_type(),
-                role__permissions__codename=permission
-            ).distinct().values_list('project__id', flat=True)
+            projects_ids = (
+                ProjectRoleUserAssignment.objects.filter(
+                    user=user,
+                    role__permissions__content_type=entity.get_content_type(),
+                    role__permissions__codename=permission,
+                )
+                .distinct()
+                .values_list("project__id", flat=True)
+            )
 
             pk_list_with_subprojects = Project.get_all_projects_with_descendants(projects_ids)
 
@@ -94,21 +101,19 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         """
         from eric.projects.models import Project
 
-        pk_list = kwargs.pop('prefetched_project_ids', None)
+        pk_list = kwargs.pop("prefetched_project_ids", None)
 
         if not pk_list:
             pk_list = Project.objects.filter(pk=project_pk).first().get_descendants(include_self=True)
 
-        return self.filter(
-            projects__pk__in=pk_list
-        ).distinct()
+        return self.filter(projects__pk__in=pk_list).distinct()
 
     def viewable(self, *args, **kwargs):
         """
         Returns all elements associated to the project where the user has the view permission of the current model
         """
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'view')
+            self.model, get_permission_name_without_app_label(self.model, "view")
         )
 
         if "all" in project_pks:
@@ -126,15 +131,13 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         Returns all elements associated to the project where the user has the change permission of the current model
         """
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'change')
+            self.model, get_permission_name_without_app_label(self.model, "change")
         )
 
         if "all" in project_pks:
             return self.all().distinct()
 
-        return self.filter(
-            project__pk__in=project_pks
-        ).distinct()
+        return self.filter(project__pk__in=project_pks).distinct()
 
     def related_project_attribute_editable(self, *args, **kwargs):
         """
@@ -143,30 +146,26 @@ class BaseProjectPermissionQuerySet(BaseQuerySet, SoftDeleteQuerySetMixin):
         Returns a `none` QuerySet else.
         """
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'change_project')
+            self.model, get_permission_name_without_app_label(self.model, "change_project")
         )
 
         if "all" in project_pks:
             return self.all().distinct()
 
-        return self.filter(
-            project__pk__in=project_pks
-        ).distinct()
+        return self.filter(project__pk__in=project_pks).distinct()
 
     def deletable(self, *args, **kwargs):
         """
         Returns all elements associated to the project where the user has the delete permission of the current model
         """
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'delete')
+            self.model, get_permission_name_without_app_label(self.model, "delete")
         )
 
         if "all" in project_pks:
             return self.filter(deleted=True).distinct()
 
-        return self.filter(
-            project__pk__in=project_pks
-        ).distinct()
+        return self.filter(project__pk__in=project_pks).distinct()
 
 
 class ProjectRoleUserAssignmentQuerySet(BaseProjectPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -180,14 +179,12 @@ class ProjectRoleUserAssignmentQuerySet(BaseProjectPermissionQuerySet, ChangeSet
         """
         from eric.projects.models import Project
 
-        pk_list = kwargs.pop('prefetched_project_ids', None)
+        pk_list = kwargs.pop("prefetched_project_ids", None)
 
         if not pk_list:
             pk_list = Project.objects.filter(pk=project_pk).first().get_descendants(include_self=True)
 
-        return self.filter(
-            project__pk__in=pk_list
-        )
+        return self.filter(project__pk__in=pk_list)
 
 
 class BaseProjectEntityPermissionQuerySetMetaClass(type):
@@ -201,8 +198,7 @@ class BaseProjectEntityPermissionQuerySetMetaClass(type):
 
 
 class BaseProjectEntityPermissionQuerySet(
-    BaseProjectPermissionQuerySet,
-    metaclass=BaseProjectEntityPermissionQuerySetMetaClass
+    BaseProjectPermissionQuerySet, metaclass=BaseProjectEntityPermissionQuerySetMetaClass
 ):
     """
     An extended queryset which covers the ModelPrivileges for each entity, in addition to the project roles
@@ -230,7 +226,7 @@ class BaseProjectEntityPermissionQuerySet(
 
         # get all filter classes that provide a viewable method, and join it with the existing filter conditions
         for filterset_class in type(self).extended_queryset_filters:
-            if hasattr(filterset_class, '_viewable') and callable(filterset_class._viewable):
+            if hasattr(filterset_class, "_viewable") and callable(filterset_class._viewable):
                 conds |= filterset_class._viewable()
 
         return conds
@@ -245,7 +241,7 @@ class BaseProjectEntityPermissionQuerySet(
 
         # get all filter classes that provide a editable method, and join it with the existing filter conditions
         for filterset_class in type(self).extended_queryset_filters:
-            if hasattr(filterset_class, '_editable') and callable(filterset_class._editable):
+            if hasattr(filterset_class, "_editable") and callable(filterset_class._editable):
                 conds |= filterset_class._editable()
 
         return conds
@@ -260,7 +256,7 @@ class BaseProjectEntityPermissionQuerySet(
 
         # get all filter classes that provide a trashable method, and join it with the existing filter conditions
         for filter_class in type(self).extended_queryset_filters:
-            if hasattr(filter_class, '_trashable') and callable(filter_class._trashable):
+            if hasattr(filter_class, "_trashable") and callable(filter_class._trashable):
                 conds |= filter_class._trashable()
 
         return conds
@@ -275,7 +271,7 @@ class BaseProjectEntityPermissionQuerySet(
 
         # get all filter classes that provide a deletable method, and join it with the existing filter conditions
         for filter_class in type(self).extended_queryset_filters:
-            if hasattr(filter_class, '_restoreable') and callable(filter_class._restoreable):
+            if hasattr(filter_class, "_restoreable") and callable(filter_class._restoreable):
                 conds |= filter_class._restoreable()
 
         return conds
@@ -290,7 +286,7 @@ class BaseProjectEntityPermissionQuerySet(
 
         # get all filter classes that provide a deletable method, and join it with the existing filter conditions
         for filterset_class in type(self).extended_queryset_filters:
-            if hasattr(filterset_class, '_deletable') and callable(filterset_class._deletable):
+            if hasattr(filterset_class, "_deletable") and callable(filterset_class._deletable):
                 conds |= filterset_class._deletable()
 
         return conds
@@ -312,14 +308,15 @@ class BaseProjectEntityPermissionQuerySet(
         - :class:`~eric.shared_elements.models.querysets.MeetingQuerySet` might prefetch ``resource``
         - :class:`~eric.shared_elements.models.querysets.TaskQuerySet` might prefetch ``assignees``
         """
-        return self.prefetch_related('created_by', 'created_by__userprofile',
-                                     'last_modified_by', 'last_modified_by__userprofile')
+        return self.prefetch_related(
+            "created_by", "created_by__userprofile", "last_modified_by", "last_modified_by__userprofile"
+        )
 
     def prefetch_metadata(self, *args, **kwargs):
         """
         Prefetches metadata.
         """
-        return self.prefetch_related('metadata').prefetch_related('metadata__field')
+        return self.prefetch_related("metadata").prefetch_related("metadata__field")
 
     def viewable(self, *args, **kwargs):
         """
@@ -336,7 +333,7 @@ class BaseProjectEntityPermissionQuerySet(
             return self.all()
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'view')
+            self.model, get_permission_name_without_app_label(self.model, "view")
         )
 
         if "all" in project_pks:
@@ -345,28 +342,36 @@ class BaseProjectEntityPermissionQuerySet(
         from eric.model_privileges.models import ModelPrivilege
 
         # get all object ids where view_privilege is set to deny
-        deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
-            user=user,
-            view_privilege=ModelPrivilege.DENY
-        ).values_list('object_id', flat=True)
+        deny_object_ids = (
+            ModelPrivilege.objects.for_model(self.model)
+            .filter(user=user, view_privilege=ModelPrivilege.DENY)
+            .values_list("object_id", flat=True)
+        )
 
-        return self.filter(
-            Q(
-                # get all entities where the current user has permissions based on project
-                projects__pk__in=project_pks
-            ) | Q(
-                # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | Q(
-                # get all entities where the current user has read access
-                model_privileges__view_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | self._get_extended_viewable_filters()
-        ).exclude(
-            # exclude all entities that are listed in deny object ids
-            id__in=deny_object_ids
-        ).distinct()
+        return (
+            self.filter(
+                Q(
+                    # get all entities where the current user has permissions based on project
+                    projects__pk__in=project_pks
+                )
+                | Q(
+                    # get all entities where the current user is the owner
+                    model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | Q(
+                    # get all entities where the current user has read access
+                    model_privileges__view_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | self._get_extended_viewable_filters()
+            )
+            .exclude(
+                # exclude all entities that are listed in deny object ids
+                id__in=deny_object_ids
+            )
+            .distinct()
+        )
 
     def editable(self, *args, **kwargs):
         """
@@ -385,7 +390,7 @@ class BaseProjectEntityPermissionQuerySet(
             return self.all()
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'change')
+            self.model, get_permission_name_without_app_label(self.model, "change")
         )
 
         if "all" in project_pks:
@@ -394,28 +399,36 @@ class BaseProjectEntityPermissionQuerySet(
         from eric.model_privileges.models import ModelPrivilege
 
         # get all object ids where edit_privilege is set to deny
-        deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
-            user=user,
-            edit_privilege=ModelPrivilege.DENY
-        ).values_list('object_id', flat=True)
+        deny_object_ids = (
+            ModelPrivilege.objects.for_model(self.model)
+            .filter(user=user, edit_privilege=ModelPrivilege.DENY)
+            .values_list("object_id", flat=True)
+        )
 
-        return self.filter(
-            Q(
-                # get all entities where the current user has permissions based on project
-                projects__pk__in=project_pks
-            ) | Q(
-                # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | Q(
-                # get all entities where the current user has edit access
-                model_privileges__edit_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | self._get_extended_editable_filters()
-        ).exclude(
-            # exclude all entities that are listed in deny object ids
-            id__in=deny_object_ids
-        ).distinct()
+        return (
+            self.filter(
+                Q(
+                    # get all entities where the current user has permissions based on project
+                    projects__pk__in=project_pks
+                )
+                | Q(
+                    # get all entities where the current user is the owner
+                    model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | Q(
+                    # get all entities where the current user has edit access
+                    model_privileges__edit_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | self._get_extended_editable_filters()
+            )
+            .exclude(
+                # exclude all entities that are listed in deny object ids
+                id__in=deny_object_ids
+            )
+            .distinct()
+        )
 
     def deletable(self, *args, **kwargs):
         """
@@ -434,7 +447,7 @@ class BaseProjectEntityPermissionQuerySet(
             return self.all()
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'delete')
+            self.model, get_permission_name_without_app_label(self.model, "delete")
         )
 
         if "all" in project_pks:
@@ -443,28 +456,36 @@ class BaseProjectEntityPermissionQuerySet(
         from eric.model_privileges.models import ModelPrivilege
 
         # get all object ids where edit_privilege is set to deny
-        deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
-            user=user,
-            delete_privilege=ModelPrivilege.DENY
-        ).values_list('object_id', flat=True)
+        deny_object_ids = (
+            ModelPrivilege.objects.for_model(self.model)
+            .filter(user=user, delete_privilege=ModelPrivilege.DENY)
+            .values_list("object_id", flat=True)
+        )
 
-        return self.filter(
-            Q(
-                # get all entities where the current user has permissions
-                projects__pk__in=project_pks
-            ) | Q(
-                # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | Q(
-                # get all entities where the current user has read access
-                model_privileges__delete_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | self._get_extended_deletable_filters()
-        ).exclude(
-            # exclude all entities that are listed in deny object ids
-            id__in=deny_object_ids
-        ).distinct()
+        return (
+            self.filter(
+                Q(
+                    # get all entities where the current user has permissions
+                    projects__pk__in=project_pks
+                )
+                | Q(
+                    # get all entities where the current user is the owner
+                    model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | Q(
+                    # get all entities where the current user has read access
+                    model_privileges__delete_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | self._get_extended_deletable_filters()
+            )
+            .exclude(
+                # exclude all entities that are listed in deny object ids
+                id__in=deny_object_ids
+            )
+            .distinct()
+        )
 
     def restorable(self, *args, **kwargs):
         """
@@ -483,7 +504,7 @@ class BaseProjectEntityPermissionQuerySet(
             return self.all()
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'restore')
+            self.model, get_permission_name_without_app_label(self.model, "restore")
         )
 
         if "all" in project_pks:
@@ -492,31 +513,40 @@ class BaseProjectEntityPermissionQuerySet(
         from eric.model_privileges.models import ModelPrivilege
 
         # get all object ids where edit_privilege is set to deny
-        deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
-            user=user,
-            restore_privilege=ModelPrivilege.DENY
-        ).values_list('object_id', flat=True)
+        deny_object_ids = (
+            ModelPrivilege.objects.for_model(self.model)
+            .filter(user=user, restore_privilege=ModelPrivilege.DENY)
+            .values_list("object_id", flat=True)
+        )
 
-        return self.filter(
-            Q(
-                # get all entities where the current user has permissions
-                projects__pk__in=project_pks
-            ) | Q(
-                # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | Q(
-                # get all entities where the current user has restore access
-                model_privileges__restore_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | self._get_extended_restoreable_filters()
-        ).exclude(
-            # exclude all entities that are listed in deny object ids
-            id__in=deny_object_ids
-        ).filter(
-            # only allow soft-deleted object
-            deleted=True
-        ).distinct()
+        return (
+            self.filter(
+                Q(
+                    # get all entities where the current user has permissions
+                    projects__pk__in=project_pks
+                )
+                | Q(
+                    # get all entities where the current user is the owner
+                    model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | Q(
+                    # get all entities where the current user has restore access
+                    model_privileges__restore_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | self._get_extended_restoreable_filters()
+            )
+            .exclude(
+                # exclude all entities that are listed in deny object ids
+                id__in=deny_object_ids
+            )
+            .filter(
+                # only allow soft-deleted object
+                deleted=True
+            )
+            .distinct()
+        )
 
     def trashable(self, *args, **kwargs):
         """
@@ -535,7 +565,7 @@ class BaseProjectEntityPermissionQuerySet(
             return self.all()
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'trash')
+            self.model, get_permission_name_without_app_label(self.model, "trash")
         )
 
         if "all" in project_pks:
@@ -544,31 +574,40 @@ class BaseProjectEntityPermissionQuerySet(
         from eric.model_privileges.models import ModelPrivilege
 
         # get all object ids where edit_privilege is set to deny
-        deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
-            user=user,
-            trash_privilege=ModelPrivilege.DENY
-        ).values_list('object_id', flat=True)
+        deny_object_ids = (
+            ModelPrivilege.objects.for_model(self.model)
+            .filter(user=user, trash_privilege=ModelPrivilege.DENY)
+            .values_list("object_id", flat=True)
+        )
 
-        return self.filter(
-            Q(
-                # get all entities where the current user has permissions
-                projects__pk__in=project_pks
-            ) | Q(
-                # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | Q(
-                # get all entities where the current user has restore access
-                model_privileges__trash_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | self._get_extended_trashable_filters()
-        ).exclude(
-            # exclude all entities that are listed in deny object ids
-            id__in=deny_object_ids
-        ).filter(
-            # only allow soft-deleted object
-            deleted=False
-        ).distinct()
+        return (
+            self.filter(
+                Q(
+                    # get all entities where the current user has permissions
+                    projects__pk__in=project_pks
+                )
+                | Q(
+                    # get all entities where the current user is the owner
+                    model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | Q(
+                    # get all entities where the current user has restore access
+                    model_privileges__trash_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | self._get_extended_trashable_filters()
+            )
+            .exclude(
+                # exclude all entities that are listed in deny object ids
+                id__in=deny_object_ids
+            )
+            .filter(
+                # only allow soft-deleted object
+                deleted=False
+            )
+            .distinct()
+        )
 
     def related_project_attribute_editable(self, *args, **kwargs):
         """
@@ -584,7 +623,7 @@ class BaseProjectEntityPermissionQuerySet(
             return self.all()
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'change_project')
+            self.model, get_permission_name_without_app_label(self.model, "change_project")
         )
 
         if "all" in project_pks:
@@ -593,28 +632,35 @@ class BaseProjectEntityPermissionQuerySet(
         from eric.model_privileges.models import ModelPrivilege
 
         # get all object ids where edit_privilege is set to deny
-        deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
-            user=user,
-            edit_privilege=ModelPrivilege.DENY
-        ).values_list('object_id', flat=True)
+        deny_object_ids = (
+            ModelPrivilege.objects.for_model(self.model)
+            .filter(user=user, edit_privilege=ModelPrivilege.DENY)
+            .values_list("object_id", flat=True)
+        )
 
-        return self.filter(
-            Q(
-                # get all entities where the current user has permissions
-                projects__pk__in=project_pks
-            ) | Q(
-                # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | Q(
-                # get all entities where the current user has read access
-                model_privileges__edit_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
+        return (
+            self.filter(
+                Q(
+                    # get all entities where the current user has permissions
+                    projects__pk__in=project_pks
+                )
+                | Q(
+                    # get all entities where the current user is the owner
+                    model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | Q(
+                    # get all entities where the current user has read access
+                    model_privileges__edit_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
             )
-        ).exclude(
-            # exclude all entities that are listed in deny object ids
-            id__in=deny_object_ids
-        ).distinct()
+            .exclude(
+                # exclude all entities that are listed in deny object ids
+                id__in=deny_object_ids
+            )
+            .distinct()
+        )
 
 
 class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -627,8 +673,9 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         return self.viewable(*args, **kwargs)
 
     def prefetch_common(self, *args, **kwargs):
-        return self.prefetch_related('created_by', 'created_by__userprofile',
-                                     'last_modified_by', 'last_modified_by__userprofile')
+        return self.prefetch_related(
+            "created_by", "created_by__userprofile", "last_modified_by", "last_modified_by__userprofile"
+        )
 
     def viewable(self, *args, **kwargs):
         """
@@ -647,44 +694,28 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         # returned a project-permission-error when duplicated tasks where added to duplicated projects (Only the
         # original project_pk was returned, but not the duplicated project_pks)
         cache_id = None
-        if 'cache_id' in kwargs:
-            cache_id = kwargs['cache_id']
+        if "cache_id" in kwargs:
+            cache_id = kwargs["cache_id"]
 
-        project_pks = self.get_all_project_ids_with_permission(
-            self.model, 'view_project', cache_id
-        )
+        project_pks = self.get_all_project_ids_with_permission(self.model, "view_project", cache_id)
 
         if "all" in project_pks:
             return self.all().distinct()
 
-        return self.filter(
-            pk__in=project_pks
-        ).distinct()
+        return self.filter(pk__in=project_pks).distinct()
 
     def viewable_with_orphans(self, *args, **kwargs):
         """
         Returns all projects (and sub projects) that are view-able by the current user
         :return: QuerySet
         """
-        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, 'view_project'
-        )
+        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(self.model, "view_project")
 
         if "all" in project_pks:
             # can see all projects => there are no orphans => return projects without parents only
-            return self.all().filter(
-                parent_project__isnull=True
-            ).exclude(
-                deleted=True
-            ).distinct()
+            return self.all().filter(parent_project__isnull=True).exclude(deleted=True).distinct()
 
-        return self.filter(
-            pk__in=project_pks
-        ).exclude(
-            parent_project__in=project_pks
-        ).exclude(
-            deleted=True
-        ).distinct()
+        return self.filter(pk__in=project_pks).exclude(parent_project__in=project_pks).exclude(deleted=True).distinct()
 
     def deletable(self, *args, **kwargs):
         """
@@ -693,17 +724,12 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         - Project must already be soft deleted (deleted=True)
         :return: QuerySet
         """
-        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, 'delete_project'
-        )
+        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(self.model, "delete_project")
 
         if "all" in project_pks:
             return self.filter(deleted=True).distinct()
 
-        return self.filter(
-            deleted=True,
-            pk__in=project_pks
-        ).distinct()
+        return self.filter(deleted=True, pk__in=project_pks).distinct()
 
     def restorable(self, *args, **kwargs):
         """
@@ -712,17 +738,12 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         - Project must already be soft deleted (deleted=True)
         :return: QuerySet
         """
-        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, 'restore_project'
-        )
+        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(self.model, "restore_project")
 
         if "all" in project_pks:
             return self.filter(deleted=True).distinct()
 
-        return self.filter(
-            deleted=True,
-            pk__in=project_pks
-        ).distinct()
+        return self.filter(deleted=True, pk__in=project_pks).distinct()
 
     def trashable(self, *args, **kwargs):
         """
@@ -731,17 +752,12 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         - Project must not be soft deleted (deleted=False)
         :return: QuerySet
         """
-        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, 'trash_project'
-        )
+        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(self.model, "trash_project")
 
         if "all" in project_pks:
             return self.filter(deleted=False).distinct()
 
-        return self.filter(
-            deleted=False,
-            pk__in=project_pks
-        ).distinct()
+        return self.filter(deleted=False, pk__in=project_pks).distinct()
 
     def parent_project_changeable(self, *args, **kwargs):
         """
@@ -751,16 +767,13 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
 
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model,
-            'change_parent_project'
+            self.model, "change_parent_project"
         )
 
         if "all" in project_pks:
             return self.filter(deleted=False).distinct()
 
-        return self.filter(
-            pk__in=project_pks
-        ).distinct()
+        return self.filter(pk__in=project_pks).distinct()
 
     def not_closed_or_deleted_or_canceled(self, *args, **kwargs):
         """
@@ -777,17 +790,12 @@ class ProjectQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         Returns all projects (and sub projects) that are edit-able by the current user
         """
 
-        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model,
-            'change_project'
-        )
+        project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(self.model, "change_project")
 
         if "all" in project_pks:
             return self.all().distinct()
 
-        return self.filter(
-            pk__in=project_pks
-        ).distinct()
+        return self.filter(pk__in=project_pks).distinct()
 
 
 class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -805,6 +813,7 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
         - the element does not have a model privilege 'deny_edit' for the current user (deny_object_ids)
         """
         from eric.projects.models.models import Resource
+
         user = get_current_user()
 
         if user.is_anonymous:
@@ -814,7 +823,7 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
 
         # get all projects where the current user has the view_resource permission
         project_pks = BaseProjectPermissionQuerySet.get_all_project_ids_with_permission(
-            self.model, get_permission_name_without_app_label(self.model, 'view')
+            self.model, get_permission_name_without_app_label(self.model, "view")
         )
 
         # return all objects for users with "all" permissions
@@ -824,34 +833,44 @@ class ResourceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMix
         from eric.model_privileges.models import ModelPrivilege
 
         # get all object ids where view_privilege is set to deny
-        deny_object_ids = ModelPrivilege.objects.for_model(self.model).filter(
-            user=user,
-            view_privilege=ModelPrivilege.DENY
-        ).values_list('object_id', flat=True)
+        deny_object_ids = (
+            ModelPrivilege.objects.for_model(self.model)
+            .filter(user=user, view_privilege=ModelPrivilege.DENY)
+            .values_list("object_id", flat=True)
+        )
 
-        return self.filter(
-            Q(
-                # all resources where general_usage_setting is set to global
-                general_usage_setting=Resource.GLOBAL
-            ) | Q(
-                # all resources where the user group of the current user is selected
-                usage_setting_selected_user_groups__pk__in=user.groups.values_list('pk')
-            ) | Q(
-                # all resources where the current user gets permissions from a project
-                projects__pk__in=project_pks
-            ) | Q(
-                # get all entities where the current user is the owner
-                model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | Q(
-                # get all entities where the current user has read access
-                model_privileges__view_privilege=ModelPrivilege.ALLOW,
-                model_privileges__user=user
-            ) | self._get_extended_viewable_filters()
-        ).exclude(
-            # exclude all entities that are listed in deny object ids
-            id__in=deny_object_ids
-        ).distinct()
+        return (
+            self.filter(
+                Q(
+                    # all resources where general_usage_setting is set to global
+                    general_usage_setting=Resource.GLOBAL
+                )
+                | Q(
+                    # all resources where the user group of the current user is selected
+                    usage_setting_selected_user_groups__pk__in=user.groups.values_list("pk")
+                )
+                | Q(
+                    # all resources where the current user gets permissions from a project
+                    projects__pk__in=project_pks
+                )
+                | Q(
+                    # get all entities where the current user is the owner
+                    model_privileges__full_access_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | Q(
+                    # get all entities where the current user has read access
+                    model_privileges__view_privilege=ModelPrivilege.ALLOW,
+                    model_privileges__user=user,
+                )
+                | self._get_extended_viewable_filters()
+            )
+            .exclude(
+                # exclude all entities that are listed in deny object ids
+                id__in=deny_object_ids
+            )
+            .distinct()
+        )
 
     def study_rooms(self):
         return self.filter(study_room_info__isnull=False)
@@ -861,6 +880,7 @@ class UserStorageLimitQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
     """
     QuerySet for user storage limit - does not need any special permissions
     """
+
     pass
 
 
@@ -875,7 +895,7 @@ class RoleQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
     def editable(self):
         user = get_current_user()
 
-        if user.has_perm('projects.change_role'):
+        if user.has_perm("projects.change_role"):
             return self.all()
 
         return self.none()
@@ -883,7 +903,7 @@ class RoleQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
     def deletable(self):
         user = get_current_user()
 
-        if user.has_perm('projects.delete_role'):
+        if user.has_perm("projects.delete_role"):
             return self.all()
 
         return self.none()
@@ -897,15 +917,10 @@ class ElementLockQuerySet(BaseQuerySet):
         :param model_pk: Primary Key of the Object that needs to be filtered
         """
 
-        return self.filter(
-            content_type=model_class.get_content_type(),
-            object_id=model_pk
-        )
+        return self.filter(content_type=model_class.get_content_type(), object_id=model_pk)
 
     def editable(self, *args, **kwargs):
-        return self.filter(
-            locked_by=get_current_user()
-        )
+        return self.filter(locked_by=get_current_user())
 
     def deletable(self, *args, **kwargs):
         """
@@ -915,12 +930,12 @@ class ElementLockQuerySet(BaseQuerySet):
         timedelta_webdav = timezone.timedelta(minutes=site_preferences.element_lock_webdav_time_in_minutes)
 
         return self.filter(
-            Q(
-                locked_by=get_current_user()
-            ) | Q(
+            Q(locked_by=get_current_user())
+            | Q(
                 webdav_lock=False,
                 locked_at__lte=timezone.now() - timedelta,
-            ) | Q(
+            )
+            | Q(
                 webdav_lock=True,
                 locked_at__lte=timezone.now() - timedelta_webdav,
             )

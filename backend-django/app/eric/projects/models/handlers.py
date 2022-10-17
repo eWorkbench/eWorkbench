@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ contains the handlers for eric.projects"""
@@ -9,29 +9,29 @@ import uuid
 import django.dispatch
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError, PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.signals import post_save, pre_save, pre_delete, m2m_changed, post_delete
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django_changeset.models import ChangeSet, ChangeRecord
-from django_rest_multitokenauth.signals import post_auth
-from django_userforeignkey.request import get_current_user, get_current_request
 
-from eric.core.models import LockMixin, permission_checks_disabled, disable_permission_checks
+from django_changeset.models import ChangeRecord, ChangeSet
+from django_rest_multitokenauth.signals import post_auth
+from django_userforeignkey.request import get_current_request, get_current_user
+
+from eric.core.models import LockMixin, disable_permission_checks, permission_checks_disabled
 from eric.core.models.abstract import SoftDeleteMixin
 from eric.core.models.utils import get_permission_name
-from eric.notifications.models import NotificationConfiguration, Notification
-from eric.projects.models import Project, ProjectRoleUserAssignment, Role, ElementLock
-from eric.projects.models import UserStorageLimit, MyUser
+from eric.notifications.models import Notification, NotificationConfiguration
+from eric.projects.models import ElementLock, MyUser, Project, ProjectRoleUserAssignment, Role, UserStorageLimit
 from eric.relations.models import Relation
-from eric.shared_elements.models import Metadata, Comment, File
+from eric.shared_elements.models import Comment, File, Metadata
 from eric.site_preferences.models import options as site_preferences
 
-logger = logging.getLogger('eric.projects.models.handlers')
+logger = logging.getLogger("eric.projects.models.handlers")
 
 check_create_roles_for_other_workbench_elements = django.dispatch.Signal()
 
@@ -48,13 +48,15 @@ def prevent_update_of_last_project_manager(sender, instance, *args, **kwargs):
     if instance.pk:
         obj = ProjectRoleUserAssignment.objects.filter(pk=instance.pk).first()
         if obj and not obj.is_deleteable():
-            raise ValidationError({
-                'non_field_errors': ValidationError(
-                    _("The last project manager of this project can not be removed"),
-                    params={'assignment': instance},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "non_field_errors": ValidationError(
+                        _("The last project manager of this project can not be removed"),
+                        params={"assignment": instance},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_delete, sender=ProjectRoleUserAssignment)
@@ -66,14 +68,16 @@ def prevent_delete_of_project_manager(sender, instance, *args, **kwargs):
     if permission_checks_disabled(instance):
         return
 
-    if hasattr(instance, 'is_deleteable') and not instance.is_deleteable():
-        raise ValidationError({
-            'non_field_errors': ValidationError(
-                _("The last project manager of this project can not be removed"),
-                params={'assignment': instance},
-                code='invalid'
-            )
-        })
+    if hasattr(instance, "is_deleteable") and not instance.is_deleteable():
+        raise ValidationError(
+            {
+                "non_field_errors": ValidationError(
+                    _("The last project manager of this project can not be removed"),
+                    params={"assignment": instance},
+                    code="invalid",
+                )
+            }
+        )
 
 
 def raise_error_if_object_not_soft_deleted(sender, instance, *args, **kwargs):
@@ -89,13 +93,15 @@ def raise_error_if_object_not_soft_deleted(sender, instance, *args, **kwargs):
     if isinstance(instance, SoftDeleteMixin):
         # check if the instance has been soft deleted
         if not instance.deleted:
-            raise ValidationError({
-                'non_field_errors': ValidationError(
-                    _("This instance can not be deleted, as it needs to be trashed first"),
-                    params={'instance': instance},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "non_field_errors": ValidationError(
+                        _("This instance can not be deleted, as it needs to be trashed first"),
+                        params={"instance": instance},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_delete)
@@ -117,7 +123,7 @@ def check_delete_roles(sender, instance, *args, **kwargs):
     user = get_current_user()
 
     # check if user has global delete permission for this class
-    if user.has_perm(get_permission_name(instance.__class__, 'delete')):
+    if user.has_perm(get_permission_name(instance.__class__, "delete")):
         return
 
     mng = instance.__class__.objects
@@ -144,7 +150,7 @@ def check_create_roles_for_parent_project(user, sender, instance, *args, **kwarg
         Project.objects.rebuild()
     # the user is already logged in and does not have the global permission to create something, therefore we need
     # to check the add_project permissions of instance.parent_project
-    if not hasattr(instance, 'parent_project'):
+    if not hasattr(instance, "parent_project"):
         return
 
     if not instance.parent_project:
@@ -166,30 +172,31 @@ def check_create_roles_for_parent_project(user, sender, instance, *args, **kwarg
             return
 
         # Check if current user has the change_parent_project permission on the current project
-        if not get_permission_name(
-                instance.__class__, 'change_parent'
-        ) in instance.current_users_project_permissions_list:
-            raise ValidationError({
-                'parent_project': ValidationError(
-                    _('You are not allowed to change the parent project'),
-                    params={'project': parent_project},
-                    code='invalid'
-                )
-            })
+        if (
+            not get_permission_name(instance.__class__, "change_parent")
+            in instance.current_users_project_permissions_list
+        ):
+            raise ValidationError(
+                {
+                    "parent_project": ValidationError(
+                        _("You are not allowed to change the parent project"),
+                        params={"project": parent_project},
+                        code="invalid",
+                    )
+                }
+            )
 
     # check if current user has the add_project permission on the parent_project
-    if not get_permission_name(
-            instance.__class__, 'add'
-    ) in parent_project.current_users_project_permissions_list:
+    if not get_permission_name(instance.__class__, "add") in parent_project.current_users_project_permissions_list:
         # user is not allowed to create this entity without relating it to a project
         # You do not have permissions to create a new task without selecting a project
-        raise ValidationError({
-            'parent_project': ValidationError(
-                _('You are not allowed to select this project'),
-                params={'project': parent_project},
-                code='invalid'
-            )
-        })
+        raise ValidationError(
+            {
+                "parent_project": ValidationError(
+                    _("You are not allowed to select this project"), params={"project": parent_project}, code="invalid"
+                )
+            }
+        )
 
 
 def check_create_roles(sender, instance, *args, **kwargs):
@@ -207,7 +214,7 @@ def check_create_roles(sender, instance, *args, **kwargs):
         return
 
     # check for global create permission of this object class
-    if user.has_perm(get_permission_name(instance.__class__, 'add')):
+    if user.has_perm(get_permission_name(instance.__class__, "add")):
         if type(instance) == Project:
             check_create_roles_for_parent_project(user, sender, instance, *args, **kwargs)
         return
@@ -218,7 +225,7 @@ def check_create_roles(sender, instance, *args, **kwargs):
             raise PermissionDenied
 
     # check if this the instance is related to projects
-    if not hasattr(instance, 'projects'):
+    if not hasattr(instance, "projects"):
         # not project related,
         # several workbench elements, such as meetings, kanban boards, labbooks etc... can deny creating related
         # objects (such as kanban board columns, labbook elements, ...)
@@ -235,7 +242,7 @@ def check_create_roles(sender, instance, *args, **kwargs):
         #     check_create_roles_for_kanbanboard_column(user, sender, instance, *args, **kwargs)
 
     # last but not least, check if this is related to the Project Model and has a parent_project
-    if hasattr(instance, 'parent_project'):
+    if hasattr(instance, "parent_project"):
         check_create_roles_for_parent_project(user, sender, instance, *args, **kwargs)
 
 
@@ -257,7 +264,7 @@ def check_workbench_element_relation_with_projects(sender, instance, action, mod
     """
 
     # do not handle raw inserts, or ChangeSet or ChangeRecord insert - those are always allowed
-    if kwargs.get('raw') or isinstance(instance, ChangeSet) or isinstance(instance, ChangeRecord):
+    if kwargs.get("raw") or isinstance(instance, ChangeSet) or isinstance(instance, ChangeRecord):
         return
 
     # check if disablePermissionChecks is currently set for this class
@@ -265,12 +272,12 @@ def check_workbench_element_relation_with_projects(sender, instance, action, mod
         return
 
     # check if the instance is actually related to projects
-    if not hasattr(instance, 'projects'):
+    if not hasattr(instance, "projects"):
         # not related, ignore
         return
 
     # only handle pre_add and pre_remove actions
-    if action != 'pre_add' and action != 'pre_remove':
+    if action != "pre_add" and action != "pre_remove":
         return
 
     # this handler only checks for projects
@@ -284,11 +291,11 @@ def check_workbench_element_relation_with_projects(sender, instance, action, mod
     user = get_current_user()
 
     # first of all, check if the object is editable by the current user
-    if hasattr(instance, 'is_editable') and not instance.is_editable():
+    if hasattr(instance, "is_editable") and not instance.is_editable():
         raise PermissionDenied
 
     # on both actions (pre_add and pre_remove), we can get the set of primary keys that is affected from kwargs
-    project_pk_set = kwargs.get('pk_set')
+    project_pk_set = kwargs.get("pk_set")
     # get all viewable projects of this primary key set, a newly generated cache_id is added to the request in order
     # to fetch a fresh result from the DB, instead of a cached result
     projects = Project.objects.viewable(cache_id=uuid.uuid4()).filter(pk__in=project_pk_set)
@@ -306,23 +313,23 @@ def check_workbench_element_relation_with_projects(sender, instance, action, mod
     # Storage A by User A with linked projects Project A and Project B -> User B can't upload although he should be able
     # to because he is Project Member in Project B but not in Project A.
 
-    if action == 'pre_add':
+    if action == "pre_add":
         # pre add: verify that the user has the permission to create a new instance of within the projects
-        if user.has_perm(get_permission_name(instance.__class__, 'add')):
+        if user.has_perm(get_permission_name(instance.__class__, "add")):
             return
 
         # for each project, verify that we have add roles
         for project in projects:
-            if not get_permission_name(instance.__class__, 'add') in project.current_users_project_permissions_list:
+            if not get_permission_name(instance.__class__, "add") in project.current_users_project_permissions_list:
                 raise PermissionDenied
-    elif action == 'pre_remove':
+    elif action == "pre_remove":
         # pre remove: verify that the user is allowed to remove an instance within the projects
-        if user.has_perm(get_permission_name(instance.__class__, 'delete')):
+        if user.has_perm(get_permission_name(instance.__class__, "delete")):
             return
 
         # for each project, verify that we have remove roles
         for project in projects:
-            if not get_permission_name(instance.__class__, 'delete') in project.current_users_project_permissions_list:
+            if not get_permission_name(instance.__class__, "delete") in project.current_users_project_permissions_list:
                 raise PermissionDenied
 
 
@@ -336,7 +343,7 @@ def check_update_project_parent_project(instance, *args, **kwargs):
     :return:
     """
     # do not check for raw inserts or ChangeSet or ChangeRecord insert - those are always allowed
-    if kwargs.get('raw') or isinstance(instance, ChangeSet) or isinstance(instance, ChangeRecord):
+    if kwargs.get("raw") or isinstance(instance, ChangeSet) or isinstance(instance, ChangeRecord):
         return
 
     if permission_checks_disabled(instance):
@@ -351,7 +358,7 @@ def check_update_project_parent_project(instance, *args, **kwargs):
 
     # check whether the current user is allowed to do stuff with the current project
     # therefore we need to remove the original sender
-    kwargs['original_sender'] = kwargs.pop('sender')
+    kwargs["original_sender"] = kwargs.pop("sender")
     check_create_roles_for_parent_project(get_current_user(), Project, instance, *args, **kwargs)
 
 
@@ -369,11 +376,11 @@ def check_soft_delete_and_restore_roles(mng, instance, old_instance):
         # restore instance
 
         # check if user has global restore permission
-        if user.has_perm(get_permission_name(instance.__class__, 'restore')):
+        if user.has_perm(get_permission_name(instance.__class__, "restore")):
             return
 
         # check if object is restorable according to the objects manager
-        if hasattr(instance, 'is_restorable') and not instance.is_restorable():
+        if hasattr(instance, "is_restorable") and not instance.is_restorable():
             raise PermissionDenied
 
     else:
@@ -381,11 +388,11 @@ def check_soft_delete_and_restore_roles(mng, instance, old_instance):
         # trash instance
 
         # check if user has global trash permission
-        if user.has_perm(get_permission_name(instance.__class__, 'trash')):
+        if user.has_perm(get_permission_name(instance.__class__, "trash")):
             return
 
         # check if object is trashable according to the objects manager
-        if hasattr(instance, 'is_trashable') and not instance.is_trashable():
+        if hasattr(instance, "is_trashable") and not instance.is_trashable():
             raise PermissionDenied
 
 
@@ -396,8 +403,12 @@ def check_update_roles(sender, instance, *args, **kwargs):
     raises a PermissionDenied exception on error
     """
     # do not check for raw inserts or ChangeSet or ChangeRecord insert - those are always allowed
-    if kwargs.get('raw') or isinstance(instance, ChangeSet) or isinstance(instance, ChangeRecord) \
-            or isinstance(instance, Metadata):
+    if (
+        kwargs.get("raw")
+        or isinstance(instance, ChangeSet)
+        or isinstance(instance, ChangeRecord)
+        or isinstance(instance, Metadata)
+    ):
         return
 
     if permission_checks_disabled(instance):
@@ -412,7 +423,7 @@ def check_update_roles(sender, instance, *args, **kwargs):
     if not old_instance:
         return check_create_roles(sender, instance, *args, **kwargs)
 
-    if hasattr(instance, 'deleted'):
+    if hasattr(instance, "deleted"):
         # we need to do some checks for soft deleted objects
         # check if this instance is being soft deleted or restored
         if old_instance.deleted != instance.deleted:
@@ -421,56 +432,65 @@ def check_update_roles(sender, instance, *args, **kwargs):
 
         # prevent updates of soft-deleted (trashed) objects
         if instance.deleted:
-            raise ValidationError({
-                'non_field_errors': ValidationError(
-                    _("You are not allowed to edit an already trashed object"),
-                    params={'instance': instance},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "non_field_errors": ValidationError(
+                        _("You are not allowed to edit an already trashed object"),
+                        params={"instance": instance},
+                        code="invalid",
+                    )
+                }
+            )
 
         # prevent updates of locked elements
-        if ElementLock.objects.for_model(
-                instance.__class__, instance.pk
-        ).filter(
-            Q(
-                webdav_lock=False,
-                locked_at__gte=timezone.now() - timezone.timedelta(
-                    minutes=site_preferences.element_lock_time_in_minutes)
-            ) | Q(
-                webdav_lock=True,
-                locked_at__gte=timezone.now() - timezone.timedelta(
-                    minutes=site_preferences.element_lock_webdav_time_in_minutes)
-            )
-        ).exclude(
-            # ignore if the element is locked by the current user
-            locked_by=get_current_user()
-        ).exists():
-            # element is locked by another user
-            raise ValidationError({
-                'non_field_errors': ValidationError(
-                    _("This object is currently locked by another user"),
-                    params={'instance': instance},
-                    code='invalid'
+        if (
+            ElementLock.objects.for_model(instance.__class__, instance.pk)
+            .filter(
+                Q(
+                    webdav_lock=False,
+                    locked_at__gte=timezone.now()
+                    - timezone.timedelta(minutes=site_preferences.element_lock_time_in_minutes),
                 )
-            })
+                | Q(
+                    webdav_lock=True,
+                    locked_at__gte=timezone.now()
+                    - timezone.timedelta(minutes=site_preferences.element_lock_webdav_time_in_minutes),
+                )
+            )
+            .exclude(
+                # ignore if the element is locked by the current user
+                locked_by=get_current_user()
+            )
+            .exists()
+        ):
+            # element is locked by another user
+            raise ValidationError(
+                {
+                    "non_field_errors": ValidationError(
+                        _("This object is currently locked by another user"),
+                        params={"instance": instance},
+                        code="invalid",
+                    )
+                }
+            )
 
     # !!! from now on we know for sure that this is an update !!!
 
     # check if the user has global change roles
     user = get_current_user()
 
-    if user.has_perm(get_permission_name(instance.__class__, 'change')):
+    if user.has_perm(get_permission_name(instance.__class__, "change")):
         return
 
     # allow the user to edit if he was attending, so he can remove himself
-    if hasattr(instance, 'attending_users') and user in instance.attending_users.all():
+    if hasattr(instance, "attending_users") and user in instance.attending_users.all():
         logger.debug("In check_update_roles: User is attending so user is allowed to edit")
     else:
         # check if this instance is editable
-        if hasattr(instance, 'is_editable') and not instance.is_editable():
-            logger.debug("In check_update_roles: Checking editable() viewset - "
-                         "could not find object -> PermissionDenied")
+        if hasattr(instance, "is_editable") and not instance.is_editable():
+            logger.debug(
+                "In check_update_roles: Checking editable() viewset - " "could not find object -> PermissionDenied"
+            )
             raise PermissionDenied
 
 
@@ -481,7 +501,7 @@ def on_project_create_add_project_manager_role_for_current_user(sender, instance
     to the current user
     """
     # ignore raw inserts (e.g. from fixtures) and updates (not created)
-    if kwargs.get('raw') or not created:
+    if kwargs.get("raw") or not created:
         return
 
     from eric.core.models import disable_permission_checks
@@ -509,20 +529,21 @@ def auto_create_project_for_user(sender, user, *args, **kwargs):
 
     # set current requests user (as during auth, that user is not set yet)
     request = get_current_request()
-    if request and (not hasattr(request, 'user') or request.user.is_anonymous):
+    if request and (not hasattr(request, "user") or request.user.is_anonymous):
         request.user = user
 
     if Project.objects.viewable().count() == 0:
         # no projects found, check if user has add_project permission
-        if user.has_perm(get_permission_name(Project, 'add')):
-            logger.info("Auto-creating project {project_name} for user {user_name}".format(
-                project_name=_("My Project"),
-                user_name=user.username
-            ))
+        if user.has_perm(get_permission_name(Project, "add")):
+            logger.info(
+                "Auto-creating project {project_name} for user {user_name}".format(
+                    project_name=_("My Project"), user_name=user.username
+                )
+            )
             Project.objects.create(
                 name=_("My Project"),
                 start_date=timezone.now(),
-                description="<div>%s</div>" % _("Automatically generated project")
+                description="<div>%s</div>" % _("Automatically generated project"),
             )
 
 
@@ -538,10 +559,13 @@ def create_user_storage_limit(sender, instance, created, *args, **kwargs):
             UserStorageLimit.objects.get_or_create(
                 user=user,
                 defaults={
-                    'storage_megabyte': settings.DEFAULT_QUOTA_PER_USER_MEGABYTE,
-                    'comment': _("Auto-generated (post_save) storage limit of {storage_limit} MB"
-                                 .format(storage_limit=settings.DEFAULT_QUOTA_PER_USER_MEGABYTE))
-                }
+                    "storage_megabyte": settings.DEFAULT_QUOTA_PER_USER_MEGABYTE,
+                    "comment": _(
+                        "Auto-generated (post_save) storage limit of {storage_limit} MB".format(
+                            storage_limit=settings.DEFAULT_QUOTA_PER_USER_MEGABYTE
+                        )
+                    ),
+                },
             )
 
 
@@ -609,12 +633,14 @@ def send_new_comment_notification_to_project_members(sender, instance, created, 
     """
 
     # check if the left content type is a comment and the right content type is a project
-    if instance.left_content_type != Comment.get_content_type() or \
-       instance.right_content_type != Project.get_content_type():
+    if (
+        instance.left_content_type != Comment.get_content_type()
+        or instance.right_content_type != Project.get_content_type()
+    ):
         return
 
     # ignore raw inserts (e.g. from fixtures) and updates (not created)
-    if kwargs.get('raw') or not created:
+    if kwargs.get("raw") or not created:
         return
 
     comment = instance.left_content_object
@@ -627,10 +653,7 @@ def send_new_comment_notification_to_project_members(sender, instance, created, 
         if assignment.user.pk == comment.created_by.pk:
             continue
 
-        message = render_to_string('notification/project_comment.html', {
-            'comment': comment,
-            'project': project
-        })
+        message = render_to_string("notification/project_comment.html", {"comment": comment, "project": project})
 
         Notification.objects.create(
             user=assignment.user,

@@ -1,26 +1,25 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
 
 import django.db.models.options as options
-
+from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.db import models
 from django.db.models import TextField
+from django.db.models.expressions import Func, Value
 from django.db.models.signals import pre_save
-from django.db.models.expressions import Value, Func
-from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.template.loader import get_template
-from django.contrib.postgres.search import SearchVectorField, SearchVector
+from django.utils.translation import gettext_lazy as _
 
 logger = logging.getLogger(__name__)
 
 # allow the `fts_template` attributes on the `Meta` class of models.
 # This field contains the path to a template used to render the content
 # of the FTS index field.
-options.DEFAULT_NAMES += ('fts_template', )
+options.DEFAULT_NAMES += ("fts_template",)
 
 
 class FTSMixin(models.Model):
@@ -30,13 +29,19 @@ class FTSMixin(models.Model):
     """
 
     FTS_LANGUAGE_GERMAN = _("German")
-    FTS_LANGUAGE_GERMAN_KEY = 'german'
+    FTS_LANGUAGE_GERMAN_KEY = "german"
     FTS_LANGUAGE_ENGLISH = _("English")
-    FTS_LANGUAGE_ENGLISH_KEY = 'english'
+    FTS_LANGUAGE_ENGLISH_KEY = "english"
 
     FTS_LANGUAGES = (
-        (FTS_LANGUAGE_GERMAN_KEY, FTS_LANGUAGE_GERMAN, ),
-        (FTS_LANGUAGE_ENGLISH_KEY, FTS_LANGUAGE_ENGLISH, ),
+        (
+            FTS_LANGUAGE_GERMAN_KEY,
+            FTS_LANGUAGE_GERMAN,
+        ),
+        (
+            FTS_LANGUAGE_ENGLISH_KEY,
+            FTS_LANGUAGE_ENGLISH,
+        ),
     )
 
     fts_index = SearchVectorField(
@@ -61,27 +66,26 @@ class FTSMixin(models.Model):
         Gets a `SearchVector` instance containing the rendered search document.
         :return: SearchVector
         """
-        fts_template = getattr(self._meta, 'fts_template', None)
+        fts_template = getattr(self._meta, "fts_template", None)
 
         # make sure we have a template to generate the content of the FTS index
         if not fts_template:
-            logger.warning("'%(model)s' is FTSMixin instance but has no fts_template assigned." % {
-                'model': self.__class__.__name__
-            })
+            logger.warning(
+                "'%(model)s' is FTSMixin instance but has no fts_template assigned."
+                % {"model": self.__class__.__name__}
+            )
             return
 
         # render the FTS document from the FTS template
         fts_template = get_template(fts_template)
 
-        context = {
-            'instance': self
-        }
+        context = {"instance": self}
 
         fts_document = fts_template.render(context)
 
-        return SearchVector(Func(
-            Value(fts_document), function='unaccent', output_field=TextField()
-        ), config=self.fts_language)
+        return SearchVector(
+            Func(Value(fts_document), function="unaccent", output_field=TextField()), config=self.fts_language
+        )
 
     @staticmethod
     @receiver(pre_save)

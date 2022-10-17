@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -10,12 +10,13 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from django_changeset.models import RevisionModelMixin
 from django_cleanhtmlfield.fields import HTMLField
 
 from eric.core.models import BaseModel, LockMixin
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, IsFavouriteMixin
-from eric.labbooks.models.managers import LabBookManager, LabBookChildElementManager, LabbookSectionManager
+from eric.core.models.abstract import ChangeSetMixIn, IsFavouriteMixin, SoftDeleteMixin, WorkbenchEntityMixin
+from eric.labbooks.models.managers import LabBookChildElementManager, LabBookManager, LabbookSectionManager
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
@@ -35,11 +36,22 @@ class EntityMissingError(Exception):
     pass
 
 
-class LabBook(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
+class LabBook(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    LockMixin,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    IsFavouriteMixin,
+):
     """
     Defines a LabBook, which can contain several other workbench elements as children
     """
+
     objects = LabBookManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -49,32 +61,33 @@ class LabBook(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
             ("trash_labbook", "Can trash a labbook"),
             ("restore_labbook", "Can restore a labbook"),
             ("change_project_labbook", "Can change the project of a labbook"),
-            ("add_labbook_without_project", "Can add a labbook without a project")
+            ("add_labbook_without_project", "Can add a labbook without a project"),
         )
-        track_fields = ('title', 'description', 'is_template', 'projects', 'deleted')
+        track_fields = ("title", "description", "is_template", "projects", "deleted")
         track_related_many = (
-            ('child_elements', ('position_x', 'position_y', 'width', 'height', 'child_object_content_type',
-                                'child_object_id')),
-            ('metadata', ('field', 'values',)),
+            (
+                "child_elements",
+                ("position_x", "position_y", "width", "height", "child_object_content_type", "child_object_id"),
+            ),
+            (
+                "metadata",
+                (
+                    "field",
+                    "values",
+                ),
+            ),
         )
-        fts_template = 'fts/labbook.html'
-        export_template = 'export/labbook.html'
+        fts_template = "fts/labbook.html"
+        export_template = "export/labbook.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.labbooks.rest.serializers import LabBookSerializer
+
             return LabBookSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        max_length=128,
-        verbose_name=_("Title of the labbook"),
-        db_index=True
-    )
+    title = models.CharField(max_length=128, verbose_name=_("Title of the labbook"), db_index=True)
 
     description = HTMLField(
         verbose_name=_("Description of the labbook"),
@@ -82,17 +95,14 @@ class LabBook(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         strip_unsafe=True,
     )
 
-    is_template = models.BooleanField(
-        default=False,
-        verbose_name=_("Whether this labbook is a template or not")
-    )
+    is_template = models.BooleanField(default=False, verbose_name=_("Whether this labbook is a template or not"))
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this labbook associated to"),
         related_name="labbooks",
-        blank=True
+        blank=True,
     )
 
     metadata = MetadataRelation()
@@ -101,7 +111,7 @@ class LabBook(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         return self.title
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v1()
 
     def __export_metadata_v1(self):
@@ -141,9 +151,7 @@ class LabBook(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
                 pass  # ignore hard-deleted entities
 
         for section, child_element_pks in section_elements.items():
-            elements = LabBookChildElement.objects.filter(
-                child_object_id__in=child_element_pks
-            )
+            elements = LabBookChildElement.objects.filter(child_object_id__in=child_element_pks)
             section.child_object.child_elements.add(*elements)
 
         project_pks = metadata.get("projects")
@@ -163,27 +171,33 @@ class LabBookChildElement(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMix
     - width (width within the grid)
     - height (height within the grid)
     """
+
     objects = LabBookChildElementManager()
 
     class Meta:
         verbose_name = _("Child element of a labbook")
         verbose_name_plural = _("Child elements of a labbook")
-        ordering = ('position_y', 'position_x',)
+        ordering = (
+            "position_y",
+            "position_x",
+        )
         track_fields = (
-            'lab_book', 'position_x', 'position_y', 'width', 'height', 'child_object_content_type', 'child_object_id'
+            "lab_book",
+            "position_x",
+            "position_y",
+            "width",
+            "height",
+            "child_object_content_type",
+            "child_object_id",
         )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     lab_book = models.ForeignKey(
         "labbooks.LabBook",
         verbose_name=_("Which labbook this element is a child of"),
         related_name="child_elements",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     @property
@@ -202,42 +216,33 @@ class LabBookChildElement(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMix
     def relative_height(self):
         return self.height * 1440.0 / 30.0
 
-    position_x = models.IntegerField(
-        verbose_name=_("The x position of the labbook child element within the grid")
-    )
+    position_x = models.IntegerField(verbose_name=_("The x position of the labbook child element within the grid"))
 
-    position_y = models.IntegerField(
-        verbose_name=_("The y position of the labbook child element within the grid")
-    )
+    position_y = models.IntegerField(verbose_name=_("The y position of the labbook child element within the grid"))
 
-    width = models.IntegerField(
-        verbose_name=_("The width of the child element within the grid")
-    )
+    width = models.IntegerField(verbose_name=_("The width of the child element within the grid"))
 
-    height = models.IntegerField(
-        verbose_name=_("The height of the child element within the grid")
-    )
+    height = models.IntegerField(verbose_name=_("The height of the child element within the grid"))
 
     child_object_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        verbose_name=_('ContentType of the child element'),
+        verbose_name=_("ContentType of the child element"),
     )
 
     child_object_id = models.UUIDField(
-        verbose_name=_('ID of the child element'),
+        verbose_name=_("ID of the child element"),
     )
 
-    child_object = GenericForeignKey('child_object_content_type', 'child_object_id')
+    child_object = GenericForeignKey("child_object_content_type", "child_object_id")
 
     def __str__(self):
         return "Child Element at position {position_x},{position_y}".format(
-            position_x=self.position_x,
-            position_y=self.position_y
+            position_x=self.position_x, position_y=self.position_y
         )
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v1()
 
     def __export_metadata_v1(self):
@@ -255,7 +260,8 @@ class LabBookChildElement(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMix
 
     def get_latest_child_version_number(self):
         from eric.versions.models.models import Version
-        latest_version = Version.objects.filter(object_id=self.child_object_id).order_by('-number').first()
+
+        latest_version = Version.objects.filter(object_id=self.child_object_id).order_by("-number").first()
         # before exporting the metadata a version must be created for each sub-element,
         # therefore latest_version can never be null, as long as there is no programming mistake
         assert latest_version is not None
@@ -299,6 +305,7 @@ class LabBookChildElement(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMix
     @staticmethod
     def __restore_child_object_to_version(child, version_number):
         from eric.versions.models.models import Version
+
         child_version = Version.objects.filter(object_id=child.pk).filter(number=version_number).first()
         section_child_elements = child.restore_metadata(child_version.metadata)
         child.save()
@@ -315,9 +322,19 @@ class LabBookChildElement(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMix
 
 
 # TODO: Refactor to not use WorkbenchEntityMixin, ModelPrivilegeMixin, FTSMixin, RelationsMixIn
-class LabbookSection(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMixin, SoftDeleteMixin, RelationsMixIn,
-                     WorkbenchEntityMixin, ModelPrivilegeMixIn, FTSMixin):
-    """ Defines a LabbookSection, which can be a labbook child element and hold other child elements"""
+class LabbookSection(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    LockMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    WorkbenchEntityMixin,
+    ModelPrivilegeMixIn,
+    FTSMixin,
+):
+    """Defines a LabbookSection, which can be a labbook child element and hold other child elements"""
+
     objects = LabbookSectionManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -329,36 +346,26 @@ class LabbookSection(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMixin, S
             ("trash_labbooksection", "Can trash a LabBook section"),
             ("restore_labbooksection", "Can restore a LabBook section"),
             ("change_project_labbooksection", "Can change the project of a LabBook section"),
-            ("add_labbooksection_without_project", "Can add a LabBook section without a project")
+            ("add_labbooksection_without_project", "Can add a LabBook section without a project"),
         )
         is_relatable = False
         is_favouritable = False
 
         def get_default_serializer(*args, **kwargs):
             from eric.labbooks.rest.serializers import LabbookSectionSerializer
+
             return LabbookSectionSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    date = models.DateField(
-        verbose_name=_("Date of the LabBook section")
-    )
+    date = models.DateField(verbose_name=_("Date of the LabBook section"))
 
-    title = models.CharField(
-        max_length=128,
-        verbose_name=_("Title of the LabBook section")
-    )
+    title = models.CharField(max_length=128, verbose_name=_("Title of the LabBook section"))
 
     # reference to many projects (can be 0 projects, too)
     # needed so the Section elements are real WorkbenchEntity's, so locking WebSockets work and handlers don't error out
     projects = models.ManyToManyField(
-        'projects.Project',
-        verbose_name=_("Which projects is this LabBook section associated to"),
-        blank=True
+        "projects.Project", verbose_name=_("Which projects is this LabBook section associated to"), blank=True
     )
 
     # reference to many child_elements (can be 0 child_elements, too)
@@ -372,10 +379,10 @@ class LabbookSection(BaseModel, ChangeSetMixIn, RevisionModelMixin, LockMixin, S
     )
 
     def __str__(self):
-        return "LabbookSection {} {}".format(self.date, self.title)
+        return f"LabbookSection {self.date} {self.title}"
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v1()
 
     def __export_metadata_v1(self):

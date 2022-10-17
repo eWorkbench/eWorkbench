@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.db.models import Q
@@ -7,8 +7,12 @@ from django.db.models import Q
 from eric.drives.models import Drive
 from eric.dss.models import DSSContainer
 from eric.model_privileges.models import ModelPrivilege
-from eric.model_privileges.utils import register_privilege, BasePrivilege, \
-    get_model_privileges_and_project_permissions_for, UserPermission
+from eric.model_privileges.utils import (
+    BasePrivilege,
+    UserPermission,
+    get_model_privileges_and_project_permissions_for,
+    register_privilege,
+)
 from eric.shared_elements.models import File
 
 
@@ -22,6 +26,7 @@ class DSSContainerFilePrivilege(BasePrivilege):
     """
     If a user can view a DSS Container, the user can also view the files within the storage
     """
+
     @staticmethod
     def get_privileges(obj, permissions_by_user=None):
         permissions_by_user = permissions_by_user or dict()
@@ -42,10 +47,7 @@ class DSSContainerFilePrivilege(BasePrivilege):
                 if user.groups.filter(name="DSS Curator").exists():
                     # check if user is already in permissions_by_user
                     if user.pk not in permissions_by_user.keys():
-                        permissions_by_user[user.pk] = UserPermission(
-                            user,
-                            obj.pk, obj.get_content_type()
-                        )
+                        permissions_by_user[user.pk] = UserPermission(user, obj.pk, obj.get_content_type())
 
                     # check if the full_access_privilege privilege is set for the container and the set the same for
                     # Files and Drives
@@ -61,6 +63,7 @@ class DSSContainerDrivePrivilege(BasePrivilege):
     """
     If a user can view a DSS Container, the user can also view the storages within the envelopes
     """
+
     @staticmethod
     def get_privileges(obj, permissions_by_user=None):
         permissions_by_user = permissions_by_user or dict()
@@ -80,10 +83,7 @@ class DSSContainerDrivePrivilege(BasePrivilege):
                 if user.groups.filter(name="DSS Curator").exists():
                     # check if user is already in permissions_by_user
                     if user.pk not in permissions_by_user.keys():
-                        permissions_by_user[user.pk] = UserPermission(
-                            user,
-                            obj.pk, obj.get_content_type()
-                        )
+                        permissions_by_user[user.pk] = UserPermission(user, obj.pk, obj.get_content_type())
 
                     # check if the full_access_privilege privilege is set for the container and the set the same for
                     # Files and Drives

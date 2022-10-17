@@ -1,24 +1,25 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
 import uuid
 
-from ckeditor.fields import RichTextField
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from ckeditor.fields import RichTextField
 from django_changeset.models import RevisionModelMixin
 
-from eric.core.models import LockMixin, BaseModel, UploadToPathAndRename
-from eric.core.models.abstract import WorkbenchEntityMixin, SoftDeleteMixin, ChangeSetMixIn, IsFavouriteMixin
+from eric.core.models import BaseModel, LockMixin, UploadToPathAndRename
+from eric.core.models.abstract import ChangeSetMixIn, IsFavouriteMixin, SoftDeleteMixin, WorkbenchEntityMixin
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
-from eric.plugins.models.managers import PluginManager, PluginInstanceManager
+from eric.plugins.models.managers import PluginInstanceManager, PluginManager
 from eric.projects.models import Project
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
@@ -33,6 +34,7 @@ class Plugin(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     """
     Defines the Plugins, which is a list of available plugins referred to by the PluginInstance-Model
     """
+
     objects = PluginManager()
 
     # define user availability types
@@ -49,50 +51,38 @@ class Plugin(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         verbose_name_plural = "Plugins"
         ordering = ["title"]
         permissions = ()
-        track_fields = ('title', 'short_description', 'long_description', 'path', 'responsible_users')
+        track_fields = ("title", "short_description", "long_description", "path", "responsible_users")
 
         def get_default_serializer(*args, **kwargs):
             from eric.plugins.rest.serializers import PluginSerializer
+
             return PluginSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        max_length=128,
-        verbose_name=_("Title of the plugin")
-    )
+    title = models.CharField(max_length=128, verbose_name=_("Title of the plugin"))
 
-    short_description = models.CharField(
-        max_length=256,
-        verbose_name=_("Short description of the plugin")
-    )
+    short_description = models.CharField(max_length=256, verbose_name=_("Short description of the plugin"))
 
     long_description = RichTextField(
         verbose_name=_("Long description of the plugin"),
-        config_name='awesome_ckeditor',
+        config_name="awesome_ckeditor",
         blank=True,
     )
 
     notes = RichTextField(
         verbose_name=_("Notes on this plugin (Only viewable in administration interface)"),
-        config_name='awesome_ckeditor',
+        config_name="awesome_ckeditor",
         blank=True,
     )
 
-    iframe_height = models.IntegerField(
-        default=250,
-        verbose_name=_("Height of the iframe element in pixel")
-    )
+    iframe_height = models.IntegerField(default=250, verbose_name=_("Height of the iframe element in pixel"))
 
     logo = models.ImageField(
         verbose_name=_("A logo for the plugin"),
-        upload_to=UploadToPathAndRename('plugin_logos'),
+        upload_to=UploadToPathAndRename("plugin_logos"),
         max_length=255,
-        default='unknown_plugin.gif'
+        default="unknown_plugin.gif",
     )
 
     responsible_users = models.ManyToManyField(
@@ -100,23 +90,20 @@ class Plugin(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     )
 
     path = models.CharField(
-        verbose_name=_("path where the app-root resides"),
-        max_length=1950  # https://stackoverflow.com/questions/417142
+        verbose_name=_("path where the app-root resides"), max_length=1950  # https://stackoverflow.com/questions/417142
     )
 
     placeholder_picture = models.ImageField(
         verbose_name=_("A placeholder image, used when the 3rd-party app doesn't provide a screenshot"),
-        upload_to='plugin/',
+        upload_to="plugin/",
         blank=True,
         null=True,
         max_length=512,
-        default='unknown_plugin.gif'
+        default="unknown_plugin.gif",
     )
 
     placeholder_picture_mime_type = models.CharField(
-        max_length=255,
-        verbose_name=_("Mime type of the placeholder picture"),
-        default="image/png"
+        max_length=255, verbose_name=_("Mime type of the placeholder picture"), default="image/png"
     )
 
     user_availability = models.CharField(
@@ -148,25 +135,20 @@ class Plugin(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         """
 
         # check if placeholder picture has been added/changed
-        if self.placeholder_picture and hasattr(self.placeholder_picture.file, 'content_type'):
+        if self.placeholder_picture and hasattr(self.placeholder_picture.file, "content_type"):
             # store mime type
             self.placeholder_picture_mime_type = self.placeholder_picture.file.content_type
             # store picture file size
             self.picture_size = self.placeholder_picture.file.size
 
-        super(Plugin, self).save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields
-        )
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
         # make sure that files are always closed (hasattr on self.placeholder_picture.file actually opens the file)
         if self.placeholder_picture:
             self.placeholder_picture.file.close()
 
     def __str__(self):
-        return "Plugin {title}".format(title=self.title)
+        return f"Plugin {self.title}"
 
 
 class UploadedPluginInstanceFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
@@ -177,46 +159,47 @@ class UploadedPluginInstanceFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMi
     """
 
     class Meta:
-        ordering = ['file', 'id']
+        ordering = ["file", "id"]
         track_fields = ()
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     plugininstance = models.ForeignKey(
-        'PluginInstance',
+        "PluginInstance",
         on_delete=models.CASCADE,
-        verbose_name=_('Which plugininstance this entry is related to'),
-        related_name='plugininstance_entries'
+        verbose_name=_("Which plugininstance this entry is related to"),
+        related_name="plugininstance_entries",
     )
 
     file = models.FileField(
         verbose_name=_("File representation of the instance rawdata/picture"),
-        upload_to='plugin/',
+        upload_to="plugin/",
         null=True,
-        blank=True
+        blank=True,
     )
 
     mime_type = models.CharField(
-        max_length=255,
-        verbose_name=_("Mime type of the uploaded rawdata/picutre"),
-        default="application/octet-stream"
+        max_length=255, verbose_name=_("Mime type of the uploaded rawdata/picutre"), default="application/octet-stream"
     )
 
-    size = models.BigIntegerField(
-        verbose_name=_("Size of rawdata/picture"),
-        default=0
-    )
+    size = models.BigIntegerField(verbose_name=_("Size of rawdata/picture"), default=0)
 
     def __str__(self):
         return self.plugininstance.title
 
 
-class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn,
-                     LockMixin, ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
+class PluginInstance(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    LockMixin,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    IsFavouriteMixin,
+):
     """
     Defines Plugin Instances, which are instances of Plugins used in Labbooks
     """
@@ -231,29 +214,29 @@ class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, So
             ("trash_plugininstance", "Can trash a plugin instance"),
             ("restore_plugininstance", "Can restore a plugin instance"),
             ("add_plugininstance_without_project", "Can add a plugin instance without a project"),
-            ("change_project_plugininstance", "Can change the project of a plugin instance")
+            ("change_project_plugininstance", "Can change the project of a plugin instance"),
         )
-        track_fields = ('title', 'rawdata', 'picture', 'projects', 'deleted')
+        track_fields = ("title", "rawdata", "picture", "projects", "deleted")
         track_related_many = (
-            ('metadata', ('field', 'values',)),
+            (
+                "metadata",
+                (
+                    "field",
+                    "values",
+                ),
+            ),
         )
-        fts_template = 'fts/plugin_instance.html'
-        export_template = 'export/plugin_instance.html'
+        fts_template = "fts/plugin_instance.html"
+        export_template = "export/plugin_instance.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.plugins.rest.serializers import PluginInstanceSerializer
+
             return PluginInstanceSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        max_length=128,
-        verbose_name=_("Title of the plugin")
-    )
+    title = models.CharField(max_length=128, verbose_name=_("Title of the plugin"))
 
     plugin = models.ForeignKey(
         Plugin,
@@ -261,69 +244,65 @@ class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, So
     )
 
     rawdata = models.FileField(
-        verbose_name=_("File representation of the instance"),
-        upload_to='plugin/',
-        null=True,
-        blank=True
+        verbose_name=_("File representation of the instance"), upload_to="plugin/", null=True, blank=True
     )
 
     rawdata_mime_type = models.CharField(
-        max_length=255,
-        verbose_name=_("Mime type of the uploaded rawdata"),
-        default="application/octet-stream"
+        max_length=255, verbose_name=_("Mime type of the uploaded rawdata"), default="application/octet-stream"
     )
 
-    rawdata_size = models.BigIntegerField(
-        verbose_name=_("Size of rawdata"),
-        default=0
-    )
+    rawdata_size = models.BigIntegerField(verbose_name=_("Size of rawdata"), default=0)
 
     uploaded_rawdata_entry = models.OneToOneField(
-        'plugins.UploadedPluginInstanceFileEntry',
+        "plugins.UploadedPluginInstanceFileEntry",
         verbose_name=_("Reference to the archived data"),
         on_delete=models.CASCADE,
         blank=True,
         null=True,
-        related_name='+',  # no reverse field, since there is one already
+        related_name="+",  # no reverse field, since there is one already
     )
 
     picture = models.ImageField(
         verbose_name=_("A graphic rendition of the rawdata returned by the 3rd-party app"),
-        upload_to='plugin/',
+        upload_to="plugin/",
         blank=True,
         null=True,
         max_length=512,
     )
 
     picture_mime_type = models.CharField(
-        max_length=255,
-        verbose_name=_("Mime type of the picture representation"),
-        default="image/png"
+        max_length=255, verbose_name=_("Mime type of the picture representation"), default="image/png"
     )
 
-    picture_size = models.BigIntegerField(
-        verbose_name=_("Size of picture representation"),
-        default=0
-    )
+    picture_size = models.BigIntegerField(verbose_name=_("Size of picture representation"), default=0)
 
     uploaded_picture_entry = models.OneToOneField(
-        'plugins.UploadedPluginInstanceFileEntry',
+        "plugins.UploadedPluginInstanceFileEntry",
         verbose_name=_("Reference to the archived data"),
         on_delete=models.CASCADE,
         blank=True,
         null=True,
-        related_name='+',  # no reverse field, since there is one already
+        related_name="+",  # no reverse field, since there is one already
     )
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this plugin instance associated to"),
         related_name="plugininstances",
-        blank=True
+        blank=True,
     )
 
     metadata = MetadataRelation()
+
+    @property
+    def labbook_container(self):
+        from eric.labbooks.models import LabBookChildElement
+
+        return LabBookChildElement.objects.get(
+            child_object_content_type=self.get_content_type(),
+            child_object_id=self.pk,
+        )
 
     def __str__(self):
         return self.title
@@ -340,7 +319,7 @@ class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, So
         store_uploaded_rawdata_entry = False
         store_uploaded_picture_entry = False
         # check if rawdata has been added/changed
-        if self.rawdata and hasattr(self.rawdata.file, 'content_type'):
+        if self.rawdata and hasattr(self.rawdata.file, "content_type"):
             # mark True to store uploaded rawdata entry
             store_uploaded_rawdata_entry = True
             # store mime type
@@ -352,7 +331,7 @@ class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, So
             self.uploaded_rawdata_entry = self.create_uploaded_rawdata_entry()
 
         # check if picture has been added/changed
-        if self.picture and hasattr(self.picture.file, 'content_type'):
+        if self.picture and hasattr(self.picture.file, "content_type"):
             # mark True to store uploaded picture entry
             store_uploaded_picture_entry = True
             # store mime type
@@ -363,12 +342,7 @@ class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, So
         if store_uploaded_picture_entry:
             self.uploaded_picture_entry = self.create_uploaded_picture_entry()
 
-        super(PluginInstance, self).save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields
-        )
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
         # make sure that files are always closed (hasattr on self.rawdata.file actually opens the file)
         if self.rawdata:
@@ -378,26 +352,20 @@ class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, So
 
     def create_uploaded_rawdata_entry(self):
         entry = UploadedPluginInstanceFileEntry(
-            plugininstance=self,
-            file=self.rawdata,
-            mime_type=self.rawdata_mime_type,
-            size=self.rawdata_size
+            plugininstance=self, file=self.rawdata, mime_type=self.rawdata_mime_type, size=self.rawdata_size
         )
         entry.save()
         return entry
 
     def create_uploaded_picture_entry(self):
         entry = UploadedPluginInstanceFileEntry(
-            plugininstance=self,
-            file=self.picture,
-            mime_type=self.picture_mime_type,
-            size=self.picture_size
+            plugininstance=self, file=self.picture, mime_type=self.picture_mime_type, size=self.picture_size
         )
         entry.save()
         return entry
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v1()
 
     def __export_metadata_v1(self):
@@ -448,4 +416,4 @@ class PluginInstance(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, So
 
     def export_rawdata(self):
         with open(self.rawdata.path) as fp:
-            return fp.read().replace('\n', '<br>')
+            return fp.read().replace("\n", "<br>")

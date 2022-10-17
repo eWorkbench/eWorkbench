@@ -1,15 +1,16 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
+
 from rest_framework.fields import SerializerMethodField
 
 from eric.core.rest.serializers import BaseModelSerializer, PublicUserSerializer
-from eric.notifications.models import NotificationConfiguration, Notification, ScheduledNotification
+from eric.notifications.models import Notification, NotificationConfiguration, ScheduledNotification
 
 
 class NotificationConfigurationSerializer(BaseModelSerializer):
@@ -17,9 +18,7 @@ class NotificationConfigurationSerializer(BaseModelSerializer):
 
     class Meta:
         model = NotificationConfiguration
-        fields = (
-            'allowed_notifications',
-        )
+        fields = ("allowed_notifications",)
 
 
 class NotificationSerializer(BaseModelSerializer):
@@ -27,28 +26,31 @@ class NotificationSerializer(BaseModelSerializer):
 
     content_type_model = SerializerMethodField()
 
-    created_by = PublicUserSerializer(
-        read_only=True
-    )
+    created_by = PublicUserSerializer(read_only=True)
 
-    last_modified_by = PublicUserSerializer(
-        read_only=True
-    )
+    last_modified_by = PublicUserSerializer(read_only=True)
 
     def get_content_type_model(self, instance):
-        if hasattr(instance, 'content_type'):
-            return "%(app_label)s.%(model)s" % {
-                'app_label': instance.content_type.app_label,
-                'model': instance.content_type.model
-            }
+        if hasattr(instance, "content_type"):
+            return "{app_label}.{model}".format(
+                app_label=instance.content_type.app_label,
+                model=instance.content_type.model,
+            )
 
         return None
 
     class Meta:
         model = Notification
         fields = (
-            'title', 'message', 'read', 'content_type_model', 'object_id',
-            'created_at', 'created_by', 'last_modified_at', 'last_modified_by',
+            "title",
+            "message",
+            "read",
+            "content_type_model",
+            "object_id",
+            "created_at",
+            "created_by",
+            "last_modified_at",
+            "last_modified_by",
         )
 
 
@@ -56,16 +58,21 @@ class ScheduledNotificationSerializer(BaseModelSerializer):
     class Meta:
         model = ScheduledNotification
         fields = (
-            'scheduled_date_time', 'timedelta_value', 'timedelta_unit',
-            'content_type', 'object_id',
-            'active', 'processed', 'deleted',
+            "scheduled_date_time",
+            "timedelta_value",
+            "timedelta_unit",
+            "content_type",
+            "object_id",
+            "active",
+            "processed",
+            "deleted",
         )
         # Validators need to be turned off for object_id in order to allow updating this nested serializer (nested in
         # MeetingSerializer),
         # scheduled_date_time is calculated from timedelta_value/timedelta_unit and is not a required field
         extra_kwargs = {
-            'object_id': {'validators': []},
-            'scheduled_date_time': {'required': False},
+            "object_id": {"validators": []},
+            "scheduled_date_time": {"required": False},
         }
 
     def validate_timedelta_value(self, value):
@@ -98,51 +105,44 @@ class ScheduledNotificationSerializer(BaseModelSerializer):
 
     @staticmethod
     def update_or_create_schedulednotification(scheduled_notification, instance):
-        timedelta_value = scheduled_notification.get('timedelta_value', None)
-        timedelta_unit = scheduled_notification.get('timedelta_unit', None)
+        timedelta_value = scheduled_notification.get("timedelta_value", None)
+        timedelta_unit = scheduled_notification.get("timedelta_unit", None)
 
         if not timedelta_value:
-            raise ValidationError({
-                'remind_attendees': ValidationError(
-                    _('Time delta value is required'),
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {"remind_attendees": ValidationError(_("Time delta value is required"), code="invalid")}
+            )
 
         if not timedelta_unit:
-            raise ValidationError({
-                'remind_attendees': ValidationError(
-                    _('Time delta unit is required'),
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {"remind_attendees": ValidationError(_("Time delta unit is required"), code="invalid")}
+            )
 
         scheduled_date_time = ScheduledNotification.calculate_scheduled_date_time(
             timedelta_unit, timedelta_value, instance.date_time_start
         )
 
         now = timezone.now()
-        active = scheduled_notification.get('active', False)
+        active = scheduled_notification.get("active", False)
 
         # Make sure that we are not scheduling a reminder that lies in the past.
         # Make also sure this will only be checked if the end time lies in the future.
         if active and instance.date_time_end > now > scheduled_date_time:
-            raise ValidationError({
-                'remind_attendees': ValidationError(
-                    _('Reminder lies in the past'),
-                    code='invalid'
-                ),
-            })
+            raise ValidationError(
+                {
+                    "remind_attendees": ValidationError(_("Reminder lies in the past"), code="invalid"),
+                }
+            )
 
         content_type_id = ContentType.objects.get_for_model(instance).pk
 
         ScheduledNotification.objects.update_or_create(
             object_id=instance.pk,
             defaults={
-                'scheduled_date_time': scheduled_date_time,
-                'timedelta_value': timedelta_value,
-                'timedelta_unit': timedelta_unit,
-                'active': active,
-                'content_type_id': content_type_id
-            }
+                "scheduled_date_time": scheduled_date_time,
+                "timedelta_value": timedelta_value,
+                "timedelta_unit": timedelta_unit,
+                "active": active,
+                "content_type_id": content_type_id,
+            },
         )

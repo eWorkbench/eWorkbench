@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.core.validators import validate_email
 
-from eric.shared_elements.models import MyUser, Contact, ValidationError
+from eric.shared_elements.models import Contact, MyUser, ValidationError
 
 
 class VObjectWrapper:
@@ -68,15 +68,15 @@ class VEventWrapper(VObjectWrapper):
             return False
 
     def read_attendee_mail_addresses(self):
-        attendee_list = self.read_list('attendee')
+        attendee_list = self.read_list("attendee")
         mail_list = list()
         for attendee in attendee_list:
             email = attendee.value.lower().replace("mailto:", "").strip()
-            print("Email lookup in user: '{}'".format(email))
+            print(f"Email lookup in user: '{email}'")
             if self.validate_attendee_email(email):
                 mail_list.append(email)
             else:
-                print('Ignoring attendee with invalid email address: "{}"'.format(email))
+                print(f'Ignoring attendee with invalid email address: "{email}"')
 
         return mail_list
 
@@ -97,6 +97,4 @@ class VEventWrapper(VObjectWrapper):
                 contact_pk_list.append(contacts.first().pk)
             else:
                 # not a user, not a contact => ignore
-                print('Ignoring attendee <{mail}> since there is no matching user or contact.'.format(
-                    mail=email
-                ))
+                print(f"Ignoring attendee <{email}> since there is no matching user or contact.")

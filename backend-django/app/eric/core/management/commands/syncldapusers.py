@@ -1,23 +1,23 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import time
 
-import ldap
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
-from django_auth_ldap.backend import LDAPBackend
-from django_auth_ldap.backend import _LDAPUser
-from ldap.controls import SimplePagedResultsControl
 
+from django_auth_ldap.backend import LDAPBackend, _LDAPUser
+
+import ldap
 from eric.core.decorators import disable_django_caching
 from eric.core.models import disable_permission_checks
 from eric.notifications.models import NotificationConfiguration
 from eric.projects.models import UserStorageLimit
 from eric.userprofile.models import UserProfile
+from ldap.controls import SimplePagedResultsControl
 
 User = get_user_model()
 
@@ -28,7 +28,7 @@ def create_controls(pagesize):
     """Create an LDAP control with a page size of "pagesize"."""
     # Initialize the LDAP controls for paging. Note that we pass ''
     # for the cookie because on first iteration, it starts out empty.
-    return SimplePagedResultsControl(True, size=pagesize, cookie='')
+    return SimplePagedResultsControl(True, size=pagesize, cookie="")
 
 
 def get_pctrls(serverctrls):
@@ -36,8 +36,7 @@ def get_pctrls(serverctrls):
     # Look through the returned controls and find the page controls.
     # This will also have our returned cookie which we need to make
     # the next search request.
-    return [c for c in serverctrls
-            if c.controlType == SimplePagedResultsControl.controlType]
+    return [c for c in serverctrls if c.controlType == SimplePagedResultsControl.controlType]
 
 
 def set_cookie(lc_object, pctrls, pagesize):
@@ -48,16 +47,16 @@ def set_cookie(lc_object, pctrls, pagesize):
 
 
 class Command(BaseCommand):
-    help = 'Sync ldap users'
+    help = "Sync ldap users"
 
     # This is essentially a placeholder callback function. You would do your real
     # work inside of this. Really this should be all abstracted into a generator...
     def process_entry(self, dn, attrs):
         """Process an entry. The two arguments passed are the DN and
-           a dictionary of attributes."""
+        a dictionary of attributes."""
         # print(dn, attrs)
 
-        username = "".join(attrs['uid'])  # ToDo: change back to cn
+        username = "".join(attrs["uid"])  # ToDo: change back to cn
 
         try:
             # fake an ldap user and set the internal user attributes, as if they were from LDAP
@@ -84,7 +83,7 @@ class Command(BaseCommand):
             # user = LDAPBackend().populate_user(username)
 
             if not user:
-                print('ERROR: LDAPBackend().populate_user() did not find user with username=', username)
+                print("ERROR: LDAPBackend().populate_user() did not find user with username=", username)
                 print(repr(dn))
                 print(attrs)
         except Exception:
@@ -108,7 +107,7 @@ class Command(BaseCommand):
 
                                 self.ldap_backend = LDAPBackend()
 
-                                user = _LDAPUser(backend=self.ldap_backend, username='')
+                                user = _LDAPUser(backend=self.ldap_backend, username="")
 
                                 ldap_connection = user.connection
 
@@ -126,18 +125,19 @@ class Command(BaseCommand):
                                         # it can reduce performance if you don't need it).
                                         msgid = ldap_connection.search_ext(
                                             settings.AUTH_LDAP_USER_SEARCH.base_dn,
-                                            ldap.SCOPE_SUBTREE, 'uid=*',
-                                            serverctrls=[lc]
+                                            ldap.SCOPE_SUBTREE,
+                                            "uid=*",
+                                            serverctrls=[lc],
                                         )
                                     except ldap.LDAPError as e:
-                                        print('LDAP search failed: %s' % e)
+                                        print("LDAP search failed: %s" % e)
                                         exit()
 
                                     # Pull the results from the search request
                                     try:
                                         rtype, rdata, rmsgid, serverctrls = ldap_connection.result3(msgid)
                                     except ldap.LDAPError as e:
-                                        print('Could not pull LDAP results: %s' % e)
+                                        print("Could not pull LDAP results: %s" % e)
                                         exit()
 
                                     rdata = settings.AUTH_LDAP_USER_SEARCH._process_results(rdata)
@@ -159,7 +159,7 @@ class Command(BaseCommand):
                                     # Get cookie for next request
                                     pctrls = get_pctrls(serverctrls)
                                     if not pctrls:
-                                        print('Warning: Server ignores RFC 2696 control.')
+                                        print("Warning: Server ignores RFC 2696 control.")
                                         break
 
                                     # Ok, we did find the page control, yank the cookie from it and
@@ -176,6 +176,6 @@ class Command(BaseCommand):
                                             users_processed,
                                             time.time() - start_time,
                                             users_processed / (time.time() - start_time),
-                                            raw_processing_time_end - raw_processing_time_start
+                                            raw_processing_time_end - raw_processing_time_start,
                                         )
                                     )

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import calendar
@@ -10,7 +10,6 @@ import re
 import uuid
 from datetime import time
 
-import vobject
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
@@ -22,9 +21,10 @@ from django.db.models.fields.files import FieldFile
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import datetime, timedelta
-from django.utils.timezone import localtime, localdate
+from django.utils.timezone import datetime, localdate, localtime, timedelta
 from django.utils.translation import gettext_lazy as _
+
+import vobject
 from django_changeset.models import RevisionModelMixin
 from django_changeset.models.mixins import CreatedModifiedByMixIn
 from django_cleanhtmlfield.fields import HTMLField
@@ -32,21 +32,43 @@ from django_userforeignkey.request import get_current_user
 
 from eric.base64_image_extraction.models import ExtractedImage
 from eric.core.models import BaseModel, LockMixin, disable_permission_checks
-from eric.core.models.abstract import SoftDeleteMixin, ChangeSetMixIn, WorkbenchEntityMixin, ImportedDSSMixin, \
-    IsFavouriteMixin, OrderingModelMixin
+from eric.core.models.abstract import (
+    ChangeSetMixIn,
+    ImportedDSSMixin,
+    IsFavouriteMixin,
+    OrderingModelMixin,
+    SoftDeleteMixin,
+    WorkbenchEntityMixin,
+)
 from eric.core.models.fields import AutoIncrementIntegerWithPrefixField
 from eric.core.utils import convert_html_to_text, get_rgb_rgba_pattern
-from eric.dss.models.models import get_upload_to_path, dss_storage
+from eric.dss.models.models import dss_storage, get_upload_to_path
 from eric.metadata.models.fields import MetadataRelation
 from eric.metadata.models.models import Metadata
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
-from eric.projects.models import FileSystemStorageLimitByUser, Project, MyUser, Resource, \
-    ResourceBookingRuleBookableHours
+from eric.projects.models import (
+    FileSystemStorageLimitByUser,
+    MyUser,
+    Project,
+    Resource,
+    ResourceBookingRuleBookableHours,
+)
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
-from eric.shared_elements.models.managers import ContactManager, NoteManager, FileManager, TaskManager, \
-    TaskAssignedUserManager, TaskCheckListManager, MeetingManager, UserAttendsMeetingManager, \
-    ContactAttendsMeetingManager, ElementLabelManager, CalendarAccessManager, CommentManager
+from eric.shared_elements.models.managers import (
+    CalendarAccessManager,
+    CommentManager,
+    ContactAttendsMeetingManager,
+    ContactManager,
+    ElementLabelManager,
+    FileManager,
+    MeetingManager,
+    NoteManager,
+    TaskAssignedUserManager,
+    TaskCheckListManager,
+    TaskManager,
+    UserAttendsMeetingManager,
+)
 
 METADATA_VERSION_KEY = "metadata_version"
 UNHANDLED_VERSION_ERROR = NotImplementedError("Unhandled metadata version")
@@ -56,10 +78,7 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 RGB_RGBA_PATTERN = get_rgb_rgba_pattern()
-rgba_color_validator = RegexValidator(
-    RGB_RGBA_PATTERN,
-    _("Not a valid RGBA color")
-)
+rgba_color_validator = RegexValidator(RGB_RGBA_PATTERN, _("Not a valid RGBA color"))
 
 
 def datetime_to_iso_string(date_time):
@@ -71,17 +90,28 @@ def datetime_from_iso_string(string):
 
 
 def scramble_uploaded_filename(filename):
-    """ scramble/uglify the filename of the uploaded file, keep the file extension """
+    """scramble/uglify the filename of the uploaded file, keep the file extension"""
     if "." in filename:
         extension = filename.split(".")[-1]
-        return "{}.{}".format(uuid.uuid4(), extension)
+        return f"{uuid.uuid4()}.{extension}"
     else:
         return str(uuid.uuid4())
 
 
-class Contact(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
-    """ Defines a contact, which is associated to a project """
+class Contact(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    LockMixin,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    IsFavouriteMixin,
+):
+    """Defines a contact, which is associated to a project"""
+
     objects = ContactManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -92,63 +122,51 @@ class Contact(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
             ("trash_contact", "Can trash a contact"),
             ("restore_contact", "Can restore a contact"),
             ("change_project_contact", "Can change the project of a contact"),
-            ("add_contact_without_project", "Can add a contact without a project")
+            ("add_contact_without_project", "Can add a contact without a project"),
         )
         track_fields = (
-            'academic_title', 'first_name', 'last_name',
-            'email', 'phone', 'company', 'notes',
-            'projects', 'deleted'
+            "academic_title",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "company",
+            "notes",
+            "projects",
+            "deleted",
         )
         track_related_many = (
-            ('metadata', ('field', 'values',)),
+            (
+                "metadata",
+                (
+                    "field",
+                    "values",
+                ),
+            ),
         )
-        fts_template = 'fts/contact.html'
-        export_template = 'export/contact.html'
+        fts_template = "fts/contact.html"
+        export_template = "export/contact.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import ContactSerializer
+
             return ContactSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     academic_title = models.CharField(
-        max_length=128,
-        default="",
-        blank=True,
-        verbose_name=_("Academic title of the contact")
+        max_length=128, default="", blank=True, verbose_name=_("Academic title of the contact")
     )
 
-    first_name = models.CharField(
-        max_length=128,
-        verbose_name=_("First name of the contact"),
-        db_index=True
-    )
+    first_name = models.CharField(max_length=128, verbose_name=_("First name of the contact"), db_index=True)
 
-    last_name = models.CharField(
-        max_length=128,
-        verbose_name=_("Last name of the contact")
-    )
+    last_name = models.CharField(max_length=128, verbose_name=_("Last name of the contact"))
 
-    email = models.EmailField(
-        verbose_name=_("Email of the contact"),
-        blank=True
-    )
+    email = models.EmailField(verbose_name=_("Email of the contact"), blank=True)
 
-    phone = models.CharField(
-        max_length=128,
-        verbose_name=_("Phone number of the contact"),
-        blank=True
-    )
+    phone = models.CharField(max_length=128, verbose_name=_("Phone number of the contact"), blank=True)
 
-    company = models.CharField(
-        max_length=128,
-        verbose_name=_("Company of the contact"),
-        blank=True
-    )
+    company = models.CharField(max_length=128, verbose_name=_("Company of the contact"), blank=True)
 
     notes = HTMLField(
         verbose_name=_("Notes about the contact"),
@@ -158,29 +176,24 @@ class Contact(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this contact associated to"),
         related_name="contacts",
-        blank=True
+        blank=True,
     )
 
     metadata = MetadataRelation()
 
     def __str__(self):
-        str = "%(firstname)s %(lastname)s" % {
-            'firstname': self.first_name, 'lastname': self.last_name
-        }
+        str = f"{self.first_name} {self.last_name}"
 
         if self.academic_title != "":
-            str = "%(academic_title)s %(rest)s" % {
-                'academic_title': self.academic_title,
-                'rest': str
-            }
+            str = f"{self.academic_title} {str}"
 
         return str
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v2()
 
     def __export_metadata_v1(self):
@@ -198,10 +211,12 @@ class Contact(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
 
     def __export_metadata_v2(self):
         data = self.__export_metadata_v1()
-        data.update({
-            METADATA_VERSION_KEY: 2,
-            "notes": self.notes,
-        })
+        data.update(
+            {
+                METADATA_VERSION_KEY: 2,
+                "notes": self.notes,
+            }
+        )
         return data
 
     def restore_metadata(self, metadata):
@@ -234,10 +249,20 @@ class Contact(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         self.notes = metadata.get("notes")
 
 
-class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-           ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
+class Note(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    LockMixin,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    IsFavouriteMixin,
+):
     # """ Defines a note, which can be associated to ANYTHING (project, contact, milestone, ...) """
-    """ Defines a note, which can be associated to a Project """
+    """Defines a note, which can be associated to a Project"""
     objects = NoteManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -248,29 +273,29 @@ class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
             ("trash_note", "Can trash a note"),
             ("restore_note", "Can restore a note"),
             ("change_project_note", "Can change the project of a note"),
-            ("add_note_without_project", "Can add a note without a project")
+            ("add_note_without_project", "Can add a note without a project"),
         )
-        track_fields = ('subject', 'content', 'projects', 'deleted')
+        track_fields = ("subject", "content", "projects", "deleted")
         track_related_many = (
-            ('metadata', ('field', 'values',)),
+            (
+                "metadata",
+                (
+                    "field",
+                    "values",
+                ),
+            ),
         )
-        fts_template = 'fts/note.html'
-        export_template = 'export/note.html'
+        fts_template = "fts/note.html"
+        export_template = "export/note.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import NoteSerializer
+
             return NoteSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    subject = models.TextField(
-        verbose_name=_("Subject of the note"),
-        db_index=True
-    )
+    subject = models.TextField(verbose_name=_("Subject of the note"), db_index=True)
 
     content = HTMLField(
         verbose_name=_("Content of the note"),
@@ -280,21 +305,30 @@ class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this note associated to"),
         related_name="notes",
-        blank=True
+        blank=True,
     )
 
     extracted_images = GenericRelation(ExtractedImage)
 
     metadata = MetadataRelation()
 
+    @property
+    def labbook_container(self):
+        from eric.labbooks.models import LabBookChildElement
+
+        return LabBookChildElement.objects.get(
+            child_object_content_type=self.get_content_type(),
+            child_object_id=self.pk,
+        )
+
     def __str__(self):
         return self.subject
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v1()
 
     def __export_metadata_v1(self):
@@ -326,37 +360,53 @@ class Note(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         Metadata.restore_all_from_entity(self, metadata.get("metadata"))
 
 
-class Comment(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
-    """ Defines a comment, which can be associated to ANYTHING (project, contact, milestone, ...) """
+class Comment(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    LockMixin,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    IsFavouriteMixin,
+):
+    """Defines a comment, which can be associated to ANYTHING (project, contact, milestone, ...)"""
+
     objects = CommentManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
         verbose_name = "Comment"
         verbose_name_plural = "Comments"
-        ordering = ['created_at', ]
+        ordering = [
+            "created_at",
+        ]
         permissions = (
             ("trash_comment", "Can trash a comment"),
             ("restore_comment", "Can restore a comment"),
             ("change_project_comment", "Can change the project of a comment"),
-            ("add_comment_without_project", "Can add a comment without a project")
+            ("add_comment_without_project", "Can add a comment without a project"),
         )
-        track_fields = ('content', 'projects', 'deleted')
+        track_fields = ("content", "projects", "deleted")
         track_related_many = (
-            ('metadata', ('field', 'values',)),
+            (
+                "metadata",
+                (
+                    "field",
+                    "values",
+                ),
+            ),
         )
-        fts_template = 'fts/comment.html'
-        export_template = 'export/comment.html'
+        fts_template = "fts/comment.html"
+        export_template = "export/comment.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import CommentSerializer
+
             return CommentSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     content = HTMLField(
         verbose_name=_("Content of the comment"),
@@ -366,10 +416,10 @@ class Comment(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this comment associated to"),
         related_name="comments",
-        blank=True
+        blank=True,
     )
 
     extracted_images = GenericRelation(ExtractedImage)
@@ -380,7 +430,7 @@ class Comment(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDelet
         return str(self.pk)
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v1()
 
     def __export_metadata_v1(self):
@@ -417,9 +467,7 @@ class DynamicStorageFieldFile(FieldFile):
     """
 
     def __init__(self, instance, field, name):
-        super(DynamicStorageFieldFile, self).__init__(
-            instance, field, name
-        )
+        super().__init__(instance, field, name)
         if instance.is_dss_file:
             self.storage = dss_storage
         else:
@@ -431,6 +479,7 @@ class DynamicStorageFileField(models.FileField):
     Custom FileField to be used for the path of File and UploadedFileEntry.
     This class checks if the instance is a dss File or not and sets the storage to be used accordingly.
     """
+
     attr_class = DynamicStorageFieldFile
 
     def pre_save(self, model_instance, add):
@@ -438,7 +487,7 @@ class DynamicStorageFileField(models.FileField):
             self.storage = dss_storage
         else:
             self.storage = FileSystemStorageLimitByUser()
-        file = super(DynamicStorageFileField, self).pre_save(model_instance, add)
+        file = super().pre_save(model_instance, add)
         return file
 
 
@@ -450,20 +499,16 @@ class UploadedFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     """
 
     class Meta:
-        ordering = ['path', 'id']
-        track_fields = ('path', 'mime_type', 'file_size', 'original_filename')
+        ordering = ["path", "id"]
+        track_fields = ("path", "mime_type", "file_size", "original_filename")
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     file = models.ForeignKey(
-        'File',
+        "File",
         on_delete=models.CASCADE,
-        verbose_name=_('Which file is this entry related to'),
-        related_name='file_entries'
+        verbose_name=_("Which file is this entry related to"),
+        related_name="file_entries",
     )
 
     path = DynamicStorageFileField(
@@ -473,19 +518,12 @@ class UploadedFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
     )
 
     mime_type = models.CharField(
-        max_length=255,
-        verbose_name=_("Mime type of the uploaded file"),
-        default="application/octet-stream"
+        max_length=255, verbose_name=_("Mime type of the uploaded file"), default="application/octet-stream"
     )
 
-    file_size = models.BigIntegerField(
-        verbose_name=_("Size of the file")
-    )
+    file_size = models.BigIntegerField(verbose_name=_("Size of the file"))
 
-    original_filename = models.CharField(
-        max_length=255,
-        verbose_name=_("Original name of the file")
-    )
+    original_filename = models.CharField(max_length=255, verbose_name=_("Original name of the file"))
 
     @property
     def is_dss_file(self):
@@ -493,21 +531,30 @@ class UploadedFileEntry(BaseModel, ChangeSetMixIn, RevisionModelMixin):
 
     @property
     def download_url(self):
-        return "%(url)s?version=%(version)s" % {
-            'url': reverse(
-                'file-download',
-                kwargs={'pk': self.file.pk, 'project_pk': self.file.project.pk}
-            ),
-            'version': self.pk
-        }
+        return "{url}?version={version}".format(
+            url=reverse("file-download", kwargs={"pk": self.file.pk, "project_pk": self.file.project.pk}),
+            version=self.pk,
+        )
 
     def __str__(self):
         return self.file.name
 
 
-class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-           ModelPrivilegeMixIn, WorkbenchEntityMixin, ImportedDSSMixin, IsFavouriteMixin):
-    """ Defines a file, which is associated to a project """
+class File(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    LockMixin,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    ImportedDSSMixin,
+    IsFavouriteMixin,
+):
+    """Defines a file, which is associated to a project"""
+
     objects = FileManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -518,39 +565,44 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
             ("trash_file", "Can trash a file"),
             ("restore_file", "Can restore a file"),
             ("change_project_file", "Can change the project of a file"),
-            ("add_file_without_project", "Can add a file without a project")
+            ("add_file_without_project", "Can add a file without a project"),
         )
         track_fields = (
-            'title', 'description', 'projects', 'deleted', 'directory',
-            'name', 'original_filename', 'mime_type', 'file_size', 'path',
+            "title",
+            "description",
+            "projects",
+            "deleted",
+            "directory",
+            "name",
+            "original_filename",
+            "mime_type",
+            "file_size",
+            "path",
         )
         track_related_many = (
-            ('metadata', ('field', 'values',)),
+            (
+                "metadata",
+                (
+                    "field",
+                    "values",
+                ),
+            ),
         )
-        fts_template = 'fts/file.html'
-        export_template = 'export/file.html'
+        fts_template = "fts/file.html"
+        export_template = "export/file.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import FileSerializer
+
             return FileSerializer
 
     DEFAULT_MIME_TYPE = "application/octet-stream"
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        max_length=255,
-        verbose_name=_("Title of the file")
-    )
+    title = models.CharField(max_length=255, verbose_name=_("Title of the file"))
 
-    name = models.CharField(
-        max_length=255,
-        verbose_name=_("Current name of the file")
-    )
+    name = models.CharField(max_length=255, verbose_name=_("Current name of the file"))
 
     description = HTMLField(
         verbose_name=_("Description of the file"),
@@ -559,12 +611,12 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
     )
 
     directory = models.ForeignKey(
-        'drives.Directory',
+        "drives.Directory",
         verbose_name=_("Directory of a Drive where the file is stored at"),
-        related_name='files',
+        related_name="files",
         on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
     )
 
     path = DynamicStorageFileField(
@@ -576,41 +628,42 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
     )
 
     mime_type = models.CharField(
-        max_length=255,
-        verbose_name=_("Mime type of the uploaded file"),
-        default=DEFAULT_MIME_TYPE
+        max_length=255, verbose_name=_("Mime type of the uploaded file"), default=DEFAULT_MIME_TYPE
     )
 
-    file_size = models.BigIntegerField(
-        verbose_name=_("Size of the file"),
-        default=0
-    )
+    file_size = models.BigIntegerField(verbose_name=_("Size of the file"), default=0)
 
-    original_filename = models.CharField(
-        max_length=255,
-        verbose_name=_("Original name of the file")
-    )
+    original_filename = models.CharField(max_length=255, verbose_name=_("Original name of the file"))
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this file associated to"),
         related_name="files",
-        blank=True
+        blank=True,
     )
 
     uploaded_file_entry = models.OneToOneField(
-        'shared_elements.UploadedFileEntry',
+        "shared_elements.UploadedFileEntry",
         verbose_name=_("Reference to the archived data"),
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='+'  # no reverse field, since there is one already
+        related_name="+",  # no reverse field, since there is one already
     )
 
     extracted_images = GenericRelation(ExtractedImage)
 
     metadata = MetadataRelation()
+
+    @property
+    def labbook_container(self):
+        from eric.labbooks.models import LabBookChildElement
+
+        return LabBookChildElement.objects.get(
+            child_object_content_type=self.get_content_type(),
+            child_object_id=self.pk,
+        )
 
     @property
     def is_dss_file(self):
@@ -623,18 +676,20 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
     @property
     def location(self):
-        if self.directory and self.directory.drive and self.directory.drive.envelope \
-                and self.directory.drive.envelope.container:
-            return "DSS: {}".format(self.directory.drive.envelope.container.path)
-        return ''
+        if (
+            self.directory
+            and self.directory.drive
+            and self.directory.drive.envelope
+            and self.directory.drive.envelope.container
+        ):
+            return f"DSS: {self.directory.drive.envelope.container.path}"
+        return ""
 
     @staticmethod
     def generate_file_name(cur_file_name):
         new_file_name = scramble_uploaded_filename(cur_file_name)
 
-        new_file_path = settings.WORKBENCH_SETTINGS['project_file_upload_folder'] % {
-            'filename': new_file_name
-        }
+        new_file_path = settings.WORKBENCH_SETTINGS["project_file_upload_folder"] % {"filename": new_file_name}
 
         return new_file_path
 
@@ -650,7 +705,7 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         """
         store_uploaded_file_entry = False
         # check if file has changed
-        if not dds_migration and self.path and hasattr(self.path.file, 'content_type'):
+        if not dds_migration and self.path and hasattr(self.path.file, "content_type"):
             # mark True for store uploaded file entry
             store_uploaded_file_entry = True
             # store original filename
@@ -686,15 +741,10 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
                 path=self.path,
                 mime_type=self.mime_type,
                 original_filename=self.name,
-                file_size=self.file_size
+                file_size=self.file_size,
             )
 
-        super(File, self).save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields
-        )
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
         # make sure that the file is always closed (hasattr on self.path.file actually opens the file)
         if not dds_migration and self.path:
@@ -704,7 +754,7 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         return self.name
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v2()
 
     def __export_metadata_v1(self):
@@ -720,10 +770,12 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
     def __export_metadata_v2(self):
         metadata = self.__export_metadata_v1()
-        metadata.update({
-            METADATA_VERSION_KEY: 2,
-            "title": self.title,
-        })
+        metadata.update(
+            {
+                METADATA_VERSION_KEY: 2,
+                "title": self.title,
+            }
+        )
         return metadata
 
     def restore_metadata(self, metadata):
@@ -741,7 +793,7 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         self.description = metadata.get("description")
 
         directory_pk = metadata.get("directory")
-        self.directory_id = directory_pk if directory_pk is not None and directory_pk != '' else None
+        self.directory_id = directory_pk if directory_pk is not None and directory_pk != "" else None
         self.uploaded_file_entry_id = metadata.get("uploaded_file_entry")
 
         self.projects.clear()
@@ -769,7 +821,8 @@ class File(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
 
 class TaskAssignedUser(BaseModel, ChangeSetMixIn, RevisionModelMixin):
-    """ Defines assigned users on Tasks (through model, many to many) """
+    """Defines assigned users on Tasks (through model, many to many)"""
+
     objects = TaskAssignedUserManager()
 
     class Meta:
@@ -779,82 +832,80 @@ class TaskAssignedUser(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         # track the assigned user on the task entity
         # track_fields = ('assigned_user', )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     assigned_user = models.ForeignKey(
-        "projects.MyUser",
-        verbose_name=_("Which user is the task assigned to"),
-        on_delete=models.CASCADE
+        "projects.MyUser", verbose_name=_("Which user is the task assigned to"), on_delete=models.CASCADE
     )
 
     # reference to a task
     task = models.ForeignKey(
-        'shared_elements.Task',
+        "shared_elements.Task",
         verbose_name=_("Which task is the user assigned to"),
         blank=True,
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
-        return "User {user} is assigned to task {task}".format(user=self.assigned_user, task=self.task)
+        return f"User {self.assigned_user} is assigned to task {self.task}"
 
 
 class TaskCheckList(BaseModel, ChangeSetMixIn, RevisionModelMixin, OrderingModelMixin):
-    """ Defines the checklist for a task """
+    """Defines the checklist for a task"""
+
     objects = TaskCheckListManager()
 
     class Meta:
         verbose_name = _("Task Checklist Item")
         verbose_name_plural = _("Task Checklist Items")
         ordering = [
-            'task__task_id',
-            'ordering',
-            'created_at',  # fallback for default ordering
+            "task__task_id",
+            "ordering",
+            "created_at",  # fallback for default ordering
         ]
-        track_fields = ('title', 'checked', 'task',)
+        track_fields = (
+            "title",
+            "checked",
+            "task",
+        )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        max_length=2000,
-        verbose_name=_("Title of the checklist item")
-    )
+    title = models.CharField(max_length=2000, verbose_name=_("Title of the checklist item"))
 
-    checked = models.BooleanField(
-        default=False,
-        verbose_name=_("Whether this checklist item has been checked or not")
-    )
+    checked = models.BooleanField(default=False, verbose_name=_("Whether this checklist item has been checked or not"))
 
     # reference to a task
     task = models.ForeignKey(
-        'shared_elements.Task',
+        "shared_elements.Task",
         related_name="checklist_items",
         verbose_name=_("Which task this checklist item belongs to"),
         blank=True,
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
         return _("Task") + " {task_title}: [{checked}] {checklist_title}".format(
-            task_title=self.task.title,
-            checked=self.checked,
-            checklist_title=self.title
+            task_title=self.task.title, checked=self.checked, checklist_title=self.title
         )
 
 
-class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-           ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
-    """ Defines a task, which is associated to a project """
+class Task(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    LockMixin,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    IsFavouriteMixin,
+):
+    """Defines a task, which is associated to a project"""
+
     objects = TaskManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -868,86 +919,78 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
             ("add_task_without_project", "Can add a task without a project"),
         )
         track_fields = (
-            'title', 'start_date', 'due_date', 'priority', 'state', 'description', 'projects', 'assigned_users',
-            'labels', 'deleted'
+            "title",
+            "start_date",
+            "due_date",
+            "priority",
+            "state",
+            "description",
+            "projects",
+            "assigned_users",
+            "labels",
+            "deleted",
         )
         track_related_many = (
-            ('checklist_items', ('title', 'checked')),
-            ('metadata', ('field', 'values',)),
+            ("checklist_items", ("title", "checked")),
+            (
+                "metadata",
+                (
+                    "field",
+                    "values",
+                ),
+            ),
         )
-        fts_template = 'fts/task.html'
-        export_template = 'export/task.html'
+        fts_template = "fts/task.html"
+        export_template = "export/task.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import TaskSerializer
+
             return TaskSerializer
 
     # Task State Choices
-    TASK_STATE_NEW = 'NEW'
-    TASK_STATE_PROGRESS = 'PROG'
-    TASK_STATE_DONE = 'DONE'
+    TASK_STATE_NEW = "NEW"
+    TASK_STATE_PROGRESS = "PROG"
+    TASK_STATE_DONE = "DONE"
 
     TASK_STATE_CHOICES = (
-        (TASK_STATE_NEW, 'New'),
-        (TASK_STATE_PROGRESS, 'In Progress'),
-        (TASK_STATE_DONE, 'Done'),
+        (TASK_STATE_NEW, "New"),
+        (TASK_STATE_PROGRESS, "In Progress"),
+        (TASK_STATE_DONE, "Done"),
     )
 
     # Task Priority
-    TASK_PRIORITY_VERY_HIGH = '5'
-    TASK_PRIORITY_HIGH = '4'
-    TASK_PRIORITY_NORMAL = '3'
-    TASK_PRIORITY_LOW = '2'
-    TASK_PRIORITY_VERY_LOW = '1'
+    TASK_PRIORITY_VERY_HIGH = "5"
+    TASK_PRIORITY_HIGH = "4"
+    TASK_PRIORITY_NORMAL = "3"
+    TASK_PRIORITY_LOW = "2"
+    TASK_PRIORITY_VERY_LOW = "1"
 
     TASK_PRIORITY_CHOICES = (
-        (TASK_PRIORITY_VERY_HIGH, 'Very High'),
-        (TASK_PRIORITY_HIGH, 'High'),
-        (TASK_PRIORITY_NORMAL, 'Normal'),
-        (TASK_PRIORITY_LOW, 'Low'),
-        (TASK_PRIORITY_VERY_LOW, 'Very Low')
+        (TASK_PRIORITY_VERY_HIGH, "Very High"),
+        (TASK_PRIORITY_HIGH, "High"),
+        (TASK_PRIORITY_NORMAL, "Normal"),
+        (TASK_PRIORITY_LOW, "Low"),
+        (TASK_PRIORITY_VERY_LOW, "Very Low"),
     )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    task_id = AutoIncrementIntegerWithPrefixField(
-        verbose_name=_("Ticket Identifier"),
-        db_index=True
-    )
+    task_id = AutoIncrementIntegerWithPrefixField(verbose_name=_("Ticket Identifier"), db_index=True)
 
-    title = models.TextField(
-        verbose_name=_("Title of the task")
-    )
+    title = models.TextField(verbose_name=_("Title of the task"))
 
-    start_date = models.DateTimeField(
-        verbose_name=_("Task start date"),
-        db_index=True,
-        null=True,
-        blank=True
-    )
+    start_date = models.DateTimeField(verbose_name=_("Task start date"), db_index=True, null=True, blank=True)
 
-    due_date = models.DateTimeField(
-        verbose_name=_("Task due date"),
-        db_index=True,
-        null=True,
-        blank=True
-    )
+    due_date = models.DateTimeField(verbose_name=_("Task due date"), db_index=True, null=True, blank=True)
 
-    full_day = models.BooleanField(
-        default=False,
-        db_index=True,
-        verbose_name=_("full day")
-    )
+    full_day = models.BooleanField(default=False, db_index=True, verbose_name=_("full day"))
 
     priority = models.CharField(
         max_length=5,
         choices=TASK_PRIORITY_CHOICES,
         verbose_name=_("Priority of the task"),
-        default=TASK_PRIORITY_NORMAL
+        default=TASK_PRIORITY_NORMAL,
     )
 
     state = models.CharField(
@@ -955,7 +998,7 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         choices=TASK_STATE_CHOICES,
         verbose_name=_("State of the task"),
         default=TASK_STATE_NEW,
-        db_index=True
+        db_index=True,
     )
 
     description = HTMLField(
@@ -964,37 +1007,27 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         strip_unsafe=True,
     )
 
-    assigned_users = models.ManyToManyField(
-        "projects.MyUser",
-        through="TaskAssignedUser"
-    )
+    assigned_users = models.ManyToManyField("projects.MyUser", through="TaskAssignedUser")
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this task associated to"),
         related_name="tasks",
-        blank=True
+        blank=True,
     )
 
     labels = models.ManyToManyField(
-        'shared_elements.ElementLabel',
+        "shared_elements.ElementLabel",
         verbose_name=_("Which labels are assigned to this task"),
         related_name="tasks",
-        blank=True
+        blank=True,
     )
 
-    remind_assignees = models.BooleanField(
-        default=False,
-        db_index=True,
-        verbose_name=_("remind assignees")
-    )
+    remind_assignees = models.BooleanField(default=False, db_index=True, verbose_name=_("remind assignees"))
 
     reminder_datetime = models.DateTimeField(
-        verbose_name=_("Task reminder datetime"),
-        db_index=True,
-        null=True,
-        blank=True
+        verbose_name=_("Task reminder datetime"), db_index=True, null=True, blank=True
     )
 
     extracted_images = GenericRelation(ExtractedImage)
@@ -1013,32 +1046,25 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         end_date = self.due_date
 
         if end_date and start_date and end_date < start_date:
-            raise ValidationError({
-                'start_date': ValidationError(
-                    _('Start date must be before end date'),
-                    code='invalid'
-                ),
-                'due_date': ValidationError(
-                    _('End date must be after start date'),
-                    code='invalid'
-                ),
-            })
+            raise ValidationError(
+                {
+                    "start_date": ValidationError(_("Start date must be before end date"), code="invalid"),
+                    "due_date": ValidationError(_("End date must be after start date"), code="invalid"),
+                }
+            )
 
     def clean(self):
-        """ validate the meetings date_time  """
+        """validate the meetings date_time"""
         self.validate_date_time_start_end()
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v1()
 
     def __export_metadata_v1(self):
         checklist = []
         for item in TaskCheckList.objects.filter(task=self):
-            checklist.append({
-                "title": item.title,
-                "checked": item.checked
-            })
+            checklist.append({"title": item.title, "checked": item.checked})
 
         return {
             METADATA_VERSION_KEY: 1,
@@ -1090,7 +1116,7 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
 
         self.checklist_items.all().delete()
         for item in metadata.get("checklist"):
-            model_item = TaskCheckList(title=item['title'], checked=item['checked'], task=self)
+            model_item = TaskCheckList(title=item["title"], checked=item["checked"], task=self)
             model_item.save()
 
         Metadata.restore_all_from_entity(self, metadata.get("metadata"))
@@ -1101,36 +1127,37 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
         """
 
         from django.forms import model_to_dict
+
         task_dict = model_to_dict(self)
 
         # duplicated task should not be soft deleted, even if the original task is
-        del task_dict['deleted']
+        del task_dict["deleted"]
 
         # related projects will be added separately after the duplicated task has been saved
-        del task_dict['projects']
+        del task_dict["projects"]
 
         # element labels will be added separately after the duplicated task has been saved
-        element_labels = task_dict['labels']
-        del task_dict['labels']
+        element_labels = task_dict["labels"]
+        del task_dict["labels"]
 
         # assigned users will be added separately after the duplicated task has been saved
-        assigned_users = task_dict['assigned_users']
-        del task_dict['assigned_users']
+        assigned_users = task_dict["assigned_users"]
+        del task_dict["assigned_users"]
 
         # variables are generated automatically
-        del task_dict['version_number']
-        del task_dict['fts_language']
+        del task_dict["version_number"]
+        del task_dict["fts_language"]
 
         # rename to "Copy of <tasktitle>"
-        task_dict['title'] = ("Copy of {}".format(task_dict['title']))
-        task_dict['state'] = "NEW"
+        task_dict["title"] = "Copy of {}".format(task_dict["title"])
+        task_dict["state"] = "NEW"
 
         # create a new task object and save it
         new_task_object = Task(**task_dict)
         new_task_object.save()
 
         # assign duplicated task to projects
-        projects = kwargs['projects']
+        projects = kwargs["projects"]
         if len(projects) > 0:
             for project in projects:
                 new_task_object.projects.add(project)
@@ -1145,7 +1172,7 @@ class Task(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMi
                 new_label = ElementLabel.objects.create(name=label.name, color=label.color)
                 new_task_object.labels.add(new_label)
 
-        checklist = self.export_metadata()['checklist']
+        checklist = self.export_metadata()["checklist"]
         if len(checklist) > 0:
             for item in checklist:
                 new_item = TaskCheckList.objects.create(**item)
@@ -1199,13 +1226,24 @@ def get_duration_str(duration):
     )
 
 
-class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin, SoftDeleteMixin, RelationsMixIn,
-              ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
+class Meeting(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    LockMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    IsFavouriteMixin,
+):
     """
     Appointment, previously known as Meeting or ResourceBooking.
     Represents an event with start date, end date and attendees.
     Represents a resource booking, if a resource is referenced.
     """
+
     objects = MeetingManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -1216,48 +1254,46 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             ("trash_meeting", "Can trash a meeting"),
             ("restore_meeting", "Can restore a meeting"),
             ("change_project_meeting", "Can change the project of a meeting"),
-            ("add_meeting_without_project", "Can add a meeting without a project")
+            ("add_meeting_without_project", "Can add a meeting without a project"),
         )
         track_fields = (
-            'title', 'date_time_start', 'date_time_end', 'text', 'location', 'projects', 'resource',
-            'attending_users', 'attending_contacts', 'deleted'
+            "title",
+            "date_time_start",
+            "date_time_end",
+            "text",
+            "location",
+            "projects",
+            "resource",
+            "attending_users",
+            "attending_contacts",
+            "deleted",
         )
         track_related_many = (
-            ('metadata', ('field', 'values',)),
+            (
+                "metadata",
+                (
+                    "field",
+                    "values",
+                ),
+            ),
         )
-        fts_template = 'fts/meeting.html'
-        export_template = 'export/meeting.html'
+        fts_template = "fts/meeting.html"
+        export_template = "export/meeting.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import MeetingSerializer
+
             return MeetingSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        max_length=128,
-        verbose_name=_("Title of the meeting")
-    )
+    title = models.CharField(max_length=128, verbose_name=_("Title of the meeting"))
 
-    date_time_start = models.DateTimeField(
-        verbose_name=_("Meeting start date time"),
-        db_index=True
-    )
+    date_time_start = models.DateTimeField(verbose_name=_("Meeting start date time"), db_index=True)
 
-    date_time_end = models.DateTimeField(
-        verbose_name=_("Meeting end date time"),
-        db_index=True
-    )
+    date_time_end = models.DateTimeField(verbose_name=_("Meeting end date time"), db_index=True)
 
-    full_day = models.BooleanField(
-        default=False,
-        db_index=True,
-        verbose_name=_("full day")
-    )
+    full_day = models.BooleanField(default=False, db_index=True, verbose_name=_("full day"))
 
     text = HTMLField(
         verbose_name=_("Description of the meeting"),
@@ -1273,31 +1309,25 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
     )
 
     resource = models.ForeignKey(
-        'projects.Resource',
+        "projects.Resource",
         verbose_name=_("Which resource is booked for this meeting"),
         related_name="meetings",
         blank=True,
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this meeting associated to"),
         related_name="meetings",
-        blank=True
+        blank=True,
     )
 
-    attending_users = models.ManyToManyField(
-        "projects.MyUser",
-        through="UserAttendsMeeting"
-    )
+    attending_users = models.ManyToManyField("projects.MyUser", through="UserAttendsMeeting")
 
-    attending_contacts = models.ManyToManyField(
-        "contact",
-        through="ContactAttendsMeeting"
-    )
+    attending_contacts = models.ManyToManyField("contact", through="ContactAttendsMeeting")
 
     extracted_images = GenericRelation(ExtractedImage)
 
@@ -1348,21 +1378,21 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             calendar = vobject.iCalendar()
 
         if not event:
-            event = calendar.add('vevent')
+            event = calendar.add("vevent")
 
         # create all the entries for ical
         attr_list = [
-            'created',
-            'last_modified',
-            'dtstamp',
-            'dtstart',
-            'dtend',
-            'summary',
-            'uid',
-            'description',
-            'x-alt-desc',  # description in alternate format (HTML or RTF)
-            'location',
-            'organizer'
+            "created",
+            "last_modified",
+            "dtstamp",
+            "dtstart",
+            "dtend",
+            "summary",
+            "uid",
+            "description",
+            "x-alt-desc",  # description in alternate format (HTML or RTF)
+            "location",
+            "organizer",
         ]
 
         event_dict = {}
@@ -1371,55 +1401,58 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             if hasattr(event, attr):
                 event_dict[attr] = getattr(event, attr)
             else:
-                event_dict[attr] = event.add(attr.replace('_', '-'))
+                event_dict[attr] = event.add(attr.replace("_", "-"))
 
         # meta information: created, last modified, dtstamp (ical creation)
-        event_dict['created'].value = localtime(self.created_at)  # created_at modification timestamp
-        event_dict['last_modified'].value = localtime(self.last_modified_at)  # last modification timestamp
+        event_dict["created"].value = localtime(self.created_at)  # created_at modification timestamp
+        event_dict["last_modified"].value = localtime(self.last_modified_at)  # last modification timestamp
 
         # when the ical information is being created (so basically now)
-        event_dict['dtstamp'].value = timezone.now()  # self.last_modified_at
+        event_dict["dtstamp"].value = timezone.now()  # self.last_modified_at
         # dtstamp is important for external programs to know that something has changed
         # Hence we are using the last modified date
 
         # workbench specifies events as (start-inclusive, end-inclusive)
         # caldav specifies events as (start-inclusive, end-exclusive)
-        event_dict['dtstart'].value = localtime(self.date_time_start)
-        event_dict['dtend'].value = localtime(self.date_time_end)
+        event_dict["dtstart"].value = localtime(self.date_time_start)
+        event_dict["dtend"].value = localtime(self.date_time_end)
 
         from eric.caldav.utils import get_or_create_caldav_item_for_meeting
-        caldav_item = get_or_create_caldav_item_for_meeting(self)
-        event_dict['uid'].value = str(caldav_item.pk)
 
-        event_dict['summary'].value = self.title
+        caldav_item = get_or_create_caldav_item_for_meeting(self)
+        event_dict["uid"].value = str(caldav_item.pk)
+
+        event_dict["summary"].value = self.title
 
         # must avoid setting None here, otherwise restoring a version without location won't work
         # because the None value can't be serialized
-        event_dict['location'].value = self.location or ''
+        event_dict["location"].value = self.location or ""
 
-        event_dict['x-alt-desc'].value = self.text
-        event_dict['x-alt-desc'].params = {
-            "FMTTYPE": ['text/html', ]
+        event_dict["x-alt-desc"].value = self.text
+        event_dict["x-alt-desc"].params = {
+            "FMTTYPE": [
+                "text/html",
+            ]
         }
-        event_dict['description'].value = convert_html_to_text(self.text)  # description (without html)
+        event_dict["description"].value = convert_html_to_text(self.text)  # description (without html)
 
         # creator of the meeting
-        event_dict['organizer'].value = "MAILTO:%(organizer_mail)s" % {'organizer_mail': self.created_by.email}
-        event_dict['organizer'].CN_param = MyUser.__str__(self.created_by)  # use MyUser's str() method
-        event_dict['organizer'].CUTYPE_param = ["INDIVIDUAL"]
-        event_dict['organizer'].PK_param = str(self.created_by.pk)
-        event_dict['organizer'].TYPE_param = "user"
+        event_dict["organizer"].value = f"MAILTO:{self.created_by.email}"
+        event_dict["organizer"].CN_param = MyUser.__str__(self.created_by)  # use MyUser's str() method
+        event_dict["organizer"].CUTYPE_param = ["INDIVIDUAL"]
+        event_dict["organizer"].PK_param = str(self.created_by.pk)
+        event_dict["organizer"].TYPE_param = "user"
 
         attending_user_pk_list = []
 
         # add all attending users
         for user in self.attending_users.all():
-            mailto_value = "MAILTO:%(attendee_mail)s" % {'attendee_mail': user.email}
+            mailto_value = f"MAILTO:{user.email}"
             found_existing_attendee = False
 
             # find out whether this user is already an attendee
-            if 'attendee' in event.contents:
-                for existing_attendee in event.contents['attendee']:
+            if "attendee" in event.contents:
+                for existing_attendee in event.contents["attendee"]:
                     if existing_attendee.value == mailto_value:
                         # found
                         found_existing_attendee = True
@@ -1429,21 +1462,19 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             # if the user is not an existing attendee
             if not found_existing_attendee:
                 # create a new attendee
-                attendee_value = event.add('attendee')
+                attendee_value = event.add("attendee")
 
             # set the mailto value
             attendee_value.value = mailto_value
 
             # set the canoncial name of the user
-            attendee_value.CN_param = _("User '%(attendee_name)s'") % {
-                'attendee_name': str(user)
-            }
+            attendee_value.CN_param = _("User '%(attendee_name)s'") % {"attendee_name": str(user)}
 
             # set the CUTYPE to INDIVIDUAL
             attendee_value.CUTYPE_param = ["INDIVIDUAL"]
 
             # also store user pk and a type, so that we can identify the users later
-            attendee_value.DIR_param = "database://user/{}".format(user.pk)
+            attendee_value.DIR_param = f"database://user/{user.pk}"
 
             # add this user pk to the attending_user_pk_list
             attending_user_pk_list.append(str(user.pk))
@@ -1452,13 +1483,13 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
 
         # add all attending contacts
         for contact in self.attending_contacts.all():
-            mailto_value = "MAILTO: %(attendee_mail)s" % {'attendee_mail': contact.email}
+            mailto_value = f"MAILTO: {contact.email}"
 
             found_existing_attendee = False
 
             # find out whether this contact is already an attendee
-            if 'attendee' in event.contents:
-                for existing_attendee in event.contents['attendee']:
+            if "attendee" in event.contents:
+                for existing_attendee in event.contents["attendee"]:
                     if existing_attendee.value == mailto_value:
                         # found
                         found_existing_attendee = True
@@ -1468,45 +1499,43 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             # if the contact is not an existing attendee
             if not found_existing_attendee:
                 # create a new attendee
-                attendee_value = event.add('attendee')
+                attendee_value = event.add("attendee")
 
             # set the mailto value
             attendee_value.value = mailto_value
 
             # set the canoncial name of the contact
-            attendee_value.CN_param = _("Contact '%(attendee_name)s'") % {
-                'attendee_name': str(contact)
-            }
+            attendee_value.CN_param = _("Contact '%(attendee_name)s'") % {"attendee_name": str(contact)}
 
             # set the CUTYPE to INDIVIDUAL
             attendee_value.CUTYPE_param = ["INDIVIDUAL"]
 
             # also store user pk and a type, so that we can identify the users later
-            attendee_value.DIR_param = "database://user/{}".format(contact.pk)
+            attendee_value.DIR_param = f"database://user/{contact.pk}"
 
             # add this user pk to the attending_contact_pk_list
             attending_contact_pk_list.append(str(contact.pk))
 
         # iterate over all attendees and make sure that if they are of type "user" or "contact", that they are in
         # either attending_user_pk_list or resp. attending_contact_pk_list
-        if 'attendee' in event.contents:
-            for attendee in event.contents['attendee']:
+        if "attendee" in event.contents:
+            for attendee in event.contents["attendee"]:
                 # check that attendee has the "type" and "pk" attributes
-                if 'PK' in attendee.params and 'TYPE' in attendee.params:
+                if "PK" in attendee.params and "TYPE" in attendee.params:
                     # this is a workbench entity
-                    pk = attendee.params['PK'][0]
+                    pk = attendee.params["PK"][0]
 
                     # check for user or contact
-                    if attendee.params['TYPE'][0] == "user":
+                    if attendee.params["TYPE"][0] == "user":
                         if pk not in attending_user_pk_list:
                             print("Need to remove this user attendee!", attendee)
-                            event.contents['attendee'].remove(attendee)
-                    elif attendee.params['TYPE'][0] == "contact":
+                            event.contents["attendee"].remove(attendee)
+                    elif attendee.params["TYPE"][0] == "contact":
                         if pk not in attending_contact_pk_list:
                             print("Need to remove this contact attendee!", attendee)
-                            event.contents['attendee'].remove(attendee)
+                            event.contents["attendee"].remove(attendee)
                     else:
-                        print("Unknown type", attendee.params['TYPE'])
+                        print("Unknown type", attendee.params["TYPE"])
                 else:
                     print("not a workbench entity", attendee)
 
@@ -1529,16 +1558,12 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         :return:
         """
         if self.date_time_end < self.date_time_start:
-            raise ValidationError({
-                'date_time_start': ValidationError(
-                    _('Start date must be before end date'),
-                    code='invalid'
-                ),
-                'date_time_end': ValidationError(
-                    _('End date must be after start date'),
-                    code='invalid'
-                ),
-            })
+            raise ValidationError(
+                {
+                    "date_time_start": ValidationError(_("Start date must be before end date"), code="invalid"),
+                    "date_time_end": ValidationError(_("End date must be after start date"), code="invalid"),
+                }
+            )
 
     def validate_resource_booking_is_not_in_the_past(self):
         """
@@ -1550,12 +1575,13 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             now = localtime(timezone.now())
 
             if start_date < now:
-                raise ValidationError({
-                    'resource': ValidationError(
-                        _('Start date must not be in the past when booking a resource'),
-                        code='invalid'
-                    ),
-                })
+                raise ValidationError(
+                    {
+                        "resource": ValidationError(
+                            _("Start date must not be in the past when booking a resource"), code="invalid"
+                        ),
+                    }
+                )
 
     def validate_resource_booking_doesnt_exist_already(self):
         """
@@ -1566,20 +1592,18 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         if entries exist raise ValidationError on the times
         :return:
         """
-        resource_booking_objects = Meeting.objects \
-            .exclude(pk=self.pk) \
-            .exclude(deleted=True) \
-            .filter(resource=self.resource) \
-            .filter(date_time_start__lt=self.date_time_end) \
+        resource_booking_objects = (
+            Meeting.objects.exclude(pk=self.pk)
+            .exclude(deleted=True)
+            .filter(resource=self.resource)
+            .filter(date_time_start__lt=self.date_time_end)
             .filter(date_time_end__gt=self.date_time_start)
+        )
 
         if resource_booking_objects.exists():
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('This resource is already booked at this time'),
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {"resource": ValidationError(_("This resource is already booked at this time"), code="invalid")}
+            )
 
     def validate_resource_booking_rule_minimum_duration(self):
         """
@@ -1596,14 +1620,16 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
 
         if minimum_duration and booking_duration < minimum_duration:
             duration_str = get_duration_str(minimum_duration)
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('This resource has a minimum booking duration of {duration_str}').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "resource": ValidationError(
+                        _("This resource has a minimum booking duration of {duration_str}").format(
+                            duration_str=duration_str
+                        ),
+                        code="invalid",
+                    )
+                }
+            )
 
     def validate_resource_booking_rule_maximum_duration(self):
         """
@@ -1620,14 +1646,16 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
 
         if maximum_duration and booking_duration > maximum_duration:
             duration_str = get_duration_str(maximum_duration)
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('This resource has a maximum booking duration of {duration_str}').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "resource": ValidationError(
+                        _("This resource has a maximum booking duration of {duration_str}").format(
+                            duration_str=duration_str
+                        ),
+                        code="invalid",
+                    )
+                }
+            )
 
     @staticmethod
     def check_bookable_weekdays_and_times(bookable_time, date_time_start, date_time_end):
@@ -1642,30 +1670,27 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         zero_end_time = time(23, 59, 59)
 
         if not bookable_time:
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('This resource cannot be booked on this day'),
-                    code='invalid'
-                ),
-            })
+            raise ValidationError(
+                {
+                    "resource": ValidationError(_("This resource cannot be booked on this day"), code="invalid"),
+                }
+            )
 
         if not bookable_time.time_start == zero_time and not bookable_time.time_end == zero_end_time:
             if start_time < bookable_time.time_start or start_time > bookable_time.time_end:
-                raise ValidationError({
-                    'resource': ValidationError(
-                        _('The start time is outside the bookable times'),
-                        code='invalid'
-                    ),
-                })
+                raise ValidationError(
+                    {
+                        "resource": ValidationError(_("The start time is outside the bookable times"), code="invalid"),
+                    }
+                )
 
         if not bookable_time.time_start == zero_time and not bookable_time.time_end == zero_end_time:
             if end_time < bookable_time.time_start or end_time > bookable_time.time_end:
-                raise ValidationError({
-                    'resource': ValidationError(
-                        _('The end time is outside the bookable times'),
-                        code='invalid'
-                    ),
-                })
+                raise ValidationError(
+                    {
+                        "resource": ValidationError(_("The end time is outside the bookable times"), code="invalid"),
+                    }
+                )
 
     @staticmethod
     def check_if_bookable_for_period(bookable_days, bookable_times, date_time_start, date_time_end):
@@ -1695,13 +1720,17 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         # now we iterate over the in_between_days and raise an error if elements are not in bookable_days
         for in_between_day in in_between_days:
             if in_between_day not in bookable_days:
-                raise ValidationError({
-                    'resource': ValidationError(
-                        _('There are days between the start date and the end date that are not bookable '
-                          'for this resource'),
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "resource": ValidationError(
+                            _(
+                                "There are days between the start date and the end date that are not bookable "
+                                "for this resource"
+                            ),
+                            code="invalid",
+                        )
+                    }
+                )
 
         # here we find times that are in between start date and end date that are not bookable
         # logically if start and end times exist and the days are different (the if 1 level higher) there must
@@ -1718,13 +1747,17 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
                 if start_time and end_time:
                     valid = False
         if not valid:
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('There are times between the start date and the end date that are not bookable '
-                      'for this resource'),
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "resource": ValidationError(
+                        _(
+                            "There are times between the start date and the end date that are not bookable "
+                            "for this resource"
+                        ),
+                        code="invalid",
+                    )
+                }
+            )
 
     def validate_resource_booking_rule_bookable_hours(self):
         """
@@ -1743,9 +1776,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         bookable_time = None
 
         # build days list with datetime.isoweekday() (Monday is 1 and Sunday is 7) where the value is True
-        weekdays = {
-            'MON': 1, 'TUE': 2, 'WED': 3, 'THU': 4, 'FRI': 5, 'SAT': 6, 'SUN': 7
-        }
+        weekdays = {"MON": 1, "TUE": 2, "WED": 3, "THU": 4, "FRI": 5, "SAT": 6, "SUN": 7}
         bookable_days = []
         bookable_times = []
         time_start_weekday = localtime(self.date_time_start).isoweekday()
@@ -1784,14 +1815,16 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
 
         if time_before and lead_time < time_before:
             duration_str = get_duration_str(time_before)
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('This resource must be booked at least {duration_str} in advance').format(
-                        duration_str=duration_str
+            raise ValidationError(
+                {
+                    "resource": ValidationError(
+                        _("This resource must be booked at least {duration_str} in advance").format(
+                            duration_str=duration_str
+                        ),
+                        code="invalid",
                     ),
-                    code='invalid'
-                ),
-            })
+                }
+            )
 
     def validate_resource_booking_rule_maximum_time_before(self):
         """
@@ -1810,14 +1843,16 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
 
         if time_before and lead_time > time_before:
             duration_str = get_duration_str(time_before)
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('This resource cannot be booked more than {duration_str} in advance').format(
-                        duration_str=duration_str
+            raise ValidationError(
+                {
+                    "resource": ValidationError(
+                        _("This resource cannot be booked more than {duration_str} in advance").format(
+                            duration_str=duration_str
+                        ),
+                        code="invalid",
                     ),
-                    code='invalid'
-                ),
-            })
+                }
+            )
 
     def validate_resource_booking_rule_time_between(self):
         """
@@ -1836,29 +1871,32 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
         q_not_enough_time_between = Q(
             # Looks for bookings before the new booking that don't have enough time between
             date_time_end__lte=self.date_time_start,
-            date_time_end__gt=self.date_time_start - time_between
+            date_time_end__gt=self.date_time_start - time_between,
         ) | Q(
             # Looks for bookings after the new booking that don't have enough time between
             date_time_start__gte=self.date_time_end,
-            date_time_start__lt=self.date_time_end + time_between
+            date_time_start__lt=self.date_time_end + time_between,
         )
 
-        resource_booking_objects = Meeting.objects \
-            .exclude(pk=self.pk) \
-            .exclude(deleted=True) \
-            .filter(resource=self.resource) \
+        resource_booking_objects = (
+            Meeting.objects.exclude(pk=self.pk)
+            .exclude(deleted=True)
+            .filter(resource=self.resource)
             .filter(q_not_enough_time_between)
+        )
 
         if resource_booking_objects.exists():
             duration_str = get_duration_str(time_between)
-            raise ValidationError({
-                'resource': ValidationError(
-                    _('This resource needs at least {duration_str} between bookings').format(
-                        duration_str=duration_str
-                    ),
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "resource": ValidationError(
+                        _("This resource needs at least {duration_str} between bookings").format(
+                            duration_str=duration_str
+                        ),
+                        code="invalid",
+                    )
+                }
+            )
 
     @staticmethod
     def get_resource_booking_count_per_user(pk, resource, user, date_time_start, unit):
@@ -1866,49 +1904,52 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
 
         date_time_start = localtime(date_time_start)
 
-        if unit == 'DAY':
+        if unit == "DAY":
             # calculate the start datetime of the day in relation to date_time_start
             start_of_the_day = datetime(date_time_start.year, date_time_start.month, date_time_start.day)
             # calculate the end datetime of the day in relation to date_time_start
             end_of_the_day = start_of_the_day + timedelta(days=1) - timedelta(seconds=1)
             # now get the objects that are relevant to the day of date_time_start
-            resource_booking_objects = Meeting.objects \
-                .exclude(pk=pk) \
-                .exclude(deleted=True) \
-                .filter(resource=resource) \
-                .filter(created_by=user) \
-                .filter(date_time_start__gte=start_of_the_day) \
+            resource_booking_objects = (
+                Meeting.objects.exclude(pk=pk)
+                .exclude(deleted=True)
+                .filter(resource=resource)
+                .filter(created_by=user)
+                .filter(date_time_start__gte=start_of_the_day)
                 .filter(date_time_start__lte=end_of_the_day)
+            )
 
-        elif unit == 'WEEK':
+        elif unit == "WEEK":
             # calculate the start datetime of the week in relation to date_time_start
             start_of_the_week = date_time_start - timedelta(days=date_time_start.weekday())
             start_of_the_week = datetime(start_of_the_week.year, start_of_the_week.month, start_of_the_week.day)
             # calculate the end datetime of the week in relation to date_time_start
             end_of_the_week = start_of_the_week + timedelta(days=7) - timedelta(seconds=1)
             # now get the objects that are relevant to the week of date_time_start
-            resource_booking_objects = Meeting.objects \
-                .exclude(pk=pk) \
-                .exclude(deleted=True) \
-                .filter(resource=resource) \
-                .filter(created_by=user) \
-                .filter(date_time_start__gte=start_of_the_week) \
+            resource_booking_objects = (
+                Meeting.objects.exclude(pk=pk)
+                .exclude(deleted=True)
+                .filter(resource=resource)
+                .filter(created_by=user)
+                .filter(date_time_start__gte=start_of_the_week)
                 .filter(date_time_start__lte=end_of_the_week)
+            )
 
-        elif unit == 'MONTH':
+        elif unit == "MONTH":
             # calculate the start datetime of the month in relation to date_time_start
             start_of_the_month = datetime(date_time_start.year, date_time_start.month, 1)
             # calculate the end datetime of the month in relation to date_time_start
             days_in_the_month = calendar.monthrange(date_time_start.year, date_time_start.month)[1]
             end_of_the_month = start_of_the_month + timedelta(days=days_in_the_month) - timedelta(seconds=1)
             # now get the objects that are relevant to the month of date_time_start
-            resource_booking_objects = Meeting.objects \
-                .exclude(pk=pk) \
-                .exclude(deleted=True) \
-                .filter(resource=resource) \
-                .filter(created_by=user) \
-                .filter(date_time_start__gte=start_of_the_month) \
+            resource_booking_objects = (
+                Meeting.objects.exclude(pk=pk)
+                .exclude(deleted=True)
+                .filter(resource=resource)
+                .filter(created_by=user)
+                .filter(date_time_start__gte=start_of_the_month)
                 .filter(date_time_start__lte=end_of_the_month)
+            )
 
         return resource_booking_objects.count()
 
@@ -1938,18 +1979,16 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
                 self.pk, self.resource, user, self.date_time_start, unit
             )
             if db_count >= bookings_per_user.count:
-                error = _('You have reached the maximum amount of bookings for this resource for this {}'
-                          .format(unit.lower()))
+                error = _(f"You have reached the maximum amount of bookings for this resource for this {unit.lower()}")
 
-                raise ValidationError({
-                    'resource': ValidationError(
-                        error,
-                        code='invalid'
-                    ),
-                })
+                raise ValidationError(
+                    {
+                        "resource": ValidationError(error, code="invalid"),
+                    }
+                )
 
     def clean(self):
-        """ validate the meetings date_time  """
+        """validate the meetings date_time"""
         self.validate_date_time_start_end()
         # if there is a resource in the data, lets validate if bookings are possible
         if self.resource:
@@ -1964,7 +2003,7 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
             self.validate_resource_booking_rule_bookings_per_user()
 
     def export_metadata(self):
-        """ Exports in the latest format """
+        """Exports in the latest format"""
         return self.__export_metadata_v2()
 
     def __export_metadata_v1(self):
@@ -1983,10 +2022,12 @@ class Meeting(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, LockMixin
 
     def __export_metadata_v2(self):
         metadata = self.__export_metadata_v1()
-        metadata.update({
-            METADATA_VERSION_KEY: 2,
-            "location": self.location,
-        })
+        metadata.update(
+            {
+                METADATA_VERSION_KEY: 2,
+                "location": self.location,
+            }
+        )
         return metadata
 
     def restore_metadata(self, metadata):
@@ -2046,33 +2087,26 @@ class UserAttendsMeeting(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         verbose_name_plural = _("User Meeting Attendances")
         ordering = ["user", "meeting"]
         unique_together = (
-            ('user', 'meeting',),
+            (
+                "user",
+                "meeting",
+            ),
         )
         # track_related = ('meeting', )
         # track_fields = ('user', )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     user = models.ForeignKey(
-        "projects.MyUser",
-        verbose_name=_("Attending User"),
-        related_name="attending_meetings",
-        on_delete=models.CASCADE
+        "projects.MyUser", verbose_name=_("Attending User"), related_name="attending_meetings", on_delete=models.CASCADE
     )
 
-    meeting = models.ForeignKey(
-        'Meeting',
-        verbose_name=_("Attending Meeting"),
-        on_delete=models.CASCADE
-    )
+    meeting = models.ForeignKey("Meeting", verbose_name=_("Attending Meeting"), on_delete=models.CASCADE)
 
     def __str__(self):
         return _("User %(username)s attends meeting %(meeting_title)s") % {
-            'username': self.user.username, 'meeting_title': self.meeting.title
+            "username": self.user.username,
+            "meeting_title": self.meeting.title,
         }
 
 
@@ -2084,33 +2118,26 @@ class ContactAttendsMeeting(BaseModel, ChangeSetMixIn, RevisionModelMixin):
         verbose_name_plural = _("Contact Meeting Attendances")
         ordering = ["contact", "meeting"]
         unique_together = (
-            ('contact', 'meeting',),
+            (
+                "contact",
+                "meeting",
+            ),
         )
         # track_fields = ('contact', 'meeting')
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     contact = models.ForeignKey(
-        "Contact",
-        verbose_name="Attending Contact",
-        related_name="attending_meetings",
-        on_delete=models.CASCADE
+        "Contact", verbose_name="Attending Contact", related_name="attending_meetings", on_delete=models.CASCADE
     )
 
-    meeting = models.ForeignKey(
-        "Meeting",
-        verbose_name="Attending Meeting",
-        on_delete=models.CASCADE
-    )
+    meeting = models.ForeignKey("Meeting", verbose_name="Attending Meeting", on_delete=models.CASCADE)
 
     def __str__(self):
         return _("Contact %(first_name)s %(last_name)s attends meeting %(meeting_title)s") % {
-            'first_name': self.contact.first_name, 'last_name': self.contact.last_name,
-            'meeting_title': self.meeting.title
+            "first_name": self.contact.first_name,
+            "last_name": self.contact.last_name,
+            "meeting_title": self.meeting.title,
         }
 
 
@@ -2124,27 +2151,21 @@ class ElementLabel(BaseModel, RevisionModelMixin, ChangeSetMixIn):
     class Meta:
         verbose_name = _("Element Label")
         verbose_name_plural = _("Element Labels")
-        track_fields = ('name', 'color',)
-        ordering = ('name',)
+        track_fields = (
+            "name",
+            "color",
+        )
+        ordering = ("name",)
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    name = models.CharField(
-        max_length=128,
-        verbose_name=_("Title of the meeting"),
-        blank=True,
-        default=""
-    )
+    name = models.CharField(max_length=128, verbose_name=_("Title of the meeting"), blank=True, default="")
 
     color = models.CharField(
         max_length=30,
         verbose_name=_("RGBA color the label"),
         default="rgba(255,255,255,1)",  # white
-        validators=[rgba_color_validator]
+        validators=[rgba_color_validator],
     )
 
     @property
@@ -2167,18 +2188,16 @@ class ElementLabel(BaseModel, RevisionModelMixin, ChangeSetMixIn):
                     blue = result.group(3)
                 # calculate the brightness using the following algorithm (https://stackoverflow.com/a/596243)
                 brightness = math.sqrt(
-                    0.299 * math.pow(int(red), 2)
-                    + 0.587 * math.pow(int(green), 2)
-                    + 0.114 * math.pow(int(blue), 2)
+                    0.299 * math.pow(int(red), 2) + 0.587 * math.pow(int(green), 2) + 0.114 * math.pow(int(blue), 2)
                 )
                 # return white if the brightness is below 128
                 if brightness < 128:
-                    return '#FFF'
+                    return "#FFF"
         # log the error, but continue
         except Exception as error:
             logger.error(error)
         # return black if the brightness is above 128, or if there was an exception
-        return '#000'
+        return "#000"
 
     def __str__(self):
         return self.name
@@ -2196,19 +2215,16 @@ class CalendarAccess(BaseModel, CreatedModifiedByMixIn, ModelPrivilegeMixIn, Wor
     class Meta(WorkbenchEntityMixin.Meta):
         verbose_name = _("Calendar Access Privilege")
         verbose_name_plural = _("Calendar Access Privileges")
-        ordering = ('created_by',)
+        ordering = ("created_by",)
         is_relatable = False
         is_favouritable = False
 
         def get_default_serializer(*args, **kwargs):
             from eric.shared_elements.rest.serializers import CalendarAccessSerializer
+
             return CalendarAccessSerializer
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return _("Access for the Calendar of User {created_by}").format(created_by=self.created_by.username)

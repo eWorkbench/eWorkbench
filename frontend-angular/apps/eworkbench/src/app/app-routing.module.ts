@@ -7,18 +7,19 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth/auth.guard';
+import { LaunchScreenGuard } from './guards/launch-screen/launch-screen.guard';
 import { MatomoGuard } from './guards/matomo/matomo.guard';
 
 export const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./pages/dashboard/dashboard-page.module').then(m => m.DashboardPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'tasks',
     loadChildren: () => import('./pages/tasks/tasks-page.module').then(m => m.TasksPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'kanbanboards',
@@ -27,17 +28,17 @@ export const routes: Routes = [
   {
     path: 'taskboards',
     loadChildren: () => import('./pages/task-boards/task-boards-page.module').then(m => m.TaskBoardsPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'labbooks',
     loadChildren: () => import('./pages/labbooks/labbooks-page.module').then(m => m.LabBooksPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'projects',
     loadChildren: () => import('./pages/projects/projects-page.module').then(m => m.ProjectsPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'main-calendar',
@@ -46,17 +47,17 @@ export const routes: Routes = [
   {
     path: 'calendar',
     loadChildren: () => import('./pages/calendar/calendar-page.module').then(m => m.CalendarPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'files',
     loadChildren: () => import('./pages/files/files-page.module').then(m => m.FilesPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'pictures',
     loadChildren: () => import('./pages/pictures/pictures-page.module').then(m => m.PicturesPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'meetings',
@@ -65,12 +66,12 @@ export const routes: Routes = [
   {
     path: 'appointments',
     loadChildren: () => import('./pages/appointments/appointments-page.module').then(m => m.AppointmentsPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'contacts',
     loadChildren: () => import('./pages/contacts/contacts-page.module').then(m => m.ContactsPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'comments',
@@ -79,12 +80,12 @@ export const routes: Routes = [
   {
     path: 'notes',
     loadChildren: () => import('./pages/notes/notes-page.module').then(m => m.NotesPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'resources',
     loadChildren: () => import('./pages/resources/resources-page.module').then(m => m.ResourcesPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'drives',
@@ -93,42 +94,42 @@ export const routes: Routes = [
   {
     path: 'storages',
     loadChildren: () => import('./pages/storages/storages-page.module').then(m => m.StoragesPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'metadata-search',
     loadChildren: () => import('./pages/metadata-search/metadata-search-page.module').then(m => m.MetadataSearchPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'notifications',
     loadChildren: () => import('./pages/notifications/notifications-page.module').then(m => m.NotificationsPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'dsscontainers',
     loadChildren: () => import('./pages/dss-containers/dss-containers-page.module').then(m => m.DssContainersPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'profile',
     loadChildren: () => import('./pages/profile/profile-page.module').then(m => m.ProfilePageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'plugin-data',
     loadChildren: () => import('./pages/plugins/plugins-page.module').then(m => m.PluginsPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'dmps',
     loadChildren: () => import('./pages/dmps/dmps-page.module').then(m => m.DMPsPageModule),
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, LaunchScreenGuard],
   },
   {
     path: 'study-room-booking',
     loadChildren: () => import('./pages/study-room-booking/study-room-booking-page.module').then(m => m.StudyRoomBookingPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'login',
@@ -148,7 +149,7 @@ export const routes: Routes = [
   {
     path: 'contact',
     loadChildren: () => import('./pages/contact-form/contact-form-page.module').then(m => m.ContactFormPageModule),
-    canActivate: [AuthGuard, MatomoGuard],
+    canActivate: [AuthGuard, MatomoGuard, LaunchScreenGuard],
   },
   {
     path: 'faq',

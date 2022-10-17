@@ -18,7 +18,8 @@
         <strong>
             {% blocktrans %}
                 Thank you for your message. We will get back to you shortly via email.
-                We have attached your message for reference.
+                We have attached your message for reference. (Images and other unsave html tags are stripped out, please
+                use an e-mail client if that's needed.)
             {% endblocktrans %}
         </strong>
     </p>
@@ -34,11 +35,11 @@
     <p>
         {% blocktrans %}
             Subject: {{ subject }}
-        {% endblocktrans %} <br />
+        {% endblocktrans %} <br /><br />
         {% blocktrans %}
             Message:
         {% endblocktrans %}
-        {{ message|linebreaks}}
+        {{ message | safe }}
     </p>
 
     <p>

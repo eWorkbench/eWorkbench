@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.contenttypes.fields import GenericRelation
@@ -17,6 +17,6 @@ class ModelPrivilegeMixIn(models.Model):
     # define generic reverse relation for entity permission assignments
     model_privileges = GenericRelation(
         "model_privileges.ModelPrivilege",
-        content_type_field='content_type',
-        object_id_field='object_id',
+        content_type_field="content_type",
+        object_id_field="object_id",
     )

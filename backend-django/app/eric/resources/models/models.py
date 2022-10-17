@@ -1,11 +1,19 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import uuid
 
-from django.db.models import OneToOneField, CharField, CASCADE, BooleanField, IntegerField, UUIDField, ForeignKey, \
-    PROTECT
+from django.db.models import (
+    CASCADE,
+    PROTECT,
+    BooleanField,
+    CharField,
+    ForeignKey,
+    IntegerField,
+    OneToOneField,
+    UUIDField,
+)
 from django.utils.translation import gettext_lazy as _
 
 from eric.core.models import BaseModel
@@ -22,11 +30,7 @@ class DisplayDesign(BaseModel):
         verbose_name = _("Display Design")
         verbose_name_plural = _("Displays Designs")
 
-    id = UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     key = CharField(
         unique=True,
@@ -36,7 +40,7 @@ class DisplayDesign(BaseModel):
     )
 
     def __str__(self):
-        return self.key if self.key else '<empty string>'
+        return self.key if self.key else "<empty string>"
 
 
 class StudyRoom(BaseModel):
@@ -44,22 +48,18 @@ class StudyRoom(BaseModel):
         verbose_name = _("Study Room")
         verbose_name_plural = _("Study Rooms")
 
-    id = UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     resource = OneToOneField(
-        to='projects.Resource',
-        related_name='study_room_info',
+        to="projects.Resource",
+        related_name="study_room_info",
         on_delete=CASCADE,
         null=False,
     )
 
     # todo: make unique (and set null=False) once the current data is migrated and has an assigned room-id
     room_id = IntegerField(
-        verbose_name=_('Room ID'),
+        verbose_name=_("Room ID"),
         # null-values are allowed for now, because there are no RoomIDs for existing data yet
         blank=False,
         null=True,
@@ -93,7 +93,7 @@ class StudyRoom(BaseModel):
     display_design = ForeignKey(
         to=DisplayDesign,
         on_delete=PROTECT,
-        related_name='study_rooms',
+        related_name="study_rooms",
     )
 
     is_bookable_by_students = BooleanField(

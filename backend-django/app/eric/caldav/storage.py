@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 
@@ -25,13 +25,15 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from django.conf import settings
-from radicale import ical
+
 from rest_framework.exceptions import PermissionDenied
+
+from radicale import ical
 
 from eric.caldav.meeting_synchronizer import MeetingSynchronizer
 from eric.caldav.models import CaldavItem
 
-logger = logging.getLogger('djradicale')
+logger = logging.getLogger("djradicale")
 
 
 class Collection(ical.Collection):
@@ -50,8 +52,8 @@ class Collection(ical.Collection):
     def headers(self):
         return (
             # ToDo: Probably change this information to workbench related version
-            ical.Header('PRODID:-//Radicale//NONSGML Radicale Server//EN'),
-            ical.Header('VERSION:%s' % self.version)
+            ical.Header("PRODID:-//Radicale//NONSGML Radicale Server//EN"),
+            ical.Header("VERSION:%s" % self.version),
         )
 
     def delete(self):
@@ -115,7 +117,9 @@ class Collection(ical.Collection):
         #     DBCollection.objects
         #         .filter(parent_path=path or '')
         #         .values_list('path', flat=True))
-        children = ["default", ]
+        children = [
+            "default",
+        ]
         return map(cls, children)
 
     @classmethod
@@ -161,8 +165,7 @@ class Collection(ical.Collection):
 
         try:
             return datetime.strftime(
-                CaldavItem.objects.viewable().sort('-last_modified_at').last_modified_at,
-                '%a, %d %b %Y %H:%M:%S %z'
+                CaldavItem.objects.viewable().sort("-last_modified_at").last_modified_at, "%a, %d %b %Y %H:%M:%S %z"
             )
         except Exception:
             return None
@@ -174,12 +177,12 @@ class Collection(ical.Collection):
           Type of the collection.
         """
         with self.props as props:
-            if 'tag' not in props:
-                if self.path.endswith(('.vcf', '/carddav')):
-                    props['tag'] = 'VADDRESSBOOK'
+            if "tag" not in props:
+                if self.path.endswith((".vcf", "/carddav")):
+                    props["tag"] = "VADDRESSBOOK"
                 else:
-                    props['tag'] = 'VCALENDAR'
-            return props['tag']
+                    props["tag"] = "VCALENDAR"
+            return props["tag"]
 
     @property
     @contextmanager
@@ -202,8 +205,6 @@ class Collection(ical.Collection):
         for item in caldav_items:
             # parse item.text such that only the listed ical types of DJRADICALE_ICAL_TYPES are extracted,
             # and add them into the items dictionary
-            items.update(
-                self._parse(item.text, settings.DJRADICALE_ICAL_TYPES, item.name)
-            )
+            items.update(self._parse(item.text, settings.DJRADICALE_ICAL_TYPES, item.name))
 
         return items

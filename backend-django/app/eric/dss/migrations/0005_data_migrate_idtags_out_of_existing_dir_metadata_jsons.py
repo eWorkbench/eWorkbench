@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
 import os
 
 from django.db import migrations, transaction
+
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models import disable_permission_checks
-from eric.dss.models.models import get_upload_to_path, dss_storage
+from eric.dss.models.models import dss_storage, get_upload_to_path
 from eric.shared_elements.models.models import File
-
 
 
 def migrate_idtags_out_of_existing_dir_metadata_json_forward(apps, schema_editor):

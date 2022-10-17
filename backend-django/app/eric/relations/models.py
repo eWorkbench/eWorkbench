@@ -1,133 +1,141 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import uuid
 import logging
+import uuid
 
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch.dispatcher import receiver
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
-from django_changeset.models import RevisionModelMixin, ChangeSet
+from django_changeset.models import ChangeSet, RevisionModelMixin
 
 from eric.core.models import BaseModel, disable_permission_checks, permission_checks_disabled
-from eric.core.models.abstract import get_all_workbench_models_with_args, WorkbenchEntityMixin, ChangeSetMixIn
+from eric.core.models.abstract import ChangeSetMixIn, WorkbenchEntityMixin, get_all_workbench_models_with_args
 from eric.relations.managers import RelationManager
-
 
 logger = logging.getLogger(__name__)
 
 
 class Relation(BaseModel, ChangeSetMixIn, RevisionModelMixin):
-    """ Model used to build generic relations """
+    """Model used to build generic relations"""
 
     objects = RelationManager()
 
     class Meta:
         verbose_name = _("Relation")
         verbose_name_plural = _("Relations")
-        track_fields = ('left_content_type', 'left_object_id', 'right_content_type', 'right_object_id', 'private')
+        track_fields = ("left_content_type", "left_object_id", "right_content_type", "right_object_id", "private")
         index_together = (
-            ('left_content_type', 'left_object_id', ),
-            ('right_content_type', 'right_object_id', )
+            (
+                "left_content_type",
+                "left_object_id",
+            ),
+            (
+                "right_content_type",
+                "right_object_id",
+            ),
         )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     left_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name='left_content_type',
-        verbose_name=_('Left content type of the relation'),
+        related_name="left_content_type",
+        verbose_name=_("Left content type of the relation"),
     )
     left_object_id = models.UUIDField(
-        verbose_name=_('Left object id of the relation'),
+        verbose_name=_("Left object id of the relation"),
     )
-    left_content_object = GenericForeignKey('left_content_type', 'left_object_id')
+    left_content_object = GenericForeignKey("left_content_type", "left_object_id")
 
     right_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name='right_content_type',
-        verbose_name=_('Right content type of the relation'),
+        related_name="right_content_type",
+        verbose_name=_("Right content type of the relation"),
     )
     right_object_id = models.UUIDField(
-        verbose_name=_('Right object id of the relation'),
+        verbose_name=_("Right object id of the relation"),
     )
-    right_content_object = GenericForeignKey('right_content_type', 'right_object_id')
+    right_content_object = GenericForeignKey("right_content_type", "right_object_id")
 
-    private = models.BooleanField(
-        verbose_name=_('Private Field of the relation'),
-        default=False
-    )
+    private = models.BooleanField(verbose_name=_("Private Field of the relation"), default=False)
 
     def __str__(self):
         return f"Left object id {self.left_object_id}, right object id {self.right_object_id}"
 
     def check_if_relation_is_allowed(self):
         """
-            A relation is only allowed when in the specific model the attribute 'is_relatable' was set to True
-            and the left content object is not the same object as the right content object
+        A relation is only allowed when in the specific model the attribute 'is_relatable' was set to True
+        and the left content object is not the same object as the right content object
         """
         # checks if the left_content_object exists
         if self.left_content_object is None:
-            raise ValidationError({
-                'left_content_object': ValidationError(
-                    _('can not be none'),
-                    params={'relation': self},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "left_content_object": ValidationError(
+                        _("can not be none"), params={"relation": self}, code="invalid"
+                    )
+                }
+            )
 
         # checks if the right_content_object exists
         if self.right_content_object is None:
-            raise ValidationError({
-                'right_content_object': ValidationError(
-                    _('can not be none'),
-                    params={'relation': self},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "right_content_object": ValidationError(
+                        _("can not be none"), params={"relation": self}, code="invalid"
+                    )
+                }
+            )
 
         # checks if the right_content_object is not the same as the left_content_object
         if self.right_content_object == self.left_content_object or self.right_object_id == self.left_object_id:
-            raise ValidationError({
-                'left_content_object': ValidationError(
-                    _('is not allowed to be the same object as the right_content_object'),
-                    params={'relation': self},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "left_content_object": ValidationError(
+                        _("is not allowed to be the same object as the right_content_object"),
+                        params={"relation": self},
+                        code="invalid",
+                    )
+                }
+            )
 
         # checks if in left_content_object is_relatable is set to True
-        if not hasattr(self.left_content_object._meta, "is_relatable") or \
-                not self.left_content_object._meta.is_relatable:
-            raise ValidationError({
-                'left_content_object': ValidationError(
-                    _('can not be related (must set is_relatable in meta class of object)'),
-                    params={'relation': self},
-                    code='invalid'
-                )
-            })
+        if (
+            not hasattr(self.left_content_object._meta, "is_relatable")
+            or not self.left_content_object._meta.is_relatable
+        ):
+            raise ValidationError(
+                {
+                    "left_content_object": ValidationError(
+                        _("can not be related (must set is_relatable in meta class of object)"),
+                        params={"relation": self},
+                        code="invalid",
+                    )
+                }
+            )
 
         # checks if in right_content_object is_relatable is set to True
-        if not hasattr(self.right_content_object._meta, "is_relatable") or \
-                not self.right_content_object._meta.is_relatable:
-            raise ValidationError({
-                'right_content_object': ValidationError(
-                    _('can not be related (must set is_relatable in meta class of object)'),
-                    params={'relation': self},
-                    code='invalid'
-                )
-            })
+        if (
+            not hasattr(self.right_content_object._meta, "is_relatable")
+            or not self.right_content_object._meta.is_relatable
+        ):
+            raise ValidationError(
+                {
+                    "right_content_object": ValidationError(
+                        _("can not be related (must set is_relatable in meta class of object)"),
+                        params={"relation": self},
+                        code="invalid",
+                    )
+                }
+            )
 
     def clean(self):
         self.check_if_relation_is_allowed()
@@ -147,7 +155,7 @@ def on_save_relation(sender, instance, *args, **kwargs):
         return
 
     # ignore raw
-    if kwargs.get('raw'):
+    if kwargs.get("raw"):
         return
 
     # verify that the current user has access to left and right content object
@@ -155,27 +163,31 @@ def on_save_relation(sender, instance, *args, **kwargs):
     right = instance.right_content_object
 
     if not left._meta.model.objects.viewable().filter(pk=left.pk).exists():
-        raise ValidationError({
-            'left_content_object': ValidationError(
-                _('You do not have permission to relate to this object'),
-                params={'relation': instance},
-                code='invalid'
-            )
-        })
+        raise ValidationError(
+            {
+                "left_content_object": ValidationError(
+                    _("You do not have permission to relate to this object"),
+                    params={"relation": instance},
+                    code="invalid",
+                )
+            }
+        )
 
     if not right._meta.model.objects.viewable().filter(pk=right.pk).exists():
-        raise ValidationError({
-            'right_content_object': ValidationError(
-                _('You do not have permission to relate to this object'),
-                params={'relation': instance},
-                code='invalid'
-            )
-        })
+        raise ValidationError(
+            {
+                "right_content_object": ValidationError(
+                    _("You do not have permission to relate to this object"),
+                    params={"relation": instance},
+                    code="invalid",
+                )
+            }
+        )
 
 
 @receiver(post_delete)
 def on_delete_relations(sender, instance, *args, **kwargs):
-    """ Followup on a delete of a model that is relatable
+    """Followup on a delete of a model that is relatable
     All relations that use this object need to be deleted too
     !!! Note: objects should never be deleted;
     !!! This receiver is only meant as a fallback, to make sure database relations are kept intact when a superuser
@@ -186,14 +198,10 @@ def on_delete_relations(sender, instance, *args, **kwargs):
     if hasattr(instance._meta, "is_relatable") and instance._meta.is_relatable:
         with disable_permission_checks(Relation):
             # find all Relations where this instance is used as left or right object, and delete those relations
-            Relation.objects.filter(
-                left_object_id=instance.pk,
-                left_content_type=instance.get_content_type()
-            ).delete()
+            Relation.objects.filter(left_object_id=instance.pk, left_content_type=instance.get_content_type()).delete()
 
             Relation.objects.filter(
-                right_object_id=instance.pk,
-                right_content_type=instance.get_content_type()
+                right_object_id=instance.pk, right_content_type=instance.get_content_type()
             ).delete()
 
 
@@ -202,15 +210,19 @@ class RelationsMixIn(models.Model):
     Mixin for relations
     provides a property called "relations" which provides all relations for the current object
     """
+
     class Meta:
         abstract = True
         is_relatable = None
 
     def get_relations(self, filter_by_pk=None):
         # get all relations and prefetch the changesets
-        relations = Relation.objects.viewable().for_model(self.__class__, self.pk).prefetch_related(
-            'created_by', 'created_by__userprofile',
-            'last_modified_by', 'last_modified_by__userprofile'
+        relations = (
+            Relation.objects.viewable()
+            .for_model(self.__class__, self.pk)
+            .prefetch_related(
+                "created_by", "created_by__userprofile", "last_modified_by", "last_modified_by__userprofile"
+            )
         )
 
         if filter_by_pk:
@@ -223,11 +235,12 @@ class RelationsMixIn(models.Model):
         prefetched_objects_by_ct = {}
 
         for param, model_details in workbench_models.items():
-            ct = model_details['content_type'].id
+            ct = model_details["content_type"].id
             pks_by_ct[ct] = []
-            model_by_ct[ct] = model_details['entity']
+            model_by_ct[ct] = model_details["entity"]
 
         from eric.projects.models import Project
+
         # add projects to the list
         project_content_type_id = Project.get_content_type().id
         pks_by_ct[project_content_type_id] = []
@@ -245,13 +258,13 @@ class RelationsMixIn(models.Model):
         for ct in pks_by_ct:
             pks = pks_by_ct[ct]
             if len(pks) > 0:
-                prefetched_objects_by_ct[ct] = model_by_ct[ct].objects.related_viewable().filter(
-                    pk__in=pks
-                ).prefetch_common()
+                prefetched_objects_by_ct[ct] = (
+                    model_by_ct[ct].objects.related_viewable().filter(pk__in=pks).prefetch_common()
+                )
 
                 # prefetch projects (for most relations)
                 if ct != project_content_type_id:
-                    prefetched_objects_by_ct[ct] = prefetched_objects_by_ct[ct].prefetch_related('projects')
+                    prefetched_objects_by_ct[ct] = prefetched_objects_by_ct[ct].prefetch_related("projects")
 
                 # retrieve the prefetched objects (via in_bulk)
                 prefetched_objects_by_ct[ct] = prefetched_objects_by_ct[ct].in_bulk()

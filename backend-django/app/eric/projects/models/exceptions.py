@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 
@@ -10,7 +10,7 @@ class UserStorageLimitReachedException(Exception):
     """
 
     def __init__(self, available_storage, *args, **kwargs):
-        super(UserStorageLimitReachedException, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.available_storage = available_storage
 
 
@@ -20,7 +20,7 @@ class ContainerReadWriteException(Exception):
     """
 
     def __init__(self, value, *args, **kwargs):
-        super(ContainerReadWriteException, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.value = value
 
 
@@ -30,5 +30,5 @@ class MaxFileSizeReachedException(Exception):
     """
 
     def __init__(self, max_file_size, *args, **kwargs):
-        super(MaxFileSizeReachedException, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.max_file_size = max_file_size

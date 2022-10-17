@@ -29,6 +29,7 @@ export * from './lib/interfaces/labbook-element.interface';
 export * from './lib/interfaces/labbook-section.interface';
 export * from './lib/interfaces/labbook.interface';
 export * from './lib/interfaces/label.interface';
+export * from './lib/interfaces/launch-screen.interface';
 export * from './lib/interfaces/lock-service.interface';
 export * from './lib/interfaces/lock.interface';
 export * from './lib/interfaces/menu-model.interface';

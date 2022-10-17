@@ -1,21 +1,26 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
+
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from eric.core.rest.serializers import BaseModelWithCreatedBySerializer, PublicUserSerializer, \
-    BaseModelWithCreatedByAndSoftDeleteSerializer, BaseModelSerializer
-from eric.metadata.rest.serializers import EntityMetadataSerializerMixin, EntityMetadataSerializer
+from eric.core.rest.serializers import (
+    BaseModelSerializer,
+    BaseModelWithCreatedByAndSoftDeleteSerializer,
+    BaseModelWithCreatedBySerializer,
+    PublicUserSerializer,
+)
+from eric.metadata.rest.serializers import EntityMetadataSerializer, EntityMetadataSerializerMixin
 from eric.notifications.rest.serializers import ScheduledNotificationSerializer
 from eric.projects.models import Resource
 from eric.projects.rest.serializers.project import ProjectPrimaryKeyRelatedField
 from eric.projects.rest.serializers.resource import MinimalisticResourceSerializer
-from eric.shared_elements.models import Meeting, Contact, ContactAttendsMeeting, UserAttendsMeeting
+from eric.shared_elements.models import Contact, ContactAttendsMeeting, Meeting, UserAttendsMeeting
 from eric.shared_elements.rest.serializers.contact import MinimalisticContactSerializer
 
 User = get_user_model()
@@ -38,8 +43,18 @@ class MinimalisticMeetingSerializer(BaseModelWithCreatedBySerializer):
     class Meta:
         model = Meeting
         fields = (
-            'title', 'date_time_start', 'date_time_end', 'resource', 'attending_users', 'attending_contacts',
-            'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'full_day', 'is_favourite'
+            "title",
+            "date_time_start",
+            "date_time_end",
+            "resource",
+            "attending_users",
+            "attending_contacts",
+            "created_by",
+            "created_at",
+            "last_modified_by",
+            "last_modified_at",
+            "full_day",
+            "is_favourite",
         )
 
 
@@ -56,57 +71,51 @@ class AnonymousResourceBookingSerializer(BaseModelSerializer):
     class Meta:
         model = Meeting
         fields = (
-            'title', 'display', 'pk',
-            'date_time_start', 'date_time_end',
-            'content_type', 'content_type_model',
+            "title",
+            "display",
+            "pk",
+            "date_time_start",
+            "date_time_end",
+            "content_type",
+            "content_type_model",
         )
 
     @staticmethod
     def get_pk(instance):
-        """ Just for compatibility """
-        return 'ANONYMOUS'
+        """Just for compatibility"""
+        return "ANONYMOUS"
 
     @staticmethod
     def get_title(instance):
-        return _('Booked')
+        return _("Booked")
 
     @staticmethod
     def get_display(instance):
-        return _(f'Booked from {instance.date_time_start} to {instance.date_time_end}')
+        return _(f"Booked from {instance.date_time_start} to {instance.date_time_end}")
 
 
-class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin,
-                        ScheduledNotificationSerializer):
-    """ Serializer for Meetings """
+class MeetingSerializer(
+    BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMetadataSerializerMixin, ScheduledNotificationSerializer
+):
+    """Serializer for Meetings"""
 
     projects = ProjectPrimaryKeyRelatedField(many=True, required=False)
 
     resource = MinimalisticResourceSerializer(read_only=True)
 
     resource_pk = serializers.PrimaryKeyRelatedField(
-        queryset=Resource.objects.all(),
-        source='resource',
-        many=False,
-        required=False,
-        allow_null=True
+        queryset=Resource.objects.all(), source="resource", many=False, required=False, allow_null=True
     )
 
     attending_users = PublicUserSerializer(read_only=True, many=True)
 
     attending_users_pk = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        source='attending_users',
-        many=True,
-        required=False
+        queryset=User.objects.all(), source="attending_users", many=True, required=False
     )
 
     attending_contacts = MinimalisticContactSerializer(read_only=True, many=True)
 
-    attending_contacts_pk = ContactPrimaryKeyRelatedField(
-        source='attending_contacts',
-        many=True,
-        required=False
-    )
+    attending_contacts_pk = ContactPrimaryKeyRelatedField(source="attending_contacts", many=True, required=False)
 
     metadata = EntityMetadataSerializer(
         read_only=False,
@@ -125,12 +134,29 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
     class Meta:
         model = Meeting
         fields = (
-            'title', 'location', 'date_time_start', 'date_time_end', 'text', 'projects',
-            'url', 'resource', 'resource_pk',
-            'attending_users', 'attending_contacts',
-            'attending_contacts_pk', 'attending_users_pk',
-            'created_by', 'created_at', 'last_modified_by', 'last_modified_at', 'version_number',
-            'metadata', 'scheduled_notification', 'scheduled_notification_writable', 'full_day', 'is_favourite'
+            "title",
+            "location",
+            "date_time_start",
+            "date_time_end",
+            "text",
+            "projects",
+            "url",
+            "resource",
+            "resource_pk",
+            "attending_users",
+            "attending_contacts",
+            "attending_contacts_pk",
+            "attending_users_pk",
+            "created_by",
+            "created_at",
+            "last_modified_by",
+            "last_modified_at",
+            "version_number",
+            "metadata",
+            "scheduled_notification",
+            "scheduled_notification_writable",
+            "full_day",
+            "is_favourite",
         )
 
     @transaction.atomic
@@ -144,23 +170,23 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
         attending_contacts = None
         scheduled_notification_writable = None
 
-        if 'attending_users' in validated_data:
-            attending_users = validated_data.pop('attending_users')
-        if 'attending_contacts' in validated_data:
-            attending_contacts = validated_data.pop('attending_contacts')
+        if "attending_users" in validated_data:
+            attending_users = validated_data.pop("attending_users")
+        if "attending_contacts" in validated_data:
+            attending_contacts = validated_data.pop("attending_contacts")
 
-        if 'scheduled_notification_writable' in validated_data:
-            scheduled_notification_writable = validated_data.pop('scheduled_notification_writable')
+        if "scheduled_notification_writable" in validated_data:
+            scheduled_notification_writable = validated_data.pop("scheduled_notification_writable")
 
         metadata_list = self.pop_metadata(validated_data)
 
         # delegate creating the meeting to the current serializer
-        instance = super(MeetingSerializer, self).create(validated_data)
+        instance = super().create(validated_data)
 
         # read the request data and add the value of create_for to the instance, which is the pk of a user
         # in the MeetingViewSet we will use it to change attending_users accordingly and to give full access privilege
-        request = self.context['request']
-        instance.create_for = request.data.get('create_for')
+        request = self.context["request"]
+        instance.create_for = request.data.get("create_for")
 
         # create attending users
         if attending_users:
@@ -191,14 +217,14 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
         attending_users = None
         scheduled_notification_writable = None
 
-        if 'attending_contacts' in validated_data:
-            attending_contacts = validated_data.pop('attending_contacts')
+        if "attending_contacts" in validated_data:
+            attending_contacts = validated_data.pop("attending_contacts")
 
-        if 'attending_users' in validated_data:
-            attending_users = validated_data.pop('attending_users')
+        if "attending_users" in validated_data:
+            attending_users = validated_data.pop("attending_users")
 
-        if 'scheduled_notification_writable' in validated_data:
-            scheduled_notification_writable = validated_data.pop('scheduled_notification_writable')
+        if "scheduled_notification_writable" in validated_data:
+            scheduled_notification_writable = validated_data.pop("scheduled_notification_writable")
 
         metadata_list = self.pop_metadata(validated_data)
         self.update_metadata(metadata_list, instance)
@@ -233,7 +259,7 @@ class MeetingSerializer(BaseModelWithCreatedByAndSoftDeleteSerializer, EntityMet
                 # The following is equal to: instance.attending_contacts.add(contact)
                 ContactAttendsMeeting.objects.create(meeting=instance, contact=contact)
 
-        instance = super(MeetingSerializer, self).update(instance, validated_data)
+        instance = super().update(instance, validated_data)
 
         if scheduled_notification_writable:
             self.update_or_create_schedulednotification(scheduled_notification_writable, instance)

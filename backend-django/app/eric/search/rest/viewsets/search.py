@@ -1,21 +1,22 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
+from itertools import chain
+from operator import attrgetter
 
 from django.apps.registry import apps
 from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db import models
 from django.db.models import Q
-from eric.core.models.abstract import get_all_workbench_models, WorkbenchEntityMixin
-from eric.core.rest.viewsets import BaseGenericViewSet
-from eric.search.models import FTSMixin
-from itertools import chain
-from operator import attrgetter
+
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
+from eric.core.models.abstract import WorkbenchEntityMixin, get_all_workbench_models
+from eric.core.rest.viewsets import BaseGenericViewSet
+from eric.search.models import FTSMixin
 from eric.search.utils import convert_search_terms
 
 logger = logging.getLogger(__name__)
@@ -23,8 +24,8 @@ logger = logging.getLogger(__name__)
 
 class SearchViewSet(BaseGenericViewSet):
     search_limit_per_model = 10
-    search_param = 'search'
-    search_model_param = 'model'
+    search_param = "search"
+    search_model_param = "model"
 
     ordering_fields = ()
     filter_backends = ()
@@ -44,11 +45,8 @@ class SearchViewSet(BaseGenericViewSet):
         if not request:
             return []
 
-        params = request.query_params.get(self.search_param, '')
-        return [
-            term.replace(':', '').replace('*', '')
-            for term in params.replace(',', ' ').split() if term
-        ]
+        params = request.query_params.get(self.search_param, "")
+        return [term.replace(":", "").replace("*", "") for term in params.replace(",", " ").split() if term]
 
     def get_search_models(self, request):
         """
@@ -57,13 +55,13 @@ class SearchViewSet(BaseGenericViewSet):
         """
         workbench_searchable_elements = get_all_workbench_models(WorkbenchEntityMixin, FTSMixin)
 
-        available_models = dict([(model.__name__.lower(), model) for model in workbench_searchable_elements])
+        available_models = {model.__name__.lower(): model for model in workbench_searchable_elements}
 
         # search on all available models if no request available
         if not request:
             return available_models.values()
 
-        params = request.query_params.get(self.search_model_param, '')
+        params = request.query_params.get(self.search_model_param, "")
 
         # search on all available models if not restricted explicitly
         if not params:
@@ -71,7 +69,8 @@ class SearchViewSet(BaseGenericViewSet):
 
         return [
             available_models[model_name.lower()]
-            for model_name in params.replace(',', ' ').split() if model_name.lower() in available_models
+            for model_name in params.replace(",", " ").split()
+            if model_name.lower() in available_models
         ]
 
     def queryset_for_model(self, model, request=None):
@@ -86,22 +85,23 @@ class SearchViewSet(BaseGenericViewSet):
             return model.objects.none()
 
         plain_search_terms = convert_search_terms(search_terms)
-        search_query = SearchQuery(plain_search_terms, config=models.F('fts_language'))
+        search_query = SearchQuery(plain_search_terms, config=models.F("fts_language"))
 
-        queryset = model.objects.viewable().annotate(
-            fts_rank=SearchRank(models.F('fts_index'), search_query)
-        ).filter(
-            Q(fts_index=search_query) | Q(fts_index__contains=plain_search_terms)
-        ).order_by('-fts_rank')
+        queryset = (
+            model.objects.viewable()
+            .annotate(fts_rank=SearchRank(models.F("fts_index"), search_query))
+            .filter(Q(fts_index=search_query) | Q(fts_index__contains=plain_search_terms))
+            .order_by("-fts_rank")
+        )
 
         # do common prefetches on the querysets
         queryset = queryset.prefetch_common()
 
         # if the model has a "projects" attribute, prefetch this as well
-        if hasattr(model, 'projects'):
-            queryset = queryset.prefetch_related('projects')
+        if hasattr(model, "projects"):
+            queryset = queryset.prefetch_related("projects")
 
-        return queryset[:self.search_limit_per_model]
+        return queryset[: self.search_limit_per_model]
 
     def serializer_for_instance(self, instance, request=None):
         """
@@ -114,14 +114,13 @@ class SearchViewSet(BaseGenericViewSet):
         if not hasattr(meta, "get_default_serializer"):
             logger.error(
                 "Error in search: Meta [{meta}] of [{object}] does not have get_default_serializer method".format(
-                    meta=meta,
-                    object=instance
+                    meta=meta, object=instance
                 )
             )
             return None
 
         serializer_class = meta.get_default_serializer()
-        return serializer_class(instance=instance, context={'request': request})
+        return serializer_class(instance=instance, context={"request": request})
 
     def get_results(self, request=None):
         """
@@ -133,13 +132,10 @@ class SearchViewSet(BaseGenericViewSet):
         models = apps.get_models(include_auto_created=False)
         models = [model for model in models if issubclass(model, FTSMixin) and model in searchable_models]
 
-        querysets = [
-            self.queryset_for_model(model, request=request)
-            for model in models
-        ]
+        querysets = [self.queryset_for_model(model, request=request) for model in models]
 
         results = chain(*querysets)
-        results = sorted(results, key=attrgetter('fts_rank'))
+        results = sorted(results, key=attrgetter("fts_rank"))
 
         return results
 

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -9,8 +9,8 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
 from eric.core.models import disable_permission_checks
-from eric.projects.models.handlers import check_create_roles_for_other_workbench_elements
 from eric.kanban_boards.models.models import KanbanBoard, KanbanBoardColumn, KanbanBoardColumnTaskAssignment
+from eric.projects.models.handlers import check_create_roles_for_other_workbench_elements
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ def check_create_roles_for_kanbanboard_column(user, sender, instance, *args, **k
     :param kwargs:
     :return:
     """
-    if not hasattr(instance, 'kanban_board_column'):
+    if not hasattr(instance, "kanban_board_column"):
         # not related to a kanban board column
         return
 
@@ -73,7 +73,7 @@ def check_create_roles_for_kanbanboard(user, sender, instance, *args, **kwargs):
     :param kwargs:
     :return:
     """
-    if not hasattr(instance, 'kanban_board'):
+    if not hasattr(instance, "kanban_board"):
         # not related to a kanban board
         return
 

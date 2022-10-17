@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -10,6 +10,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from rest_framework.exceptions import ValidationError
 
 from eric.core.models import BaseModel
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class Favourite(BaseModel):
-    """ Model used to build generic favourites """
+    """Model used to build generic favourites"""
 
     objects = FavouriteManager()
 
@@ -28,10 +29,17 @@ class Favourite(BaseModel):
         verbose_name_plural = _("Favourites")
         track_fields = ("content_type", "object_id", "user_id")
         index_together = (
-            ("content_type", "object_id",),
+            (
+                "content_type",
+                "object_id",
+            ),
         )
         unique_together = (
-            ("object_id", "content_type", "user",),
+            (
+                "object_id",
+                "content_type",
+                "user",
+            ),
         )
 
     id = models.UUIDField(
@@ -70,7 +78,7 @@ class Favourite(BaseModel):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         # check that only favouritable models are favourited
         meta_class = self.content_object._meta
-        if not hasattr(meta_class, 'is_favouritable') or not meta_class.is_favouritable:
-            raise ValidationError(f'Instances of model {type(self.content_object)} can not be favourited')
+        if not hasattr(meta_class, "is_favouritable") or not meta_class.is_favouritable:
+            raise ValidationError(f"Instances of model {type(self.content_object)} can not be favourited")
 
         return super().save(force_insert=False, force_update=False, using=None, update_fields=None)

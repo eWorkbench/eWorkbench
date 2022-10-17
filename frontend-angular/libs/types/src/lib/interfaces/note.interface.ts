@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import type { LabBookContainer } from './labbook.interface';
 import type { Metadata } from './metadata.interface';
 import type { User } from './user.interface';
 
@@ -30,4 +31,5 @@ export interface Note {
   created_by: User;
   pk: string;
   is_favourite: boolean;
+  labbook_container: LabBookContainer | null;
 }

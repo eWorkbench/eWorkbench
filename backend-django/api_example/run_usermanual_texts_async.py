@@ -1,6 +1,9 @@
-from eric import APIAccess
-import grequests
 import getpass
+
+import grequests
+
+from eric import APIAccess
+
 
 def exception_handler(request, exception):
     print("Request failed")
@@ -11,13 +14,11 @@ base_url = "http://workbench.local:8000/api"
 
 api = APIAccess(base_url=base_url)
 
-token = api.login(getpass.getpass('Username: '), getpass.getpass('Password: '))
+token = api.login(getpass.getpass("Username: "), getpass.getpass("Password: "))
 
 api.set_http_header("Authorization", "Token " + token)
 
-headers = {
-    'Authorization': "Token " + token
-}
+headers = {"Authorization": "Token " + token}
 
 
 reqs = [

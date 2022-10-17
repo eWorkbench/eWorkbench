@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -7,14 +7,16 @@ from smtplib import SMTPException
 
 import django.core.exceptions
 from django.http import Http404
-from django_changeset.models.mixins import ConcurrentUpdateException
-from rest_framework.exceptions import APIException, ValidationError, PermissionDenied
+
+from rest_framework.exceptions import APIException, PermissionDenied, ValidationError
 from rest_framework.views import exception_handler
 
-from eric.projects.models import UserStorageLimitReachedException, MaxFileSizeReachedException
+from django_changeset.models.mixins import ConcurrentUpdateException
+
+from eric.projects.models import MaxFileSizeReachedException, UserStorageLimitReachedException
 from eric.projects.models.exceptions import ContainerReadWriteException
 
-logger = logging.getLogger('eric.core.rest.custom_exception_handler')
+logger = logging.getLogger("eric.core.rest.custom_exception_handler")
 
 
 class APIConcurrentUpdateException(APIException):
@@ -23,13 +25,14 @@ class APIConcurrentUpdateException(APIException):
     indicates that someone else has edited an element (therefore concurrent udpate).
     Converts a Concurrent Update Exception to a valid DRF Exception (APIException)
     """
+
     status_code = 412  # Precondition failed
     default_detail = "Concurrent update exception"
 
     def __init__(self, concurrent_update_exception):
         self.detail = {
-            'detail': "Concurrent update exception",
-            'latest_version_number': concurrent_update_exception.latest_version_number
+            "detail": "Concurrent update exception",
+            "latest_version_number": concurrent_update_exception.latest_version_number,
         }
 
     def __str__(self):
@@ -42,13 +45,14 @@ class APIUserStorageLimitReachedException(APIException):
     picture the user storage limit will be reached).
     Converts a User Storage Limit Reached Exception to a valid DRF Exception (APIException)
     """
+
     status_code = 507  # Insufficient Storage
     default_detail = "User storage limit reached"
 
     def __init__(self, user_storage_limit_reached_exception):
         self.detail = {
-            'detail': "User storage limit reached",
-            'available_storage': user_storage_limit_reached_exception.available_storage
+            "detail": "User storage limit reached",
+            "available_storage": user_storage_limit_reached_exception.available_storage,
         }
 
     def __str__(self):
@@ -60,13 +64,14 @@ class APIContainerReadWriteException(APIException):
     Custom DRF Exception for Container read/write settings (raised when a file is uploaded).
     Converts a APIContainerReadWriteException to a valid DRF Exception (APIException)
     """
+
     status_code = 418  # I'm a teapot
     default_detail = "The DSS container does not allow files to be added or edited"
 
     def __init__(self, api_container_read_write_exception):
         self.detail = {
-            'detail': "The DSS container does not allow files to be added or edited",
-            'value': api_container_read_write_exception.value
+            "detail": "The DSS container does not allow files to be added or edited",
+            "value": api_container_read_write_exception.value,
         }
 
     def __str__(self):
@@ -78,14 +83,12 @@ class APIMaxFileSizeReachedException(APIException):
     Custom DRF Exception for API Max File Size Reached (raised when a file or picture is uploaded and it's too large).
     Converts a Max File Size Reached Exception to a valid DRF Exception (APIException)
     """
+
     status_code = 507  # Insufficient Storage
     default_detail = "Max file size reached"
 
     def __init__(self, max_file_size_reached_exception):
-        self.detail = {
-            'detail': "File is too large",
-            'max_file_size': max_file_size_reached_exception.max_file_size
-        }
+        self.detail = {"detail": "File is too large", "max_file_size": max_file_size_reached_exception.max_file_size}
 
     def __str__(self):
         return "User storage limit reached"
@@ -99,7 +102,7 @@ def custom_exception_handler(exc, context):
     :param context:
     :return:
     """
-    logger.info('Custom Exception Handler called with type {exception_type}'.format(exception_type=type(exc)))
+    logger.info(f"Custom Exception Handler called with type {type(exc)}")
 
     # Handle ConcurrentUpdateExceptions
     if type(exc) is ConcurrentUpdateException:
@@ -134,7 +137,7 @@ def custom_exception_handler(exc, context):
         # exc is a rest_framework APIException, so we can pass it on to the rest api exception handler
         pass
     else:
-        logger.debug("Potentially unhandled exception of type {exception_type}".format(exception_type=type(exc)))
+        logger.debug(f"Potentially unhandled exception of type {type(exc)}")
 
     # Call REST framework's default exception handler to get the standard error response (for validation, permission
     # and similar errors)
@@ -142,7 +145,7 @@ def custom_exception_handler(exc, context):
 
     if response is None:
         # this error seems to be caused by something else, lets make sure we know about it in our log
-        logger.error("Unhandled exception of type {exception_type}".format(exception_type=type(exc)))
+        logger.error(f"Unhandled exception of type {type(exc)}")
         logger.error(str(exc))
 
     return response

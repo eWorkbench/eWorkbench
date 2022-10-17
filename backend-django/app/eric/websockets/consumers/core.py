@@ -1,13 +1,13 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import abc
 import json
 
-from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
-from django_userforeignkey.request import get_current_user, get_current_request, set_current_request
+from channels.generic.websocket import JsonWebsocketConsumer
+from django_userforeignkey.request import get_current_request, get_current_user, set_current_request
 
 from eric.core.models.abstract import get_all_workbench_models
 from eric.search.models import FTSMixin
@@ -18,39 +18,40 @@ class AuthenticatedWorkbenchJsonWebsocketConsumer(JsonWebsocketConsumer):
     """
     Abstract Workbench Websocket Consumer that handles authentication
     """
+
     def connect(self, **kwargs):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def disconnect(self, **kwargs):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def receive_json(self, content, **kwargs):
         # all authenticated messages need to be forwarded to the receive_json_authenticated method
         # however, we should set the current request, so we can rely on the get_current_user() method in our app
-        if 'is_authenticated' in self.scope and self.scope['is_authenticated']:
-            request = self.scope['request']
+        if "is_authenticated" in self.scope and self.scope["is_authenticated"]:
+            request = self.scope["request"]
             set_current_request(request)
             return self.receive_json_authenticated(content, **kwargs)
 
         # check for auth requests
-        if 'authorization' in content:
-            self.scope['is_authenticated'] = False
+        if "authorization" in content:
+            self.scope["is_authenticated"] = False
             # check auth
-            auth_token = content['authorization']
+            auth_token = content["authorization"]
 
             # fake the auth request
             user, auth, request = fake_rest_auth(auth_token, self.scope)
 
-            self.scope['request'] = request
-            self.scope['user'] = user
+            self.scope["request"] = request
+            self.scope["user"] = user
 
             set_current_request(request)
 
             if user and not user.is_anonymous:
-                self.scope['is_authenticated'] = True
+                self.scope["is_authenticated"] = True
                 self.authentication_success(user)
                 # send auth_success
-                self.send_json({'auth_success': True})
+                self.send_json({"auth_success": True})
 
             return
 
@@ -59,7 +60,7 @@ class AuthenticatedWorkbenchJsonWebsocketConsumer(JsonWebsocketConsumer):
         print(content)
 
     def authentication_success(self, user):
-        raise NotImplemented
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def receive_json_authenticated(self, content, **kwargs):
@@ -97,6 +98,7 @@ class GenericWorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsume
             def unlock(self, data):
                 pass
     """
+
     ALLOWED_ACTIONS = []
 
     def connect(self):
@@ -106,15 +108,15 @@ class GenericWorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsume
         :return:
         """
         workbench_searchable_elements = get_all_workbench_models(FTSMixin)
-        available_models = dict([(model.__name__.lower(), model) for model in workbench_searchable_elements])
+        available_models = {model.__name__.lower(): model for model in workbench_searchable_elements}
 
-        model_name = self.scope['url_route']['kwargs']['model_name']
-        model_pk = self.scope['url_route']['kwargs']['model_pk']
+        model_name = self.scope["url_route"]["kwargs"]["model_name"]
+        model_pk = self.scope["url_route"]["kwargs"]["model_pk"]
 
-        self.room_name = "elements_{model_name}_{model_pk}".format(model_name=model_name, model_pk=model_pk)
-        self.room_group_name = "char_{}".format(self.room_name)
+        self.room_name = f"elements_{model_name}_{model_pk}"
+        self.room_group_name = f"char_{self.room_name}"
 
-        print("Listening to {}".format(self.channel_name))
+        print(f"Listening to {self.channel_name}")
 
         if model_name in available_models:
             model = available_models[model_name]
@@ -127,10 +129,7 @@ class GenericWorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsume
                 self.model_class = model
 
                 # Join room group for this element
-                async_to_sync(self.channel_layer.group_add)(
-                    self.room_group_name,
-                    self.channel_name
-                )
+                async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
 
                 self.accept()
 
@@ -145,19 +144,10 @@ class GenericWorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsume
 
     def disconnect(self, close_code):
         # leave room group
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name,
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
 
     def send_to_room_group(self, message):
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type': 'test_message',
-                'message': message
-            }
-        )
+        async_to_sync(self.channel_layer.group_send)(self.room_group_name, {"type": "test_message", "message": message})
 
     def receive_json_authenticated(self, content):
         """
@@ -167,12 +157,12 @@ class GenericWorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsume
         """
         print(content, get_current_user())
 
-        if 'action' in content:
-            action = content['action'].lower()
+        if "action" in content:
+            action = content["action"].lower()
 
             if action not in self.ALLOWED_ACTIONS:
                 # method not in allowed actions
-                print("Method {} not in allowed actions".format(action))
+                print(f"Method {action} not in allowed actions")
             else:
                 if hasattr(self, action) and callable(getattr(self, action)):
                     # call it
@@ -180,6 +170,6 @@ class GenericWorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsume
                     action_method(content)
                 else:
                     # method not found
-                    print("Method {} not found".format(action))
+                    print(f"Method {action} not found")
         else:
             print("Please use the 'action' attribute in your JSON")

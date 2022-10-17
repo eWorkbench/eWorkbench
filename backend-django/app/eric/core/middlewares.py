@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import datetime
@@ -11,12 +11,13 @@ from django.contrib.auth import get_user_model
 from django.db import connection
 from django.utils.cache import add_never_cache_headers
 from django.utils.deprecation import MiddlewareMixin
+
 from django_changeset.models.mixins import RevisionModelMixin
 from django_userforeignkey.request import get_current_user
 
 User = get_user_model()
 
-request_logger = logging.getLogger('django.middleware.request_time_logging')
+request_logger = logging.getLogger("django.middleware.request_time_logging")
 
 
 class HTTPXForwardedForMiddleware(MiddlewareMixin):
@@ -29,13 +30,12 @@ class HTTPXForwardedForMiddleware(MiddlewareMixin):
 
         from django.conf import settings
 
-        HTTP_X_FORWARDED_FOR_TRUSTED_PROXIES = getattr(settings, 'HTTP_X_FORWARDED_FOR_TRUSTED_PROXIES', [])
+        HTTP_X_FORWARDED_FOR_TRUSTED_PROXIES = getattr(settings, "HTTP_X_FORWARDED_FOR_TRUSTED_PROXIES", [])
 
         # check if remote addr is unset or if it is set, it needs to be within the trusted proxies
-        if 'REMOTE_ADDR' not in request.META \
-                or request.META['REMOTE_ADDR'] in HTTP_X_FORWARDED_FOR_TRUSTED_PROXIES:
-            if 'HTTP_X_FORWARDED_FOR' in request.META:
-                request.META['REMOTE_ADDR'] = request.META['HTTP_X_FORWARDED_FOR'].split(",")[0].strip()
+        if "REMOTE_ADDR" not in request.META or request.META["REMOTE_ADDR"] in HTTP_X_FORWARDED_FOR_TRUSTED_PROXIES:
+            if "HTTP_X_FORWARDED_FOR" in request.META:
+                request.META["REMOTE_ADDR"] = request.META["HTTP_X_FORWARDED_FOR"].split(",")[0].strip()
 
 
 class DisableChangeSetForReadOnlyRequestsMiddleware(MiddlewareMixin):
@@ -78,7 +78,7 @@ class RequestTimeLoggingMiddleware(MiddlewareMixin):
     """
 
     @staticmethod
-    def log_message(request, tag, message=''):
+    def log_message(request, tag, message=""):
         """Log timing message to stderr.
 
         Logs message about `request` with a `tag` (a string, 10
@@ -97,7 +97,7 @@ class RequestTimeLoggingMiddleware(MiddlewareMixin):
         """
 
         dt = datetime.datetime.utcnow()
-        if not hasattr(request, '_logging_uuid'):
+        if not hasattr(request, "_logging_uuid"):
             request._logging_uuid = uuid.uuid1()
             request._logging_start_dt = dt
             request._logging_pass = 0
@@ -106,10 +106,11 @@ class RequestTimeLoggingMiddleware(MiddlewareMixin):
 
         # replace commas in path, so the output can be parsed easily
         # (commas can be in path for file names etc.)
-        path = str(request.path).replace(',', ' ')
+        path = str(request.get_full_path).replace(",", " ")
 
         request_logger.debug(
-            '%s, %s, %s, %d, %s, %s, %0.4f seconds, %s' % (
+            "%s, %s, %s, %d, %s, %s, %0.4f seconds, %s"
+            % (
                 dt.isoformat(),
                 tag,
                 request._logging_uuid,
@@ -122,36 +123,36 @@ class RequestTimeLoggingMiddleware(MiddlewareMixin):
         )
 
     def process_request(self, request):
-        self.log_message(request, 'request ')
+        self.log_message(request, "request ")
 
     def process_response(self, request, response):
-        s = getattr(response, 'status_code', 0)
-        r = "by %s, status %s, " % (str(get_current_user()), str(s))
+        s = getattr(response, "status_code", 0)
+        r = f"by {str(get_current_user())}, status {str(s)}, "
         if s in (300, 301, 302, 307):
-            r += ' redirect to %s' % response.get('Location', '?')
+            r += " redirect to %s" % response.get("Location", "?")
         elif hasattr(response, "content") and response.content:
-            r += ' sent %d bytes' % len(response.content)
+            r += " sent %d bytes" % len(response.content)
         elif hasattr(response, "streaming_content") and response.streaming_content:
-            r += ' streaming / downloading'
+            r += " streaming / downloading"
 
         # if status code is 2xx and debug mode is activated
         if 200 <= s <= 299 and settings.DEBUG:
             total_time = 0
 
             for query in connection.queries:
-                query_time = query.get('time')
+                query_time = query.get("time")
                 if query_time is None:
                     # django-debug-toolbar monkeypatches the connection
                     # cursor wrapper and adds extra information in each
                     # item in connection.queries. The query time is stored
                     # under the key "duration" rather than "time" and is
                     # in milliseconds, not seconds.
-                    query_time = query.get('duration', 0) / 1000
+                    query_time = query.get("duration", 0) / 1000
                 total_time += float(query_time)
 
-            r += ', %d queries, %0.4f seconds' % (len(connection.queries), total_time)
+            r += ", %d queries, %0.4f seconds" % (len(connection.queries), total_time)
 
-        self.log_message(request, 'response', r)
+        self.log_message(request, "response", r)
         return response
 
 
@@ -171,9 +172,9 @@ class DisableClientSideCachingMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # avoid setting never-cache headers for GET requests without parameters -> those can be cached
-        if request.method == 'GET' and len(request.GET.keys()) == 0 and response.streaming:
+        if request.method == "GET" and len(request.GET.keys()) == 0 and response.streaming:
             pass
-        elif request.method == 'GET' and request.path == "/webdav/auth/":
+        elif request.method == "GET" and request.path == "/webdav/auth/":
             # do not add this header to the webdav/auth endpoint, as it can be cached by nginx
             pass
         else:

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
@@ -7,17 +7,17 @@ from contextlib import AbstractContextManager
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User, Group
-from django.test import TestCase, RequestFactory
+from django.contrib.auth.models import Group, User
+from django.test import RequestFactory, TestCase
 from django.utils.timezone import localtime
-from django_userforeignkey.request import get_current_request, set_current_request
+
 from rest_framework import status
 from rest_framework.status import HTTP_200_OK
 
+from django_userforeignkey.request import get_current_request, set_current_request
+
 from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR
 from eric.core.utils import remove_none_values_from_dict
-
-User = get_user_model()
 
 
 class CommonTestMixin:
@@ -27,17 +27,18 @@ class CommonTestMixin:
     """
 
     def assert_response_status(self, response, expected_status_code=HTTP_200_OK):
-        if hasattr(response, 'content'):
+        if hasattr(response, "content"):
             try:
                 response_content = response.content.decode()
             except UnicodeDecodeError:
-                response_content = '<could not decode response>'
+                response_content = "<could not decode response>"
         else:
-            response_content = '<no content (StreamingContent?)>'
+            response_content = "<no content (StreamingContent?)>"
 
         self.assertEqual(
-            response.status_code, expected_status_code,
-            'Expected={expected} -- {response}'.format(expected=expected_status_code, response=response_content)
+            response.status_code,
+            expected_status_code,
+            f"Expected={expected_status_code} -- {response_content}",
         )
 
     def parse_response(self, response, expected_status_code=HTTP_200_OK):
@@ -45,23 +46,19 @@ class CommonTestMixin:
         return json.loads(response.content.decode())
 
     def set_auth_token(self, auth_token):
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token {}'.format(auth_token)
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {auth_token}")
 
     def set_jwt_token(self, jwt_token):
-        self.client.credentials(
-            HTTP_AUTHORIZATION='JWT {}'.format(jwt_token)
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"JWT {jwt_token}")
 
     @staticmethod
     def create_user(groups=None, **kwargs):
-        username = kwargs.get('username')
+        username = kwargs.get("username")
 
         # build user data
         user_data = {
-            'password': 'mySuperSecretPassword123',
-            'email': '{}@test.local'.format(username),
+            "password": "mySuperSecretPassword123",
+            "email": f"{username}@test.local",
         }
         user_data.update(kwargs)
 
@@ -73,14 +70,14 @@ class CommonTestMixin:
         return user
 
     def create_user_and_log_in(self, username, groups=None, **kwargs):
-        if 'password' not in kwargs:
-            kwargs['password'] = 'mySuperSecretPassword123'
+        if "password" not in kwargs:
+            kwargs["password"] = "mySuperSecretPassword123"
 
-        if 'email' not in kwargs:
-            kwargs['email'] = f'{username}@test.local'
+        if "email" not in kwargs:
+            kwargs["email"] = f"{username}@test.local"
 
         user = self.create_user(username=username, groups=groups, **kwargs)
-        token = self.login_as_user(username, kwargs['password'])
+        token = self.login_as_user(username, kwargs["password"])
 
         return user, token
 
@@ -90,19 +87,16 @@ class CommonTestMixin:
 
         # login
         response = self.client.post(
-            '/api/auth/login',
-            {
-                'username': username,
-                'password': password
-            },
+            "/api/auth/login",
+            {"username": username, "password": password},
             HTTP_USER_AGENT=HTTP_USER_AGENT,
-            REMOTE_ADDR=REMOTE_ADDR
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         response = self.parse_response(response, expected_status_code=status.HTTP_200_OK)
 
         # extract token from login response
-        self.assertTrue('token' in response)
-        token = response['token']
+        self.assertTrue("token" in response)
+        token = response["token"]
 
         # set credentials
         self.set_auth_token(token)
@@ -115,7 +109,7 @@ def get_paginated_results(data):
     if isinstance(data, list):
         return data
 
-    results = data.get('results', None) if isinstance(data, dict) else None
+    results = data.get("results", None) if isinstance(data, dict) else None
     if results is not None and isinstance(results, list):
         data = results
 
@@ -124,23 +118,21 @@ def get_paginated_results(data):
 
 def params_dict_to_url_params(params=None, leading_question_mark=True):
     if not params or len(params) <= 0:
-        return ''
+        return ""
 
-    key_value_pair_strings = [
-        '{}={}'.format(key, value) for key, value in params.items()
-    ]
-    params_str = '&'.join(key_value_pair_strings)
+    key_value_pair_strings = [f"{key}={value}" for key, value in params.items()]
+    params_str = "&".join(key_value_pair_strings)
 
-    return '?' + params_str if leading_question_mark else params_str
+    return "?" + params_str if leading_question_mark else params_str
 
 
 class CoreUtilsTest(TestCase):
     def test_remove_none_values_from_dict(self):
         test_dict = {
-            'key1': 'value1',
-            'key2': 'value2',
-            'key3': 'value3',
-            'keyNone': None,
+            "key1": "value1",
+            "key2": "value2",
+            "key3": "value3",
+            "keyNone": None,
         }
         clean_dict = remove_none_values_from_dict(test_dict)
         self.assertNotEqual(test_dict, clean_dict)
@@ -155,7 +147,7 @@ class FakeRequestUser(AbstractContextManager):
         if self.request is None:
             self.request = get_current_request()
 
-        self.original_user = getattr(self.request, 'user', None)
+        self.original_user = getattr(self.request, "user", None)
 
     def __enter__(self):
         self.request.user = self.tmp_user
@@ -193,21 +185,23 @@ class NoRequest(AbstractContextManager):
 
 
 def as_aware_dt(dt):
-    """ Transforms a naive datetime object into an aware datetime object of the current timezone. """
+    """Transforms a naive datetime object into an aware datetime object of the current timezone."""
 
     return localtime().replace(
-        year=dt.year, month=dt.month, day=dt.day,
-        hour=dt.hour, minute=dt.minute, second=dt.second,
+        year=dt.year,
+        month=dt.month,
+        day=dt.day,
+        hour=dt.hour,
+        minute=dt.minute,
+        second=dt.second,
         microsecond=dt.microsecond,
     )
 
 
 def aware_dt(year, month=1, day=1, hour=0, minute=0, second=0, microsecond=0):
-    """ Creates an aware datetime object of the current timezone. """
+    """Creates an aware datetime object of the current timezone."""
 
-    return as_aware_dt(
-        datetime(year, month, day, hour, minute, second, microsecond)
-    )
+    return as_aware_dt(datetime(year, month, day, hour, minute, second, microsecond))
 
 
 def naive_dt(year, month=1, day=1, hour=0, minute=0, second=0, microsecond=0):

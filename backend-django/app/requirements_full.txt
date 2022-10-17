@@ -1,5 +1,6 @@
 asgiref>=3.4.1,<3.5
 beautifulsoup4>=4.10.0,<4.11
+bleach>=5.0.1,<6.0
 celery>=5.2.3,<5.3
 channels-redis>=3.3.1,<3.4
 channels>=3.0.4,<3.1
@@ -24,7 +25,7 @@ django-json-widget>=1.1.1,<1.2
 django-memoize>=2.3.1,<2.4
 django-redis-cache>=3.0.1,<3.1
 django-request-cache>=1.2,<1.3
-django-rest-multitokenauth>=1.4.0,<1.5
+django-rest-multitokenauth>=1.5.0,<1.6
 django-rest-passwordreset>=1.2.1,<1.3
 django-userforeignkey>=0.5,<0.6
 django-mptt>=0.13.4,<0.14
@@ -41,7 +42,8 @@ GitPython>=3.1.27,<3.2
 html2text>=2020.1.16,<2020.2
 html5lib>=1.1,<1.2
 lxml>=4.6.3,<4.7
-Markdown==3.3.4
+Markdown>=3.4.1,<3.5
+importlib-metadata>=4.12.0,<5.0.0
 Pillow>=8.2.0,<8.3
 # pinned for now: https://github.com/psycopg/psycopg2/issues/1293
 psycopg2-binary>=2.8.6,<2.9

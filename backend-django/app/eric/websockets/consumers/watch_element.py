@@ -1,17 +1,17 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
 
+from rest_framework.exceptions import ValidationError
+
 from asgiref.sync import async_to_sync
 from django_userforeignkey.request import get_current_user
-from rest_framework.exceptions import ValidationError
 
 from eric.core.models import LockMixin
 from eric.core.models.abstract import get_all_workbench_models
 from eric.projects.rest.serializers.element_lock import ElementLockSerializer
-
 from eric.websockets.consumers.core import AuthenticatedWorkbenchJsonWebsocketConsumer
 
 
@@ -19,16 +19,11 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
     """
     WebSocket Consumer that allows subscribing to a workbench element and propagates those changes to the user
     """
-    ALLOWED_ACTIONS = [
-        'subscribe',
-        'unsubscribe',
-        'unsubscribe_all',
-        'lock',
-        'unlock'
-    ]
+
+    ALLOWED_ACTIONS = ["subscribe", "unsubscribe", "unsubscribe_all", "lock", "unlock"]
 
     def __init__(self, *args, **kwargs):
-        super(WorkbenchElementConsumer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.group_names = []
 
     def authentication_success(self, user):
@@ -40,12 +35,12 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         :param content:
         :return:
         """
-        if 'action' in content:
-            action = content['action'].lower()
+        if "action" in content:
+            action = content["action"].lower()
 
             if action not in self.ALLOWED_ACTIONS:
                 # method not in allowed actions
-                print("Method {} not in allowed actions".format(action))
+                print(f"Method {action} not in allowed actions")
             else:
                 if hasattr(self, action) and callable(getattr(self, action)):
                     # call it
@@ -53,7 +48,7 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
                     action_method(content)
                 else:
                     # method not found
-                    print("Method {} not found".format(action))
+                    print(f"Method {action} not found")
         else:
             print("Please use the 'action' attribute in your JSON")
 
@@ -67,13 +62,10 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         print("Disconnecting...")
 
         for group_name in self.group_names:
-            print("Removing channel from group {}".format(group_name))
+            print(f"Removing channel from group {group_name}")
 
             # Leave group with this channel
-            async_to_sync(self.channel_layer.group_discard)(
-                group_name,
-                self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
 
     @staticmethod
     def check_workbench_params(data, check_viewable=True):
@@ -86,17 +78,17 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         :param bool check_viewable: whether or not .viewable() of the queryset should be checked
         :return:
         """
-        if 'model_name' not in data:
+        if "model_name" not in data:
             raise ValidationError("Expected 'model_name' to be set")
-        if 'model_pk' not in data:
+        if "model_pk" not in data:
             raise ValidationError("Exepcted 'model_pk' to be set")
 
-        model_name = data['model_name']
-        model_pk = data['model_pk']
+        model_name = data["model_name"]
+        model_pk = data["model_pk"]
 
         # ToDo: Move this to a static method and initialize it once for better performance
         workbench_searchable_elements = get_all_workbench_models(LockMixin)
-        available_models = dict([(model.__name__.lower(), model) for model in workbench_searchable_elements])
+        available_models = {model.__name__.lower(): model for model in workbench_searchable_elements}
 
         # check that model_name is within available models
         if model_name in available_models:
@@ -113,14 +105,11 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
                 if not check_viewable or element.is_viewable():
                     # generate group name
                     # ToDo: this should be a static method somewhere, as it's also used in handlers.py
-                    group_name = "elements_{model_name}_{model_pk}".format(
-                        model_name=model_name,
-                        model_pk=model_pk
-                    )
+                    group_name = f"elements_{model_name}_{model_pk}"
 
                     return element, group_name
         else:
-            print("Could not find {} in {}".format(model_name, available_models))
+            print(f"Could not find {model_name} in {available_models}")
 
         # else:
         return None, None
@@ -136,13 +125,10 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         if element and group_name:
             self.group_names.append(group_name)
 
-            print("subscribing to {}".format(group_name))
+            print(f"subscribing to {group_name}")
 
             # Join room group for this element with this channel
-            async_to_sync(self.channel_layer.group_add)(
-                group_name,
-                self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_add)(group_name, self.channel_name)
 
             # Figure out whether this element is locked and send a lock message
             element_lock = element.get_lock_element()
@@ -153,21 +139,25 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
                 # element is currently locked, send out a message
                 element_lock = element_lock.first()
 
-                self.send(text_data=json.dumps({
-                    'element_lock_changed': {
-                        'locked': True,
-                        'lock_details': ElementLockSerializer(
-                            element_lock, context={'request': self.scope["request"]}
-                        ).data,
-                        'model_name': model_name,
-                        'model_pk': str(element.pk),
-                    }
-                }))
+                self.send(
+                    text_data=json.dumps(
+                        {
+                            "element_lock_changed": {
+                                "locked": True,
+                                "lock_details": ElementLockSerializer(
+                                    element_lock, context={"request": self.scope["request"]}
+                                ).data,
+                                "model_name": model_name,
+                                "model_pk": str(element.pk),
+                            }
+                        }
+                    )
+                )
 
             return
 
         # else:
-        print("Can not subscribe to {}".format(text_data_json))
+        print(f"Can not subscribe to {text_data_json}")
 
     def unsubscribe(self, text_data_json):
         """
@@ -181,15 +171,12 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
             if group_name in self.group_names:
                 self.group_names.remove(group_name)
 
-                print("User is unsubscribing from {}".format(group_name))
+                print(f"User is unsubscribing from {group_name}")
 
                 # Leave group with this channel
-                async_to_sync(self.channel_layer.group_discard)(
-                    group_name,
-                    self.channel_name
-                )
+                async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
             else:
-                print("Group_name {} is not in self.group_names".format(group_name))
+                print(f"Group_name {group_name} is not in self.group_names")
         else:
             print("Trying to unsubscribe from an element that does not exist...")
 
@@ -200,13 +187,10 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         :return:
         """
         for group_name in self.group_names:
-            print("Removing channel from group {}".format(group_name))
+            print(f"Removing channel from group {group_name}")
 
             # Leave group with this channel
-            async_to_sync(self.channel_layer.group_discard)(
-                group_name,
-                self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_discard)(group_name, self.channel_name)
 
     def element_lock_changed(self, event):
         """
@@ -214,11 +198,11 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         :param event:
         :return:
         """
-        message = event['message']
+        message = event["message"]
 
         print("Element lock has changed:", message)
 
-        if message['locked']:
+        if message["locked"]:
             # this message contains a model_name and model_pk, let's find out what model this is
             element, group_name = self.check_workbench_params(message, check_viewable=False)
 
@@ -228,20 +212,16 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
                 element_lock = element_lock.first()
 
                 # serialize all the necessary details about the lock
-                message['lock_details'] = ElementLockSerializer(
-                    element_lock, context={'request': self.scope["request"]}
+                message["lock_details"] = ElementLockSerializer(
+                    element_lock, context={"request": self.scope["request"]}
                 ).data
 
-                self.send(text_data=json.dumps({
-                    'element_lock_changed': message
-                }))
+                self.send(text_data=json.dumps({"element_lock_changed": message}))
             else:
                 # message['locked’] says that it is locked, but apparently it is not locked.. or at least not in the db
                 raise ValidationError("Model should be locked, but is not locked...")
 
-        self.send(text_data=json.dumps({
-            'element_lock_changed': message
-        }))
+        self.send(text_data=json.dumps({"element_lock_changed": message}))
 
     def element_changed(self, event):
         """
@@ -251,32 +231,24 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         :param event:
         :return:
         """
-        message = event['message']
+        message = event["message"]
 
-        self.send(text_data=json.dumps({
-            'element_changed': message
-        }))
+        self.send(text_data=json.dumps({"element_changed": message}))
 
     def kanbanboard_task_assignment_deleted(self, event):
-        message = event['message']
+        message = event["message"]
 
-        self.send(text_data=json.dumps({
-            'kanbanboard_task_assignment_deleted': message
-        }))
+        self.send(text_data=json.dumps({"kanbanboard_task_assignment_deleted": message}))
 
     def kanbanboard_task_assignment_changed(self, event):
-        message = event['message']
+        message = event["message"]
 
-        self.send(text_data=json.dumps({
-            'kanbanboard_task_assignment_changed': message
-        }))
+        self.send(text_data=json.dumps({"kanbanboard_task_assignment_changed": message}))
 
     def kanbanboard_column_changed(self, event):
-        message = event['message']
+        message = event["message"]
 
-        self.send(text_data=json.dumps({
-            'kanbanboard_column_changed': message
-        }))
+        self.send(text_data=json.dumps({"kanbanboard_column_changed": message}))
 
     def element_relations_changed(self, event):
         """
@@ -284,11 +256,9 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         :param event:
         :return:
         """
-        message = event['message']
+        message = event["message"]
 
-        self.send(text_data=json.dumps({
-            'element_relations_changed': message
-        }))
+        self.send(text_data=json.dumps({"element_relations_changed": message}))
 
     def labbook_child_element_changed(self, event):
         """
@@ -296,11 +266,9 @@ class WorkbenchElementConsumer(AuthenticatedWorkbenchJsonWebsocketConsumer):
         :param event:
         :return:
         """
-        message = event['message']
+        message = event["message"]
 
-        self.send(text_data=json.dumps({
-            'labbook_child_element_changed': message
-        }))
+        self.send(text_data=json.dumps({"labbook_child_element_changed": message}))
 
     def lock(self, text_data_json):
         print("locking")

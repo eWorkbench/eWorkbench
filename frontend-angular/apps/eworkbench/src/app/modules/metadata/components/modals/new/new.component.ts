@@ -176,6 +176,10 @@ export class NewMetadataFieldComponent implements OnInit {
             value: 'selection',
             label: baseTypes.selection,
           },
+          {
+            value: 'tag',
+            label: baseTypes.tag,
+          },
         ];
       });
   }

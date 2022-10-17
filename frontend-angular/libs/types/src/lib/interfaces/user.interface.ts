@@ -24,6 +24,7 @@ export interface UserProfile {
   type?: string;
   ui_settings?: any;
   website: string | null;
+  status?: 'ACTIVE' | 'INACTIVE' | 'INVITED';
 }
 
 export interface User {

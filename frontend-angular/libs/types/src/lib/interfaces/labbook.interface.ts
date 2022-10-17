@@ -42,3 +42,14 @@ export interface LabBook {
   child_elements?: LabBookChildElement[];
   is_favourite: boolean;
 }
+
+export interface LabBookContainer {
+  pk: string;
+  display: string;
+  lab_book: {
+    pk: string;
+    title: string;
+  };
+  content_type_model: string;
+  content_type: number;
+}

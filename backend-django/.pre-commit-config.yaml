@@ -1,0 +1,32 @@
+repos:
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+    -   id: isort
+        args: [ "--profile", "black", "--filter-files" ]
+        exclude: ^.*\b(migrations/)\b.*$
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+    -   id: end-of-file-fixer
+        exclude: ^.*\b(migrations/)\b.*$
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.38.0
+    hooks:
+    -   id: pyupgrade
+        args: [ "--py36-plus" ]
+        exclude: ^.*\b(migrations/)\b.*$
+
+  - repo: https://github.com/psf/black
+    rev: 22.8.0
+    hooks:
+    -   id: black
+        language_version: python3
+        exclude: ^.*\b(migrations/)\b.*$
+
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 5.0.4
+    hooks:
+    -   id: flake8

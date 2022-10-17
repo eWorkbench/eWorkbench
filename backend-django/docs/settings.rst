@@ -169,4 +169,3 @@ An example config for the provided :download:`docker compse file <../docker-comp
             "group_name": "User"
         }
     }
-

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from uuid import UUID
@@ -8,8 +8,8 @@ HTTP_USER_AGENT = "APITestClient"
 REMOTE_ADDR = "127.0.0.1"
 
 HTTP_INFO = {
-    'HTTP_USER_AGENT': HTTP_USER_AGENT,
-    'REMOTE_ADDR': REMOTE_ADDR,
+    "HTTP_USER_AGENT": HTTP_USER_AGENT,
+    "REMOTE_ADDR": REMOTE_ADDR,
 }
 
 
@@ -25,7 +25,7 @@ def custom_json_handler(obj):
     """
     if isinstance(obj, UUID):
         return str(obj)
-    elif hasattr(obj, 'isoformat'):
+    elif hasattr(obj, "isoformat"):
         return obj.isoformat()
 
     return obj

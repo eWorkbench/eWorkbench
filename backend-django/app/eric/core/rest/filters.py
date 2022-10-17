@@ -1,15 +1,17 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms.widgets import NullBooleanSelect
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+
 from django_filters import Filter
 from django_filters import filters as django_filters
 from django_filters.constants import EMPTY_VALUES as FILTER_EMPTY_VALUES
@@ -20,18 +22,28 @@ from eric.favourites.rest.filters import FavouriteFilter
 
 
 class BaseFilter(FilterSet):
-    """ Provides 'basic' comperator lists for
-        - Numbers
-        - Strings
-        - Foreign Keys
-        - Choices
+    """Provides 'basic' comperator lists for
+    - Numbers
+    - Strings
+    - Foreign Keys
+    - Choices
     """
-    NULLABLE_COMPERATORS = ('isnull',)
-    NUMBER_COMPERATORS = ('lt', 'lte', 'gt', 'gte', 'exact',)  # <, > and =
+
+    NULLABLE_COMPERATORS = ("isnull",)
+    NUMBER_COMPERATORS = (
+        "lt",
+        "lte",
+        "gt",
+        "gte",
+        "exact",
+    )  # <, > and =
     DATE_COMPERATORS = NUMBER_COMPERATORS
-    FOREIGNKEY_COMPERATORS = ('exact',)  # =
+    FOREIGNKEY_COMPERATORS = ("exact",)  # =
     FOREIGNKEY_NULLABLE_COMPERATORS = FOREIGNKEY_COMPERATORS + NULLABLE_COMPERATORS
-    STRING_COMPERATORS = ('exact', 'icontains',)  # = and icontains
+    STRING_COMPERATORS = (
+        "exact",
+        "icontains",
+    )  # = and icontains
     CHOICE_COMPERATORS = FOREIGNKEY_COMPERATORS  # for choices
 
 
@@ -44,10 +56,10 @@ class ListFilter(Filter):
         if value in FILTER_EMPTY_VALUES:
             return qs
 
-        self.lookup_expr = 'in'
-        value_list = value.split(',')
+        self.lookup_expr = "in"
+        value_list = value.split(",")
 
-        return super(ListFilter, self).filter(qs, value_list)
+        return super().filter(qs, value_list)
 
 
 class RecursiveProjectsListFilter(Filter):
@@ -60,11 +72,12 @@ class RecursiveProjectsListFilter(Filter):
             return qs
 
         from eric.projects.models import Project
+
         project = Project.objects.get(pk=value)
 
-        self.lookup_expr = 'in'
+        self.lookup_expr = "in"
 
-        return super(RecursiveProjectsListFilter, self).filter(qs, project.project_tree)
+        return super().filter(qs, project.project_tree)
 
 
 class BooleanDefaultField(forms.BooleanField):
@@ -76,7 +89,7 @@ class BooleanDefaultField(forms.BooleanField):
     def clean(self, value):
         if value is None:
             return False
-        return super(BooleanDefaultField, self).clean(value)
+        return super().clean(value)
 
 
 class BooleanDefaultFilter(django_filters.BooleanFilter):
@@ -84,6 +97,7 @@ class BooleanDefaultFilter(django_filters.BooleanFilter):
     Boolean Filter which uses a Boolean Default Field (always false)
     see https://github.com/carltongibson/django-filter/issues/322
     """
+
     field_class = BooleanDefaultField
 
 
@@ -97,13 +111,13 @@ class BetterBooleanSelect(NullBooleanSelect):
     def value_from_datadict(self, data, files, name):
         value = data.get(name)
         return {
-            '2': True,
+            "2": True,
             True: True,
-            'true': True,  # added, as NullBooleanSelect does not do that
-            'True': True,
-            '3': False,
-            'false': False,  # added, as NullBooleanSelect does not do that
-            'False': False,
+            "true": True,  # added, as NullBooleanSelect does not do that
+            "True": True,
+            "3": False,
+            "false": False,  # added, as NullBooleanSelect does not do that
+            "False": False,
             False: False,
         }.get(value)
 
@@ -112,16 +126,18 @@ class BetterBooleanField(forms.NullBooleanField):
     """
     Better Boolean Field that also evalutes 'false' to False and 'true' to True
     """
+
     widget = BetterBooleanSelect
 
     def clean(self, value):
-        return super(BetterBooleanField, self).clean(value)
+        return super().clean(value)
 
 
 class BetterBooleanFilter(django_filters.BooleanFilter):
     """
     This boolean filter allows evaluating 'true' and 'false'
     """
+
     field_class = BetterBooleanField
 
 
@@ -132,8 +148,8 @@ class RecentlyModifiedByMeFilter(Filter):
 
     def __init__(self, *args, **kwargs):
         # gettext_lazy breaks the OpenAPI generation => use gettext instead
-        kwargs['label'] = gettext("Modified by me since (in days)")
-        super(RecentlyModifiedByMeFilter, self).__init__(*args, **kwargs)
+        kwargs["label"] = gettext("Modified by me since (in days)")
+        super().__init__(*args, **kwargs)
 
     def filter(self, qs, value):
         if value in FILTER_EMPTY_VALUES:
@@ -143,22 +159,23 @@ class RecentlyModifiedByMeFilter(Filter):
         try:
             value = int(value)
         except Exception:
-            raise ValidationError({
-                'recently_modified_by_me': ValidationError(
-                    _("The parameter is not an integer"),
-                    params={'recently_modified_by_me': value},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "recently_modified_by_me": ValidationError(
+                        _("The parameter is not an integer"), params={"recently_modified_by_me": value}, code="invalid"
+                    )
+                }
+            )
 
         # check if the parameter is greater than 0
         if value < 0:
-            raise ValidationError({
-                'recently_modified_by_me': ValidationError(
-                    _("The parameter is smaller than 0"),
-                    params={'recently_modified_by_me': value},
-                    code='invalid'
-                )})
+            raise ValidationError(
+                {
+                    "recently_modified_by_me": ValidationError(
+                        _("The parameter is smaller than 0"), params={"recently_modified_by_me": value}, code="invalid"
+                    )
+                }
+            )
 
         # calculates the first day of the date range because the query search for entries with the date greater than
         # the first_day
@@ -168,10 +185,7 @@ class RecentlyModifiedByMeFilter(Filter):
         start = datetime(today.year, today.month, today.day, tzinfo=today.tzinfo)
         first_day = start - timedelta(days=value)
 
-        return qs.filter(
-            changesets__user=get_current_user(),
-            changesets__date__gte=first_day
-        )
+        return qs.filter(changesets__user=get_current_user(), changesets__date__gte=first_day)
 
 
 class WorkbenchElementFilter(BaseFilter):
@@ -181,6 +195,6 @@ class WorkbenchElementFilter(BaseFilter):
 
     favourite = FavouriteFilter()
     deleted = BooleanDefaultFilter()
-    projects = ListFilter(field_name='project')
-    projects_recursive = RecursiveProjectsListFilter(field_name='projects')
+    projects = ListFilter(field_name="project")
+    projects_recursive = RecursiveProjectsListFilter(field_name="projects")
     recently_modified_by_me = RecentlyModifiedByMeFilter()

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 try:
@@ -11,7 +11,7 @@ from django.http import HttpResponse
 
 class ResponseException(Exception):
     def __init__(self, response, *args, **kwargs):
-        super(ResponseException, self).__init__('Response excepted', *args, **kwargs)
+        super().__init__("Response excepted", *args, **kwargs)
         self.response = response
 
 

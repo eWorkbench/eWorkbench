@@ -1,12 +1,13 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.auth import get_user_model
-from django.http import QueryDict, Http404
+from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -16,19 +17,20 @@ from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet
 from eric.model_privileges.models import ModelPrivilege
 from eric.model_privileges.rest.serializers import ModelPrivilegeSerializer
 from eric.model_privileges.utils import get_model_privileges_and_project_permissions_for
-from eric.shared_elements.models import Task, Meeting, Contact, CalendarAccess
+from eric.shared_elements.models import CalendarAccess, Contact, Meeting, Task
 
 User = get_user_model()
 
 
 class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
-    """ ViewSet for Privileges of an entity """
+    """ViewSet for Privileges of an entity"""
+
     serializer_class = ModelPrivilegeSerializer
 
     pagination_class = None
 
     # define user_id as a the lookup field for model privileges (instead of the model privilege primary key)
-    lookup_field = 'user_id'
+    lookup_field = "user_id"
 
     @staticmethod
     def get_parent_object_or_404(*args, **kwargs):
@@ -44,17 +46,17 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
             raise Http404
 
         # get viewable queryset and prefetch projects
-        qs = entity.objects.viewable().prefetch_related('projects')
+        qs = entity.objects.viewable().prefetch_related("projects")
 
         if entity == Task:
             # special case for Tasks: prefetch assigned users
-            qs = qs.prefetch_related('assigned_users')
+            qs = qs.prefetch_related("assigned_users")
         elif entity == Meeting:
             # special case for Meetings: prefetch attending users
-            qs = qs.prefetch_related('attending_users')
+            qs = qs.prefetch_related("attending_users")
         elif entity == Contact:
             # special case for Contacts: prefetch attending meetings
-            qs = qs.prefetch_related('attending_meetings')
+            qs = qs.prefetch_related("attending_meetings")
         elif entity == CalendarAccess:
             # special case for CalenderAccessPrivilege: it has no projects
             qs = entity.objects.viewable()
@@ -66,12 +68,12 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         Fetches the parent object and raises Http404 if the parent object does not exist (or the user does not have
         access to said object)
         """
-        super(ModelPrivilegeViewSet, self).initial(request, *args, **kwargs)
+        super().initial(request, *args, **kwargs)
         # store parent object
         self.parent_object = self.get_parent_object_or_404(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        """ Creates a model privilege for the base model. """
+        """Creates a model privilege for the base model."""
 
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
         if isinstance(request.data, QueryDict):  # however, some request.data objects are normal dictionaries...
@@ -80,19 +82,23 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         # parse arguments and return entity and primary key
         entity, pk, content_type = parse_parameters_for_workbench_models(*args, **kwargs)
 
-        request.data['object_id'] = pk
-        request.data['content_type_pk'] = content_type.pk
+        request.data["object_id"] = pk
+        request.data["content_type_pk"] = content_type.pk
 
         # check if a privilege for this user already exists
         try:
-            user_pk = int(request.data['user_pk'])
+            user_pk = int(request.data["user_pk"])
         except Exception:
             raise NotFound
 
         # get the existing privilege for the given object
-        existing_priv = ModelPrivilege.objects.for_model(self.parent_object.__class__).filter(
-            object_id=self.parent_object.pk
-        ).editable().filter(user=user_pk).first()
+        existing_priv = (
+            ModelPrivilege.objects.for_model(self.parent_object.__class__)
+            .filter(object_id=self.parent_object.pk)
+            .editable()
+            .filter(user=user_pk)
+            .first()
+        )
 
         if existing_priv:
             # it already exists, we just need to update it
@@ -102,7 +108,7 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return super(ModelPrivilegeViewSet, self).create(request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         """
@@ -124,7 +130,7 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
                 delete_privilege=ModelPrivilege.DENY,
                 trash_privilege=ModelPrivilege.DENY,
                 restore_privilege=ModelPrivilege.DENY,
-                content_object=self.parent_object
+                content_object=self.parent_object,
             )
 
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -139,9 +145,9 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         Updates a model privilege. Creates the privilege if instance.pk is empty.
         If full_access is granted, all other privilege options are set to NEUTRAL.
         """
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         instance = self.get_object()
-        user_id = kwargs.get('user_id', None)
+        user_id = kwargs.get("user_id", None)
 
         # Reset all other privileges if full_access is allowed
         if "full_access_privilege" in request.data and request.data["full_access_privilege"] == ModelPrivilege.ALLOW:
@@ -156,9 +162,7 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
             # this is actually not in the database yet, but a project permission
             # we need to create it first
             instance = ModelPrivilege.objects.create(
-                user_id=user_id,
-                content_type=instance.content_type,
-                object_id=instance.object_id
+                user_id=user_id, content_type=instance.content_type, object_id=instance.object_id
             )
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -194,7 +198,7 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         elif request.data.get("trash_privilege") == ModelPrivilege.DENY:
             request.data["restore_privilege"] = ModelPrivilege.DENY
 
-        return super(ModelPrivilegeViewSet, self).partial_update(request, *args, **kwargs)
+        return super().partial_update(request, *args, **kwargs)
 
     def get_object(self):
         """
@@ -203,7 +207,7 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         user_pk = None
         # make sure user_pk is an integer
         try:
-            user_pk = int(self.kwargs['user_id'])
+            user_pk = int(self.kwargs["user_id"])
         except Exception:
             raise NotFound
 
@@ -252,6 +256,4 @@ class ModelPrivilegeViewSet(BaseAuthenticatedModelViewSet):
         """
         Returns the queryset of model privileges for the given parent object
         """
-        return get_model_privileges_and_project_permissions_for(
-            self.parent_object.__class__, self.parent_object
-        )
+        return get_model_privileges_and_project_permissions_for(self.parent_object.__class__, self.parent_object)

@@ -24,4 +24,3 @@ For all authenticated calls to the API the auth token needs to be transmitted as
 .. code::
 
     Authorization: Token abc12...........xyz
-

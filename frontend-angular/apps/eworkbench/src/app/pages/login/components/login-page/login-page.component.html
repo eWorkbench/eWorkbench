@@ -44,7 +44,7 @@
         <a class="mr-2" [routerLink]="['/forgot-password']">
           <button type="button" class="btn ewb-button-big ewb-button-none">{{ t('login.forgotPassword') }}</button>
         </a>
-        <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="loading || form.invalid">
+        <button type="submit" class="btn ewb-button-big ewb-button-primary" [disabled]="(loading$ | async) || form.invalid">
           {{ t('login.confirm') }}
         </button>
       </div>

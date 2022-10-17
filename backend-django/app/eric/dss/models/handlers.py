@@ -1,17 +1,17 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
 import os
 
 from django.core.exceptions import ValidationError
-from django.db.models.signals import pre_save, post_delete, post_save, pre_delete
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
-from eric.drives.models import Drive, Directory
-from eric.dss.models.models import get_upload_to_path, dss_storage, DSSContainer, DSSEnvelope
+from eric.drives.models import Directory, Drive
+from eric.dss.models.models import DSSContainer, DSSEnvelope, dss_storage, get_upload_to_path
 from eric.model_privileges.models import ModelPrivilege
 from eric.projects.models.exceptions import ContainerReadWriteException
 from eric.shared_elements.models import File, UploadedFileEntry
@@ -33,25 +33,31 @@ def prevent_moving_out_of_dss_container(sender, instance, *args, **kwargs):
     else:
         # The File was a DSS File and the after saving it wouldn't be anymore -> not allowed
         if obj.is_dss_file and not instance.is_dss_file:
-            raise ValidationError({
-                'directory_id': ValidationError(
-                    _("You are not allowed to move this file out of its DSS container"),
-                    params={'directory_id': instance.directory_id},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "directory_id": ValidationError(
+                        _("You are not allowed to move this file out of its DSS container"),
+                        params={"directory_id": instance.directory_id},
+                        code="invalid",
+                    )
+                }
+            )
         # The File would be moved to a directory in another container -> not allowed
         if obj.is_dss_file and instance.is_dss_file:
             obj_container_pk = obj.directory.drive.envelope.container.pk
             instance_container_pk = instance.directory.drive.envelope.container.pk
             if not obj_container_pk == instance_container_pk:
-                raise ValidationError({
-                    'directory_id': ValidationError(
-                        _("You are not allowed to move this file out of its DSS container and into another container"),
-                        params={'directory_id': instance.directory_id},
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "directory_id": ValidationError(
+                            _(
+                                "You are not allowed to move this file out of its DSS container and into another container"
+                            ),
+                            params={"directory_id": instance.directory_id},
+                            code="invalid",
+                        )
+                    }
+                )
 
 
 @receiver(pre_save, sender=File)
@@ -81,13 +87,15 @@ def prevent_moving_file_within_read_only_dss_container(sender, instance, *args, 
             return
 
         if not obj.directory == instance.directory:
-            raise ValidationError({
-                'directory_id': ValidationError(
-                    _("It is not allowed to move files within a read-only DSS container"),
-                    params={'directory_id': instance.directory_id},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "directory_id": ValidationError(
+                        _("It is not allowed to move files within a read-only DSS container"),
+                        params={"directory_id": instance.directory_id},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_save, sender=Drive)
@@ -113,13 +121,15 @@ def prevent_moving_drive_within_read_only_dss_container(sender, instance, *args,
             return
 
         if not obj.envelope == instance.envelope:
-            raise ValidationError({
-                'envelope': ValidationError(
-                    _("It is not allowed to move storages within read-only DSS containers"),
-                    params={'envelope': instance.envelope},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "envelope": ValidationError(
+                        _("It is not allowed to move storages within read-only DSS containers"),
+                        params={"envelope": instance.envelope},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_save, sender=File)
@@ -144,13 +154,15 @@ def prevent_trashing_file_within_read_only_dss_container(sender, instance, *args
             return
 
         if obj.deleted is False and instance.deleted is True:
-            raise ValidationError({
-                'directory_id': ValidationError(
-                    _("It is not allowed to trash files within a read-only DSS container"),
-                    params={'directory_id': instance.directory_id},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "directory_id": ValidationError(
+                        _("It is not allowed to trash files within a read-only DSS container"),
+                        params={"directory_id": instance.directory_id},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_save, sender=Drive)
@@ -175,13 +187,15 @@ def prevent_trashing_drive_within_read_only_dss_container(sender, instance, *arg
             return
 
         if obj.deleted is False and instance.deleted is True:
-            raise ValidationError({
-                'envelope': ValidationError(
-                    _("It is not allowed to trash storages within a read-only DSS container"),
-                    params={'envelope': instance.envelope},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "envelope": ValidationError(
+                        _("It is not allowed to trash storages within a read-only DSS container"),
+                        params={"envelope": instance.envelope},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_save, sender=Directory)
@@ -193,26 +207,32 @@ def prevent_moving_directory_out_of_dss_container(sender, instance, *args, **kwa
     else:
         # The Directory was a DSS Directory and the after saving it wouldn't be anymore -> not allowed
         if obj.drive.is_dss_drive and not instance.drive.is_dss_drive:
-            raise ValidationError({
-                'drive': ValidationError(
-                    _("You are not allowed to move this directory out of its DSS container"),
-                    params={'drive': instance.drive},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "drive": ValidationError(
+                        _("You are not allowed to move this directory out of its DSS container"),
+                        params={"drive": instance.drive},
+                        code="invalid",
+                    )
+                }
+            )
         # The Directory would be moved to a drive in another container -> not allowed
         if obj.drive.is_dss_drive and instance.drive.is_dss_drive:
             obj_container_pk = obj.drive.envelope.container.pk
             instance_container_pk = instance.drive.envelope.container.pk
             if not obj_container_pk == instance_container_pk:
-                raise ValidationError({
-                    'drive': ValidationError(
-                        _("You are not allowed to move this directory out of its DSS container and into "
-                          "another container"),
-                        params={'drive': instance.drive},
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "drive": ValidationError(
+                            _(
+                                "You are not allowed to move this directory out of its DSS container and into "
+                                "another container"
+                            ),
+                            params={"drive": instance.drive},
+                            code="invalid",
+                        )
+                    }
+                )
 
 
 @receiver(pre_delete, sender=File)
@@ -226,13 +246,15 @@ def prevent_deleting_file_in_read_only_dss_container(sender, instance, *args, **
             return
         # if the read write setting on the container is read-only raise an error here, as we won't allow deletion
         if obj.directory.drive.envelope.container.read_write_setting == READ_ONLY:
-            raise ValidationError({
-                'directory': ValidationError(
-                    _("It is not allowed to delete files in read-only DSS containers"),
-                    params={'directory': instance.directory},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "directory": ValidationError(
+                        _("It is not allowed to delete files in read-only DSS containers"),
+                        params={"directory": instance.directory},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_delete, sender=Directory)
@@ -246,13 +268,15 @@ def prevent_deleting_directory_in_read_only_dss_container(sender, instance, *arg
             return
         # if the read write setting on the container is read-only raise an error here, as we won't allow deletion
         if obj.drive.envelope.container.read_write_setting == READ_ONLY:
-            raise ValidationError({
-                'drive': ValidationError(
-                    _("It is not allowed to delete directories in read-only DSS containers"),
-                    params={'drive': instance.drive},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "drive": ValidationError(
+                        _("It is not allowed to delete directories in read-only DSS containers"),
+                        params={"drive": instance.drive},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_delete, sender=Drive)
@@ -266,13 +290,15 @@ def prevent_deleting_drive_in_read_only_dss_container(sender, instance, *args, *
             return
         # if the read write setting on the container is read-only raise an error here, as we won't allow deletion
         if obj.envelope.container.read_write_setting == READ_ONLY:
-            raise ValidationError({
-                'envelope': ValidationError(
-                    _("It is not allowed to delete storages in read-only DSS containers"),
-                    params={'envelope': instance.envelope},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "envelope": ValidationError(
+                        _("It is not allowed to delete storages in read-only DSS containers"),
+                        params={"envelope": instance.envelope},
+                        code="invalid",
+                    )
+                }
+            )
 
 
 @receiver(pre_save, sender=Drive)
@@ -284,26 +310,32 @@ def prevent_moving_drive_out_of_dss_container(sender, instance, *args, **kwargs)
     else:
         # The Drive was a DSS Drive and the after saving it wouldn't be anymore -> not allowed
         if obj.is_dss_drive and not instance.is_dss_drive:
-            raise ValidationError({
-                'envelope': ValidationError(
-                    _("You are not allowed to move this storage out of its DSS container"),
-                    params={'envelope': instance.envelope},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "envelope": ValidationError(
+                        _("You are not allowed to move this storage out of its DSS container"),
+                        params={"envelope": instance.envelope},
+                        code="invalid",
+                    )
+                }
+            )
         # The Drive would be moved to a drive in another container -> not allowed
         if obj.is_dss_drive and instance.is_dss_drive:
             obj_container_pk = obj.envelope.container.pk
             instance_container_pk = instance.envelope.container.pk
             if not obj_container_pk == instance_container_pk:
-                raise ValidationError({
-                    'envelope': ValidationError(
-                        _("You are not allowed to move this storage out of its DSS container and into "
-                          "another container"),
-                        params={'envelope': instance.envelope},
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "envelope": ValidationError(
+                            _(
+                                "You are not allowed to move this storage out of its DSS container and into "
+                                "another container"
+                            ),
+                            params={"envelope": instance.envelope},
+                            code="invalid",
+                        )
+                    }
+                )
 
 
 @receiver(pre_save, sender=File)
@@ -338,13 +370,15 @@ def prevent_moving_normal_files_into_read_only_dss_container(sender, instance, *
         if not obj.is_dss_file and instance.is_dss_file:
             container_rw_setting = instance.directory.drive.envelope.container.read_write_setting
             if container_rw_setting == READ_ONLY:
-                raise ValidationError({
-                    'directory_id': ValidationError(
-                        _("You are not allowed to move this file into a read only DSS container"),
-                        params={'directory_id': instance.directory_id},
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "directory_id": ValidationError(
+                            _("You are not allowed to move this file into a read only DSS container"),
+                            params={"directory_id": instance.directory_id},
+                            code="invalid",
+                        )
+                    }
+                )
 
 
 @receiver(pre_save, sender=File)
@@ -358,13 +392,15 @@ def prevent_moving_normal_files_into_read_write_no_new_dss_container(sender, ins
         if not obj.is_dss_file and instance.is_dss_file:
             container_rw_setting = instance.directory.drive.envelope.container.read_write_setting
             if container_rw_setting == READ_WRITE_NO_NEW:
-                raise ValidationError({
-                    'directory_id': ValidationError(
-                        _("You are not allowed to move this file into a read write no new DSS container"),
-                        params={'directory_id': instance.directory_id},
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "directory_id": ValidationError(
+                            _("You are not allowed to move this file into a read write no new DSS container"),
+                            params={"directory_id": instance.directory_id},
+                            code="invalid",
+                        )
+                    }
+                )
 
 
 @receiver(pre_save, sender=Drive)
@@ -378,13 +414,15 @@ def prevent_moving_normal_storage_into_read_only_dss_container(sender, instance,
         if not obj.is_dss_drive and instance.is_dss_drive:
             container_rw_setting = instance.envelope.container.read_write_setting
             if container_rw_setting == READ_ONLY:
-                raise ValidationError({
-                    'envelope': ValidationError(
-                        _("You are not allowed to move this storage into a read only DSS container"),
-                        params={'envelope': instance.envelope},
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "envelope": ValidationError(
+                            _("You are not allowed to move this storage into a read only DSS container"),
+                            params={"envelope": instance.envelope},
+                            code="invalid",
+                        )
+                    }
+                )
 
 
 @receiver(pre_save, sender=Drive)
@@ -398,13 +436,15 @@ def prevent_moving_normal_storage_into_read_write_no_new_dss_container(sender, i
         if not obj.is_dss_drive and instance.is_dss_drive:
             container_rw_setting = instance.envelope.container.read_write_setting
             if container_rw_setting == READ_WRITE_NO_NEW:
-                raise ValidationError({
-                    'envelope': ValidationError(
-                        _("You are not allowed to move this storage into a read write no new DSS container"),
-                        params={'envelope': instance.envelope},
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "envelope": ValidationError(
+                            _("You are not allowed to move this storage into a read write no new DSS container"),
+                            params={"envelope": instance.envelope},
+                            code="invalid",
+                        )
+                    }
+                )
 
 
 @receiver(pre_save, sender=Drive)
@@ -423,20 +463,24 @@ def check_drive_is_not_in_read_only_or_read_write_no_new_container(instance, *ar
 
     is_existent_drive = Drive.objects.filter(pk=instance.pk).exists()
     if not is_existent_drive and container_rw_setting == READ_ONLY:
-        raise ValidationError({
-            'drive': ValidationError(
-                _("The storage cannot be created because the DSS container of the envelope is read only."),
-                params={'drive': instance.envelope},
-                code='invalid'
-            )}
+        raise ValidationError(
+            {
+                "drive": ValidationError(
+                    _("The storage cannot be created because the DSS container of the envelope is read only."),
+                    params={"drive": instance.envelope},
+                    code="invalid",
+                )
+            }
         )
     if not is_existent_drive and container_rw_setting == READ_WRITE_NO_NEW:
-        raise ValidationError({
-            'drive': ValidationError(
-                _("The storage cannot be created because the DSS container allows no new storages to be added."),
-                params={'drive': instance.envelope},
-                code='invalid'
-            )}
+        raise ValidationError(
+            {
+                "drive": ValidationError(
+                    _("The storage cannot be created because the DSS container allows no new storages to be added."),
+                    params={"drive": instance.envelope},
+                    code="invalid",
+                )
+            }
         )
 
 
@@ -462,22 +506,28 @@ def check_directory_is_not_in_read_only_or_read_write_no_new_drive(instance, *ar
         return
 
     if instance.drive.envelope.container.read_write_setting == READ_ONLY:
-        raise ValidationError({
-            'directory': ValidationError(
-                _("The directory cannot be created because the DSS container of the storage is read only."),
-                params={'directory': instance.directory},
-                code='invalid'
-            )}
+        raise ValidationError(
+            {
+                "directory": ValidationError(
+                    _("The directory cannot be created because the DSS container of the storage is read only."),
+                    params={"directory": instance.directory},
+                    code="invalid",
+                )
+            }
         )
 
     if instance.drive.envelope.container.read_write_setting == READ_WRITE_NO_NEW:
-        raise ValidationError({
-            'directory': ValidationError(
-                _("The directory cannot be created because the DSS container of the storage allows "
-                  "no new directories."),
-                params={'directory': instance.directory},
-                code='invalid'
-            )}
+        raise ValidationError(
+            {
+                "directory": ValidationError(
+                    _(
+                        "The directory cannot be created because the DSS container of the storage allows "
+                        "no new directories."
+                    ),
+                    params={"directory": instance.directory},
+                    code="invalid",
+                )
+            }
         )
 
 
@@ -632,32 +682,39 @@ def disallow_change_of_dss_curator_privilege(instance, *args, **kwargs):
     content_type = instance.content_object.get_content_type()
 
     # we only want this handler for DSS related elements
-    if content_type.model not in ['file', 'drive', 'dsscontainer']:
+    if content_type.model not in ["file", "drive", "dsscontainer"]:
         return
 
     # ModelPrivilege.user is not the DSS Curator of the DSS File the ModelPrivilege should be deleted for --> OK
-    if content_type and content_type.model == 'file' and \
-            not instance.content_object.directory.drive.envelope.container.created_by == instance.user:
+    if (
+        content_type
+        and content_type.model == "file"
+        and not instance.content_object.directory.drive.envelope.container.created_by == instance.user
+    ):
         return
 
     # ModelPrivilege.user is not the DSS Curator of the DSS Drive the ModelPrivilege should be deleted for --> OK
-    if content_type and content_type.model == 'drive' and \
-            not instance.content_object.envelope.container.created_by == instance.user:
+    if (
+        content_type
+        and content_type.model == "drive"
+        and not instance.content_object.envelope.container.created_by == instance.user
+    ):
         return
 
     # ModelPrivilege.user is not the DSS Curator of the DSS Container the ModelPrivilege should be deleted for --> OK
-    if content_type and content_type.model == 'dsscontainer' and \
-            not instance.created_by == instance.user:
+    if content_type and content_type.model == "dsscontainer" and not instance.created_by == instance.user:
         return
 
     # else: we are trying to edit a dss curator privilege -> not allowed
-    raise ValidationError({
-        'full_access_privilege': ValidationError(
-            _("The full_access_privilege of the DSS Curator cannot be edited"),
-            params={'full_access_privilege': instance.full_access_privilege},
-            code='invalid'
-        )
-    })
+    raise ValidationError(
+        {
+            "full_access_privilege": ValidationError(
+                _("The full_access_privilege of the DSS Curator cannot be edited"),
+                params={"full_access_privilege": instance.full_access_privilege},
+                code="invalid",
+            )
+        }
+    )
 
 
 @receiver(post_delete, sender=ModelPrivilege)
@@ -674,11 +731,11 @@ def disallow_delete_of_dss_curator_privilege(instance, *args, **kwargs):
     content_type = content_object.get_content_type()
 
     # we only want this handler for DSS related elements
-    if content_type.model not in ['file', 'drive', 'dsscontainer']:
+    if content_type.model not in ["file", "drive", "dsscontainer"]:
         return
 
     # allow deleting model privilege if the underlying content object has already been soft deleted
-    if hasattr(content_object, 'deleted') and content_object.deleted:
+    if hasattr(content_object, "deleted") and content_object.deleted:
         return
 
     if instance.full_access_privilege != ModelPrivilege.ALLOW:
@@ -689,25 +746,32 @@ def disallow_delete_of_dss_curator_privilege(instance, *args, **kwargs):
         return
 
     # ModelPrivilege.user is not the DSS Curator of the DSS File the ModelPrivilege should be deleted for --> OK
-    if content_type and content_type.model == 'file' and \
-            not content_object.directory.drive.envelope.container.created_by == instance.user:
+    if (
+        content_type
+        and content_type.model == "file"
+        and not content_object.directory.drive.envelope.container.created_by == instance.user
+    ):
         return
 
     # ModelPrivilege.user is not the DSS Curator of the DSS Drive the ModelPrivilege should be deleted for --> OK
-    if content_type and content_type.model == 'drive' and \
-            not content_object.envelope.container.created_by == instance.user:
+    if (
+        content_type
+        and content_type.model == "drive"
+        and not content_object.envelope.container.created_by == instance.user
+    ):
         return
 
     # ModelPrivilege.user is not the DSS Curator of the DSS Container the ModelPrivilege should be deleted for --> OK
-    if content_type and content_type.model == 'dsscontainer' and \
-            not instance.created_by == instance.user:
+    if content_type and content_type.model == "dsscontainer" and not instance.created_by == instance.user:
         return
 
     # else: we are trying to delete a dss curator privilege -> not allowed
-    raise ValidationError({
-        'full_access_privilege': ValidationError(
-            _("The full_access_privilege of the DSS Curator cannot be deleted"),
-            params={'full_access_privilege': instance.full_access_privilege},
-            code='invalid'
-        )
-    })
+    raise ValidationError(
+        {
+            "full_access_privilege": ValidationError(
+                _("The full_access_privilege of the DSS Curator cannot be deleted"),
+                params={"full_access_privilege": instance.full_access_privilege},
+                code="invalid",
+            )
+        }
+    )

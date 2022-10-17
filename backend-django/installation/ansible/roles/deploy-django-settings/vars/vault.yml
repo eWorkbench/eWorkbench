@@ -124,7 +124,8 @@ vault_workbench_settings: |
       "org_zug_student_lang": "imOrgZugStudentLang",
       "title_salutation": "imTitelAnrede",
       "title_pre": "imTitelPre",
-      "title_post": "imTitelPost"
+      "title_post": "imTitelPost",
+      "affiliation_prim": "imAffiliationPrim"
   }
 
   INTERNAL_IPS = ('127.0.0.1', 'xxx.xx.xx.xx', )

@@ -1,57 +1,51 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.core.files.base import ContentFile
-from functools import reduce
-
-import os
 import logging
 import operator
+import os
+from datetime import timedelta
+from functools import reduce
+from time import sleep
 
 from django.conf import settings
-
-from datetime import timedelta
-
+from django.core.files.base import ContentFile
 from django.db.models import Q
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from django_userforeignkey.request import get_current_user
 
 from eric.core.models import disable_permission_checks
 from eric.shared_elements.models import File, UploadedFileEntry
 
-from django_userforeignkey.request import get_current_user
-
-from time import sleep
+logger = logging.getLogger("eric.ms_office_handling.models.handlers")
 
 
-logger = logging.getLogger('eric.ms_office_handling.models.handlers')
-
-
-OFFICE_TEMP_FILE_PREFIX = '~$'
+OFFICE_TEMP_FILE_PREFIX = "~$"
 
 MS_OFFICE_EXTENSIONS = (
-    '.xlsx',
-    '.docx',
-    '.xls',
-    '.doc',
-    '.tmp',
-    '.ods',
-    '.xslm',
-    '.xlsb',
-    '.csv',
-    '.xml',
-    '.xltx',
-    '.xltm',
-    '.xlt',
-    '.xlam',
-    '.xla',
-    '.docm',
-    '.dotx',
-    '.dotm',
-    '.dot',
-    '.txt',
+    ".xlsx",
+    ".docx",
+    ".xls",
+    ".doc",
+    ".tmp",
+    ".ods",
+    ".xslm",
+    ".xlsb",
+    ".csv",
+    ".xml",
+    ".xltx",
+    ".xltm",
+    ".xlt",
+    ".xlam",
+    ".xla",
+    ".docm",
+    ".dotx",
+    ".dotm",
+    ".dot",
+    ".txt",
 )
 
 
@@ -68,14 +62,19 @@ def has_ms_office_extension(filename):
 
 
 def get_original_file(instance, user):
-    return File.objects.all().filter(
-        name__contains=instance.name[2:],
-        last_modified_by=user,
-        deleted=False,
-    ).exclude(
-        title__startswith=OFFICE_TEMP_FILE_PREFIX,
-        name__startswith=OFFICE_TEMP_FILE_PREFIX,
-    ).first()
+    return (
+        File.objects.all()
+        .filter(
+            name__contains=instance.name[2:],
+            last_modified_by=user,
+            deleted=False,
+        )
+        .exclude(
+            title__startswith=OFFICE_TEMP_FILE_PREFIX,
+            name__startswith=OFFICE_TEMP_FILE_PREFIX,
+        )
+        .first()
+    )
 
 
 def handle_opened_or_closed_ms_office_file(instance, user, extension_query):
@@ -118,25 +117,36 @@ def handle_saved_ms_office_file(instance, extension_query):
     original_file = instance
 
     # find the current last save
-    current_save = File.objects.all().filter(
-        title__endswith='.tmp',
-        last_modified_by=original_file.last_modified_by,
-        deleted=False,
-    ).filter(
-        # the last_modified timestamp of the current save should be a bit greater than the original minus 10 seconds
-        last_modified_at__gte=original_file.last_modified_at - timedelta(seconds=10),
-    ).filter(
-        # the last_modified timestamp of the current save should be a bit less than the original plus 10 seconds
-        last_modified_at__lte=original_file.last_modified_at + timedelta(seconds=10),
-    ).filter(extension_query).first()
+    current_save = (
+        File.objects.all()
+        .filter(
+            title__endswith=".tmp",
+            last_modified_by=original_file.last_modified_by,
+            deleted=False,
+        )
+        .filter(
+            # the last_modified timestamp of the current save should be a bit greater than the original minus 10 seconds
+            last_modified_at__gte=original_file.last_modified_at
+            - timedelta(seconds=10),
+        )
+        .filter(
+            # the last_modified timestamp of the current save should be a bit less than the original plus 10 seconds
+            last_modified_at__lte=original_file.last_modified_at
+            + timedelta(seconds=10),
+        )
+        .filter(extension_query)
+        .first()
+    )
 
     # if a current last save is found the sequence is started
     if current_save:
-        logger.info("MS Office editing handling for original: {} with last save {} for user {}".format(
-            original_file.name,
-            current_save.name,
-            original_file.last_modified_by,
-        ))
+        logger.info(
+            "MS Office editing handling for original: {} with last save {} for user {}".format(
+                original_file.name,
+                current_save.name,
+                original_file.last_modified_by,
+            )
+        )
         # set name, file_size and mime_type and untrash
         original_file.name = current_save.name
         original_file.file_size = current_save.file_size
@@ -158,7 +168,7 @@ def handle_saved_ms_office_file(instance, extension_query):
             path=original_file.path,
             mime_type=original_file.mime_type,
             original_filename=original_file.name,
-            file_size=original_file.file_size
+            file_size=original_file.file_size,
         )
         # set the uploaded_file_entry to the new entry
         original_file.uploaded_file_entry = uploaded_file_entry
@@ -207,5 +217,5 @@ def ms_office_cleanup_sequence(sender, instance, *args, **kwargs):
         handle_edited_ms_office_file(instance, user)
 
     # a file is being saved by ms office
-    if instance.name.endswith('.tmp') and instance.deleted:
+    if instance.name.endswith(".tmp") and instance.deleted:
         handle_saved_ms_office_file(instance, extension_query)

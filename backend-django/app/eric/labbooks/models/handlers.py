@@ -1,9 +1,9 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.core.exceptions import PermissionDenied
-from django.db.models.signals import post_delete, post_save, m2m_changed
+from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 
 from eric.core.models import disable_permission_checks
@@ -25,8 +25,7 @@ def on_delete_labbook_element(sender, instance, *args, **kwargs):
         # delete all labbook child elements that use this instance (filtered by content type and object id)
         with disable_permission_checks(LabBookChildElement):
             LabBookChildElement.objects.filter(
-                child_object_id=instance.pk,
-                child_object_content_type=instance.get_content_type()
+                child_object_id=instance.pk, child_object_content_type=instance.get_content_type()
             ).delete()
 
 
@@ -39,7 +38,7 @@ def on_add_labbook_child_element_update_projects(instance, created, *args, **kwa
     """
     if created:
         # get all project pks of the labbook
-        project_pks = list(instance.lab_book.projects.all().values_list('pk', flat=True))
+        project_pks = list(instance.lab_book.projects.all().values_list("pk", flat=True))
 
         # and add it to the child object
         instance.child_object.projects.add(*project_pks)
@@ -107,21 +106,21 @@ def update_projects_of_all_labbook_child_elements(instance, action, *args, **kwa
     """
     If the project of a labbook is changing, we need to make sure this is stored in the child elements
     """
-    if action != 'post_remove' and action != 'post_add':
+    if action != "post_remove" and action != "post_add":
         return
 
     # get all child elements
     child_elements = instance.child_elements.all()
 
-    if action == 'post_remove':
-        project_pks = kwargs['pk_set']
+    if action == "post_remove":
+        project_pks = kwargs["pk_set"]
 
         for project_pk in project_pks:
             for child_element in child_elements:
                 child_element.child_object.projects.remove(project_pk)
 
-    elif action == 'post_add':
-        project_pks = kwargs['pk_set']
+    elif action == "post_add":
+        project_pks = kwargs["pk_set"]
 
         for project_pk in project_pks:
             for child_element in child_elements:
@@ -145,9 +144,9 @@ def check_create_roles_for_labbook_child_elements(user, sender, instance, *args,
     :param args:
     :param kwargs:
     :return:
-     """
+    """
 
-    if not hasattr(instance, 'lab_book'):
+    if not hasattr(instance, "lab_book"):
         # not related to a lab book
         return
 

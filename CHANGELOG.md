@@ -1,5 +1,48 @@
 # Changelog
 
+## Version 2.16.4 - October 2022
+- [SITUMEWB-1034] fix invite mails
+- [SITUMEWB-*] Sanitize HTML Message from the contact form
+
+## Version 2.16.3 - October 2022
+- [SITUMEWB-1034] refactor invited status
+- [SITUMEWB-*] use userforeignkey production version in docker
+
+## Version 2.16.2 - October 2022
+- [SITUMEWB-928] Add enhanced statistics for unique editors
+- [SITUMEWB-972] Save launch screens as new
+- [SITUMEWB-1003] Fix no reply info in templates
+- [SITUMEWB-1003] pin importlib-metadata dependency temporarily
+- [SITUMEWB-1003] upgrade markdown dependency
+
+## Version 2.16.1 - September 2022
+- [SITUMEWB-905, SITUMEWB-928] correct app logs path
+- [SITUMEWB-972] add launchscreen versioning
+- [SITUMEWB-973] Add logout button to launch screen
+- [SITUMEWB-1003] Add no reply email for notifications
+- [SITUMEWB-1014] add black code formatter, isort and flake8, pyupgrade, fix end of files, refactor license headers
+- [SITUMEWB-1017] Implemented LabBook container information for child element endpoints
+- [SITUMEWB-1030] Fix csv export ignoring deleted meetings
+- [SITUMEWB-1033] dss how to corrections
+
+## Version 2.16 - September 2022
+- [SITUMEWB-902] Remove kanbanboard type
+- [SITUMEWB-905] add usage statistics
+- [SITUMEWB-928] add enhanced usage statistics
+- [SITUMEWB-936] Disabled superuser login in frontend
+- [SITUMEWB-938] Implemented tags for metadata
+- [SITUMEWB-966] Add affiliation_prim field to UserProfile and add inactivate users command
+- [SITUMEWB-969] Implemented command for anonymizing users after 10 years
+- [SITUMEWB-971] Add command to delete orphan data
+- [SITUMEWB-972] Add launch screen model
+- [SITUMEWB-973] Add launch screen
+- [SITUMEWB-985] extend new stats
+- [SITUMEWB-998] Fix openapi swagger login
+- [SITUMEWB-999] Revamped filter sidebars and headers
+- [SITUMEWB-1004] Implemented bulk delete for directories
+- [SITUMEWB-1005] Implemented logic for invited users
+- [SITUMEWB-*] dss find command fix
+
 ## Version 2.15 - August 2022
 - [SITUMEWB-980] dss filesystem migration
 - [SITUMEWB-991] fix webdav renaming

@@ -1,20 +1,20 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
 
-from django.core.exceptions import ValidationError, PermissionDenied
-from django.db.models.signals import post_save, pre_save, pre_delete, post_delete
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import gettext_lazy as _
+
 from django_userforeignkey.request import get_current_user
 
 from eric.core.models import permission_checks_disabled
 from eric.model_privileges.models.models import ModelPrivilege
 
-logger = logging.getLogger('eric.model_privileges.handlers')
+logger = logging.getLogger("eric.model_privileges.handlers")
 
 
 @receiver(pre_save, sender=ModelPrivilege)
@@ -32,7 +32,7 @@ def check_model_privileges(instance, *args, **kwargs):
     """
 
     # skip raw inserts
-    if kwargs.get('raw'):
+    if kwargs.get("raw"):
         return
 
     # verify whether permission checks are enabled
@@ -40,10 +40,7 @@ def check_model_privileges(instance, *args, **kwargs):
         return
 
     # verify whether there are already model privileges for the current content_object
-    if not ModelPrivilege.objects.filter(
-            content_type=instance.content_type,
-            object_id=instance.object_id
-    ).exists():
+    if not ModelPrivilege.objects.filter(content_type=instance.content_type, object_id=instance.object_id).exists():
         # no model privilege exists for the given content_type and object_id
         return
 
@@ -57,10 +54,10 @@ def check_model_privileges(instance, *args, **kwargs):
 
     # verify whether the current user is an owner of the given content_type and object_id
     if not ModelPrivilege.objects.filter(
-            content_type=instance.content_type,
-            object_id=instance.object_id,
-            user=user,
-            full_access_privilege=ModelPrivilege.ALLOW,
+        content_type=instance.content_type,
+        object_id=instance.object_id,
+        user=user,
+        full_access_privilege=ModelPrivilege.ALLOW,
     ).exists():
         raise PermissionDenied
 
@@ -80,22 +77,27 @@ def disallow_change_of_last_full_access_privilege(instance, *args, **kwargs):
     if existing_model_privilege.full_access_privilege != ModelPrivilege.ALLOW:
         return
 
-    if ModelPrivilege.objects.exclude(id=instance.id).filter(
-            content_type=instance.content_type,
-            object_id=instance.object_id,
-            full_access_privilege=ModelPrivilege.ALLOW
-    ).count() > 0:
+    if (
+        ModelPrivilege.objects.exclude(id=instance.id)
+        .filter(
+            content_type=instance.content_type, object_id=instance.object_id, full_access_privilege=ModelPrivilege.ALLOW
+        )
+        .count()
+        > 0
+    ):
         # someone else is owner -> okay
         return
 
     # else: we are trying to delete the last owner -> not allowed
-    raise ValidationError({
-        'full_access_privilege': ValidationError(
-            _("There must be at least one user that has full_access_privilege of this entity"),
-            params={'full_access_privilege': instance.full_access_privilege},
-            code='invalid'
-        )
-    })
+    raise ValidationError(
+        {
+            "full_access_privilege": ValidationError(
+                _("There must be at least one user that has full_access_privilege of this entity"),
+                params={"full_access_privilege": instance.full_access_privilege},
+                code="invalid",
+            )
+        }
+    )
 
 
 @receiver(post_delete, sender=ModelPrivilege)
@@ -113,27 +115,32 @@ def disallow_delete_of_last_full_access_privilege(instance, *args, **kwargs):
         if instance.content_object.deleted:
             return
     except AttributeError as error:
-        logger.info("In disallow_delete_of_last_full_access_privilege: {}".format(error))
+        logger.info(f"In disallow_delete_of_last_full_access_privilege: {error}")
 
     if instance.full_access_privilege != ModelPrivilege.ALLOW:
         return
 
-    if ModelPrivilege.objects.exclude(id=instance.id).filter(
-            content_type=instance.content_type,
-            object_id=instance.object_id,
-            full_access_privilege=ModelPrivilege.ALLOW
-    ).count() > 0:
+    if (
+        ModelPrivilege.objects.exclude(id=instance.id)
+        .filter(
+            content_type=instance.content_type, object_id=instance.object_id, full_access_privilege=ModelPrivilege.ALLOW
+        )
+        .count()
+        > 0
+    ):
         # someone else is owner -> okay
         return
 
     # else: we are trying to delete the last owner -> not allowed
-    raise ValidationError({
-        'full_access_privilege': ValidationError(
-            _("There must be at least one user that has full_access_privilege of this entity"),
-            params={'full_access_privilege': instance.full_access_privilege},
-            code='invalid'
-        )
-    })
+    raise ValidationError(
+        {
+            "full_access_privilege": ValidationError(
+                _("There must be at least one user that has full_access_privilege of this entity"),
+                params={"full_access_privilege": instance.full_access_privilege},
+                code="invalid",
+            )
+        }
+    )
 
 
 @receiver(post_save)
@@ -144,7 +151,7 @@ def auto_create_owner_entity_permission(instance, created, *args, **kwargs):
     :return:
     """
     # ignore raw inserts (e.g. from fixtures) and updates (not created)
-    if kwargs.get('raw') or not created:
+    if kwargs.get("raw") or not created:
         return
 
     # ignore elements that do not have can_have_special_permissions
@@ -158,15 +165,15 @@ def auto_create_owner_entity_permission(instance, created, *args, **kwargs):
     current_user = get_current_user()
 
     if not current_user or current_user.is_anonymous:
-        logger.warning("In auto_create_owner_entity_permission: current_user is anonymous, "
-                       "not creating entity permission assignment")
+        logger.warning(
+            "In auto_create_owner_entity_permission: current_user is anonymous, "
+            "not creating entity permission assignment"
+        )
         return
 
     # now can_have_special_permissions = True, and we need to create the assignment
     ModelPrivilege.objects.create(
-        user=current_user,
-        full_access_privilege=ModelPrivilege.ALLOW,
-        content_object=instance
+        user=current_user, full_access_privilege=ModelPrivilege.ALLOW, content_object=instance
     )
 
 

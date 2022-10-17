@@ -1,0 +1,44 @@
+{% extends "email/simple_email_template.html" %}
+{% load i18n captureas %}
+
+{% block header_title %}
+    {% blocktrans %}Invitation to {{ workbench_title }}{% endblocktrans %}
+{% endblock %}
+
+{% block preheader %}
+    {% blocktrans %}You have been invited to {{ workbench_title }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    {% captureas workbench_link %}
+        <a href="{{ workbench_url }}">{{ workbench_title }}</a>
+    {% endcaptureas %}
+    <b>This e-mail has been automatically generated, please do not reply!</b><br />
+    <br />
+    <p>{% blocktrans %}Dear {{ username }}!{% endblocktrans %}</p>
+
+    <p>
+        {% blocktrans %}
+            We are sending you this automated e-mail as you have been invited to {{ workbench_link }} by
+            {{ current_user }}, who added you to {% endblocktrans %}
+        {% if sending_element == 'appointment' %}an{% else %}a{% endif %} {{ sending_element }}.
+    </p>
+
+    <p>
+        {% blocktrans %}
+            Your username is '{{ username }}' (without the quotes).
+        {% endblocktrans %}<br />
+        <br />
+        {% blocktrans %}
+            You can login with your TUM credentials at: {{ workbench_url }}
+        {% endblocktrans %}<br />
+        <br />
+        {% blocktrans %}
+            After your first login you will receive notifications about the elements you were added to.
+        {% endblocktrans %}
+    </p>
+{% endblock %}
+
+{% block footer %}
+{% include 'email/_footer.html' %}
+{% endblock %}

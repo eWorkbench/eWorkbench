@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import abc
@@ -10,26 +10,37 @@ import os
 import ssl
 from urllib.parse import unquote
 
-import pika
-from django.template.loader import render_to_string
-from pika import exceptions as pika_exceptions
-
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
+
+import pika
+from pika import exceptions as pika_exceptions
 
 from eric.core.models import DisableSignal
 from eric.drives.models import Directory, Drive
-from eric.dss.config import DSS_MOUNT_PATH, METADATA_FILE_NAME, GLOBUS_RABBITMQ_HOST, \
-    GLOBUS_RABBITMQ_PORT, GLOBUS_RABBITMQ_VIRTUAL_HOST, GLOBUS_RABBITMQ_QUEUE, GLOBUS_RABBITMQ_USER, \
-    GLOBUS_RABBITMQ_PASSWORD, GLOBUS_RABBITMQ_SSL_CA_CERT, GLOBUS_RABBITMQ_MESSAGE_FETCH_SIZE
-from eric.dss.models.handlers import check_directory_is_not_in_read_only_or_read_write_no_new_drive, \
-    check_new_files_for_dss_container_read_write_settings,\
-    check_drive_is_not_in_read_only_or_read_write_no_new_container
-from eric.dss.models.models import DSSFilesToImport, DSSContainer, DSSEnvelope
+from eric.dss.config import (
+    DSS_MOUNT_PATH,
+    GLOBUS_RABBITMQ_HOST,
+    GLOBUS_RABBITMQ_MESSAGE_FETCH_SIZE,
+    GLOBUS_RABBITMQ_PASSWORD,
+    GLOBUS_RABBITMQ_PORT,
+    GLOBUS_RABBITMQ_QUEUE,
+    GLOBUS_RABBITMQ_SSL_CA_CERT,
+    GLOBUS_RABBITMQ_USER,
+    GLOBUS_RABBITMQ_VIRTUAL_HOST,
+    METADATA_FILE_NAME,
+)
+from eric.dss.models.handlers import (
+    check_directory_is_not_in_read_only_or_read_write_no_new_drive,
+    check_drive_is_not_in_read_only_or_read_write_no_new_container,
+    check_new_files_for_dss_container_read_write_settings,
+)
+from eric.dss.models.models import DSSContainer, DSSEnvelope, DSSFilesToImport
 from eric.dss.rest.serializers import DSSFilesToImportSerializer
-from eric.metadata.models.models import MetadataField, Metadata
+from eric.metadata.models.models import Metadata, MetadataField
 from eric.notifications.models import Notification, NotificationConfiguration
 from eric.projects.models import Project
 from eric.shared_elements.models import File, UploadedFileEntry
@@ -40,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 
 class DSSURL:
-    """ Represents a URL for DSS resources """
+    """Represents a URL for DSS resources"""
 
     def __init__(self, dss_path):
         """
@@ -55,7 +66,7 @@ class DSSURL:
         self.path_parts = self.path.split(path_separator)
 
         if len(self.path_parts) < 7:
-            raise ValidationError(f'Invalid import path <{self.path}>.')
+            raise ValidationError(f"Invalid import path <{self.path}>.")
 
         # DSS path parts
         # path_parts[0] is empty (path start with path separator)
@@ -71,28 +82,28 @@ class DSSURL:
 
 
 class MetadataFile(abc.ABC):
-    """ Represents a metadata file of a DSS envelope. """
+    """Represents a metadata file of a DSS envelope."""
 
     def __init__(self):
         self.json_content = self.get_json_content()
-        self.tum_id = self.json_content['tum_id']
-        self.projects = self.json_content['projects']
-        self.metadata_fields = self.json_content['metadata_fields']
+        self.tum_id = self.json_content["tum_id"]
+        self.projects = self.json_content["projects"]
+        self.metadata_fields = self.json_content["metadata_fields"]
 
     @abc.abstractmethod
     def get_json_content(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def load_user(self):
         user = User.objects.filter(username=self.tum_id).first()
         if not user:
-            raise ValidationError(f'User <{self.tum_id}> does not exist.')
+            raise ValidationError(f"User <{self.tum_id}> does not exist.")
 
         return user
 
 
 class MetadataFileFromFile(MetadataFile):
-    """ Represents a metadata file that is read from an actual file. """
+    """Represents a metadata file that is read from an actual file."""
 
     def __init__(self, dss_url: DSSURL):
         self.dss_url = dss_url
@@ -105,12 +116,12 @@ class MetadataFileFromFile(MetadataFile):
             self.dss_url.envelope,
             METADATA_FILE_NAME,
         )
-        with open(file_path, 'r') as metadata_file:
+        with open(file_path) as metadata_file:
             return json.loads(metadata_file.read())
 
 
 class MetadataFileFromEnvelopeModel(MetadataFile):
-    """ Represents a metadatafile that is read from the database (envelope model). """
+    """Represents a metadatafile that is read from the database (envelope model)."""
 
     def __init__(self, envelope):
         self.envelope = envelope
@@ -128,10 +139,7 @@ class DSSFileImport:
 
     def read_metadata_file(self):
         container = self._load_container()
-        envelope = DSSEnvelope.objects.filter(
-            path=self.dss_url.envelope,
-            container=container
-        ).first()
+        envelope = DSSEnvelope.objects.filter(path=self.dss_url.envelope, container=container).first()
 
         if envelope:
             metadata_file = MetadataFileFromEnvelopeModel(envelope)
@@ -148,7 +156,7 @@ class DSSFileImport:
                 if project:
                     valid_project_pks.append(project.pk)
                 else:
-                    logger.debug(f'{project_pk} is not a valid and/or editable project that can be set')
+                    logger.debug(f"{project_pk} is not a valid and/or editable project that can be set")
                     self.send_project_fail_notification(container, project_pk)
             except Exception as error:
                 logger.error(error)
@@ -166,7 +174,7 @@ class DSSFileImport:
 
         container.metadata_project_fail_pk = project_pk
         content_type = DSSContainer.get_content_type()
-        html_message = render_to_string('notification/dss_container.html', {'instance': container})
+        html_message = render_to_string("notification/dss_container.html", {"instance": container})
         dss_curator = container.created_by
         logger.debug(f'Sending curator notification "{title}" to {dss_curator}')
         Notification.objects.get_or_create(
@@ -179,15 +187,15 @@ class DSSFileImport:
         )
 
     def create_data(self, metadata_file: MetadataFile):
-        """ Imports the file and creates the envelope, storage, and directories, if necessary. """
+        """Imports the file and creates the envelope, storage, and directories, if necessary."""
         container = self._load_container()
         envelope, _ = DSSEnvelope.objects.get_or_create(
             path=self.dss_url.envelope,
             container=container,
             imported=True,
             defaults={
-                'metadata_file_content': metadata_file.json_content,
-            }
+                "metadata_file_content": metadata_file.json_content,
+            },
         )
 
         valid_projects = self.validate_projects(metadata_file.projects, container)
@@ -202,19 +210,16 @@ class DSSFileImport:
     def _load_container(self):
         container = DSSContainer.objects.filter(path=self.dss_url.container_path).first()
         if not container:
-            raise ValidationError(f'Container <{self.dss_url.container_path}> does not exist.')
+            raise ValidationError(f"Container <{self.dss_url.container_path}> does not exist.")
 
         return container
 
     def _get_or_create_drive(self, envelope: DSSEnvelope, metadata_fields, projects=None):
-        with DisableSignal(pre_save, check_directory_is_not_in_read_only_or_read_write_no_new_drive, Directory), \
-                DisableSignal(pre_save, check_drive_is_not_in_read_only_or_read_write_no_new_container, Drive):
+        with DisableSignal(
+            pre_save, check_directory_is_not_in_read_only_or_read_write_no_new_drive, Directory
+        ), DisableSignal(pre_save, check_drive_is_not_in_read_only_or_read_write_no_new_container, Drive):
             drive, drive_created = Drive.objects.get_or_create(
-                envelope=envelope,
-                title=self.dss_url.storage,
-                defaults={
-                    'imported': True
-                }
+                envelope=envelope, title=self.dss_url.storage, defaults={"imported": True}
             )
 
             if drive_created:
@@ -255,9 +260,9 @@ class DSSFileImport:
                 file_size=os.path.getsize(dss_url.absolute_mount_path),
                 original_filename=dss_url.file,
                 defaults={
-                    'imported': True,
-                    'mime_type': mimetypes.guess_type(dss_url.file)[0] or File.DEFAULT_MIME_TYPE
-                }
+                    "imported": True,
+                    "mime_type": mimetypes.guess_type(dss_url.file)[0] or File.DEFAULT_MIME_TYPE,
+                },
             )
 
             if file_created:
@@ -266,7 +271,7 @@ class DSSFileImport:
                     path=file.path,
                     mime_type=file.mime_type,
                     original_filename=file.name,
-                    file_size=file.file_size
+                    file_size=file.file_size,
                 )
 
                 if uploaded_file_entry_created:
@@ -284,18 +289,14 @@ class DSSFileImport:
     @staticmethod
     def _add_metadata(obj, metadata_fields):
         for field in metadata_fields:
-            field_pk = field['id']
-            values = field['values']
+            field_pk = field["id"]
+            values = field["values"]
 
             if not MetadataField.objects.filter(pk=field_pk).exists():
-                raise ValidationError(f'MetadataField <{field_pk}> does not exist.')
+                raise ValidationError(f"MetadataField <{field_pk}> does not exist.")
 
             for value in values:
-                Metadata.objects.create(
-                    entity=obj,
-                    field_id=field_pk,
-                    values=value
-                )
+                Metadata.objects.create(entity=obj, field_id=field_pk, values=value)
 
 
 class DSSFileWatch:
@@ -314,18 +315,14 @@ class DSSFileWatch:
     def setup_dssmq_connection(self):
         context = ssl.create_default_context(cafile=self.ca_cert)
         context.verify_mode = ssl.CERT_REQUIRED
-        credentials = pika.PlainCredentials(
-            username=self.user,
-            password=self.password,
-            erase_on_connect=True
-        )
+        credentials = pika.PlainCredentials(username=self.user, password=self.password, erase_on_connect=True)
         connection_parameters = pika.ConnectionParameters(
             host=self.host,
             port=self.port,
             virtual_host=self.virtual_host,
             credentials=credentials,
             heartbeat=0,
-            ssl_options=pika.SSLOptions(context)
+            ssl_options=pika.SSLOptions(context),
         )
 
         self._connect(connection_parameters)
@@ -335,15 +332,10 @@ class DSSFileWatch:
             self.connection = pika.BlockingConnection(connection_parameters)
             self.channel = self.connection.channel()
         except pika_exceptions.ConnectionClosed:
-            logger.error('Error connecting to {}'.format(self.host))
+            logger.error(f"Error connecting to {self.host}")
 
     def get_message_count(self):
-        response = self.channel.queue_declare(
-            queue=self.queue,
-            passive=True,
-            arguments={
-                'x-queue-type': 'classic'
-            })
+        response = self.channel.queue_declare(queue=self.queue, passive=True, arguments={"x-queue-type": "classic"})
         return response.method.message_count
 
     def get_n_messages(self, n):
@@ -353,7 +345,7 @@ class DSSFileWatch:
         for i in range(0, n):
             (method, header, body) = self.channel.basic_get(self.queue, auto_ack=False)
 
-            bodies.append(body.decode('utf-8'))
+            bodies.append(body.decode("utf-8"))
             delivery_tags.append(method.delivery_tag)
 
         return bodies, delivery_tags
@@ -378,7 +370,7 @@ class DSSFileWatch:
     def post_files(self):
         message_count = self.get_message_count()
         if message_count > 0:
-            logger.info('The are {} pending messages in the dssmq'.format(message_count))
+            logger.info(f"The are {message_count} pending messages in the dssmq")
             if self.message_fetch_size < message_count:
                 self.message_fetch_size = self.message_fetch_size
             else:
@@ -395,4 +387,4 @@ class DSSFileWatch:
 
             self.acknowledge_multiple_messages(delivery_tags)
         else:
-            logger.info('The are no new messages in the dssmq')
+            logger.info("The are no new messages in the dssmq")

@@ -2,7 +2,6 @@
 
 import os
 
-
 # request_time_middleware log structure:
 #  0: DEBUG <datetime> ("DEBUG 2019-10-03T08:21:08.280051"),
 #  1: response/request ("response"),
@@ -52,10 +51,10 @@ class ResponseLog(ApiLog):
     query_execution_time = 0.0
 
     def parse_from_api_log(self, api_log):
-        data = self.additional_data.split(',')
-        self.user = data[0].strip().split(' ')[1]
-        self.status = int(data[1].strip().split(' ')[1])
-        bytes_sent_info = data[2].strip().split(' ')
+        data = self.additional_data.split(",")
+        self.user = data[0].strip().split(" ")[1]
+        self.status = int(data[1].strip().split(" ")[1])
+        bytes_sent_info = data[2].strip().split(" ")
 
         if self.is_redirect():
             return
@@ -75,10 +74,10 @@ class ResponseLog(ApiLog):
 def collect_log(log_map, line):
     log = ApiLog().parse_from_line(line)
 
-    if log.log_type.lower() == 'response':
+    if log.log_type.lower() == "response":
         log = ResponseLog().parse_from_api_log(log)
 
-    if log.request_method.lower() == 'options':
+    if log.request_method.lower() == "options":
         return
 
     map_key = log.request_method + " " + log.url
@@ -105,29 +104,31 @@ def print_averages(log_map):
             min_execution_time = min(log.request_execution_time, min_execution_time)
 
             sum_execution_time += log.request_execution_time
-            sum_bytes_sent += log.bytes_sent if hasattr(log, 'bytes_sent') else 0
-            sum_query_count += log.query_count if hasattr(log, 'query_count') else 0
-            sum_query_execution_time += log.query_execution_time if hasattr(log, 'query_execution_time') else 0
+            sum_bytes_sent += log.bytes_sent if hasattr(log, "bytes_sent") else 0
+            sum_query_count += log.query_count if hasattr(log, "query_count") else 0
+            sum_query_execution_time += log.query_execution_time if hasattr(log, "query_execution_time") else 0
 
         averaged_api_calls[method_and_url] = {
-            'num_samples': len(url_logs),
-            'avg_bytes': sum_bytes_sent / len(url_logs),
+            "num_samples": len(url_logs),
+            "avg_bytes": sum_bytes_sent / len(url_logs),
             # 'avg_queries': collected_queries / len(api_calls),
-            'avg_time': sum_execution_time / len(url_logs),
-            'max_time': max_execution_time,
-            'min_time': min_execution_time,
-            'sum_query_count': sum_query_count,
-            'sum_query_execution_time': sum_query_execution_time,
+            "avg_time": sum_execution_time / len(url_logs),
+            "max_time": max_execution_time,
+            "min_time": min_execution_time,
+            "sum_query_count": sum_query_count,
+            "sum_query_execution_time": sum_query_execution_time,
         }
 
         # print as csv
-        print("{},{},{},{},{}".format(
-            method_and_url,
-            averaged_api_calls[method_and_url]['avg_time'],
-            max_execution_time,
-            min_execution_time,
-            len(url_logs),
-        ))
+        print(
+            "{},{},{},{},{}".format(
+                method_and_url,
+                averaged_api_calls[method_and_url]["avg_time"],
+                max_execution_time,
+                min_execution_time,
+                len(url_logs),
+            )
+        )
 
         # print(api_call_path, averaged_api_calls[api_call_path])
 
@@ -139,7 +140,7 @@ collected_api_calls = {}
 for file_name in os.listdir(log_dir):
     full_path = os.path.join(log_dir, file_name)
     if os.path.isfile(full_path) and "request_time_middleware" in file_name:
-        with open(full_path, "r") as file:
+        with open(full_path) as file:
             while True:
                 file_line = file.readline().rstrip()
                 if file_line:

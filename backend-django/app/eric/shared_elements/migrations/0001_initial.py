@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from __future__ import unicode_literals
 
-import django.contrib.postgres.search
-from django.db import migrations, models
-import django.db.models.deletion
-import django_changeset.models.mixins
-import eric.core.models.fields
 import uuid
+
+import django.contrib.postgres.search
+import django.db.models.deletion
+from django.db import migrations, models
+
+import django_changeset.models.mixins
+
+import eric.core.models.fields
 
 
 class Migration(migrations.Migration):

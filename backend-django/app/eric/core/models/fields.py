@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.db import transaction
@@ -13,19 +13,20 @@ class AutoIncrementIntegerWithPrefixField(fields.PositiveIntegerField):
 
     The prefix element (prefix_lookup) can be a foreign key element, e.g., project__pk or user__pk or ...
     """
+
     description = _("Auto increment integer with prefix")
 
     def __init__(self, prefix_lookup=None, **kwargs):
         self.prefix_lookup = prefix_lookup
 
         # start at 1
-        kwargs['default'] = 0
+        kwargs["default"] = 0
         # this field is auto assigned, therefore not editable
-        kwargs['editable'] = False
+        kwargs["editable"] = False
         # add an index to this field
-        kwargs['db_index'] = True
+        kwargs["db_index"] = True
 
-        super(AutoIncrementIntegerWithPrefixField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def pre_save(self, model_instance, add):
         # check current value
@@ -44,18 +45,24 @@ class AutoIncrementIntegerWithPrefixField(fields.PositiveIntegerField):
 
                 if self.prefix_lookup:
                     # get the value of the prefix_element
-                    lookups = self.prefix_lookup.split('__')
+                    lookups = self.prefix_lookup.split("__")
                     from functools import reduce  # Python 3 Fix for reduce
+
                     lookup_value = reduce(getattr, [model_instance] + lookups)
 
                     # get the last value that needs to be incremented
-                    value = model.objects.select_for_update() \
-                        .filter(**{self.prefix_lookup: lookup_value}) \
-                        .order_by(self.prefix_lookup, self.name).values_list(self.name, flat=True).last()
+                    value = (
+                        model.objects.select_for_update()
+                        .filter(**{self.prefix_lookup: lookup_value})
+                        .order_by(self.prefix_lookup, self.name)
+                        .values_list(self.name, flat=True)
+                        .last()
+                    )
                 else:
                     # get the last value that needs to be incremented
-                    value = model.objects.select_for_update() \
-                        .order_by(self.name).values_list(self.name, flat=True).last()
+                    value = (
+                        model.objects.select_for_update().order_by(self.name).values_list(self.name, flat=True).last()
+                    )
 
                 # increment it
                 value = value or self.default
@@ -63,4 +70,4 @@ class AutoIncrementIntegerWithPrefixField(fields.PositiveIntegerField):
                 # store it
                 setattr(model_instance, self.name, value)
 
-        return super(AutoIncrementIntegerWithPrefixField, self).pre_save(model_instance, add)
+        return super().pre_save(model_instance, add)

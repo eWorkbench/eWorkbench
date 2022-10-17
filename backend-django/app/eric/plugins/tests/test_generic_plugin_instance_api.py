@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 
@@ -18,25 +18,22 @@ class TestGenericPluginInstanceApi(APITestCase, PluginInstanceMixin, EntityChang
 
         # create plugins
         plugin1 = Plugin.objects.create(
-            title='My First Plugin',
-            short_description='This is a test plugin.',
-            long_description='',
+            title="My First Plugin",
+            short_description="This is a test plugin.",
+            long_description="",
             user_availability=Plugin.GLOBAL,
-            path='test_plugin_path',
+            path="test_plugin_path",
         )
         plugin2 = Plugin.objects.create(
-            title='My Second Plugin',
-            short_description='This is another test plugin.',
-            long_description='Well, hello there!',
+            title="My Second Plugin",
+            short_description="This is another test plugin.",
+            long_description="Well, hello there!",
             user_availability=Plugin.GLOBAL,
-            path='test_plugin_path',
+            path="test_plugin_path",
         )
 
         # data to use when plugin instances are created
-        self.data = [{
-            'title': "My First Test Plugin Instance",
-            'plugin': plugin1.pk
-        }, {
-            'title': "My Second Test Plugin Instance",
-            'plugin': plugin2.pk
-        }]
+        self.data = [
+            {"title": "My First Test Plugin Instance", "plugin": plugin1.pk},
+            {"title": "My Second Test Plugin Instance", "plugin": plugin2.pk},
+        ]

@@ -1,9 +1,10 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 
 from django.db.models import Q
+
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 from django_userforeignkey.request import get_current_user
 
@@ -39,16 +40,18 @@ class PluginQuerySet(BaseQuerySet, ChangeSetQuerySetMixin):
             Q(
                 # all plugins where user_availability is set to global
                 user_availability=Plugin.GLOBAL
-            ) | Q(
+            )
+            | Q(
                 # all plugins where the current user is selected
                 user_availability_selected_users=user
-            ) | Q(
+            )
+            | Q(
                 # all plugins where the user group of the current user is selected
-                user_availability_selected_user_groups__pk__in=user.groups.values_list('pk')
+                user_availability_selected_user_groups__pk__in=user.groups.values_list("pk")
             )
         ).distinct()
 
 
 class PluginInstanceQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def prefetch_common(self, *args, **kwargs):
-        return super(PluginInstanceQuerySet, self).prefetch_common().prefetch_metadata()
+        return super().prefetch_common().prefetch_metadata()

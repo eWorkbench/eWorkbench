@@ -1,0 +1,3 @@
+{% load i18n captureas %}
+{% blocktrans %}Dear {{ user }}!{% endblocktrans %}
+{% blocktrans %}Your account is {{ status }} now.{% endblocktrans %}

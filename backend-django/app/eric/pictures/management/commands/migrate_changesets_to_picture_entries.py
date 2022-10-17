@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import os
@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db.models import Model
+
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models import disable_permission_checks
@@ -29,7 +30,7 @@ def get_file_size(path):
 
 
 class Command(BaseCommand):
-    help = 'migrate pictures with changesets to pictures with uploaded picture entries'
+    help = "migrate pictures with changesets to pictures with uploaded picture entries"
 
     def handle(self, *args, **options):
         # monkey patch pictures save method
@@ -39,7 +40,7 @@ class Command(BaseCommand):
             with disable_permission_checks(Picture):
                 with disable_permission_checks(UploadedPictureEntry):
                     # get all pictures
-                    pictures = Picture.objects.all().prefetch_related('picture_entries')
+                    pictures = Picture.objects.all().prefetch_related("picture_entries")
 
                     # and iterate over them
                     for picture in pictures:
@@ -70,7 +71,7 @@ class Command(BaseCommand):
                         uploaded_picture_entries = picture.picture_entries.all()
 
                         if len(uploaded_picture_entries) == 0:
-                            print("Creating uploaded picture entries for picture with pk={}".format(picture.pk))
+                            print(f"Creating uploaded picture entries for picture with pk={picture.pk}")
 
                             # get changesets of this picture
                             for cs in picture.changesets.all():
@@ -80,7 +81,11 @@ class Command(BaseCommand):
                                 # - shapes_image
                                 change_records = cs.change_records.filter(
                                     field_name__in=[
-                                        'background_image', 'rendered_image', 'shapes_image', 'width', 'height'
+                                        "background_image",
+                                        "rendered_image",
+                                        "shapes_image",
+                                        "width",
+                                        "height",
                                     ]
                                 )
 
@@ -92,12 +97,15 @@ class Command(BaseCommand):
                                     last_modified_by=cs.user,
                                     background_image=None,
                                     rendered_image=None,
-                                    shapes_image=None
+                                    shapes_image=None,
                                 )
 
                                 for cr in change_records:
-                                    if cr.field_name in ['background_image', 'rendered_image', 'shapes_image'] and \
-                                            cr.new_value and cr.new_value != '':
+                                    if (
+                                        cr.field_name in ["background_image", "rendered_image", "shapes_image"]
+                                        and cr.new_value
+                                        and cr.new_value != ""
+                                    ):
                                         if not os.path.isabs(cr.new_value):
                                             value = os.path.join(settings.MEDIA_ROOT, cr.new_value)
                                         else:
@@ -111,10 +119,10 @@ class Command(BaseCommand):
                                         # set path
                                         setattr(entry, cr.field_name, value)
 
-                                        print("Setting {} to {}".format(cr.field_name, cr.new_value))
+                                        print(f"Setting {cr.field_name} to {cr.new_value}")
 
-                                    elif cr.field_name in ['width', 'height']:
-                                        print("Setting {} to {}".format(cr.field_name, cr.new_value))
+                                    elif cr.field_name in ["width", "height"]:
+                                        print(f"Setting {cr.field_name} to {cr.new_value}")
                                         setattr(entry, cr.field_name, cr.new_value)
 
                                 entry.save()

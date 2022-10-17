@@ -109,36 +109,13 @@
                       </ng-select>
                     </eworkbench-form-input>
                   </div>
-                  <div class="mb-4">
-                    <eworkbench-form-input
-                      for="dssEnvelope"
-                      [label]="t('storage.details.dssEnvelope.label')"
-                      [loading]="loading"
-                      [onSubmit]="refreshResetValue"
-                    >
-                      <ng-select
-                        class="ewb-select"
-                        formControlName="dssEnvelope"
-                        labelForId="dssEnvelope"
-                        name="dssEnvelope"
-                        [placeholder]="
-                          privileges?.edit ? t('storage.details.dssEnvelope.placeholder') : t('formInput.notDefined.placeholder')
-                        "
-                        [items]="dssEnvelopes"
-                        [clearable]="false"
-                        bindLabel="path"
-                        bindValue="pk"
-                        slot="input"
-                      >
-                        <ng-template ng-option-tmp let-item="item" let-clear="clear">
-                          {{ item.path }} ({{ t('storage.details.dssEnvelope.container') }}: {{ item.container_path }})
-                        </ng-template>
-                      </ng-select>
-                    </eworkbench-form-input>
+                  <div class="mb-4" *ngIf="envelope">
+                    <label>{{ t('storage.details.dssEnvelope.label') }}</label>
+                    <div>{{ envelope }}</div>
                   </div>
-                  <div class="mb-4" *ngIf="selectedDssEnvelope">
+                  <div class="mb-4" *ngIf="location">
                     <label>{{ t('storage.details.dssLocation.label') }}</label>
-                    <div>{{ selectedDssEnvelope.container_path }}</div>
+                    <div>{{ location }}</div>
                   </div>
                   <div class="mb-4">
                     <label for="created-by">{{ t('storage.details.createdBy.label') }}</label>

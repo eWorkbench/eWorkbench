@@ -54,7 +54,28 @@
             [name]="'answer-' + uuid + '-' + i"
             [placeholder]="editable ? labels[i] || '' : t('formInput.notDefined.placeholder')"
             (change)="onChanged()"
+            *ngIf="baseType !== 'tag'"
           />
+          <ng-select
+            class="ewb-select w-100"
+            [formControl]="answer"
+            [id]="'answer-' + uuid + '-' + i"
+            [name]="'answer-' + uuid + '-' + i"
+            [placeholder]="editable ? labels[i] || '' : t('formInput.notDefined.placeholder')"
+            [multiple]="true"
+            [addTag]="addTag"
+            [loading]="loading"
+            [items]="tags"
+            bindLabel="name"
+            bindValue="name"
+            (change)="onChanged()"
+            *ngIf="baseType === 'tag'"
+          >
+            <ng-template ng-tag-tmp let-search="searchTerm">
+              <strong>{{ t('metadata.tag.createNew') }}</strong
+              >: {{ search }}
+            </ng-template>
+          </ng-select>
           <div class="input-group-append" *ngIf="baseType === 'percentage'">
             <span class="input-group-text ewb-input" [class.border-0]="!editable">%</span>
           </div>

@@ -1,40 +1,58 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import os
 import uuid
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from django.core.validators import RegexValidator
 
 from django_changeset.models import RevisionModelMixin
 from django_cleanhtmlfield.fields import HTMLField
 
-from eric.core.models.abstract import ChangeSetMixIn, SoftDeleteMixin, WorkbenchEntityMixin, OrderingModelMixin, \
-    IsFavouriteMixin
+from eric.core.models.abstract import (
+    ChangeSetMixIn,
+    IsFavouriteMixin,
+    OrderingModelMixin,
+    SoftDeleteMixin,
+    WorkbenchEntityMixin,
+)
 from eric.core.models.base import BaseModel, LockMixin
 from eric.core.utils import get_rgb_rgba_pattern
+from eric.kanban_boards.models.managers import (
+    KanbanBoardColumnManager,
+    KanbanBoardColumnTaskAssignmentManager,
+    KanbanBoardManager,
+    KanbanBoardUserFilterSettingManager,
+    KanbanBoardUserSettingManager,
+)
 from eric.model_privileges.models.abstract import ModelPrivilegeMixIn
 from eric.projects.models import FileSystemStorageLimitByUser, scramble_uploaded_filename
 from eric.relations.models import RelationsMixIn
 from eric.search.models import FTSMixin
-from eric.kanban_boards.models.managers import KanbanBoardManager, KanbanBoardColumnManager, \
-    KanbanBoardColumnTaskAssignmentManager, KanbanBoardUserFilterSettingManager, KanbanBoardUserSettingManager
 
-rgba_color_validator = RegexValidator(
-    get_rgb_rgba_pattern(),
-    _("Not a valid RGBA color")
-)
+rgba_color_validator = RegexValidator(get_rgb_rgba_pattern(), _("Not a valid RGBA color"))
 
 
-class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftDeleteMixin, RelationsMixIn, LockMixin,
-                  ModelPrivilegeMixIn, WorkbenchEntityMixin, IsFavouriteMixin):
-    """ Defines the workbench element for Kanban Boards """
+class KanbanBoard(
+    BaseModel,
+    ChangeSetMixIn,
+    RevisionModelMixin,
+    FTSMixin,
+    SoftDeleteMixin,
+    RelationsMixIn,
+    LockMixin,
+    ModelPrivilegeMixIn,
+    WorkbenchEntityMixin,
+    IsFavouriteMixin,
+):
+    """Defines the workbench element for Kanban Boards"""
+
     objects = KanbanBoardManager()
 
     class Meta(WorkbenchEntityMixin.Meta):
@@ -48,37 +66,31 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
             ("add_kanbanboard_without_project", "Can add a Kanban Board without a project"),
         )
         track_fields = (
-            'title', 'projects', 'deleted',
+            "title",
+            "projects",
+            "deleted",
         )
         track_related_many = (
-            ('kanban_board_columns', ('title', 'color', 'icon',)),
+            (
+                "kanban_board_columns",
+                (
+                    "title",
+                    "color",
+                    "icon",
+                ),
+            ),
         )
-        fts_template = 'fts/kanban_board.html'
-        export_template = 'export/kanban_board.html'
+        fts_template = "fts/kanban_board.html"
+        export_template = "export/kanban_board.html"
 
         def get_default_serializer(*args, **kwargs):
             from eric.kanban_boards.rest.serializers import KanbanBoardSerializer
+
             return KanbanBoardSerializer
 
-    KANBAN_BOARD_TYPE_PERSONAL = 'per'
-    KANBAN_BOARD_TYPE_PROJECT = 'pro'
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    KANBAN_BOARD_TYPE = (
-        (KANBAN_BOARD_TYPE_PERSONAL, 'Personal'),
-        (KANBAN_BOARD_TYPE_PROJECT, 'Project')
-    )
-
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
-
-    title = models.CharField(
-        max_length=128,
-        verbose_name=_("Title of the Kanban Board"),
-        db_index=True
-    )
+    title = models.CharField(max_length=128, verbose_name=_("Title of the Kanban Board"), db_index=True)
 
     description = HTMLField(
         verbose_name=_("Description of the Kanban Board"),
@@ -88,17 +100,10 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
 
     # reference to many projects (can be 0 projects, too)
     projects = models.ManyToManyField(
-        'projects.Project',
+        "projects.Project",
         verbose_name=_("Which projects is this Kanban Board associated to"),
         related_name="kanban_boards",
-        blank=True
-    )
-
-    board_type = models.CharField(
-        max_length=3,
-        choices=KANBAN_BOARD_TYPE,
-        default=KANBAN_BOARD_TYPE_PROJECT,
-        verbose_name=_("Type of the Kanban Board")
+        blank=True,
     )
 
     background_image = models.ImageField(
@@ -106,20 +111,17 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
         blank=True,
         null=True,
         max_length=512,
-        storage=FileSystemStorageLimitByUser()
+        storage=FileSystemStorageLimitByUser(),
     )
 
-    background_image_size = models.BigIntegerField(
-        verbose_name=_("Size of the background image"),
-        default=0
-    )
+    background_image_size = models.BigIntegerField(verbose_name=_("Size of the background image"), default=0)
 
     background_image_thumbnail = models.ImageField(
         verbose_name=_("Thumbnail of the kanban board background image"),
         blank=True,
         null=True,
         max_length=512,
-        storage=FileSystemStorageLimitByUser()
+        storage=FileSystemStorageLimitByUser(),
     )
 
     background_color = models.CharField(
@@ -127,7 +129,7 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
         verbose_name=_("RGBA color of the board"),
         validators=[rgba_color_validator],
         blank=True,
-        null=True
+        null=True,
     )
 
     def __str__(self):
@@ -135,11 +137,16 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
 
     def create_thumbnail(self):
 
-        from PIL import Image
         from io import BytesIO
+
         from django.core.files.base import ContentFile
 
-        THUMB_SIZE = (460, 195, )
+        from PIL import Image
+
+        THUMB_SIZE = (
+            460,
+            195,
+        )
 
         image = Image.open(self.background_image)
         image.thumbnail(THUMB_SIZE, Image.ANTIALIAS)
@@ -147,14 +154,14 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
         thumb_name, thumb_extension = os.path.splitext(self.background_image.name)
         thumb_extension = thumb_extension.lower()
 
-        thumb_filename = thumb_name + '_thumb' + thumb_extension
+        thumb_filename = thumb_name + "_thumb" + thumb_extension
 
-        if thumb_extension in ['.jpg', '.jpeg']:
-            FTYPE = 'JPEG'
-        elif thumb_extension == '.gif':
-            FTYPE = 'GIF'
-        elif thumb_extension == '.png':
-            FTYPE = 'PNG'
+        if thumb_extension in [".jpg", ".jpeg"]:
+            FTYPE = "JPEG"
+        elif thumb_extension == ".gif":
+            FTYPE = "GIF"
+        elif thumb_extension == ".png":
+            FTYPE = "PNG"
         else:
             return False  # Unrecognized file type
 
@@ -179,12 +186,12 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
         :return:
         """
         # check if rendered image file has changed
-        if self.background_image and hasattr(self.background_image.file, 'content_type'):
+        if self.background_image and hasattr(self.background_image.file, "content_type"):
             # rename shapes file
             new_background_image_file_name = scramble_uploaded_filename(self.background_image.name)
 
-            new_background_image_file_path = settings.WORKBENCH_SETTINGS['project_file_upload_folder'] % {
-                'filename': new_background_image_file_name
+            new_background_image_file_path = settings.WORKBENCH_SETTINGS["project_file_upload_folder"] % {
+                "filename": new_background_image_file_name
             }
 
             # create folder if it does not exist
@@ -202,66 +209,91 @@ class KanbanBoard(BaseModel, ChangeSetMixIn, RevisionModelMixin, FTSMixin, SoftD
             self.create_thumbnail()
 
         # call super method
-        super(KanbanBoard, self).save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields
-        )
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 
 class KanbanBoardColumn(BaseModel, OrderingModelMixin, ChangeSetMixIn, RevisionModelMixin):
     """
     Defines a column for the kanban board
     """
+
     objects = KanbanBoardColumnManager()
 
     class Meta:
         verbose_name = _("Kanban Board Column")
         verbose_name_plural = _("Kanban Board Columns")
-        ordering = ['ordering', 'title']
-        track_fields = ('title', 'kanban_board', 'ordering', 'color', 'icon')
+        ordering = ["ordering", "title"]
+        track_fields = ("title", "kanban_board", "ordering", "color", "icon")
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    title = models.CharField(
-        max_length=128,
-        verbose_name=_("Title of the Kanban Board")
-    )
+    title = models.CharField(max_length=128, verbose_name=_("Title of the Kanban Board"))
 
     kanban_board = models.ForeignKey(
-        'kanban_boards.KanbanBoard',
+        "kanban_boards.KanbanBoard",
         related_name="kanban_board_columns",
         on_delete=models.SET_NULL,
         verbose_name=_("Which kanban board is this column assigned to"),
         blank=True,
-        null=True
+        null=True,
     )
 
     color = models.CharField(
         max_length=30,
         verbose_name=_("RGBA color of the column"),
         default="rgba(244,244,244,1)",
-        validators=[rgba_color_validator]
+        validators=[rgba_color_validator],
     )
 
     KANBAN_BOARD_COLUMN_ICONS = [
-        ("fa fa-star", "New",),
-        ("fa fa-spinner", "In Progress",),
-        ("fa fa-check", "Done",),
-        ("fa fa-pause", "Paused",),
-        ("fa fa-times", "Canceled",),
-        ("fa fa-book", "Documentation",),
-        ("fa fa-truck", "Delivery",),
-        ("fa fa-bars", "ToDo",),
-        ("fa fa-bolt", "Testing", ),
-        ("fa fa-code-fork", "Decision required", ),
-        ("fa fa-flask", "Flask",),
-        ("fa fa-question", "Question",),
+        (
+            "fa fa-star",
+            "New",
+        ),
+        (
+            "fa fa-spinner",
+            "In Progress",
+        ),
+        (
+            "fa fa-check",
+            "Done",
+        ),
+        (
+            "fa fa-pause",
+            "Paused",
+        ),
+        (
+            "fa fa-times",
+            "Canceled",
+        ),
+        (
+            "fa fa-book",
+            "Documentation",
+        ),
+        (
+            "fa fa-truck",
+            "Delivery",
+        ),
+        (
+            "fa fa-bars",
+            "ToDo",
+        ),
+        (
+            "fa fa-bolt",
+            "Testing",
+        ),
+        (
+            "fa fa-code-fork",
+            "Decision required",
+        ),
+        (
+            "fa fa-flask",
+            "Flask",
+        ),
+        (
+            "fa fa-question",
+            "Question",
+        ),
     ]
 
     icon = models.CharField(
@@ -269,18 +301,16 @@ class KanbanBoardColumn(BaseModel, OrderingModelMixin, ChangeSetMixIn, RevisionM
         choices=KANBAN_BOARD_COLUMN_ICONS,
         blank=True,
         default="",
-        verbose_name=_("Icon of kanban board column")
+        verbose_name=_("Icon of kanban board column"),
     )
 
     tasks = models.ManyToManyField(
-        'shared_elements.Task',
-        through="KanbanBoardColumnTaskAssignment",
-        verbose_name=_("The tasks of this column")
+        "shared_elements.Task", through="KanbanBoardColumnTaskAssignment", verbose_name=_("The tasks of this column")
     )
 
     def __str__(self):
         return _("Kanban Board Column {} belonging to Board {}").format(
-            self.title, self.kanban_board.title if self.kanban_board else '-'
+            self.title, self.kanban_board.title if self.kanban_board else "-"
         )
 
 
@@ -288,30 +318,22 @@ class KanbanBoardColumnTaskAssignment(BaseModel, OrderingModelMixin, ChangeSetMi
     """
     Through table for many to many assignment of a Task / Kanban Board Column
     """
+
     objects = KanbanBoardColumnTaskAssignmentManager()
 
     class Meta:
         verbose_name = _("Kanban Board Column")
         verbose_name_plural = _("Kanban Board Columns")
-        ordering = ['kanban_board_column__ordering', 'ordering']
-        track_fields = ('kanban_board_column', 'ordering', 'task')
+        ordering = ["kanban_board_column__ordering", "ordering"]
+        track_fields = ("kanban_board_column", "ordering", "task")
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     kanban_board_column = models.ForeignKey(
-        KanbanBoardColumn,
-        on_delete=models.CASCADE,
-        related_name="kanban_board_column_task_assignments"
+        KanbanBoardColumn, on_delete=models.CASCADE, related_name="kanban_board_column_task_assignments"
     )
 
-    task = models.ForeignKey(
-        'shared_elements.Task',
-        on_delete=models.CASCADE
-    )
+    task = models.ForeignKey("shared_elements.Task", on_delete=models.CASCADE)
 
     def validate_task_only_once_in_board(self):
         """
@@ -320,49 +342,47 @@ class KanbanBoardColumnTaskAssignment(BaseModel, OrderingModelMixin, ChangeSetMi
         :return:
         """
         qs = KanbanBoardColumnTaskAssignment.objects.filter(
-            kanban_board_column__kanban_board=self.kanban_board_column.kanban_board,
-            task=self.task
-        ).exclude(
-            pk=self.pk
-        )
+            kanban_board_column__kanban_board=self.kanban_board_column.kanban_board, task=self.task
+        ).exclude(pk=self.pk)
 
         if qs.exists():
-            raise ValidationError(_('Task can only be added once to the current kanban board'))
+            raise ValidationError(_("Task can only be added once to the current kanban board"))
 
     def clean(self):
         self.validate_task_only_once_in_board()
 
     def __str__(self):
-        return _("Task {} is assigned to column {}").format(
-            self.task, self.kanban_board_column.title
-        )
+        return _("Task {} is assigned to column {}").format(self.task, self.kanban_board_column.title)
 
 
 class KanbanBoardUserFilterSetting(BaseModel):
     """
     Through table for many to many filter setting of a User to a TaskBoard
     """
+
     objects = KanbanBoardUserFilterSettingManager()
 
     class Meta:
         verbose_name = _("Kanban Board User Filter Setting")
         verbose_name_plural = _("Kanban Board User Filter Settings")
-        track_fields = ('kanban_board', 'user')
+        track_fields = ("kanban_board", "user")
         index_together = (
-            ("kanban_board", "user",),
+            (
+                "kanban_board",
+                "user",
+            ),
         )
         unique_together = (
-            ("kanban_board", "user",),
+            (
+                "kanban_board",
+                "user",
+            ),
         )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     kanban_board = models.ForeignKey(
-        'kanban_boards.KanbanBoard',
+        "kanban_boards.KanbanBoard",
         related_name="kanban_board_user_filter_settings",
         on_delete=models.CASCADE,
         verbose_name=_("Which kanban board is this user filter setting for"),
@@ -404,27 +424,30 @@ class KanbanBoardUserSetting(BaseModel):
     """
     Through table for many to many filter setting of a User to a TaskBoard
     """
+
     objects = KanbanBoardUserSettingManager()
 
     class Meta:
         verbose_name = _("Kanban Board User Setting")
         verbose_name_plural = _("Kanban Board User Settings")
-        track_fields = ('kanban_board', 'user')
+        track_fields = ("kanban_board", "user")
         index_together = (
-            ("kanban_board", "user",),
+            (
+                "kanban_board",
+                "user",
+            ),
         )
         unique_together = (
-            ("kanban_board", "user",),
+            (
+                "kanban_board",
+                "user",
+            ),
         )
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     kanban_board = models.ForeignKey(
-        'kanban_boards.KanbanBoard',
+        "kanban_boards.KanbanBoard",
         related_name="kanban_board_user_settings",
         on_delete=models.CASCADE,
         verbose_name=_("Which kanban board is this user setting for"),
@@ -439,13 +462,13 @@ class KanbanBoardUserSetting(BaseModel):
     restrict_task_information = models.BooleanField(
         verbose_name=_("Whether the task information should be restricted in this Kanban Board"),
         default=False,
-        db_index=True
+        db_index=True,
     )
 
     day_indication = models.BooleanField(
         verbose_name=_("Whether the day indications for this Kanban Board should be shown"),
         default=False,
-        db_index=True
+        db_index=True,
     )
 
     created_at = models.DateTimeField(

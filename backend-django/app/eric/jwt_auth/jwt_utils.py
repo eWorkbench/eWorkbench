@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import uuid
@@ -7,7 +7,7 @@ import uuid
 from django.conf import settings
 from django.utils.timezone import datetime, timedelta
 
-from eric.jwt_auth.jwt_token import JWTPayload, JWTToken, EXPIRY_DATE_KEY
+from eric.jwt_auth.jwt_token import EXPIRY_DATE_KEY, JWTPayload, JWTToken
 
 
 def build_jwt_token(user, path: str, **kwargs):
@@ -23,7 +23,7 @@ def build_jwt_token(user, path: str, **kwargs):
 
 def build_expiring_jwt_token(user, path: str, validity: timedelta = None):
     if not validity:
-        default_setting = settings.JWT_AUTH_SETTINGS['default_expiring_token_validity_in_hours']
+        default_setting = settings.JWT_AUTH_SETTINGS["default_expiring_token_validity_in_hours"]
         validity = timedelta(hours=default_setting)
 
     expiry_date = datetime.now() + validity
@@ -32,7 +32,7 @@ def build_expiring_jwt_token(user, path: str, validity: timedelta = None):
 
 
 def build_jwt_url(request, path: str, token=None):
-    """ Builds a JWT url for a given path """
+    """Builds a JWT url for a given path"""
 
     absolute_url = request.build_absolute_uri(path)
     token = token or build_jwt_token(request.user, path)
@@ -48,26 +48,26 @@ def build_expiring_jwt_url(request, path: str, validity: timedelta = None):
 
 def strip_url_params(url: str):
     if len(url) <= 0:
-        return ''
+        return ""
 
-    if '?' not in url:
+    if "?" not in url:
         return url
 
-    question_mark_index = url.index('?')
+    question_mark_index = url.index("?")
 
     if question_mark_index == 0:
         # question mark is first character -> path contains params only
-        return ''
+        return ""
     else:
         return url[0:question_mark_index]
 
 
 def add_url_params(url: str, **kwargs):
-    prefix = '&' if '?' in url else '?'
+    prefix = "&" if "?" in url else "?"
 
     for key, value in kwargs.items():
-        url = f'{url}{prefix}{key}={value}'
-        prefix = '&'
+        url = f"{url}{prefix}{key}={value}"
+        prefix = "&"
 
     return url
 

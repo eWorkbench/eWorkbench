@@ -73,14 +73,14 @@ $chip-size: 25px;
     }
   }
 
-  .inactive-indicator {
+  .status-indicator {
     color: #4d4d4d;
     opacity: 0.5;
     margin-left: 4px;
   }
 
   .inverted {
-    .inactive-indicator {
+    .status-indicator {
       color: #fff;
     }
   }

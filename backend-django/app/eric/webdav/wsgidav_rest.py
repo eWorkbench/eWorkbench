@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.http import HttpResponse
@@ -15,8 +15,8 @@ except ImportError:
     rest_framework = None
 
 
-class RequestWrapper(object):
-    """ simulates django-rest-api request wrapper """
+class RequestWrapper:
+    """simulates django-rest-api request wrapper"""
 
     def __init__(self, request):
         self._request = request
@@ -25,13 +25,13 @@ class RequestWrapper(object):
         return getattr(self._request, attr)
 
 
-class RestAuthViewMixIn(object):
+class RestAuthViewMixIn:
     authentications = NotImplemented
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         assert rest_framework is not None, "django rest framework is not installed."
-        if request.method.lower() != 'options':
+        if request.method.lower() != "options":
             user_auth_tuple = None
             for auth in self.authentications:
                 try:
@@ -48,9 +48,9 @@ class RestAuthViewMixIn(object):
                 user, auth = user_auth_tuple
             else:
                 resp = HttpResponseUnAuthorized("Not Authorised")
-                resp['WWW-Authenticate'] = self.authentications[0].authenticate_header(request)
+                resp["WWW-Authenticate"] = self.authentications[0].authenticate_header(request)
                 return resp
 
             request.user = user
             request.auth = auth
-        return super(RestAuthViewMixIn, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)

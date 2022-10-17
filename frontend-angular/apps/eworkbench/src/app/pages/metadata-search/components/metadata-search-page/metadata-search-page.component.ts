@@ -17,6 +17,7 @@ import type {
 } from '@eworkbench/types';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { v4 as uuidv4 } from 'uuid';
 
 @UntilDestroy()
 @Component({
@@ -253,7 +254,7 @@ export class MetadataSearchPageComponent implements OnInit {
   public onAdd(id?: string, index?: number): void {
     const parameterId = id ?? this.f.parameters.value;
     if (parameterId) {
-      const parameter = this.searchParametersData[parameterId];
+      const parameter = { ...this.searchParametersData[parameterId], uniqueHash: uuidv4() };
       const selectedSearchParameters = [...this.selectedSearchParameters];
 
       if (index === undefined) {
@@ -283,7 +284,7 @@ export class MetadataSearchPageComponent implements OnInit {
 
   public onChanged(data: MetadataChangedSearchParameter): void {
     this.selectedSearchParameters.map(parameter => {
-      if (parameter.pk === data.id) {
+      if (parameter.uniqueHash === data.uniqueHash) {
         parameter.operator = data.operator;
         parameter.values = data.answers;
         parameter.combinationOperator = data.combinationOperator;

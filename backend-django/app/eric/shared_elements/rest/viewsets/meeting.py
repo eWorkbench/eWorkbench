@@ -1,42 +1,61 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-import vobject
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.timezone import datetime
-from django_userforeignkey.request import get_current_user
-from rest_framework import viewsets, mixins
+
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+
+import vobject
+from django_userforeignkey.request import get_current_user
 from weasyprint import HTML
 
-from eric.core.rest.viewsets import DeletableViewSetMixIn, ExportableViewSetMixIn, BaseAuthenticatedModelViewSet, \
-    BaseViewSetMixin
+from eric.core.rest.viewsets import (
+    BaseAuthenticatedModelViewSet,
+    BaseViewSetMixin,
+    DeletableViewSetMixIn,
+    ExportableViewSetMixIn,
+)
 from eric.core.utils import convert_html_to_text
 from eric.jwt_auth.jwt_utils import build_jwt_url
 from eric.model_privileges.models import ModelPrivilege
-from eric.projects.rest.viewsets.base import BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, \
-    LockableViewSetMixIn
+from eric.projects.rest.viewsets.base import (
+    BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet,
+    LockableViewSetMixIn,
+)
 from eric.shared_elements.models import Meeting, UserAttendsMeeting
-from eric.shared_elements.rest.filters import MeetingFilter, AnonymousMeetingFilter
+from eric.shared_elements.rest.filters import AnonymousMeetingFilter, MeetingFilter
 from eric.shared_elements.rest.serializers import MeetingSerializer
 from eric.shared_elements.rest.serializers.meeting import AnonymousResourceBookingSerializer
 
 
 class MeetingViewSet(
-    BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, DeletableViewSetMixIn, ExportableViewSetMixIn,
-    LockableViewSetMixIn
+    BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet,
+    DeletableViewSetMixIn,
+    ExportableViewSetMixIn,
+    LockableViewSetMixIn,
 ):
     serializer_class = MeetingSerializer
     filterset_class = MeetingFilter
     search_fields = ()
-    ordering_fields = ('date_time_start', 'date_time_end', 'title', 'location', 'created_at', 'created_by',
-                       'last_modified_at', 'last_modified_by', 'resource__name',)
+    ordering_fields = (
+        "date_time_start",
+        "date_time_end",
+        "title",
+        "location",
+        "created_at",
+        "created_by",
+        "last_modified_at",
+        "last_modified_by",
+        "resource__name",
+    )
 
     def perform_create(self, serializer):
         """
@@ -61,7 +80,7 @@ class MeetingViewSet(
                     content_type=Meeting.get_content_type(),
                     object_id=instance.pk,
                     user=create_for_user,
-                    full_access_privilege=ModelPrivilege.ALLOW
+                    full_access_privilege=ModelPrivilege.ALLOW,
                 )
         else:
             UserAttendsMeeting.objects.get_or_create(
@@ -74,23 +93,26 @@ class MeetingViewSet(
         returns the queryset for ProjectRoleUserAssignment viewable objects,
         filtered by project primary (optional)
         """
-        return Meeting.objects.viewable().prefetch_common(). \
-            prefetch_related('projects', )
+        return (
+            Meeting.objects.viewable()
+            .prefetch_common()
+            .prefetch_related(
+                "projects",
+            )
+        )
 
-    @action(detail=False, methods=['GET'], url_path="get_export_link")
+    @action(detail=False, methods=["GET"], url_path="get_export_link")
     def get_ical_export_link(self, request, *args, **kwargs):
         """
         Generates a link with a JWT for the ical export endpoint
         This is necessary so browsers can access the exported content without sending authorization headers
         """
 
-        path = request.get_full_path().replace('get_export_link', 'export')
+        path = request.get_full_path().replace("get_export_link", "export")
 
-        return Response({
-            'url': build_jwt_url(request, path)
-        })
+        return Response({"url": build_jwt_url(request, path)})
 
-    @action(detail=False, methods=['GET'], url_path="export")
+    @action(detail=False, methods=["GET"], url_path="export")
     def ical_export(self, *args, **kwargs):
         """Endpoint for the iCal export"""
 
@@ -100,32 +122,32 @@ class MeetingViewSet(
         # TODO: Use Meeting.export_as_ical()
 
         calendar = vobject.iCalendar()
-        calendar.add('method').value = 'PUBLISH'  # IE/Outlook needs this
+        calendar.add("method").value = "PUBLISH"  # IE/Outlook needs this
         for meeting in meetings:
-            event = calendar.add('vevent')
-            event.add('dtstart').value = meeting.date_time_start  # ical_datetime_start
-            event.add('dtend').value = meeting.date_time_end  # ical_datetime_end  # TODO
-            event.add('summary').value = meeting.title
-            event.add('uid').value = str(meeting.pk)
-            event.add('description').value = convert_html_to_text(meeting.text)
-            event.add('organizer').value = "MAILTO: %(organizer)s" % {'organizer': meeting.created_by.email}
+            event = calendar.add("vevent")
+            event.add("dtstart").value = meeting.date_time_start  # ical_datetime_start
+            event.add("dtend").value = meeting.date_time_end  # ical_datetime_end  # TODO
+            event.add("summary").value = meeting.title
+            event.add("uid").value = str(meeting.pk)
+            event.add("description").value = convert_html_to_text(meeting.text)
+            event.add("organizer").value = f"MAILTO: {meeting.created_by.email}"
 
             if meeting.location:
-                event.add('location').value = meeting.location
+                event.add("location").value = meeting.location
 
             # add attending users
             for user in meeting.attending_users.all():
-                event.add('attendee').value = "MAILTO: %(attendee)s" % {'attendee': user.email}
+                event.add("attendee").value = f"MAILTO: {user.email}"
 
             for contact in meeting.attending_contacts.all():
-                event.add('attendee').value = "MAILTO: %(attendee)s" % {'attendee': contact.email}
+                event.add("attendee").value = f"MAILTO: {contact.email}"
 
         cal_stream = calendar.serialize()
 
         response = HttpResponse(cal_stream)
-        response['Content-Type'] = 'text/calendar'
-        response['Filename'] = 'calendar.ics'  # IE needs this
-        response['Content-Disposition'] = 'inline; filename=calendar.ics'
+        response["Content-Type"] = "text/calendar"
+        response["Filename"] = "calendar.ics"  # IE needs this
+        response["Content-Disposition"] = "inline; filename=calendar.ics"
 
         return response
 
@@ -139,61 +161,70 @@ class MyMeetingViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        return Meeting.objects.viewable().prefetch_common().prefetch_related('projects')
+        return Meeting.objects.viewable().prefetch_common().prefetch_related("projects")
 
 
 class MyResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableViewSetMixIn):
     serializer_class = MeetingSerializer
     filterset_class = MeetingFilter
     search_fields = ()
-    ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
-                       'date_time_start', 'date_time_end',
-                       'text', 'created_by', 'created_at')
+    ordering_fields = (
+        "resource__name",
+        "resource__type",
+        "resource__description",
+        "resource__location",
+        "date_time_start",
+        "date_time_end",
+        "text",
+        "created_by",
+        "created_at",
+    )
 
     # disable pagination for this endpoint
     pagination_class = None
 
     def get_queryset(self):
-        return Meeting.objects.my_bookings().prefetch_common().prefetch_related(
-            'projects'
-        ).filter(deleted=False).filter(resource__deleted=False)
+        return (
+            Meeting.objects.my_bookings()
+            .prefetch_common()
+            .prefetch_related("projects")
+            .filter(deleted=False)
+            .filter(resource__deleted=False)
+        )
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=["GET"])
     def export(self, request, format=None, *args, **kwargs):
-        """ Endpoint for the MyResourceBooking Export """
+        """Endpoint for the MyResourceBooking Export"""
 
         return ExportableViewSetMixIn.export(self, request, *args, **kwargs)
 
-    @action(detail=False, methods=['GET'], url_path='export_many/(?P<pk_list>[^/.]+)')
+    @action(detail=False, methods=["GET"], url_path="export_many/(?P<pk_list>[^/.]+)")
     def export_many(self, request, pk_list, *args, **kwargs):
-        """ Endpoint for the MyResourceBooking Export """
+        """Endpoint for the MyResourceBooking Export"""
         now = datetime.now()
 
-        booking_pks = pk_list.split(',')
+        booking_pks = pk_list.split(",")
 
         booking_objects = Meeting.objects.filter(pk__in=booking_pks)
 
-        filepath = 'export/meeting_many.html'
-        filename = 'appointment_resource_bookings_{}.pdf'.format(now)
+        filepath = "export/meeting_many.html"
+        filename = f"appointment_resource_bookings_{now}.pdf"
 
         # provide a context for rendering
-        context = {
-            'instances': booking_objects,
-            'now': now
-        }
+        context = {"instances": booking_objects, "now": now}
 
         # render the HTML to a string
         export = render_to_string(filepath, context)
         # and convert it into a PDF document
-        pdf_document = HTML(string=force_text(export).encode('UTF-8')).render()
+        pdf_document = HTML(string=force_text(export).encode("UTF-8")).render()
         export = pdf_document.write_pdf()
 
         # finally, respond with the PDF document
         response = HttpResponse(export)
         # inline content -> enables displaying the file in the browser
-        response['Content-Disposition'] = 'inline; filename="{}"'.format(filename)
+        response["Content-Disposition"] = f'inline; filename="{filename}"'
         # Deactivate debug toolbar by setting content type != text/html
-        response['Content-Type'] = 'application/pdf;'
+        response["Content-Type"] = "application/pdf;"
 
         return response
 
@@ -202,18 +233,27 @@ class AllResourceBookingViewSet(BaseViewSetMixin, mixins.ListModelMixin, Generic
     serializer_class = MeetingSerializer
     filterset_class = AnonymousMeetingFilter
     search_fields = ()
-    ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
-                       'date_time_start', 'date_time_end',
-                       'text', 'created_by', 'created_at')
+    ordering_fields = (
+        "resource__name",
+        "resource__type",
+        "resource__description",
+        "resource__location",
+        "date_time_start",
+        "date_time_end",
+        "text",
+        "created_by",
+        "created_at",
+    )
 
     # disable pagination for this endpoint
     pagination_class = None
 
     def get_queryset(self):
-        return Meeting.objects \
-            .filter(deleted=False, resource__deleted=False, resource__isnull=False) \
-            .prefetch_common() \
-            .prefetch_related('projects')
+        return (
+            Meeting.objects.filter(deleted=False, resource__deleted=False, resource__isnull=False)
+            .prefetch_common()
+            .prefetch_related("projects")
+        )
 
     def list(self, request, *args, **kwargs):
         # apply ViewSet filters
@@ -221,14 +261,12 @@ class AllResourceBookingViewSet(BaseViewSetMixin, mixins.ListModelMixin, Generic
 
         # build query for bookings with access to all data
         full_info_qs = meetings_qs.fully_viewable()
-        full_info_meetings = self.serializer_class(
-            full_info_qs, many=True, context={'request': self.request}
-        ).data
+        full_info_meetings = self.serializer_class(full_info_qs, many=True, context={"request": self.request}).data
 
         # build query for bookings with limited data
         limited_info_qs = meetings_qs.difference(full_info_qs)
         limited_info_meetings = AnonymousResourceBookingSerializer(
-            limited_info_qs, many=True, context={'request': self.request}
+            limited_info_qs, many=True, context={"request": self.request}
         ).data
 
         return Response(full_info_meetings + limited_info_meetings)
@@ -238,18 +276,27 @@ class EditorResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableView
     serializer_class = MeetingSerializer
     filterset_class = MeetingFilter
     search_fields = ()
-    ordering_fields = ('resource__name', 'resource__type', 'resource__description', 'resource__location',
-                       'date_time_start', 'date_time_end',
-                       'text', 'created_by', 'created_at')
+    ordering_fields = (
+        "resource__name",
+        "resource__type",
+        "resource__description",
+        "resource__location",
+        "date_time_start",
+        "date_time_end",
+        "text",
+        "created_by",
+        "created_at",
+    )
 
     # disable pagination for this endpoint
     pagination_class = None
 
     def get_queryset(self):
-        return Meeting.objects \
-            .filter(deleted=False, resource__deleted=False, resource__isnull=False) \
-            .prefetch_common() \
-            .prefetch_related('projects')
+        return (
+            Meeting.objects.filter(deleted=False, resource__deleted=False, resource__isnull=False)
+            .prefetch_common()
+            .prefetch_related("projects")
+        )
 
     def list(self, request, *args, **kwargs):
         # apply ViewSet filters
@@ -257,47 +304,42 @@ class EditorResourceBookingViewSet(BaseAuthenticatedModelViewSet, ExportableView
 
         # build query for bookings with access to all data for editors of the resource
         editor_qs = meetings_qs.editor_viewable()
-        editor_meetings = self.serializer_class(
-            editor_qs, many=True, context={'request': self.request}
-        ).data
+        editor_meetings = self.serializer_class(editor_qs, many=True, context={"request": self.request}).data
 
         return Response(editor_meetings)
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=["GET"])
     def export(self, request, format=None, *args, **kwargs):
-        """ Endpoint for the EditorResourceBooking Export """
+        """Endpoint for the EditorResourceBooking Export"""
 
         return ExportableViewSetMixIn.export(self, request, *args, **kwargs)
 
-    @action(detail=False, methods=['GET'], url_path='export_many/(?P<pk_list>[^/.]+)')
+    @action(detail=False, methods=["GET"], url_path="export_many/(?P<pk_list>[^/.]+)")
     def export_many(self, request, pk_list, *args, **kwargs):
-        """ Endpoint for the EditorResourceBooking Export """
+        """Endpoint for the EditorResourceBooking Export"""
         now = datetime.now()
 
-        booking_pks = pk_list.split(',')
+        booking_pks = pk_list.split(",")
 
         booking_objects = Meeting.objects.filter(pk__in=booking_pks)
 
-        filepath = 'export/meeting_many.html'
-        filename = f'appointment_resource_bookings_editor_{now}.pdf'
+        filepath = "export/meeting_many.html"
+        filename = f"appointment_resource_bookings_editor_{now}.pdf"
 
         # provide a context for rendering
-        context = {
-            'instances': booking_objects,
-            'now': now
-        }
+        context = {"instances": booking_objects, "now": now}
 
         # render the HTML to a string
         export = render_to_string(filepath, context)
         # and convert it into a PDF document
-        pdf_document = HTML(string=force_text(export).encode('UTF-8')).render()
+        pdf_document = HTML(string=force_text(export).encode("UTF-8")).render()
         export = pdf_document.write_pdf()
 
         # finally, respond with the PDF document
         response = HttpResponse(export)
         # inline content -> enables displaying the file in the browser
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        response["Content-Disposition"] = f'inline; filename="{filename}"'
         # Deactivate debug toolbar by setting content type != text/html
-        response['Content-Type'] = 'application/pdf;'
+        response["Content-Type"] = "application/pdf;"
 
         return response

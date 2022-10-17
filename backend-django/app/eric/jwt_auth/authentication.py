@@ -1,15 +1,17 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
-from urllib.parse import urlencode, urlparse, urlunparse, parse_qs
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from django.contrib.auth import get_user_model
-from jwt import PyJWTError
+
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import SAFE_METHODS
+
+from jwt import PyJWTError
 from urllib3.util import Url
 
 from eric.jwt_auth.jwt_token import JWT_URL_PARAM, JWTToken
@@ -19,9 +21,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 class JWTAuthentication(TokenAuthentication):
-    """ DRF authentication via JWT token """
+    """DRF authentication via JWT token"""
 
-    keyword = 'JWT'
+    keyword = "JWT"
     request = None
 
     def authenticate(self, request):
@@ -45,7 +47,7 @@ class JWTAuthentication(TokenAuthentication):
             token = JWTToken(key)
             payload = token.decode()
         except PyJWTError as err:
-            raise AuthenticationFailed('Invalid token.') from err
+            raise AuthenticationFailed("Invalid token.") from err
 
         # validate request path
         request_path = self.request.get_full_path()
@@ -58,16 +60,16 @@ class JWTAuthentication(TokenAuthentication):
 
         # compare using Url class to account for acceptable variations
         if Url(token_path) != Url(request_path):
-            raise AuthenticationFailed('Invalid path.')
+            raise AuthenticationFailed("Invalid path.")
 
         # check user
-        user = get_user_model().objects.filter(pk=payload.user_pk).select_related('userprofile').first()
+        user = get_user_model().objects.filter(pk=payload.user_pk).select_related("userprofile").first()
         if not user:
-            raise AuthenticationFailed('Invalid user ID.')
+            raise AuthenticationFailed("Invalid user ID.")
 
         # check verification token
         if user.userprofile.jwt_verification_token != payload.verification_token:
-            raise AuthenticationFailed('Invalid verification token.')
+            raise AuthenticationFailed("Invalid verification token.")
 
         return user, key
 

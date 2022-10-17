@@ -107,7 +107,7 @@ export class MetadataSearchParameterComponent implements OnInit {
   }
 
   public initParameter(): void {
-    if (['text', 'gps', 'checkbox', 'selection'].includes(this.parameter.base_type!)) {
+    if (['text', 'gps', 'checkbox', 'selection', 'tag'].includes(this.parameter.base_type!)) {
       this.operators = this.equalOperator;
     } else {
       this.operators = this.allOperators;
@@ -130,6 +130,7 @@ export class MetadataSearchParameterComponent implements OnInit {
   public onChanged(data?: string[] | string): void {
     this.fieldData = data ?? this.fieldData!;
     this.changed.emit({
+      uniqueHash: this.parameter.uniqueHash!,
       id: this.parameter.pk!,
       type: this.f.type.value,
       operator: this.f.operator.value,

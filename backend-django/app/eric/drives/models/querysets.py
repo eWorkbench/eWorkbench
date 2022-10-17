@@ -1,8 +1,9 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.db.models import Q
+
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 
 from eric.projects.models.querysets import BaseProjectEntityPermissionQuerySet, extend_queryset
@@ -27,22 +28,24 @@ class ExtendedDriveFileQuerySet:
         from eric.drives.models import Drive
 
         # get all viewable LabBookChildElements that contain a picture
-        file_pks = Drive.objects.viewable().values_list('sub_directories__files')
+        file_pks = Drive.objects.viewable().values_list("sub_directories__files")
 
         # The following is equal to Picture.filter(pk__in=note_pks)
-        return Q(
-            pk__in=file_pks
-        )
+        return Q(pk__in=file_pks)
 
 
 class DriveQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
     def prefetch_common(self, *args, **kwargs):
-        return super(DriveQuerySet, self).prefetch_common(*args, **kwargs).prefetch_related(
-            'sub_directories',
-            'sub_directories__created_by',
-            'sub_directories__created_by__userprofile',
-            'sub_directories__last_modified_by',
-            'sub_directories__last_modified_by__userprofile'
+        return (
+            super()
+            .prefetch_common(*args, **kwargs)
+            .prefetch_related(
+                "sub_directories",
+                "sub_directories__created_by",
+                "sub_directories__created_by__userprofile",
+                "sub_directories__last_modified_by",
+                "sub_directories__last_modified_by__userprofile",
+            )
         )
 
 
@@ -54,13 +57,14 @@ class BaseDriveQuerySet(BaseProjectEntityPermissionQuerySet):
     An item that is related is editable, if the Drive is editable
     An item that is related is deletable, if the Drive is editable (! editable is used on purpose)
     """
+
     def viewable(self, *args, **kwargs):
         """
         Returns all elements where the related drive is viewable
         """
         from eric.drives.models import Drive
 
-        return self.filter(drive__pk__in=Drive.objects.viewable().values_list('pk'))
+        return self.filter(drive__pk__in=Drive.objects.viewable().values_list("pk"))
 
     def editable(self, *args, **kwargs):
         """
@@ -68,7 +72,7 @@ class BaseDriveQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.drives.models import Drive
 
-        return self.filter(drive__pk__in=Drive.objects.editable().values_list('pk'))
+        return self.filter(drive__pk__in=Drive.objects.editable().values_list("pk"))
 
     def deletable(self, *args, **kwargs):
         """
@@ -76,7 +80,7 @@ class BaseDriveQuerySet(BaseProjectEntityPermissionQuerySet):
         """
         from eric.drives.models import Drive
 
-        return self.filter(drive__pk__in=Drive.objects.editable().values_list('pk'))
+        return self.filter(drive__pk__in=Drive.objects.editable().values_list("pk"))
 
 
 class DirectoryQuerySet(BaseDriveQuerySet):

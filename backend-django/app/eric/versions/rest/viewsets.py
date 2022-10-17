@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
@@ -7,10 +7,11 @@ import json
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.http import Http404, QueryDict, HttpResponse
+from django.http import Http404, HttpResponse, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils.datastructures import MultiValueDict
 from django.utils.translation import gettext_lazy as _
+
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
@@ -26,7 +27,7 @@ from eric.versions.rest.serializers import VersionSerializer
 
 
 class VersionViewSet(BaseAuthenticatedModelViewSet):
-    """ Handles generic versioning for a base model """
+    """Handles generic versioning for a base model"""
 
     serializer_class = VersionSerializer
     pagination_class = LimitOffsetPagination
@@ -55,11 +56,11 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
         Fetches the parent object and raises Http404 if the parent object does not exist (or the user does not have
         access to said object) -- prior to any handler
         """
-        super(VersionViewSet, self).initial(request, *args, **kwargs)
+        super().initial(request, *args, **kwargs)
         self.parent_object = self.get_parent_object_or_404(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        """ Creates a new version. """
+        """Creates a new version."""
 
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
         if isinstance(request.data, QueryDict):  # however, some request.data objects are normal dictionaries...
@@ -71,13 +72,15 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
 
         if self.parent_object.is_locked():
             # element is locked by another user
-            raise ValidationError({
-                'non_field_errors': ValidationError(
-                    _("This object is currently locked by another user"),
-                    params={'instance': self.parent_object},
-                    code='invalid'
-                )
-            })
+            raise ValidationError(
+                {
+                    "non_field_errors": ValidationError(
+                        _("This object is currently locked by another user"),
+                        params={"instance": self.parent_object},
+                        code="invalid",
+                    )
+                }
+            )
 
         # parse arguments and return entity and primary key
         entity, pk, content_type = parse_parameters_for_workbench_models(*args, **kwargs)
@@ -88,23 +91,23 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
             self.create_versions_for_all_labbook_elements(self.parent_object)
 
         # auto-fill the version data and discard the POST data (except for the summary)
-        request.data['object_id'] = pk
-        request.data['content_type_pk'] = content_type.pk
+        request.data["object_id"] = pk
+        request.data["content_type_pk"] = content_type.pk
         metadata = self.parent_object.export_metadata()
-        request.data['metadata'] = json.dumps(metadata, default=custom_json_handler)
+        request.data["metadata"] = json.dumps(metadata, default=custom_json_handler)
 
         # JSONField doesn't parse JSON data sent via API, therefore we fake HTML input by passing a MultiValueDict
         # See also JSONField.get_value (.../rest_framework/fields.py)
         data = MultiValueDict()
         data.update(request.data)
-        return super(VersionViewSet, self).create(request, force_request_data=data, *args, **kwargs)
+        return super().create(request, force_request_data=data, *args, **kwargs)
 
     def is_labbook(self):
         return isinstance(self.parent_object, LabBook)
 
     @staticmethod
     def create_versions_for_all_labbook_elements(labbook):
-        last_labbook_version = Version.objects.filter(object_id=labbook.pk).order_by('-number').first()
+        last_labbook_version = Version.objects.filter(object_id=labbook.pk).order_by("-number").first()
         new_labbook_version_number = last_labbook_version.number + 1 if last_labbook_version is not None else 1
         for element in labbook.child_elements.all():
             child_object = element.child_object
@@ -123,7 +126,7 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
             version.save()
 
     @transaction.atomic
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=["POST"])
     def restore(self, request, format=None, *args, **kwargs):
         version = self.get_object()
 
@@ -135,7 +138,7 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
 
         return Response(data)
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=["GET"])
     def preview(self, request, format=None, *args, **kwargs):
         version = self.get_object()
 
@@ -168,42 +171,41 @@ class VersionViewSet(BaseAuthenticatedModelViewSet):
 
     def serialize_model(self, request, model_instance, version):
         serializer_class = model_instance._meta.get_default_serializer()
-        serializer = serializer_class(instance=model_instance, context={'request': request})
+        serializer = serializer_class(instance=model_instance, context={"request": request})
         data = serializer.data
 
         # generate sub-elements for LabBooks
         if self.is_labbook():
-            data['child_elements'] = self.build_labbook_element_list(version.metadata)
+            data["child_elements"] = self.build_labbook_element_list(version.metadata)
 
         return data
 
     def build_labbook_element_list(self, metadata):
         elements = list()
         for element in metadata.get("child_elements"):
-            content_type = ContentType.objects.get(pk=element['child_object_content_type_id'])
+            content_type = ContentType.objects.get(pk=element["child_object_content_type_id"])
             element_class = content_type.model_class()
-            child_object = element_class.objects.filter(pk=element['child_object_id']).first()
+            child_object = element_class.objects.filter(pk=element["child_object_id"]).first()
             if child_object is not None:  # ignore hard-deleted elements
                 display_name = str(child_object) if child_object.is_viewable() else None
-                elements.append({
-                    'type': content_type.name,
-                    'content_type': f"{content_type.app_label}.{content_type.model}",
-                    'display_name': display_name,
-                    'version_number': element['child_object_version_number'],
-                    'viewable': child_object.is_viewable()
-                })
+                elements.append(
+                    {
+                        "type": content_type.name,
+                        "content_type": f"{content_type.app_label}.{content_type.model}",
+                        "display_name": display_name,
+                        "version_number": element["child_object_version_number"],
+                        "viewable": child_object.is_viewable(),
+                    }
+                )
 
         return elements
 
     def get_queryset(self):
-        """ Returns all versions of the base model. """
+        """Returns all versions of the base model."""
 
-        if not hasattr(self, 'parent_object') or not self.parent_object:
+        if not hasattr(self, "parent_object") or not self.parent_object:
             return Version.objects.none()
 
         return Version.objects.filter(
-            content_type=self.parent_object.get_content_type(),
-            object_id=self.parent_object.pk
-        ).order_by(
-            '-number'
-        )
+            content_type=self.parent_object.get_content_type(), object_id=self.parent_object.pk
+        ).order_by("-number")

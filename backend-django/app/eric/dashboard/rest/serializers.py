@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from rest_framework import serializers
@@ -10,16 +10,16 @@ from eric.shared_elements.models import Contact, File, Task
 
 
 class DashboardProjectSerializer(serializers.ModelSerializer):
-    """ A very minimalistic project serializer, only displaying name and pk """
+    """A very minimalistic project serializer, only displaying name and pk"""
 
     class Meta:
         model = Project
         fields = (
-            'pk',
-            'name',
-            'start_date',
-            'stop_date',
-            'project_state',
+            "pk",
+            "name",
+            "start_date",
+            "stop_date",
+            "project_state",
         )
 
 
@@ -31,12 +31,12 @@ class DashboardContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = (
-            'pk',
-            'company',
-            'email',
-            'academic_title',
-            'first_name',
-            'last_name',
+            "pk",
+            "company",
+            "email",
+            "academic_title",
+            "first_name",
+            "last_name",
         )
 
 
@@ -48,10 +48,10 @@ class DashboardFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         fields = (
-            'pk',
-            'name',
-            'file_size',
-            'original_filename',
+            "pk",
+            "name",
+            "file_size",
+            "original_filename",
         )
 
 
@@ -63,12 +63,12 @@ class DashboardTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = (
-            'pk',
-            'title',
-            'priority',
-            'state',
-            'due_date',
-            'full_day',
+            "pk",
+            "title",
+            "priority",
+            "state",
+            "due_date",
+            "full_day",
         )
 
 
@@ -80,10 +80,10 @@ class DashboardDmpSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dmp
         fields = (
-            'pk',
-            'title',
-            'status',
-            'created_at',
+            "pk",
+            "title",
+            "status",
+            "created_at",
         )
 
 
@@ -95,8 +95,8 @@ class DashboardResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resource
         fields = (
-            'pk',
-            'name',
-            'type',
-            'description',
+            "pk",
+            "name",
+            "type",
+            "description",
         )

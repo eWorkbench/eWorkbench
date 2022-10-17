@@ -61,4 +61,3 @@ If you want to create more users, select the `ou=People` subtree and create a ne
 
 ## Creating groups
 If you want to create more groups, select the `ou=Groups` subtree and create a new `posix group`.
-

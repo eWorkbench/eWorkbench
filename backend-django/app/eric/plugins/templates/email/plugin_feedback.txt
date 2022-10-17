@@ -7,4 +7,3 @@
 {% blocktrans %}We are sending you this automated e-mail as user {{ requesting_username }} has sent feedback for plugin "{{ plugin_title }}": {% endblocktrans %}
 
 {{ message | safe }}
-

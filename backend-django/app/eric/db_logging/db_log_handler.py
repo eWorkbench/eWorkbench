@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -14,7 +14,12 @@ default_formatter = logging.Formatter()
 class ReducedExceptionReporter(ExceptionReporter):
     def get_traceback_data(self):
         data = super().get_traceback_data()
-        for key in ['settings', 'sys_executable', 'sys_version_info', 'sys_path', ]:
+        for key in [
+            "settings",
+            "sys_executable",
+            "sys_version_info",
+            "sys_path",
+        ]:
             del data[key]
 
         return data

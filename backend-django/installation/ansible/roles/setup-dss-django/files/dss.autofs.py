@@ -5,8 +5,15 @@ from subprocess import check_output
 
 SHOWMOUNT_CMD = "/usr/sbin/showmount"
 NFSOPTS = "-fstype=nfs,hard,intr,nodev,nosuid,nosymlink"
-DSSNFSSERVERS = ("tumdssnfs01.dss.<domain>", "tumdssnfs02.dss.<domain>",)
-DSSFILESYSTEMS = ("dssfs01", "dsstumfs01", "dsstumfs02",)
+DSSNFSSERVERS = (
+    "tumdssnfs01.dss.<domain>",
+    "tumdssnfs02.dss.<domain>",
+)
+DSSFILESYSTEMS = (
+    "dssfs01",
+    "dsstumfs01",
+    "dsstumfs02",
+)
 
 
 def get_dss_nfs_exports():
@@ -15,7 +22,7 @@ def get_dss_nfs_exports():
         for dssfilesystem in DSSFILESYSTEMS:
             command = f"{SHOWMOUNT_CMD} -e {dssnfsserver}"
             all_mounts = check_output(command, shell=True).decode(sys.stdout.encoding)
-            matches = re.findall(fr'/dss/{dssfilesystem}/\S+/\S+\s', all_mounts)
+            matches = re.findall(rf"/dss/{dssfilesystem}/\S+/\S+\s", all_mounts)
             for match in matches:
                 key = "/".join(match.strip().split("/")[3:])
                 exports[key] = (dssnfsserver, match.strip())
@@ -39,6 +46,5 @@ if __name__ == "__main__":
             raise Exception
         print(full_string)
         sys.exit(0)
-    except Exception as error:
-        # print(error)
+    except Exception:
         sys.exit(1)

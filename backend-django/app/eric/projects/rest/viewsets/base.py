@@ -1,11 +1,12 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
+
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -37,30 +38,30 @@ class BaseAuthenticatedNestedProjectModelViewSet(BaseAuthenticatedModelViewSet):
     """
 
     def create(self, request, *args, **kwargs):
-        """ handle create requests with project_pk in kwargs """
+        """handle create requests with project_pk in kwargs"""
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
         if isinstance(request.data, QueryDict):  # however, some request.data objects are normal dictionaries...
             request.data._mutable = True
 
-        if 'project_pk' in request.data:
-            request.data['project'] = request.data['project_pk']
-        elif 'project_pk' in kwargs:
-            request.data['project'] = kwargs['project_pk']
+        if "project_pk" in request.data:
+            request.data["project"] = request.data["project_pk"]
+        elif "project_pk" in kwargs:
+            request.data["project"] = kwargs["project_pk"]
 
-        return super(BaseAuthenticatedNestedProjectModelViewSet, self).create(request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        """ handle update requests with project_pk in kwargs """
+        """handle update requests with project_pk in kwargs"""
         # since Django 1.11, there is a weird behaviour of QueryDicts that are immutable
         if isinstance(request.data, QueryDict):  # however, some request.data objects are normal dictionaries...
             request.data._mutable = True
 
-        if 'project_pk' in request.data:
-            request.data['project'] = request.data['project_pk']
-        elif 'project_pk' in kwargs:
-            request.data['project'] = kwargs['project_pk']
+        if "project_pk" in request.data:
+            request.data["project"] = request.data["project_pk"]
+        elif "project_pk" in kwargs:
+            request.data["project"] = kwargs["project_pk"]
 
-        return super(BaseAuthenticatedNestedProjectModelViewSet, self).update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)
 
 
 class BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet(BaseAuthenticatedModelViewSet):
@@ -77,83 +78,77 @@ class BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet(BaseAuthenticatedM
         :return:
         """
         # ignore partial updates unless it contains projects
-        if kwargs.get('partial') and 'projects' not in request.data:
+        if kwargs.get("partial") and "projects" not in request.data:
             return
 
-        if 'projects' not in request.data or len(request.data['projects']) == 0:
+        if "projects" not in request.data or len(request.data["projects"]) == 0:
             user = request.user
 
-            if user.has_perm(get_permission_name(self.serializer_class.Meta.model, 'add') + "_without_project"):
+            if user.has_perm(get_permission_name(self.serializer_class.Meta.model, "add") + "_without_project"):
                 # user is allowed to create this entity without a project relationship
                 return
             else:
-                raise ValidationError({
-                    'projects': ValidationError(
-                        _('You need to select a project'),
-                        params={'projects': []},
-                        code='invalid'
-                    )
-                })
+                raise ValidationError(
+                    {
+                        "projects": ValidationError(
+                            _("You need to select a project"), params={"projects": []}, code="invalid"
+                        )
+                    }
+                )
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         self.check_create_without_project(request, *args, **kwargs)
 
-        return super(BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, self).create(request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         self.check_create_without_project(request, *args, **kwargs)
 
-        return super(BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, self).update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
-        """ Deletes the element. """
+        """Deletes the element."""
 
         # If an object is deleted, we need to be able to delete ModelPrivileges too => need to disable permission checks
         with disable_permission_checks(ModelPrivilege):
             # call destroy of super class
-            return super(BaseAuthenticatedCreateUpdateWithoutProjectModelViewSet, self).destroy(
-                self, request, *args, **kwargs
-            )
+            return super().destroy(self, request, *args, **kwargs)
 
 
-class LockableViewSetMixIn(object):
+class LockableViewSetMixIn:
     """
     ViewSet Mixin providing lock functionality
     """
 
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=["POST"])
     def lock(self, request, pk=None, webdav=False):
-        """ Locks the element for other users. """
+        """Locks the element for other users."""
 
         obj = self.get_object()
         element_lock = obj.lock(webdav=webdav)
 
-        return Response(
-            ElementLockSerializer(element_lock).data
-        )
+        return Response(ElementLockSerializer(element_lock).data)
 
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=["POST"])
     def unlock(self, request, pk=None):
-        """ Releases the element, if it was locked by the current user. """
+        """Releases the element, if it was locked by the current user."""
 
         obj = self.get_object()
         obj.unlock()
 
         return Response({})
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=["GET"])
     def lock_status(self, request, pk=None):
-        """ Gets the current lock status. """
+        """Gets the current lock status."""
 
         obj = self.get_object()
         element_lock = obj.get_lock_element()
 
         if element_lock.exists():
-            return Response(
-                ElementLockSerializer(element_lock.first()).data
-            )
+            return Response(ElementLockSerializer(element_lock.first()).data)
         else:
             return Response({})

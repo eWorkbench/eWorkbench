@@ -1,51 +1,53 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import json
+from datetime import timedelta
+from math import ceil
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from eric.core.tests import HTTP_USER_AGENT, REMOTE_ADDR
-from eric.projects.models import Role, Project
-from eric.projects.tests.core import AuthenticationMixin, UserMixin, MeMixin
+from eric.projects.models import MyUser, Project, Role
+from eric.projects.tests.core import AuthenticationMixin, MeMixin, UserMixin
 from eric.userprofile.models import UserProfile
 
 User = get_user_model()
 
 
 class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
-    """ Testing of permissions of the project endpoint """
+    """Testing of permissions of the project endpoint"""
 
     # set up users
     def setUp(self):
-        """ set up a couple of users """
-        self.user1 = User.objects.create_user(
-            username='student_1', email='student_1@email.com', password='top_secret')
-        self.token1 = self.login_and_return_token('student_1', 'top_secret')
+        """set up a couple of users"""
+        self.user1 = User.objects.create_user(username="student_1", email="student_1@email.com", password="top_secret")
+        self.token1 = self.login_and_return_token("student_1", "top_secret")
 
-        self.user2 = User.objects.create_user(
-            username='student_2', email='student_2@email.com', password='foobar')
-        self.token2 = self.login_and_return_token('student_2', 'foobar')
+        self.user2 = User.objects.create_user(username="student_2", email="student_2@email.com", password="foobar")
+        self.token2 = self.login_and_return_token("student_2", "foobar")
 
         self.student_role = self.create_student_role()
 
         self.pm_role = Role.objects.filter(default_role_on_project_create=True).first()
 
-        self.user_group = Group.objects.get(name='User')
+        self.user_group = Group.objects.get(name="User")
 
         self.user1.groups.add(self.user_group)
 
         # create an ldap user
-        self.token3 = self.login_and_return_token('normaluser', 'normaluser')
-        self.user3 = User.objects.filter(username='normaluser').first()
+        self.token3 = self.login_and_return_token("normaluser", "normaluser")
+        self.user3 = User.objects.filter(username="normaluser").first()
 
     def test_get_users(self):
-        """ Test getting the users endpoint and finding specific users """
+        """Test getting the users endpoint and finding specific users"""
         response = self.rest_get_users(self.token1, HTTP_USER_AGENT, REMOTE_ADDR)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -55,7 +57,7 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
         self.assertEqual(len(decoded), 1)
 
     def test_search_users(self):
-        """ Test searching for users """
+        """Test searching for users"""
         # try to find a user that does not exist
         response = self.rest_search_for_users(self.token1, "Long Query", HTTP_USER_AGENT, REMOTE_ADDR)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -73,15 +75,12 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
         self.assertEqual(len(decoded), 0)
 
         # create new project
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token1)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token1)
         response = self.client.post(
-            '/api/projects/',
-            {
-                'name': 'Test project',
-                'description': 'Test description',
-                'project_state': Project.INITIALIZED
-            },
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            "/api/projects/",
+            {"name": "Test project", "description": "Test description", "project_state": Project.INITIALIZED},
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         project_details = json.loads(response.content.decode())
@@ -96,12 +95,10 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
 
         # assign a second user to the project
         response = self.client.post(
-            '/api/projects/{}/acls/'.format(project_details['pk']),
-            {
-                'user_pk': self.user2.pk,
-                'role_pk': self.student_role.pk
-            },
-            HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            "/api/projects/{}/acls/".format(project_details["pk"]),
+            {"user_pk": self.user2.pk, "role_pk": self.student_role.pk},
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -122,40 +119,41 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
         self.assertEqual(len(decoded), 1)
 
     def test_invite_user_which_already_exists(self):
-        """ Tests inviting a user via e-mail which already exists in the database """
-        response = self.rest_invite_external_user(self.token1, "student_1@email.com", "Hello", HTTP_USER_AGENT,
-                                                  REMOTE_ADDR)
+        """Tests inviting a user via e-mail which already exists in the database"""
+        response = self.rest_invite_external_user(
+            self.token1, "student_1@email.com", "Hello", HTTP_USER_AGENT, REMOTE_ADDR
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_change_password(self):
-        """ Tests changing the password of an user account """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token1)
-        new_password = 'new_password'
+        """Tests changing the password of an user account"""
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token1)
+        new_password = "new_password"
 
         # change password of user1
         response = self.client.put(
-            '/api/me/change_password/',
-            {
-                'password': new_password
-            }, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            "/api/me/change_password/",
+            {"password": new_password},
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # login as user1 with the new password
-        self.token1 = self.login_and_return_token('student_1', new_password)
+        self.token1 = self.login_and_return_token("student_1", new_password)
 
     def test_change_password_too_common(self):
-        """ Tests changing the password of an user account when the password is too common"""
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token1)
-        username = 'student_1'
-        new_password = 'password'  # common password
+        """Tests changing the password of an user account when the password is too common"""
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token1)
+        username = "student_1"
+        new_password = "password"  # common password
 
         # change password of user1
         response = self.client.put(
-            '/api/me/change_password/',
-            {
-                'password': new_password
-            }, HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR
+            "/api/me/change_password/",
+            {"password": new_password},
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -164,103 +162,108 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
         self.reset_client_credentials()
 
         # login with self.user1, a given user agent and remote address
-        response = self.client.post('/api/auth/login',
-                                    {'username': username, 'password': new_password},
-                                    HTTP_USER_AGENT=HTTP_USER_AGENT, REMOTE_ADDR=REMOTE_ADDR)
+        response = self.client.post(
+            "/api/auth/login",
+            {"username": username, "password": new_password},
+            HTTP_USER_AGENT=HTTP_USER_AGENT,
+            REMOTE_ADDR=REMOTE_ADDR,
+        )
 
         # check if login was successful (should not be)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_current_user(self):
-        """ Tests retrieving the current user based on the auth token """
+        """Tests retrieving the current user based on the auth token"""
         response = self.rest_get_user_with_pk(self.token1, self.user1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
-        self.assertEquals(decoded_response['username'], self.user1.username)
+        self.assertEqual(decoded_response["username"], self.user1.username)
 
     def test_get_current_ldap_user(self):
-        """ Tests retrieving the current ldap user based on the auth token """
-        token = self.login_and_return_token('normaluser', 'normaluser')
-        user = User.objects.filter(username='normaluser').first()
+        """Tests retrieving the current ldap user based on the auth token"""
+        token = self.login_and_return_token("normaluser", "normaluser")
+        user = User.objects.filter(username="normaluser").first()
 
         response = self.rest_get_user_with_pk(token, user.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         decoded_response = json.loads(response.content.decode())
-        self.assertEquals(decoded_response['username'], user.username)
+        self.assertEqual(decoded_response["username"], user.username)
 
     def test_change_profile(self):
-        """ Tests the update profile endpoint of a user """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token1)
+        """Tests the update profile endpoint of a user"""
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token1)
 
         # get user profile
         response = self.rest_get_user_with_pk(self.token1, self.user1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         cur_user = json.loads(response.content.decode())
-        del cur_user['userprofile']['avatar']
-        self.assertEquals(cur_user['email'], self.user1.email)
+        del cur_user["userprofile"]["avatar"]
+        self.assertEqual(cur_user["email"], self.user1.email)
 
         # set email to something else
-        cur_user['email'] = "anotheremail@johndoe.com"
+        cur_user["email"] = "anotheremail@johndoe.com"
 
         # do the api call
         self.rest_put_me(self.token1, json.dumps(cur_user), assert_status=status.HTTP_200_OK)
 
         self.user1.refresh_from_db()
-        self.assertEquals(self.user1.email, cur_user['email'])
+        self.assertEqual(self.user1.email, cur_user["email"])
 
     def test_change_profile_validation(self):
-        """ Tests validation of change profile endpoint (e.g., invalid email) """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token1)
+        """Tests validation of change profile endpoint (e.g., invalid email)"""
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token1)
 
         # get user profile
         response = self.rest_get_user_with_pk(self.token1, self.user1.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         cur_user = json.loads(response.content.decode())
-        del cur_user['userprofile']['avatar']
-        self.assertEquals(cur_user['email'], self.user1.email)
+        del cur_user["userprofile"]["avatar"]
+        self.assertEqual(cur_user["email"], self.user1.email)
 
         # set email to something wrong
-        cur_user['email'] = "johndoe.com"
+        cur_user["email"] = "johndoe.com"
 
         # do the api call
         response = self.rest_put_me(self.token1, json.dumps(cur_user), assert_status=status.HTTP_400_BAD_REQUEST)
         decoded_response = json.loads(response.content.decode())
-        self.assertTrue('email' in decoded_response)
+        self.assertTrue("email" in decoded_response)
 
         # set website to something wrong
-        cur_user['userprofile']['website'] = "johndoe.com"
-        cur_user['email'] = "john@doe.com"
+        cur_user["userprofile"]["website"] = "johndoe.com"
+        cur_user["email"] = "john@doe.com"
 
         # do the api call
         response = self.rest_put_me(self.token1, json.dumps(cur_user), assert_status=status.HTTP_400_BAD_REQUEST)
         decoded_response = json.loads(response.content.decode())
-        self.assertTrue('email' not in decoded_response)
-        self.assertTrue('userprofile' in decoded_response)
-        self.assertTrue('website' in decoded_response['userprofile'])
+        self.assertTrue("email" not in decoded_response)
+        self.assertTrue("userprofile" in decoded_response)
+        self.assertTrue("website" in decoded_response["userprofile"])
 
     def test_change_profile_for_ldap_users(self):
-        """ Tests the update profile endpoint for a ldap user
+        """Tests the update profile endpoint for a ldap user
         LDAP users are allowed to change website and additional_information, but nothing else
         """
         response = self.rest_get_user_with_pk(self.token3, self.user3.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         cur_user = json.loads(response.content.decode())
-        del cur_user['userprofile']['avatar']
-        self.assertEquals(cur_user['email'], self.user3.email)
+        del cur_user["userprofile"]["avatar"]
+        self.assertEqual(cur_user["email"], self.user3.email)
 
         # try to change the salutation of this user (should not work)
-        cur_user['userprofile']['title_salutation'] = "Dr."
+        cur_user["userprofile"]["title_salutation"] = "Dr."
 
         # do the api call
         response = self.rest_put_me(self.token3, json.dumps(cur_user), assert_status=status.HTTP_400_BAD_REQUEST)
         decoded_response = json.loads(response.content.decode())
-        self.assertTrue('title_salutation' in decoded_response)
-        self.assertEquals(decoded_response['title_salutation'],
-                          [_("Can not update this field, as information is retrieved automatically from LDAP")])
+        self.assertTrue("title_salutation" in decoded_response)
+        self.assertEqual(
+            decoded_response["title_salutation"],
+            [_("Can not update this field, as information is retrieved automatically from LDAP")],
+        )
 
         # verify this field has not been updated in database
         self.user3.refresh_from_db()
-        self.assertNotEquals(self.user3.userprofile.title_salutation, "Dr.")
+        self.assertNotEqual(self.user3.userprofile.title_salutation, "Dr.")
 
     def test_profile_type_can_not_be_changed(self):
         """
@@ -268,25 +271,64 @@ class UserProfileTest(APITestCase, AuthenticationMixin, UserMixin, MeMixin):
         :return:
         """
         response = self.rest_get_user_with_pk(self.token3, self.user3.pk, HTTP_USER_AGENT, REMOTE_ADDR)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         cur_user = json.loads(response.content.decode())
-        del cur_user['userprofile']['avatar']
-        self.assertEquals(cur_user['email'], self.user3.email)
-        self.assertEquals(cur_user['userprofile']['type'], UserProfile.LDAP_USER)
+        del cur_user["userprofile"]["avatar"]
+        self.assertEqual(cur_user["email"], self.user3.email)
+        self.assertEqual(cur_user["userprofile"]["type"], UserProfile.LDAP_USER)
 
         # try to change the salutation of this user (should not work)
-        cur_user['userprofile']['type'] = UserProfile.NORMAL_USER
+        cur_user["userprofile"]["type"] = UserProfile.NORMAL_USER
 
         # do the api call (should work, but not change anything)
         self.rest_put_me(self.token3, json.dumps(cur_user), assert_status=status.HTTP_200_OK)
 
         self.user3.refresh_from_db()
-        self.assertEquals(self.user3.userprofile.type, UserProfile.LDAP_USER)
+        self.assertEqual(self.user3.userprofile.type, UserProfile.LDAP_USER)
 
     def test_profile_jwt_verification_token(self):
         """
         Verifies that new users have a jwt_verification_token
         """
-        self.assertNotEquals(self.user1.userprofile.jwt_verification_token, '')
-        self.assertNotEquals(self.user2.userprofile.jwt_verification_token, '')
-        self.assertNotEquals(self.user3.userprofile.jwt_verification_token, '')
+        self.assertNotEqual(self.user1.userprofile.jwt_verification_token, "")
+        self.assertNotEqual(self.user2.userprofile.jwt_verification_token, "")
+        self.assertNotEqual(self.user3.userprofile.jwt_verification_token, "")
+
+    def test_profile_anonymization(self):
+        """
+        Verifies that users get anonymized correctly
+        """
+        my_user = MyUser.objects.get(pk=self.user1.pk)
+
+        self.assertFalse(my_user.userprofile.anonymized)
+
+        my_user.anonymize()
+        self.assertTrue(my_user.userprofile.anonymized)
+        self.assertEqual(my_user.username, f"anonymous-user-{my_user.pk}")
+        self.assertEqual(my_user.userprofile.first_name, "Anonymous")
+        self.assertEqual(my_user.userprofile.last_name, "User")
+
+    def test_profile_anonymization_expired(self):
+        """
+        Verifies that users get anonymized correctly after their account has been expired
+        """
+        current_time = timezone.now()
+
+        my_user = MyUser.objects.get(pk=self.user1.pk)
+        my_user.last_login = current_time
+        my_user.save()
+
+        self.assertFalse(my_user.userprofile.anonymized)
+
+        my_user.anonymize_expired()
+        self.assertFalse(my_user.userprofile.anonymized)
+
+        # set last login to 10 years and 1 day ago
+        my_user.last_login = current_time - timedelta(days=ceil(365.256 * MyUser.ANONYMIZE_AFTER_YEARS) + 1)
+        my_user.save()
+
+        my_user.anonymize_expired()
+        self.assertTrue(my_user.userprofile.anonymized)
+        self.assertEqual(my_user.username, f"anonymous-user-{my_user.pk}")
+        self.assertEqual(my_user.userprofile.first_name, "Anonymous")
+        self.assertEqual(my_user.userprofile.last_name, "User")

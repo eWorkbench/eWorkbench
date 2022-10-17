@@ -1,10 +1,12 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission, User
+
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from tests.test.helpers import HelperMixin
 
 from eric.core.tests import HTTP_INFO
@@ -21,15 +23,15 @@ class DeletePreventionTest(APITestCase, AuthenticationMixin, HelperMixin, TaskMi
     def setUp(self):
         # create superuser
         self.superuser = User.objects.create_user(
-            username='root', email="root@email.com", password='password', is_superuser=True
+            username="root", email="root@email.com", password="password", is_superuser=True
         )
-        self.superuser_token = self.login_and_return_token('root', 'password', **HTTP_INFO)
+        self.superuser_token = self.login_and_return_token("root", "password", **HTTP_INFO)
 
         # create normal user
         self.user1 = User.objects.create_user(
-            username='user1', email="user1@email.com", password='password', is_superuser=False
+            username="user1", email="user1@email.com", password="password", is_superuser=False
         )
-        self.user1_token = self.login_and_return_token('user1', 'password', **HTTP_INFO)
+        self.user1_token = self.login_and_return_token("user1", "password", **HTTP_INFO)
 
         # give all permissions to user1
         all_permissions = Permission.objects.all()
@@ -37,10 +39,16 @@ class DeletePreventionTest(APITestCase, AuthenticationMixin, HelperMixin, TaskMi
 
         # create a task as user1
         self.task, response = self.create_task_orm(
-            self.user1_token, None,
-            'My task', 'Description', Task.TASK_STATE_NEW, Task.TASK_PRIORITY_NORMAL,
-            start_date=None, due_date=None, assigned_user=[],
-            **HTTP_INFO
+            self.user1_token,
+            None,
+            "My task",
+            "Description",
+            Task.TASK_STATE_NEW,
+            Task.TASK_PRIORITY_NORMAL,
+            start_date=None,
+            due_date=None,
+            assigned_user=[],
+            **HTTP_INFO,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content.decode())
 

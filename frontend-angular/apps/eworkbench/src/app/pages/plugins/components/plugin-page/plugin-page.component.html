@@ -124,6 +124,14 @@
                       </ng-select>
                     </eworkbench-form-input>
                   </div>
+                  <div class="mb-4" *ngIf="initialState?.labbook_container">
+                    <label for="labbook_container">{{ t('file.details.labbook.label') }}</label>
+                    <div id="labbook_container">
+                      <a [routerLink]="['/labbooks', initialState.labbook_container.lab_book.pk]">{{
+                        initialState.labbook_container.lab_book.title
+                      }}</a>
+                    </div>
+                  </div>
                   <div class="mb-4">
                     <label for="created-by">{{ t('plugin.details.createdBy.label') }}</label>
                     <div class="flex items-center space-x-1">

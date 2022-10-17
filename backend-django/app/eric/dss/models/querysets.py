@@ -1,8 +1,9 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.db.models import Q
+
 from django_changeset.models.queryset import ChangeSetQuerySetMixin
 from django_userforeignkey.request import get_current_user
 
@@ -17,26 +18,23 @@ class ExtendedDSSContainerFileQuerySet:
     @staticmethod
     def _viewable():
         from eric.dss.models import DSSContainer
-        file_pks = DSSContainer.objects.viewable().values_list('dss_envelopes__drives__sub_directories__files')
-        return Q(
-            pk__in=file_pks
-        )
+
+        file_pks = DSSContainer.objects.viewable().values_list("dss_envelopes__drives__sub_directories__files")
+        return Q(pk__in=file_pks)
 
     @staticmethod
     def _editable():
         from eric.dss.models import DSSContainer
-        file_pks = DSSContainer.objects.editable().values_list('dss_envelopes__drives__sub_directories__files')
-        return Q(
-            pk__in=file_pks
-        )
+
+        file_pks = DSSContainer.objects.editable().values_list("dss_envelopes__drives__sub_directories__files")
+        return Q(pk__in=file_pks)
 
     @staticmethod
     def _deleteable():
         from eric.dss.models import DSSContainer
-        file_pks = DSSContainer.objects.deletable().values_list('dss_envelopes__drives__sub_directories__files')
-        return Q(
-            pk__in=file_pks
-        )
+
+        file_pks = DSSContainer.objects.deletable().values_list("dss_envelopes__drives__sub_directories__files")
+        return Q(pk__in=file_pks)
 
 
 @extend_queryset(DriveQuerySet)
@@ -44,26 +42,23 @@ class ExtendedDSSDriveFileQuerySet:
     @staticmethod
     def _viewable():
         from eric.dss.models import DSSContainer
-        drive_pks = DSSContainer.objects.viewable().values_list('dss_envelopes__drives')
-        return Q(
-            pk__in=drive_pks
-        )
+
+        drive_pks = DSSContainer.objects.viewable().values_list("dss_envelopes__drives")
+        return Q(pk__in=drive_pks)
 
     @staticmethod
     def _editable():
         from eric.dss.models import DSSContainer
-        drive_pks = DSSContainer.objects.editable().values_list('dss_envelopes__drives')
-        return Q(
-            pk__in=drive_pks
-        )
+
+        drive_pks = DSSContainer.objects.editable().values_list("dss_envelopes__drives")
+        return Q(pk__in=drive_pks)
 
     @staticmethod
     def _deleteable():
         from eric.dss.models import DSSContainer
-        drive_pks = DSSContainer.objects.deletable().values_list('dss_envelopes__drives')
-        return Q(
-            pk__in=drive_pks
-        )
+
+        drive_pks = DSSContainer.objects.deletable().values_list("dss_envelopes__drives")
+        return Q(pk__in=drive_pks)
 
 
 class DSSContainerQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixin):
@@ -122,7 +117,9 @@ class DSSEnvelopeQuerySet(BaseQuerySet):
         :param kwargs:
         :return:
         """
-        return self.prefetch_related('drives',)
+        return self.prefetch_related(
+            "drives",
+        )
 
 
 class DSSFilesToImportQuerySet(BaseQuerySet):

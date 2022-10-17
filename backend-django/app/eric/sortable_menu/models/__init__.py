@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-from eric.sortable_menu.models.models import MenuEntry, MenuEntryParameter
 from eric.sortable_menu.models.handlers import *
+from eric.sortable_menu.models.models import MenuEntry, MenuEntryParameter

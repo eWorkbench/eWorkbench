@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ contains basic admin functionality for eric workbench plugins """
@@ -19,34 +19,42 @@ User = get_user_model()
 @admin.register(Plugin)
 class PluginAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
     class Media:
-        js = (
-            'ckeditor/ckeditor/ckeditor.js',
-        )
+        js = ("ckeditor/ckeditor/ckeditor.js",)
 
     list_display = (
-        'title',
-        'short_description',
-        'long_description',
-        'path',
+        "title",
+        "short_description",
+        "long_description",
+        "path",
     )
     list_filter = ()
-    search_fields = ('title', 'short_description',)
-    formfield_overrides = {
-        models.CharField: {'widget': TextInput(attrs={'size': '110'})}
-    }
+    search_fields = (
+        "title",
+        "short_description",
+    )
+    formfield_overrides = {models.CharField: {"widget": TextInput(attrs={"size": "110"})}}
     autocomplete_fields = (
-        'user_availability_selected_users',
-        'user_availability_selected_user_groups',
-        'responsible_users',
+        "user_availability_selected_users",
+        "user_availability_selected_user_groups",
+        "responsible_users",
     )
 
 
 @admin.register(PluginInstance)
 class PluginInstanceAdmin(CreatedAndModifiedByReadOnlyAdminMixin, admin.ModelAdmin):
-    list_display = ('title', 'created_by', 'created_at',)
-    list_filter = (
-        ProjectsFilter,
+    list_display = (
+        "title",
+        "created_by",
+        "created_at",
     )
-    search_fields = ('title', 'projects__name', 'rawdata',)
+    list_filter = (ProjectsFilter,)
+    search_fields = (
+        "title",
+        "projects__name",
+        "rawdata",
+    )
     inlines = (ModelPrivilegeInline,)
-    autocomplete_fields = ('plugin', 'projects',)
+    autocomplete_fields = (
+        "plugin",
+        "projects",
+    )

@@ -1,15 +1,16 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import os
-from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db.models import Model
+
 from django_changeset.models import RevisionModelMixin
+from PIL import Image
 
 from eric.core.models import disable_permission_checks
 from eric.shared_elements.models import File, UploadedFileEntry
@@ -30,7 +31,7 @@ def get_file_size(path):
 
 
 class Command(BaseCommand):
-    help = 'migrate files and file entries to correct relative paths'
+    help = "migrate files and file entries to correct relative paths"
 
     def handle(self, *args, **options):
         # monkey patch File save method
@@ -40,7 +41,7 @@ class Command(BaseCommand):
             with disable_permission_checks(File):
                 with disable_permission_checks(UploadedFileEntry):
                     # get all files
-                    files = File.objects.all().prefetch_related('file_entries')
+                    files = File.objects.all().prefetch_related("file_entries")
 
                     # and iterate over them
                     for file in files:

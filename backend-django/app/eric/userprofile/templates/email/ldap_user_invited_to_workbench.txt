@@ -1,0 +1,11 @@
+{% load i18n captureas %}
+
+{% blocktrans %}This e-mail has been automatically generated, please do not reply!{% endblocktrans %}
+
+{% blocktrans %}Dear {{ username }}!{% endblocktrans %}
+
+{% blocktrans %}We are sending you this automated e-mail as you have been invited to {{ workbench_title }} - {{ workbench_url }} - by {{ current_user }}, who added you to a {{ sending_element }}.{% endblocktrans %}
+
+{% blocktrans %}You can login with your TUM credentials at{% endblocktrans %}: {{ workbench_url }}
+
+{% blocktrans %}After your first login you will receive notifications about the elements you were added to.{% endblocktrans %}

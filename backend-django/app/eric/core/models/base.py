@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -9,12 +9,13 @@ from contextlib import contextmanager
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
 from django.db.models import Q
 from django.db.models.signals import *
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
+
 from django_userforeignkey.request import get_current_user
 
 from eric.core.models.utils import get_permission_name
@@ -22,8 +23,8 @@ from eric.site_preferences.models import options as site_preferences
 
 logger = logging.Logger(__name__)
 
-THREAD_LOCALS_ATTRIBUTE = '__thread_locals__'
-DISABLE_PERMISSION_CHECKS_ATTRIBUTE = 'disablePermissionChecks'
+THREAD_LOCALS_ATTRIBUTE = "__thread_locals__"
+DISABLE_PERMISSION_CHECKS_ATTRIBUTE = "disablePermissionChecks"
 
 
 def permission_checks_disabled(instance):
@@ -102,7 +103,7 @@ class DisableSignal:
         )
 
 
-class DisableSignals(object):
+class DisableSignals:
     """
     Temporarily disables all django signals
 
@@ -119,10 +120,14 @@ class DisableSignals(object):
     def __init__(self, disabled_signals=None):
         self.stashed_signals = defaultdict(list)
         self.disabled_signals = disabled_signals or [
-            pre_init, post_init,
-            pre_save, post_save,
-            pre_delete, post_delete,
-            pre_migrate, post_migrate,
+            pre_init,
+            post_init,
+            pre_save,
+            post_save,
+            pre_delete,
+            post_delete,
+            pre_migrate,
+            post_migrate,
         ]
 
     def __enter__(self):
@@ -152,7 +157,7 @@ class DisableSignals(object):
 
 
 class BaseModel(models.Model):
-    """ Abstract Base Class for all models
+    """Abstract Base Class for all models
 
     Defines a default ordering (primary key in descending order
     Defines .model_verbose_name() for a class (shortcut for cls._meta.verbose_name)
@@ -163,12 +168,12 @@ class BaseModel(models.Model):
         abstract = True
         # define default ordering, with newest first (based on the primary key)
         ordering = [
-            '-pk',
+            "-pk",
         ]
 
     @classmethod
     def model_verbose_name(cls):
-        """"
+        """ "
         :returns: the name of the current class as a string (cls._meta.verbose_name_plural)
         :rtype: string
         """
@@ -191,7 +196,7 @@ class BaseModel(models.Model):
         """
         # if we are working on a deferred proxy class, we first need to get
         # the real model class, so we can save a new instance if we need.
-        if getattr(cls, '_deferred', False):
+        if getattr(cls, "_deferred", False):
             cls = cls.__mro__[1]
 
         try:
@@ -218,7 +223,7 @@ class BaseModel(models.Model):
         Calls mixin_clean on all mixins of this model (only if mixin_clean method exists)
         """
         # call super-class clean() method
-        super(BaseModel, self).clean()  # empty by default
+        super().clean()  # empty by default
 
         classes = self.__class__.__bases__
 
@@ -226,7 +231,7 @@ class BaseModel(models.Model):
             if not issubclass(klass, BaseModel):
                 continue
 
-            mixin_clean = getattr(klass, 'mixin_clean', None)
+            mixin_clean = getattr(klass, "mixin_clean", None)
             if callable(mixin_clean):
                 mixin_clean(self)
 
@@ -238,7 +243,7 @@ class BaseModel(models.Model):
         :return: True if the element is editable, else False
         :rtype: bool
         """
-        if self.pk and hasattr(self.__class__.objects, 'editable'):
+        if self.pk and hasattr(self.__class__.objects, "editable"):
             return self.__class__.objects.editable().filter(pk=self.pk).exists()
 
         return True
@@ -251,7 +256,7 @@ class BaseModel(models.Model):
         :return: True if the element is deletable, else False
         :rtype: bool
         """
-        if self.pk and hasattr(self.__class__.objects, 'deletable'):
+        if self.pk and hasattr(self.__class__.objects, "deletable"):
             return self.__class__.objects.deletable().filter(pk=self.pk).exists()
 
         return True
@@ -264,7 +269,7 @@ class BaseModel(models.Model):
         :return: True if the element is viewable, else False
         :rtype: bool
         """
-        if self.pk and hasattr(self.__class__.objects, 'viewable'):
+        if self.pk and hasattr(self.__class__.objects, "viewable"):
             return self.__class__.objects.viewable().filter(pk=self.pk).exists()
 
         return True
@@ -277,7 +282,7 @@ class BaseModel(models.Model):
         :return: True if the element is trashable, else False
         :rtype: bool
         """
-        if self.pk and hasattr(self.__class__.objects, 'trashable'):
+        if self.pk and hasattr(self.__class__.objects, "trashable"):
             return self.__class__.objects.trashable().filter(pk=self.pk).exists()
 
         return True
@@ -290,7 +295,7 @@ class BaseModel(models.Model):
         :return: True if the element is restorable, else False
         :rtype: bool
         """
-        if self.pk and hasattr(self.__class__.objects, 'restorable'):
+        if self.pk and hasattr(self.__class__.objects, "restorable"):
             return self.__class__.objects.restorable().filter(pk=self.pk).exists()
 
         return True
@@ -301,7 +306,7 @@ class BaseModel(models.Model):
 
     # enforce string method to be implemented, else we will end up getting weird errors in the django rest serializers
     def __str__(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class LockMixin:
@@ -316,19 +321,17 @@ class LockMixin:
         """
         from eric.projects.models import ElementLock
 
-        return ElementLock.objects.for_model(
-            self.__class__, self.pk
-        ).filter(
+        return ElementLock.objects.for_model(self.__class__, self.pk).filter(
             Q(
-                locked_at__gte=timezone.now() - timezone.timedelta(
-                    minutes=site_preferences.element_lock_time_in_minutes),
-                webdav_lock=False
-            ) | Q(
-                locked_at__gte=timezone.now() - timezone.timedelta(
-                    minutes=site_preferences.element_lock_webdav_time_in_minutes),
-                webdav_lock=True
+                locked_at__gte=timezone.now()
+                - timezone.timedelta(minutes=site_preferences.element_lock_time_in_minutes),
+                webdav_lock=False,
             )
-
+            | Q(
+                locked_at__gte=timezone.now()
+                - timezone.timedelta(minutes=site_preferences.element_lock_webdav_time_in_minutes),
+                webdav_lock=True,
+            )
         )
 
     def has_lock(self):
@@ -339,10 +342,14 @@ class LockMixin:
         Whether this element is currently locked by another user or not
         :return:
         """
-        return self.get_lock_element().exclude(
-            # ignore if the element is locked by the current user
-            locked_by=get_current_user()
-        ).exists()
+        return (
+            self.get_lock_element()
+            .exclude(
+                # ignore if the element is locked by the current user
+                locked_by=get_current_user()
+            )
+            .exists()
+        )
 
     def lock(self, webdav=False):
         """
@@ -379,9 +386,7 @@ class LockMixin:
         """
         from eric.projects.models import ElementLock
 
-        ElementLock.objects.for_model(
-            self.__class__, self.pk
-        ).delete()
+        ElementLock.objects.for_model(self.__class__, self.pk).delete()
 
     def update_lock(self, lock, webdav=False):
         """
@@ -392,7 +397,7 @@ class LockMixin:
             lock.locked_at = timezone.now()
             lock.webdav_lock = webdav
             lock.save()
-        except IntegrityError as e:
+        except IntegrityError:
             # ticket-284549 requires some additional debugging,
             # log the current state if there's an error
 
@@ -400,17 +405,17 @@ class LockMixin:
 
             elements = ElementLock.objects.for_model(self.__class__, self.pk)
             logger.error("ERROR: Error while updating lock")
-            logger.error("ERROR: Currently there are {0} locks in place for this element".format(elements.count()))
+            logger.error(f"ERROR: Currently there are {elements.count()} locks in place for this element")
             i = 0
             for el in elements:
                 i = i + 1
                 logger.error(
-                    "    ElementLock {}: \n".format(i)
-                    + "        ElementLock-pk = {} \n".format(el.pk)
-                    + "        ElementLock-locked_at = {} \n".format(el.locked_at)
-                    + "        Parent-object_type = {} \n".format(el.content_type)
-                    + "        Parent-object_id = {} \n".format(el.object_id)
-                    + "        Element-__str__ = {}".format(el)
+                    f"    ElementLock {i}: \n"
+                    + f"        ElementLock-pk = {el.pk} \n"
+                    + f"        ElementLock-locked_at = {el.locked_at} \n"
+                    + f"        Parent-object_type = {el.content_type} \n"
+                    + f"        Parent-object_id = {el.object_id} \n"
+                    + f"        Element-__str__ = {el}"
                 )
 
         return lock
@@ -418,9 +423,7 @@ class LockMixin:
     def remove_all_locks(self, except_pk_list=None):
         from eric.projects.models import ElementLock
 
-        ElementLock.objects.for_model(
-            self.__class__, self.pk
-        ).exclude(pk__in=except_pk_list).delete()
+        ElementLock.objects.for_model(self.__class__, self.pk).exclude(pk__in=except_pk_list).delete()
 
 
 class BaseManager(models.Manager):
@@ -428,10 +431,11 @@ class BaseManager(models.Manager):
 
     This is the manager class all other managers should inherit from.
     """
+
     use_for_related_fields = True
 
 
-class SoftDeleteQuerySetMixin(object):
+class SoftDeleteQuerySetMixin:
     def not_deleted(self, *args, **kwargs):
         """
         Returns all not deleted objects (for soft delete)
@@ -473,7 +477,7 @@ class BaseQuerySet(models.QuerySet):
         :rtype: models.QuerySet
         """
         user = get_current_user()
-        if user.has_perm(get_permission_name(self.model, 'view')):
+        if user.has_perm(get_permission_name(self.model, "view")):
             return self.all()
         return self.none()
 
@@ -486,7 +490,7 @@ class BaseQuerySet(models.QuerySet):
         :rtype: models.QuerySet
         """
         user = get_current_user()
-        if user.has_perm(get_permission_name(self.model, 'change')):
+        if user.has_perm(get_permission_name(self.model, "change")):
             return self.all()
         return self.none()
 
@@ -499,7 +503,7 @@ class BaseQuerySet(models.QuerySet):
         :rtype: models.QuerySet
         """
         user = get_current_user()
-        if user.has_perm(get_permission_name(self.model, 'delete')):
+        if user.has_perm(get_permission_name(self.model, "delete")):
             return self.all()
         return self.none()
 
@@ -514,25 +518,26 @@ def auto_clean_on_save(sender, instance, *args, **kwargs):
      method for ModelSerializer
     """
     # ignore raw requests
-    if kwargs.get('raw'):
+    if kwargs.get("raw"):
         return
 
     instance.clean()
 
 
 @deconstructible
-class UploadToPathAndRename(object):
-    """ Automatically rename the uploaded file to a random UUID.{extension} """
+class UploadToPathAndRename:
+    """Automatically rename the uploaded file to a random UUID.{extension}"""
 
     def __init__(self, path):
         self.sub_path = path
 
     def __call__(self, instance, filename):
-        from uuid import uuid4
         import os
+        from uuid import uuid4
+
         # get filename extension
-        ext = filename.split('.')[-1]
+        ext = filename.split(".")[-1]
         # set filename as random string
-        filename = '{}.{}'.format(uuid4().hex, ext)
+        filename = f"{uuid4().hex}.{ext}"
         # return the whole path to the file
         return os.path.join(self.sub_path, filename)

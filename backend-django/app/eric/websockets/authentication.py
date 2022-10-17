@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.test import RequestFactory
@@ -7,9 +7,7 @@ from django.test import RequestFactory
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.settings import api_settings
 
-authenticators = [
-    auth() for auth in api_settings.DEFAULT_AUTHENTICATION_CLASSES
-]
+authenticators = [auth() for auth in api_settings.DEFAULT_AUTHENTICATION_CLASSES]
 
 
 def fake_rest_auth(auth_token, scope, *args, **kwargs):
@@ -29,7 +27,7 @@ def fake_rest_auth(auth_token, scope, *args, **kwargs):
             request_headers["HTTP_" + header_name] = header_value.decode()
 
         # add authorization header for rest framework
-        request_headers["HTTP_AUTHORIZATION"] = "Token {}".format(auth_token)
+        request_headers["HTTP_AUTHORIZATION"] = f"Token {auth_token}"
 
         # create a fake request
         request = RequestFactory().request(**request_headers)

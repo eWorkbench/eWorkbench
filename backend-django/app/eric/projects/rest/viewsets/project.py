@@ -1,20 +1,24 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from django_changeset.models import ChangeSet
-from django_userforeignkey.request import get_current_user
+
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from eric.core.rest.viewsets import BaseAuthenticatedModelViewSet, BaseAuthenticatedReadOnlyModelViewSet, \
-    DeletableViewSetMixIn
+from django_changeset.models import ChangeSet
+from django_userforeignkey.request import get_current_user
+
+from eric.core.rest.viewsets import (
+    BaseAuthenticatedModelViewSet,
+    BaseAuthenticatedReadOnlyModelViewSet,
+    DeletableViewSetMixIn,
+)
 from eric.projects.models import Project
 from eric.projects.rest.filters import ProjectFilter
-from eric.projects.rest.serializers import PublicUserSerializer, ProjectBreadcrumbSerializer, \
-    ProjectSerializerExtended
+from eric.projects.rest.serializers import ProjectBreadcrumbSerializer, ProjectSerializerExtended, PublicUserSerializer
 from eric.projects.rest.viewsets import ChangeSetViewSet
 from eric.shared_elements.models import CalendarAccess
 
@@ -22,13 +26,22 @@ from eric.shared_elements.models import CalendarAccess
 class ProjectUsersViewSet(BaseAuthenticatedReadOnlyModelViewSet):
     serializer_class = PublicUserSerializer
 
-    search_fields = ('username', 'email', 'first_name', 'last_name',)
+    search_fields = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+    )
     pagination_class = None
 
     def get_queryset(self):
-        if 'project_pk' in self.kwargs:
-            return Project.objects.viewable().filter(
-                pk=self.kwargs['project_pk']).first().assigned_users.select_related('userprofile')
+        if "project_pk" in self.kwargs:
+            return (
+                Project.objects.viewable()
+                .filter(pk=self.kwargs["project_pk"])
+                .first()
+                .assigned_users.select_related("userprofile")
+            )
 
 
 class ProjectBreadcrumbViewSet(BaseAuthenticatedReadOnlyModelViewSet):
@@ -39,8 +52,8 @@ class ProjectBreadcrumbViewSet(BaseAuthenticatedReadOnlyModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        if 'project_pk' in self.kwargs:
-            project = Project.objects.viewable().filter(pk=self.kwargs['project_pk']).first()
+        if "project_pk" in self.kwargs:
+            project = Project.objects.viewable().filter(pk=self.kwargs["project_pk"]).first()
 
             if not project:
                 return Project.objects.none()
@@ -51,22 +64,25 @@ class ProjectBreadcrumbViewSet(BaseAuthenticatedReadOnlyModelViewSet):
 
 
 class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
-    """ Handles projects. """
+    """Handles projects."""
 
     serializer_class = ProjectSerializerExtended
     filterset_class = ProjectFilter
-    search_fields = ('name', 'description',)
-    ordering_fields = ['pk', 'name', 'start_date', 'stop_date']
+    search_fields = (
+        "name",
+        "description",
+    )
+    ordering_fields = ["pk", "name", "start_date", "stop_date"]
 
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=["POST"])
     def duplicate(self, request, format=None, *args, **kwargs):
         """
         Duplicates the project with all its sub-projects. The duplicated instance will not have a parent project.
         """
 
-        project_object = Project.objects.viewable().get(pk=kwargs['pk'])
+        project_object = Project.objects.viewable().get(pk=kwargs["pk"])
         original_project_pk = project_object.pk
-        duplicate_metadata = request.data.get('duplicate_metadata', False)
+        duplicate_metadata = request.data.get("duplicate_metadata", False)
 
         # duplicates the project
         # change name to "Copy of" + project name
@@ -82,6 +98,7 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
 
         # duplicate all tasks assigned to the project
         from eric.shared_elements.models import Task
+
         tasks = Task.objects.viewable().filter(projects__in=[original_project_pk])
         if tasks:
             for task in tasks:
@@ -101,7 +118,7 @@ class ProjectViewSet(BaseAuthenticatedModelViewSet, DeletableViewSetMixIn):
 
 
 class ProjectChangeSetViewSet(ChangeSetViewSet):
-    """ ViewSet for generic changes on all project related models"""
+    """ViewSet for generic changes on all project related models"""
 
     def get_queryset(self):
         user = get_current_user()
@@ -109,12 +126,16 @@ class ProjectChangeSetViewSet(ChangeSetViewSet):
         if user.is_anonymous:
             return ChangeSet.objects.none()
 
-        project_pk = self.kwargs.get('project_pk', None)
+        project_pk = self.kwargs.get("project_pk", None)
         if not project_pk:
             return ChangeSet.objects.none()
 
-        project_ids = Project.objects.filter(pk=project_pk).first().get_descendants(include_self=True)\
-            .values_list('pk', flat=True)
+        project_ids = (
+            Project.objects.filter(pk=project_pk)
+            .first()
+            .get_descendants(include_self=True)
+            .values_list("pk", flat=True)
+        )
 
         # build a conditions list, where we will add more conditions with "OR"
         conditions = Q()
@@ -131,24 +152,15 @@ class ProjectChangeSetViewSet(ChangeSetViewSet):
                 # special case for CalendarAccess: it has no projects, so we can pass here
                 object_ids = []
             else:
-                object_ids = model.objects.viewable().for_project(
-                    project_pk,
-                    prefetched_project_ids=project_ids
-                )
+                object_ids = model.objects.viewable().for_project(project_pk, prefetched_project_ids=project_ids)
 
             # add conditions to existing conditions with OR
-            conditions = conditions | Q(
-                object_type=model.get_content_type(),
-                object_uuid__in=object_ids
-            )
+            conditions = conditions | Q(object_type=model.get_content_type(), object_uuid__in=object_ids)
 
         # query changesets with above conditions
-        return ChangeSet.objects.filter(
-            conditions
-        ).order_by(
-            '-date'
-        ).select_related(
-            'user', 'user__userprofile', 'object_type'
-        ).prefetch_related(
-            'change_records'
+        return (
+            ChangeSet.objects.filter(conditions)
+            .order_by("-date")
+            .select_related("user", "user__userprofile", "object_type")
+            .prefetch_related("change_records")
         )

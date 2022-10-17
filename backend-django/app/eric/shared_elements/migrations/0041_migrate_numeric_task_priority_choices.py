@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
 from django.db import migrations
+
 from django_changeset.models import RevisionModelMixin
 
 from eric.core.models import DisableSignals
 from eric.shared_elements.models.models import Task
-
 
 OLD_TASK_PRIORITY_VERY_HIGH = "VHIGH"
 OLD_TASK_PRIORITY_HIGH = "HIGH"

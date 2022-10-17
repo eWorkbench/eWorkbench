@@ -1,15 +1,17 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from unittest import mock
 
-import vobject
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.utils.timezone import now
+
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.test import APITestCase
+
+import vobject
 
 from eric.caldav.meeting_synchronizer import MeetingSynchronizer
 from eric.caldav.storage import Collection
@@ -20,55 +22,64 @@ from eric.shared_elements.tests.core import MeetingMixin, UserAttendsMeetingMixi
 
 User = get_user_model()
 
-COMMON_DATA = {
-    'HTTP_USER_AGENT': 'APITestClient',
-    'REMOTE_ADDR': '127.0.0.1'
-}
+COMMON_DATA = {"HTTP_USER_AGENT": "APITestClient", "REMOTE_ADDR": "127.0.0.1"}
 
-CALDAV_PATH = 'default'
+CALDAV_PATH = "default"
 
 
 class CollectionTest(APITestCase, UserMixin, UserAttendsMeetingMixin, AuthenticationMixin, MeetingMixin):
     def setUp(self):
-        user1 = User.objects.create_user(username='user1', password='secret', email='user1@test.local')
-        user2 = User.objects.create_user(username='user2', password='secret', email='user2@test.local')
+        user1 = User.objects.create_user(username="user1", password="secret", email="user1@test.local")
+        user2 = User.objects.create_user(username="user2", password="secret", email="user2@test.local")
 
-        permission = Permission.objects.get(codename='add_meeting_without_project')
+        permission = Permission.objects.get(codename="add_meeting_without_project")
         user1.user_permissions.add(permission)
         user2.user_permissions.add(permission)
 
-        token1 = self.login_and_return_token(user1.username, 'secret')
-        token2 = self.login_and_return_token(user2.username, 'secret')
+        token1 = self.login_and_return_token(user1.username, "secret")
+        token2 = self.login_and_return_token(user2.username, "secret")
 
         # Meeting where user1 is CREATOR/ORGANIZER
         self.meeting_created_by_user1, response = self.create_meeting_orm(
-            auth_token=token1, project_pk=None, title='Appointment created by user1',
-            description='', start_date=now(), end_date=now(),
-            **COMMON_DATA
+            auth_token=token1,
+            project_pk=None,
+            title="Appointment created by user1",
+            description="",
+            start_date=now(),
+            end_date=now(),
+            **COMMON_DATA,
         )
-        self.assertEquals(response.status_code, HTTP_201_CREATED, response.content.decode())
+        self.assertEqual(response.status_code, HTTP_201_CREATED, response.content.decode())
 
         # Meeting where user1 is ATTENDING
         self.meeting_where_user1_is_attending, response = self.create_meeting_orm(
-            auth_token=token2, project_pk=None, title='Appointment where user1 is attending',
-            description='', start_date=now(), end_date=now(),
+            auth_token=token2,
+            project_pk=None,
+            title="Appointment where user1 is attending",
+            description="",
+            start_date=now(),
+            end_date=now(),
             attending_users=[user1.pk],
-            **COMMON_DATA
+            **COMMON_DATA,
         )
-        self.assertEquals(response.status_code, HTTP_201_CREATED, response.content.decode())
+        self.assertEqual(response.status_code, HTTP_201_CREATED, response.content.decode())
 
         # Meeting that is not linked to user1
         self.meeting_not_linked_to_user1, response = self.create_meeting_orm(
-            auth_token=token2, project_pk=None, title='Appointment that is not linked to user1',
-            description='', start_date=now(), end_date=now(),
-            **COMMON_DATA
+            auth_token=token2,
+            project_pk=None,
+            title="Appointment that is not linked to user1",
+            description="",
+            start_date=now(),
+            end_date=now(),
+            **COMMON_DATA,
         )
-        self.assertEquals(response.status_code, HTTP_201_CREATED, response.content.decode())
+        self.assertEqual(response.status_code, HTTP_201_CREATED, response.content.decode())
 
         self.user1 = user1
 
-    @mock.patch('eric.caldav.models.querysets.get_current_user')
-    @mock.patch('eric.shared_elements.models.querysets.get_current_user')
+    @mock.patch("eric.caldav.models.querysets.get_current_user")
+    @mock.patch("eric.shared_elements.models.querysets.get_current_user")
     def test_attending_events_synced(self, mock_current_user1, mock_current_user2):
         mock_current_user1.return_value = self.user1
         mock_current_user2.return_value = self.user1
@@ -100,14 +111,12 @@ X-ALT-DESC;FMTTYPE=text/html:
 X-RADICALE-NAME:e99da6dd-e160-4768-81ab-3530d652a5c1-autogenerated.ics
 END:VEVENT"""
         with FakeRequest(), FakeRequestUser(self.user1):
-            input_event = VEventWrapper(
-                vobject.readOne(self.caldav_item_1.text)
-            )
+            input_event = VEventWrapper(vobject.readOne(self.caldav_item_1.text))
             sync = MeetingSynchronizer()
             sync.update_meeting(self.meeting_created_by_user1, input_event)
 
-    @mock.patch('eric.caldav.models.querysets.get_current_user')
-    @mock.patch('eric.shared_elements.models.querysets.get_current_user')
+    @mock.patch("eric.caldav.models.querysets.get_current_user")
+    @mock.patch("eric.shared_elements.models.querysets.get_current_user")
     def test_organized_events_synced(self, mock_current_user1, mock_current_user2):
         mock_current_user1.return_value = self.user1
         mock_current_user2.return_value = self.user1
@@ -116,8 +125,8 @@ END:VEVENT"""
         meeting_titles = read_meeting_titles_from_vobjects(items)
         self.assertIn(self.meeting_created_by_user1.title, meeting_titles)
 
-    @mock.patch('eric.caldav.models.querysets.get_current_user')
-    @mock.patch('eric.shared_elements.models.querysets.get_current_user')
+    @mock.patch("eric.caldav.models.querysets.get_current_user")
+    @mock.patch("eric.shared_elements.models.querysets.get_current_user")
     def test_unlinked_event_is_not_synced(self, mock_current_user1, mock_current_user2):
         mock_current_user1.return_value = self.user1
         mock_current_user2.return_value = self.user1
@@ -127,11 +136,5 @@ END:VEVENT"""
         self.assertNotIn(self.meeting_not_linked_to_user1.title, meeting_titles)
 
 
-
-
-
 def read_meeting_titles_from_vobjects(items):
-    return [
-        VEventWrapper(vobject.readOne(item.text)).read('summary')
-        for item in items.values()
-    ]
+    return [VEventWrapper(vobject.readOne(item.text)).read("summary") for item in items.values()]

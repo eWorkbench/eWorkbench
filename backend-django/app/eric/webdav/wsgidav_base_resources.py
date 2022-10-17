@@ -1,20 +1,24 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from hashlib import md5
 from mimetypes import guess_type
 from urllib.parse import quote
 
-from eric.webdav.wsgidav_utils import rfc3339_date, rfc1123_date, safe_join
+from eric.webdav.wsgidav_utils import rfc1123_date, rfc3339_date, safe_join
 
 
-class BaseDavResource(object):
-    ALL_PROPS = ['getcontentlength', 'creationdate', 'getlastmodified', 'resourcetype', 'displayname']
+class BaseDavResource:
+    ALL_PROPS = ["getcontentlength", "creationdate", "getlastmodified", "resourcetype", "displayname"]
 
     LIVE_PROPERTIES = [
-        '{DAV:}getetag', '{DAV:}getcontentlength', '{DAV:}creationdate',
-        '{DAV:}getlastmodified', '{DAV:}resourcetype', '{DAV:}displayname'
+        "{DAV:}getetag",
+        "{DAV:}getcontentlength",
+        "{DAV:}creationdate",
+        "{DAV:}getlastmodified",
+        "{DAV:}resourcetype",
+        "{DAV:}displayname",
     ]
 
     def __init__(self, path):
@@ -33,7 +37,7 @@ class BaseDavResource(object):
     @property
     def displayname(self):
         if len(self.path) == 0:
-            return '/'
+            return "/"
         if not self.path:
             return None
         return self.path[-1]
@@ -58,8 +62,7 @@ class BaseDavResource(object):
         # in case of infinity.
         if depth != 0:
             for child in self.get_children():
-                for desc in child.get_descendants(depth=depth - 1, include_self=True):
-                    yield desc
+                yield from child.get_descendants(depth=depth - 1, include_self=True)
 
     @property
     def getcontentlength(self):
@@ -110,11 +113,10 @@ class BaseDavResource(object):
         # in case of infinity.
         if depth != 0:
             for child in self.get_children():
-                child.copy(self.clone(safe_join(destination.get_path(), child.displayname)),
-                           depth=depth - 1)
+                child.copy(self.clone(safe_join(destination.get_path(), child.displayname)), depth=depth - 1)
 
     def copy_object(self, destination):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def move(self, destination):
         if self.is_collection:
@@ -138,7 +140,7 @@ class BaseDavResource(object):
         return self.__class__(*args, **kwargs)
 
     def move_object(self, destination):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def write(self, content, temp_file=None):
         raise NotImplementedError()
@@ -172,7 +174,7 @@ class BaseDavResource(object):
         raise NotImplementedError()
 
 
-class MetaEtagMixIn(object):
+class MetaEtagMixIn:
     @property
     def etag(self):
         """Calculate an etag for this resource. The default implementation uses an md5 sub of the

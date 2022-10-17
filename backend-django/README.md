@@ -33,7 +33,6 @@ Those endpoints might be called
 * via http://0.0.0.0:8000/openapi/swagger/ in a Docker development setup
 * or via https://mydomain.com/openapi/swagger/ in a production setup
 
-You will only see those endpoints that are accessible by the currently logged-in user.
 You may log in
 * via the admin interface (if you are using a staff or superuser account)
 * or via the "Django Login" link in the Swagger UI which will redirect you to a login page specifically for the API.

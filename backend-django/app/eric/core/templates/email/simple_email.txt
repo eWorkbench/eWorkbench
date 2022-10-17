@@ -6,3 +6,9 @@ Dear {{ user }}!
 {% captureas workbench_title %}{% site_preferences 'site_name' %}{% endcaptureas %}
 {% blocktrans %}Please visit {{ workbench_title }} for further details:{% endblocktrans %}
 {% site_url %}
+
+Please do not reply to this e-mail. If you want to contact the TUM Workbench team, please use the following e-mail address: workbench@ub.tum.de
+
+Technical University of Munich
+University Library
+TUM Research Service Center

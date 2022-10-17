@@ -5,33 +5,6 @@
 
 <ng-container *transloco="let t">
   <eworkbench-header [title]="title">
-    <ng-container slot="search">
-      <div class="flex items-center">
-        <div class="search-input">
-          <div class="input-group search-input-group">
-            <input
-              type="text"
-              class="form-control ewb-input"
-              id="search-header"
-              name="search-header"
-              [formControl]="searchControl"
-              [placeholder]="t('notes.header.search.placeholder')"
-            />
-            <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
-              <eworkbench-icon className="wb-search"></eworkbench-icon>
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm bg-transparent clear-input"
-              (click)="searchControl.patchValue(null)"
-              *ngIf="searchControl.value"
-            >
-              <eworkbench-icon className="wb-remove"></eworkbench-icon>
-            </button>
-          </div>
-        </div>
-      </div>
-    </ng-container>
     <ng-container slot="elements">
       <button class="btn ewb-button-big ewb-button-background" (click)="openNewModal()">
         <eworkbench-icon className="wb-plus-circle"></eworkbench-icon> {{ t('notes.new') }}
@@ -57,6 +30,22 @@
         <div class="space-x-2">
           <div *ngIf="!filtersChanged" class="text-sm text-tum-info-color">
             {{ t('filterHeader.noFilters') }}
+          </div>
+
+          <div
+            *ngIf="searchControl.value"
+            class="bg-tum-primary hover:bg-tum-primary-hover text-white py-0.5 px-2.5 rounded-full inline-flex justify-between items-center"
+          >
+            <span class="text-sm mr-2">{{ t('notes.filter.searchBy.label') }} "{{ searchControl.value }}"</span>
+            <button
+              type="button"
+              class="btn ewb-button-small text-white"
+              [tooltip]="t('filterHeader.chip.tooltip.remove')"
+              containerClass="tooltip-sm"
+              (click)="searchControl.setValue(null)"
+            >
+              <eworkbench-icon className="wb-remove"></eworkbench-icon>
+            </button>
           </div>
 
           <div
@@ -153,6 +142,35 @@
         (resetFilters)="onResetFilters()"
         (saveFilters)="onSaveFilters($event)"
       >
+        <div>
+          <label for="search-filter" class="text-base font-bold">{{ t('notes.filter.searchBy.label') }}</label>
+          <div class="flex mt-4">
+            <div class="search-input">
+              <div class="input-group search-input-group">
+                <input
+                  type="text"
+                  class="form-control ewb-input"
+                  id="search-filter"
+                  name="search-filter"
+                  [formControl]="searchControl"
+                  [placeholder]="t('notes.filter.searchBy.placeholder')"
+                />
+                <button type="button" class="btn btn-sm bg-transparent clear-input" *ngIf="!searchControl.value">
+                  <eworkbench-icon className="wb-search"></eworkbench-icon>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm bg-transparent clear-input"
+                  (click)="searchControl.patchValue(null)"
+                  *ngIf="searchControl.value"
+                >
+                  <eworkbench-icon className="wb-remove"></eworkbench-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div>
           <label for="users-filter" class="text-base font-bold">{{ t('plugins.filter.createdBy.label') }}</label>
           <div class="mt-4">

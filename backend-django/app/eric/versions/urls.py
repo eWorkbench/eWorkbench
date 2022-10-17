@@ -1,10 +1,11 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ URL Configuration for versions """
 from django.conf.urls import include
 from django.urls import re_path
+
 from rest_framework_nested import routers
 
 from eric.core.rest.routers import get_api_router
@@ -12,8 +13,7 @@ from eric.dmp.rest.viewsets import DmpViewSet
 from eric.labbooks.rest.viewsets import LabBookViewSet
 from eric.pictures.rest.viewsets import PictureViewSet
 from eric.plugins.rest.viewsets import PluginInstanceViewSet
-from eric.shared_elements.rest.viewsets import ContactViewSet, NoteViewSet, TaskViewSet, \
-    MeetingViewSet, FileViewSet
+from eric.shared_elements.rest.viewsets import ContactViewSet, FileViewSet, MeetingViewSet, NoteViewSet, TaskViewSet
 from eric.versions.rest.viewsets import VersionViewSet
 
 router = get_api_router()
@@ -24,21 +24,21 @@ def add_sub_urls(endpoint, viewset, model_name):
     router.register(endpoint, viewset, basename=model_name)
 
     sub_router = routers.NestedSimpleRouter(router, endpoint, lookup=model_name)
-    sub_router.register(r'versions', VersionViewSet, basename='%s-version'.format(model_name))
+    sub_router.register(r"versions", VersionViewSet, basename=f"{model_name}-version")
 
     urls.extend(sub_router.urls)
 
 
-add_sub_urls(r'contacts', ContactViewSet, 'contact')
-add_sub_urls(r'tasks', TaskViewSet, 'task')
-add_sub_urls(r'notes', NoteViewSet, 'note')
-add_sub_urls(r'meetings', MeetingViewSet, 'meeting')
-add_sub_urls(r'pictures', PictureViewSet, 'picture')
-add_sub_urls(r'files', FileViewSet, 'file')
-add_sub_urls(r'labbooks', LabBookViewSet, 'labbook')
-add_sub_urls(r'dmps', DmpViewSet, 'dmp')
-add_sub_urls(r'plugininstances', PluginInstanceViewSet, 'plugininstance')
+add_sub_urls(r"contacts", ContactViewSet, "contact")
+add_sub_urls(r"tasks", TaskViewSet, "task")
+add_sub_urls(r"notes", NoteViewSet, "note")
+add_sub_urls(r"meetings", MeetingViewSet, "meeting")
+add_sub_urls(r"pictures", PictureViewSet, "picture")
+add_sub_urls(r"files", FileViewSet, "file")
+add_sub_urls(r"labbooks", LabBookViewSet, "labbook")
+add_sub_urls(r"dmps", DmpViewSet, "dmp")
+add_sub_urls(r"plugininstances", PluginInstanceViewSet, "plugininstance")
 
 urlpatterns = [
-    re_path(r'^', include(urls)),
+    re_path(r"^", include(urls)),
 ]

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 """ contains basic admin functionality for eric workbench notifications """
@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.forms import SimpleArrayField
 
-from eric.notifications.models import NotificationConfiguration, Notification
+from eric.notifications.models import Notification, NotificationConfiguration
 
 User = get_user_model()
 
@@ -16,20 +16,17 @@ User = get_user_model()
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = (
-        'title',
-        'created_by',
-        'created_at',
-        'sent',
-        'processed',
+        "title",
+        "created_by",
+        "created_at",
+        "sent",
+        "processed",
     )
-    list_filter = (
-        ('notification_type', admin.AllValuesFieldListFilter),
-        ('processed', admin.BooleanFieldListFilter)
-    )
-    raw_id_fields = ('user',)
+    list_filter = (("notification_type", admin.AllValuesFieldListFilter), ("processed", admin.BooleanFieldListFilter))
+    raw_id_fields = ("user",)
     search_fields = (
-        'title',
-        'message',
+        "title",
+        "message",
     )
 
 
@@ -37,18 +34,18 @@ class NotificationConfigurationAdminForm(forms.ModelForm):
     allowed_notifications = SimpleArrayField(forms.CharField(), widget=forms.Textarea)
 
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = NotificationConfiguration
 
 
 @admin.register(NotificationConfiguration)
 class NotificationConfigurationAdmin(admin.ModelAdmin):
     form = NotificationConfigurationAdminForm
-    list_display = ('user',)
-    raw_id_fields = ('user',)
+    list_display = ("user",)
+    raw_id_fields = ("user",)
     search_fields = (
-        'user__email',
-        'user__username',
+        "user__email",
+        "user__username",
         "user__userprofile__last_name",
     )
-    readonly_fields = ('user', )
+    readonly_fields = ("user",)

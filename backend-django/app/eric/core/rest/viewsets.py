@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import os.path as path
@@ -10,12 +9,14 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.timezone import datetime
-from django_changeset.models import RevisionModelMixin
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, filters, permissions, status
+
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
+
+from django_changeset.models import RevisionModelMixin
+from django_filters.rest_framework import DjangoFilterBackend
 from weasyprint import HTML
 
 from eric.jwt_auth.jwt_utils import build_expiring_jwt_url
@@ -27,6 +28,7 @@ class BaseViewSetMixin:
     Represents an abstract viewset which automatically adds filter_backends (DjangoFilterBackend, FTSSearchFilter,
     OrderingFilter), permission class (IsAuthenticated), and a pagination_class.
     """
+
     # default filter backends
     filter_backends = (
         FTSSearchFilter,
@@ -38,7 +40,7 @@ class BaseViewSetMixin:
     # activate pagination
     pagination_class = LimitOffsetPagination
     # set default ordering fields to the PK
-    ordering_fields = ('pk',)
+    ordering_fields = ("pk",)
 
 
 class BaseGenericViewSet(BaseViewSetMixin, viewsets.GenericViewSet):
@@ -54,7 +56,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     """
 
     def create(self, request, force_request_data=None, *args, **kwargs):
-        """ Creates a new element. """
+        """Creates a new element."""
 
         # force_request_data:
         #   JSONField doesn't parse JSON data sent via API, therefore it can be necessary
@@ -77,7 +79,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         return response
 
     def update(self, request, force_request_data=None, *args, **kwargs):
-        """ Updates an existing element. """
+        """Updates an existing element."""
 
         # force_request_data:
         #   JSONField doesn't parse JSON data sent via API, therefore it can be necessary
@@ -87,13 +89,13 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         request_data = request.data if force_request_data is None else force_request_data
 
         # the following code is from MOdelViewSet.update
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request_data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
+        if getattr(instance, "_prefetched_objects_cache", None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
@@ -119,8 +121,8 @@ class BaseAuthenticatedModelViewSet(BaseViewSetMixin, BaseModelViewSet):
         :rtype: QuerySet
         """
         # only apply filters for the action "list"
-        if self.action == 'list':
-            return super(BaseAuthenticatedModelViewSet, self).filter_queryset(qs)
+        if self.action == "list":
+            return super().filter_queryset(qs)
 
         return qs
 
@@ -132,14 +134,14 @@ class BaseAuthenticatedModelViewSet(BaseViewSetMixin, BaseModelViewSet):
             instance.delete()
 
 
-class DeletableViewSetMixIn(object):
+class DeletableViewSetMixIn:
     """
     Viewset Mixin providing soft-delete functionality
     """
 
-    @action(detail=True, methods=['PATCH'])
+    @action(detail=True, methods=["PATCH"])
     def soft_delete(self, request, pk=None):
-        """ Trashes the element. """
+        """Trashes the element."""
 
         obj = self.get_object()
         obj.deleted = True
@@ -147,9 +149,9 @@ class DeletableViewSetMixIn(object):
 
         return Response(self.get_serializer(instance=obj).data)
 
-    @action(detail=True, methods=['PATCH'])
+    @action(detail=True, methods=["PATCH"])
     def restore(self, request, pk=None):
-        """ Restores a trashed element. """
+        """Restores a trashed element."""
 
         obj = self.get_object()
         obj.deleted = False
@@ -158,12 +160,12 @@ class DeletableViewSetMixIn(object):
         return Response(self.get_serializer(instance=obj).data)
 
 
-class ExportableViewSetMixIn(object):
+class ExportableViewSetMixIn:
     """
     ViewSet Mixin providing export functionality as a detail route
     """
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=["GET"])
     def get_export_link(self, request, pk=None):
         """
         Generates a link with a JWT for the export endpoint.
@@ -173,15 +175,13 @@ class ExportableViewSetMixIn(object):
         # try to get the object to force a permission check
         self.get_object()
 
-        path = request.path.replace('get_export_link', 'export')
+        path = request.path.replace("get_export_link", "export")
 
-        return Response({
-            'url': build_expiring_jwt_url(request, path)
-        })
+        return Response({"url": build_expiring_jwt_url(request, path)})
 
-    @action(detail=True, methods=['GET'], url_path="export")
+    @action(detail=True, methods=["GET"], url_path="export")
     def export(self, request, pk=None):
-        """ Exports the object as PDF file. """
+        """Exports the object as PDF file."""
 
         if request.user.is_anonymous:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
@@ -190,20 +190,18 @@ class ExportableViewSetMixIn(object):
 
         # verify that the model has export_template set
         if not hasattr(obj._meta, "export_template"):
-            return Response({
-                "error": "Model {} does not define export_template in Meta Class".format(obj.__class__.__name__)
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": f"Model {obj.__class__.__name__} does not define export_template in Meta Class"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # define template and output filename
         filepath = obj._meta.export_template
-        filename = "{basename}-{pk}.pdf".format(
-            basename=path.splitext(path.basename(filepath))[0],
-            pk=obj.pk
-        )
+        filename = f"{path.splitext(path.basename(filepath))[0]}-{obj.pk}.pdf"
 
         # if the class to be exported is a LabBook we need to provide more data due to
         # child elements of LabBooks and Sections
-        if obj.__class__.__name__ == 'LabBook':
+        if obj.__class__.__name__ == "LabBook":
             # get all viewable child_elements, that's all in the labbook and all in all sections
             labbook_child_elements = obj.child_elements.viewable()
 
@@ -227,36 +225,33 @@ class ExportableViewSetMixIn(object):
                     child_elements_to_remove.append(child_element.pk)
 
             # filter out the child elements which are in sections to get the top level LabBook child elements
-            labbook_child_elements = labbook_child_elements.exclude(
-                pk__in=child_elements_to_remove
-            )
+            labbook_child_elements = labbook_child_elements.exclude(pk__in=child_elements_to_remove)
 
             # provide a context for rendering including labbook_child_elements and section_child_elements
             context = {
-                'instance': obj,
-                'now': datetime.now(),
-                'labbook_child_elements': labbook_child_elements,
-                'section_child_elements': section_child_elements
+                "instance": obj,
+                "now": datetime.now(),
+                "labbook_child_elements": labbook_child_elements,
+                "section_child_elements": section_child_elements,
             }
         # provide a context for rendering of all other classes then LabBooks
         else:
-            context = {
-                'instance': obj,
-                'now': datetime.now()
-            }
+            context = {"instance": obj, "now": datetime.now()}
 
         # render the HTML to a string
         export = render_to_string(filepath, context)
         # and convert it into a PDF document
-        pdf_document = HTML(string=force_text(export).encode('UTF-8'), ).render()
+        pdf_document = HTML(
+            string=force_text(export).encode("UTF-8"),
+        ).render()
         export = pdf_document.write_pdf()
 
         # finally, respond with the PDF document
         response = HttpResponse(export)
         # inline content -> enables displaying the file in the browser
-        response['Content-Disposition'] = 'inline; filename="{}"'.format(filename)
+        response["Content-Disposition"] = f'inline; filename="{filename}"'
         # Deactivate debug toolbar by setting content type != text/html
-        response['Content-Type'] = 'application/pdf;'
+        response["Content-Type"] = "application/pdf;"
 
         return response
 
@@ -267,8 +262,13 @@ class BaseAuthenticatedReadOnlyModelViewSet(BaseViewSetMixin, viewsets.ReadOnlyM
     """
 
 
-class BaseAuthenticatedUpdateOnlyModelViewSet(BaseViewSetMixin, viewsets.GenericViewSet, viewsets.mixins.ListModelMixin,
-                                              viewsets.mixins.RetrieveModelMixin, viewsets.mixins.UpdateModelMixin):
+class BaseAuthenticatedUpdateOnlyModelViewSet(
+    BaseViewSetMixin,
+    viewsets.GenericViewSet,
+    viewsets.mixins.ListModelMixin,
+    viewsets.mixins.RetrieveModelMixin,
+    viewsets.mixins.UpdateModelMixin,
+):
     """
     Represents an abstract update only viewset
     """

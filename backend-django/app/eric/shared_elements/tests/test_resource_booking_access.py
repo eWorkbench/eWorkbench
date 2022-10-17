@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import unittest
@@ -7,6 +7,7 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+
 from rest_framework.test import APITestCase
 
 from eric.core.tests.test_utils import CommonTestMixin, FakeRequest, FakeRequestUser, aware_dt
@@ -21,31 +22,44 @@ User = get_user_model()
 
 
 class AllResourceBookingAccessTest(
-    APITestCase, CommonTestMixin, HelperMixin,
-    ResourceBookingMixin, AuthenticationMixin, MeetingMixin, ModelPrivilegeMixin,
+    APITestCase,
+    CommonTestMixin,
+    HelperMixin,
+    ResourceBookingMixin,
+    AuthenticationMixin,
+    MeetingMixin,
+    ModelPrivilegeMixin,
 ):
     """
     Tests access and limitation to resource booking data (AllResourceBookingViewSet).
     """
 
     def setUp(self):
-        self.user1, self.token1 = self.create_user_and_log_in(username='user1', groups=['User'])
-        self.user2, self.token2 = self.create_user_and_log_in(username='user2', groups=['User'])
-        self.superuser, self.superuser_token = self.create_user_and_log_in(username='superuser', is_superuser=True)
+        self.user1, self.token1 = self.create_user_and_log_in(username="user1", groups=["User"])
+        self.user2, self.token2 = self.create_user_and_log_in(username="user2", groups=["User"])
+        self.superuser, self.superuser_token = self.create_user_and_log_in(username="superuser", is_superuser=True)
 
         with FakeRequest(), FakeRequestUser(self.superuser):
-            self.resource1 = Resource.objects.create(name='Test Resource 1', description='Test', type=Resource.ROOM)
+            self.resource1 = Resource.objects.create(name="Test Resource 1", description="Test", type=Resource.ROOM)
 
     def test_full_details_of_own_booking(self):
         # user1 creates some resource bookings
         with FakeRequest(), FakeRequestUser(self.user1):
             meeting1 = Meeting.objects.create(
-                title='Meeting1', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>', location='Here', resource=self.resource1,
+                title="Meeting1",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>",
+                location="Here",
+                resource=self.resource1,
             )
             meeting2 = Meeting.objects.create(
-                title='Meeting2', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Alle meine</h1><h2>Entchen</h2>', location='Over there', resource=self.resource1,
+                title="Meeting2",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Alle meine</h1><h2>Entchen</h2>",
+                location="Over there",
+                resource=self.resource1,
             )
 
         # check that user1 can read all data
@@ -59,8 +73,12 @@ class AllResourceBookingAccessTest(
         with FakeRequest(), FakeRequestUser(self.user1):
             # user1 creates a resource booking
             meeting = Meeting.objects.create(
-                title='Meeting1', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>', location='Here', resource=self.resource1,
+                title="Meeting1",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>",
+                location="Here",
+                resource=self.resource1,
             )
             # adds user2 as attending user
             UserAttendsMeeting.objects.create(user=self.user2, meeting=meeting)
@@ -75,8 +93,12 @@ class AllResourceBookingAccessTest(
         with FakeRequest(), FakeRequestUser(self.user1):
             # user1 creates a resource booking
             meeting = Meeting.objects.create(
-                title='Meeting1', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>', location='Here', resource=self.resource1,
+                title="Meeting1",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>",
+                location="Here",
+                resource=self.resource1,
             )
 
         # check that user1 can get limited data only
@@ -89,15 +111,22 @@ class AllResourceBookingAccessTest(
         with FakeRequest(), FakeRequestUser(self.user1):
             # user1 creates a resource booking
             meeting = Meeting.objects.create(
-                title='My Appointment Title', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>', location='Rainbow Road', resource=self.resource1,
+                title="My Appointment Title",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>",
+                location="Rainbow Road",
+                resource=self.resource1,
             )
             # adds user2 as attending user
             UserAttendsMeeting.objects.create(user=self.user2, meeting=meeting)
             # but denies view privilege
             self.set_model_privilege_for_user(
-                token=self.token1, endpoint='meetings', pk=meeting.pk,
-                user=self.user2, view_privilege=ModelPrivilege.DENY,
+                token=self.token1,
+                endpoint="meetings",
+                pk=meeting.pk,
+                user=self.user2,
+                view_privilege=ModelPrivilege.DENY,
             )
 
         # check that user2 can get limited data only
@@ -110,8 +139,12 @@ class AllResourceBookingAccessTest(
         with FakeRequest(), FakeRequestUser(self.user1):
             # user1 creates a resource booking
             meeting = Meeting.objects.create(
-                title='Meeting1', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>', location='Here', resource=self.resource1,
+                title="Meeting1",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>",
+                location="Here",
+                resource=self.resource1,
             )
 
         # check that superuser can read all data
@@ -127,22 +160,30 @@ class AllResourceBookingAccessTest(
         with FakeRequest(), FakeRequestUser(self.superuser):
             for i in range(0, booking_count):
                 Meeting.objects.create(
-                    title=f'Meeting{i}', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                    text='Test', location='Paradise', resource=self.resource1,
+                    title=f"Meeting{i}",
+                    date_time_start=timezone.now(),
+                    date_time_end=timezone.now(),
+                    text="Test",
+                    location="Paradise",
+                    resource=self.resource1,
                 )
 
         # check that there is no pagination
         response = self.rest_get_all_resourcebookings(self.superuser_token)
         parsed_response = self.parse_response(response)
-        self.assertNotIn('count', parsed_response)
+        self.assertNotIn("count", parsed_response)
         self.assertTrue(booking_count, len(parsed_response))
 
     def test_no_deleted_bookings_shown(self):
         # user1 creates a resource booking and deletes it
         with FakeRequest(), FakeRequestUser(self.user1):
             Meeting.objects.create(
-                title='Deleted Booking', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='Abc', location='Here', resource=self.resource1,
+                title="Deleted Booking",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="Abc",
+                location="Here",
+                resource=self.resource1,
                 deleted=True,
             )
 
@@ -155,8 +196,12 @@ class AllResourceBookingAccessTest(
         # user1 creates a resource booking
         with FakeRequest(), FakeRequestUser(self.user1):
             Meeting.objects.create(
-                title='Booking', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='Abc', location='Here', resource=self.resource1,
+                title="Booking",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="Abc",
+                location="Here",
+                resource=self.resource1,
             )
 
         # superuser deletes the resource
@@ -173,8 +218,11 @@ class AllResourceBookingAccessTest(
         # user1 creates an appointment without a resource
         with FakeRequest(), FakeRequestUser(self.user1):
             Meeting.objects.create(
-                title='My Dentist Appointment', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='Oh no', location='Ambulance1',
+                title="My Dentist Appointment",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="Oh no",
+                location="Ambulance1",
             )
 
         # check that the appointment is not shown
@@ -183,35 +231,41 @@ class AllResourceBookingAccessTest(
         self.assertEqual(0, len(parsed_response))
 
     def assert_full_meeting_response(self, meeting, api_response):
-        self.assertEqual(meeting.title, api_response.get('title'))
-        self.assertEqual(str(meeting.pk), api_response.get('pk'))
-        self.assertEqual(meeting.date_time_start, datetime.fromisoformat(api_response.get('date_time_start')))
-        self.assertEqual(meeting.date_time_end, datetime.fromisoformat(api_response.get('date_time_end')))
-        self.assertEqual(meeting.location, api_response.get('location'))
-        self.assertEqual(str(meeting.resource_id), api_response.get('resource_pk'))
-        self.assertEqual(meeting.text, api_response.get('text'))
+        self.assertEqual(meeting.title, api_response.get("title"))
+        self.assertEqual(str(meeting.pk), api_response.get("pk"))
+        self.assertEqual(meeting.date_time_start, datetime.fromisoformat(api_response.get("date_time_start")))
+        self.assertEqual(meeting.date_time_end, datetime.fromisoformat(api_response.get("date_time_end")))
+        self.assertEqual(meeting.location, api_response.get("location"))
+        self.assertEqual(str(meeting.resource_id), api_response.get("resource_pk"))
+        self.assertEqual(meeting.text, api_response.get("text"))
 
     def assert_limited_meeting_response(self, meeting, api_response):
         # anonymized data (fields contained for compatibility)
-        self.assertEqual('Booked', api_response.get('title'))
-        self.assertEqual('ANONYMOUS', api_response.get('pk'))
-        self.assertTrue('Booked from' in api_response.get('display'))
-        self.assertNotIn(meeting.title, api_response.get('display'))
+        self.assertEqual("Booked", api_response.get("title"))
+        self.assertEqual("ANONYMOUS", api_response.get("pk"))
+        self.assertTrue("Booked from" in api_response.get("display"))
+        self.assertNotIn(meeting.title, api_response.get("display"))
 
         # public data
-        self.assertEqual(meeting.date_time_start, datetime.fromisoformat(api_response.get('date_time_start')))
-        self.assertEqual(meeting.date_time_end, datetime.fromisoformat(api_response.get('date_time_end')))
+        self.assertEqual(meeting.date_time_start, datetime.fromisoformat(api_response.get("date_time_start")))
+        self.assertEqual(meeting.date_time_end, datetime.fromisoformat(api_response.get("date_time_end")))
 
         # check fields with allow-list
         allow_list = [
-            'title', 'display', 'pk',
-            'date_time_start', 'date_time_end',
-            'content_type', 'content_type_model',
+            "title",
+            "display",
+            "pk",
+            "date_time_start",
+            "date_time_end",
+            "content_type",
+            "content_type_model",
         ]
         block_list = [
-            'location', 'text',
-            'attending_users', 'attending_contacts',
-            'url',
+            "location",
+            "text",
+            "attending_users",
+            "attending_contacts",
+            "url",
         ]
         for key, value in api_response.items():
             self.assertIn(key, allow_list)
@@ -219,59 +273,68 @@ class AllResourceBookingAccessTest(
 
 
 class AllResourceBookingFilterTest(
-    APITestCase, CommonTestMixin, HelperMixin,
-    ResourceBookingMixin, AuthenticationMixin, MeetingMixin, ModelPrivilegeMixin,
+    APITestCase,
+    CommonTestMixin,
+    HelperMixin,
+    ResourceBookingMixin,
+    AuthenticationMixin,
+    MeetingMixin,
+    ModelPrivilegeMixin,
 ):
     """
     Tests filters of the AllResourceBookingViewSet.
     """
 
     def setUp(self):
-        self.user1, self.token1 = self.create_user_and_log_in(username='user1', groups=['User'])
-        self.user2, self.token2 = self.create_user_and_log_in(username='user2', groups=['User'])
-        self.superuser, self.superuser_token = self.create_user_and_log_in(username='superuser', is_superuser=True)
+        self.user1, self.token1 = self.create_user_and_log_in(username="user1", groups=["User"])
+        self.user2, self.token2 = self.create_user_and_log_in(username="user2", groups=["User"])
+        self.superuser, self.superuser_token = self.create_user_and_log_in(username="superuser", is_superuser=True)
 
         # superuser creates global resources
         with FakeRequest(), FakeRequestUser(self.superuser):
-            self.resource1 = Resource.objects.create(name='Test Resource 1', description='Test', type=Resource.ROOM)
-            self.resource2 = Resource.objects.create(name='Test Resource 2', description='Test', type=Resource.ROOM)
+            self.resource1 = Resource.objects.create(name="Test Resource 1", description="Test", type=Resource.ROOM)
+            self.resource2 = Resource.objects.create(name="Test Resource 2", description="Test", type=Resource.ROOM)
 
         # user1 creates meetings
         with FakeRequest(), FakeRequestUser(self.user1):
             self.meeting1 = Meeting.objects.create(
-                title='First Meeting', text='x', resource=self.resource1,
+                title="First Meeting",
+                text="x",
+                resource=self.resource1,
                 date_time_start=aware_dt(year=2020, month=1, day=1),
                 date_time_end=aware_dt(year=2020, month=1, day=1, hour=23, minute=59, second=59),
             )
             self.meeting2 = Meeting.objects.create(
-                title='Second Meeting', text='x', resource=self.resource2,
+                title="Second Meeting",
+                text="x",
+                resource=self.resource2,
                 date_time_start=aware_dt(year=2020, month=1, day=2),
                 date_time_end=aware_dt(year=2020, month=1, day=2, hour=23, minute=59, second=59),
             )
 
     def test_resource_filter(self):
         # no filter (value) -> should find all bookings
-        self.assert_result_for_filter('', [self.meeting1, self.meeting2])
-        self.assert_result_for_filter('?resource=', [self.meeting1, self.meeting2])
+        self.assert_result_for_filter("", [self.meeting1, self.meeting2])
+        self.assert_result_for_filter("?resource=", [self.meeting1, self.meeting2])
 
         # filter by resource PK gets correct resource
-        self.assert_result_for_filter(f'?resource={self.resource1.pk}', [self.meeting1])
-        self.assert_result_for_filter(f'?resource={self.resource2.pk}', [self.meeting2])
+        self.assert_result_for_filter(f"?resource={self.resource1.pk}", [self.meeting1])
+        self.assert_result_for_filter(f"?resource={self.resource2.pk}", [self.meeting2])
 
     def test_start_date_filter(self):
         # Hint for queries: filters work on UTC times, so the timezone offset must be accounted for
-        self.assert_result_for_filter('?start_date__gte=2020-01-01T22:00:00.000Z', [self.meeting2])
-        self.assert_result_for_filter('?start_date__gte=2019-12-31T22:00:00.000Z', [self.meeting1, self.meeting2])
-        self.assert_result_for_filter('?start_date__gte=2020-01-02T00:00:00.000Z', [])
-        self.assert_result_for_filter('?start_date__lte=2020-01-01T21:59:59.999Z', [self.meeting1])
+        self.assert_result_for_filter("?start_date__gte=2020-01-01T22:00:00.000Z", [self.meeting2])
+        self.assert_result_for_filter("?start_date__gte=2019-12-31T22:00:00.000Z", [self.meeting1, self.meeting2])
+        self.assert_result_for_filter("?start_date__gte=2020-01-02T00:00:00.000Z", [])
+        self.assert_result_for_filter("?start_date__lte=2020-01-01T21:59:59.999Z", [self.meeting1])
 
     # todo: un-skip
     @unittest.skip("Skip to fix CI error")
     def test_end_date_filter(self):
         # Hint for queries: filters work on UTC times, so the timezone offset must be accounted for
-        self.assert_result_for_filter('?end_date__gte=2020-01-02T21:59:59.000Z', [self.meeting2])
-        self.assert_result_for_filter('?end_date__lte=2020-01-02T21:59:59.000Z', [self.meeting1, self.meeting2])
-        self.assert_result_for_filter('?end_date__lt=2020-01-02T21:59:59.000Z', [self.meeting1])
+        self.assert_result_for_filter("?end_date__gte=2020-01-02T21:59:59.000Z", [self.meeting2])
+        self.assert_result_for_filter("?end_date__lte=2020-01-02T21:59:59.000Z", [self.meeting1, self.meeting2])
+        self.assert_result_for_filter("?end_date__lt=2020-01-02T21:59:59.000Z", [self.meeting1])
 
     def assert_result_for_filter(self, url_param_str, expected_results):
         response = self.rest_get_all_resourcebookings(self.token1, url_param_str=url_param_str)
@@ -279,37 +342,51 @@ class AllResourceBookingFilterTest(
         self.assertEqual(len(expected_results), len(parsed_response))
 
         expected_pks = {str(result.pk) for result in expected_results}
-        actual_pks = {result['pk'] for result in parsed_response}
+        actual_pks = {result["pk"] for result in parsed_response}
         self.assertSetEqual(expected_pks, actual_pks)
 
 
 class MyResourceBookingAccessTest(
-    APITestCase, CommonTestMixin, HelperMixin,
-    ResourceBookingMixin, AuthenticationMixin, MeetingMixin, ModelPrivilegeMixin,
+    APITestCase,
+    CommonTestMixin,
+    HelperMixin,
+    ResourceBookingMixin,
+    AuthenticationMixin,
+    MeetingMixin,
+    ModelPrivilegeMixin,
 ):
     """
     Tests access and limitation to resource booking data (MyResourceBookingViewSet).
     """
 
     def setUp(self):
-        self.user1, self.token1 = self.create_user_and_log_in(username='user1', groups=['User'])
-        self.user2, self.token2 = self.create_user_and_log_in(username='user2', groups=['User'])
-        self.superuser, self.superuser_token = self.create_user_and_log_in(username='superuser', is_superuser=True)
+        self.user1, self.token1 = self.create_user_and_log_in(username="user1", groups=["User"])
+        self.user2, self.token2 = self.create_user_and_log_in(username="user2", groups=["User"])
+        self.superuser, self.superuser_token = self.create_user_and_log_in(username="superuser", is_superuser=True)
 
         with FakeRequest(), FakeRequestUser(self.superuser):
-            self.resource1 = Resource.objects.create(name='Test Resource 1', description='Test', type=Resource.ROOM,
-                                                     general_usage_setting=Resource.GLOBAL)
+            self.resource1 = Resource.objects.create(
+                name="Test Resource 1", description="Test", type=Resource.ROOM, general_usage_setting=Resource.GLOBAL
+            )
 
     def test_can_see_own_bookings(self):
         # user1 creates some resource bookings
         with FakeRequest(), FakeRequestUser(self.user1):
             Meeting.objects.create(
-                title='Meeting1', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>', location='Here', resource=self.resource1,
+                title="Meeting1",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>",
+                location="Here",
+                resource=self.resource1,
             )
             Meeting.objects.create(
-                title='Meeting2', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Alle meine</h1><h2>Entchen</h2>', location='Over there', resource=self.resource1,
+                title="Meeting2",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Alle meine</h1><h2>Entchen</h2>",
+                location="Over there",
+                resource=self.resource1,
             )
 
         # check that user1 can read all data
@@ -321,8 +398,11 @@ class MyResourceBookingAccessTest(
         # user1 creates an appointment
         with FakeRequest(), FakeRequestUser(self.user1):
             Meeting.objects.create(
-                title='Appointment', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='Abcdef', location='Here',
+                title="Appointment",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="Abcdef",
+                location="Here",
             )
 
         # check that the normal appointment is not shown
@@ -334,8 +414,12 @@ class MyResourceBookingAccessTest(
         # user1 creates a resource booking for him and user2
         with FakeRequest(), FakeRequestUser(self.user1):
             meeting = Meeting.objects.create(
-                title='Meeting1', date_time_start=timezone.now(), date_time_end=timezone.now(),
-                text='<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>', location='Here', resource=self.resource1,
+                title="Meeting1",
+                date_time_start=timezone.now(),
+                date_time_end=timezone.now(),
+                text="<h1>Lorem ipsum</h1><h2>dolor sit amet</h2>",
+                location="Here",
+                resource=self.resource1,
             )
             # adds user2 as attending user
             UserAttendsMeeting.objects.create(user=self.user2, meeting=meeting)

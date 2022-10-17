@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 
@@ -22,6 +22,6 @@ class UserProfileQuerySet(BaseQuerySet):
         return self.none()
 
     def prefetch_common(self, *args, **kwargs):
-        return super(UserProfileQuerySet, self).select_related(
-            'user',
+        return super().select_related(
+            "user",
         )

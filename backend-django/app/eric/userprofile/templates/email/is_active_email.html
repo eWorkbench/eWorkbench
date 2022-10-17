@@ -1,0 +1,11 @@
+{% extends "email/simple_email_template.html" %}
+{% load i18n captureas %}
+
+{% block content %}
+    <p>{% blocktrans %}Dear {{ user }}!{% endblocktrans %}</p>
+    <p>Your account is <strong>{{ status }}</strong> now.</p>
+{% endblock %}
+
+{% block footer %}
+{% include 'email/_footer.html' %}
+{% endblock %}

@@ -28,7 +28,6 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=eric.settings.docker
       - PYTHONUNBUFFERED=1
-      - PACKAGE_VERSION=0.3.1  # Remove this after upgrading to the official release of django-userforeignkey
     ports:
       - "8000:8000"
     expose:

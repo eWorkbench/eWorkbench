@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import os
@@ -20,11 +20,11 @@ def get_permission_name(model_class, permission_name):
     :return: combined permission label
     :rtype: basestring
     """
-    return '%(app_label)s.%(permission_name)s_%(model_name)s' % {
-        'app_label': model_class._meta.app_label,
-        'model_name': model_class._meta.model_name,
-        'permission_name': permission_name,
-    }
+    return "{app_label}.{permission_name}_{model_name}".format(
+        app_label=model_class._meta.app_label,
+        model_name=model_class._meta.model_name,
+        permission_name=permission_name,
+    )
 
 
 def get_permission_name_without_app_label(model_class, permission_name):
@@ -39,10 +39,10 @@ def get_permission_name_without_app_label(model_class, permission_name):
     :return: combined permission label
     :rtype: basestring
     """
-    return '%(permission_name)s_%(model_name)s' % {
-        'model_name': model_class._meta.model_name,
-        'permission_name': permission_name,
-    }
+    return "{permission_name}_{model_name}".format(
+        model_name=model_class._meta.model_name,
+        permission_name=permission_name,
+    )
 
 
 def get_permission_name_change_related_project(model_class, permission_name):
@@ -57,11 +57,11 @@ def get_permission_name_change_related_project(model_class, permission_name):
     :return: combined permission label
     :rtype: basestring
     """
-    return '%(app_label)s.%(model_name)s_%(permission_name)s' % {
-        'app_label': model_class._meta.app_label,
-        'model_name': model_class._meta.model_name,
-        'permission_name': permission_name,
-    }
+    return "{app_label}.{model_name}_{permission_name}".format(
+        app_label=model_class._meta.app_label,
+        model_name=model_class._meta.model_name,
+        permission_name=permission_name,
+    )
 
 
 def get_permission_name_change_related_project_without_app_label(model_class, permission_name):
@@ -76,10 +76,10 @@ def get_permission_name_change_related_project_without_app_label(model_class, pe
     :return: combined permission label
     :rtype: basestring
     """
-    return '%(model_name)s_%(permission_name)s' % {
-        'model_name': model_class._meta.model_name,
-        'permission_name': permission_name,
-    }
+    return "{model_name}_{permission_name}".format(
+        model_name=model_class._meta.model_name,
+        permission_name=permission_name,
+    )
 
 
 def pk_or_none(obj):
@@ -89,11 +89,11 @@ def pk_or_none(obj):
 def build_download_response(mime_type, file):
     file_path = os.path.join(settings.MEDIA_ROOT, file.name)
     if os.path.isfile(file_path):
-        response = FileResponse(open(file_path, 'rb'))
+        response = FileResponse(open(file_path, "rb"))
     else:
         response = HttpResponse("")
 
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(file.name)
-    response['Content-Type'] = mime_type
+    response["Content-Disposition"] = f'attachment; filename="{file.name}"'
+    response["Content-Type"] = mime_type
 
     return response

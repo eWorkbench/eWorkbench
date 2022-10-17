@@ -1,29 +1,27 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
-import vobject
-
 from email.mime.text import MIMEText
 
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMessage
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.timezone import timedelta
 from django.utils.translation import gettext as _
+
+import vobject
 from django_userforeignkey.request import get_current_user
 
-from eric.notifications.models import Notification
-from eric.notifications.models import NotificationConfiguration, ScheduledNotification
+from eric.notifications.models import Notification, NotificationConfiguration, ScheduledNotification
 from eric.notifications.utils import is_user_notification_allowed, send_mail
-from eric.projects.models import MyUser
-from eric.projects.models import Project, ProjectRoleUserAssignment
+from eric.projects.models import MyUser, Project, ProjectRoleUserAssignment
 from eric.relations.models import Relation
-from eric.shared_elements.models import Meeting, UserAttendsMeeting, Task, TaskAssignedUser, ContactAttendsMeeting
+from eric.shared_elements.models import ContactAttendsMeeting, Meeting, Task, TaskAssignedUser, UserAttendsMeeting
 from eric.site_preferences.models import options as site_preferences
 
 LOGGER = logging.getLogger(__name__)
@@ -39,10 +37,7 @@ def create_notification_configuration(sender, instance, *args, **kwargs):
         if user.last_login:
             all_notification_keys = [key for key, label in NotificationConfiguration.NOTIFICATION_CONF_CHOICES]
             NotificationConfiguration.objects.get_or_create(
-                user=user,
-                defaults={
-                    'allowed_notifications': all_notification_keys
-                }
+                user=user, defaults={"allowed_notifications": all_notification_keys}
             )
 
 
@@ -56,21 +51,24 @@ def send_confirmation_mail_for_new_appointment(sender, instance, created, raw, *
 
     user = get_current_user()
     if is_user_notification_allowed(user, NotificationConfiguration.MAIL_CONF_MEETING_CONFIRMATION):
-        html_message = render_to_string('notification/appointment_confirmation.html', context={
-            'instance': instance,
-        })
+        html_message = render_to_string(
+            "notification/appointment_confirmation.html",
+            context={
+                "instance": instance,
+            },
+        )
 
         # convert User to MyUser, so the full name is rendered (from the userprofile)
         user.__class__ = MyUser
 
-        subject = _('Confirmation for {appointment_title}').format(appointment_title=instance.title)
+        subject = _("Confirmation for {appointment_title}").format(appointment_title=instance.title)
         context = {
-            'title': subject,
-            'message': html_message,
-            'user': str(user),
+            "title": subject,
+            "message": html_message,
+            "user": str(user),
         }
-        html_content = render_to_string('email/simple_email.html', context)
-        plaintext_content = render_to_string('email/simple_email.txt', context)
+        html_content = render_to_string("email/simple_email.html", context)
+        plaintext_content = render_to_string("email/simple_email.txt", context)
 
         send_mail(
             subject=subject,
@@ -100,9 +98,7 @@ def create_notification_based_on_meeting_changes(sender, instance, *args, **kwar
         # Don't send reminder notifications if the to_be_saved meeting date_time_start is already in the past
         if scheduled_notification and to_be_saved_instance.local_date_time_start > timezone.now():
             scheduled_notification.scheduled_date_time = ScheduledNotification.calculate_scheduled_date_time(
-                scheduled_notification.timedelta_unit,
-                scheduled_notification.timedelta_value,
-                instance.date_time_start
+                scheduled_notification.timedelta_unit, scheduled_notification.timedelta_value, instance.date_time_start
             )
             scheduled_notification.deleted = instance.deleted
             # make sure the reminder is sent again after meeting details have changed
@@ -114,11 +110,8 @@ def create_notification_based_on_meeting_changes(sender, instance, *args, **kwar
     attending_users = instance.attending_users.all().exclude(pk=get_current_user().pk)
 
     for attended_user in attending_users:
-        context = {
-            'user': attended_user,
-            'instance': instance
-        }
-        html_message = render_to_string('notification/meeting_changed.html', context)
+        context = {"user": attended_user, "instance": instance}
+        html_message = render_to_string("notification/meeting_changed.html", context)
 
         Notification.objects.update_or_create(
             user=attended_user,
@@ -130,10 +123,10 @@ def create_notification_based_on_meeting_changes(sender, instance, *args, **kwar
             created_by=get_current_user(),
             created_at__gte=timezone.now() - timedelta(seconds=60),
             defaults={
-                'title': _("Appointment {title} has changed").format(title=instance.title),
-                'message': html_message,
-                'created_at': timezone.now()
-            }
+                "title": _("Appointment {title} has changed").format(title=instance.title),
+                "message": html_message,
+                "created_at": timezone.now(),
+            },
         )
 
 
@@ -147,11 +140,8 @@ def create_notification_based_on_add_user_to_meeting(sender, instance, *args, **
     if attended_user != get_current_user():
         meeting = Meeting.objects.get(pk=instance.meeting.pk)
 
-        context = {
-            'user': attended_user,
-            'instance': meeting
-        }
-        html_message = render_to_string('notification/meeting_add_user.html', context)
+        context = {"user": attended_user, "instance": meeting}
+        html_message = render_to_string("notification/meeting_add_user.html", context)
 
         Notification.objects.create(
             user=attended_user,
@@ -173,11 +163,8 @@ def create_notification_based_on_delete_user_from_meeting(sender, instance, *arg
     if attended_user != get_current_user():
         meeting = Meeting.objects.get(pk=instance.meeting.pk)
 
-        context = {
-            'user': attended_user,
-            'instance': meeting
-        }
-        html_message = render_to_string('notification/meeting_remove_user.html', context)
+        context = {"user": attended_user, "instance": meeting}
+        html_message = render_to_string("notification/meeting_remove_user.html", context)
 
         Notification.objects.create(
             user=attended_user,
@@ -195,7 +182,7 @@ def create_notification_based_on_add_contact_to_meeting(sender, instance, *args,
     attended_contact = instance.contact
     if attended_contact.email:
         calendar = vobject.iCalendar()
-        calendar.add('method').value = 'PUBLISH'  # IE/Outlook needs this
+        calendar.add("method").value = "PUBLISH"  # IE/Outlook needs this
 
         meeting = Meeting.objects.get(pk=instance.meeting.pk)
 
@@ -203,13 +190,11 @@ def create_notification_based_on_add_contact_to_meeting(sender, instance, *args,
         cal_stream = calendar.serialize()
         ics_attachment = create_ics_attachment(cal_stream)
 
-        context = {
-            'instance': meeting
-        }
+        context = {"instance": meeting}
 
         msg = EmailMessage(
             subject=_("You have been added to meeting {meeting}").format(meeting=meeting.title),
-            body=render_to_string('notification/meeting_add_contact.html', context),
+            body=render_to_string("notification/meeting_add_contact.html", context),
             from_email=site_preferences.email_from,
             to=[(f"{attended_contact.first_name} {attended_contact.last_name}", attended_contact.email)],
         )
@@ -228,13 +213,11 @@ def create_notification_based_on_delete_contact_from_meeting(sender, instance, *
     if attended_contact.email:
         meeting = Meeting.objects.get(pk=instance.meeting.pk)
 
-        context = {
-            'instance': meeting
-        }
+        context = {"instance": meeting}
 
         msg = EmailMessage(
             subject=_("You have been removed from meeting {meeting}").format(meeting=meeting.title),
-            body=render_to_string('notification/meeting_remove_contact.html', context),
+            body=render_to_string("notification/meeting_remove_contact.html", context),
             from_email=site_preferences.email_from,
             to=[(f"{attended_contact.first_name} {attended_contact.last_name}", attended_contact.email)],
         )
@@ -257,11 +240,8 @@ def create_notification_based_on_task_changes(sender, instance, *args, **kwargs)
     assigned_users = instance.assigned_users.all().exclude(pk=get_current_user().pk)
 
     for assigned_user in assigned_users:
-        context = {
-            'user': assigned_user,
-            'instance': instance
-        }
-        html_message = render_to_string('notification/task_changed.html', context)
+        context = {"user": assigned_user, "instance": instance}
+        html_message = render_to_string("notification/task_changed.html", context)
 
         # check if a notification for this task and the assigned user has already been created by the current user
         # within the last 60 secs and if it is unread
@@ -275,10 +255,10 @@ def create_notification_based_on_task_changes(sender, instance, *args, **kwargs)
             created_by=get_current_user(),
             created_at__gte=timezone.now() - timedelta(seconds=60),
             defaults={
-                'title': _("Task {title} has changed".format(title=instance.title)),
-                'message': html_message,
-                'created_at': timezone.now(),
-            }
+                "title": _(f"Task {instance.title} has changed"),
+                "message": html_message,
+                "created_at": timezone.now(),
+            },
         )
 
 
@@ -293,11 +273,8 @@ def create_notification_based_on_add_user_to_task(sender, instance, *args, **kwa
     if assigned_user != get_current_user():
         task = Task.objects.get(pk=instance.task.pk)
 
-        context = {
-            'user': assigned_user,
-            'instance': task
-        }
-        html_message = render_to_string('notification/task_add_user.html', context)
+        context = {"user": assigned_user, "instance": task}
+        html_message = render_to_string("notification/task_add_user.html", context)
 
         Notification.objects.create(
             user=assigned_user,
@@ -305,7 +282,7 @@ def create_notification_based_on_add_user_to_task(sender, instance, *args, **kwa
             message=html_message,
             content_type=task.get_content_type(),
             object_id=task.pk,
-            notification_type=NotificationConfiguration.NOTIFICATION_CONF_TASK_USER_CHANGED
+            notification_type=NotificationConfiguration.NOTIFICATION_CONF_TASK_USER_CHANGED,
         )
 
 
@@ -320,11 +297,8 @@ def create_notification_based_on_delete_user_from_task(sender, instance, *args, 
     if assigned_user != get_current_user():
         task = Task.objects.get(pk=instance.task.pk)
 
-        context = {
-            'user': assigned_user,
-            'instance': task
-        }
-        html_message = render_to_string('notification/task_remove_user.html', context)
+        context = {"user": assigned_user, "instance": task}
+        html_message = render_to_string("notification/task_remove_user.html", context)
 
         Notification.objects.create(
             user=assigned_user,
@@ -332,7 +306,7 @@ def create_notification_based_on_delete_user_from_task(sender, instance, *args, 
             message=html_message,
             content_type=task.get_content_type(),
             object_id=task.pk,
-            notification_type=NotificationConfiguration.NOTIFICATION_CONF_TASK_USER_CHANGED
+            notification_type=NotificationConfiguration.NOTIFICATION_CONF_TASK_USER_CHANGED,
         )
 
 
@@ -343,26 +317,20 @@ def create_notification_based_on_project_changes(sender, instance, *args, **kwar
         return
 
     assigned_users = instance.assigned_users_roles.filter(
-        role__permissions__codename='view_project',
-        role__permissions__content_type=Project.get_content_type()
-    ).exclude(
-        user=get_current_user()
-    )
+        role__permissions__codename="view_project", role__permissions__content_type=Project.get_content_type()
+    ).exclude(user=get_current_user())
 
     for assigned_user in assigned_users:
-        context = {
-            'user': assigned_user.user,
-            'instance': instance
-        }
-        html_message = render_to_string('notification/project_changed.html', context)
+        context = {"user": assigned_user.user, "instance": instance}
+        html_message = render_to_string("notification/project_changed.html", context)
 
         Notification.objects.create(
             user=assigned_user.user,
-            title=_("Project {name} has changed".format(name=instance.name)),
+            title=_(f"Project {instance.name} has changed"),
             message=html_message,
             content_type=instance.get_content_type(),
             object_id=instance.pk,
-            notification_type=NotificationConfiguration.NOTIFICATION_CONF_PROJECT_CHANGED
+            notification_type=NotificationConfiguration.NOTIFICATION_CONF_PROJECT_CHANGED,
         )
 
 
@@ -378,29 +346,26 @@ def create_notification_based_on_add_user_to_project(sender, instance, created, 
         project = instance.project
 
         # define attributes for the html message
-        context = {
-            'user': assigned_user,
-            'instance': project,
-            'new_role': instance.role.name
-        }
+        context = {"user": assigned_user, "instance": project, "new_role": instance.role.name}
 
         if created:  # user was added to the project
             # verify that the user role has access to the project
             if not instance.role.permissions.filter(
-                    codename='view_project',
-                    content_type=Project.get_content_type()
+                codename="view_project", content_type=Project.get_content_type()
             ).exists():
                 # this role does not have view_project, so we are not sending a notification
                 return
 
-            html_message = render_to_string('notification/project_add_user.html', context)
+            html_message = render_to_string("notification/project_add_user.html", context)
             title = _("You have been added to project {project}").format(project=project.name)
 
         else:  # user role has changed
-            html_message = render_to_string('notification/project_change_user_role.html', context)
-            title = _("Your role in project {project} has been changed to {role}".format(
-                role=instance.role.name, project=project.name
-            ))
+            html_message = render_to_string("notification/project_change_user_role.html", context)
+            title = _(
+                "Your role in project {project} has been changed to {role}".format(
+                    role=instance.role.name, project=project.name
+                )
+            )
 
         Notification.objects.create(
             user=assigned_user,
@@ -408,7 +373,7 @@ def create_notification_based_on_add_user_to_project(sender, instance, created, 
             message=html_message,
             content_type=project.get_content_type(),
             object_id=project.pk,
-            notification_type=NotificationConfiguration.NOTIFICATION_CONF_PROJECT_USER_CHANGED
+            notification_type=NotificationConfiguration.NOTIFICATION_CONF_PROJECT_USER_CHANGED,
         )
 
 
@@ -421,7 +386,7 @@ def create_notification_based_on_delete_user_from_project(sender, instance, *arg
     assigned_user = instance.user
 
     # check that the role of this instance has the view_project role
-    if not instance.role.permissions.filter(codename='view_project', content_type=Project.get_content_type()).exists():
+    if not instance.role.permissions.filter(codename="view_project", content_type=Project.get_content_type()).exists():
         # this role does not have view_project, so we are not sending a notification
         return
 
@@ -429,11 +394,8 @@ def create_notification_based_on_delete_user_from_project(sender, instance, *arg
         project = instance.project
 
         # render html message
-        context = {
-            'user': assigned_user,
-            'instance': project
-        }
-        html_message = render_to_string('notification/project_remove_user.html', context)
+        context = {"user": assigned_user, "instance": project}
+        html_message = render_to_string("notification/project_remove_user.html", context)
 
         Notification.objects.create(
             user=assigned_user,
@@ -441,7 +403,7 @@ def create_notification_based_on_delete_user_from_project(sender, instance, *arg
             message=html_message,
             content_type=project.get_content_type(),
             object_id=project.pk,
-            notification_type=NotificationConfiguration.NOTIFICATION_CONF_PROJECT_USER_CHANGED
+            notification_type=NotificationConfiguration.NOTIFICATION_CONF_PROJECT_USER_CHANGED,
         )
 
 
@@ -459,7 +421,7 @@ def create_notification_based_on_delete_relation(sender, instance, *args, **kwar
 
 
 def create_notification_based_on_relation(instance, added):
-    """ Creates notifications for new/removed links on tasks and meetings """
+    """Creates notifications for new/removed links on tasks and meetings"""
 
     # do not create notifications for private relations
     if instance.private:
@@ -477,30 +439,26 @@ def create_notification_for_link_change(added, base_object, related_object):
         assigned_users = base_object.attending_users
         notification_type = NotificationConfiguration.NOTIFICATION_CONF_MEETING_RELATION_CHANGED
         if added:
-            html_path = 'notification/meeting_add_relation.html'
+            html_path = "notification/meeting_add_relation.html"
             title = _("A new link was added for the appointment {title}").format(title=base_object.title)
         else:
-            html_path = 'notification/meeting_remove_relation.html'
+            html_path = "notification/meeting_remove_relation.html"
             title = _("Link was removed from the appointment {title}").format(title=base_object.title)
     elif isinstance(base_object, Task):
         assigned_users = base_object.assigned_users
         notification_type = NotificationConfiguration.NOTIFICATION_CONF_TASK_RELATION_CHANGED
         if added:
-            html_path = 'notification/task_add_relation.html'
+            html_path = "notification/task_add_relation.html"
             title = _("A new link was added for the task {title}").format(title=base_object.title)
         else:
-            html_path = 'notification/meeting_remove_relation.html'
+            html_path = "notification/meeting_remove_relation.html"
             title = _("Link was removed from the task {title}").format(title=base_object.title)
     else:
         return
 
     users_to_notify = assigned_users.exclude(pk=get_current_user().pk)
     for user in users_to_notify:
-        context = {
-            'user': user,
-            'instance': base_object,
-            'related_object': related_object
-        }
+        context = {"user": user, "instance": base_object, "related_object": related_object}
 
         Notification.objects.create(
             user=user,
@@ -508,7 +466,7 @@ def create_notification_for_link_change(added, base_object, related_object):
             message=render_to_string(html_path, context),
             content_type=base_object.get_content_type(),
             object_id=base_object.pk,
-            notification_type=notification_type
+            notification_type=notification_type,
         )
 
 

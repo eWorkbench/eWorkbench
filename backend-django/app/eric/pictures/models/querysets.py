@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 import logging
@@ -16,5 +16,4 @@ class PictureQuerySet(BaseProjectEntityPermissionQuerySet, ChangeSetQuerySetMixi
         """
         Prefetch common attributes
         """
-        return super(PictureQuerySet, self).prefetch_common() \
-            .prefetch_metadata()
+        return super().prefetch_common().prefetch_metadata()

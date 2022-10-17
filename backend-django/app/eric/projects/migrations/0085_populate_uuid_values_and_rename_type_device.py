@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from __future__ import unicode_literals
 
-from django.db import migrations
 import uuid
+
+from django.db import migrations
+
 
 def gen_uuid(apps, schema_editor):
     Resource = apps.get_model('projects', 'Resource')

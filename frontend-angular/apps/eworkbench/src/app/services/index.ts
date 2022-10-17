@@ -23,6 +23,7 @@ export * from './labbook-sections/labbook-sections.service';
 export * from './labbooks/labbooks.service';
 export * from './labels/labels.service';
 export * from './menu-model/menu-model.service';
+export * from './metadata-tags/metadata-tags.service';
 export * from './metadata/metadata.service';
 export * from './my-resource-bookings/my-resource-bookings.service';
 export * from './my-schedule/my-schedule.service';

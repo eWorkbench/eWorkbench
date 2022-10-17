@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+# Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 from django.contrib.contenttypes.fields import GenericRelation
@@ -16,6 +16,6 @@ class MetadataRelation(GenericRelation):
     def __init__(self):
         super().__init__(
             Metadata,
-            object_id_field='entity_id',
-            content_type_field='entity_content_type',
+            object_id_field="entity_id",
+            content_type_field="entity_content_type",
         )

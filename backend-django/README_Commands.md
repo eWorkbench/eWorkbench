@@ -133,7 +133,7 @@ The argument `-o` is optional and generates the `docker-compose.override.yml` fi
 
 In order to publish the workbench-project on Github, the following licenseheader needs to be added to all files where applicable (`*.py, *.js, *.scss, *.less, etc.`, BUT NOT: `*.html, *.xml, *.yml, etc.`):
 ```
-Copyright (C) 2016-2020 TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
+Copyright (C) 2016-present TU Muenchen and contributors of ANEXIA Internetdienstleistungs GmbH
 SPDX-License-Identifier: AGPL-3.0-or-later
 ```
 
