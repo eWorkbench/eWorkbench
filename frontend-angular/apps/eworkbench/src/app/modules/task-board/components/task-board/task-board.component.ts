@@ -12,12 +12,14 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   Inject,
   Input,
   OnDestroy,
   OnInit,
   Output,
   QueryList,
+  ViewChild,
   ViewChildren,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -55,6 +57,15 @@ import { DeleteColumnModalComponent } from '../modals/delete-column/delete-colum
 export class TaskBoardComponent implements OnInit, OnDestroy {
   @ViewChildren(StickyDirective) public stickyElements!: QueryList<StickyDirective>;
 
+  @ViewChild('taskboardScrollbar')
+  public taskboardScrollbar?: ElementRef<HTMLElement>;
+
+  @ViewChild('taskboardContainer')
+  public taskboardContainer?: ElementRef<HTMLElement>;
+
+  @ViewChild('scrollbarContent')
+  public scrollbarContent?: ElementRef<HTMLElement>;
+
   @Input()
   public columns: TaskBoardColumn[] = [];
 
@@ -66,6 +77,9 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   @Input()
   public userSettings = {};
+
+  @Input()
+  public recalculateTaskboardScroll?: EventEmitter<void>;
 
   @Output()
   public boardChange = new EventEmitter<PrivilegesData<TaskBoard>>();
@@ -95,6 +109,11 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
 
   public scrollBarHeight = 10;
 
+  @HostListener('window:resize')
+  public onResize() {
+    this.handleTaskboardScrollOnResize();
+  }
+
   public constructor(
     @Inject(HEADER_TOP_OFFSET) public readonly headerTopOffset: BehaviorSubject<number>,
     private readonly taskBoardsService: TaskBoardsService,
@@ -106,12 +125,11 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     private readonly websocketService: WebSocketService,
     private readonly authService: AuthService,
     private readonly router: Router,
-    private readonly userStore: UserStore,
-    private readonly elRef: ElementRef
+    private readonly userStore: UserStore
   ) {}
 
   public get stickyXScrollElement(): HTMLElement {
-    return this.elRef.nativeElement.parentElement;
+    return this.taskboardContainer!.nativeElement;
   }
 
   public ngOnInit(): void {
@@ -133,6 +151,10 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
     this.setFilter?.pipe(untilDestroyed(this)).subscribe(filter => {
       this.filter = filter;
       this.cdr.markForCheck();
+    });
+
+    this.recalculateTaskboardScroll?.pipe(untilDestroyed(this)).subscribe(() => {
+      this.handleTaskboardScrollOnResize();
     });
 
     this.initDetails();
@@ -180,6 +202,49 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       );
   }
 
+  public initTaskboardScroll(): void {
+    setTimeout(() => {
+      if (this.taskboardContainer && this.taskboardScrollbar && this.scrollbarContent) {
+        this.taskboardScrollbar.nativeElement.style.width = `${this.taskboardContainer.nativeElement.offsetWidth}px`;
+        this.scrollbarContent.nativeElement.style.width = `${this.taskboardContainer.nativeElement.scrollWidth}px`;
+      }
+    }, 1);
+    setTimeout(() => {
+      this.taskboardScrollbar?.nativeElement.scroll({
+        left: this.taskboardScrollbar.nativeElement.scrollLeft - 1,
+        behavior: 'smooth',
+      });
+    }, 1);
+  }
+
+  public handleTaskboardScrollOnResize(): void {
+    if (this.taskboardScrollbar && this.scrollbarContent) {
+      this.taskboardScrollbar.nativeElement.style.width = '0px';
+      this.scrollbarContent.nativeElement.style.width = '0px';
+      this.stickyElements.forEach(item => {
+        if (item.classList.contains('is-sticky')) {
+          item.removeSticky();
+          setTimeout(() => {
+            item.addSticky();
+          }, 1);
+        }
+      });
+    }
+    this.initTaskboardScroll();
+  }
+
+  public onTaskboardScroll(event: any): void {
+    if (this.taskboardContainer) {
+      this.taskboardContainer.nativeElement.scrollLeft = event.target.scrollLeft;
+    }
+  }
+
+  public onTaskboardContainerScroll(event: any): void {
+    if (this.taskboardScrollbar) {
+      this.taskboardScrollbar.nativeElement.scrollLeft = event.target.scrollLeft;
+    }
+  }
+
   public isHeadingSticky(column: TaskBoardColumn): boolean {
     return Boolean(column.tasks?.length && column.tasks.length > 2);
   }
@@ -216,7 +281,6 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
       .subscribe(columns => {
         this.columns = [...columns];
         this.cdr.markForCheck();
-        this.columnsLoaded.emit();
         this.stickyElements.forEach(item => {
           item.removeSticky();
         });
@@ -224,6 +288,7 @@ export class TaskBoardComponent implements OnInit, OnDestroy {
           top: window.scrollY - 1,
           behavior: 'smooth',
         });
+        this.initTaskboardScroll();
       });
 
     this.labelsService

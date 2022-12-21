@@ -12,7 +12,6 @@ import { NewContactModalComponent } from '@app/pages/contacts/components/modals/
 import { NewDMPModalComponent } from '@app/pages/dmps/components/modals/new/new.component';
 import { NewFileModalComponent } from '@app/pages/files/components/modals/new.component';
 import { NewLabBookModalComponent } from '@app/pages/labbooks/components/modals/new/new.component';
-import { NewNoteModalComponent } from '@app/pages/notes/components/modals/new/new.component';
 import { NewPictureModalComponent } from '@app/pages/pictures/components/modals/new/new.component';
 import { NewProjectModalComponent } from '@app/pages/projects/components/modals/new/new.component';
 import { NewStorageModalComponent } from '@app/pages/storages/components/modals/new/new.component';
@@ -718,7 +717,7 @@ export class NewLinkModalComponent implements OnInit {
       }
       case 'shared_elements.note': {
         this.showNoteSearch = true;
-        this.newContentModal = NewNoteModalComponent;
+        this.newContentModal = false;
         this.newContentLabel = 'link.newModal.newContentLabel.note';
         this.refreshContent = this.refreshNotes;
         break;

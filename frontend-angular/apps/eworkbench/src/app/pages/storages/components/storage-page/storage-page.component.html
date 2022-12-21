@@ -109,14 +109,16 @@
                       </ng-select>
                     </eworkbench-form-input>
                   </div>
-                  <div class="mb-4" *ngIf="envelope">
-                    <label>{{ t('storage.details.dssEnvelope.label') }}</label>
-                    <div>{{ envelope }}</div>
-                  </div>
-                  <div class="mb-4" *ngIf="location">
-                    <label>{{ t('storage.details.dssLocation.label') }}</label>
-                    <div>{{ location }}</div>
-                  </div>
+                  <ng-container *ngIf="initialState?.is_dss_drive">
+                    <div class="mb-4">
+                      <label>{{ t('storage.details.dssEnvelope.label') }}</label>
+                      <div>{{ initialState?.envelope_path }}</div>
+                    </div>
+                    <div class="mb-4 text-[13px]">
+                      <strong>{{ t('storage.details.dssLocation.label') }}:</strong>
+                      {{ initialState?.location }}
+                    </div>
+                  </ng-container>
                   <div class="mb-4">
                     <label for="created-by">{{ t('storage.details.createdBy.label') }}</label>
                     <div class="flex items-center space-x-1">

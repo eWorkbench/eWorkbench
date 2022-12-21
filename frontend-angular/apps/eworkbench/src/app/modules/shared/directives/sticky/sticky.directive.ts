@@ -61,6 +61,9 @@ export class StickyDirective implements OnInit {
     if (this.el.nativeElement.offsetTop <= 0) {
       return false;
     }
+    if (window.pageYOffset < this.stickyOffset) {
+      return false;
+    }
     return true;
   }
 

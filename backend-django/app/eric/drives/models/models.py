@@ -293,7 +293,7 @@ class Drive(
     @property
     def location(self):
         if self.envelope and self.envelope.container:
-            return f"DSS: {self.envelope.container.path}"
+            return self.envelope.container.path
         else:
             return ""
 

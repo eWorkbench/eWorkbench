@@ -13,10 +13,13 @@
   }
 
   .task-board {
+    padding: 40px 0;
+    padding-left: 70px;
+    display: contents !important;
+
     @media (min-width: 769px) {
       display: grid;
       grid-template-rows: auto 1fr;
-      overflow-x: scroll;
     }
 
     &-details {
@@ -39,28 +42,5 @@
 
   .filter-sidebar {
     z-index: 1;
-  }
-
-  .task-board-scrollbar {
-    overflow-x: scroll;
-    height: 11px;
-    margin-top: -1px;
-    z-index: 2;
-    background-color: #fff;
-
-    div {
-      height: 1px;
-    }
-
-    &::-webkit-scrollbar {
-      appearance: none;
-      height: 10px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      background-color: rgb(99 99 99 / 50%);
-      box-shadow: 0 0 0 rgb(255 255 255 / 50%);
-    }
   }
 }

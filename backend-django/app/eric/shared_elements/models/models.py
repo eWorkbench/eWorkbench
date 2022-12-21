@@ -682,7 +682,7 @@ class File(
             and self.directory.drive.envelope
             and self.directory.drive.envelope.container
         ):
-            return f"DSS: {self.directory.drive.envelope.container.path}"
+            return self.directory.drive.envelope.container.path
         return ""
 
     @staticmethod

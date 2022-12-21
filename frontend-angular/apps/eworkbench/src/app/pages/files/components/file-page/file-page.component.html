@@ -193,7 +193,7 @@
                     <label>{{ t('file.details.storage.label') }}</label>
                     <div class="flex align-items-center gap-3">
                       <ng-container *ngIf="initialState?.directory_id">
-                        <div class="ewb-chip">
+                        <div>
                           <eworkbench-icon
                             [className]="initialState?.directory?.is_virtual_root ? 'wb-storages' : 'wb-folder'"
                             class="mr-1"
@@ -234,10 +234,11 @@
                       </div>
                     </div>
                   </ng-container>
-                </div>
-                <div class="mb-4" *ngIf="initialState?.is_dss_file">
-                  <label>{{ t('file.details.dssLocation.label') }}</label>
-                  <div>{{ initialState?.location }}</div>
+
+                  <div class="-mt-3 text-[13px]" *ngIf="initialState?.is_dss_file">
+                    <strong>{{ t('file.details.dssLocation.label') }}:</strong>
+                    {{ initialState?.location }}
+                  </div>
                 </div>
                 <div class="mb-4">
                   <eworkbench-form-input

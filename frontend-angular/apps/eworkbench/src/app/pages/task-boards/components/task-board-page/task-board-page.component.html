@@ -228,25 +228,14 @@
         </div>
       </ng-container>
     </div>
-
-    <div
-      #taskboardScrollbar
-      sticky
-      class="task-board-scrollbar"
-      [stickyTop]="stickyTop"
-      (scroll)="onTaskboardScroll($event)"
-      *ngIf="headerTopOffset | async as stickyTop"
-    >
-      <div #scrollbarContent></div>
-    </div>
-    <div #taskboardContainer class="task-board main" [ngStyle]="styles" (scroll)="onTaskboardContainerScroll($event)">
+    <div class="task-board main" [ngStyle]="styles">
       <eworkbench-task-board
         #taskBoardC
         [setFilter]="setFilter"
         [projects]="initialState?.projects ?? []"
         [userSettings]="userSettings"
+        [recalculateTaskboardScroll]="toggleSidebar"
         (boardChange)="onBoardChange($event)"
-        (columnsLoaded)="initTaskboardScroll()"
       ></eworkbench-task-board>
     </div>
   </div>

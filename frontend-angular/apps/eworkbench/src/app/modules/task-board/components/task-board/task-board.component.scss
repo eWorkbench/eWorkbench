@@ -61,6 +61,7 @@
 
 :host {
   display: block;
+  height: 100%;
 
   .task-board {
     display: grid;
@@ -80,6 +81,41 @@
   .space {
     width: 62px;
     height: 1px;
+  }
+
+  .task-board-container {
+    overflow: auto;
+    height: 100%;
+    padding-left: 70px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .task-board-scrollbar {
+    overflow-x: scroll;
+    height: 11px;
+    margin-top: -1px;
+    z-index: 2;
+    background-color: #fff;
+
+    div {
+      height: 1px;
+    }
+
+    &::-webkit-scrollbar {
+      appearance: none;
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: rgb(99 99 99 / 50%);
+      box-shadow: 0 0 0 rgb(255 255 255 / 50%);
+    }
   }
 }
 

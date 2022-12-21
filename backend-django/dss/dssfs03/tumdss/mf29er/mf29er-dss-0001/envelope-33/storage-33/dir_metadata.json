@@ -1,0 +1,21 @@
+[
+  {
+    "creationdate": "2021-10-29",
+    "id": "7f147874-5f44-4ecc-a5a7-bcc29681f70f",
+    "idtag": "this-is-new"
+  },
+  {
+    "username": "Fabian",
+    "last_modified": "2021-10-29   14:07",
+    "typ": "Synchrotron",
+    "data_folder": "Synchrotron",
+    "comment": "new comment line\n"
+  },
+  {
+    "username": "Fabian",
+    "last_modified": "2021-10-29   14:07",
+    "typ": "XPS",
+    "data_folder": "XPS",
+    "comment": "second comment\n"
+  }
+]

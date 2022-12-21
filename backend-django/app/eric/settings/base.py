@@ -313,14 +313,14 @@ LOGGING = {
             "class": TIMED_ROTATING_FILE_HANDLER_CLASS,
             "filename": os.path.join(BASE_DIR, "logs", "application.log"),
             "when": "D",
-            "backupCount": 14,
+            "backupCount": 7,
             "formatter": "verbose",
         },
         "file_request_time_middleware": {
-            "class": ROTATING_FILE_HANDLER_CLASS,
+            "class": TIMED_ROTATING_FILE_HANDLER_CLASS,
             "filename": os.path.join(BASE_DIR, "logs", "request_time_middleware.log"),
-            "maxBytes": 1024 * 1024 * 5,
-            "backupCount": 25,
+            "when": "D",
+            "backupCount": 7,
             "formatter": "simple",
         },
         "ldap": {
@@ -343,10 +343,10 @@ LOGGING = {
             "formatter": "standard",
         },
         "file_contact_form": {
-            "class": ROTATING_FILE_HANDLER_CLASS,
+            "class": TIMED_ROTATING_FILE_HANDLER_CLASS,
             "filename": os.path.join(BASE_DIR, "logs", "contact_form.log"),
-            "maxBytes": 1024 * 1024 * 5,
-            "backupCount": 25,
+            "when": "D",
+            "backupCount": 7,
             "formatter": "verbose",
         },
         "django.server": {

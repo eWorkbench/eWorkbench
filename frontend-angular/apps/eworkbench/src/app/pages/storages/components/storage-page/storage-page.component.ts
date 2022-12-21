@@ -14,9 +14,9 @@ import { CommentsComponent } from '@app/modules/comment/components/comments/comm
 import { NewCommentModalComponent } from '@app/modules/comment/components/modals/new/new.component';
 import { PendingChangesModalComponent } from '@app/modules/shared/modals/pending-changes/pending-changes.component';
 import { LeaveProjectModalComponent } from '@app/pages/projects/components/modals/leave/leave.component';
-import { AuthService, DrivesService, DssContainersService, PageTitleService, ProjectsService } from '@app/services';
+import { AuthService, DrivesService, PageTitleService, ProjectsService } from '@app/services';
 import { UserStore } from '@app/stores/user';
-import type { Drive, DrivePayload, Envelope, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
+import type { Drive, DrivePayload, Metadata, ModalCallback, Privileges, Project, User } from '@eworkbench/types';
 import { DialogRef, DialogService } from '@ngneat/dialog';
 import { FormBuilder, FormControl } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
@@ -29,8 +29,6 @@ import { NewStorageModalComponent } from '../modals/new/new.component';
 interface FormStorage {
   title: FormControl<string | null>;
   projects: FormControl<string[]>;
-  dssEnvelope: string | null;
-  location: string | null;
 }
 
 @UntilDestroy()
@@ -80,20 +78,13 @@ export class StoragePageComponent implements OnInit {
 
   public projectInput$ = new Subject<string>();
 
-  public dssEnvelopes: Envelope[] = [];
-
-  public selectedDssEnvelope?: Envelope;
-
   public form = this.fb.group<FormStorage>({
     title: this.fb.control(null, Validators.required),
     projects: this.fb.control([]),
-    dssEnvelope: null,
-    location: null,
   });
 
   public constructor(
     public readonly drivesService: DrivesService,
-    private readonly dssContainersService: DssContainersService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly authService: AuthService,
@@ -112,19 +103,11 @@ export class StoragePageComponent implements OnInit {
     return this.form.controls;
   }
 
-  public get envelope(): string | null {
-    return this.f.dssEnvelope.value;
-  }
-
-  public get location(): string | null {
-    return this.f.location.value;
-  }
-
   public get storage(): DrivePayload {
     return {
       title: this.f.title.value ?? '',
       projects: this.f.projects.value,
-      dss_envelope_id: this.f.dssEnvelope.value,
+      dss_envelope_id: this.initialState?.dss_envelope_id,
       metadata: this.metadata!,
     };
   }
@@ -209,8 +192,6 @@ export class StoragePageComponent implements OnInit {
             {
               title: storage.title,
               projects: storage.projects,
-              dssEnvelope: storage.envelope_path,
-              location: storage.location,
             },
             { emitEvent: false }
           );
@@ -247,27 +228,6 @@ export class StoragePageComponent implements OnInit {
           }
 
           return of(privilegesData);
-        }),
-        switchMap(privilegesData => {
-          const storage = privilegesData.data;
-
-          return this.dssContainersService.getList().pipe(
-            untilDestroyed(this),
-            map(result => {
-              const dssContainers = result.data;
-
-              dssContainers.forEach(dssContainer => {
-                dssContainer.envelopes.forEach(envelope => {
-                  envelope.container_path = dssContainer.path;
-                  if (envelope.pk === storage.dss_envelope_id) {
-                    this.selectedDssEnvelope = { ...envelope };
-                  }
-                  this.dssEnvelopes.push(envelope);
-                });
-              });
-            }),
-            switchMap(() => of(privilegesData))
-          );
         })
       )
       .subscribe(

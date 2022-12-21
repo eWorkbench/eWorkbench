@@ -19,6 +19,7 @@
         [redirectDestination]="[showSidebar ? '.' : '' + '/notes', id]"
         [newModalComponent]="newModalComponent"
         [initialState]="initialState"
+        [duplicateElement]="false"
         [privileges]="privileges"
         *ngIf="privileges"
       ></eworkbench-details-dropdown>

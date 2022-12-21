@@ -5,11 +5,25 @@
 
 <ng-container *transloco="let t">
   <div
+    #taskboardScrollbar
+    sticky
+    class="task-board-scrollbar"
+    [stickyTop]="stickyTop"
+    (scroll)="onTaskboardScroll($event)"
+    *ngIf="headerTopOffset | async as stickyTop"
+  >
+    <div #scrollbarContent></div>
+  </div>
+  <div
+    #taskboardContainer
     *ngIf="headerTopOffset | async as stickyTop"
     cdkDropList
+    cdkDropListAutoScrollStep="30"
     [cdkDropListData]="columns"
     [cdkDropListOrientation]="$any(dropListOrientation)"
     (cdkDropListDropped)="onColumnDrop($event)"
+    (scroll)="onTaskboardContainerScroll($event)"
+    class="task-board-container"
   >
     <div cdkDropListGroup class="task-board">
       <div

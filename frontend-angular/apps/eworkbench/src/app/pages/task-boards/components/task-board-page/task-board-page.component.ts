@@ -8,9 +8,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
   EventEmitter,
-  HostListener,
   Inject,
   OnDestroy,
   OnInit,
@@ -71,15 +69,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   @ViewChild(CommentsComponent)
   public comments!: CommentsComponent;
 
-  @ViewChild('taskboardContainer')
-  public taskboardContainer?: ElementRef<HTMLElement>;
-
-  @ViewChild('taskboardScrollbar')
-  public taskboardScrollbar?: ElementRef<HTMLElement>;
-
-  @ViewChild('scrollbarContent')
-  public scrollbarContent?: ElementRef<HTMLElement>;
-
   @ViewChildren(StickyDirective) public stickyElements!: QueryList<StickyDirective>;
 
   public title = '';
@@ -114,6 +103,8 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
   public refreshLinkList = new EventEmitter<boolean>();
 
   public setFilter = new EventEmitter<TaskBoardFilter>();
+
+  public toggleSidebar = new EventEmitter<void>();
 
   public loading = true;
 
@@ -175,11 +166,6 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
     title: this.fb.control(null, Validators.required),
     projects: this.fb.control([]),
   });
-
-  @HostListener('window:resize')
-  public onResize() {
-    this.handleTaskboardScrollOnResize();
-  }
 
   public constructor(
     @Inject(HEADER_TOP_OFFSET) public readonly headerTopOffset: BehaviorSubject<number>,
@@ -770,51 +756,8 @@ export class TaskBoardPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  public initTaskboardScroll(): void {
-    setTimeout(() => {
-      if (this.taskboardContainer && this.taskboardScrollbar && this.scrollbarContent) {
-        this.taskboardScrollbar.nativeElement.style.width = `${this.taskboardContainer.nativeElement.offsetWidth}px`;
-        this.scrollbarContent.nativeElement.style.width = `${this.taskboardContainer.nativeElement.scrollWidth}px`;
-      }
-    }, 1);
-    setTimeout(() => {
-      this.taskboardScrollbar?.nativeElement.scroll({
-        left: this.taskboardScrollbar.nativeElement.scrollLeft - 1,
-        behavior: 'smooth',
-      });
-    }, 1);
-  }
-
-  public handleTaskboardScrollOnResize(): void {
-    if (this.taskboardScrollbar && this.scrollbarContent) {
-      this.taskboardScrollbar.nativeElement.style.width = '0px';
-      this.scrollbarContent.nativeElement.style.width = '0px';
-      this.stickyElements.forEach(item => {
-        if (item.classList.contains('is-sticky')) {
-          item.removeSticky();
-          setTimeout(() => {
-            item.addSticky();
-          }, 1);
-        }
-      });
-    }
-    this.initTaskboardScroll();
-  }
-
-  public onTaskboardScroll(event: any): void {
-    if (this.taskboardContainer) {
-      this.taskboardContainer.nativeElement.scrollLeft = event.target.scrollLeft;
-    }
-  }
-
-  public onTaskboardContainerScroll(event: any): void {
-    if (this.taskboardScrollbar) {
-      this.taskboardScrollbar.nativeElement.scrollLeft = event.target.scrollLeft;
-    }
-  }
-
   public onToggleFilterSidebar(): void {
-    this.handleTaskboardScrollOnResize();
+    this.toggleSidebar.emit();
   }
 
   public onBoardChange(privilegesData: PrivilegesData<TaskBoard>): void {

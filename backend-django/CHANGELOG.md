@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.17.2 - December 2022
+- [SITUMEWB-1031] Fix sticky taskboard on window resize
+
+## Version 2.17.1 - December 2022
+- [SITUMEWB-1031] Fix sticky taskboard headers on window resize
+- [SITUMEWB-1065] Changed imprint link to English version
+
+## Version 2.17 - November 2022
+- [SITUMEWB-1031] Fix taskboard drag and drop
+- [SITUMEWB-1055] dss envelope fix
+- [SITUMEWB-1053] Changed imprint link to external TUM website
+- [SITUMEWB-1041] Removed the possibility to create or duplicate notes outside of LabBooks
+- [SITUMEWB-1042] Changes to visual representation of selected storage in readonly mode
+- [SITUMEWB-1043] Changes to visual representation of DSS location
+- [SITUMEWB-974] Remove logs after 7 days for data protection
+
 ## Version 2.16.4 - October 2022
 - [SITUMEWB-1034] fix invite mails
 - [SITUMEWB-*] Sanitize HTML Message from the contact form

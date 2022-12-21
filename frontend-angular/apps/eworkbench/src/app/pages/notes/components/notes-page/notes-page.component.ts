@@ -6,20 +6,17 @@
 import { HttpParams } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ModalState } from '@app/enums/modal-state.enum';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService, NotesService, PageTitleService, ProjectsService } from '@app/services';
 import { UserService } from '@app/stores/user';
 import { TableColumn, TableColumnChangedEvent, TableSortChangedEvent, TableViewComponent } from '@eworkbench/table';
-import type { ModalCallback, Project, User } from '@eworkbench/types';
-import { DialogRef, DialogService } from '@ngneat/dialog';
+import type { Project, User } from '@eworkbench/types';
 import { FormBuilder } from '@ngneat/reactive-forms';
 import { TranslocoService } from '@ngneat/transloco';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { keyBy, merge, values } from 'lodash';
 import { of, Subject } from 'rxjs';
 import { debounceTime, skip, switchMap, take } from 'rxjs/operators';
-import { NewNoteModalComponent } from '../modals/new/new.component';
 
 @UntilDestroy()
 @Component({
@@ -51,8 +48,6 @@ export class NotesPageComponent implements OnInit {
 
   @ViewChild('actionsCellTemplate', { static: true })
   public actionsCellTemplate!: TemplateRef<any>;
-
-  public modalRef?: DialogRef;
 
   public loading = false;
 
@@ -86,8 +81,6 @@ export class NotesPageComponent implements OnInit {
 
   public constructor(
     public readonly notesService: NotesService,
-    private readonly router: Router,
-    private readonly modalService: DialogService,
     private readonly translocoService: TranslocoService,
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
@@ -601,24 +594,5 @@ export class NotesPageComponent implements OnInit {
     this.searchControl.setValue(null, { emitEvent: false });
 
     this.favoritesControl.setValue(null);
-  }
-
-  public openNewModal(): void {
-    const initialState = this.project ? { projects: [this.project] } : null;
-
-    this.modalRef = this.modalService.open(NewNoteModalComponent, {
-      closeButton: false,
-      data: { service: this.notesService, initialState: initialState },
-    });
-
-    this.modalRef.afterClosed$.pipe(untilDestroyed(this), take(1)).subscribe((callback: ModalCallback) => this.onModalClose(callback));
-  }
-
-  public onModalClose(callback?: ModalCallback): void {
-    if (callback?.navigate) {
-      void this.router.navigate(callback.navigate);
-    } else if (callback?.state === ModalState.Changed) {
-      this.tableView.loadData();
-    }
   }
 }

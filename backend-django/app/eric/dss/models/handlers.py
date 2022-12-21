@@ -580,8 +580,11 @@ def change_file_paths_on_drive_change(sender, instance, *args, **kwargs):
         pass  # Object is new.
     else:
         if obj.is_dss_drive:
-            files = File.objects.filter(directory__drive=obj)
+            # no need to proceed if the title (naming) has not changed
+            if obj.title == instance.title:
+                return
 
+            files = File.objects.filter(directory__drive=obj)
             for file in files:
                 # get the new dynamic upload path, this will be stored in the DB
                 instance_upload_path = get_upload_to_path(file, file.name)
