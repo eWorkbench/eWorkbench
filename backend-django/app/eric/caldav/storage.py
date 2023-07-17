@@ -72,14 +72,23 @@ class Collection(ical.Collection):
           Append items from ``text`` to collection.
           If ``name`` is given, give this name to new items in ``text``.
         """
-        self._append_or_replace(name, text)
+        try:
+            self._append_or_replace(name, text)
+        except Exception as error:
+            logger.error(f"Error in append in the storage: {error}")
 
     def replace(self, name, text):
-        self._append_or_replace(name, text)
+        try:
+            self._append_or_replace(name, text)
+        except Exception as error:
+            logger.error(f"Error in replace in the storage: {error}")
 
     def _append_or_replace(self, name, text):
-        items = self._parse(text, settings.DJRADICALE_ICAL_TYPES, name).values()
-        MeetingSynchronizer().create_or_update(name, items)
+        try:
+            items = self._parse(text, settings.DJRADICALE_ICAL_TYPES, name).values()
+            MeetingSynchronizer().create_or_update(name, items)
+        except Exception as error:
+            logger.error(f"Error in _append_or_replace in the storage: {error}")
 
     def remove(self, name):
         """

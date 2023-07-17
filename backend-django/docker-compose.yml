@@ -13,8 +13,8 @@ services:
       - ./:/app
       - app_data:/var/lib/app
       - ./dss:/dss
-    # command: python -Wd manage.py runserver 0.0.0.0:8000
-    command: gunicorn --workers 4 --bind 0.0.0.0:8000 eric.asgi:application -k uvicorn.workers.UvicornWorker
+    command: python -Wd manage.py runserver 0.0.0.0:8000
+#    command: gunicorn --workers 4 --bind 0.0.0.0:8000 eric.asgi:application -k uvicorn.workers.UvicornWorker
     environment:
       - DJANGO_SETTINGS_MODULE=eric.settings.docker
       - PYTHONUNBUFFERED=1
@@ -111,7 +111,6 @@ services:
       - 6379:6379
   # ldap server
   ldap-service:
-    command: "--loglevel trace"
     image: osixia/openldap:1.5.0
     ports:
      - 389:389
@@ -119,7 +118,7 @@ services:
     environment:
      - LDAP_ORGANISATION=Workbench Local Dev
      - LDAP_DOMAIN=0.0.0.0
-    command: "--copy-service"
+    command: "--copy-service --loglevel trace"
     volumes:
      - ./ldap/:/ldap
      - ./data/docker_ldap_data:/var/lib/ldap

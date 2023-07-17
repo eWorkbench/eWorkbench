@@ -79,6 +79,6 @@ if [ $# -eq 0 ]; then
 # Else start the supplied commands with the configured user
 else
     echo "Executing cmd '$*'"
-    exec su -p - ${PYTHON_RUN_USER} -s /bin/bash -c "source /var/lib/app/venv/bin/activate; $*"
-    # exec sudo -u $PYTHON_RUN_USER bash -c "source /var/lib/app/venv/bin/activate; $*"
+#    exec su -p - ${PYTHON_RUN_USER} -s /bin/bash -c "source /var/lib/app/venv/bin/activate; $*"
+     exec sudo -u $PYTHON_RUN_USER bash -c "source /var/lib/app/venv/bin/activate; $*"
 fi

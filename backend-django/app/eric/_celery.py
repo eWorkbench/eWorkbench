@@ -51,8 +51,8 @@ app.conf.beat_schedule = {
         "task": "eric.dss.tasks.process_dir_metadata_etags",
         "schedule": 60 * 60 * 24,  # 24 hours
     },
-    "inactivate_user": {
-        "task": "eric.userprofile.tasks.inactivate_user",
-        "schedule": 60 * 60 * 24,  # 24 hours
-    },
+    # "inactivate_user": {
+    #     "task": "eric.userprofile.tasks.inactivate_user",
+    #     "schedule": 60 * 60 * 24,  # 24 hours
+    # },
 }

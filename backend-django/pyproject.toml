@@ -11,7 +11,7 @@ skip_gitignore = true
 
 [tool.black]
 line_length = 120
-target-version = ['py37']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(

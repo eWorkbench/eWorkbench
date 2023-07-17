@@ -1,4 +1,4 @@
-FROM python:3.7-stretch
+FROM anx-cr.io/hub.docker.com/library/python:3.9-bullseye
 
 # Install runtime dependencies
 RUN apt-get update && \
@@ -18,7 +18,7 @@ RUN apt-get update && \
         libxslt1-dev \
         libxml2-dev \
         libfreetype6 \
-        python-lxml \
+        python3-lxml \
         libcairo2 \
         libpango1.0-0 \
         libgdk-pixbuf2.0-0 \

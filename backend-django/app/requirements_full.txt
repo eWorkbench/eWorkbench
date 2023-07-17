@@ -32,7 +32,7 @@ django-mptt>=0.13.4,<0.14
 djangorestframework-xml>=2.0.0,<2.1
 djangorestframework>=3.12.4,<3.13
 drf-nested-routers>=0.93.4,<0.94
-git+https://github.com/anx-bhagmann/djradicale
+git+https://github.com/anx-mfischer/djradicale
 django-changeset>=1.1.0,<1.2
 django-dbsettings>=1.1.0,<1.2
 gitdb>=4.0.9,<4.1

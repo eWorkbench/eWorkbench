@@ -1,5 +1,13 @@
 # Changelog
 
+
+## Version 2.17.4 - July 2023
+- [SITUMEWB-1080] disable inactivate task
+- [SITUMEWB-1081] add some caldav exception handling
+
+## Version 2.17.3 - June 2023
+- [SITUMEWB-1072] Prepare upgrade to Python 3.9
+
 ## Version 2.17.2 - December 2022
 - [SITUMEWB-1031] Fix sticky taskboard on window resize
 

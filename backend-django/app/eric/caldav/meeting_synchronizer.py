@@ -34,24 +34,30 @@ class MeetingSynchronizer:
         """
         Entry point: Called from storage.Collection.append() and .replace()
         """
-        self.current_timezone = self.get_timezone(new_items)
-        for new_item in new_items:
-            if new_item.tag != ical.Timezone.tag:
-                self.create_or_update_item(name, new_item)
+        try:
+            self.current_timezone = self.get_timezone(new_items)
+            for new_item in new_items:
+                if new_item.tag != ical.Timezone.tag:
+                    self.create_or_update_item(name, new_item)
+        except Exception as error:
+            LOGGER.error(f"Error in create_or_update in the meeting_synchronizer: {error}")
 
     def create_or_update_item(self, name, new_item):
-        # parse the ical text using vobject
-        input_event = VEventWrapper(vobject.readOne(new_item.text))
+        try:
+            # parse the ical text using vobject
+            input_event = VEventWrapper(vobject.readOne(new_item.text))
 
-        caldav_item = CaldavItem.objects.filter(id=input_event.read("uid"), name=name).first()
+            caldav_item = CaldavItem.objects.filter(id=input_event.read("uid"), name=name).first()
 
-        # we can't represent recurring events in the workbench yet
-        # therefore we ignore them in the CalDav sync for now
-        # ---
-        # but we can't completely ignore them, because the plugin will report an error, if the server
-        # does not acknowledge the event
-        # therefore we store the CalDav item, but we do not create a meeting for it
-        is_recurring_event = input_event.contains("rrule") or input_event.contains("recurrence-id")
+            # we can't represent recurring events in the workbench yet
+            # therefore we ignore them in the CalDav sync for now
+            # ---
+            # but we can't completely ignore them, because the plugin will report an error, if the server
+            # does not acknowledge the event
+            # therefore we store the CalDav item, but we do not create a meeting for it
+            is_recurring_event = input_event.contains("rrule") or input_event.contains("recurrence-id")
+        except Exception as error:
+            LOGGER.error(f"Error in create_or_update_item in the meeting_synchronizer: {error}")
 
         try:
             if is_recurring_event:

@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.17.3 - June 2023
+- [SITUMEWB-1072] Prepare upgrade to Python 3.9
+
 ## Version 2.17.2 - December 2022
 - [SITUMEWB-1031] Fix sticky taskboard on window resize
 
